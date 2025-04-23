@@ -88,7 +88,25 @@ Used for various chart types created with Kibana Lens.
 - panel:
     title: string         # Title for the Lens panel.
     type: lens
-    visualization: string # (Required) The type of Lens visualization (e.g., line, table, pie, bar_stacked, metric). Maps to Kibana's lnsXY, lnsDatatable, lnsPie, lnsMetric, etc.
+    chart:
+      type: string      # (Required) Visualization type. Valid values: line, bar_stacked, area, table, pie, metric.
+      dimensions: list # (Required) Defines the dimensions (e.g., X-axis, Break down by).
+        - field: string     # (Required) Field name.
+          type: string      # (Required) Aggregation type (e.g., date_histogram, terms).
+          label: string     # (Optional) Display label for the dimension. Defaults to field name.
+          interval: string  # (Optional, for date_histogram) Time interval (e.g., auto, 1h, 1d). Defaults to 'auto'.
+          size: integer     # (Optional, for terms) Number of terms to show.
+          order_by_metric: string # (Optional, for terms) Label of the metric to sort the terms by.
+          order_direction: string # (Optional, for terms) Sort direction: 'asc' or 'desc'. Defaults to 'desc'.
+      metrics: list         # (Required) Defines the values (e.g., Y-axis).
+        - type: string      # (Required) Aggregation type (e.g., count, max, average, unique_count, formula, last_value).
+          label: string     # (Optional) Display label for the metric. Defaults to standard label (e.g., "Count").
+          field: string     # (Optional, required for most types except count) Field name. Use '___records___' for count.
+          # --- Formula specific ---
+          formula: string   # (Optional, for type: formula) The formula string (e.g., "counter_rate(max(field.name))").
+          # --- Last Value specific ---
+          sort_field: string # (Optional, for last_value) Field to determine the "last" value (e.g., @timestamp).
+          filter: string    # (Optional, for last_value) KQL filter applied before taking the last value.
     grid: { x: 0, y: 0, w: 24, h: 15 }
     index_pattern: string # (Required) Index pattern used by the Lens visualization.
     query: string         # (Optional) KQL query specific to this panel. Defaults to "".

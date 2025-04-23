@@ -1,6 +1,4 @@
-import pytest
-import json
-from dashboard_compiler.models.lens import (
+from dashboard_compiler.models.panels.lens.base import (
     Filter,
     Dimension,
     Metric,
@@ -10,7 +8,7 @@ from dashboard_compiler.models.lens import (
     LensState,
     XYVisualizationState,
     PieVisualizationState,
-    Column # Import Column for LayerDataSourceState test
+    Column,  # Import Column for LayerDataSourceState test
 )
 
 # --- Sample Data ---
@@ -35,7 +33,7 @@ DIMENSION_TERMS_DATA = {
     "type": "terms",
     "label": "Top 5 values of aerospike.namespace",
     "size": 5,
-    "order_by_metric": "count_metric_id", # Placeholder ID
+    "order_by_metric": "count_metric_id",  # Placeholder ID
     "order_direction": "desc",
 }
 DIMENSION_DATE_HIST_DATA = {
@@ -80,22 +78,22 @@ LAYER_DS_STATE_DATA = {
 }
 
 # DataSourceState Data
-DS_STATE_DATA = {
-    "formBased": {
-        "layers": {
-            "layer_id_1": LayerDataSourceState(**LAYER_DS_STATE_DATA)
-        }
-    }
-}
+DS_STATE_DATA = {"formBased": {"layers": {"layer_id_1": LayerDataSourceState(**LAYER_DS_STATE_DATA)}}}
 
 # Visualization State Data
 PIE_VIS_STATE_DATA = {
     "shape": "pie",
-    "layers": [{"layerId": "layer_id_1", "primaryGroups": ["dim_id_1"], "metrics": ["metric_id_1"]}], # Simplified layer structure
+    "layers": [
+        {
+            "layerId": "layer_id_1",
+            "primaryGroups": ["dim_id_1"],
+            "metrics": ["metric_id_1"],
+        }
+    ],  # Simplified layer structure
 }
 XY_VIS_STATE_DATA = {
     "preferredSeriesType": "bar_stacked",
-    "layers": [{"layerId": "layer_id_1", "accessors": ["metric_id_1"], "xAccessor": "dim_id_1"}], # Simplified layer structure
+    "layers": [{"layerId": "layer_id_1", "accessors": ["metric_id_1"], "xAccessor": "dim_id_1"}],  # Simplified layer structure
 }
 
 # LensState Data
@@ -107,6 +105,7 @@ LENS_STATE_DATA = {
 
 
 # --- Unit Tests ---
+
 
 def test_filter_instantiation():
     """Tests successful instantiation of the Filter model."""
@@ -122,6 +121,7 @@ def test_filter_instantiation():
     assert f_phrases.value == ["success", "firewall_reported_success"]
     assert f_phrases.negate
 
+
 def test_filter_to_dict():
     """Tests the Filter.to_dict() method."""
     f_phrase = Filter(**FILTER_PHRASE_DATA)
@@ -130,19 +130,26 @@ def test_filter_to_dict():
     assert json_output_phrase["meta"]["type"] == "phrase"
     assert json_output_phrase["meta"]["negate"] is False
     assert json_output_phrase["meta"]["params"]["query"] == "1password.signin_attempts"
-    assert json_output_phrase["meta"]["value"] == "1password.signin_attempts" # Check redundant value
+    assert json_output_phrase["meta"]["value"] == "1password.signin_attempts"  # Check redundant value
     assert json_output_phrase["meta"]["index"] == "placeholder"
-    
+
     # Currently filtered out by the none filter, not sure if this is right
-    #assert json_output_phrase["query"] == {} # Check placeholder query
+    # assert json_output_phrase["query"] == {} # Check placeholder query
 
     f_phrases = Filter(**FILTER_PHRASES_DATA)
     json_output_phrases = f_phrases.to_dict()
     assert json_output_phrases["meta"]["field"] == "event.action"
     assert json_output_phrases["meta"]["type"] == "phrases"
     assert json_output_phrases["meta"]["negate"] is True
-    assert json_output_phrases["meta"]["params"] == ["success", "firewall_reported_success"]
-    assert json_output_phrases["meta"]["value"] == ["success", "firewall_reported_success"] # Check redundant value
+    assert json_output_phrases["meta"]["params"] == [
+        "success",
+        "firewall_reported_success",
+    ]
+    assert json_output_phrases["meta"]["value"] == [
+        "success",
+        "firewall_reported_success",
+    ]  # Check redundant value
+
 
 def test_dimension_instantiation():
     """Tests successful instantiation of the Dimension model."""
@@ -156,6 +163,7 @@ def test_dimension_instantiation():
     assert dim_date.type == "date_histogram"
     assert dim_date.interval == "auto"
 
+
 def test_dimension_to_dict():
     """Tests the Dimension.to_dict() method."""
     dim_terms = Dimension(**DIMENSION_TERMS_DATA)
@@ -164,7 +172,7 @@ def test_dimension_to_dict():
     assert json_output_terms["operationType"] == "terms"
     assert json_output_terms["sourceField"] == "aerospike.namespace"
     assert json_output_terms["params"]["size"] == 5
-    assert json_output_terms["params"]["orderBy"]["columnId"] == "placeholder" # Check placeholder
+    assert json_output_terms["params"]["orderBy"]["columnId"] == "placeholder"  # Check placeholder
     assert json_output_terms["params"]["orderDirection"] == "desc"
 
     dim_date = Dimension(**DIMENSION_DATE_HIST_DATA)
@@ -174,12 +182,14 @@ def test_dimension_to_dict():
     assert json_output_date["sourceField"] == "@timestamp"
     assert json_output_date["params"]["interval"] == "auto"
 
+
 def test_metric_instantiation():
     """Tests successful instantiation of the Metric model."""
     metric = Metric(**METRIC_COUNT_DATA)
     assert metric.type == "count"
     assert metric.label == "Count of records"
-    assert metric.field is None # Field is None for count
+    assert metric.field is None  # Field is None for count
+
 
 def test_metric_to_dict():
     """Tests the Metric.to_dict() method."""
@@ -187,8 +197,9 @@ def test_metric_to_dict():
     json_output = metric.to_dict()
     assert json_output["label"] == "Count of records"
     assert json_output["operationType"] == "count"
-    assert json_output["sourceField"] == "___records___" # Check default source field for count
-    assert "params" not in json_output # No params for simple count
+    assert json_output["sourceField"] == "___records___"  # Check default source field for count
+    assert "params" not in json_output  # No params for simple count
+
 
 def test_reference_instantiation():
     """Tests successful instantiation of the Reference model."""
@@ -197,10 +208,12 @@ def test_reference_instantiation():
     assert ref.id == "metrics-*"
     assert ref.name == "c7a35c4f-e82d-4f16-b1a6-12229363244e:indexpattern-datasource-layer-21cb2847-7b10-404e-9672-4ee2f2beca6e"
 
+
 def test_reference_to_dict():
     """Tests the Reference.to_dict() method."""
     ref = Reference(**REFERENCE_DATA)
-    assert ref.to_dict() == REFERENCE_DATA # Should be a simple dump
+    assert ref.to_dict() == REFERENCE_DATA  # Should be a simple dump
+
 
 def test_layer_data_source_state_instantiation():
     """Tests successful instantiation of LayerDataSourceState."""
@@ -209,6 +222,7 @@ def test_layer_data_source_state_instantiation():
     assert "metric_id_1" in lds_state.columns
     assert isinstance(lds_state.columns["dim_id_1"], Column)
     assert lds_state.columnOrder == ["dim_id_1", "metric_id_1"]
+
 
 def test_layer_data_source_state_to_dict():
     """Tests the LayerDataSourceState.to_dict() method."""
@@ -221,12 +235,14 @@ def test_layer_data_source_state_to_dict():
     assert json_output["columns"]["metric_id_1"]["operationType"] == "count"
     assert json_output["columnOrder"] == ["dim_id_1", "metric_id_1"]
 
+
 def test_data_source_state_instantiation():
     """Tests successful instantiation of DataSourceState."""
     ds_state = DataSourceState(**DS_STATE_DATA)
     assert "layers" in ds_state.formBased
     assert "layer_id_1" in ds_state.formBased["layers"]
     assert isinstance(ds_state.formBased["layers"]["layer_id_1"], LayerDataSourceState)
+
 
 def test_data_source_state_to_dict():
     """Tests the DataSourceState.to_dict() method."""
@@ -238,12 +254,14 @@ def test_data_source_state_to_dict():
     assert "columns" in json_output["formBased"]["layers"]["layer_id_1"]
     assert "dim_id_1" in json_output["formBased"]["layers"]["layer_id_1"]["columns"]
 
+
 def test_pie_visualization_state_instantiation():
     """Tests successful instantiation of PieVisualizationState."""
     vis_state = PieVisualizationState(**PIE_VIS_STATE_DATA)
     assert vis_state.shape == "pie"
     assert len(vis_state.layers) == 1
     assert vis_state.layers[0]["layerId"] == "layer_id_1"
+
 
 def test_pie_visualization_state_to_dict():
     """Tests the PieVisualizationState.to_dict() method."""
@@ -252,7 +270,8 @@ def test_pie_visualization_state_to_dict():
     assert json_output["shape"] == "pie"
     assert len(json_output["layers"]) == 1
     assert json_output["layers"][0]["metrics"] == ["metric_id_1"]
-    assert json_output["legendPosition"] == "right" # Check default
+    assert json_output["legendPosition"] == "right"  # Check default
+
 
 def test_xy_visualization_state_instantiation():
     """Tests successful instantiation of XYVisualizationState."""
@@ -261,6 +280,7 @@ def test_xy_visualization_state_instantiation():
     assert len(vis_state.layers) == 1
     assert vis_state.layers[0]["xAccessor"] == "dim_id_1"
 
+
 def test_xy_visualization_state_to_dict():
     """Tests the XYVisualizationState.to_dict() method."""
     vis_state = XYVisualizationState(**XY_VIS_STATE_DATA)
@@ -268,7 +288,8 @@ def test_xy_visualization_state_to_dict():
     assert json_output["preferredSeriesType"] == "bar_stacked"
     assert len(json_output["layers"]) == 1
     assert json_output["layers"][0]["accessors"] == ["metric_id_1"]
-    assert json_output["legend"]["position"] == "right" # Check default
+    assert json_output["legend"]["position"] == "right"  # Check default
+
 
 def test_lens_state_instantiation():
     """Tests successful instantiation of LensState."""
@@ -278,15 +299,16 @@ def test_lens_state_instantiation():
     assert isinstance(lens_state.datasourceStates, DataSourceState)
     # assert isinstance(lens_state.visualization, PieVisualizationState) # Test when validator is added
 
+
 def test_lens_state_to_dict():
     """Tests the LensState.to_dict() method placeholder."""
     lens_state = LensState(**LENS_STATE_DATA)
     json_output = lens_state.to_dict()
     assert len(json_output["filters"]) == 1
-    assert json_output["filters"][0]["meta"]["type"] == "phrase" # Check nested Filter.to_dict
+    assert json_output["filters"][0]["meta"]["type"] == "phrase"  # Check nested Filter.to_dict
     assert "datasourceStates" in json_output
-    assert "formBased" in json_output["datasourceStates"] # Check nested DataSourceState.to_dict
+    assert "formBased" in json_output["datasourceStates"]  # Check nested DataSourceState.to_dict
     # assert "visualization" in json_output # Test when validator is added
     # assert json_output["visualization"]["shape"] == "pie" # Test when validator is added
-    assert "internalReferences" not in json_output # Check removal of empty list
-    assert "adHocDataViews" not in json_output # Check removal of empty dict
+    assert "internalReferences" not in json_output  # Check removal of empty list
+    assert "adHocDataViews" not in json_output  # Check removal of empty dict

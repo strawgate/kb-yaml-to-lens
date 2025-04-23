@@ -1,16 +1,16 @@
-
 import pytest
 from syrupy.filters import props
 from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.json import JSONSnapshotExtension
-from syrupy.matchers import path_type # Import matcher utility
+import yaml
+
 
 @pytest.fixture
 def snapshot_json(snapshot: SnapshotAssertion):
     """Fixture to use the JSONSnapshotExtension with default matchers."""
     # Apply matchers globally for this fixture using with_defaults
-    return snapshot.use_extension(JSONSnapshotExtension).with_defaults(
-        exclude=props("id", "i", "panelIndex"))
+    return snapshot.use_extension(JSONSnapshotExtension).with_defaults(exclude=props("id", "i", "panelIndex", "gridData.i"))
+
 
 @pytest.fixture(autouse=True)
 def freezer(freezer):
@@ -18,3 +18,7 @@ def freezer(freezer):
     # Freeze time to a fixed point for consistency in tests
     freezer.move_to("2023-10-01T12:00:00Z")
     return freezer
+
+
+def parse_yaml_string(yaml_string):
+    return yaml.safe_load(yaml_string)

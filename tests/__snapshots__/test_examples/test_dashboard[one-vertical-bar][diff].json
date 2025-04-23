@@ -1,0 +1,167 @@
+{
+  "dictionary_item_removed": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']": {
+      "references": [
+        {
+          "name": "indexpattern-datasource-layer-71aeebca-d642-4121-9ef2-83cbbd6c9ff4",
+          "type": "index-pattern"
+        }
+      ],
+      "state": {
+        "adHocDataViews": {},
+        "datasourceStates": {
+          "formBased": {
+            "layers": {
+              "71aeebca-d642-4121-9ef2-83cbbd6c9ff4": {
+                "columnOrder": [
+                  "c3c8b7c8-d5bb-4178-bafd-d10cc0237776",
+                  "bea997a0-6992-484f-a0b0-7206cb09917b"
+                ],
+                "columns": {
+                  "bea997a0-6992-484f-a0b0-7206cb09917b": {
+                    "dataType": "number",
+                    "isBucketed": false,
+                    "label": "Count of records",
+                    "operationType": "count",
+                    "params": {
+                      "emptyAsNull": true
+                    },
+                    "scale": "ratio",
+                    "sourceField": "___records___"
+                  },
+                  "c3c8b7c8-d5bb-4178-bafd-d10cc0237776": {
+                    "dataType": "date",
+                    "isBucketed": true,
+                    "label": "@timestamp",
+                    "operationType": "date_histogram",
+                    "params": {
+                      "dropPartials": false,
+                      "includeEmptyRows": true,
+                      "interval": "auto"
+                    },
+                    "scale": "interval",
+                    "sourceField": "@timestamp"
+                  }
+                },
+                "incompleteColumns": {},
+                "sampling": 1
+              }
+            }
+          },
+          "indexpattern": {
+            "layers": {}
+          },
+          "textBased": {
+            "layers": {}
+          }
+        },
+        "filters": [],
+        "internalReferences": [],
+        "query": {
+          "language": "kuery",
+          "query": ""
+        },
+        "visualization": {
+          "axisTitlesVisibilitySettings": {
+            "x": true,
+            "yLeft": true,
+            "yRight": true
+          },
+          "fittingFunction": "Linear",
+          "gridlinesVisibilitySettings": {
+            "x": true,
+            "yLeft": true,
+            "yRight": true
+          },
+          "labelsOrientation": {
+            "x": 0,
+            "yLeft": 0,
+            "yRight": 0
+          },
+          "layers": [
+            {
+              "accessors": [
+                "bea997a0-6992-484f-a0b0-7206cb09917b"
+              ],
+              "colorMapping": {
+                "assignments": [],
+                "colorMode": {
+                  "type": "categorical"
+                },
+                "paletteId": "default",
+                "specialAssignments": [
+                  {
+                    "color": {
+                      "type": "loop"
+                    },
+                    "rule": {
+                      "type": "other"
+                    },
+                    "touched": false
+                  }
+                ]
+              },
+              "layerId": "71aeebca-d642-4121-9ef2-83cbbd6c9ff4",
+              "layerType": "data",
+              "position": "top",
+              "seriesType": "bar_stacked",
+              "showGridlines": false,
+              "xAccessor": "c3c8b7c8-d5bb-4178-bafd-d10cc0237776"
+            }
+          ],
+          "legend": {
+            "isVisible": true,
+            "position": "right"
+          },
+          "preferredSeriesType": "bar_stacked",
+          "tickLabelsVisibilitySettings": {
+            "x": true,
+            "yLeft": true,
+            "yRight": true
+          },
+          "valueLabels": "hide"
+        }
+      },
+      "title": "",
+      "type": "lens",
+      "visualizationType": "lnsXY"
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['enhancements']": {
+      "dynamicActions": {
+        "events": []
+      }
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['filters']": [],
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['query']": {
+      "language": "kuery",
+      "query": ""
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['syncColors']": false,
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['syncCursor']": true,
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['syncTooltips']": false
+  },
+  "iterable_item_removed": {
+    "root['references'][0]": {
+      "name": "55bcbfad-189e-4864-9a93-5f72d4cbd6c0:indexpattern-datasource-layer-71aeebca-d642-4121-9ef2-83cbbd6c9ff4",
+      "type": "index-pattern"
+    }
+  },
+  "values_changed": {
+    "root['attributes']['controlGroupInput']['ignoreParentSettingsJSON']": {
+      "new_value": "{\"ignoreFilters\": false, \"ignoreQuery\": false, \"ignoreTimerange\": false, \"ignoreValidations\": false}",
+      "old_value": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}"
+    },
+    "root['attributes']['kibanaSavedObjectMeta']['searchSourceJSON']": {
+      "new_value": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}}",
+      "old_value": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
+    },
+    "root['attributes']['optionsJSON']": {
+      "new_value": "{\"useMargins\": true, \"syncColors\": false, \"syncCursor\": true, \"syncTooltips\": false, \"hidePanelTitles\": false}",
+      "old_value": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}"
+    },
+    "root['attributes']['panelsJSON'][0]['type']": {
+      "new_value": "visualization",
+      "old_value": "lens"
+    }
+  }
+}

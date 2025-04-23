@@ -1,0 +1,16 @@
+{
+  "values_changed": {
+    "root['attributes']['controlGroupInput']['ignoreParentSettingsJSON']": {
+      "new_value": "{\"ignoreFilters\": false, \"ignoreQuery\": false, \"ignoreTimerange\": false, \"ignoreValidations\": false}",
+      "old_value": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}"
+    },
+    "root['attributes']['kibanaSavedObjectMeta']['searchSourceJSON']": {
+      "new_value": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}}",
+      "old_value": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
+    },
+    "root['attributes']['optionsJSON']": {
+      "new_value": "{\"useMargins\": true, \"syncColors\": false, \"syncCursor\": true, \"syncTooltips\": false, \"hidePanelTitles\": false}",
+      "old_value": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}"
+    }
+  }
+}

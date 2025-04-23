@@ -1,4 +1,0 @@
-dashboard:
-  title: Empty Dashboard
-  description: ""
-  panels: [] # No panels in an empty dashboard

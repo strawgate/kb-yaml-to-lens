@@ -4,3 +4,5 @@ references
 **/.venv
 **/__pycache__
 plans
+*.log
+*.ndjson
