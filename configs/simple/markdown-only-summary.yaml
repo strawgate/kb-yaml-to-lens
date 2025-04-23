@@ -1,0 +1,10 @@
+dashboard:
+  title: Markdown Only
+  description: ""
+  panels:
+  - title: "Markdown Panel" 
+    type: markdown
+    description: "Cool description"
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    content: |
+      # This is a basic markdown test

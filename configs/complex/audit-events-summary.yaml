@@ -1,0 +1,83 @@
+dashboard:
+  title: Audit Events [1Password]
+  description: ""
+  panels:
+  - title: "1Password Audit Events Search" 
+    type: search
+    grid: { x: 0, y: 0, w: 31, h: 15 }
+    saved_search_id: 1password-audit-events
+  - title: Audit events Source Locations [1Password]
+    type: map
+    grid: { x: 31, y: 0, w: 17, h: 15 }
+    layers:
+      - type: vector_tile # Base map layer (details omitted for summary)
+        label: "Default Base Map"
+      - type: geojson_vector
+        label: "Source Locations"
+        index_pattern: logs-*
+        query: "data_stream.dataset:1password.audit_events"
+        geo_field: source.geo.location
+        style:
+          type: circle
+          size: 6
+          color: "#54B399"
+        tooltip_fields: [] # From tooltipProperties
+  - title: Audit Events over time [1Password]
+    type: lens
+    visualization: line
+    grid: { x: 0, y: 15, w: 24, h: 11 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.audit_events"
+    dimensions:
+      - field: "@timestamp"
+        type: date_histogram
+        label: "@timestamp"
+        interval: auto
+    metrics:
+      - type: count
+        label: Count
+  - title: Audit Events hot users [1Password]
+    type: lens
+    visualization: table
+    grid: { x: 24, y: 15, w: 24, h: 11 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.audit_events"
+    columns:
+      - field: user.id
+        type: terms
+        label: User UUID
+        size: 5
+        order_by_metric: Count # Implicit from orderBy config
+        order_direction: desc
+      - type: count
+        label: Count
+  - title: Audit Events hot actions [1Password]
+    type: lens
+    visualization: table
+    grid: { x: 0, y: 26, w: 24, h: 12 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.audit_events"
+    columns:
+      - field: event.action
+        type: terms
+        label: Action
+        size: 5
+        order_by_metric: "Count of records" # Implicit from orderBy config
+        order_direction: desc
+      - type: count
+        label: "Count of records"
+  - title: Audit Events hot object types [1Password]
+    type: lens
+    visualization: table
+    grid: { x: 24, y: 26, w: 24, h: 12 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.audit_events"
+    columns:
+      - field: onepassword.object_type
+        type: terms
+        label: "Object Type"
+        size: 5
+        order_by_metric: "Count of records" # Implicit from orderBy config
+        order_direction: desc
+      - type: count
+        label: "Count of records"

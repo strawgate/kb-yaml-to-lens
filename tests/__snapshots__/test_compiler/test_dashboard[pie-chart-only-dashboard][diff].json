@@ -1,0 +1,23 @@
+{
+  "dictionary_item_removed": "[\"root['attributes']['panelsJSON'][0]['embeddableConfig']['enhancements']\", \"root['attributes']['panelsJSON'][0]['embeddableConfig']['syncColors']\", \"root['attributes']['panelsJSON'][0]['embeddableConfig']['syncCursor']\", \"root['attributes']['panelsJSON'][0]['embeddableConfig']['syncTooltips']\", \"root['attributes']['panelsJSON'][0]['embeddableConfig']['filters']\", \"root['attributes']['panelsJSON'][0]['embeddableConfig']['query']\", \"root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']\"]",
+  "iterable_item_removed": {
+    "root['references'][0]": {
+      "name": "c7a35c4f-e82d-4f16-b1a6-12229363244e:indexpattern-datasource-layer-21cb2847-7b10-404e-9672-4ee2f2beca6e",
+      "type": "index-pattern"
+    }
+  },
+  "values_changed": {
+    "root['attributes']['controlGroupInput']['ignoreParentSettingsJSON']": {
+      "new_value": "{\"ignoreFilters\": false, \"ignoreQuery\": false, \"ignoreTimerange\": false, \"ignoreValidations\": false}",
+      "old_value": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}"
+    },
+    "root['attributes']['kibanaSavedObjectMeta']['searchSourceJSON']": {
+      "new_value": "{\"filter\": [], \"query\": {\"query\": \"\", \"language\": \"kuery\"}}",
+      "old_value": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
+    },
+    "root['attributes']['optionsJSON']": {
+      "new_value": "{\"useMargins\": true, \"syncColors\": false, \"syncCursor\": true, \"syncTooltips\": false, \"hidePanelTitles\": false}",
+      "old_value": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}"
+    }
+  }
+}

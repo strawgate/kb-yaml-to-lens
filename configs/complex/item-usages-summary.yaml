@@ -1,0 +1,106 @@
+dashboard:
+  title: Item Usages [1Password]
+  description: ""
+  panels:
+  - # Title likely derived from the saved search
+    title: "1Password Item Usages Search" 
+    type: search
+    grid: { x: 0, y: 0, w: 31, h: 15 }
+    saved_search_id: 1password-item-usages
+  - title: Audit item usages Source Locations [1Password]
+    type: map
+    grid: { x: 31, y: 0, w: 17, h: 15 }
+    layers:
+      - type: vector_tile # Base map layer (details omitted for summary)
+        label: "Default Base Map"
+      - type: geojson_vector
+        label: "Source Locations"
+        index_pattern: logs-*
+        query: "data_stream.dataset:1password.item_usages"
+        geo_field: source.geo.location
+        style:
+          type: circle
+          size: 6
+          color: "#54B399"
+        tooltip_fields: [] # From tooltipProperties
+  - title: Item Usages over time [1Password]
+    type: lens
+    visualization: line
+    grid: { x: 0, y: 15, w: 24, h: 11 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.item_usages"
+    dimensions:
+      - field: "@timestamp"
+        type: date_histogram
+        label: "@timestamp"
+        interval: auto
+    metrics:
+      - type: count
+        label: Count
+  - # Note: Title in JSON is "Item Usages hot vaults", but columns suggest users
+    title: Item Usages hot users [1Password] 
+    type: lens
+    visualization: table
+    grid: { x: 24, y: 15, w: 24, h: 11 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.item_usages"
+    columns:
+      - field: user.id
+        type: terms
+        label: User UUID
+        size: 10
+        order_by_metric: Count
+        order_direction: desc
+      - field: user.full_name
+        type: terms
+        label: Name
+        size: 10
+        order_by_metric: Count
+        order_direction: desc
+      - field: user.email
+        type: terms
+        label: Email
+        size: 10
+        order_by_metric: Count
+        order_direction: desc
+      - type: count
+        label: Count
+  - title: Item Usages hot vaults [1Password]
+    type: lens
+    visualization: table
+    grid: { x: 0, y: 26, w: 24, h: 12 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.item_usages"
+    columns:
+      - field: onepassword.vault_uuid
+        type: terms
+        label: Vault UUID
+        size: 5
+        order_by_metric: Count
+        order_direction: desc
+      - type: count
+        label: Count
+      # This metric seems specific to this table, showing the top item UUID within the vault group
+      - field: onepassword.item_uuid 
+        type: last_value
+        label: "Top Item UUID"
+        sort_field: "@timestamp" # From params.sortField
+        filter: "onepassword.item_uuid: *" # From column filter
+  - title: Item Usages hot items [1Password]
+    type: lens
+    visualization: table
+    grid: { x: 24, y: 26, w: 24, h: 12 }
+    index_pattern: logs-*
+    query: "data_stream.dataset:1password.item_usages"
+    columns:
+      - field: onepassword.item_uuid
+        type: terms
+        label: Item UUID
+        size: 10
+        order_by_metric: "Last Usage" # Order by max @timestamp
+        order_direction: desc
+      - type: count
+        label: Count
+      - field: "@timestamp"
+        type: max
+        label: "Last Usage"
