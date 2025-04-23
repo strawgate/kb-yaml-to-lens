@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "dashboard-compiler"
+version = "0.1.0"
+description = "Compiles dashboard definitions from YAML to Kibana format"
+authors = ["Your Name <you@example.com>"] # Please update this with your details
+readme = "README.md" # Optional: Add a README later if you wish
+license = "MIT" # Using MIT as a common default, change if needed
+packages = [{include = "dashboard_compiler"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyyaml = "^6.0" # Added manually
+pydantic = "^2.11.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0" # Added manually
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
