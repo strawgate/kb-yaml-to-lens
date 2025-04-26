@@ -1,0 +1,17 @@
+dashboard:
+  title: Controls Dashboard
+  description: "A dashboard with various control elements"
+  controls:
+    - type: optionsList
+      label: An options List
+      data_view: "metrics-*"
+      search_technique: prefix
+      field: host.architecture
+      sort:
+        by: _count
+        direction: desc
+    - type: rangeSlider
+      label: A Range Slider
+      data_view: "metrics-*"
+      field: severity_number
+      step: 1

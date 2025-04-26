@@ -12,7 +12,48 @@
       "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
     },
     "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
-    "panelsJSON": "[{\"type\":\"visualization\",\"embeddableConfig\":{\"enhancements\":{\"dynamicActions\":{\"events\":[]}},\"savedVis\":{\"id\":\"\",\"title\":\"Markdown Panel\",\"description\":\"Cool description\",\"type\":\"markdown\",\"params\":{\"fontSize\":12,\"openLinksInNewTab\":false,\"markdown\":\"# This is a basic markdown test\"},\"uiState\":{},\"data\":{\"aggs\":[],\"searchSource\":{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}}}},\"panelIndex\":\"780e08fc-1a39-401b-849f-703b951bc243\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"780e08fc-1a39-401b-849f-703b951bc243\"}}]",
+    "panelsJSON": [
+      {
+          "type": "visualization",
+          "embeddableConfig": {
+              "enhancements": {
+                  "dynamicActions": {
+                      "events": []
+                  }
+              },
+              "savedVis": {
+                  "id": "",
+                  "title": "Markdown Panel",
+                  "description": "Cool description",
+                  "type": "markdown",
+                  "params": {
+                      "fontSize": 12,
+                      "openLinksInNewTab": false,
+                      "markdown": "# This is a basic markdown test"
+                  },
+                  "uiState": {},
+                  "data": {
+                      "aggs": [],
+                      "searchSource": {
+                          "query": {
+                              "query": "",
+                              "language": "kuery"
+                          },
+                          "filter": []
+                      }
+                  }
+              }
+          },
+          "panelIndex": "780e08fc-1a39-401b-849f-703b951bc243",
+          "gridData": {
+              "x": 0,
+              "y": 0,
+              "w": 24,
+              "h": 15,
+              "i": "780e08fc-1a39-401b-849f-703b951bc243"
+          }
+      }
+  ],
     "timeRestore": false,
     "title": "Markdown Only",
     "version": 3

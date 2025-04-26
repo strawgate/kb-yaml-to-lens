@@ -1,0 +1,80 @@
+{
+  "dictionary_item_added": {
+    "root['attributes']['controlGroupInput']['panelsJSON']['4d19eca2-49ca-1723-d9c0-19743406ea6a']": {
+      "explicitInput": {
+        "dataViewId": "metrics-*",
+        "fieldName": "host.architecture",
+        "searchTechnique": "prefix",
+        "selectedOptions": [],
+        "sort": {
+          "by": "_count",
+          "direction": "desc"
+        }
+      },
+      "grow": true,
+      "order": 0,
+      "type": "optionsListControl",
+      "width": "medium"
+    },
+    "root['attributes']['controlGroupInput']['panelsJSON']['4ff3f119-4fd4-9f20-d3de-066f427349a9']": {
+      "explicitInput": {
+        "dataViewId": "metrics-*",
+        "fieldName": "severity_number",
+        "step": 1
+      },
+      "grow": true,
+      "order": 1,
+      "type": "rangeSliderControl",
+      "width": "medium"
+    }
+  },
+  "dictionary_item_removed": {
+    "root['attributes']['controlGroupInput']['panelsJSON']['0086b299-caf9-4d42-a574-31eec9226a48']": {
+      "explicitInput": {
+        "dataViewId": "047b9ce1c481e9105458e4238be7cbb304abc176b09c3b4d196d84686c42b5d0",
+        "fieldName": "host.architecture",
+        "searchTechnique": "prefix",
+        "selectedOptions": [],
+        "sort": {
+          "by": "_count",
+          "direction": "desc"
+        }
+      },
+      "grow": false,
+      "order": 0,
+      "type": "optionsListControl",
+      "width": "medium"
+    },
+    "root['attributes']['controlGroupInput']['panelsJSON']['4094a542-c799-47ba-9d20-e1ad557924f6']": {
+      "explicitInput": {
+        "dataViewId": "047b9ce1c481e9105458e4238be7cbb304abc176b09c3b4d196d84686c42b5d0",
+        "fieldName": "severity_number",
+        "step": 1
+      },
+      "grow": false,
+      "order": 1,
+      "type": "rangeSliderControl",
+      "width": "medium"
+    }
+  },
+  "iterable_item_removed": {
+    "root['references'][0]": {
+      "name": "controlGroup_0086b299-caf9-4d42-a574-31eec9226a48:optionsListDataView",
+      "type": "index-pattern"
+    },
+    "root['references'][1]": {
+      "name": "controlGroup_4094a542-c799-47ba-9d20-e1ad557924f6:rangeSliderDataView",
+      "type": "index-pattern"
+    }
+  },
+  "values_changed": {
+    "root['attributes']['description']": {
+      "new_value": "A dashboard with various control elements",
+      "old_value": ""
+    },
+    "root['attributes']['title']": {
+      "new_value": "Controls Dashboard",
+      "old_value": "controls"
+    }
+  }
+}

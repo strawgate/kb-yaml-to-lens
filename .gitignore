@@ -1,8 +1,11 @@
-references
-
 **/.pytest_cache
 **/.venv
 **/__pycache__
 plans
 *.log
 *.ndjson
+archive
+references
+**/*.DS_Store
+plan*
+.roo

@@ -4,19 +4,17 @@ dashboard:
   panels:
   - title: "Vertical Bar of Events over Time" 
     type: lens
-    # Derived from visualizationType: lnsXY and state.visualization.layers[0].seriesType
-    visualization: bar_stacked
     grid: { x: 0, y: 0, w: 24, h: 15 }
     index_pattern: metrics-*
-    # No top-level query specified in the state
-    query: "" 
-    # X-axis dimension
-    dimensions:
-      - field: "@timestamp"
-        type: date_histogram
-        label: "@timestamp"
-        interval: auto
-    # Y-axis metric
-    metrics:
-      - type: count
-        label: "Count of records"
+    chart:
+      type: bar_stacked
+      # X-axis dimension
+      dimensions:
+        - field: "@timestamp"
+          type: date_histogram
+          label: "@timestamp"
+          interval: auto
+      # Y-axis metric
+      metrics:
+        - type: count
+          label: "Count of records"

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import sys
-from dashboard_compiler.compiler import (
+from dashboard_compiler.compile import (
     compile_dashboard,
 )
 

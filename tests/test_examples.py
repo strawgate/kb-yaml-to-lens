@@ -3,13 +3,35 @@ import pytest
 import json
 from deepdiff import DeepDiff
 from syrupy.assertion import SnapshotAssertion
-from dashboard_compiler.models.dashboard.base import Dashboard
+import yaml  # Import yaml for loading config
+
+from dashboard_compiler.compile.compile import compile_dashboard
+
+from dashboard_compiler.models.config.dashboard import Dashboard
+
+# Remove import for compile_dashboard
+from dashboard_compiler.models.views.dashboard import KbnDashboard
 
 SCENARIOS_DIR = os.path.join(os.path.dirname(__file__), "scenarios")
 
 CONFIG_FILE = "config.yaml"
 KIBANA_EXPORT = "from-kibana.json"
 
+# Define scenarios to include (Markdown, Search, Links, Controls, Lens)
+# Exclude Maps for now
+INCLUDED_SCENARIOS = [
+    "1password-audit-events",  # Lens
+    "1password-item-usages",  # Lens
+    "1password-signin-attempts",  # Lens
+    "empty",  # Empty dashboard
+    "one-markdown",  # Markdown
+    "one-pie-chart",  # Lens
+    "one-vertical-bar",  # Lens
+    # "one-link",  # Links
+    "controls",  # Controls
+]
+
+# EXCLUDE_PATHS for DeepDiff might need adjustment based on the final view model structure
 EXCLUDE_PATHS = [
     "root['created_by']",
     "root['updated_at']",
@@ -17,58 +39,76 @@ EXCLUDE_PATHS = [
     "root['id']",
     "root['version']",
     "root['updated_by']",
-    "root['attributes']['panelsJSON'][0]['gridData']['i']",
-    "root['attributes']['panelsJSON'][0]['panelIndex']",
+    "root['attributes']['optionsJSON']['syncColors']",
+    "root['attributes']['optionsJSON']['syncTooltips']",
+    "root['attributes']['version']",
+    "root['coreMigrationVersion']",
+    "root['typeMigrationVersion']",
 ]
 
+EXCLUDE_PATHS_REGEX = [r".*\['id'\]", r".*\['i'\]", r".*\['panelIndex'\]"]
 
-@pytest.mark.parametrize(
-    "scenario",
-    [
-        "1password-audit-events",
-        "1password-item-usages",
-        "1password-signin-attempts",
-        "empty",
-        "one-markdown",
-        "one-pie-chart",
-        "one-vertical-bar",
-    ]
-)
-def test_dashboard(scenario, snapshot_json: SnapshotAssertion):
-    """Tests compiling an empty dashboard configuration."""
-    
-    # Load the scenario-specific dashboard configuration and exported reference
-    scenario_dir = os.path.join(SCENARIOS_DIR, scenario) 
 
-    config_path = os.path.join(scenario_dir, CONFIG_FILE)
-    exported_path = os.path.join(scenario_dir, KIBANA_EXPORT)
+@pytest.fixture(params=INCLUDED_SCENARIOS)
+def load_scenario(request):
+    scenario = request.param
 
-    # Load the config and render a dashboard from it
-    dashboard = Dashboard.load(config_path)
-    rendered_dashboard = dashboard.model_dump()
+    scenario_dir = os.path.join(SCENARIOS_DIR, scenario)
 
-    # Compare the rendered dashboard with our snapshot
-    assert rendered_dashboard == snapshot_json
+    dashboard_yaml_path = os.path.join(scenario_dir, CONFIG_FILE)
 
-    # Load the exported reference dashboard
-    reference_dashboard = json.load(open(exported_path, "r"))
+    kibana_ref_path = os.path.join(scenario_dir, KIBANA_EXPORT)
 
-    # Sometimes parseJson is a stringified blob
-    panels_json = reference_dashboard["attributes"]["panelsJSON"]
-    if type(panels_json) is str:
-        reference_dashboard["attributes"]["panelsJSON"] = json.loads(panels_json)
+    # Load the config YAML and parse into config models
+    with open(dashboard_yaml_path, "r") as f:
+        dashboard_dict = yaml.safe_load(f)
 
-    # Compare the rendered dashboard with the exported reference
+    with open(kibana_ref_path, "r") as f:
+        kibana_ref_dict = json.load(f)
+
+    # Sometimes panelsJSON is a stringified blob in the reference
+    if isinstance(kibana_ref_dict.get("attributes", {}).get("panelsJSON"), str):
+        kibana_ref_dict["attributes"]["panelsJSON"] = json.loads(kibana_ref_dict["attributes"]["panelsJSON"])
+
+    # Sometimes optionsJSON is a stringified blob in the reference
+    if isinstance(kibana_ref_dict.get("attributes", {}).get("optionsJSON"), str):
+        kibana_ref_dict["attributes"]["optionsJSON"] = json.loads(kibana_ref_dict["attributes"]["optionsJSON"])
+
+    # Also load panelsJSON from controlGroupInput if present (for Controls)
+    if isinstance(kibana_ref_dict.get("attributes", {}).get("controlGroupInput", {}).get("panelsJSON"), str):
+        kibana_ref_dict["attributes"]["controlGroupInput"]["panelsJSON"] = json.loads(
+            kibana_ref_dict["attributes"]["controlGroupInput"]["panelsJSON"]
+        )
+
+    return (scenario, dashboard_dict, kibana_ref_dict)
+
+
+async def test_dashboard_compilation(load_scenario, snapshot_json: SnapshotAssertion):
+    """Tests compiling a dashboard configuration and compares the output to a snapshot."""
+
+    scenario, dashboard_dict, kibana_ref_dict = load_scenario
+
+    dashboard = Dashboard(**dashboard_dict["dashboard"])
+
+    # compile the dashboard!
+    view_dashboard: KbnDashboard = compile_dashboard(dashboard)
+    view_dashboard_dict = view_dashboard.model_dump(serialize_as_any=True)
+
+    # Fail on unexpected changes to our rendered dashboard
+    assert view_dashboard_dict == snapshot_json
+
+    # Compare the generated JSON (as dict) with the loaded reference dashboard (as dict) using DeepDiff
+    # Exclude dynamic fields like IDs and timestamps
     diff = DeepDiff(
+        t1=kibana_ref_dict,
+        t2=view_dashboard_dict,
         exclude_paths=EXCLUDE_PATHS,
+        exclude_regex_paths=EXCLUDE_PATHS_REGEX,
         ignore_order=True,
         threshold_to_diff_deeper=0,
-        t1=reference_dashboard,
-        t2=rendered_dashboard,
         verbose_level=2,
     )
 
-    # This diff represents the differences between our rendered dashboard and the exported reference
-    # this isn't necessarily a failure, but we snapshot it to detect changes in the future and as a todo list
-    # of things we may need to add support for
+    # Snapshot the diff to track discrepancies (which should ideally be empty or minimal)
+    # This is our "to-do" list basically
     assert diff == snapshot_json(name="diff")

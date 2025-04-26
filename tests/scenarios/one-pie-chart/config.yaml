@@ -4,20 +4,19 @@ dashboard:
   panels:
   - title: "Pie Chart of Aerospike Namespace" 
     type: lens
-    visualization: pie
-    grid: { x: 0, y: 0, w: 24, h: 15 }
     index_pattern: metrics-*
-    # No top-level query specified in the state
-    query: "" 
-    # Slice by dimension
-    dimensions: 
-      - field: aerospike.namespace
-        type: terms
-        label: "Top 5 values of aerospike.namespace"
-        size: 5
-        order_by_metric: "Count of records"
-        order_direction: desc
-    # Size by metric
-    metrics:
-      - type: count
-        label: "Count of records"
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart: 
+      type: pie
+      dimensions: 
+        - field: aerospike.namespace
+          type: terms
+          label: "Top 5 values of aerospike.namespace"
+          size: 5
+          sort:
+            by: "Count of records"
+            direction: desc
+      metrics:
+        - type: count
+          label: "Count of records"
+          field: ___records___
