@@ -17,4 +17,5 @@ dashboard:
       # Y-axis metric
       metrics:
         - type: count
+          field: ___records___
           label: "Count of records"

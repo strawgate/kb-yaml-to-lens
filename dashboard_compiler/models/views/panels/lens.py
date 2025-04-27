@@ -1,15 +1,14 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Literal, Optional
+from typing import Any, Literal
 
-from dashboard_compiler.models.views.base import KbnBasePanel, KbnBasePanelEmbeddableConfig
+from pydantic import BaseModel, Field, RootModel
 
-
+from dashboard_compiler.models.views.base import KbnBasePanel, KbnBasePanelEmbeddableConfig, KbnFilter, KbnReference
 
 # Model relationships:
 # - KbnLensPanel
 #   - KbnLensPanelEmbeddableConfig
 #     - KbnLensPanelAttributes
-#       - KbnLensState
+#       - KbnLensPanelState
 #         - KbnBaseStateVisualization <--- The subclassed visualizations replace this
 #           - KbnBaseStateVisualizationLayer <--- The subclassed visualizations replace this
 #         - KbnDataSourceState
@@ -31,43 +30,49 @@ class KbnColumn(BaseModel):
     sourceField: str
     isBucketed: bool
     scale: str
-    params: Dict[str, Any] = Field(default_factory=dict)
-    isMetric: Optional[bool] = None  # Only present for metrics
+    params: dict[str, Any] = Field(default_factory=dict)
+    # isMetric: Optional[bool] = None  # Only present for metrics
 
 
 class KbnLayerDataSourceState(BaseModel):
     """Represents the datasource state for a single layer within a Lens panel in the Kibana JSON structure."""
 
-    columns: Dict[str, KbnColumn] = Field(default_factory=dict)
-    columnOrder: List[str] = Field(default_factory=list)
-    incompleteColumns: Dict[str, Any] = Field(default_factory=dict)
+    columns: dict[str, KbnColumn] = Field(default_factory=dict)
+    columnOrder: list[str] = Field(default_factory=list)
+    incompleteColumns: dict[str, Any] = Field(default_factory=dict)
     sampling: int
+
+
+class KbnLayerDataSourceStateById(RootModel):
+    """Represents a mapping of layer IDs to their corresponding KbnLayerDataSourceState objects."""
+
+    root: dict[str, KbnLayerDataSourceState] = Field(default_factory=dict)
+
+
+class KbnFormBasedDataSourceState(BaseModel):
+    layers: KbnLayerDataSourceStateById = Field(default_factory=lambda: KbnLayerDataSourceStateById())
+
+
+class KbnTextBasedDataSourceState(BaseModel):
+    layers: KbnLayerDataSourceStateById = Field(default_factory=lambda: KbnLayerDataSourceStateById())
+
+
+class KbnIndexPatternDataSourceState(BaseModel):
+    layers: KbnLayerDataSourceStateById = Field(default_factory=lambda: KbnLayerDataSourceStateById())
 
 
 class KbnDataSourceState(BaseModel):
     """Represents the overall datasource states for a Lens panel in the Kibana JSON structure."""
 
-    formBased: Dict[str, Dict[str, KbnLayerDataSourceState]] = Field(
-        default_factory=dict
+    formBased: KbnIndexPatternDataSourceState = Field(
+        default_factory=KbnIndexPatternDataSourceState
     )  # Structure: formBased -> layers -> {layerId: KbnLayerDataSourceState}
-    indexpattern: Dict[str, Any] = Field(default_factory=dict)  # Based on samples, seems to be empty
-    textBased: Dict[str, Any] = Field(default_factory=dict)  # Based on samples, seems to be empty
-
-
-class KbnFilter(BaseModel):
-    """Represents a filter object within state.filters in the Kibana JSON structure."""
-
-    state: Dict[str, str] = Field(default_factory=lambda: {"store": "appState"})
-    meta: Dict[str, Any]
-    query: Dict[str, str] = Field(default_factory=dict)  # Can be empty
-
-
-class KbnReference(BaseModel):
-    """Represents a reference object in the Kibana JSON structure."""
-
-    type: str
-    id: str
-    name: str
+    indexpattern: KbnIndexPatternDataSourceState = Field(
+        default_factory=KbnIndexPatternDataSourceState
+    )  # Structure: indexpattern -> layers -> {layerId: KbnLayerDataSourceState}
+    textBased: KbnTextBasedDataSourceState = Field(
+        default_factory=KbnTextBasedDataSourceState
+    )  # Structure: textBased -> layers -> {layerId: KbnLayerDataSourceState}
 
 
 class KbnLayerColorMappingRule(BaseModel):
@@ -85,19 +90,19 @@ class KbnLayerColorMappingSpecialAssignment(BaseModel):
 
 
 class KbnLayerColorMapping(BaseModel):
-    assignments: List[Any] = Field(default_factory=list)
-    specialAssignments: List[KbnLayerColorMappingSpecialAssignment] = Field(
+    assignments: list[Any] = Field(default_factory=list)
+    specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(
         default_factory=lambda: [KbnLayerColorMappingSpecialAssignment()]
     )
     paletteId: str = "default"
-    colorMode: Dict[str, str] = Field(default_factory=lambda: {"type": "categorical"})
+    colorMode: dict[str, str] = Field(default_factory=lambda: {"type": "categorical"})
 
 
 class KbnBaseStateVisualizationLayer(BaseModel):
     layerId: str
     # ... to be populated by subclasses
     layerType: str
-    colorMapping: KbnLayerColorMapping | None
+    colorMapping: KbnLayerColorMapping = Field(default_factory=KbnLayerColorMapping)
 
 
 class KbnBaseStateVisualization(BaseModel):
@@ -105,23 +110,23 @@ class KbnBaseStateVisualization(BaseModel):
     layers: list[KbnBaseStateVisualizationLayer] = Field(default_factory=list)
 
 
-class KbnLensState(BaseModel):
+class KbnLensPanelState(BaseModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
     visualization: KbnBaseStateVisualization  # Holds the specific visualization state
-    query: Dict[str, str] = Field(default_factory=lambda: {"query": "", "language": "kuery"})
-    filters: List[KbnFilter] = Field(default_factory=list)
-    DataSourceStates: KbnDataSourceState = Field(default_factory=KbnDataSourceState)
-    internalReferences: List[Any] = Field(default_factory=list)
-    adHocDataViews: Dict[str, Any] = Field(default_factory=dict)
+    query: dict[str, str] = Field(default_factory=lambda: {"query": "", "language": "kuery"})
+    filters: list[KbnFilter] = Field(default_factory=list)
+    datasourceStates: KbnDataSourceState = Field(default_factory=KbnDataSourceState)
+    internalReferences: list[Any] = Field(default_factory=list)
+    adHocDataViews: dict[str, Any] = Field(default_factory=dict)
 
 
 class KbnLensPanelAttributes(BaseModel):
     title: str = ""
     visualizationType: Literal["lnsXY", "lnsPie"]
-    type: Literal["lens"]
-    references: list = Field(default_factory=list)
-    state: KbnLensState
+    type: Literal["lens"] = "lens"
+    references: list[KbnReference] = Field(default_factory=list)
+    state: KbnLensPanelState
 
 
 class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
@@ -142,7 +147,7 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
         default_factory=list,
         description="(Optional) List of filters applied to the Lens visualization. Defaults to empty list.",
     )
-    query: Dict[str, Any] = Field(
+    query: dict[str, Any] = Field(
         default_factory=lambda: {"query": "", "language": "kuery"},
         description="(Optional) Query object for the Lens visualization. Defaults to empty query with 'kuery' language.",
     )

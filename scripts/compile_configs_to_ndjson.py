@@ -1,17 +1,30 @@
 import json
-from pathlib import Path
 import sys
-from dashboard_compiler.compile import (
-    compile_dashboard,
-)
+from pathlib import Path
 
-# Add project root to sys.path to allow importing dashboard_compiler
+from dashboard_compiler.compile.compile import compile_yaml_dashboard
+
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
 
-CONFIG_DIR = project_root / "configs"
-OUTPUT_FILE = project_root / "kibana_import.ndjson"
+SCENARIO_DIR = project_root / "tests/scenarios"
+OUTPUT_DIR = project_root / "output"
+
+
+def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -> None:
+    """
+    Writes a list of JSON strings to an NDJSON file.
+
+    Args:
+        lines: List of JSON strings to write.
+        output_path: Path to the output NDJSON file.
+    """
+    if overwrite and output_path.exists():
+        output_path.unlink()
+
+    with open(output_path, "w") as f:
+        for line in lines:
+            f.write(line + "\n")
 
 
 def compile_and_format(yaml_path: Path) -> str | None:
@@ -28,9 +41,9 @@ def compile_and_format(yaml_path: Path) -> str | None:
     try:
         print(f"Compiling: {yaml_path.relative_to(project_root)}")
         # compile_dashboard_to_testable_dict returns the dictionary representation
-        dashboard_dict = compile_dashboard(str(yaml_path))
+        dashboard_dict = compile_yaml_dashboard(str(yaml_path))
 
-        compressed_json = json.dumps(dashboard_dict, separators=(",", ":"))
+        compressed_json = json.dumps(dashboard_dict.model_dump(serialize_as_any=True, exclude_none=True), separators=(",", ":"))
 
         return compressed_json
 
@@ -43,43 +56,56 @@ def compile_and_format(yaml_path: Path) -> str | None:
         return None
 
 
+def get_scenarios() -> list[Path]:
+    """
+    Retrieves a list of scenario YAML files from the SCENARIO_DIR.
+
+    Returns:
+        A list of Path objects pointing to the scenario YAML files.
+    """
+    if not SCENARIO_DIR.is_dir():
+        print(f"Error: Scenario directory not found: {SCENARIO_DIR}", file=sys.stderr)
+        sys.exit(1)
+
+    # Use rglob to find YAML files recursively
+    yaml_files = sorted(SCENARIO_DIR.rglob("*.yaml"))
+
+    if not yaml_files:
+        print(f"Warning: No YAML files found in {SCENARIO_DIR}", file=sys.stderr)
+
+    return yaml_files
+
+
 def main():
     """
     Main function to find config YAMLs, compile them, and write the NDJSON file.
     """
-    if not CONFIG_DIR.is_dir():
-        print(f"Error: Config directory not found: {CONFIG_DIR}", file=sys.stderr)
-        sys.exit(1)
+
+    # Create the output directory if it doesn't exist
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    scenarios = get_scenarios()
 
     ndjson_lines = []
-    # Use rglob to find YAML files recursively
-    yaml_files = sorted(CONFIG_DIR.rglob("*.yaml"))
 
-    if not yaml_files:
-        print(f"Warning: No YAML files found in {CONFIG_DIR}", file=sys.stderr)
-
-    for yaml_file in yaml_files:
-        compressed_line = compile_and_format(yaml_file)
+    for scenario in scenarios:
+        yaml_file = scenario.resolve()
+        try:
+            compressed_line = compile_and_format(yaml_file)
+        except Exception:
+            continue
         if compressed_line:
+            # write a standalone ndjson file for each scenario
+            filename = scenario.parent.stem
+            file_path = OUTPUT_DIR / f"{filename}.ndjson"
+            print(f"Writing compiled dashboard to: {file_path.relative_to(project_root)}")
+            write_ndjson(file_path, [compressed_line], overwrite=True)
             ndjson_lines.append(compressed_line)
 
     if ndjson_lines:
-        try:
-            # Write each compressed JSON object followed by a newline character
-
-            if OUTPUT_FILE.exists():
-                OUTPUT_FILE.unlink()  # Remove the file if it exists
-
-            with open(OUTPUT_FILE, "w") as f:
-                for line in ndjson_lines:
-                    f.write(line + "\n")  # Use '\n' for actual newline
-            print(f"\nSuccessfully wrote compiled dashboards to: {OUTPUT_FILE}")
-        except IOError as e:
-            print(
-                f"Error: Could not write to output file {OUTPUT_FILE}: {e}",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+        # Write a joined NDJSON lines to the output file
+        file_path = OUTPUT_DIR / "compiled_dashboards.ndjson"
+        write_ndjson(file_path, ndjson_lines, overwrite=True)
     else:
         print("\nNo valid YAML configurations found or compiled.")
 

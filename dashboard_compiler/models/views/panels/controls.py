@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional, Union
+import json
+from typing import Any
+
+from pydantic import BaseModel, Field, field_serializer
 
 # Model Relationships:
 # - KbnControlGroupInput
@@ -21,15 +23,12 @@ class KbnBaseControlExplicitInput(BaseModel):
 
 class KbnOptionsListControlExplicitInput(KbnBaseControlExplicitInput):
     searchTechnique: str
-    selectedOptions: List[Any] = Field(default_factory=list)
-    sort: Optional[KbnControlSort] = None
+    selectedOptions: list[Any] = Field(default_factory=list)
+    sort: KbnControlSort | None = None
 
 
 class KbnRangeSliderControlExplicitInput(KbnBaseControlExplicitInput):
     step: int | float
-
-
-KbnControlExplicitInput = Union[KbnOptionsListControlExplicitInput, KbnRangeSliderControlExplicitInput]
 
 
 class KbnControl(BaseModel):
@@ -37,7 +36,7 @@ class KbnControl(BaseModel):
     order: int
     type: str  # e.g., "optionsListControl", "rangeSliderControl"
     width: str
-    explicitInput: KbnControlExplicitInput
+    explicitInput: KbnOptionsListControlExplicitInput | KbnRangeSliderControlExplicitInput
 
 
 # Note: The Controls panel itself in the JSON sample doesn't follow the standard KbnBasePanel structure.
@@ -48,7 +47,7 @@ class KbnControl(BaseModel):
 # For now, we define the structure found within panelsJSON.
 
 # This model represents the dictionary within controlGroupInput.panelsJSON
-KbnControlPanelsJson = Dict[str, KbnControl]
+KbnControlPanelsJson = dict[str, KbnControl]
 
 
 # This model represents the controlGroupInput object at the dashboard attributes level
@@ -58,6 +57,12 @@ class KbnControlGroupInput(BaseModel):
     ignoreParentSettingsJSON: str
     panelsJSON: KbnControlPanelsJson
     showApplySelections: bool
+
+    @field_serializer("panelsJSON", when_used="always")
+    def panels_json_stringified(self, panelsJSON: KbnControlPanelsJson):
+        """Kibana wants this field to be stringified JSON."""
+        panels_json = {panel_key: panel.model_dump(serialize_as_any=True, exclude_none=True) for panel_key, panel in panelsJSON.items()}
+        return json.dumps(panels_json)
 
 
 # We won't define a JsonControlsPanel inheriting from KbnBasePanel directly

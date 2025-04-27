@@ -7,13 +7,13 @@
       "panelsJSON": {},
       "showApplySelections": false
     },
-    "description": "",
+    "description": "A dashboard with a single query",
     "kibanaSavedObjectMeta": {
       "searchSourceJSON": {
         "filter": [],
         "query": {
           "language": "kuery",
-          "query": ""
+          "query": "myquery: myvalue"
         }
       }
     },
@@ -26,13 +26,13 @@
     },
     "panelsJSON": [],
     "timeRestore": false,
-    "title": "Empty Dashboard",
+    "title": "One Query Dashboard",
     "version": 1
   },
   "coreMigrationVersion": "8.8.0",
   "created_at": "2023-10-01T00:00:00Z",
   "created_by": "admin",
-  "id": "7406d235-74d2-3609-ec29-0b3d636e83e1",
+  "id": "38b59c86-d1b8-c08f-6733-ce28f90339fa",
   "managed": false,
   "references": [],
   "type": "dashboard",

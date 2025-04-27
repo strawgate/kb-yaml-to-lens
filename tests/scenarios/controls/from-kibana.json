@@ -7,14 +7,14 @@
             "panelsJSON": "{\"0086b299-caf9-4d42-a574-31eec9226a48\":{\"grow\":false,\"order\":0,\"type\":\"optionsListControl\",\"width\":\"medium\",\"explicitInput\":{\"dataViewId\":\"047b9ce1c481e9105458e4238be7cbb304abc176b09c3b4d196d84686c42b5d0\",\"fieldName\":\"host.architecture\",\"searchTechnique\":\"prefix\",\"selectedOptions\":[],\"sort\":{\"by\":\"_count\",\"direction\":\"desc\"}}},\"4094a542-c799-47ba-9d20-e1ad557924f6\":{\"grow\":false,\"order\":1,\"type\":\"rangeSliderControl\",\"width\":\"medium\",\"explicitInput\":{\"dataViewId\":\"047b9ce1c481e9105458e4238be7cbb304abc176b09c3b4d196d84686c42b5d0\",\"fieldName\":\"severity_number\",\"step\":1}}}",
             "showApplySelections": false
         },
-        "description": "",
+        "description": "A dashboard with various control elements",
         "kibanaSavedObjectMeta": {
             "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
         },
         "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
         "panelsJSON": "[]",
         "timeRestore": false,
-        "title": "controls",
+        "title": "Controls Dashboard",
         "version": 3
     },
     "coreMigrationVersion": "8.8.0",

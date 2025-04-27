@@ -7,7 +7,7 @@
       "panelsJSON": {},
       "showApplySelections": false
     },
-    "description": "",
+    "description": "A dashboard with a single link to a specific URL",
     "kibanaSavedObjectMeta": {
       "searchSourceJSON": {
         "filter": [],
@@ -27,55 +27,46 @@
     "panelsJSON": [
       {
         "embeddableConfig": {
-          "enhancements": {
-            "dynamicActions": {
-              "events": []
-            }
-          },
-          "savedVis": {
-            "data": {
-              "aggs": [],
-              "searchSource": {
-                "filter": [],
-                "query": {
-                  "language": "kuery",
-                  "query": ""
-                }
+          "attributes": {
+            "layout": "horizontal",
+            "links": [
+              {
+                "destinationRefName": "link_9f2896f6-9ca0-4f63-9960-631d5af3840c_dashboard",
+                "id": "9f2896f6-9ca0-4f63-9960-631d5af3840c",
+                "order": 0,
+                "type": "dashboardLink"
               }
-            },
-            "description": "Cool description",
-            "id": "",
-            "params": {
-              "fontSize": 12,
-              "markdown": "# This is a basic markdown test",
-              "openLinksInNewTab": false
-            },
-            "title": "Markdown Panel",
-            "type": "markdown",
-            "uiState": {}
-          }
+            ]
+          },
+          "enhancements": {}
         },
         "gridData": {
-          "h": 15,
-          "i": "780e08fc-1a39-401b-849f-703b951bc243",
-          "w": 24,
+          "h": 2,
+          "i": "e19a731d-0163-490a-a691-0bd1b1264d0b",
+          "w": 48,
           "x": 0,
           "y": 0
         },
-        "panelIndex": "780e08fc-1a39-401b-849f-703b951bc243",
-        "type": "visualization"
+        "panelIndex": "e19a731d-0163-490a-a691-0bd1b1264d0b",
+        "type": "links"
       }
     ],
     "timeRestore": false,
-    "title": "Markdown Only",
+    "title": "one-link",
     "version": 1
   },
   "coreMigrationVersion": "8.8.0",
   "created_at": "2023-10-01T00:00:00Z",
   "created_by": "admin",
-  "id": "f656dc91-cd4c-4e0a-b2f2-202bb5db5284",
+  "id": "fda0eb0c-22c6-e9e7-9bd1-2f668ba54cc4",
   "managed": false,
-  "references": [],
+  "references": [
+    {
+      "id": "9f2896f6-9ca0-4f63-9960-631d5af3840c",
+      "name": "e19a731d-0163-490a-a691-0bd1b1264d0b:link_9f2896f6-9ca0-4f63-9960-631d5af3840c_dashboard",
+      "type": "dashboard"
+    }
+  ],
   "type": "dashboard",
   "typeMigrationVersion": "10.2.0",
   "updated_at": "2023-10-01T00:00:00Z",

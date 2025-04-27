@@ -5,7 +5,7 @@
       "controlStyle": "oneLine",
       "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
       "panelsJSON": {
-        "4d19eca2-49ca-1723-d9c0-19743406ea6a": {
+        "0086b299-caf9-4d42-a574-31eec9226a48": {
           "explicitInput": {
             "dataViewId": "metrics-*",
             "fieldName": "host.architecture",
@@ -37,7 +37,13 @@
     },
     "description": "A dashboard with various control elements",
     "kibanaSavedObjectMeta": {
-      "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
+      "searchSourceJSON": {
+        "filter": [],
+        "query": {
+          "language": "kuery",
+          "query": ""
+        }
+      }
     },
     "optionsJSON": {
       "hidePanelTitles": false,
@@ -51,13 +57,14 @@
     "title": "Controls Dashboard",
     "version": 1
   },
-  "coreMigrationVersion": "8.0.0",
+  "coreMigrationVersion": "8.8.0",
   "created_at": "2023-10-01T00:00:00Z",
   "created_by": "admin",
+  "id": "19789c04-3c70-0976-3c6b-6cf0c61bd14b",
   "managed": false,
   "references": [],
   "type": "dashboard",
-  "typeMigrationVersion": "8.0.0",
+  "typeMigrationVersion": "10.2.0",
   "updated_at": "2023-10-01T00:00:00Z",
   "updated_by": "admin",
   "version": "1"

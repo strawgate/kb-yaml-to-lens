@@ -16,6 +16,7 @@ class Grid(BaseModel):
 class BasePanel(BaseModel):
     """Base model for panel objects in the YAML schema."""
 
+    id: str | None = Field(default=None, description="(Optional) Unique identifier for the panel.")
     title: str = Field(..., description="(Required) The title displayed on the panel. Can be empty.")
     description: str = Field("", description="(Optional) A description for the panel.")
     type: str = Field(..., description="(Required) The type of panel.")

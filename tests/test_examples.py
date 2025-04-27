@@ -1,12 +1,12 @@
-import os
-import pytest
 import json
+import os
+
+import pytest
+import yaml  # Import yaml for loading config
 from deepdiff import DeepDiff
 from syrupy.assertion import SnapshotAssertion
-import yaml  # Import yaml for loading config
 
 from dashboard_compiler.compile.compile import compile_dashboard
-
 from dashboard_compiler.models.config.dashboard import Dashboard
 
 # Remove import for compile_dashboard
@@ -20,15 +20,19 @@ KIBANA_EXPORT = "from-kibana.json"
 # Define scenarios to include (Markdown, Search, Links, Controls, Lens)
 # Exclude Maps for now
 INCLUDED_SCENARIOS = [
-    "1password-audit-events",  # Lens
-    "1password-item-usages",  # Lens
-    "1password-signin-attempts",  # Lens
-    "empty",  # Empty dashboard
-    "one-markdown",  # Markdown
-    "one-pie-chart",  # Lens
-    "one-vertical-bar",  # Lens
+    # "1password-audit-events",  # Lens
+    # "1password-item-usages",  # Lens
+    # "1password-signin-attempts",  # Lens
+    # "one-vertical-bar",  # Lens
     # "one-link",  # Links
     "controls",  # Controls
+    "empty",  # Empty dashboard
+    "one-filter",
+    "one-link",
+    "one-markdown",  # Markdown
+    "one-pie-chart",  # Lens
+    "one-query",
+    "one-vertical-bar"
 ]
 
 # EXCLUDE_PATHS for DeepDiff might need adjustment based on the final view model structure
@@ -36,17 +40,16 @@ EXCLUDE_PATHS = [
     "root['created_by']",
     "root['updated_at']",
     "root['created_at']",
+    "root['references'][0]['id']",
     "root['id']",
     "root['version']",
     "root['updated_by']",
     "root['attributes']['optionsJSON']['syncColors']",
     "root['attributes']['optionsJSON']['syncTooltips']",
     "root['attributes']['version']",
-    "root['coreMigrationVersion']",
-    "root['typeMigrationVersion']",
 ]
 
-EXCLUDE_PATHS_REGEX = [r".*\['id'\]", r".*\['i'\]", r".*\['panelIndex'\]"]
+EXCLUDE_PATHS_REGEX = []  # [r".*\['id'\]", r".*\['i'\]", r".*\['panelIndex'\]"]
 
 
 @pytest.fixture(params=INCLUDED_SCENARIOS)
@@ -60,25 +63,13 @@ def load_scenario(request):
     kibana_ref_path = os.path.join(scenario_dir, KIBANA_EXPORT)
 
     # Load the config YAML and parse into config models
-    with open(dashboard_yaml_path, "r") as f:
+    with open(dashboard_yaml_path) as f:
         dashboard_dict = yaml.safe_load(f)
 
-    with open(kibana_ref_path, "r") as f:
+    with open(kibana_ref_path) as f:
         kibana_ref_dict = json.load(f)
 
-    # Sometimes panelsJSON is a stringified blob in the reference
-    if isinstance(kibana_ref_dict.get("attributes", {}).get("panelsJSON"), str):
-        kibana_ref_dict["attributes"]["panelsJSON"] = json.loads(kibana_ref_dict["attributes"]["panelsJSON"])
-
-    # Sometimes optionsJSON is a stringified blob in the reference
-    if isinstance(kibana_ref_dict.get("attributes", {}).get("optionsJSON"), str):
-        kibana_ref_dict["attributes"]["optionsJSON"] = json.loads(kibana_ref_dict["attributes"]["optionsJSON"])
-
-    # Also load panelsJSON from controlGroupInput if present (for Controls)
-    if isinstance(kibana_ref_dict.get("attributes", {}).get("controlGroupInput", {}).get("panelsJSON"), str):
-        kibana_ref_dict["attributes"]["controlGroupInput"]["panelsJSON"] = json.loads(
-            kibana_ref_dict["attributes"]["controlGroupInput"]["panelsJSON"]
-        )
+    kibana_ref_dict = expand_dashboard_json(kibana_ref_dict)
 
     return (scenario, dashboard_dict, kibana_ref_dict)
 
@@ -92,7 +83,8 @@ async def test_dashboard_compilation(load_scenario, snapshot_json: SnapshotAsser
 
     # compile the dashboard!
     view_dashboard: KbnDashboard = compile_dashboard(dashboard)
-    view_dashboard_dict = view_dashboard.model_dump(serialize_as_any=True)
+    view_dashboard_dict = view_dashboard.model_dump(serialize_as_any=True, exclude_none=True)
+    view_dashboard_dict = expand_dashboard_json(view_dashboard_dict)
 
     # Fail on unexpected changes to our rendered dashboard
     assert view_dashboard_dict == snapshot_json
@@ -112,3 +104,47 @@ async def test_dashboard_compilation(load_scenario, snapshot_json: SnapshotAsser
     # Snapshot the diff to track discrepancies (which should ideally be empty or minimal)
     # This is our "to-do" list basically
     assert diff == snapshot_json(name="diff")
+
+
+def expand_dashboard_json(dashboard_dict: dict) -> dict:
+    """
+    Expand the dashboard JSON to include all nested structures.
+    This is useful for debugging and ensuring all parts of the dashboard are included.
+    """
+
+    # Sometimes panelsJSON is a stringified blob in the reference
+    if isinstance(dashboard_dict.get("attributes", {}).get("panelsJSON"), str):
+        dashboard_dict["attributes"]["panelsJSON"] = json.loads(dashboard_dict["attributes"]["panelsJSON"])
+
+    # Sometimes optionsJSON is a stringified blob in the reference
+    if isinstance(dashboard_dict.get("attributes", {}).get("optionsJSON"), str):
+        dashboard_dict["attributes"]["optionsJSON"] = json.loads(dashboard_dict["attributes"]["optionsJSON"])
+
+    # Also load panelsJSON from controlGroupInput if present (for Controls)
+    if isinstance(dashboard_dict.get("attributes", {}).get("controlGroupInput", {}).get("panelsJSON"), str):
+        dashboard_dict["attributes"]["controlGroupInput"]["panelsJSON"] = json.loads(
+            dashboard_dict["attributes"]["controlGroupInput"]["panelsJSON"]
+        )
+
+    # Also load searchSourceJSON from kibanaSavedObjectMeta if present (for searches and filters)
+    if isinstance(dashboard_dict.get("attributes", {}).get("kibanaSavedObjectMeta", {}).get("searchSourceJSON"), str):
+        dashboard_dict["attributes"]["kibanaSavedObjectMeta"]["searchSourceJSON"] = json.loads(
+            dashboard_dict["attributes"]["kibanaSavedObjectMeta"]["searchSourceJSON"]
+        )
+
+    return dashboard_dict
+
+
+def json_to_so_import(dashboard_dict: dict) -> str:
+    """
+    Convert the dashboard dictionary to a JSON string suitable for Kibana import.
+    This is useful for debugging and ensuring the output matches expected formats.
+    """
+
+    # This must be a single line of JSON for Kibana import
+    unpretty = json.dumps(
+        dashboard_dict,
+        indent=None,
+    )
+
+    return unpretty

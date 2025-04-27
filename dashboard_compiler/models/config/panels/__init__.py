@@ -1,15 +1,14 @@
+from .base import BasePanel, Grid
+from .lens import LensPanel
 from .links import LinksPanel
 from .markdown import MarkdownPanel
 from .search import SearchPanel
-from .base import BasePanel, Grid
-from .lens import LensPanel
-
 
 __all__ = [
-    "Grid",
     "BasePanel",
+    "Grid",
     "LensPanel",
+    "LinksPanel",
     "MarkdownPanel",
     "SearchPanel",
-    "LinksPanel",
 ]

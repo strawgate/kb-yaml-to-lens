@@ -1,6 +1,8 @@
 import hashlib
 import uuid
 
+MAX_BYTES_LENGTH = 16  # UUIDs are 128 bits (16 bytes)
+
 
 def stable_id_generator(values: list[str]):
     """Generates a GUID looking string from a hash of values.
@@ -13,10 +15,10 @@ def stable_id_generator(values: list[str]):
     hashed_data = hashlib.sha1(concatenated_values).digest()
 
     # Truncate or pad to 16 bytes (128 bits) if needed
-    if len(hashed_data) > 16:
-        hashed_data = hashed_data[:16]
-    elif len(hashed_data) < 16:
-        hashed_data = hashed_data.ljust(16, b"\0")
+    if len(hashed_data) > MAX_BYTES_LENGTH:
+        hashed_data = hashed_data[:MAX_BYTES_LENGTH]
+    elif len(hashed_data) < MAX_BYTES_LENGTH:
+        hashed_data = hashed_data.ljust(MAX_BYTES_LENGTH, b"\0")
 
     # Create a UUID from the hash bytes
     guid = uuid.UUID(bytes=hashed_data)

@@ -1,8 +1,8 @@
+from typing import Any, Literal
+
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Literal
 
 from dashboard_compiler.models.views.base import KbnBasePanel
-
 
 # Model Relationships:
 # - KbnSearchPanel
@@ -11,7 +11,7 @@ from dashboard_compiler.models.views.base import KbnBasePanel
 
 # Define nested models for Search panel embeddableConfig based on samples
 class KbnSearchEmbeddableConfig(BaseModel):
-    enhancements: Dict[str, Any] = Field(default_factory=dict)
+    enhancements: dict[str, Any] = Field(default_factory=dict)
     # savedSearchId might be here based on some samples, need to confirm
     # savedSearchId: str
 

@@ -7,7 +7,7 @@
             "panelsJSON": "{}",
             "showApplySelections": false
         },
-        "description": "",
+        "description": "A dashboard with a single link to a specific URL",
         "kibanaSavedObjectMeta": {
             "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
         },
@@ -34,7 +34,7 @@
                     "i": "e19a731d-0163-490a-a691-0bd1b1264d0b",
                     "y": 0,
                     "x": 0,
-                    "w": 47,
+                    "w": 48,
                     "h": 2
                 }
             }

@@ -9,7 +9,13 @@
     },
     "description": "",
     "kibanaSavedObjectMeta": {
-      "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
+      "searchSourceJSON": {
+        "filter": [],
+        "query": {
+          "language": "kuery",
+          "query": ""
+        }
+      }
     },
     "optionsJSON": {
       "hidePanelTitles": false,
@@ -18,18 +24,168 @@
       "syncTooltips": true,
       "useMargins": true
     },
-    "panelsJSON": [],
+    "panelsJSON": [
+      {
+        "embeddableConfig": {
+          "attributes": {
+            "references": [
+              {
+                "id": "metrics-*",
+                "name": "indexpattern-datasource-layer-21cb2847-7b10-404e-9672-4ee2f2beca6e",
+                "type": "index-pattern"
+              }
+            ],
+            "state": {
+              "adHocDataViews": {},
+              "datasourceStates": {
+                "formBased": {
+                  "layers": {
+                    "21cb2847-7b10-404e-9672-4ee2f2beca6e": {
+                      "columnOrder": [
+                        "439aa452-8525-4644-8d5b-42d66f8b41fd",
+                        "fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33"
+                      ],
+                      "columns": {
+                        "439aa452-8525-4644-8d5b-42d66f8b41fd": {
+                          "dataType": "string",
+                          "isBucketed": true,
+                          "label": "Top 5 values of aerospike.namespace",
+                          "operationType": "terms",
+                          "params": {
+                            "exclude": [],
+                            "excludeIsRegex": false,
+                            "include": [],
+                            "includeIsRegex": false,
+                            "missingBucket": false,
+                            "orderBy": {
+                              "columnId": "fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33",
+                              "type": "column"
+                            },
+                            "orderDirection": "desc",
+                            "otherBucket": true,
+                            "parentFormat": {
+                              "id": "terms"
+                            },
+                            "size": 5
+                          },
+                          "scale": "ordinal",
+                          "sourceField": "aerospike.namespace"
+                        },
+                        "fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33": {
+                          "dataType": "number",
+                          "isBucketed": false,
+                          "label": "Count of records",
+                          "operationType": "count",
+                          "params": {
+                            "emptyAsNull": true
+                          },
+                          "scale": "ratio",
+                          "sourceField": "___records___"
+                        }
+                      },
+                      "incompleteColumns": {},
+                      "sampling": 1
+                    }
+                  }
+                },
+                "indexpattern": {
+                  "layers": {}
+                },
+                "textBased": {
+                  "layers": {}
+                }
+              },
+              "filters": [],
+              "internalReferences": [],
+              "query": {
+                "language": "kuery",
+                "query": ""
+              },
+              "visualization": {
+                "layers": [
+                  {
+                    "categoryDisplay": "default",
+                    "colorMapping": {
+                      "assignments": [],
+                      "colorMode": {
+                        "type": "categorical"
+                      },
+                      "paletteId": "default",
+                      "specialAssignments": [
+                        {
+                          "color": {
+                            "type": "loop"
+                          },
+                          "rule": {
+                            "type": "other"
+                          },
+                          "touched": false
+                        }
+                      ]
+                    },
+                    "layerId": "21cb2847-7b10-404e-9672-4ee2f2beca6e",
+                    "layerType": "data",
+                    "legendDisplay": "default",
+                    "metrics": [
+                      "fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33"
+                    ],
+                    "nestedLegend": false,
+                    "numberDisplay": "percent",
+                    "primaryGroups": [
+                      "439aa452-8525-4644-8d5b-42d66f8b41fd"
+                    ]
+                  }
+                ],
+                "shape": "pie"
+              }
+            },
+            "title": "Pie Chart of Aerospike Namespace",
+            "type": "lens",
+            "visualizationType": "lnsPie"
+          },
+          "enhancements": {
+            "dynamicActions": {
+              "events": []
+            }
+          },
+          "filters": [],
+          "query": {
+            "language": "kuery",
+            "query": ""
+          },
+          "syncColors": false,
+          "syncCursor": true,
+          "syncTooltips": false
+        },
+        "gridData": {
+          "h": 15,
+          "i": "c7a35c4f-e82d-4f16-b1a6-12229363244e",
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "panelIndex": "c7a35c4f-e82d-4f16-b1a6-12229363244e",
+        "type": "lens"
+      }
+    ],
     "timeRestore": false,
     "title": "Pie Chart Only on Aerospike Namespace",
     "version": 1
   },
-  "coreMigrationVersion": "8.0.0",
+  "coreMigrationVersion": "8.8.0",
   "created_at": "2023-10-01T00:00:00Z",
   "created_by": "admin",
+  "id": "e8f68160-778e-4b85-a425-5ff1b1d17511",
   "managed": false,
-  "references": [],
+  "references": [
+    {
+      "id": "metrics-*",
+      "name": "c7a35c4f-e82d-4f16-b1a6-12229363244e:indexpattern-datasource-layer-21cb2847-7b10-404e-9672-4ee2f2beca6e",
+      "type": "index-pattern"
+    }
+  ],
   "type": "dashboard",
-  "typeMigrationVersion": "8.0.0",
+  "typeMigrationVersion": "10.2.0",
   "updated_at": "2023-10-01T00:00:00Z",
   "updated_by": "admin",
   "version": "1"

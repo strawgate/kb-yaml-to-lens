@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
+import json
+
+from pydantic import BaseModel, Field, field_serializer
 
 # Import view panel models
-from dashboard_compiler.models.views.base import KbnBasePanel
+from dashboard_compiler.models.views.base import KbnBasePanel, KbnSavedObjectMeta
 from dashboard_compiler.models.views.panels.controls import KbnControlGroupInput  # Controls are special
 from dashboard_compiler.models.views.panels.lens import KbnReference  # For top-level references
 
@@ -31,10 +32,21 @@ class KbnDashboardAttributes(BaseModel):
     description: str
     panelsJSON: list[KbnBasePanel]
     optionsJSON: KbnDashboardOptions
-    kibanaSavedObjectMeta: dict = {"searchSourceJSON": '{"filter":[],"query":{"query":"","language":"kuery"}}'}
+    kibanaSavedObjectMeta: KbnSavedObjectMeta
     timeRestore: bool
     version: int
-    controlGroupInput: Optional[KbnControlGroupInput] = None
+    controlGroupInput: KbnControlGroupInput | None = None
+
+    @field_serializer("panelsJSON", when_used="always")
+    def panels_json_stringified(self, panelsJSON: list[KbnBasePanel]):
+        """Kibana wants this field to be stringified JSON."""
+        panels_json = [panel.model_dump(serialize_as_any=True, exclude_none=True) for panel in panelsJSON]
+        return json.dumps(panels_json)
+
+    @field_serializer("optionsJSON", when_used="always")
+    def options_json_stringified(self, optionsJSON: KbnDashboardOptions):
+        """Kibana wants this field to be stringified JSON."""
+        return json.dumps(optionsJSON.model_dump(serialize_as_any=True, exclude_none=True))
 
     # def from_dashboard(cls, dashboard: Dashboard):
     #     """Create options from a dashboard object."""
@@ -58,7 +70,7 @@ class KbnDashboard(BaseModel):
     created_by: str
     id: str
     managed: bool
-    references: List[KbnReference] = Field(default_factory=list)
+    references: list[KbnReference] = Field(default_factory=list)
     type: str
     typeMigrationVersion: str
     updated_at: str

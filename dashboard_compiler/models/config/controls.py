@@ -1,5 +1,6 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field  # Removed Literal from pydantic import
-from typing import Optional, Literal
 
 from dashboard_compiler.models.config.shared import Sort  # Import Literal from typing
 
@@ -7,9 +8,10 @@ from dashboard_compiler.models.config.shared import Sort  # Import Literal from 
 class BaseControl(BaseModel):
     """Base class for controls in the YAML schema."""
 
+    id: str = Field(default=None, description="(Optional) Unique identifier for the control.")
     type: Literal["optionsList", "rangeSlider"] = Field(..., description="(Required) Type of the control.")
     width: Literal["small", "medium", "large"] = Field("medium", description="(Optional) Width of the control. Default is 'medium'.")
-    label: Optional[str] = Field(None, description="(Optional) Display label for the control.")
+    label: str | None = Field(None, description="(Optional) Display label for the control.")
     data_view: str = Field(..., description="(Required) Index pattern for the control.")
     field: str = Field(..., description="(Required) Field name for the control.")
 

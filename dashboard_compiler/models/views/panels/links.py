@@ -3,11 +3,11 @@
 Reference: https://github.com/elastic/kibana/blob/main/src/platform/plugins/private/links/common/content_management/v1/types.ts
 """
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
-from typing import List, Literal, Optional
 
 from dashboard_compiler.models.views.base import KbnBasePanel, KbnBasePanelEmbeddableConfig
-
 
 # Model relationships:
 # - KbnLinksPanel
@@ -21,16 +21,16 @@ from dashboard_compiler.models.views.base import KbnBasePanel, KbnBasePanelEmbed
 # Define nested models for Links panel embeddableConfig based on samples
 class KbnLink(BaseModel):
     type: Literal["dashboardLink", "urlLink"]
-    id: Optional[str] = None
-    url: Optional[str] = None
-    label: Optional[str] = None
+    id: str | None = None
+    url: str | None = None
+    label: str | None = None
     order: int
-    destinationRefName: Optional[str] = None
+    destinationRefName: str | None = None
 
 
 class KbnLinksPanelAttributes(BaseModel):
     layout: Literal["horizontal", "vertical"]
-    links: List[KbnLink] = Field(default_factory=list)
+    links: list[KbnLink] = Field(default_factory=list)
 
 
 class KbnLinksPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):

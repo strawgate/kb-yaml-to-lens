@@ -1,14 +1,28 @@
+import yaml
+
+from dashboard_compiler.compile.panels.lens import compile_lens_panel
+from dashboard_compiler.compile.panels.links import compile_links_panel
+from dashboard_compiler.compile.panels.markdown import compile_markdown_panel
 from dashboard_compiler.compile.utils import stable_id_generator
 from dashboard_compiler.models.config.controls import BaseControl, OptionsListControl, RangeSliderControl
-from dashboard_compiler.models.config.panels.base import BasePanel
-from dashboard_compiler.models.config.panels import LensPanel
-from dashboard_compiler.models.config.panels.lens_charts.base import BaseLensChart
-from dashboard_compiler.models.config.panels.lens_charts.components.dimension import Dimension
-from dashboard_compiler.models.config.panels.lens_charts.components.metric import Metric
-from dashboard_compiler.models.config.panels.markdown import MarkdownPanel
-from dashboard_compiler.models.views.base import KbnGridData, KbnBasePanel
-from dashboard_compiler.models.views.dashboard import KbnDashboard, KbnDashboardAttributes, KbnDashboardOptions
 from dashboard_compiler.models.config.dashboard import Dashboard
+from dashboard_compiler.models.config.panels import LensPanel
+from dashboard_compiler.models.config.panels.base import BasePanel
+from dashboard_compiler.models.config.panels.links import LinksPanel
+from dashboard_compiler.models.config.panels.markdown import MarkdownPanel
+from dashboard_compiler.models.config.shared import (
+    BaseQuery,
+    ExistsFilter,
+    Filter,
+    KqlQuery,
+    LuceneQuery,
+    NegationFilter,
+    PhraseFilter,
+    PhrasesFilter,
+    RangeFilter,
+)
+from dashboard_compiler.models.views.base import KbnBasePanel, KbnFilter, KbnQuery, KbnSavedObjectMeta, KbnSearchSourceJSON
+from dashboard_compiler.models.views.dashboard import KbnDashboard, KbnDashboardAttributes, KbnDashboardOptions
 from dashboard_compiler.models.views.panels.controls import (
     KbnBaseControlExplicitInput,
     KbnControl,
@@ -17,16 +31,27 @@ from dashboard_compiler.models.views.panels.controls import (
     KbnOptionsListControlExplicitInput,
     KbnRangeSliderControlExplicitInput,
 )
-from dashboard_compiler.models.views.panels.lens import KbnColumn
-from dashboard_compiler.models.views.panels.markdown import (
-    KbnMarkdownEmbeddableConfig,
-    KbnMarkdownPanel,
-    KbnMarkdownSavedVis,
-    KbnMarkdownSavedVisParams,
-)
+from dashboard_compiler.models.views.panels.lens import KbnReference
 
 
-def compile_dashboard_panels(panels: BasePanel) -> list[KbnBasePanel]:
+def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
+    """
+    Convert a KbnReference object to a panel reference.
+
+    Args:
+        kbn_reference (KbnReference): The KbnReference object to convert.
+
+    Returns:
+        KbnReference: The converted panel reference.
+    """
+    return KbnReference(
+        type=kbn_reference.type,
+        id=kbn_reference.id,
+        name=panel_index + ":" + kbn_reference.name,
+    )
+
+
+def compile_dashboard_panels(panels: BasePanel) -> tuple[list[KbnReference], list[KbnBasePanel]]:
     """
     Compile the panels of a Dashboard object into their Kibana view model representation.
 
@@ -37,101 +62,94 @@ def compile_dashboard_panels(panels: BasePanel) -> list[KbnBasePanel]:
         list: The compiled list of Kibana panel view models.
     """
     kbn_panels = []
+    kbn_references = []
     for panel in panels:
         if not isinstance(panel, BasePanel):
             raise TypeError(f"Panel {panel} is not supported in the dashboard compilation.")
 
-        panel_index = stable_id_generator([panel.type, panel.title, str(panel.grid)])
-
-        grid_data = KbnGridData(x=panel.grid.x, y=panel.grid.y, w=panel.grid.w, h=panel.grid.h, i=panel_index)
+        new_references: list[KbnReference] = []
+        kbn_panel: KbnBasePanel
 
         if isinstance(panel, MarkdownPanel):
-            kbn_panels.append(
-                KbnMarkdownPanel(
-                    type="visualization",
-                    panelIndex=panel_index,
-                    gridData=grid_data,
-                    embeddableConfig=KbnMarkdownEmbeddableConfig(
-                        savedVis=KbnMarkdownSavedVis(
-                            id=panel_index,
-                            title=panel.title,
-                            description=panel.description,
-                            type="markdown",
-                            params=KbnMarkdownSavedVisParams(fontSize=12, openLinksInNewTab=False, markdown=panel.content),
-                        )
-                    ),
-                )
-            )
+            kbn_panel = compile_markdown_panel(panel)
 
         if isinstance(panel, LensPanel):
-            dimensions_by_id = {}
-            metrics_by_id = {}
-            metrics_by_name = {}
-            columns_by_id = {}
+            new_references, kbn_panel = compile_lens_panel(panel)
 
-            chart: BaseLensChart = panel.chart
+        if isinstance(panel, LinksPanel):
+            new_references, kbn_panel = compile_links_panel(panel)
 
-            if hasattr(chart, "metrics") and chart.metrics:
-                chart_metrics: list[Metric] = chart.metrics
+        kbn_panels.append(kbn_panel)
+        kbn_references.extend([convert_to_panel_reference(ref, kbn_panel.panelIndex) for ref in new_references])
 
-                for metric in chart_metrics:
-                    id = stable_id_generator([metric.type, metric.label, metric.field])
+    #         dimensions_by_id = {}
+    #         metrics_by_id = {}
+    #         metrics_by_name = {}
+    #         columns_by_id = {}
 
-                    metrics_by_id[id] = KbnColumn(
-                        label=metric.label,
-                        dataType="number",
-                        operationType=metric.type,
-                        scale="ratio",
-                        sourceField=metric.field,
-                        isBucketed=False,
-                        params={
-                            "emptyAsNull": True,
-                        },
-                    )
+    #         chart: BaseLensChart = panel.chart
 
-                    metrics_by_name[metric.label] = id
+    #         if hasattr(chart, "metrics") and chart.metrics:
+    #             chart_metrics: list[Metric] = chart.metrics
 
-            if hasattr(chart, "dimensions") and chart.dimensions:
-                chart_dimensions: list[Dimension] = chart.dimensions
+    #             for metric in chart_metrics:
+    #                 id = stable_id_generator([metric.type, metric.label, metric.field])
 
-                for dimension in chart_dimensions:
-                    id = stable_id_generator([dimension.type, dimension.label, dimension.field])
+    #                 metrics_by_id[id] = KbnColumn(
+    #                     label=metric.label,
+    #                     dataType="number",
+    #                     operationType=metric.type,
+    #                     scale="ratio",
+    #                     sourceField=metric.field,
+    #                     isBucketed=False,
+    #                     params={
+    #                         "emptyAsNull": True,
+    #                     },
+    #                 )
 
-                    dimensions_by_id[id] = KbnColumn(
-                        label=dimension.label,
-                        dataType="string",
-                        operationType=dimension.type,
-                        scale="ordinal",
-                        sourceField=dimension.field,
-                        isBucketed=True,
-                        params={
-                            "size": dimension.size,
-                            "orderBy": {"type": "column", "columnId": metrics_by_name[dimension.sort.by]},
-                            "orderDirection": dimension.sort.direction if dimension.sort else "asc",
-                            "otherBucket": True,
-                            "missingBucket": True,
-                            "parentFormat": {
-                                "id": dimension.type,
-                            },
-                            "include": [],
-                            "exclude": [],
-                            "includeIsRegex": False,
-                            "excludeIsRegex": False,
-                        },
-                    )
+    #                 metrics_by_name[metric.label] = id
 
-            all_columns_by_id = {**dimensions_by_id, **metrics_by_id, **columns_by_id}
+    #         if hasattr(chart, "dimensions") and chart.dimensions:
+    #             chart_dimensions: list[Dimension] = chart.dimensions
 
-            if panel.chart.type == "pie":
-                pass
-                # KbnPieChart
+    #             for dimension in chart_dimensions:
+    #                 id = stable_id_generator([dimension.type, dimension.label, dimension.field])
 
-        # kbn_panels.append(
-        #     KbnLensChartPanel(
+    #                 dimensions_by_id[id] = KbnColumn(
+    #                     label=dimension.label,
+    #                     dataType="string",
+    #                     operationType=dimension.type,
+    #                     scale="ordinal",
+    #                     sourceField=dimension.field,
+    #                     isBucketed=True,
+    #                     params={
+    #                         "size": dimension.size,
+    #                         "orderBy": {"type": "column", "columnId": metrics_by_name[dimension.sort.by]},
+    #                         "orderDirection": dimension.sort.direction if dimension.sort else "asc",
+    #                         "otherBucket": True,
+    #                         "missingBucket": True,
+    #                         "parentFormat": {
+    #                             "id": dimension.type,
+    #                         },
+    #                         "include": [],
+    #                         "exclude": [],
+    #                         "includeIsRegex": False,
+    #                         "excludeIsRegex": False,
+    #                     },
+    #                 )
 
-        #     )
+    #         all_columns_by_id = {**dimensions_by_id, **metrics_by_id, **columns_by_id}
 
-    return kbn_panels
+    #         if panel.chart.type == "pie":
+    #             pass
+    #             # KbnPieChart
+
+    #     # kbn_panels.append(
+    #     #     KbnLensChartPanel(
+
+    #     #     )
+
+    return kbn_references, kbn_panels
 
 
 def compile_dashboard_options(dashboard: Dashboard) -> KbnDashboardOptions:
@@ -168,7 +186,7 @@ def compile_control_group_input(dashboard: Dashboard) -> KbnControlGroupInput:
     controls: dict[str, KbnBaseControlExplicitInput] = {}
 
     for i, control in enumerate(dashboard.controls):
-        control_index = stable_id_generator([control.type, control.label, control.data_view, control.field])
+        control_index = control.id or stable_id_generator([control.type, control.label, control.data_view, control.field])
 
         new_control: BaseControl
         new_type: str
@@ -202,7 +220,110 @@ def compile_control_group_input(dashboard: Dashboard) -> KbnControlGroupInput:
     )
 
 
-def compile_dashboard_attributes(dashboard: Dashboard) -> KbnDashboardAttributes:
+def compile_dashboard_query(query: BaseQuery) -> KbnQuery:
+    """
+    Compile the query of a Dashboard object into its Kibana view model representation.
+
+    Args:
+        dashboard (Dashboard): The Dashboard object to compile.
+
+    Returns:
+        KbnQuery: The compiled Kibana query view model.
+    """
+    if isinstance(query, KqlQuery):
+        return KbnQuery(
+            query=query.kql,
+            language="kuery",
+        )
+    elif isinstance(query, LuceneQuery):
+        return KbnQuery(
+            query=query.lucene,
+            language="lucene",
+        )
+
+    else:
+        raise ValueError(f"Unsupported query type: {type(query)}. Supported types are Kql or Lucene.")
+
+
+def compile_dashboard_filter(filter: Filter, negate: bool = False) -> KbnFilter:
+    """
+    Compile a single Filter object into its Kibana view model representation.
+
+    Args:
+        filter (Filter): The Filter object to compile.
+
+    Returns:
+        KbnFilter: The compiled Kibana filter view model.
+    """
+
+    base_meta = {
+        "field": filter.field,
+        "key": filter.field,
+        "disabled": False,
+        "negate": False,
+        "alias": None,
+    }
+
+    if isinstance(filter, NegationFilter):
+        return compile_dashboard_filter(filter.not_filter, negate=True)
+
+    if isinstance(filter, ExistsFilter):
+        return KbnFilter(meta={"type": "exists", **base_meta}, query={"exists": {"field": filter.field}})
+
+    if isinstance(filter, PhraseFilter):
+        return KbnFilter(
+            meta={"type": "phrase", "params": {"query": filter.equals}, ** base_meta},
+            query={"match_phrase": {filter.field: filter.equals}},
+        )
+
+    if isinstance(filter, PhrasesFilter):
+        return KbnFilter(
+            meta={"type": "phrases", "params": list(filter.in_list), **base_meta},
+            query={"bool": {"minimum_should_match": 1, "should": [{"match_phrase": {filter.field: value}} for value in filter.in_list]}},
+        )
+
+    if isinstance(filter, RangeFilter):
+        range_query = {}
+
+        if filter.gte is not None:
+            range_query["gte"] = filter.gte
+        if filter.lte is not None:
+            range_query["lte"] = filter.lte
+        if filter.gt is not None:
+            range_query["gt"] = filter.gt
+        if filter.lt is not None:
+            range_query["lt"] = filter.lt
+
+        return KbnFilter(
+            meta={
+                "type": "range",
+                "params": {
+                    "gte": filter.gte,
+                    "lte": filter.lte,
+                    "gt": filter.gt,
+                    "lt": filter.lt,
+                },
+                **base_meta,
+            },
+            query={"range": {filter.field: range_query}},
+        )
+
+
+def compile_dashboard_filters(filters: list[Filter]) -> list[KbnFilter]:
+    """
+    Compile the filters of a Dashboard object into its Kibana view model representation.
+
+    Args:
+        filters (list[Filter]): The list of filter objects to compile.
+
+    Returns:
+        list[KbnFilter]: The compiled list of Kibana filter view models.
+    """
+
+    return [compile_dashboard_filter(filter) for filter in filters]
+
+
+def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReference], KbnDashboardAttributes]:
     """
     Compile the attributes of a Dashboard object into its Kibana view model representation.
 
@@ -213,10 +334,18 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> KbnDashboardAttributes
         KbnDashboardAttributes: The compiled Kibana dashboard attributes view model.
     """
 
-    return KbnDashboardAttributes(
+    references, panels = compile_dashboard_panels(dashboard.panels)
+
+    return references, KbnDashboardAttributes(
         title=dashboard.title,
         description=dashboard.description,
-        panelsJSON=compile_dashboard_panels(dashboard.panels),
+        panelsJSON=panels,
+        kibanaSavedObjectMeta=KbnSavedObjectMeta(
+            searchSourceJSON=KbnSearchSourceJSON(
+                filter=compile_dashboard_filters(dashboard.filters),
+                query=compile_dashboard_query(dashboard.query),
+            )
+        ),
         optionsJSON=compile_dashboard_options(dashboard),
         timeRestore=False,
         version=1,
@@ -234,20 +363,43 @@ def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
     Returns:
         KbnDashboard: The compiled Kibana dashboard view model.
     """
+    id = dashboard.id or stable_id_generator([dashboard.title])
+
+    references, attributes = compile_dashboard_attributes(dashboard)
+
     # Create the KbnDashboard view model
     kbn_dashboard = KbnDashboard(
-        attributes=compile_dashboard_attributes(dashboard),
-        coreMigrationVersion="8.0.0",
+        attributes=attributes,
+        coreMigrationVersion="8.8.0",
         created_at="2023-10-01T00:00:00Z",
         created_by="admin",
-        id=dashboard.id,
+        id=id,
         managed=False,
-        references=[],
+        references=references,
         type="dashboard",
-        typeMigrationVersion="8.0.0",
+        typeMigrationVersion="10.2.0",
         updated_at="2023-10-01T00:00:00Z",
         updated_by="admin",
         version="1",
     )
 
     return kbn_dashboard
+
+
+def compile_yaml_dashboard(yaml_path: str) -> KbnDashboard:
+    """
+    Compile a YAML dashboard configuration file into its Kibana view model representation.
+
+    Args:
+        yaml_path (str): The path to the YAML dashboard configuration file.
+
+    Returns:
+        KbnDashboard: The compiled Kibana dashboard view model.
+    """
+    # Load the YAML file and create a Dashboard object
+    dashboard_dict = yaml.safe_load(open(yaml_path))
+
+    dashboard = Dashboard(**dashboard_dict["dashboard"])
+
+    # Compile the Dashboard object into its Kibana view model
+    return compile_dashboard(dashboard)

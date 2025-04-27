@@ -3,6 +3,7 @@ dashboard:
   description: ""
   panels:
   - title: "Markdown Panel" 
+    id: 780e08fc-1a39-401b-849f-703b951bc243 # ID from kibana export for testing
     type: markdown
     description: "Cool description"
     grid: { x: 0, y: 0, w: 24, h: 15 }

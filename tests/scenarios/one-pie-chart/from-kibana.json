@@ -30,7 +30,7 @@
                         "language": "kuery"
                     },
                     "attributes": {
-                        "title": "",
+                        "title": "Pie Chart of Aerospike Namespace",
                         "visualizationType": "lnsPie",
                         "type": "lens",
                         "references": [

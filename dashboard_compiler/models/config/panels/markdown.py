@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import Literal
+
+from pydantic import Field
 
 from dashboard_compiler.models.config.panels.base import BasePanel
 

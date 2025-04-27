@@ -1,12 +1,14 @@
+# ignore: N815
+from typing import Any
+
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Literal, Optional
 
 
 # Base class for Lens visualization state
 class KbnLensVisualizationState(BaseModel):
     """Base model for the 'visualization' object within a Lens panel state in the Kibana JSON structure."""
 
-    layers: List[Dict[str, Any]] = Field(default_factory=list)  # Common field, specific layer models in subclasses
+    layers: list[dict[str, Any]] = Field(default_factory=list)  # Common field, specific layer models in subclasses
 
 
 # Define nested models for XY Visualization Layer based on samples
@@ -25,24 +27,24 @@ class KbnXYVisualizationLayerColorMappingSpecialAssignment(BaseModel):
 
 
 class KbnXYVisualizationLayerColorMapping(BaseModel):
-    assignments: List[Any] = Field(default_factory=list)
-    specialAssignments: List[KbnXYVisualizationLayerColorMappingSpecialAssignment] = Field(
+    assignments: list[Any] = Field(default_factory=list)
+    specialAssignments: list[KbnXYVisualizationLayerColorMappingSpecialAssignment] = Field(
         default_factory=lambda: [KbnXYVisualizationLayerColorMappingSpecialAssignment()]
     )
     paletteId: str = "default"
-    colorMode: Dict[str, str] = Field(default_factory=lambda: {"type": "categorical"})
+    colorMode: dict[str, str] = Field(default_factory=lambda: {"type": "categorical"})
 
 
 class KbnXYVisualizationLayer(BaseModel):
     layerId: str
-    accessors: List[str]  # List of column IDs for metrics (Y-axis)
+    accessors: list[str]  # List of column IDs for metrics (Y-axis)
     xAccessor: str  # Column ID for dimension (X-axis)
     position: str
     seriesType: str
     showGridlines: bool
     layerType: str
     colorMapping: KbnXYVisualizationLayerColorMapping
-    splitAccessor: Optional[str] = None
+    splitAccessor: str | None = None
     # Add yConfig if needed based on sample JSON
 
 
@@ -50,17 +52,17 @@ class KbnXYVisualizationLayer(BaseModel):
 class KbnXYVisualizationState(KbnLensVisualizationState):
     """Represents the 'visualization' object for XY charts (bar, line, area) in the Kibana JSON structure."""
 
-    legend: Dict[str, Any]
+    legend: dict[str, Any]
     valueLabels: str
     fittingFunction: str
-    axisTitlesVisibilitySettings: Dict[str, bool]
-    tickLabelsVisibilitySettings: Dict[str, bool]
-    labelsOrientation: Dict[str, int]
-    gridlinesVisibilitySettings: Dict[str, bool]
+    axisTitlesVisibilitySettings: dict[str, bool]
+    tickLabelsVisibilitySettings: dict[str, bool]
+    labelsOrientation: dict[str, int]
+    gridlinesVisibilitySettings: dict[str, bool]
     preferredSeriesType: str
-    layers: List[KbnXYVisualizationLayer] = Field(default_factory=list)  # Use specific layer model
+    layers: list[KbnXYVisualizationLayer] = Field(default_factory=list)  # Use specific layer model
     showCurrentTimeMarker: bool
-    yLeftExtent: Dict[str, Any]
+    yLeftExtent: dict[str, Any]
     yLeftScale: str
     yRightScale: str
     yTitle: str

@@ -31,3 +31,66 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 140
+# Assume Python 3.12
+target-version = "py312"
+# Exclude files/directories listed in .gitignore
+respect-gitignore = true
+# Add commonly ignored directories
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist"
+]
+
+[tool.ruff.lint]
+# Enable recommended rules + isort
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "PL",  # pylint
+    "RUF", # ruff-specific rules
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file rule ignores
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"tests/**.py" = ["PLR2004", "W505"] # Ignore magic numbers and docstring length in tests
+"dashboard_compiler/models/views/**.py" = [
+    "N815", # Ignore casing requirements for view models
+    "N803",  # Ignore lowercase arguments in view models
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["metering"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.validator"]
+
+[tool.ruff.lint.pylint]
+max-args = 8
+max-statements = 50

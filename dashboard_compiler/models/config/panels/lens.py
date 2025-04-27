@@ -1,10 +1,11 @@
+from typing import Literal
+
 from pydantic import Field
-from typing import List, Literal, Union
 
 from dashboard_compiler.models.config.panels.base import BasePanel
-from dashboard_compiler.models.config.panels.lens_charts.xy import LensXYChart
-from dashboard_compiler.models.config.panels.lens_charts.components.filter import Filter
 from dashboard_compiler.models.config.panels.lens_charts.pie import LensPieChart
+from dashboard_compiler.models.config.panels.lens_charts.xy import LensXYChart
+from dashboard_compiler.models.config.shared import Filter
 
 
 class LensPanel(BasePanel):
@@ -12,7 +13,7 @@ class LensPanel(BasePanel):
 
     type: Literal["lens"] = "lens"
 
-    chart: Union[LensXYChart, LensPieChart] = Field(..., description="(Required) Nested chart definition.")
+    chart: LensXYChart | LensPieChart = Field(..., description="(Required) Nested chart definition.")
     index_pattern: str = Field(..., description="(Required) Index pattern used by the Lens visualization.")
     query: str = Field("", description="(Optional) Panel-specific KQL query. Defaults to ''.")
-    filters: List[Filter] = Field(default_factory=list, description="(Optional) Panel-specific filters. Defaults to empty list.")
+    filters: list[Filter] = Field(default_factory=list, description="(Optional) Panel-specific filters. Defaults to empty list.")

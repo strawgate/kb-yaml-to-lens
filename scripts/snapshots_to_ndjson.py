@@ -1,6 +1,6 @@
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Add project root to sys.path to allow importing dashboard_compiler
 project_root = Path(__file__).parent.parent
@@ -22,7 +22,7 @@ def read_and_compress_snapshot(snapshot_path: Path) -> str | None:
         The compressed JSON content as a string, or None if reading/parsing fails.
     """
     try:
-        with open(snapshot_path, "r") as f:
+        with open(snapshot_path) as f:
             # Read and parse the JSON object
             dashboard_obj = json.load(f)
 
@@ -65,7 +65,7 @@ def main():
                 for line in ndjson_lines:
                     f.write(line + "\n")  # Use '\n' for actual newline
             print(f"Successfully wrote compressed NDJSON output to: {OUTPUT_FILE}")
-        except IOError as e:
+        except OSError as e:
             print(
                 f"Error: Could not write to output file {OUTPUT_FILE}: {e}",
                 file=sys.stderr,

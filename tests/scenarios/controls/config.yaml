@@ -3,6 +3,7 @@ dashboard:
   description: "A dashboard with various control elements"
   controls:
     - type: optionsList
+      id: 0086b299-caf9-4d42-a574-31eec9226a48 # ID from kibana export for testing
       label: An options List
       data_view: "metrics-*"
       search_technique: prefix
@@ -11,6 +12,7 @@ dashboard:
         by: _count
         direction: desc
     - type: rangeSlider
+      id: 4ff3f119-4fd4-9f20-d3de-066f427349a9 # ID from kibana export for testing
       label: A Range Slider
       data_view: "metrics-*"
       field: severity_number
