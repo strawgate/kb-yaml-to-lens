@@ -17,3 +17,12 @@ class LensPanel(BasePanel):
     index_pattern: str = Field(..., description="(Required) Index pattern used by the Lens visualization.")
     query: str = Field("", description="(Optional) Panel-specific KQL query. Defaults to ''.")
     filters: list[Filter] = Field(default_factory=list, description="(Optional) Panel-specific filters. Defaults to empty list.")
+
+    def add_filter(self, filter: Filter) -> None:
+        """
+        Add a filter to the Lens panel.
+
+        Args:
+            filter (Filter): The filter to add.
+        """
+        self.filters.append(filter)

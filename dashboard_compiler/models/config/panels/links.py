@@ -29,3 +29,12 @@ class LinksPanel(BasePanel):
     type: Literal["links"] = "links"
     layout: Literal["horizontal","vertical"] | None = Field("horizontal", description="(Optional) Layout of the links (e.g., horizontal, vertical).")
     links: list[DashboardLink | UrlLink] = Field(..., description="(Required) List of link objects.")
+
+    def add_link(self, link: DashboardLink | UrlLink) -> None:
+        """
+        Add a link to the Links panel.
+
+        Args:
+            link (DashboardLink | UrlLink): The link to add.
+        """
+        self.links.append(link)

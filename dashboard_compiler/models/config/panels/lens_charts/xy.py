@@ -57,3 +57,21 @@ class LensXYChart(BaseLensChart):
         #if self.mode is not None and self.type not in ["bar", "area"]:
         #    raise ValueError("Mode can only be specified for 'bar' or 'area' chart types.")
         return self
+
+    def add_dimension(self, dimension: Dimension) -> None:
+        """
+        Add a dimension to the chart.
+
+        Args:
+            dimension (Dimension): The dimension to add.
+        """
+        self.dimensions.append(dimension)
+
+    def add_metric(self, metric: Metric) -> None:
+        """
+        Add a metric to the chart.
+
+        Args:
+            metric (Metric): The metric to add.
+        """
+        self.metrics.append(metric)

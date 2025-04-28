@@ -27,3 +27,32 @@ class Dashboard(BaseModel):
     panels: list[MarkdownPanel | SearchPanel | LinksPanel | LensPanel] = Field(
         default_factory=list, description="(Required) A list of panel objects defining the dashboard content. Can be empty."
     )
+
+    def add_filter(self, filter: ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter) -> None:
+        """
+        Add a filter to the dashboard.
+
+        Args:
+            filter (ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter): The filter to add.
+        """
+        self.filters.append(filter)
+
+    def add_control(self, control: RangeSliderControl | OptionsListControl) -> None:
+        """
+        Add a control to the dashboard.
+
+        Args:
+            control (RangeSliderControl | OptionsListControl): The control to add.
+        """
+        self.controls.append(control)
+
+    def add_panel(self, panel: MarkdownPanel | SearchPanel | LinksPanel | LensPanel) -> None:
+        """
+        Add a panel to the dashboard.
+
+        Args:
+            panel (MarkdownPanel | SearchPanel | LinksPanel | LensPanel): The panel to add.
+        """
+        self.panels.append(panel)
+
+    
