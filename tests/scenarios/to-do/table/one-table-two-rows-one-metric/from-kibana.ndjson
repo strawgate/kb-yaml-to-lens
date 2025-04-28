@@ -1,0 +1,37 @@
+{
+    "attributes": {
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
+            "panelsJSON": "{}",
+            "showApplySelections": false
+        },
+        "description": "A dashboard with a Table with two rows and a metric",
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+        },
+        "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
+        "panelsJSON": "[{\"type\":\"lens\",\"embeddableConfig\":{\"attributes\":{\"title\":\"\",\"visualizationType\":\"lnsDatatable\",\"type\":\"lens\",\"references\":[{\"type\":\"index-pattern\",\"id\":\"27a3148b-d1d4-4455-8acf-e63c94071a5b\",\"name\":\"indexpattern-datasource-layer-94793652-40b0-4337-bf6a-8c2f7188a37c\"}],\"state\":{\"visualization\":{\"layerId\":\"94793652-40b0-4337-bf6a-8c2f7188a37c\",\"layerType\":\"data\",\"columns\":[{\"columnId\":\"319570f8-5973-4e6b-bf00-8a3dd4092d0f\",\"isTransposed\":false,\"isMetric\":false},{\"columnId\":\"1b60b9b9-263e-4f05-9627-5c895c4d0e77\",\"isTransposed\":false,\"isMetric\":false},{\"columnId\":\"bd2b7862-fbda-4a1e-a8c1-e6585ff69eee\",\"isTransposed\":false,\"isMetric\":true}]},\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filters\":[],\"datasourceStates\":{\"formBased\":{\"layers\":{\"94793652-40b0-4337-bf6a-8c2f7188a37c\":{\"columns\":{\"319570f8-5973-4e6b-bf00-8a3dd4092d0f\":{\"label\":\"Top 3 values of agent.name\",\"dataType\":\"string\",\"operationType\":\"terms\",\"scale\":\"ordinal\",\"sourceField\":\"agent.name\",\"isBucketed\":true,\"params\":{\"size\":3,\"orderBy\":{\"type\":\"column\",\"columnId\":\"bd2b7862-fbda-4a1e-a8c1-e6585ff69eee\"},\"orderDirection\":\"desc\",\"otherBucket\":true,\"missingBucket\":false,\"parentFormat\":{\"id\":\"terms\"},\"include\":[],\"exclude\":[],\"includeIsRegex\":false,\"excludeIsRegex\":false}},\"1b60b9b9-263e-4f05-9627-5c895c4d0e77\":{\"label\":\"Top 3 values of agent.id\",\"dataType\":\"string\",\"operationType\":\"terms\",\"scale\":\"ordinal\",\"sourceField\":\"agent.id\",\"isBucketed\":true,\"params\":{\"size\":3,\"orderBy\":{\"type\":\"column\",\"columnId\":\"bd2b7862-fbda-4a1e-a8c1-e6585ff69eee\"},\"orderDirection\":\"desc\",\"otherBucket\":true,\"missingBucket\":false,\"parentFormat\":{\"id\":\"terms\"},\"include\":[],\"exclude\":[],\"includeIsRegex\":false,\"excludeIsRegex\":false}},\"bd2b7862-fbda-4a1e-a8c1-e6585ff69eee\":{\"label\":\"Median of beat.stats.system.load.1\",\"dataType\":\"number\",\"operationType\":\"median\",\"sourceField\":\"beat.stats.system.load.1\",\"isBucketed\":false,\"scale\":\"ratio\",\"params\":{\"emptyAsNull\":true}}},\"columnOrder\":[\"319570f8-5973-4e6b-bf00-8a3dd4092d0f\",\"1b60b9b9-263e-4f05-9627-5c895c4d0e77\",\"bd2b7862-fbda-4a1e-a8c1-e6585ff69eee\"],\"sampling\":1,\"ignoreGlobalFilters\":false,\"incompleteColumns\":{},\"indexPatternId\":\"27a3148b-d1d4-4455-8acf-e63c94071a5b\"}},\"currentIndexPatternId\":\"27a3148b-d1d4-4455-8acf-e63c94071a5b\"},\"indexpattern\":{\"layers\":{}},\"textBased\":{\"layers\":{}}},\"internalReferences\":[],\"adHocDataViews\":{}}},\"enhancements\":{}},\"panelIndex\":\"cda25759-4cf9-4025-aeef-f9b26c7f3ea4\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"cda25759-4cf9-4025-aeef-f9b26c7f3ea4\"}}]",
+        "timeRestore": false,
+        "title": "Table with two rows and a metric",
+        "version": 3
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2025-04-27T17:13:34.738Z",
+    "created_by": "u_4224993909_cloud",
+    "id": "42c7a016-f90f-4a2f-94d7-849c1e2a89eb",
+    "managed": false,
+    "references": [
+        {
+            "id": "27a3148b-d1d4-4455-8acf-e63c94071a5b",
+            "name": "cda25759-4cf9-4025-aeef-f9b26c7f3ea4:indexpattern-datasource-layer-94793652-40b0-4337-bf6a-8c2f7188a37c",
+            "type": "index-pattern"
+        }
+    ],
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2025-04-27T17:13:34.738Z",
+    "updated_by": "u_4224993909_cloud",
+    "version": "WzI1MzQsMV0="
+}

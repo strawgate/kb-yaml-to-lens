@@ -54,5 +54,3 @@ class Dashboard(BaseModel):
             panel (MarkdownPanel | SearchPanel | LinksPanel | LensPanel): The panel to add.
         """
         self.panels.append(panel)
-
-    

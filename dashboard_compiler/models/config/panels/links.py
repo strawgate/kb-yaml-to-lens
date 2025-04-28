@@ -27,7 +27,9 @@ class LinksPanel(BasePanel):
     """Represents a Links panel in the YAML schema."""
 
     type: Literal["links"] = "links"
-    layout: Literal["horizontal","vertical"] | None = Field("horizontal", description="(Optional) Layout of the links (e.g., horizontal, vertical).")
+    layout: Literal["horizontal", "vertical"] | None = Field(
+        "horizontal", description="(Optional) Layout of the links (e.g., horizontal, vertical)."
+    )
     links: list[DashboardLink | UrlLink] = Field(..., description="(Required) List of link objects.")
 
     def add_link(self, link: DashboardLink | UrlLink) -> None:

@@ -32,7 +32,7 @@ INCLUDED_SCENARIOS = [
     "one-markdown",  # Markdown
     "one-pie-chart",  # Lens
     "one-query",
-    "one-vertical-bar",  # Existing XY chart scenario
+    "metrics/one-metrics-primary-unique-count",  # Metrics chart scenario
     # Add new XY chart scenarios
     "xy/one-area-percent-timestamp-two-series",
     "xy/one-area-stacked-timestamp-two-series",

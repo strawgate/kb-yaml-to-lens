@@ -56,7 +56,7 @@ class Filter(BaseModel):
     """Represents a filter configuration for a control in the YAML schema."""
 
     field: str = Field(..., description="(Required) Field to filter by.")
-    type: Literal["phrase", "phrases", "range"]
+    type: Literal["exists", "phrase", "phrases", "range"]
     value: str = Field(..., description="(Required) Value to filter on.")
     operator: Literal["equals", "contains", "startsWith", "endsWith"] = Field(..., description="(Required) Filter operator.")
 

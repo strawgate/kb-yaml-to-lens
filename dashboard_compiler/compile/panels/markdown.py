@@ -32,6 +32,6 @@ def compile_markdown_panel(panel: MarkdownPanel) -> KbnMarkdownPanel:
                 description=panel.description,
                 type="markdown",
                 params=KbnMarkdownSavedVisParams(fontSize=12, openLinksInNewTab=False, markdown=panel.content),
-            )
+            ),
         ),
     )

@@ -9,18 +9,9 @@ from dashboard_compiler.models.config.panels.lens_charts.xy import LensXYChart
 
 # Example configuration for an Aerospike Metrics dashboard
 
-dashboard = Dashboard(
-    title="[Metrics Aerospike] Overview Yaml",
-    description="A dashboard for Aerospike Metrics"
-)
+dashboard = Dashboard(title="[Metrics Aerospike] Overview Yaml", description="A dashboard for Aerospike Metrics")
 
-dashboard.add_control(
-    OptionsListControl(
-        label="Aerospike Namespace",
-        data_view="metrics-*",
-        field="aerospike.namespace"
-    )
-)
+dashboard.add_control(OptionsListControl(label="Aerospike Namespace", data_view="metrics-*", field="aerospike.namespace"))
 
 dashboard.add_panel(
     MarkdownPanel(
@@ -30,7 +21,7 @@ dashboard.add_panel(
             "This dashboard provides an overview of Aerospike metrics, including node and namespace metrics.\n"
             "It includes links to the Aerospike documentation and community resources. See the integration page for setup instructions."
         ),
-        grid={"x": 0, "y": 0, "w": 48, "h": 3}
+        grid={"x": 0, "y": 0, "w": 48, "h": 3},
     )
 )
 
@@ -45,8 +36,8 @@ dashboard.add_panel(
             {"label": "Node Metrics", "dashboard": "ec958c2b-aefe-43ad-8864-60d0fe767280"},
             {"label": "Namespace Metrics", "dashboard": "70cf3a9f-94b5-4663-989b-b290aa94f43a"},
             {"label": "Vendor Documentation", "url": "https://www.aerospike.com/docs/"},
-            {"label": "Community Forum", "url": "https://discuss.aerospike.com/"}
-        ]
+            {"label": "Community Forum", "url": "https://discuss.aerospike.com/"},
+        ],
     )
 )
 
@@ -58,8 +49,8 @@ dashboard.add_panel(
         grid={"x": 0, "y": 6, "w": 16, "h": 16},
         chart=LensPieChart(
             dimensions=[Dimension(field="aerospike.namespace", type="terms", size=5)],
-            metrics=[Metric(type="count", label="Count of records", field="___records___")]
-        )
+            metrics=[Metric(type="count", label="Count of records", field="___records___")],
+        ),
     )
 )
 
@@ -71,8 +62,8 @@ dashboard.add_panel(
         grid={"x": 16, "y": 6, "w": 32, "h": 16},
         chart=LensXYChart(
             dimensions=[Dimension(field="@timestamp", type="date_histogram", interval="auto")],
-            metrics=[Metric(type="min", field="aerospike.node.memory.free")]
-        )
+            metrics=[Metric(type="min", field="aerospike.node.memory.free")],
+        ),
     )
 )
 
@@ -84,8 +75,8 @@ dashboard.add_panel(
         grid={"x": 16, "y": 22, "w": 32, "h": 16},
         chart=LensXYChart(
             dimensions=[Dimension(field="@timestamp", type="date_histogram", interval="auto")],
-            metrics=[Metric(type="max", field="aerospike.node.connection.open")]
-        )
+            metrics=[Metric(type="max", field="aerospike.node.connection.open")],
+        ),
     )
 )
 

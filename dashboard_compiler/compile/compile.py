@@ -1,3 +1,4 @@
+
 import yaml
 
 from dashboard_compiler.compile.panels.lens import compile_lens_panel
@@ -11,9 +12,9 @@ from dashboard_compiler.models.config.panels.base import BasePanel
 from dashboard_compiler.models.config.panels.links import LinksPanel
 from dashboard_compiler.models.config.panels.markdown import MarkdownPanel
 from dashboard_compiler.models.config.shared import (
+    BaseFilter,
     BaseQuery,
     ExistsFilter,
-    Filter,
     KqlQuery,
     LuceneQuery,
     NegationFilter,
@@ -208,7 +209,9 @@ def compile_control_group_input(dashboard: Dashboard) -> KbnControlGroupInput:
         elif isinstance(control, RangeSliderControl):
             new_type = "rangeSliderControl"
 
-            new_control = KbnRangeSliderControlExplicitInput(dataViewId=control.data_view, fieldName=control.field, step=control.step, title=control.label)
+            new_control = KbnRangeSliderControlExplicitInput(
+                dataViewId=control.data_view, fieldName=control.field, step=control.step, title=control.label
+            )
 
         controls[control_index] = KbnControl(grow=True, order=i, type=new_type, width=control.width, explicitInput=new_control)
 
@@ -246,7 +249,7 @@ def compile_dashboard_query(query: BaseQuery) -> KbnQuery:
         raise ValueError(f"Unsupported query type: {type(query)}. Supported types are Kql or Lucene.")
 
 
-def compile_dashboard_filter(filter: Filter, negate: bool = False) -> KbnFilter:
+def compile_dashboard_filter(filter: BaseFilter, negate: bool = False) -> KbnFilter:
     """
     Compile a single Filter object into its Kibana view model representation.
 
@@ -310,12 +313,12 @@ def compile_dashboard_filter(filter: Filter, negate: bool = False) -> KbnFilter:
         )
 
 
-def compile_dashboard_filters(filters: list[Filter]) -> list[KbnFilter]:
+def compile_dashboard_filters(filters: list[BaseFilter]) -> list[KbnFilter]:
     """
     Compile the filters of a Dashboard object into its Kibana view model representation.
 
     Args:
-        filters (list[Filter]): The list of filter objects to compile.
+        filters (list[BaseFilter]): The list of filter objects to compile.
 
     Returns:
         list[KbnFilter]: The compiled list of Kibana filter view models.
@@ -385,6 +388,38 @@ def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
     )
 
     return kbn_dashboard
+
+
+def compile_dashboards(dashboards: list[Dashboard]) -> list[KbnDashboard]:
+    """
+    Compile a list of Dashboard objects into their Kibana view model representations.
+
+    Args:
+        dashboards (list[Dashboard]): The list of Dashboard objects to compile.
+
+    Returns:
+        list[KbnDashboard]: The compiled list of Kibana dashboard view models.
+    """
+    return [compile_dashboard(dashboard) for dashboard in dashboards]
+
+
+def compile_yaml_dashboards(yaml_path: str) -> list[KbnDashboard]:
+    """
+    Compile a YAML dashboard configuration file into its Kibana view model representation.
+
+    Args:
+        yaml_path (str): The path to the YAML dashboard configuration file.
+
+    Returns:
+        KbnDashboard: The compiled Kibana dashboard view model.
+    """
+    # Load the YAML file and create a Dashboard object
+    dashboard_dict = yaml.safe_load(open(yaml_path))
+
+    dashboards = [Dashboard(**dashboard) for dashboard in dashboard_dict["dashboards"]]
+
+    # Compile the Dashboard object into its Kibana view model
+    return compile_dashboards(dashboards)
 
 
 def compile_yaml_dashboard(yaml_path: str) -> KbnDashboard:

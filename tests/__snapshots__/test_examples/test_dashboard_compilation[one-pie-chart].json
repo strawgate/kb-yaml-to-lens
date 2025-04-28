@@ -105,24 +105,6 @@
                 "layers": [
                   {
                     "categoryDisplay": "default",
-                    "colorMapping": {
-                      "assignments": [],
-                      "colorMode": {
-                        "type": "categorical"
-                      },
-                      "paletteId": "default",
-                      "specialAssignments": [
-                        {
-                          "color": {
-                            "type": "loop"
-                          },
-                          "rule": {
-                            "type": "other"
-                          },
-                          "touched": false
-                        }
-                      ]
-                    },
                     "layerId": "21cb2847-7b10-404e-9672-4ee2f2beca6e",
                     "layerType": "data",
                     "legendDisplay": "default",

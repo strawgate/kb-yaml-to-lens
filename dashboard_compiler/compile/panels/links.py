@@ -21,7 +21,6 @@ def compile_dashboard_link(link: DashboardLink, link_index: int) -> tuple[KbnRef
 
     link_id = f"link_{stable_id}_dashboard"
 
-
     kbn_link = KbnLink(
         type="dashboardLink",
         id=stable_id,

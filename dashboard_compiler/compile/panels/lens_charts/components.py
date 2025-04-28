@@ -16,7 +16,8 @@ def compile_metrics(metrics: list[Metric]) -> tuple[dict[str, KbnColumn], dict[s
         id = metric.id or stable_id_generator([str(i), metric.type, metric.field])
 
         metrics_by_id[id] = KbnColumn(
-            label=metric.label or f"{metric.type} of {metric.field}",
+            label=metric.label, #f"{metric.type} of {metric.field}",
+            customLabel=metric.label is not None,
             dataType="number",
             operationType=metric.type,
             scale="ratio",
@@ -55,6 +56,7 @@ def compile_dimensions(dimensions: list[Dimension], metrics_by_name: dict[str, s
                 # },
             }
         elif dimension.type == "terms":
+
             params = {
                 "size": dimension.size,
                 "orderBy": {"type": "column", "columnId": metrics_by_name.get(dimension.sort.by)}

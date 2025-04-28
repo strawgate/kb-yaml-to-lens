@@ -2,15 +2,14 @@ from dashboard_compiler.compile.utils import stable_id_generator
 from dashboard_compiler.models.config.panels.lens_charts.xy import LensXYChart
 from dashboard_compiler.models.views.panels.lens_chart.xy import (
     KbnXYVisualizationState,
-    LabelsOrientationConfig,
     SeriesType,
     XYDataLayerConfig,
-    YAxisMode,
-    YConfig,
 )
+
 
 def safe_getattr(obj, attr, default=None):
     return getattr(obj, attr, default) if obj is not None else default
+
 
 def return_none_if_empty_dict(initial_titles: dict):
     """
@@ -20,6 +19,7 @@ def return_none_if_empty_dict(initial_titles: dict):
         return None
     else:
         return {k: v for k, v in initial_titles.items() if v is not None}
+
 
 def compile_lens_xy_chart(
     chart: LensXYChart, dimension_ids: list[str], metric_ids: list[str], metrics_by_name: dict[str, str]
@@ -60,33 +60,43 @@ def compile_lens_xy_chart(
     #         y_configs.append(YConfig(forAccessor=metric_id, axisMode=YAxisMode(name=axis_mode_name)))
 
     # Map axis formatting
-    axis_titles_visibility = return_none_if_empty_dict({
-        "x": chart.axis.bottom.title if chart.axis.bottom else None,
-        "yLeft": chart.axis.left.title if chart.axis.left else None,
-        "yRight": chart.axis.right.title if chart.axis.right else None,
-    })
+    axis_titles_visibility = return_none_if_empty_dict(
+        {
+            "x": chart.axis.bottom.title if chart.axis.bottom else None,
+            "yLeft": chart.axis.left.title if chart.axis.left else None,
+            "yRight": chart.axis.right.title if chart.axis.right else None,
+        }
+    )
 
+    tick_labels_visibility = return_none_if_empty_dict(
+        {
+            "x": chart.axis.bottom.tick_labels if chart.axis.bottom else None,
+            "yLeft": chart.axis.left.tick_labels if chart.axis.left else None,
+            "yRight": chart.axis.right.tick_labels if chart.axis.right else None,
+        }
+    )
 
-    tick_labels_visibility = return_none_if_empty_dict({
-        "x": chart.axis.bottom.tick_labels if chart.axis.bottom else None,
-        "yLeft": chart.axis.left.tick_labels if chart.axis.left else None,
-        "yRight": chart.axis.right.tick_labels if chart.axis.right else None,
-    })
-
-    gridlines_visibility = return_none_if_empty_dict({
-        "x": chart.axis.bottom.gridlines if chart.axis.bottom else None,
-        "yLeft": chart.axis.left.gridlines if chart.axis.left else None,
-        "yRight": chart.axis.right.gridlines if chart.axis.right else None,
-    })
+    gridlines_visibility = return_none_if_empty_dict(
+        {
+            "x": chart.axis.bottom.gridlines if chart.axis.bottom else None,
+            "yLeft": chart.axis.left.gridlines if chart.axis.left else None,
+            "yRight": chart.axis.right.gridlines if chart.axis.right else None,
+        }
+    )
 
     # Map orientation (assuming 0 for horizontal, 90 for vertical, 45 for rotated - adjust if needed)
     orientation_map = {"horizontal": 0, "vertical": 90, "rotated": 45}
 
-    label_orientations=return_none_if_empty_dict({
-        "x": chart.axis.bottom.orientation if chart.axis.bottom else None,
-        "yLeft": chart.axis.left.orientation if chart.axis.left else None,
-        "yRight": chart.axis.right.orientation if chart.axis.right else None,
-    }) or {}
+    label_orientations = (
+        return_none_if_empty_dict(
+            {
+                "x": chart.axis.bottom.orientation if chart.axis.bottom else None,
+                "yLeft": chart.axis.left.orientation if chart.axis.left else None,
+                "yRight": chart.axis.right.orientation if chart.axis.right else None,
+            }
+        )
+        or {}
+    )
 
     label_orientations = return_none_if_empty_dict({k: orientation_map.get(v, 0) for k, v in label_orientations.items()})
 
@@ -101,15 +111,13 @@ def compile_lens_xy_chart(
         {
             "min": chart.axis.bottom.min,
             "max": chart.axis.bottom.max,
-        } if chart.axis.bottom else {}
+        }
+        if chart.axis.bottom
+        else {}
     )
-    
-    y_left_extent = return_none_if_empty_dict(
-        {"min": chart.axis.left.min, "max": chart.axis.left.max} if chart.axis.left else {}
-    )
-    y_right_extent = return_none_if_empty_dict(
-        {"min": chart.axis.right.min, "max": chart.axis.right.max} if chart.axis.right else {}
-    )
+
+    y_left_extent = return_none_if_empty_dict({"min": chart.axis.left.min, "max": chart.axis.left.max} if chart.axis.left else {})
+    y_right_extent = return_none_if_empty_dict({"min": chart.axis.right.min, "max": chart.axis.right.max} if chart.axis.right else {})
 
     kbn_state_visualization = KbnXYVisualizationState(
         preferredSeriesType=kbn_series_type,
@@ -135,23 +143,16 @@ def compile_lens_xy_chart(
                 if chart.axis.bottom
                 else True,  # Assuming bottom axis gridlines control layer gridlines, default to True
                 layerType="data",  # Data layer
-                colorMapping={},  # Add color mapping compilation if needed
+                colorMapping=None,  # Add color mapping compilation if needed
                 splitAccessor=dimension_ids[1] if len(dimension_ids) > 1 else None,  # Assuming second dimension is split
-                #yConfig=y_configs,  # Added yConfig
+                # yConfig=y_configs,  # Added yConfig
             )
         ],
         xTitle=chart.axis.bottom.title if chart.axis.bottom else None,
         yTitle=chart.axis.left.title if chart.axis.left else None,
         yRightTitle=chart.axis.right.title if chart.axis.right else None,
-
-        yLeftScale={"type": chart.axis.left.scale}
-        if chart.axis.left and chart.axis.left.scale
-        else None,  # Default to linear
-
-        yRightScale={"type": chart.axis.right.scale}
-        if chart.axis.right and chart.axis.right.scale
-        else None,  # Default to linear
-
+        yLeftScale={"type": chart.axis.left.scale} if chart.axis.left and chart.axis.left.scale else None,  # Default to linear
+        yRightScale={"type": chart.axis.right.scale} if chart.axis.right and chart.axis.right.scale else None,  # Default to linear
         axisTitlesVisibilitySettings=axis_titles_visibility,
         tickLabelsVisibilitySettings=tick_labels_visibility,
         labelsOrientation=label_orientations,

@@ -9,6 +9,7 @@ from dashboard_compiler.models.views.panels.lens import KbnBaseStateVisualizatio
 
 type SeriesType = Literal["line", "bar", "area", "area_stacked", "bar_stacked", "area_percentage_stacked", "bar_percentage_stacked"]
 
+
 class LabelsOrientationConfig(BaseModel):
     x: float | None = None
     yLeft: float | None = None
@@ -18,6 +19,7 @@ class LabelsOrientationConfig(BaseModel):
 class YAxisMode(BaseModel):
     # Define fields based on actual Kibana structure if needed, using object for now
     name: str  # Added name field based on usage in compile logic
+
 
 class AxisConfig(BaseModel):
     # Define fields based on actual Kibana structure if needed, using object for now

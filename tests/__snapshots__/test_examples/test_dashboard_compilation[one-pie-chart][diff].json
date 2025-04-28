@@ -1,4 +1,24 @@
 {
+  "dictionary_item_removed": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['visualization']['layers'][0]['colorMapping']": {
+      "assignments": [],
+      "colorMode": {
+        "type": "categorical"
+      },
+      "paletteId": "default",
+      "specialAssignments": [
+        {
+          "color": {
+            "type": "loop"
+          },
+          "rule": {
+            "type": "other"
+          },
+          "touched": false
+        }
+      ]
+    }
+  },
   "type_changes": {
     "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']['21cb2847-7b10-404e-9672-4ee2f2beca6e']['columns']['439aa452-8525-4644-8d5b-42d66f8b41fd']['params']['exclude']": {
       "new_type": "<class 'NoneType'>",

@@ -54,7 +54,7 @@ class LensXYChart(BaseLensChart):
 
     @model_validator(mode="after")
     def check_mode_for_chart_type(self) -> "LensXYChart":
-        #if self.mode is not None and self.type not in ["bar", "area"]:
+        # if self.mode is not None and self.type not in ["bar", "area"]:
         #    raise ValueError("Mode can only be specified for 'bar' or 'area' chart types.")
         return self
 

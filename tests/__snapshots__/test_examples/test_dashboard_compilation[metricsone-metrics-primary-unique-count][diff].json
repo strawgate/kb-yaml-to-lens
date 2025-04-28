@@ -1,0 +1,20 @@
+{
+  "dictionary_item_added": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['enhancements']['dynamicActions']": {
+      "events": []
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['filters']": [],
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['query']": {
+      "language": "kuery",
+      "query": ""
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['syncColors']": false,
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['syncCursor']": true,
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['syncTooltips']": false
+  },
+  "dictionary_item_removed": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']['d4b6506d-f2d9-4cbc-8db1-83e6a60b7976']['columns']['a8c13c5f-ee3f-487e-b6db-bb49583e7922']['customLabel']": true,
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']['d4b6506d-f2d9-4cbc-8db1-83e6a60b7976']['ignoreGlobalFilters']": false,
+    "root['attributes']['panelsJSON'][0]['title']": ""
+  }
+}

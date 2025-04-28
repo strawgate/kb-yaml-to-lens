@@ -1,9 +1,11 @@
 from dashboard_compiler.compile.panels.base import compile_panel_shared
 from dashboard_compiler.compile.panels.lens_charts.components import compile_dimensions, compile_metrics
+from dashboard_compiler.compile.panels.lens_charts.metrics import compile_lens_metrics_chart
 from dashboard_compiler.compile.panels.lens_charts.pie import compile_lens_pie_chart
 from dashboard_compiler.compile.panels.lens_charts.xy import compile_lens_xy_chart
 from dashboard_compiler.models.config.panels import LensPanel
 from dashboard_compiler.models.config.panels.lens_charts.base import BaseLensChart
+from dashboard_compiler.models.config.panels.lens_charts.metrics import LensMetricsChart
 from dashboard_compiler.models.config.panels.lens_charts.pie import LensPieChart
 from dashboard_compiler.models.config.panels.lens_charts.xy import LensXYChart
 from dashboard_compiler.models.views.panels.lens import (
@@ -32,6 +34,8 @@ def chart_type_to_kbn_type(chart: BaseLensChart) -> str:
         return "lnsPie"
     elif isinstance(chart, LensXYChart):
         return "lnsXY"
+    elif isinstance(chart, LensMetricsChart):
+        return "lnsMetric"
     else:
         raise ValueError(f"Unsupported chart type: {type(chart)}")
 
@@ -39,8 +43,15 @@ def chart_type_to_kbn_type(chart: BaseLensChart) -> str:
 def compile_lens_panel(panel: LensPanel) -> tuple[list[KbnReference], KbnLensPanel]:
     panel_index, grid_data = compile_panel_shared(panel)
 
-    metrics_by_id, metrics_by_name = compile_metrics(panel.chart.metrics)
-    dimensions_by_id = compile_dimensions(panel.chart.dimensions, metrics_by_name)
+    metrics_by_id = {}
+    metrics_by_name = {}
+    dimensions_by_id = {}
+
+    if hasattr(panel.chart, "metrics") and panel.chart.metrics:
+        metrics_by_id, metrics_by_name = compile_metrics(panel.chart.metrics)
+
+    if hasattr(panel.chart, "dimensions") and panel.chart.dimensions:
+        dimensions_by_id = compile_dimensions(panel.chart.dimensions, metrics_by_name)
 
     state_visualization: KbnBaseStateVisualization
 
@@ -57,10 +68,18 @@ def compile_lens_panel(panel: LensPanel) -> tuple[list[KbnReference], KbnLensPan
             metrics_by_name=metrics_by_name,  # Pass metrics_by_name
         )
 
+    elif isinstance(panel.chart, LensMetricsChart):
+        state_visualization = compile_lens_metrics_chart(
+            panel.chart,
+            panel.index_pattern,
+            metrics_by_id,
+            metrics_by_name,
+        )
+
     else:
         raise ValueError(f"Unsupported chart type: {type(panel.chart)}")
 
-    layer_id = next(iter(state_visualization.layers)).layerId  # Get the layerId from the compiled visualization state
+    layer_id = next(iter(state_visualization.layers)).layerId
 
     layer_data_source_state = KbnLayerDataSourceState(
         columns={**dimensions_by_id, **metrics_by_id},
@@ -69,9 +88,7 @@ def compile_lens_panel(panel: LensPanel) -> tuple[list[KbnReference], KbnLensPan
         sampling=1,  # Default based on sample
     )
 
-    kbn_reference = KbnReference(
-        type="index-pattern", id=panel.index_pattern, name=f"indexpattern-datasource-layer-{layer_id}"
-    ) 
+    kbn_reference = KbnReference(type="index-pattern", id=panel.index_pattern, name=f"indexpattern-datasource-layer-{layer_id}")
 
     return [kbn_reference], KbnLensPanel(
         panelIndex=panel_index,
@@ -96,6 +113,6 @@ def compile_lens_panel(panel: LensPanel) -> tuple[list[KbnReference], KbnLensPan
                     adHocDataViews={},  # Add adHocDataViews compilation if needed
                 ),
                 references=[kbn_reference],  # Panel references
-            )
+            ),
         ),
     )

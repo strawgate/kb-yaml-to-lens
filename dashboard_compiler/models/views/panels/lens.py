@@ -26,6 +26,7 @@ class KbnColumn(BaseModel):
 
     label: str
     dataType: str
+    customLabel: bool | None = None
     operationType: str
     sourceField: str
     isBucketed: bool
@@ -102,7 +103,7 @@ class KbnBaseStateVisualizationLayer(BaseModel):
     layerId: str
     # ... to be populated by subclasses
     layerType: str
-    colorMapping: KbnLayerColorMapping = Field(default_factory=KbnLayerColorMapping)
+    colorMapping: KbnLayerColorMapping | None = None
 
 
 class KbnBaseStateVisualization(BaseModel):
@@ -113,7 +114,7 @@ class KbnBaseStateVisualization(BaseModel):
 class KbnLensPanelState(BaseModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
-    visualization: KbnBaseStateVisualization  # Holds the specific visualization state
+    visualization: KbnBaseStateVisualization
     query: dict[str, str] = Field(default_factory=lambda: {"query": "", "language": "kuery"})
     filters: list[KbnFilter] = Field(default_factory=list)
     datasourceStates: KbnDataSourceState = Field(default_factory=KbnDataSourceState)
@@ -123,7 +124,7 @@ class KbnLensPanelState(BaseModel):
 
 class KbnLensPanelAttributes(BaseModel):
     title: str = ""
-    visualizationType: Literal["lnsXY", "lnsPie"]
+    visualizationType: Literal["lnsXY", "lnsPie", "lnsMetric"]
     type: Literal["lens"] = "lens"
     references: list[KbnReference] = Field(default_factory=list)
     state: KbnLensPanelState
