@@ -1,7 +1,6 @@
 from typing import Any
 
 from dashboard_compiler.panels.lens.dimension.config import Dimension
-from dashboard_compiler.panels.lens.metrics.config import LensAggregatedMetric
 from dashboard_compiler.panels.lens.view import (
     KbnColumn,
 )

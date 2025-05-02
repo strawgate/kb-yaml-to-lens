@@ -132,7 +132,7 @@ class TimeSliderControl(BaseControl):
 
     @model_validator(mode='after')
     def validate_offsets(self) -> Self:
-        """Ensure that start_offset is less than end_offset."""  # noqa: DOC201, DOC501
+        """Ensure that start_offset is less than end_offset."""
         if self.start_offset is not None and self.end_offset is not None and self.start_offset > self.end_offset:
             msg = 'start_offset must be less than end_offset'
             raise ValueError(msg)

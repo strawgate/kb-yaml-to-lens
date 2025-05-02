@@ -1,6 +1,6 @@
 """Configuration for a Dashboard."""
 
-from typing import TYPE_CHECKING, Literal, Self
+from typing import Self
 
 from pydantic import Field
 
@@ -10,7 +10,6 @@ from dashboard_compiler.filters import FilterTypes
 from dashboard_compiler.filters.config import AllFilterTypes
 from dashboard_compiler.panels import PanelTypes
 from dashboard_compiler.queries import QueryTypes
-
 from dashboard_compiler.shared.config import BaseCfgModel
 
 

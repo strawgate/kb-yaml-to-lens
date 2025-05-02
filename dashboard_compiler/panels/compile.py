@@ -1,11 +1,14 @@
 """Compile Dashboard Panels to Kibana View Models."""
 
-from dashboard_compiler.panels import LinksPanel, MarkdownPanel, PanelTypes #,  ESQLPanel, LensPanel
-#from dashboard_compiler.panels.lens.compile import compile_esql_panel, compile_lens_panel
-from dashboard_compiler.panels.links.compile import compile_links_panel
-from dashboard_compiler.panels.markdown.compile import compile_markdown_panel
-from dashboard_compiler.panels.search.config import SearchPanel
-from dashboard_compiler.panels.view import KbnBasePanel, KbnPanelTypes
+from dashboard_compiler.panels import LinksPanel, MarkdownPanel, PanelTypes  # ,  ESQLPanel, LensPanel
+
+# from dashboard_compiler.panels.lens.compile import compile_esql_panel, compile_lens_panel
+from dashboard_compiler.panels.links.compile import compile_links_panel_config
+from dashboard_compiler.panels.links.view import KbnLinksPanel
+from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
+from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
+from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData, KbnPanelTypes
+from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.view import KbnReference
 
 
@@ -27,6 +30,23 @@ def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) ->
     )
 
 
+def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
+    """Compile shared properties of a panel into its Kibana view model representation.
+
+    Args:
+        panel (LensPanel | ESQLPanel): The panel object to compile.
+
+    Returns:
+        tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
+
+    """
+    panel_index = panel.id or stable_id_generator(values=[panel.type, panel.title, str(panel.grid)])
+
+    grid_data = KbnGridData(x=panel.grid.x, y=panel.grid.y, w=panel.grid.w, h=panel.grid.h, i=panel_index)
+
+    return panel_index, grid_data
+
+
 def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnPanelTypes]:
     """Compile a single panel into its Kibana view model representation.
 
@@ -37,8 +57,15 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnP
         tuple: A tuple containing the compiled references and the Kibana panel view model.
 
     """
+    panel_index, grid_data = compile_panel_shared(panel)
+
     if isinstance(panel, MarkdownPanel):
-        return [], compile_markdown_panel(panel)
+        references, embeddable_config = compile_markdown_panel_config(panel)
+        return references, KbnMarkdownPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+
+    if isinstance(panel, LinksPanel): 
+        references, embeddable_config = compile_links_panel_config(panel)
+        return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
 
     # if isinstance(panel, LensPanel):
     #     return compile_lens_panel(panel)
@@ -46,11 +73,8 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnP
     # if isinstance(panel, ESQLPanel):
     #     return compile_esql_panel(panel)
 
-    if isinstance(panel, SearchPanel):
-        msg = 'SearchPanel compilation is not implemented yet.'
-        raise NotImplementedError(msg)
-
-    return compile_links_panel(panel)
+    msg = f'Panel type {type(panel)} is not supported in the dashboard compilation.'
+    raise NotImplementedError(msg)
 
 
 def compile_dashboard_panels(panels: list[PanelTypes]) -> tuple[list[KbnReference], list[KbnBasePanel]]:
@@ -67,31 +91,10 @@ def compile_dashboard_panels(panels: list[PanelTypes]) -> tuple[list[KbnReferenc
     kbn_references: list[KbnReference] = []
 
     for panel in panels:
-        new_references: list[KbnReference] = []
-        new_panel: KbnBasePanel
-
-        if isinstance(panel, MarkdownPanel):
-            new_panel = compile_markdown_panel(panel)
-
-        # elif isinstance(panel, LensPanel):
-        #     new_references, new_panel = compile_lens_panel(panel)
-
-        # elif isinstance(panel, ESQLPanel):
-        #     new_references, new_panel = compile_esql_panel(panel)
-
-        elif isinstance(panel, LinksPanel):
-            new_references, new_panel = compile_links_panel(panel)
-
-        elif isinstance(panel, SearchPanel):
-            msg = 'SearchPanel compilation is not implemented yet.'
-            raise NotImplementedError(msg)
-
-        else:
-            msg = f'Panel type {type(panel)} is not supported in the dashboard compilation.'
-            raise NotImplementedError(msg)
+        new_references, new_panel = compile_dashboard_panel(panel=panel)
 
         kbn_panels.append(new_panel)
 
-        kbn_references.extend([convert_to_panel_reference(ref, new_panel.panelIndex) for ref in new_references])
+        kbn_references.extend([convert_to_panel_reference(kbn_reference=ref, panel_index=new_panel.panelIndex) for ref in new_references])
 
     return kbn_references, kbn_panels

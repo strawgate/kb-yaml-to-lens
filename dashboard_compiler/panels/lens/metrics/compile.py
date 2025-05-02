@@ -1,11 +1,11 @@
 """Compile Lens metrics into their Kibana view models."""
 from dashboard_compiler.panels.lens.metrics.config import LensAggregatedMetricTypes, LensFormulaMetric, LensMetricTypes
-from dashboard_compiler.panels.lens.view import KbnColumn, KbnLensColumnTypes, KbnLensFieldSourcedColunn, KbnLensFormulaSourcedColumn
+from dashboard_compiler.panels.lens.view import KbnLensColumnTypes, KbnLensFieldSourcedColunn, KbnLensFormulaSourcedColumn
 from dashboard_compiler.shared.config import stable_id_generator
 
 
 def compile_lens_formula_metric(
-    metric_id: str, metric: LensFormulaMetric
+    metric_id: str, metric: LensFormulaMetric,
 ) -> tuple[str, KbnLensFormulaSourcedColumn]:
     """Compile a LensFormulaMetric object into its Kibana view model.
 
@@ -32,7 +32,7 @@ def compile_lens_formula_metric(
 
 
 def compile_lens_field_sourced_metric(
-    metric_id: str, metric: LensAggregatedMetricTypes
+    metric_id: str, metric: LensAggregatedMetricTypes,
 ) -> tuple[str, KbnLensFieldSourcedColunn]:
     """Compile a LensMetricTypes object into its Kibana view model.
 

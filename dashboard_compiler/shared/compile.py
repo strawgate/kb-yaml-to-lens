@@ -1,7 +1,22 @@
 """Utility functions for compiling dashboard components."""
+
 from typing import Any, TypeVar
 
 T = TypeVar('T')
+
+
+def return_unless(var: bool | None, is_none: bool) -> bool:  # noqa: FBT001
+    """Evaluate var and return a boolean value.
+
+    Args:
+        var: The variable to evaluate.
+        is_none: The value to return if var is None.
+
+    Returns:
+        True if var is True, False if var is False, or is_none if var is None.
+
+    """
+    return var if var is not None else is_none
 
 
 def return_if(var: bool | None, is_false: T, is_true: T, default: T) -> T:  # noqa: FBT001

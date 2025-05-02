@@ -1,19 +1,28 @@
 """Base classes and data structures for panels in Kibana dashboards."""
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import Field, field_serializer
 
 from dashboard_compiler.filters.view import KbnFilter
 from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.view import BaseVwModel
+from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.lens.view import KbnLensPanel
     from dashboard_compiler.panels.links.view import KbnLinksPanel
     from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
     from dashboard_compiler.panels.search.view import KbnSearchPanel
+
+__all__ = [
+    'KbnBasePanel',
+    'KbnBasePanelEmbeddableConfig',
+    'KbnGridData',
+    'KbnPanelTypes',
+    'KbnSavedObjectMeta',
+    'KbnSearchSourceJSON',
+]
 
 type KbnPanelTypes = KbnMarkdownPanel | KbnSearchPanel | KbnLinksPanel | KbnLensPanel
 
@@ -32,7 +41,8 @@ class KbnBasePanelEmbeddableConfig(BaseVwModel):
     """Base model for embeddable configuration in Kibana panels."""
 
     enhancements: dict[str, Any] = Field(default_factory=dict)
-    hidePanelTitles: bool | None = None
+    description: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    hidePanelTitles: Annotated[bool | None, OmitIfNone()] = None
 
 
 class KbnBasePanel(BaseVwModel):

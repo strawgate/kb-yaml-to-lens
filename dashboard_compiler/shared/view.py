@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import TypeVar
 
-from pydantic import ConfigDict, Field, RootModel, model_serializer
+from pydantic import Field, RootModel, model_serializer
 
 from dashboard_compiler.shared.model import BaseModel
 

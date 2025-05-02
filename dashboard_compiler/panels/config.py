@@ -1,15 +1,16 @@
 """Configuration for dashboard panels."""
 
 from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-    #from dashboard_compiler.panels.lens import LensPanel
+    # from dashboard_compiler.panels.lens import LensPanel
     from dashboard_compiler.panels.links import LinksPanel
     from dashboard_compiler.panels.markdown import MarkdownPanel
     from dashboard_compiler.panels.search import SearchPanel
 
-type PanelTypes = 'MarkdownPanel | SearchPanel | LinksPanel'  # | LensPanel  # noqa: TC008
+type PanelTypes = 'MarkdownPanel | SearchPanel | LinksPanel'  # | LensPanel
 
 
 class Grid(BaseModel):
@@ -18,10 +19,17 @@ class Grid(BaseModel):
     This determines the panel's position and size on the dashboard grid.
     """
 
-    x: int = Field(..., description='The horizontal starting position of the panel on the grid (0-based).')
-    y: int = Field(..., description='The vertical starting position of the panel on the grid (0-based).')
-    w: int = Field(..., description='The width of the panel in grid units.')
-    h: int = Field(..., description='The height of the panel in grid units.')
+    x: int = Field(...)
+    """The horizontal starting position of the panel on the grid (0-based)."""
+
+    y: int = Field(...)
+    """The vertical starting position of the panel on the grid (0-based)."""
+
+    w: int = Field(...)
+    """The width of the panel in grid units."""
+
+    h: int = Field(...)
+    """The height of the panel in grid units."""
 
 
 class BasePanel(BaseModel):
@@ -33,13 +41,19 @@ class BasePanel(BaseModel):
 
     id: str | None = Field(
         default=None,
-        description='A unique identifier for the panel. If not provided, one may be generated during compilation.',
     )
-    title: str = Field('', description='The title displayed on the panel header. Can be an empty string.')
+    """A unique identifier for the panel. If not provided, one may be generated during compilation."""
+
+    title: str = Field('')
+    """The title displayed on the panel header. Can be an empty string."""
+
     hide_title: bool | None = Field(
         default=None,
-        description='If `true`, the panel title will be hidden. Defaults to `false` (title is shown).',
     )
-    description: str = Field('', description="A brief description of the panel's content or purpose. Defaults to an empty string.")
-    # type: str = Field(..., description="The type of panel. This field is used to determine the specific panel implementation.")
-    grid: Grid = Field(..., description="Defines the panel's position and size on the dashboard grid.")
+    """If `true`, the panel title will be hidden. Defaults to `false` (title is shown)."""
+
+    description: str | None = Field(default=None)
+    """A brief description of the panel's content or purpose. Defaults to an empty string."""
+
+    grid: Grid = Field(...)
+    """Defines the panel's position and size on the dashboard grid."""

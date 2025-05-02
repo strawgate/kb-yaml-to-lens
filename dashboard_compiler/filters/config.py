@@ -95,7 +95,7 @@ class RangeFilter(BaseFilter):
 
     @model_validator(mode='after')
     def at_least_one_value(self) -> Self:
-        """Ensure at least one of gte, lte, gt, or lt is provided."""  # noqa: DOC201, DOC501
+        """Ensure at least one of gte, lte, gt, or lt is provided."""
         if not any([self.lte, self.gte, self.gt, self.lt]):
             msg = "At least one of 'gte', 'lte', 'gt', or 'lt' must be provided for RangeFilter."
             raise ValueError(msg)

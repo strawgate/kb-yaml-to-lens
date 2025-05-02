@@ -1,9 +1,9 @@
 """View models for Kibana controls used in dashboards."""
 
 from enum import Enum
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, field_serializer, model_serializer
+from pydantic import Field, field_serializer
 
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone, RootDict
 

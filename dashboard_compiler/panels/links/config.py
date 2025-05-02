@@ -1,4 +1,5 @@
 """Configuration for Links Panel."""
+
 from typing import Literal, Self
 
 from pydantic import Field
@@ -13,22 +14,43 @@ class BaseLink(BaseCfgModel):
     Specific link types (e.g., DashboardLink, UrlLink) inherit from this base class.
     """
 
-    label: str | None = Field(default=None, description='The display text for the link. If not provided, a label may be inferred.')
+    id: str | None = Field(default=None)
+    """An optional unique identifier for the link. Not normally required."""
+
+    label: str | None = Field(default=None)
+    """The text that will be displayed for the link. Kibana defaults to showing the URL if not set."""
 
 
 type LinkTypes = DashboardLink | UrlLink
 
 
 class DashboardLink(BaseLink):
-    """Represents a link to another dashboard or saved object within a Links panel."""
+    """Represents a link to another dashboard within a Links panel."""
 
-    dashboard: str = Field(..., description='The ID of the target dashboard or saved object.')
+    dashboard: str = Field(...)
+    """The ID of the dashboard that the link points to."""
+
+    new_tab: bool | None = Field(default=None)
+    """If `true`, links will open in a new browser tab. Kibana defaults to `false` if not set."""
+
+    with_time: bool | None = Field(default=None)
+    """If `true`, the links will inherit the time range from the dashboard. Kibana defaults to `True` if not set."""
+
+    with_filters: bool | None = Field(default=None)
+    """If `true`, the links will inherit the filters from the dashboard. Kibana defaults to `True` if not set."""
 
 
 class UrlLink(BaseLink):
     """Represents a link to an external URL within a Links panel."""
 
-    url: str = Field(..., description='The URL that the link points to.')
+    url: str = Field(...)
+    """The Web URL that the link points to."""
+
+    encode: bool | None = Field(default=None)
+    """If `true`, the URL will be URL-encoded. Kibana defaults to `True` if not set."""
+
+    new_tab: bool | None = Field(default=None)
+    """If `true`, the link will open in a new browser tab. Kibana defaults to `false` if not set."""
 
 
 class LinksPanel(BasePanel):
@@ -40,10 +62,10 @@ class LinksPanel(BasePanel):
 
     type: Literal['links'] = 'links'
 
-    layout: Literal['horizontal', 'vertical'] = Field(default='horizontal')
-    """The layout of the links in the panel, either 'horizontal' or 'vertical'. Defaults to 'horizontal' if not set."""
+    layout: Literal['horizontal', 'vertical'] | None = Field(default=None)
+    """The layout of the links in the panel, either 'horizontal' or 'vertical'. Kibana defaults to 'horizontal' if not set."""
 
-    links: list[LinkTypes] = Field(...)
+    links: list[LinkTypes] = Field(default_factory=list)
     """A list of link objects to be displayed in the panel."""
 
     def add_link(self, link: LinkTypes) -> Self:
