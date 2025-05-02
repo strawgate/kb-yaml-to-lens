@@ -1,10 +1,13 @@
 """Compile Control configurations into Kibana view models."""
 
+import uuid
+
 from dashboard_compiler.controls import ControlTypes
-from dashboard_compiler.controls.config import OptionsListControl, RangeSliderControl
+from dashboard_compiler.controls.config import ControlSettings, MatchTechnique, OptionsListControl, RangeSliderControl, TimeSliderControl
 from dashboard_compiler.controls.view import (
     KBN_DEFAULT_CONTROL_WIDTH,
-    KBN_DEFAULT_SEARCH_TECHNIQUE,
+    ChainingSystemEnum,
+    ControlStyleEnum,
     KbnControlGroupInput,
     KbnControlPanelsJson,
     KbnControlSort,
@@ -14,8 +17,11 @@ from dashboard_compiler.controls.view import (
     KbnOptionsListControlExplicitInput,
     KbnRangeSliderControl,
     KbnRangeSliderControlExplicitInput,
+    KbnTimeSliderControl,
+    KbnTimeSliderControlExplicitInput,
+    SearchTechnique,
 )
-from dashboard_compiler.shared import stable_id_generator
+from dashboard_compiler.shared.compile import return_if, return_if_equals
 
 
 def compile_options_list_control(order: int, control: OptionsListControl) -> KbnOptionsListControl:
@@ -29,17 +35,27 @@ def compile_options_list_control(order: int, control: OptionsListControl) -> Kbn
         KbnOptionsListControl: The compiled Kibana options list control view model.
 
     """
+    match_technique_to_search_technique: dict[MatchTechnique | None, SearchTechnique] = {
+        MatchTechnique.PREFIX: SearchTechnique.PREFIX,
+        MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
+        MatchTechnique.EXACT: SearchTechnique.EXACT,
+    }
+    stable_id = control.id or str(uuid.uuid4())
+
     return KbnOptionsListControl(
-        grow=True,
+        grow=control.fill_width or False,
         order=order,
         width=control.width or KBN_DEFAULT_CONTROL_WIDTH,
         explicitInput=KbnOptionsListControlExplicitInput(
+            id=stable_id,
             dataViewId=control.data_view,
             fieldName=control.field,
             title=control.label,
-            searchTechnique=control.search_technique or KBN_DEFAULT_SEARCH_TECHNIQUE,
+            runPastTimeout=control.wait_for_results or None,
+            singleSelect=control.singular or None,
+            searchTechnique=match_technique_to_search_technique.get(control.match_technique, SearchTechnique.PREFIX),
             selectedOptions=[],
-            sort=KbnControlSort(by=control.sort.by, direction=control.sort.direction) if control.sort else None,
+            sort=KbnControlSort(by='_count', direction='desc'),
         ),
     )
 
@@ -55,15 +71,43 @@ def compile_range_slider_control(order: int, control: RangeSliderControl) -> Kbn
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
+    stable_id = control.id or str(uuid.uuid4())
+
     return KbnRangeSliderControl(
-        grow=True,
+        grow=control.fill_width or False,
         order=order,
         width=control.width or 'medium',
         explicitInput=KbnRangeSliderControlExplicitInput(
+            id=stable_id,
             dataViewId=control.data_view,
             fieldName=control.field,
-            step=control.step,
+            step=control.step or 1,
             title=control.label,
+        ),
+    )
+
+
+def compile_time_slider_control(order: int, control: TimeSliderControl) -> KbnTimeSliderControl:
+    """Compile a TimeSliderControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (TimeSliderControl): The TimeSliderControl object to compile.
+
+    Returns:
+        KbnTimeSliderControl: The compiled Kibana time slider control view model.
+
+    """
+    stable_id = control.id or str(uuid.uuid4())
+
+    return KbnTimeSliderControl(
+        grow=True,
+        order=order,
+        width=control.width or 'medium',
+        explicitInput=KbnTimeSliderControlExplicitInput(
+            id=stable_id,
+            timesliceEndAsPercentageOfTimeRange=control.end_offset or 100.0,
+            timesliceStartAsPercentageOfTimeRange=control.start_offset or 0.0,
         ),
     )
 
@@ -82,32 +126,73 @@ def compile_control(order: int, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, OptionsListControl):
         return compile_options_list_control(order, control)
 
-    return compile_range_slider_control(order, control)
+    if isinstance(control, TimeSliderControl):
+        return compile_time_slider_control(order, control)
+
+    if isinstance(control, RangeSliderControl):
+        return compile_range_slider_control(order, control)
+
+    msg = f"Control type '{control.type}' is not implemented for compilation to Kibana view model."
+    raise NotImplementedError(msg)
 
 
-def compile_controls(controls: list[ControlTypes]) -> KbnControlGroupInput:
+def compile_control_panels_json(controls: list[ControlTypes]) -> KbnControlPanelsJson:
     """Compile the control group input for a Dashboard object into its Kibana view model representation.
 
     Args:
         controls (list[ControlTypes]): The list of control objects to compile.
 
     Returns:
-        KbnControlGroupInput: The compiled Kibana control group input view model.
+        KbnControlPanelsJson: The compiled Kibana control panels JSON view model.
 
     """
     kbn_control_panels_json: KbnControlPanelsJson = KbnControlPanelsJson()
 
-    for i, config_control in enumerate(controls):
-        kbn_control_id = config_control.id or stable_id_generator(
-            [config_control.type, config_control.label, config_control.data_view, config_control.field],
-        )
+    for i, config_control in enumerate(iterable=controls):
+        kbn_control: KbnControlTypes = compile_control(i, config_control)
 
-        kbn_control_panels_json.add(kbn_control_id, compile_control(i, config_control))
+        kbn_control_id: str = kbn_control.explicitInput.id
+
+        kbn_control_panels_json.add(key=kbn_control_id, value=kbn_control)
+
+    return kbn_control_panels_json
+
+
+def compile_control_group(control_settings: ControlSettings, controls: list[ControlTypes]) -> KbnControlGroupInput:
+    """Compile a control group from a list of ControlTypes into a Kibana view model.
+
+    Args:
+        control_settings (ControlSettings): The settings for the control group.
+        controls (list[ControlTypes]): The list of control configurations to compile.
+
+    Returns:
+        KbnControlGroupInput: The compiled Kibana control group input view model.
+
+    """
+    panels_json = compile_control_panels_json(controls)
+
+    ignore_parent_settings_json = KbnIgnoreParentSettingsJson(
+        ignoreFilters=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
+        ignoreQuery=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
+        ignoreTimerange=return_if(var=control_settings.apply_global_timerange, is_true=False, is_false=True, default=False),
+        ignoreValidations=return_if(var=control_settings.ignore_zero_results, is_true=True, is_false=False, default=False),
+    )
 
     return KbnControlGroupInput(
-        chainingSystem='HIERARCHICAL',
-        controlStyle='oneLine',
-        ignoreParentSettingsJSON=KbnIgnoreParentSettingsJson(),
-        panelsJSON=kbn_control_panels_json,
-        showApplySelections=False,
+        chainingSystem=return_if(
+            var=control_settings.chain_controls,
+            is_false=ChainingSystemEnum.NONE,
+            is_true=ChainingSystemEnum.HIERARCHICAL,
+            default=ChainingSystemEnum.HIERARCHICAL,
+        ),
+        controlStyle=return_if_equals(
+            var=control_settings.label_position,
+            equals='inline',
+            is_true=ControlStyleEnum.ONE_LINE,
+            is_false=ControlStyleEnum.TWO_LINE,
+            is_none=ControlStyleEnum.ONE_LINE,
+        ),
+        ignoreParentSettingsJSON=ignore_parent_settings_json,
+        panelsJSON=panels_json,
+        showApplySelections=control_settings.click_to_apply or False,
     )

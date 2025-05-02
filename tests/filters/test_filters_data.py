@@ -1,4 +1,4 @@
-"""Test data for filters."""
+"""Test data for filter compilation tests."""
 
 CASE_PHRASE_FILTER = (
     {'field': 'status', 'equals': 'active'},
@@ -129,7 +129,6 @@ CASE_COMPOUND_AND_FILTER = (
                         'key': 'status',
                         'field': 'status',
                         'params': ['a', 'b', 'c'],
-                        'value': ['a', 'b', 'c'],
                         'type': 'phrases',
                         'disabled': False,
                         'alias': None,
@@ -152,6 +151,7 @@ CASE_COMPOUND_AND_FILTER = (
             'negate': False,
             'alias': None,
         },
+        'query': {},
     },
 )
 """Tuple[Config as Dict, View as Dict] for a compound `and` filter with two sub-filters"""
@@ -185,7 +185,6 @@ CASE_COMPOUND_OR_FILTER = (
                         'key': 'status',
                         'field': 'status',
                         'params': ['a', 'b', 'c'],
-                        'value': ['a', 'b', 'c'],
                         'type': 'phrases',
                         'disabled': False,
                         'alias': None,
@@ -208,6 +207,7 @@ CASE_COMPOUND_OR_FILTER = (
             'negate': False,
             'alias': None,
         },
+        'query': {},
     },
 )
 """Tuple[Config as Dict, View as Dict] for a compound `or` filter with two sub-filters"""
@@ -217,7 +217,9 @@ CASE_COMPOUND_OR_NOT_FILTER = (
     {
         'or': [
             {'field': 'status', 'in': ['a', 'b', 'c']},
-            {'not': {'field': 'status_code', 'equals': 'a'}},
+            {
+                'not': {'field': 'status_code', 'equals': 'a'},
+            },
         ],
     },
     {
@@ -241,7 +243,6 @@ CASE_COMPOUND_OR_NOT_FILTER = (
                         'key': 'status',
                         'field': 'status',
                         'params': ['a', 'b', 'c'],
-                        'value': ['a', 'b', 'c'],
                         'type': 'phrases',
                         'disabled': False,
                         'alias': None,
@@ -271,7 +272,17 @@ CASE_COMPOUND_OR_NOT_FILTER = (
 """Tuple[Config as Dict, View as Dict] for a compound `or` filter with a negated sub-filter"""
 
 CASE_COMPOUND_OR_AND_FILTER = (
-    {'or': [{'field': 'status', 'in': ['a', 'b', 'c']}, {'and': [{'field': 'status_code', 'equals': 'a'}, {'exists': 'error.message'}]}]},
+    {
+        'or': [
+            {'field': 'status', 'in': ['a', 'b', 'c']},
+            {
+                'and': [
+                    {'field': 'status_code', 'equals': 'a'},
+                    {'exists': 'error.message'},
+                ],
+            },
+        ],
+    },
     {
         'meta': {
             'type': 'combined',
@@ -293,7 +304,6 @@ CASE_COMPOUND_OR_AND_FILTER = (
                         'key': 'status',
                         'field': 'status',
                         'params': ['a', 'b', 'c'],
-                        'value': ['a', 'b', 'c'],
                         'type': 'phrases',
                         'disabled': False,
                         'alias': None,
@@ -322,7 +332,6 @@ CASE_COMPOUND_OR_AND_FILTER = (
                                     'negate': False,
                                     'key': 'error.message',
                                     'field': 'error.message',
-                                    'value': 'exists',
                                     'type': 'exists',
                                     'disabled': False,
                                     'alias': None,
@@ -334,6 +343,7 @@ CASE_COMPOUND_OR_AND_FILTER = (
                         'negate': False,
                         'alias': None,
                     },
+                    'query': {},
                 },
             ],
             'disabled': False,
@@ -346,6 +356,16 @@ CASE_COMPOUND_OR_AND_FILTER = (
 )
 """Tuple[Config as Dict, View as Dict] for a compound `or` filter with a compound `and` sub-filter"""
 
+CASE_QUERY_DSL_FILTER = (
+    {'dsl': {'match_phrase': {'status': 'active'}}},
+    {
+        'meta': {'type': 'custom', 'disabled': False, 'negate': False, 'alias': None, 'key': 'query'},
+        '$state': {'store': 'appState'},
+        'query': {'match_phrase': {'status': 'active'}},
+    },
+)
+"""Tuple[Config as Dict, View as Dict] for a custom query DSL filter"""
+
 
 TEST_CASES = [
     CASE_PHRASE_FILTER,
@@ -357,6 +377,7 @@ TEST_CASES = [
     CASE_COMPOUND_OR_FILTER,
     CASE_COMPOUND_OR_NOT_FILTER,
     CASE_COMPOUND_OR_AND_FILTER,
+    CASE_QUERY_DSL_FILTER,
 ]
 TEST_CASE_IDS = [
     'phrase_filter',
@@ -368,4 +389,5 @@ TEST_CASE_IDS = [
     'compound_or_filter',
     'compound_or_not_filter',
     'compound_or_and_filter',
+    'query_dsl_filter',
 ]

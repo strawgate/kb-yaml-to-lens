@@ -8,7 +8,7 @@ license = "MIT" # Using MIT as a common default, change if needed
 packages = [{include = "dashboard_compiler"}]
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = ">=3.12"
 pyyaml = ">=6.0"
 pydantic = ">=2.11.3"
 syrupy = ">=4.9.1"
@@ -73,13 +73,16 @@ unfixable = []
     "S101", # Ignore use of assert
     "ANN201", # Ignore missing type annotations in tests
     "RUF029", # Ignore await not used in async function
+    "PGH003", # Don't require specific rule exclusions for type checking ignores
 ] 
 "dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
 ]
-
+"dashboard_compiler/**/config.py" = [
+    "TC008" # allow quotes around type alias for forward references
+]
 
 [tool.ruff.format]
 quote-style = "single" 

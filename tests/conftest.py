@@ -3,7 +3,7 @@ import yaml
 from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.json import JSONSnapshotExtension
 
-DEEP_DIFF_DEFAULTS = {
+DEEP_DIFF_DEFAULTS: dict[str, bool | int] = {
     "ignore_order": True,
     "threshold_to_diff_deeper": 0,
     "verbose_level": 2,

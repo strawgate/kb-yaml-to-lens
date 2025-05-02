@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any, Literal
 
-from pydantic import ConfigDict, Field, model_serializer
+from pydantic import ConfigDict, Field
 
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
@@ -35,9 +35,7 @@ from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 # }
 
 
-class KbnFilterMeta(BaseVwModel):
-    """Represents the meta information of a filter in the Kibana JSON structure."""
-
+class KbnBaseFilterMeta(BaseVwModel):
     disabled: bool
     """Indicates whether the filter is disabled."""
 
@@ -46,6 +44,28 @@ class KbnFilterMeta(BaseVwModel):
 
     alias: str | None = None
     """An optional alias for the filter, used for display purposes."""
+
+    index: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """The data view / index associated with the filter, if applicable."""
+
+
+class KbnCombinedFilterMeta(KbnBaseFilterMeta):
+    """Represents the meta information for a combined filter in the Kibana JSON structure."""
+
+    type: Literal['combined'] = Field(default='combined')
+
+    relation: Annotated[Literal['AND', 'OR'] | None, OmitIfNone()]
+    """The relation of the 'combined' filter, if applicable. Can be 'AND' or 'OR'."""
+
+    params: Annotated[list['KbnFilter'], 'KbnFilter', OmitIfNone()]
+    """Parameters for the filter, which can include a list of other filters that are combined."""
+
+
+class KbnFilterMeta(KbnBaseFilterMeta):
+    """Represents the meta information of a filter in the Kibana JSON structure."""
+
+    type: Literal['phrase', 'phrases', 'range', 'exists']
+    """The type of filter, e.g., 'phrase', 'phrases', 'range', 'exists', etc."""
 
     key: str
     """The key of the filter, typically the field name being filtered on."""
@@ -56,14 +76,18 @@ class KbnFilterMeta(BaseVwModel):
     params: Annotated[dict[str, Any] | list[str] | None, OmitIfNone()] = Field(default=None)
     """Parameters for the filter, such as the value to match against."""
 
-    type: str
-    """The type of filter, e.g., 'combined', 'phrase', 'phrases', 'range', 'exists', etc."""
 
-    relation: Annotated[Literal["AND","OR"] | None, OmitIfNone()] = Field(default=None)
-    """The relation of the 'combined' filter, if applicable. Can be 'AND' or 'OR'."""
+class KbnCustomFilterMeta(KbnBaseFilterMeta):
+    """Represents the meta information for a custom filter in the Kibana JSON structure."""
 
-    index: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """The data view / index associated with the filter, if applicable."""
+    type: Literal['custom'] = Field(default='custom')
+    """The type of filter, which is 'custom' for custom filters."""
+
+    key: Literal['query'] = Field(default='query')
+    """The key for the custom filter, which is always 'query'."""
+
+
+type KbnFilterMetaTypes = KbnFilterMeta | KbnCombinedFilterMeta | KbnCustomFilterMeta
 
 
 class KbnFilterState(BaseVwModel):
@@ -78,6 +102,6 @@ class KbnFilter(BaseVwModel):
     model_config = ConfigDict(serialize_by_alias=True)
     """Configuration for the model to serialize using aliases for the $state field."""
 
-    state: KbnFilterState = Field(..., serialization_alias='$state')
-    meta: KbnFilterMeta
-    query: dict[str, Any]
+    state: Annotated[KbnFilterState | None, OmitIfNone()] = Field(..., serialization_alias='$state')
+    meta: KbnFilterMetaTypes
+    query: Annotated[dict[str, Any] | None, OmitIfNone()]

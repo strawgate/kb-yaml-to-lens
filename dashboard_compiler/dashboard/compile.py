@@ -1,6 +1,6 @@
 """Compile a Dashboard into its Kibana view model representation."""
 
-from dashboard_compiler.controls.compile import compile_controls
+from dashboard_compiler.controls.compile import compile_control_group
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard, KbnDashboardAttributes, KbnDashboardOptions
 from dashboard_compiler.filters.compile import compile_filters
@@ -46,14 +46,14 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         panelsJSON=panels,
         kibanaSavedObjectMeta=KbnSavedObjectMeta(
             searchSourceJSON=KbnSearchSourceJSON(
-                filter=compile_filters(dashboard.filters),
-                query=compile_query(dashboard.query) if dashboard.query else KbnQuery(query='', language='kuery'),
+                filter=compile_filters(filters=dashboard.filters),
+                query=compile_query(query=dashboard.query) if dashboard.query else KbnQuery(query='', language='kuery'),
             ),
         ),
         optionsJSON=compile_dashboard_options(),
         timeRestore=False,
         version=1,
-        controlGroupInput=compile_controls(dashboard.controls),
+        controlGroupInput=compile_control_group(control_settings=dashboard.settings.controls, controls=dashboard.controls),
     )
 
 

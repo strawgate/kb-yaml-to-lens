@@ -1,16 +1,19 @@
 """Configuration schema for Dashboard filters."""
 
-from typing import Self
+from typing import Any, Self
 
 from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
-type FilterTypes = ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter
+type FilterTypes = 'ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter | CustomFilter'
 
-type FilterJunctionTypes = AndFilter | OrFilter | NegateFilter
+type FilterJunctionTypes = 'AndFilter | OrFilter'
 
-type AllFilterTypes = FilterTypes | FilterJunctionTypes
+type FilterModifierTypes = 'NegateFilter'
+
+type AllFilterTypes = 'FilterTypes | FilterJunctionTypes | FilterModifierTypes'
+
 
 class BaseFilter(BaseCfgModel):
     """Base class for all filter configurations in the Config schema."""
@@ -30,6 +33,16 @@ class ExistsFilter(BaseFilter):
 
     exists: str = Field(...)
     """The field name to check for existence. If the field exists in a document, it will match that document."""
+
+
+class CustomFilter(BaseFilter):
+    """Represents a custom filter configuration in the Config schema.
+
+    This filter allows for custom query definitions that do not fit into the standard filters.
+    """
+
+    dsl: dict[str, Any] = Field(...)
+    """The custom query definition. This should be a valid Elasticsearch query object."""
 
 
 class PhraseFilter(BaseFilter):
@@ -99,21 +112,21 @@ class NegateFilter(BaseCfgModel):
     """The filter to negate. Can be a phrase, phrases, or range filter."""
 
 
-class AndFilter(BaseCfgModel):
+class AndFilter(BaseFilter):
     """Represents an 'and' filter configuration in the Config schema.
 
     This filter matches documents that satisfy all of the specified filters.
     """
 
-    and_filters: list[FilterTypes] = Field(..., alias='and')
+    and_filters: list['AllFilterTypes'] = Field(..., alias='and')
     """A list of filters. All filters must match for a document to be included."""
 
 
-class OrFilter(BaseCfgModel):
+class OrFilter(BaseFilter):
     """Represents an 'or' filter configuration in the Config schema.
 
     This filter matches documents that satisfy at least one of the specified filters.
     """
 
-    or_filters: list[FilterTypes] = Field(..., alias='or')
+    or_filters: list['AllFilterTypes'] = Field(..., alias='or')
     """A list of filters. At least one filter must match for a document to be included."""

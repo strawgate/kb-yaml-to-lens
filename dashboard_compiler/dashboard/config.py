@@ -1,11 +1,13 @@
 """Configuration for a Dashboard."""
 
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Literal, Self
 
 from pydantic import Field
 
 from dashboard_compiler.controls import ControlTypes
+from dashboard_compiler.controls.config import ControlSettings
 from dashboard_compiler.filters import FilterTypes
+from dashboard_compiler.filters.config import AllFilterTypes
 from dashboard_compiler.panels import PanelTypes
 from dashboard_compiler.queries import QueryTypes
 
@@ -22,14 +24,15 @@ class DashboardSyncSettings(BaseCfgModel):
     colors: bool | None = Field(default=None)
     """Whether to apply the same color palette to all panels on the dashboard. Defaults to true if not set."""
 
-
 class DashboardSettings(BaseCfgModel):
     """Global settings for a dashboard with options for margins, synchronization of colors."""
 
     margins: bool | None = Field(default=None)
     """Whether to put space between panels in the dashboard. Defaults to true if not set."""
 
-    sync: DashboardSyncSettings | None = Field(default_factory=DashboardSyncSettings)
+    sync: DashboardSyncSettings = Field(default_factory=DashboardSyncSettings)
+
+    controls: ControlSettings = Field(default_factory=ControlSettings)
 
     titles: bool | None = Field(default=None)
     """Whether to display the titles in the panel headers. Defaults to true if not set."""
@@ -55,7 +58,7 @@ class Dashboard(BaseCfgModel):
     query: 'QueryTypes | None' = Field(default=None)
     """A query (KQL or Lucene) applied to the dashboard."""
 
-    filters: list['FilterTypes'] = Field(default_factory=list)
+    filters: list['AllFilterTypes'] = Field(default_factory=list)
     """A list of filters applied to the dashboard."""
 
     controls: list['ControlTypes'] = Field(default_factory=list)
