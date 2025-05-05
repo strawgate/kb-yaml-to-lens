@@ -1,0 +1,183 @@
+{
+    "attributes": {
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
+            "panelsJSON": "{}",
+            "showApplySelections": false
+        },
+        "description": "",
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+        },
+        "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
+        "panelsJSON": [
+            {
+                "type": "lens",
+                "embeddableConfig": {
+                    "attributes": {
+                        "title": "Table @timestamp & aerospike.namespace & aerospike.namespace.geojson.region_query_false_positive & aerospike.namespace.geojson.region_query_points & aerospike.node.name",
+                        "references": [],
+                        "state": {
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "54236c60-cd71-4fbf-9e15-f267ffcf9b4f": {
+                                            "index": "d3b7e528216ce7ef65e68e07a803b7ab53e440cafdb52d9d7ee1ef4bbf5d8afa",
+                                            "query": {
+                                                "esql": "FROM metrics-* |nWHERE aerospike.namespace is not Nulln| LIMIT 10"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "columnId": "aerospike.namespace.geojson.region_query_false_positive",
+                                                    "fieldName": "aerospike.namespace.query.count",
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "counter_long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "columnId": "@timestamp",
+                                                    "fieldName": "@timestamp",
+                                                    "meta": {
+                                                        "type": "date",
+                                                        "esType": "date"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "columnId": "aerospike.namespace",
+                                                    "fieldName": "aerospike.namespace",
+                                                    "meta": {
+                                                        "type": "string",
+                                                        "esType": "keyword"
+                                                    },
+                                                    "inMetricDimension": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    },
+                                    "indexPatternRefs": [
+                                        {
+                                            "id": "d3b7e528216ce7ef65e68e07a803b7ab53e440cafdb52d9d7ee1ef4bbf5d8afa",
+                                            "title": "metrics-*",
+                                            "timeField": "@timestamp"
+                                        }
+                                    ]
+                                }
+                            },
+                            "filters": [],
+                            "query": {
+                                "esql": "FROM metrics-* |nWHERE aerospike.namespace is not Nulln| LIMIT 10"
+                            },
+                            "visualization": {
+                                "legend": {
+                                    "isVisible": true,
+                                    "position": "right"
+                                },
+                                "valueLabels": "hide",
+                                "fittingFunction": "Linear",
+                                "axisTitlesVisibilitySettings": {
+                                    "x": true,
+                                    "yLeft": true,
+                                    "yRight": true
+                                },
+                                "tickLabelsVisibilitySettings": {
+                                    "x": true,
+                                    "yLeft": true,
+                                    "yRight": true
+                                },
+                                "labelsOrientation": {
+                                    "x": 0,
+                                    "yLeft": 0,
+                                    "yRight": 0
+                                },
+                                "gridlinesVisibilitySettings": {
+                                    "x": true,
+                                    "yLeft": true,
+                                    "yRight": true
+                                },
+                                "preferredSeriesType": "line",
+                                "layers": [
+                                    {
+                                        "layerId": "54236c60-cd71-4fbf-9e15-f267ffcf9b4f",
+                                        "seriesType": "line",
+                                        "xAccessor": "@timestamp",
+                                        "splitAccessor": "aerospike.namespace",
+                                        "accessors": [
+                                            "aerospike.namespace.geojson.region_query_false_positive"
+                                        ],
+                                        "layerType": "data",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "adHocDataViews": {
+                                "d3b7e528216ce7ef65e68e07a803b7ab53e440cafdb52d9d7ee1ef4bbf5d8afa": {
+                                    "id": "d3b7e528216ce7ef65e68e07a803b7ab53e440cafdb52d9d7ee1ef4bbf5d8afa",
+                                    "title": "metrics-*",
+                                    "timeFieldName": "@timestamp",
+                                    "sourceFilters": [],
+                                    "type": "esql",
+                                    "fieldFormats": {},
+                                    "runtimeFieldMap": {},
+                                    "allowNoIndex": false,
+                                    "name": "metrics-*",
+                                    "allowHidden": false
+                                }
+                            }
+                        },
+                        "visualizationType": "lnsXY",
+                        "type": "lens"
+                    },
+                    "disabledActions": [
+                        "OPEN_FLYOUT_ADD_DRILLDOWN"
+                    ],
+                    "enhancements": {}
+                },
+                "panelIndex": "a24c411b-68fc-40c1-a01f-8eab4eea72fb",
+                "gridData": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 15,
+                    "i": "a24c411b-68fc-40c1-a01f-8eab4eea72fb"
+                }
+            }
+        ],
+        "timeRestore": false,
+        "title": "one-esql-line-chart",
+        "version": 3
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2025-04-29T13:43:11.679Z",
+    "created_by": "u_4224993909_cloud",
+    "id": "a08ca71d-a4eb-4510-b232-21470d0726d5",
+    "managed": false,
+    "references": [],
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2025-04-29T13:43:11.679Z",
+    "updated_by": "u_4224993909_cloud",
+    "version": "WzI5OTksMV0="
+}

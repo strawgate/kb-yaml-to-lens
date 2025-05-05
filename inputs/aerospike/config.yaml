@@ -1,0 +1,81 @@
+dashboard:
+  title: "[Metrics Aerospike] Overview Yaml"
+  description: A dashboard for Aerospike Metrics
+  controls:
+    - type: optionsList
+      label: Aerospike Namespace
+      data_view: "metrics-*"
+      field: aerospike.namespace
+  panels:
+  - type: markdown
+    title: On-dashboard description of Aerospike Metrics
+    hide_title: True
+    content: |
+      This dashboard provides an overview of Aerospike metrics, including node and namespace metrics.
+      It includes links to the Aerospike documentation and community resources. See the integration page for setup instructions.
+    grid: { x: 0, y: 0, w: 48, h: 3 }
+  - type: links
+    title: Links
+    grid: { x: 0, y: 3, w: 48, h: 3 }
+    description: Links to Aerospike documentation and other resources
+    layout: horizontal
+    links:
+      - label: Overview
+        dashboard: 0aa67124-5f70-a811-7ec5-063c196c5e6e
+      - label: Node Metrics
+        dashboard: ec958c2b-aefe-43ad-8864-60d0fe767280
+      - label: Namespace Metrics
+        dashboard: 70cf3a9f-94b5-4663-989b-b290aa94f43a
+      - label: Vendor Documentation
+        url: https://www.aerospike.com/docs/
+      - label: Community Forum
+        url: https://discuss.aerospike.com/
+
+  - type: lens
+    title: "Nodes by Namespace"
+    description: A chart showing the number of nodes by namespace
+    index_pattern: metrics-*
+    grid: { x: 0, y: 6, w: 16, h: 16 }
+    chart: 
+      type: pie
+      dimensions: 
+        - field: aerospike.namespace
+          type: terms
+          size: 5
+          sort:
+            by: "Count of records"
+            direction: desc
+      metrics:
+        - type: count
+          label: "Count of records"
+          field: ___records___
+  - type: lens
+    title: Free Memory by Node
+    description: A chart showing the minimum free memory by node
+    index_pattern: metrics-*
+    grid: { x: 16, y: 6, w: 32, h: 16 }
+    chart:
+      type: line
+      dimensions:
+        - field: "@timestamp"
+          type: date_histogram
+          interval: auto
+      metrics:
+        - type: min
+          field: aerospike.node.memory.free
+
+  - title: Open Connections by Node
+    type: lens
+    description: A chart showing the number of open connections by node
+    index_pattern: metrics-*
+    grid: { x: 16, y: 22, w: 32, h: 16 }
+    chart:
+      type: line
+      dimensions:
+        - field: "@timestamp"
+          type: date_histogram
+          interval: auto
+      metrics:
+        - type: max
+          field: aerospike.node.connection.open
+

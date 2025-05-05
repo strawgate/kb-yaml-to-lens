@@ -1,0 +1,33 @@
+dashboard:
+  title: one-esql-line-chart
+  panels:
+    - type: lens_esql
+      grid_data:
+        x: 0
+        y: 0
+        w: 24
+        h: 15
+      esql: |
+        FROM metrics-*
+        WHERE aerospike.namespace is not Null
+        | LIMIT 10
+      columns:
+        - field_name: "@timestamp"
+          label: "@timestamp"
+          data_type: "date"
+          es_type: "date"
+        - field_name: "aerospike.namespace"
+          label: "aerospike.namespace"
+          data_type: "string"
+          es_type: "keyword"
+        - field_name: "aerospike.namespace.geojson.region_query_false_positive"
+          label: "aerospike.namespace.query.count"
+          data_type: "number"
+          es_type: "counter_long"
+      chart:
+        type: line
+        mode: unstacked
+        x_axis_column: "@timestamp"
+        y_axis_columns:
+          - "aerospike.namespace.geojson.region_query_false_positive"
+        split_column: "aerospike.namespace"

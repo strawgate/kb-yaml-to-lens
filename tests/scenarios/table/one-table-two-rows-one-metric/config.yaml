@@ -1,0 +1,30 @@
+dashboard:
+  title: Table with two rows
+  description: "A dashboard with a Table with two rows and a metric"
+  panels:
+  - title: "table"
+    type: lens
+    index_pattern: metrics-* # Example index pattern ID
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart:
+      type: datatable
+      title: "table"
+      rows:
+        - field: agent.name
+          type: terms
+          label: "Top 3 values of agent.name"
+          size: 3
+          sort:
+            by: "Median of beat.stats.system.load.1" # Sort by the metric label
+            direction: desc
+        - field: agent.id
+          type: terms
+          label: "Top 3 values of agent.id"
+          size: 3
+          sort:
+            by: "Median of beat.stats.system.load.1" # Sort by the metric label
+            direction: desc
+      metrics:
+        - type: median
+          label: Median of beat.stats.system.load.1
+          field: beat.stats.system.load.1

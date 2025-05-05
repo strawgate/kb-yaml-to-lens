@@ -1,0 +1,169 @@
+"""Lens dimensions configuration for the Lens chart."""
+
+from enum import StrEnum
+from typing import Literal
+
+from pydantic import Field
+
+from dashboard_compiler.queries.config import QueryTypes
+from dashboard_compiler.shared.config import BaseCfgModel, Sort
+
+type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
+
+
+class BaseDimension(BaseCfgModel):
+    """Base model for defining dimensions."""
+
+    id: str | None = Field(default=None)
+    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
+
+class CollapseAggregationEnum(StrEnum):
+    """The aggregation to use for the dimension."""
+
+    SUM = 'sum'
+    MIN = 'min'
+    MAX = 'max'
+    AVG = 'avg'
+
+
+type ESQLDimensionTypes = ESQLDimension
+
+
+class ESQLDimension(BaseDimension):
+    """A dimension that is defined in the ESQL query."""
+
+    field: str = Field(default=...)
+    """The field to use for the dimension."""
+
+# class CollapsedDimension(BaseDimension):
+#     """A dimension that is collapsed into a single value."""
+
+#     aggregation: CollapseAggregationEnum | None = Field(default=None)
+#     """The aggregation to use for the dimension."""
+
+
+class BaseLensDimension(BaseDimension):
+    """Base model for defining dimensions within a Lens chart."""
+
+    id: str | None = Field(default=None)
+    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
+    label: str | None = Field(default=None)
+    """The display label for the dimension. If not provided, a label may be inferred from the field and type."""
+    # color: ColorMapping | None = Field(default=None)
+
+
+class LensFiltersDimensionFilter(BaseCfgModel):
+    """A filter for a filters dimension."""
+
+    query: QueryTypes = Field(default=...)
+    """The query to use for the dimension."""
+
+    label: str | None = Field(default=None)
+    """The display label for the filter. If not provided, the query will be used as the label."""
+
+
+class LensFiltersDimension(BaseLensDimension):
+    """Represents a filters dimension configuration within a Lens chart.
+
+    Filters dimensions are used for filtering data based on a field.
+    """
+
+    type: Literal['filters'] = 'filters'
+
+    filters: list[LensFiltersDimensionFilter] = Field(default=...)
+    """The filters to use for the dimension."""
+
+
+class LensIntervalsDimensionInterval(BaseCfgModel):
+    """A single interval for an intervals dimension."""
+
+    from_value: int | None = Field(default=None, alias='from')
+    """The start of the interval."""
+
+    to_value: int | None = Field(default=None, alias='to')
+    """The end of the interval."""
+
+    label: str | None = Field(default=None)
+    """The label for the interval."""
+
+
+class LensIntervalsDimension(BaseLensDimension):
+    """Represents an intervals dimension configuration within a Lens chart.
+
+    Intervals dimensions are used for aggregating data based on numeric ranges.
+    """
+
+    type: Literal['intervals'] = 'intervals'
+
+    field: str = Field(default=...)
+    """The name of the field in the data view that this dimension is based on."""
+
+    intervals: list[LensIntervalsDimensionInterval] | None = Field(default=None)
+    """The intervals to use for the dimension. If not provided, intervals will be automatically picked."""
+
+    granularity: int | None = Field(default=None, ge=1, le=7)
+    """Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field.
+    Kibana defaults to 4 if not specified."""
+
+    collapse: CollapseAggregationEnum | None = Field(default=None)
+    """The aggregation to use for the dimension."""
+
+    empty_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+
+
+class LensTopValuesDimension(BaseLensDimension):
+    """Represents a top values dimension configuration within a Lens chart.
+
+    Top values dimensions are used for aggregating data based on unique values of a field.
+    """
+
+    type: Literal['values'] = 'values'
+
+    field: str = Field(default=...)
+    """The name of the field in the data view that this dimension is based on."""
+
+    size: int | None = Field(default=None)
+    """The number of top terms to display."""
+
+    sort: Sort | None = Field(default=None)
+    """The sort configuration for the terms."""
+
+    other_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for terms not included in the top size. Defaults to `false`."""
+
+    missing_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+
+    include: list[str] | None = Field(default=None)
+    """A list of terms to include. Can be used with or without `include_is_regex`."""
+
+    exclude: list[str] | None = Field(default=None)
+    """A list of terms to exclude. Can be used with or without `exclude_is_regex`."""
+
+    include_is_regex: bool | None = Field(default=None)
+    """If `true`, treat the values in the `include` list as regular expressions. Defaults to `false`."""
+
+    exclude_is_regex: bool | None = Field(default=None)
+    """If `true`, treat the values in the `exclude` list as regular expressions. Defaults to `false`."""
+
+
+class LensDateHistogramDimension(BaseLensDimension):
+    """Represents a histogram dimension configuration within a Lens chart.
+
+    Date histogram dimensions are used for aggregating data into buckets based on numeric ranges.
+    """
+
+    type: Literal['date_histogram'] = 'date_histogram'
+
+    field: str = Field(default=...)
+    """The name of the field in the data view that this dimension is based on."""
+
+    minimum_interval: str | None = Field(default=None)
+    """The numeric interval for the histogram buckets. Defaults to `auto` if not specified."""
+
+    partial_intervals: bool | None = Field(default=None)
+    """If `true`, show partial intervals. Kibana defaults to `true` if not specified."""
+
+    collapse: CollapseAggregationEnum | None = Field(default=None)
+    """The aggregation to use for the dimension."""

@@ -1,0 +1,24 @@
+dashboard:
+  type: lens
+  title: Unstacked Area Timestamp and two series
+  index_pattern: 27a3148b-d1d4-4455-8acf-e63c94071a5b
+  chart:
+    type: area
+    mode: unstacked
+    dimensions:
+      - field: "@timestamp"
+        type: date_histogram
+        label: "@timestamp"
+        interval: auto
+    metrics:
+      - type: count
+        field: "___records___"
+        label: "Count of records"
+      - type: min
+        field: "aerospike.namespace.query.count"
+        label: "Minimum of aerospike.namespace.query.count"
+    axis:
+      left:
+        title: "Value" # Assuming a default title if not specified in JSON
+    legend: {}
+    appearance: {}

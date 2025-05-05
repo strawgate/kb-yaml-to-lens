@@ -1,0 +1,28 @@
+{
+  "dictionary_item_added": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']['94793652-40b0-4337-bf6a-8c2f7188a37c']['columns']['bd2b7862-fbda-4a1e-a8c1-e6585ff69eee']['customLabel']": true
+  },
+  "dictionary_item_removed": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']['94793652-40b0-4337-bf6a-8c2f7188a37c']['ignoreGlobalFilters']": false,
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['visualization']['columns'][1]['width']": 152.66666666666666,
+    "root['attributes']['panelsJSON'][0]['title']": "table"
+  },
+  "values_changed": {
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['references'][0]['id']": {
+      "new_value": "metrics-*",
+      "old_value": "27a3148b-d1d4-4455-8acf-e63c94071a5b"
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['currentIndexPatternId']": {
+      "new_value": "metrics-*",
+      "old_value": "27a3148b-d1d4-4455-8acf-e63c94071a5b"
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']['94793652-40b0-4337-bf6a-8c2f7188a37c']['indexPatternId']": {
+      "new_value": "metrics-*",
+      "old_value": "27a3148b-d1d4-4455-8acf-e63c94071a5b"
+    },
+    "root['attributes']['panelsJSON'][0]['embeddableConfig']['attributes']['title']": {
+      "new_value": "table",
+      "old_value": ""
+    }
+  }
+}

@@ -1,0 +1,13 @@
+dashboard:
+  title: one-esql-pie-chart
+  panels:
+    - type: lens_esql
+      grid_data:
+        x: 0
+        y: 0
+        w: 24
+        h: 15
+      esql: |
+        FROM logs* | LIMIT 10
+      chart:
+        type: pie

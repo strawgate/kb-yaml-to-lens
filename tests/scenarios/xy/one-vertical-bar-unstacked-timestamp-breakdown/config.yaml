@@ -1,0 +1,32 @@
+dashboard:
+  type: lens
+  title: Vertical Bar Timestamp and Count with a Terms Breakdown
+  index_pattern: 27a3148b-d1d4-4455-8acf-e63c94071a5b
+  chart:
+    type: bar
+    mode: stacked
+    dimensions:
+      - field: "@timestamp"
+        type: date_histogram
+        label: "@timestamp"
+        interval: auto
+      - field: "aerospike.namespace"
+        type: terms
+        label: "Top 3 values of aerospike.namespace"
+        size: 3
+        sort:
+          by: "Count of records"
+          direction: desc
+        other_bucket: true
+        missing_bucket: false
+    metrics:
+      - type: count
+        field: "___records___"
+        label: "Count of records"
+    axis:
+      left:
+        title: "Count of records" # Assuming a default title for the value axis
+      bottom:
+        title: "@timestamp" # Assuming a default title for the dimension axis
+    legend: {}
+    appearance: {}

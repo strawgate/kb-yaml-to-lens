@@ -1,0 +1,115 @@
+[tool.poetry]
+name = "dashboard-compiler"
+version = "0.1.0"
+description = "Compiles dashboard definitions from YAML to Kibana format"
+authors = ["Your Name <you@example.com>"] # Please update this with your details
+readme = "README.md" # Optional: Add a README later if you wish
+license = "MIT" # Using MIT as a common default, change if needed
+packages = [{include = "dashboard_compiler"}]
+
+[tool.poetry.dependencies]
+python = ">=3.12"
+pyyaml = ">=6.0"
+pydantic = ">=2.11.3"
+syrupy = ">=4.9.1"
+pytest-freezer = ">=0.4.9"
+deepdiff = ">=8.4.2"
+ruff = ">=0.11.6"
+pytest-asyncio = ">=0.26.0"
+beartype = "^0.20.2"
+humanize = "^4.12.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.0"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto" 
+addopts = "-vv"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 140
+# Assume Python 3.12
+target-version = "py312"
+# Exclude files/directories listed in .gitignore
+respect-gitignore = true
+# Add commonly ignored directories
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "reference"
+]
+
+[tool.ruff.lint]
+# Enable recommended rules + isort
+select = ["ALL"]
+ignore = [
+    "CPY001", # No copyright notice for meee
+    "ERA001", # I like commented out code sometimes
+    "PLR6301", # Ignore functions that don't use self
+    "D203",    # incorrect-blank-line-before-class
+    "D413",    # multi-line-summary-second-line
+    "COM812",  # Conflicts with formatter
+    "INP001",  # ignore __init__ requirements
+    "D100",    # Ignore missing docstrings for modules
+    "FBT001",  # Boolean in parameters
+    "FBT002",  # Boolean in parameters
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file rule ignores
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"tests/**.py" = [
+    "PLR2004", # Ignore magic numbers and docstring length in tests
+    "W505",
+    "INP001",
+    "S101", # Ignore use of assert
+    "ANN201", # Ignore missing type annotations in tests
+    "RUF029", # Ignore await not used in async function
+    "PGH003", # Don't require specific rule exclusions for type checking ignores
+    "D104", #Docstrings in public packages
+] 
+"dashboard_compiler/**/view.py" = [
+    "N815", # Ignore casing requirements for view models
+    "N803",  # Ignore lowercase arguments in view models
+    "D101", # Ignore missing docstrings in view models
+]
+"dashboard_compiler/**/config.py" = [
+    "TC008" # allow quotes around type alias for forward references
+]
+
+[tool.ruff.format]
+quote-style = "single" 
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["metering"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.validator"]
+
+[tool.ruff.lint.pylint]
+max-args = 8
+max-statements = 50

@@ -1,0 +1,26 @@
+dashboard:
+  id: 39567430-d468-44c7-8128-b4b983234504
+  title: Percentage Area Timestamp and two series
+  description: A dashboard with an Percentage area chart with two series
+  panels:
+  - type: lens
+    title: Chart with Percentage Area
+    description: A Chart with Percentage Area
+    index_pattern: metrics-*
+    id: 54e86807-1f14-41f1-ae9c-54bdac9b0fe2 # Set for testing purposes
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart:
+      type: area
+      id: 94793652-40b0-4337-bf6a-8c2f7188a37c # Set for testing purposes
+      mode: percentage
+      dimensions:
+        - field: "@timestamp"
+          id: 956ee036-4f4d-47f7-b9fb-be3c1ac3c143 # Set for testing purposes
+          type: date_histogram
+      metrics:
+        - type: count
+          id: c44fbd5f-413e-414a-ad6b-a0ca09727b94 # Set for testing purposes
+          field: "___records___"
+        - type: min
+          id: 51800b32-6dbd-483f-a95e-9b7c533fd9bb # Set for testing purposes
+          field: "aerospike.namespace.query.count"

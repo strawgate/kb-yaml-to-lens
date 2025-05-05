@@ -1,0 +1,166 @@
+{
+  "iterable_item_removed": {
+    "root['attributes']['panelsJSON'][0]": {
+      "embeddableConfig": {
+        "attributes": {
+          "references": [
+            {
+              "id": "27a3148b-d1d4-4455-8acf-e63c94071a5b",
+              "name": "indexpattern-datasource-layer-94793652-40b0-4337-bf6a-8c2f7188a37c",
+              "type": "index-pattern"
+            }
+          ],
+          "state": {
+            "adHocDataViews": {},
+            "datasourceStates": {
+              "formBased": {
+                "currentIndexPatternId": "27a3148b-d1d4-4455-8acf-e63c94071a5b",
+                "layers": {
+                  "94793652-40b0-4337-bf6a-8c2f7188a37c": {
+                    "columnOrder": [
+                      "2b5eb657-161a-4206-a3e0-0f10cb032124",
+                      "956ee036-4f4d-47f7-b9fb-be3c1ac3c143",
+                      "c44fbd5f-413e-414a-ad6b-a0ca09727b94"
+                    ],
+                    "columns": {
+                      "2b5eb657-161a-4206-a3e0-0f10cb032124": {
+                        "dataType": "string",
+                        "isBucketed": true,
+                        "label": "Top 3 values of aerospike.namespace",
+                        "operationType": "terms",
+                        "params": {
+                          "exclude": [],
+                          "excludeIsRegex": false,
+                          "include": [],
+                          "includeIsRegex": false,
+                          "missingBucket": false,
+                          "orderBy": {
+                            "columnId": "c44fbd5f-413e-414a-ad6b-a0ca09727b94",
+                            "type": "column"
+                          },
+                          "orderDirection": "desc",
+                          "otherBucket": true,
+                          "parentFormat": {
+                            "id": "terms"
+                          },
+                          "size": 3
+                        },
+                        "scale": "ordinal",
+                        "sourceField": "aerospike.namespace"
+                      },
+                      "956ee036-4f4d-47f7-b9fb-be3c1ac3c143": {
+                        "dataType": "date",
+                        "isBucketed": true,
+                        "label": "@timestamp",
+                        "operationType": "date_histogram",
+                        "params": {
+                          "dropPartials": false,
+                          "includeEmptyRows": true,
+                          "interval": "auto"
+                        },
+                        "scale": "interval",
+                        "sourceField": "@timestamp"
+                      },
+                      "c44fbd5f-413e-414a-ad6b-a0ca09727b94": {
+                        "dataType": "number",
+                        "isBucketed": false,
+                        "label": "Count of records",
+                        "operationType": "count",
+                        "params": {
+                          "emptyAsNull": true
+                        },
+                        "scale": "ratio",
+                        "sourceField": "___records___"
+                      }
+                    },
+                    "ignoreGlobalFilters": false,
+                    "incompleteColumns": {},
+                    "indexPatternId": "27a3148b-d1d4-4455-8acf-e63c94071a5b",
+                    "sampling": 1
+                  }
+                }
+              },
+              "indexpattern": {
+                "layers": {}
+              },
+              "textBased": {
+                "layers": {}
+              }
+            },
+            "filters": [],
+            "internalReferences": [],
+            "query": {
+              "language": "kuery",
+              "query": ""
+            },
+            "visualization": {
+              "layers": [
+                {
+                  "accessors": [
+                    "c44fbd5f-413e-414a-ad6b-a0ca09727b94"
+                  ],
+                  "colorMapping": {
+                    "assignments": [],
+                    "colorMode": {
+                      "type": "categorical"
+                    },
+                    "paletteId": "eui_amsterdam_color_blind",
+                    "specialAssignments": [
+                      {
+                        "color": {
+                          "type": "loop"
+                        },
+                        "rule": {
+                          "type": "other"
+                        },
+                        "touched": false
+                      }
+                    ]
+                  },
+                  "layerId": "94793652-40b0-4337-bf6a-8c2f7188a37c",
+                  "layerType": "data",
+                  "position": "top",
+                  "seriesType": "bar_stacked",
+                  "showGridlines": false,
+                  "splitAccessor": "2b5eb657-161a-4206-a3e0-0f10cb032124",
+                  "xAccessor": "956ee036-4f4d-47f7-b9fb-be3c1ac3c143"
+                }
+              ],
+              "legend": {
+                "isVisible": true,
+                "position": "right"
+              },
+              "preferredSeriesType": "bar_stacked",
+              "title": "Empty XY chart",
+              "valueLabels": "hide"
+            }
+          },
+          "title": "",
+          "type": "lens",
+          "visualizationType": "lnsXY"
+        },
+        "enhancements": {}
+      },
+      "gridData": {
+        "h": 15,
+        "i": "2d2db955-4428-420c-af24-29646fde15cb",
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panelIndex": "2d2db955-4428-420c-af24-29646fde15cb",
+      "type": "lens"
+    },
+    "root['references'][0]": {
+      "id": "27a3148b-d1d4-4455-8acf-e63c94071a5b",
+      "name": "2d2db955-4428-420c-af24-29646fde15cb:indexpattern-datasource-layer-94793652-40b0-4337-bf6a-8c2f7188a37c",
+      "type": "index-pattern"
+    }
+  },
+  "values_changed": {
+    "root['attributes']['description']": {
+      "new_value": "",
+      "old_value": "A dashboard with a vertical bar chart with record count over time and a terms breakdown"
+    }
+  }
+}
