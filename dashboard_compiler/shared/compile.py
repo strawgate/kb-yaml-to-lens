@@ -5,7 +5,7 @@ from typing import Any, TypeVar
 T = TypeVar('T')
 
 
-def return_unless(var: bool | None, is_none: bool) -> bool:  # noqa: FBT001
+def return_unless(var: bool | None, is_none: bool) -> bool:
     """Evaluate var and return a boolean value.
 
     Args:

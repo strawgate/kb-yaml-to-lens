@@ -2,7 +2,6 @@
 
 import pytest
 from deepdiff import DeepDiff
-from syrupy.assertion import SnapshotAssertion
 
 from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.images.compile import compile_image_panel_config
@@ -21,7 +20,7 @@ EXCLUDE_REGEX_PATHS = [
 
 
 @pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES, ids=TEST_CASE_IDS)
-async def test_compile_image_panel(config: dict, desired_output: dict, snapshot_json: SnapshotAssertion) -> None:
+async def test_compile_image_panel(config: dict, desired_output: dict) -> None:
     """Test the compilation of various ImagePanel configurations to their Kibana view model."""
     panel_grid = Grid(x=0, y=0, w=24, h=10)
 

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 import pytest
 from deepdiff import DeepDiff
 from pydantic import BaseModel
-from syrupy.assertion import SnapshotAssertion
 
 from dashboard_compiler.filters.compile import compile_filters
 from dashboard_compiler.filters.config import (
@@ -32,7 +31,7 @@ class FilterHolder(BaseModel):
 
 
 @pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES, ids=TEST_CASE_IDS)
-async def test_compile_filters(config: dict, desired_output: dict, snapshot_json: SnapshotAssertion) -> None:
+async def test_compile_filters(config: dict, desired_output: dict) -> None:
     """Test the compilation of various filter configurations to their Kibana view model."""
     filter_holder = FilterHolder.model_validate({'filter': config})
 

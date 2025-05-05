@@ -8,7 +8,6 @@ from pydantic import BaseModel
 
 from dashboard_compiler.controls.compile import compile_control, compile_control_group
 from dashboard_compiler.controls.config import ControlSettings, ControlTypes
-from dashboard_compiler.controls.view import KbnControlGroupInput
 from tests.conftest import DEEP_DIFF_DEFAULTS
 from tests.controls.test_controls_data import (
     CONTROLS_TEST_CASE_IDS,
@@ -18,7 +17,7 @@ from tests.controls.test_controls_data import (
 )
 
 if TYPE_CHECKING:
-    from dashboard_compiler.controls.view import KbnControlTypes
+    from dashboard_compiler.controls.view import KbnControlGroupInput, KbnControlTypes
 
 EXCLUDE_REGEX_PATHS = [
     r"root\['explicitInput'\]\['id'\]",  # Exclude the id field in explicitInput "root['explicitInput']['id']"
@@ -42,8 +41,6 @@ async def test_compile_controls(config: dict, desired_output: dict) -> None:
     kbn_control_group_input_as_dict = kbn_control_group_input.model_dump(by_alias=True)  # Use by_alias for $state
 
     assert DeepDiff(desired_output, kbn_control_group_input_as_dict, **DEEP_DIFF_DEFAULTS, exclude_regex_paths=EXCLUDE_REGEX_PATHS) == {}  # type: ignore
-
-    # assert kbn_control_group_input_as_dict == snapshot_json
 
 
 @pytest.mark.parametrize(('config', 'desired_output'), argvalues=SETTINGS_TEST_CASES, ids=SETTINGS_TEST_CASE_IDS)

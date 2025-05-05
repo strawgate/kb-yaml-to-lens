@@ -1,5 +1,6 @@
 import pytest
 import yaml
+from freezegun.api import FrozenDateTimeFactory
 from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.json import JSONSnapshotExtension
 
@@ -18,12 +19,13 @@ def snapshot_json(snapshot: SnapshotAssertion):
 
 
 @pytest.fixture(autouse=True)
-def freezer(freezer):
+def freezer(freezer: FrozenDateTimeFactory) -> FrozenDateTimeFactory:
     """Fixture to freeze time for consistent timestamps in snapshots."""
     # Freeze time to a fixed point for consistency in tests
     freezer.move_to('2023-10-01T12:00:00Z')
     return freezer
 
 
-def parse_yaml_string(yaml_string):
+def parse_yaml_string(yaml_string: str) -> dict:
+    """Parse a YAML string into a dictionary."""
     return yaml.safe_load(yaml_string)

@@ -63,6 +63,8 @@ ignore = [
     "COM812",  # Conflicts with formatter
     "INP001",  # ignore __init__ requirements
     "D100",    # Ignore missing docstrings for modules
+    "FBT001",  # Boolean in parameters
+    "FBT002",  # Boolean in parameters
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
