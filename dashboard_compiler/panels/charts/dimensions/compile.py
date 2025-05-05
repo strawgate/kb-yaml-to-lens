@@ -1,4 +1,5 @@
 from dashboard_compiler.panels.charts.columns.view import (
+    KbnESQLFieldDimensionColumn,
     KbnLensCustomIntervalsDimensionColumnParentFormat,
     KbnLensCustomIntervalsDimensionColumnParentFormatParams,
     KbnLensCustomInvervalsDimensionColumn,
@@ -15,6 +16,7 @@ from dashboard_compiler.panels.charts.columns.view import (
     KbnLensTermsDimensionColumnParams,
 )
 from dashboard_compiler.panels.charts.dimensions.config import (
+    ESQLDimensionTypes,
     LensDateHistogramDimension,
     LensDimensionTypes,
     LensFiltersDimension,
@@ -156,3 +158,43 @@ def compile_lens_dimension(
 
     msg = f'Unsupported dimension type: {type(dimension)}'
     raise NotImplementedError(msg)
+
+def compile_lens_dimensions(dimensions: list[LensDimensionTypes], kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes]) -> dict[str, KbnLensDimensionColumnTypes]:
+    """Compile a list of LensDimensionTypes objects into their Kibana view model representation.
+
+    Args:
+        dimensions (list[LensDimensionTypes]): The list of LensDimensionTypes objects to compile.
+        kbn_metric_column_by_id (dict[str, KbnLensMetricColumnTypes]): A dictionary of compiled KbnLensFieldMetricColumn objects.
+
+    Returns:
+        dict[str, KbnLensDimensionColumnTypes]: A dictionary of compiled KbnLensDimensionColumnTypes objects.
+    """
+    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id) for dimension in dimensions)
+
+
+def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensionColumn:
+    """Compile a single ESQLDimensionTypes object into its Kibana view model.
+
+    Args:
+        dimension (ESQLDimensionTypes): The ESQLDimensionTypes object to compile.
+
+    Returns:
+        KbnESQLFieldDimensionColumn: The compiled Kibana view model.
+    """
+    dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
+
+    return KbnESQLFieldDimensionColumn(
+        fieldName=dimension.field,
+        columnId=dimension_id,
+    )
+
+def compile_esql_dimensions(dimensions: list[ESQLDimensionTypes]) -> list[KbnESQLFieldDimensionColumn]:
+    """Compile a list of ESQLDimensionTypes objects into their Kibana view model representation.
+
+    Args:
+        dimensions (list[ESQLDimensionTypes]): The list of ESQLDimensionTypes objects to compile.
+
+    Returns:
+        list[KbnESQLFieldDimensionColumn]: The compiled Kibana view model.
+    """
+    return [compile_esql_dimension(dimension) for dimension in dimensions]

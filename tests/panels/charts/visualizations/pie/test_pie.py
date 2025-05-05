@@ -1,71 +1,48 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-from typing import TYPE_CHECKING
-
 import pytest
 from deepdiff import DeepDiff
-from pydantic import BaseModel
 
-from dashboard_compiler.panels.charts.metrics.compile import compile_esql_metric, compile_lens_metric
-from dashboard_compiler.panels.charts.metrics.config import ESQLMetricTypes, LensMetricTypes
+from dashboard_compiler.panels.charts.visualizations.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
+from dashboard_compiler.panels.charts.visualizations.pie.config import ESQLPieChart, LensPieChart
 from tests.conftest import DEEP_DIFF_DEFAULTS
-from tests.panels.charts.metrics.test_esql_metrics_data import (
-    TEST_CASE_IDS_ESQL,
-    TEST_CASES_ESQL,
+from tests.panels.charts.visualizations.pie.test_pie_data import (
+    TEST_CASE_IDS,
+    TEST_CASES,
 )
-from tests.panels.charts.metrics.test_lens_metrics_data import (
-    TEST_CASE_IDS_LENS,
-    TEST_CASES_LENS,
-)
-
-if TYPE_CHECKING:
-    from dashboard_compiler.panels.charts.columns.view import KbnESQLFieldMetricColumn, KbnLensColumnTypes
 
 # Define fields to exclude from DeepDiff comparison
 EXCLUDE_REGEX_PATHS = [
     # Add regex paths for fields to exclude, e.g., IDs
-    r"root\['columns'\]\[\d+\]\['id'\]",  # Example: Exclude column IDs
+    #r"root\['columns'\]\[\d+\]\['id'\]",  # Example: Exclude column IDs
+    r"root\['layerId'\]",
     # Refer to links test exclude paths for more ideas
 ]
 
 
-class LensMetricHolder(BaseModel):
-    """A holder for metrics to be used in tests."""
-
-    metric: LensMetricTypes
-
-
-@pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES_LENS, ids=TEST_CASE_IDS_LENS)
-async def test_compile_lens_metric(config: dict, desired_output: dict) -> None:
+@pytest.mark.parametrize(('in_lens_config', 'in_esql_config', 'out_lens_shape', 'out_layer'), TEST_CASES, ids=TEST_CASE_IDS)
+async def test_compile_pie(in_lens_config: dict, in_esql_config: dict, out_lens_shape: dict, out_layer: dict) -> None:  # noqa: ARG001
     """Test the compilation of various Lens metric configurations to their Kibana view model."""
-    metric_holder = LensMetricHolder.model_validate({'metric': config})
+    lens_chart = LensPieChart.model_validate(in_lens_config)
 
-    column_id: str
-    kbn_column: KbnLensColumnTypes
-    column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
 
-    assert kbn_column is not None
+    assert kbn_state_visualization is not None
 
-    kbn_column_as_dict = kbn_column.model_dump()
+    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
 
-    assert DeepDiff(desired_output, kbn_column_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
 
+    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
 
-class ESQLMetricHolder(BaseModel):
-    """A holder for ESQL metrics to be used in tests."""
+    esql_chart = ESQLPieChart.model_validate(in_esql_config)
 
-    metric: ESQLMetricTypes
+    layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
 
+    assert kbn_state_visualization is not None
 
-@pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES_ESQL, ids=TEST_CASE_IDS_ESQL)
-async def test_compile_esql_metric(config: dict, desired_output: dict) -> None:
-    """Test the compilation of various ESQL metric configurations to their Kibana view model."""
-    metric_holder = ESQLMetricHolder.model_validate({'metric': config})
+    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
 
-    kbn_column: KbnESQLFieldMetricColumn = compile_esql_metric(metric=metric_holder.metric)
+    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
 
-    assert kbn_column is not None
-
-    kbn_column_as_dict = kbn_column.model_dump()
-
-    assert DeepDiff(desired_output, kbn_column_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore

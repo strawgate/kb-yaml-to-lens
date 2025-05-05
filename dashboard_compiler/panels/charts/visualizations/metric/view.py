@@ -1,8 +1,9 @@
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import Field, model_serializer
+from pydantic import Field
 
-from dashboard_compiler.panels.lens.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
+from dashboard_compiler.panels.charts.visualizations.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
+from dashboard_compiler.shared.view import OmitIfNone
 
 
 class KbnMetricStateVisualizationLayer(KbnBaseStateVisualizationLayer):
@@ -10,11 +11,15 @@ class KbnMetricStateVisualizationLayer(KbnBaseStateVisualizationLayer):
 
     layerType: Literal['data'] = 'data'
     metricAccessor: str = Field(..., description='The ID of the metric column.')
+    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None, description='The ID of the max metric column (for sparkline).')
+    showBar: Annotated[bool | None, OmitIfNone()] = Field(default=None, description='Whether to show the sparkline bar.')
+    secondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None, description='The ID of the secondary metric column.')
+    breakdownByAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None, description='The ID of the dimension column for breakdown.')
 
 
 class KbnMetricVisualizationState(KbnBaseStateVisualization):
     """Represents the 'visualization' object for a Metric chart in the Kibana JSON structure."""
 
-    @model_serializer()
-    def serialize_model(self):
-        return self.layers[0].model_dump(serialize_as_any=True, exclude_none=True) if self.layers else None
+    # @model_serializer()
+    # def serialize_model(self) -> dict[str, Any] | None:
+    #     return self.layers[0].model_dump(serialize_as_any=True, exclude_none=True) if self.layers else None

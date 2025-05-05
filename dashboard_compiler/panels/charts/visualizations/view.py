@@ -1,13 +1,11 @@
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, TypeVar
 
 from pydantic import Field, RootModel
 
-from dashboard_compiler.filters.view import KbnFilter
 from dashboard_compiler.panels.charts.columns.view import KbnColumnTypes
-from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
-from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.view import BaseVwModel, KbnReference
+from dashboard_compiler.shared.view import BaseVwModel
+
 
 
 class KbnLayerDataSourceState(BaseVwModel):
@@ -72,7 +70,7 @@ class KbnLayerColorMapping(BaseVwModel):
     specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(
         default_factory=lambda: [KbnLayerColorMappingSpecialAssignment()],
     )
-    paletteId: str = 'default'
+    paletteId: str = 'eui_amsterdam_color_blind'
     colorMode: dict[str, str] = Field(default_factory=lambda: {'type': 'categorical'})
 
 
@@ -81,20 +79,11 @@ class KbnBaseStateVisualizationLayer(BaseVwModel):
     layerType: str
     colorMapping: KbnLayerColorMapping | None = None
 
-
 class KbnBaseStateVisualization(BaseVwModel):
     layers: list[KbnBaseStateVisualizationLayer] | None = Field(...)
 
+KbnStateVisualizationType = TypeVar('KbnStateVisualizationType', bound=KbnBaseStateVisualization)
 
-class KbnLensPanelState(BaseVwModel):
-    """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
-
-    visualization: KbnBaseStateVisualization
-    query: KbnQuery = Field(...)
-    filters: list[KbnFilter] = Field(...)
-    datasourceStates: KbnDataSourceState = Field(...)
-    internalReferences: list[Any] = Field(...)
-    adHocDataViews: dict[str, Any] = Field(...)
 
 
 class KbnVisualizationTypeEnum(StrEnum):
@@ -104,16 +93,6 @@ class KbnVisualizationTypeEnum(StrEnum):
     DATATABLE = 'lnsDatatable'
 
 
-class KbnLensPanelAttributes(BaseVwModel):
-    title: str = ''
-    visualizationType: KbnVisualizationTypeEnum
-    type: Literal['lens'] = 'lens'
-    references: list[KbnReference] = Field(...)
-    state: KbnLensPanelState
-
-
-class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
-    attributes: KbnLensPanelAttributes
     # syncColors: bool = Field(
     #     default=False,
     #     description="(Optional) Whether to sync colors across visualizations. Defaults to False.",
@@ -136,6 +115,3 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     # )
 
 
-class KbnLensPanel(KbnBasePanel):
-    type: Literal['lens'] = 'lens'
-    embeddableConfig: KbnLensPanelEmbeddableConfig

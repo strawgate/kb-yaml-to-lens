@@ -82,6 +82,7 @@ unfixable = []
     "ANN201", # Ignore missing type annotations in tests
     "RUF029", # Ignore await not used in async function
     "PGH003", # Don't require specific rule exclusions for type checking ignores
+    "D104", #Docstrings in public packages
 ] 
 "dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models

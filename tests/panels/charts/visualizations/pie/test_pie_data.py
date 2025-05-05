@@ -195,14 +195,14 @@ CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
 )
 """Tuple[Config as Dict, View as Dict, References as List] for a pie chart with a large legend and no label truncation."""
 
-TEST_CASES_LENS = [
+TEST_CASES = [
     CASE_PIE_CHART,
     CASE_DONUT_CHART,
     CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES,
     CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE,
 ]
 
-TEST_CASE_IDS_LENS = [
+TEST_CASE_IDS = [
     'Basic Pie Chart',
     'Basic Donut Chart',
     'Pie Chart with Inside Labels and Integer Values',

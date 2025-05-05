@@ -1,61 +1,72 @@
-from dashboard_compiler.panels.lens.charts.metric.config import ESQLMetricsChart, LensMetricChart
-from dashboard_compiler.panels.lens.charts.metric.view import (
+from dashboard_compiler.panels.charts.columns.view import KbnESQLDimensionColumnTypes, KbnESQLMetricColumnTypes, KbnLensMetricColumnTypes
+from dashboard_compiler.panels.charts.dimensions.compile import compile_esql_dimension
+from dashboard_compiler.panels.charts.metrics.compile import compile_esql_metric, compile_lens_metric
+from dashboard_compiler.panels.charts.visualizations.metric.config import ESQLMetricChart, LensMetricChart
+from dashboard_compiler.panels.charts.visualizations.metric.view import (
     KbnMetricStateVisualizationLayer,
     KbnMetricVisualizationState,
 )
-from dashboard_compiler.panels.lens.view import KbnColumn
+from dashboard_compiler.panels.charts.visualizations.view import KbnStateVisualizationType
 from dashboard_compiler.shared.config import stable_id_generator
 
 
-def compile_lens_metrics_chart(
-    chart: LensMetricChart,
-    index_pattern: str,
-    metrics_by_id: dict[str, KbnColumn],
-    metrics_by_name: dict[str, str],
-) -> tuple[KbnMetricVisualizationState, str]:
-    """Compile a LensMetricsChart config object into a Kibana Lens Metric visualization state.
+def compile_metric_chart_visualization_state(
+    layer_id: str,
+    primary_metric_id: str,
+    secondary_metric_id: str | None,
+    breakdown_dimension_id: str | None,
+) -> KbnMetricVisualizationState:
+    """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state."""
+    kbn_layer_visualization = KbnMetricStateVisualizationLayer(
+        layerId=layer_id,
+        metricAccessor=primary_metric_id,
+        secondaryMetricAccessor=secondary_metric_id,
+        breakdownByAccessor=breakdown_dimension_id,
+    )
 
-    Args:
-        chart (LensMetricsChart): The LensMetricsChart config object.
-        index_pattern (str): The index pattern associated with the panel.
-        metrics_by_id (dict[str, KbnColumn]): Dictionary of compiled metrics by ID.
-        metrics_by_name (dict[str, str]): Dictionary mapping metric labels to IDs.
-
-    Returns:
-        tuple[KbnLensMetricsVisualizationState, str]: The compiled visualization state and the layer ID.
-
-    Raises:
-        ValueError: If the primary metric cannot be found in the compiled metrics.
-
-    """
-    layer_id = chart.id or stable_id_generator(['metric', *metrics_by_id.keys()])
-
-    # Assuming the first metric in the list is the primary one for the metric visualization
-    primary_metric_label = chart.metrics[0].label
-    primary_metric_id = metrics_by_name.get(primary_metric_label)
-
-    if not primary_metric_id:
-        # This should not happen if compile_metrics was successful and chart.metrics is not empty
-        msg = f'Could not find compiled ID for primary metric: {primary_metric_label}'
-        raise ValueError(msg)
-
-    kbn_layer_visualization = KbnMetricStateVisualizationLayer(layerId=layer_id, metricAccessor=primary_metric_id)
-
-    kbn_state_visualization = KbnMetricVisualizationState(layers=[kbn_layer_visualization])
-
-    return kbn_state_visualization
+    return KbnMetricVisualizationState(layers=[kbn_layer_visualization])
 
 
-def compile_esql_lens_metrics_chart(chart: ESQLMetricsChart, columns: list[KbnColumn]) -> KbnMetricVisualizationState:
-    """Compile an ESQL-based Lens Metrics chart into its Kibana view model representation."""
-    # Generate a stable layer ID
-    layer_id = chart.id or stable_id_generator(['esql-metric'])  # No metrics in ESQL chart config
+def compile_lens_metric_visualization(
+    lens_metric_chart: LensMetricChart,
+) -> tuple[str, dict[str, KbnLensMetricColumnTypes], KbnStateVisualizationType]:
+    """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state."""
+    primary_metric_id, primary_metric = compile_lens_metric(lens_metric_chart.primary)
+    secondary_metric_id, secondary_metric = compile_lens_metric(lens_metric_chart.secondary) if lens_metric_chart.secondary else None, None
+    breakdown_dimension_id, breakdown_dimension = (
+        compile_lens_metric(lens_metric_chart.breakdown) if lens_metric_chart.breakdown else None,
+        None,
+    )
 
-    # Use the explicitly defined primary metric column from the chart config
-    primary_metric_accessor = chart.primary_metric_column
+    kbn_columns_by_id = {
+        primary_metric_id: primary_metric,
+        secondary_metric_id: secondary_metric,
+        breakdown_dimension_id: breakdown_dimension,
+    }
 
-    kbn_layer_visualization = KbnMetricStateVisualizationLayer(layerId=layer_id, metricAccessor=primary_metric_accessor)
+    layer_id = lens_metric_chart.id or stable_id_generator(
+        ['metric', lens_metric_chart.primary.field, lens_metric_chart.secondary.field, lens_metric_chart.breakdown.field]
+    )
 
-    kbn_state_visualization = KbnMetricVisualizationState(layers=[kbn_layer_visualization])
+    return layer_id, kbn_columns_by_id, compile_metric_chart_visualization_state(
+        layer_id, primary_metric_id, secondary_metric_id, breakdown_dimension_id
+    )
 
-    return kbn_state_visualization
+
+def compile_esql_metric_visualization(
+    esql_metric_chart: ESQLMetricChart,
+) -> tuple[str, list[KbnESQLMetricColumnTypes], KbnStateVisualizationType]:
+    """Compile an ESQL LensMetricChart config object into a Kibana Lens Metric visualization state."""
+    layer_id = esql_metric_chart.id or stable_id_generator(
+        ['metric', esql_metric_chart.primary.field, esql_metric_chart.secondary.field, esql_metric_chart.breakdown.field]
+    )
+
+    primary_metric_id, primary_metric = compile_esql_metric(esql_metric_chart.primary)
+    secondary_metric_id, secondary_metric = compile_esql_metric(esql_metric_chart.secondary) if esql_metric_chart.secondary else None, None
+    breakdown_dimension_id, breakdown_dimension = (
+        compile_esql_dimension(esql_metric_chart.breakdown) if esql_metric_chart.breakdown else None,
+    )
+
+    kbn_columns = [primary_metric, secondary_metric, breakdown_dimension]
+
+    return layer_id, kbn_columns, compile_metric_chart_visualization_state(layer_id, primary_metric_id, secondary_metric_id, breakdown_dimension_id)

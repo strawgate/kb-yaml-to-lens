@@ -1,95 +1,158 @@
 # Filters and Queries
 
-This document describes the structure for defining filters and queries at both the dashboard and panel levels.
+This document describes the structure for defining filters and queries.
 
-## Dashboard Filters
+## Filters
 
-Dashboard filters are applied globally to all panels on the dashboard. They are defined within the `filters` list at the top level of the `dashboard` object.
+Filters are used to narrow down the data displayed on a dashboard or within a panel. They are defined as a list of filter objects.
 
 ```yaml
-dashboard:
-  filters: list         # (Optional) A list of filters to apply to the dashboard. Can be empty.
-    - field: string     # (Required) Field to filter on.
-      # Choose one of the following filter types:
-      equals: any       # (Required for phrase filter) Value for a phrase filter.
-      in: list          # (Required for phrases filter) List of values for a phrases filter.
-      exists: boolean   # (Required for exists filter) Indicates if the field must exist.
-      gte: any          # (Optional for range filter) Greater than or equal to value.
-      gt: any           # (Optional for range filter) Greater than value.
-      lte: any          # (Optional for range filter) Less than or equal to value.
-      lt: any           # (Optional for range filter) Less than value.
-    - not: object       # (Optional) Negates the following filter.
-        # Nested filter object (phrase, phrases, or range)
+filters: list         # (Optional) A list of filters to apply. Can be empty.
+  - # Filter object (see Filter Types below)
 ```
+
+### Base Filter Fields
+
+All filter types inherit from a base filter with the following optional fields:
+
+*   `alias` (optional, string): An optional alias for the filter, used for display purposes.
+*   `disabled` (optional, boolean): Indicates whether the filter is disabled. If `true`, the filter will not be applied. Defaults to `false`.
 
 ### Filter Types
 
-*   **Phrase Filter**: Filters documents where a specific field exactly matches a single value.
-    ```yaml
-    - field: status.keyword
-      equals: active
-    ```
-*   **Phrases Filter**: Filters documents where a specific field matches any of the values in a list.
-    ```yaml
-    - field: event.category
-      in: ["authentication", "network"]
-    ```
+The following filter types are available:
+
 *   **Exists Filter**: Filters documents based on whether a field exists or not.
     ```yaml
-    - field: error.message
-      exists: true # or false
+    - exists: string    # (Required) The field name to check for existence.
+      # Base filter fields also apply
     ```
-*   **Range Filter**: Filters documents where a numerical or date field falls within a specified range.
+    *   **Fields:**
+        *   `exists` (required, string): The field name to check for existence. If the field exists in a document, it will match that document.
+    *   **Example:**
+        ```yaml
+        - exists: error.message
+        ```
+
+*   **Phrase Filter**: Filters documents where a specific field exactly matches a single value.
     ```yaml
-    - field: response_time
-      gte: 100
-      lt: 500
+    - field: string     # (Required) The field name to apply the filter to.
+      equals: any       # (Required) The exact phrase value that the field must match.
+      # Base filter fields also apply
     ```
-*   **Negation**: Negates the following filter.
+    *   **Fields:**
+        *   `field` (required, string): The field name to apply the filter to.
+        *   `equals` (required, any): The exact phrase value that the field must match.
+    *   **Example:**
+        ```yaml
+        - field: status.keyword
+          equals: active
+        ```
+
+*   **Phrases Filter**: Filters documents where a specific field matches any of the values in a list.
     ```yaml
-    - not:
-        field: event.outcome
-        equals: success
+    - field: string     # (Required) The field name to apply the filter to.
+      in: list          # (Required) A list of phrases.
+      # Base filter fields also apply
     ```
+    *   **Fields:**
+        *   `field` (required, string): The field name to apply the filter to.
+        *   `in` (required, list of any): A list of phrases. Documents must match at least one of these phrases in the specified field.
+    *   **Example:**
+        ```yaml
+        - field: event.category
+          in: ["authentication", "network"]
+        ```
 
-## Panel Filters
+*   **Range Filter**: Filters documents where a numeric or date field falls within a specified range. At least one of `gte`, `gt`, `lte`, or `lt` must be provided.
+    ```yaml
+    - field: string     # (Required) The field name to apply the filter to.
+      gte: any          # (Optional) Greater than or equal to value.
+      gt: any           # (Optional) Greater than value.
+      lte: any          # (Optional) Less than or equal to value.
+      lt: any           # (Optional) Less than value.
+      # Base filter fields also apply
+    ```
+    *   **Fields:**
+        *   `field` (required, string): The field name to apply the filter to.
+        *   `gte` (optional, any): Greater than or equal to value for the range filter.
+        *   `gt` (optional, any): Greater than value for the range filter.
+        *   `lte` (optional, any): Less than or equal to value for the range filter.
+        *   `lt` (optional, any): Less than value for the range filter.
+    *   **Example:**
+        ```yaml
+        - field: response_time
+          gte: 100
+          lt: 500
+        ```
 
-Panel filters are applied only to the specific panel they are defined within, in addition to any global dashboard filters. They are defined within the `filters` list of a panel object (currently only supported for `lens` panels).
+*   **Custom Filter**: Allows for defining a custom Elasticsearch query as a filter.
+    ```yaml
+    - dsl: object       # (Required) The custom query definition.
+      # Base filter fields also apply
+    ```
+    *   **Fields:**
+        *   `dsl` (required, object): The custom query definition. This should be a valid Elasticsearch query object.
+    *   **Example:**
+        ```yaml
+        - dsl:
+            query_string:
+              query: "response:200 OR response:404"
+        ```
 
-```yaml
-- panel:
-    type: lens
-    filters: list         # (Optional) Panel-specific filters.
-      - field: string     # (Required) Field to filter on.
-        type: string      # (Required) Filter type (e.g., phrase, phrases, range).
-        value: any        # (Required) Value(s) for the filter (string for phrase, list of strings for phrases).
-        operator: string  # (Required) Filter operator (equals, contains, startsWith, endsWith).
-        negate: boolean   # (Optional) Whether to negate the filter. Defaults to false.
-```
+### Filter Junctions
 
-### Fields
+Filter junctions combine multiple filters using boolean logic.
 
-*   `field` (required, string): The field to filter on.
-*   `type` (required, string): The type of filter. Valid values are `phrase`, `phrases`, and `range`.
-*   `value` (required, any): The value or list of values for the filter.
-*   `operator` (required, string): The operator to use for the filter. Valid values are `equals`, `contains`, `startsWith`, and `endsWith`.
-*   `negate` (optional, boolean): If set to `true`, the filter will be negated. Defaults to `false`.
+*   **And Filter**: Matches documents that satisfy all of the specified filters.
+    ```yaml
+    - and: list         # (Required) A list of filters to combine with AND logic.
+      # Base filter fields also apply
+    ```
+    *   **Fields:**
+        *   `and` (required, list of filter objects): A list of filters. All filters must match for a document to be included.
+    *   **Example:**
+        ```yaml
+        - and:
+          - field: status.keyword
+            equals: active
+          - field: event.category
+            in: ["authentication", "network"]
+        ```
 
-### Example
+*   **Or Filter**: Matches documents that satisfy at least one of the specified filters.
+    ```yaml
+    - or: list          # (Required) A list of filters to combine with OR logic.
+      # Base filter fields also apply
+    ```
+    *   **Fields:**
+        *   `or` (required, list of filter objects): A list of filters. At least one filter must match for a document to be included.
+    *   **Example:**
+        ```yaml
+        - or:
+          - field: http.response.status_code
+            equals: 404
+          - field: http.response.status_code
+            equals: 500
+        ```
 
-```yaml
-panels:
-  - panel:
-      type: lens
-      # ... other panel fields ...
-      filters:
-        - field: http.response.status_code
-          type: phrase
-          value: 404
-          operator: equals
-        - field: url.full
-          type: phrases
-          value: ["/login", "/admin"]
-          operator: contains
-          negate: true
-```
+### Filter Modifiers
+
+Filter modifiers alter the behavior of a single nested filter.
+
+*   **Negate Filter**: Excludes documents that match the nested filter.
+    ```yaml
+    - not: object       # (Required) The filter to negate.
+    ```
+    *   **Fields:**
+        *   `not` (required, filter object): The filter to negate. Can be any of the filter types or junction types.
+    *   **Example:**
+        ```yaml
+        - not:
+            field: event.outcome
+            equals: success
+        ```
+
+## Queries
+
+Queries are used to define the search criteria for retrieving data. See [Queries Documentation](./queries/config.md) for more details.

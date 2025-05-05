@@ -102,6 +102,8 @@ class PieChartAppearance(BaseCfgModel):
 class BasePieChart(BaseChart):
     """Base model for defining Pie chart objects."""
 
+    type: Literal['pie'] = Field(default='pie')
+
     appearance: PieChartAppearance | None = Field(None)
     """Formatting options for the chart appearance, including donut size."""
 

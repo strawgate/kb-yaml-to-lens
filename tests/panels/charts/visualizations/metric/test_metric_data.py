@@ -62,7 +62,7 @@ CASE_METRIC_CHART_PRIMARY_ONLY: TestCaseType = (
         'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
     },
 )
-"""Tuple[Lens Config as Dict, ESQL Config as Dict, Lens View as Dict] for a metric chart with only a primary metric."""
+"""Tuple[Lens Config, ESQL Config, Lens View] for a metric chart with only a primary metric."""
 
 CASE_METRIC_CHART_PRIMARY_AND_SECONDARY: TestCaseType = (
     {
@@ -85,7 +85,7 @@ CASE_METRIC_CHART_PRIMARY_AND_SECONDARY: TestCaseType = (
         'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
     },
 )
-"""Tuple[Lens Config as Dict, ESQL Config as Dict, Lens View as Dict] for a metric chart with a primary and secondary metric."""
+"""Tuple[Lens Config, ESQL Config, Lens View] for a metric chart with a primary and secondary metric."""
 
 CASE_METRIC_CHART_PRIMARY_AND_SECONDARY_AND_BREAKDOWN: TestCaseType = (
     {
@@ -111,15 +111,15 @@ CASE_METRIC_CHART_PRIMARY_AND_SECONDARY_AND_BREAKDOWN: TestCaseType = (
         'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
     },
 )
-"""Tuple[Lens Config as Dict, ESQL Config as Dict, Lens View as Dict] for a metric chart with a primary and secondary metric and a breakdown."""
+"""Tuple[Lens Config, ESQL Config, Lens View] for a metric chart with a primary and secondary metric and a breakdown."""
 
-TEST_CASES_LENS = [
+TEST_CASES = [
     CASE_METRIC_CHART_PRIMARY_ONLY,
     CASE_METRIC_CHART_PRIMARY_AND_SECONDARY,
     CASE_METRIC_CHART_PRIMARY_AND_SECONDARY_AND_BREAKDOWN,
 ]
 
-TEST_CASE_IDS_LENS = [
+TEST_CASE_IDS = [
     'Basic Metric Chart',
     'Metric Chart with Secondary Metric',
     'Metric Chart with Secondary Metric and Breakdown',

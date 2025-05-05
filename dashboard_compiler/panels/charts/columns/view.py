@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal, Union
 
 from pydantic import Field
 
@@ -7,17 +7,25 @@ from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 type KbnColumnTypes = KbnLensColumnTypes | KbnESQLColumnTypes
 
-type KbnLensColumnTypes = KbnLensMetricColumnTypes | KbnLensDimensionColumnTypes
-
 type KbnLensDimensionColumnTypes = (
-    KbnLensDateHistogramDimensionColumn | KbnLensTermsDimensionColumn | KbnLensFiltersDimensionColumn | KbnLensIntervalsDimensionColumn | KbnLensCustomInvervalsDimensionColumn
+    KbnLensDateHistogramDimensionColumn
+    | KbnLensTermsDimensionColumn
+    | KbnLensFiltersDimensionColumn
+    | KbnLensIntervalsDimensionColumn
+    | KbnLensCustomInvervalsDimensionColumn
 )
 
 type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
-type KbnESQLColumnTypes = KbnESQLFieldMetricColumn
+type KbnESQLColumnTypes = KbnESQLFieldMetricColumn | KbnESQLFieldDimensionColumn
+
+type KbnESQLMetricColumnTypes = KbnESQLFieldMetricColumn
+
+type KbnESQLDimensionColumnTypes = KbnESQLFieldDimensionColumn
+
+type KbnLensColumnTypes = KbnLensDimensionColumnTypes | KbnLensMetricColumnTypes
 
 
 class KbnLensMetricFormatParams(BaseVwModel):
@@ -103,15 +111,18 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
     """The ID of the column."""
 
 
-# Dimension View Models
+class KbnESQLFieldDimensionColumn(BaseVwModel):
+    """Represents a field-sourced ESQL column in the Kibana JSON structure."""
+
+    fieldName: str
+    """The field that this column is based on."""
+
+    columnId: str
+    """The ID of the column."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):
     """Additional parameters for dimension columns."""
-
-    # This will be a flexible model to accommodate different dimension types
-    # We can add specific fields here as needed based on dimension types
-    # For now, using Any as a placeholder
 
 
 class KbnLensBaseDimensionColumn(KbnLensBaseColumn):
@@ -140,15 +151,33 @@ class KbnLensDateHistogramDimensionColumn(KbnLensBaseDimensionColumn):
     params: KbnLensDateHistogramDimensionColumnParams
 
 
+class KbnLensTermsOrderBy(BaseVwModel):
+    """Represents the orderBy parameter for terms dimension columns."""
+
+    type: Literal['column']
+    columnId: str
+
+
+class KbnLensTermsParentFormatParams(BaseVwModel):
+    """The parameters for the parent format for terms dimension columns."""
+
+
+class KbnLensTermsParentFormat(BaseVwModel):
+    """The parent format for terms dimension columns."""
+
+    id: Literal['terms']
+    params: KbnLensTermsParentFormatParams = Field(default_factory=KbnLensTermsParentFormatParams)
+
+
 class KbnLensTermsDimensionColumnParams(KbnLensDimensionColumnParams):
     """Parameters for terms dimension columns."""
 
     size: Annotated[int | None, OmitIfNone()] = Field(default=None)
-    orderBy: Annotated[dict[str, Any] | None, OmitIfNone()] = Field(default=None)  # TODO: Define a proper model for orderBy
+    orderBy: Annotated[KbnLensTermsOrderBy | None, OmitIfNone()] = Field(default=None)
     orderDirection: Annotated[str | None, OmitIfNone()] = Field(default=None)
     otherBucket: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     missingBucket: Annotated[bool | None, OmitIfNone()] = Field(default=None)
-    parentFormat: Annotated[dict[str, Any] | None, OmitIfNone()] = Field(default=None)  # TODO: Define a proper model for parentFormat
+    parentFormat: Annotated[KbnLensTermsParentFormat | None, OmitIfNone()] = Field(default=None)
     include: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
     exclude: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
     includeIsRegex: Annotated[bool | None, OmitIfNone()] = Field(default=None)
@@ -166,10 +195,17 @@ class KbnLensTermsDimensionColumn(KbnLensBaseDimensionColumn):
     params: KbnLensTermsDimensionColumnParams
 
 
+class KbnLensFiltersFilter(BaseVwModel):
+    """Represents a single filter within the filters dimension columns."""
+
+    label: str
+    input: KbnQuery
+
+
 class KbnLensFiltersDimensionColumnParams(KbnLensDimensionColumnParams):
     """Parameters for filters dimension columns."""
 
-    filters: list[dict[str, Any]]  # TODO: Define a proper model for filters
+    filters: list[KbnLensFiltersFilter]
 
 
 class KbnLensFiltersDimensionColumn(KbnLensBaseDimensionColumn):
@@ -181,11 +217,13 @@ class KbnLensFiltersDimensionColumn(KbnLensBaseDimensionColumn):
     isBucketed: Literal[True] = True
     params: KbnLensFiltersDimensionColumnParams
 
+
 class KbnLensCustomIntervalsDimensionColumnParentFormatParams(BaseVwModel):
     """The parameters for the parent format for intervals dimension columns."""
 
     template: str
     replaceInfinity: bool
+
 
 class KbnLensCustomIntervalsDimensionColumnParentFormat(BaseVwModel):
     """The parent format for intervals dimension columns."""
@@ -193,12 +231,21 @@ class KbnLensCustomIntervalsDimensionColumnParentFormat(BaseVwModel):
     id: Literal['range']
     params: KbnLensCustomIntervalsDimensionColumnParentFormatParams
 
+
+class KbnLensIntervalsRange(BaseVwModel):
+    """Represents a single range within the intervals dimension columns."""
+
+    from_value: Annotated[float | None, OmitIfNone()] = Field(default=None, alias='from')
+    to_value: Annotated[float | None, OmitIfNone()] = Field(default=None, alias='to')
+    label: Annotated[str | None, OmitIfNone()] = Field(default=None)
+
+
 class KbnLensIntervalsDimensionColumnParams(KbnLensDimensionColumnParams):
     """Parameters for intervals dimension columns."""
 
     includeEmptyRows: bool
     type: Literal['histogram'] = Field(default='histogram')
-    ranges: list[dict[str, Any]]
+    ranges: list[KbnLensIntervalsRange]
     maxBars: Annotated[str | float | None, OmitIfNone()] = Field(default=None)
     parentFormat: Annotated[KbnLensCustomIntervalsDimensionColumnParentFormat | None, OmitIfNone()] = Field(default=None)
 
@@ -218,7 +265,7 @@ class KbnLensCustomInvervalsDimensionColumnParams(KbnLensDimensionColumnParams):
     """Parameters for custom intervals dimension columns."""
 
     type: Literal['range'] = Field(default='range')
-    ranges: list[dict[str, Any]]
+    ranges: list[KbnLensIntervalsRange]
     maxBars: Annotated[str | float | None, OmitIfNone()] = Field(default=None)
     parentFormat: Annotated[KbnLensCustomIntervalsDimensionColumnParentFormat | None, OmitIfNone()] = Field(default=None)
 

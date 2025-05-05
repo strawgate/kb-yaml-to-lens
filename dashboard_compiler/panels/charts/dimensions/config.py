@@ -32,9 +32,8 @@ type ESQLDimensionTypes = ESQLDimension
 class ESQLDimension(BaseDimension):
     """A dimension that is defined in the ESQL query."""
 
-    collapse: CollapseAggregationEnum | None = Field(default=None)
-    """The aggregation to use for the dimension."""
-
+    field: str = Field(default=...)
+    """The field to use for the dimension."""
 
 # class CollapsedDimension(BaseDimension):
 #     """A dimension that is collapsed into a single value."""
