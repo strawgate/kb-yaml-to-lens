@@ -1,11 +1,12 @@
 """Compile Lens metrics into their Kibana view models."""
+
 from humanize import ordinal
 
 from dashboard_compiler.panels.charts.columns.view import (
     KbnESQLFieldMetricColumn,
-    KbnLensColumnTypes,
     KbnLensFieldMetricColumn,
     KbnLensMetricColumnParams,
+    KbnLensMetricColumnTypes,
     KbnLensMetricFormat,
     KbnLensMetricFormatParams,
     KbnLensMetricFormatTypes,
@@ -117,7 +118,7 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
     raise NotImplementedError(msg)
 
 
-def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensColumnTypes]:
+def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColumnTypes]:
     """Compile a single LensMetricTypes object into its Kibana view model.
 
     Args:
@@ -205,7 +206,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensColumnType
     )
 
 
-def compile_lens_metrics(metrics: list[LensMetricTypes]) -> dict[str, KbnLensColumnTypes]:
+def compile_lens_metrics(metrics: list[LensMetricTypes]) -> dict[str, KbnLensMetricColumnTypes]:
     """Compile a list of LensMetricTypes into their Kibana view model representation.
 
     Args:
@@ -218,6 +219,7 @@ def compile_lens_metrics(metrics: list[LensMetricTypes]) -> dict[str, KbnLensCol
     compiled_metrics = [compile_lens_metric(metric) for metric in metrics]
 
     return dict(compiled_metrics)
+
 
 def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLFieldMetricColumn:
     """Compile a single ESQLMetricTypes object into its Kibana view model.
@@ -234,6 +236,7 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLFieldMetricColumn:
         fieldName=metric.field,
         columnId=metric_id,
     )
+
 
 def compile_esql_metrics(metrics: list[ESQLMetricTypes]) -> list[KbnESQLFieldMetricColumn]:
     """Compile a list of ESQLMetricTypes into their Kibana view model representation.

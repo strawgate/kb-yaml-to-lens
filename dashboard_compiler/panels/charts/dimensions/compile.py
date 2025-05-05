@@ -1,1 +1,158 @@
+from dashboard_compiler.panels.charts.columns.view import (
+    KbnLensCustomIntervalsDimensionColumnParentFormat,
+    KbnLensCustomIntervalsDimensionColumnParentFormatParams,
+    KbnLensCustomInvervalsDimensionColumn,
+    KbnLensCustomInvervalsDimensionColumnParams,
+    KbnLensDateHistogramDimensionColumn,
+    KbnLensDateHistogramDimensionColumnParams,
+    KbnLensDimensionColumnTypes,
+    KbnLensFiltersDimensionColumn,
+    KbnLensFiltersDimensionColumnParams,
+    KbnLensIntervalsDimensionColumn,
+    KbnLensIntervalsDimensionColumnParams,
+    KbnLensMetricColumnTypes,
+    KbnLensTermsDimensionColumn,
+    KbnLensTermsDimensionColumnParams,
+)
+from dashboard_compiler.panels.charts.dimensions.config import (
+    LensDateHistogramDimension,
+    LensDimensionTypes,
+    LensFiltersDimension,
+    LensIntervalsDimension,
+    LensTopValuesDimension,
+)
+from dashboard_compiler.queries.compile import compile_query  # Import compile_query
+from dashboard_compiler.shared.config import stable_id_generator
 
+GRANULARITY_TO_BARS = {
+    1: 1,
+    2: 167.5,
+    3: 334,
+    4: 499.5,
+    5: 666,
+    6: 833.5,
+    7: 1000,
+}
+
+def compile_lens_dimension(
+    dimension: LensDimensionTypes,
+    kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes],
+) -> tuple[str, KbnLensDimensionColumnTypes]:
+    """Compile a single LensDimensionTypes object into its Kibana view model.
+
+    Args:
+        dimension (LensDimensionTypes): The LensDimensionTypes object to compile.
+        kbn_metric_column_by_id (dict[str, KbnLensMetricColumnTypes]): A dictionary of compiled KbnLensFieldMetricColumn objects.
+
+    Returns:
+        tuple[str, KbnLensDimensionColumnTypes]: A tuple containing the dimension ID and the compiled Kibana view model.
+    """
+    kbn_column_index_to_id = dict(enumerate(kbn_metric_column_by_id.keys()))
+    kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
+
+    custom_label = True if dimension.label is not None else None
+
+    if isinstance(dimension, LensDateHistogramDimension):
+        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
+
+        return dimension_id, KbnLensDateHistogramDimensionColumn(
+            label=dimension.label or dimension.field,
+            customLabel=custom_label,
+            dataType='date',
+            operationType='date_histogram',
+            sourceField=dimension.field,
+            scale='interval',
+            params=KbnLensDateHistogramDimensionColumnParams(
+                interval=dimension.minimum_interval or 'auto',
+                includeEmptyRows=True,
+                dropPartials=False,
+            ),
+        )
+    if isinstance(dimension, LensTopValuesDimension):
+        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
+
+        order_by = None
+        if dimension.sort is not None and dimension.sort.by is not None:
+            if not kbn_column_name_to_id[dimension.sort.by]:
+                msg = f'Column {dimension.sort.by} not found in kbn_metric_column_by_id'
+                raise ValueError(msg)
+            order_by = {'type': 'column', 'columnId': kbn_column_name_to_id[dimension.sort.by]}
+        else:
+            order_by = {'type': 'column', 'columnId': kbn_column_index_to_id[0]}
+
+        return dimension_id, KbnLensTermsDimensionColumn(
+            label=dimension.label or f'Top {dimension.size or 3} values of {dimension.field}',
+            customLabel=custom_label,
+            dataType='string',
+            operationType='terms',
+            scale='ordinal',
+            sourceField=dimension.field,
+            params=KbnLensTermsDimensionColumnParams(
+                size=dimension.size,
+                orderBy=order_by,
+                orderDirection=dimension.sort.direction if dimension.sort else 'desc',
+                otherBucket=dimension.other_bucket or True,
+                missingBucket=dimension.missing_bucket or False,
+                parentFormat={'id': 'terms'},
+                include=dimension.include or [],
+                exclude=dimension.exclude or [],
+                includeIsRegex=dimension.include_is_regex or False,
+                excludeIsRegex=dimension.exclude_is_regex or False,
+            ),
+        )
+    if isinstance(dimension, LensFiltersDimension):
+        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
+        return dimension_id, KbnLensFiltersDimensionColumn(
+            label=dimension.label or 'Filters',
+            customLabel=custom_label,
+            dataType='string',
+            operationType='filters',
+            scale='ordinal',
+            params=KbnLensFiltersDimensionColumnParams(
+                filters=[{'label': f.label or '', 'input': compile_query(f.query)} for f in dimension.filters]  # Compile queries
+            ),
+        )
+
+    if isinstance(dimension, LensIntervalsDimension):
+        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
+
+        if dimension.intervals is None:
+            return dimension_id, KbnLensIntervalsDimensionColumn(
+                label=dimension.label or dimension.field or '',
+                customLabel=custom_label,
+                sourceField=dimension.field,
+                params=KbnLensIntervalsDimensionColumnParams(
+                    includeEmptyRows=True,
+                    type='histogram',
+                    ranges=[{'from': 0, 'to': 1000, 'label': ''}],
+                    maxBars=GRANULARITY_TO_BARS[dimension.granularity] if dimension.granularity else 'auto',
+                ),
+            )
+        # Custom Intervals
+        ranges = [
+            {
+                'from': interval.from_value if interval.from_value is not None else None,
+                'to': interval.to_value if interval.to_value is not None else None,
+                'label': interval.label or '',
+            }
+            for interval in dimension.intervals
+        ]
+        return dimension_id, KbnLensCustomInvervalsDimensionColumn(
+            label=dimension.label or dimension.field or '',
+            customLabel=custom_label,
+            sourceField=dimension.field,
+            params=KbnLensCustomInvervalsDimensionColumnParams(
+                ranges=ranges,
+                maxBars=499.5,
+                parentFormat=KbnLensCustomIntervalsDimensionColumnParentFormat(
+                    id='range',
+                    params=KbnLensCustomIntervalsDimensionColumnParentFormatParams(
+                        template='arrow_right',
+                        replaceInfinity=True,
+                    ),
+                ),
+            ),
+        )
+
+    msg = f'Unsupported dimension type: {type(dimension)}'
+    raise NotImplementedError(msg)

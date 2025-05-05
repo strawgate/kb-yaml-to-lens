@@ -8,7 +8,7 @@ from pydantic import Field
 from dashboard_compiler.queries.config import QueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
 
-type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension
+type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 
 
 class BaseDimension(BaseCfgModel):
@@ -16,10 +16,6 @@ class BaseDimension(BaseCfgModel):
 
     id: str | None = Field(default=None)
     """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
-
-    field: str = Field(default=...)
-    """The name of the field in the data view that this dimension is based on."""
-
 
 class CollapseAggregationEnum(StrEnum):
     """The aggregation to use for the dimension."""
@@ -79,6 +75,19 @@ class LensFiltersDimension(BaseLensDimension):
     """The filters to use for the dimension."""
 
 
+class LensIntervalsDimensionInterval(BaseCfgModel):
+    """A single interval for an intervals dimension."""
+
+    from_value: int | None = Field(default=None, alias='from')
+    """The start of the interval."""
+
+    to_value: int | None = Field(default=None, alias='to')
+    """The end of the interval."""
+
+    label: str | None = Field(default=None)
+    """The label for the interval."""
+
+
 class LensIntervalsDimension(BaseLensDimension):
     """Represents an intervals dimension configuration within a Lens chart.
 
@@ -89,6 +98,9 @@ class LensIntervalsDimension(BaseLensDimension):
 
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
+
+    intervals: list[LensIntervalsDimensionInterval] | None = Field(default=None)
+    """The intervals to use for the dimension. If not provided, intervals will be automatically picked."""
 
     granularity: int | None = Field(default=None, ge=1, le=7)
     """Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field.
@@ -148,8 +160,8 @@ class LensDateHistogramDimension(BaseLensDimension):
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
 
-    minimum_interval: str = Field(default=...)
-    """The numeric interval for the histogram buckets."""
+    minimum_interval: str | None = Field(default=None)
+    """The numeric interval for the histogram buckets. Defaults to `auto` if not specified."""
 
     partial_intervals: bool | None = Field(default=None)
     """If `true`, show partial intervals. Kibana defaults to `true` if not specified."""

@@ -4,19 +4,18 @@ import pytest
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from dashboard_compiler.panels.charts.columns.view import KbnESQLFieldMetricColumn, KbnLensColumnTypes, KbnLensFieldMetricColumn
-from dashboard_compiler.panels.charts.metrics.compile import compile_esql_metric, compile_lens_metric, compile_lens_metrics
-from dashboard_compiler.panels.charts.metrics.config import LensMetricTypes
+from dashboard_compiler.panels.charts.columns.view import KbnESQLFieldMetricColumn, KbnLensColumnTypes
+from dashboard_compiler.panels.charts.metrics.compile import compile_esql_metric, compile_lens_metric
+from dashboard_compiler.panels.charts.metrics.config import ESQLMetricTypes, LensMetricTypes
 from tests.conftest import DEEP_DIFF_DEFAULTS
-from tests.panels.charts.metrics.test_lens_metrics_data import (
-    TEST_CASE_IDS_LENS,
-    TEST_CASES_LENS,
-)
 from tests.panels.charts.metrics.test_esql_metrics_data import (
     TEST_CASE_IDS_ESQL,
     TEST_CASES_ESQL,
 )
-from dashboard_compiler.panels.charts.metrics.config import ESQLMetricTypes
+from tests.panels.charts.metrics.test_lens_metrics_data import (
+    TEST_CASE_IDS_LENS,
+    TEST_CASES_LENS,
+)
 
 # Define fields to exclude from DeepDiff comparison
 EXCLUDE_REGEX_PATHS = [
@@ -66,4 +65,3 @@ async def test_compile_esql_metric(config: dict, desired_output: dict) -> None:
     kbn_column_as_dict = kbn_column.model_dump()
 
     assert DeepDiff(desired_output, kbn_column_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
-

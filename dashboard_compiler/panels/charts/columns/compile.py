@@ -1,7 +1,5 @@
 from dashboard_compiler.panels.charts.columns.view import (
     KbnLensColumnTypes,
-    KbnLensDimensionColumnTypes,
-    KbnLensMetricColumnTypes,
 )
 from dashboard_compiler.panels.charts.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.metrics.compile import compile_lens_metric

@@ -3,7 +3,7 @@
 from dashboard_compiler.panels import LinksPanel, MarkdownPanel, PanelTypes
 
 # from dashboard_compiler.panels.esql.compile import compile_esql_panel
-#from dashboard_compiler.panels.lens.compile import compile_lens_panel
+# from dashboard_compiler.panels.lens.compile import compile_lens_panel
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.view import KbnLinksPanel
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
