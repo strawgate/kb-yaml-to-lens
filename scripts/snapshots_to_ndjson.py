@@ -21,6 +21,7 @@ def read_and_compress_snapshot(snapshot_path: Path) -> str | None:
 
     Returns:
         The compressed JSON content as a string, or None if reading/parsing fails.
+
     """
     try:
         with Path(snapshot_path).open('r') as f:

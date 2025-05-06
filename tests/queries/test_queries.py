@@ -6,7 +6,7 @@ import pytest
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from dashboard_compiler.queries.compile import compile_query
+from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.config import (
     QueryTypes,
 )
@@ -33,7 +33,7 @@ async def test_compile_queries(config: dict, desired_output: dict) -> None:
     """Test the compilation of various query configurations to their Kibana view model."""
     query_holder = QueryHolder.model_validate({'query': config})
 
-    kbn_query: KbnQuery = compile_query(query=query_holder.query)
+    kbn_query: KbnQuery = compile_nonesql_query(query=query_holder.query)
     kbn_query_as_dict = kbn_query.model_dump()
 
     assert DeepDiff(desired_output, kbn_query_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore

@@ -16,3 +16,9 @@ class KbnQuery(BaseModel):
 
     query: str
     language: Literal['kuery', 'lucene']
+
+
+class KbnESQLQuery(BaseModel):
+    """Represents the query object within state.query in the Kibana JSON structure."""
+
+    esql: str

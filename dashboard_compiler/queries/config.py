@@ -6,6 +6,8 @@ from dashboard_compiler.shared.config import BaseCfgModel
 
 type QueryTypes = KqlQuery | LuceneQuery
 
+type AllQueryTypes = KqlQuery | LuceneQuery | ESQLQuery
+
 
 class KqlQuery(BaseCfgModel):
     """Represents a KQL (Kibana Query Language) query configuration.
@@ -25,3 +27,12 @@ class LuceneQuery(BaseCfgModel):
 
     lucene: str = Field(...)
     """The Lucene query string to apply."""
+
+
+class ESQLQuery(BaseCfgModel):
+    """Represents an ESQL (Elasticsearch Query Language) query configuration.
+
+    ESQL is a powerful query language for Elasticsearch that provides a flexible syntax for filtering data.
+    """
+
+    esql: str = Field(...)

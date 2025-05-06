@@ -60,6 +60,7 @@ ignore = [
     "PLR6301", # Ignore functions that don't use self
     "D203",    # incorrect-blank-line-before-class
     "D413",    # multi-line-summary-second-line
+    "D213",    # multi-line-summary-second-line
     "COM812",  # Conflicts with formatter
     "INP001",  # ignore __init__ requirements
     "D100",    # Ignore missing docstrings for modules

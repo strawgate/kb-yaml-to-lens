@@ -39,6 +39,7 @@ def compile_and_format(yaml_path: Path) -> str | None:
 
     Returns:
         The compressed JSON string for the NDJSON line, or None if compilation fails.
+
     """
     try:
         msg = f'Compiling: {yaml_path.relative_to(project_root)}'
@@ -63,6 +64,7 @@ def get_scenarios() -> list[Path]:
 
     Returns:
         A list of Path objects pointing to the scenario YAML files.
+
     """
     if not SCENARIO_DIR.is_dir():
         msg = f'Error: Scenario directory not found: {SCENARIO_DIR}'

@@ -2,7 +2,9 @@
 
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from dashboard_compiler.shared.config import BaseCfgModel
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.images import ImagePanel
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
 type PanelTypes = 'MarkdownPanel | SearchPanel | LinksPanel | ImagePanel'  # | LensPanel
 
 
-class Grid(BaseModel):
+class Grid(BaseCfgModel):
     """Represents the grid layout configuration for a panel.
 
     This determines the panel's position and size on the dashboard grid.
@@ -32,7 +34,7 @@ class Grid(BaseModel):
     """The height of the panel in grid units."""
 
 
-class BasePanel(BaseModel):
+class BasePanel(BaseCfgModel):
     """Base model for all panel types defined.
 
     All specific panel types (e.g., Markdown, Search, Lens) inherit from this base class

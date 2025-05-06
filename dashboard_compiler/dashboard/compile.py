@@ -6,7 +6,7 @@ from dashboard_compiler.dashboard.view import KbnDashboard, KbnDashboardAttribut
 from dashboard_compiler.filters.compile import compile_filters
 from dashboard_compiler.panels.compile import compile_dashboard_panels
 from dashboard_compiler.panels.view import KbnSavedObjectMeta, KbnSearchSourceJSON
-from dashboard_compiler.queries.compile import compile_query
+from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.view import KbnReference
@@ -47,7 +47,7 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         kibanaSavedObjectMeta=KbnSavedObjectMeta(
             searchSourceJSON=KbnSearchSourceJSON(
                 filter=compile_filters(filters=dashboard.filters),
-                query=compile_query(query=dashboard.query) if dashboard.query else KbnQuery(query='', language='kuery'),
+                query=compile_nonesql_query(query=dashboard.query) if dashboard.query else KbnQuery(query='', language='kuery'),
             ),
         ),
         optionsJSON=compile_dashboard_options(),

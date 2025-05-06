@@ -1,16 +1,18 @@
 """Configuration for a Dashboard."""
 
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from pydantic import Field
 
-from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import ControlSettings
-from dashboard_compiler.filters import FilterTypes
-from dashboard_compiler.filters.config import AllFilterTypes
-from dashboard_compiler.panels import PanelTypes
-from dashboard_compiler.queries import QueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel
+
+if TYPE_CHECKING:
+    from dashboard_compiler.controls import ControlTypes
+    from dashboard_compiler.filters import FilterTypes
+    from dashboard_compiler.filters.config import AllFilterTypes
+    from dashboard_compiler.panels import PanelTypes
+    from dashboard_compiler.queries import QueryTypes
 
 
 class DashboardSyncSettings(BaseCfgModel):

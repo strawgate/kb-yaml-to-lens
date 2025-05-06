@@ -24,7 +24,6 @@ def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, 
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     meta = KbnFilterMeta(
         type='exists',
@@ -51,7 +50,6 @@ def compile_custom_filter(*, custom_filter: CustomFilter, negate: bool = False, 
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     return KbnFilter(
         meta=KbnCustomFilterMeta(
@@ -74,7 +72,6 @@ def compile_phrase_filter(*, phrase_filter: PhraseFilter, negate: bool = False, 
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     meta = KbnFilterMeta(
         type='phrase',
@@ -102,7 +99,6 @@ def compile_phrases_filter(*, phrases_filter: PhrasesFilter, negate: bool = Fals
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     meta = KbnFilterMeta(
         type='phrases',
@@ -135,7 +131,6 @@ def compile_range_filter(*, range_filter: RangeFilter, negate: bool = False, nes
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     range_query = {}
 
@@ -172,7 +167,6 @@ def compile_and_filter(*, and_filter: AndFilter, negate: bool = False, nested: b
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     return KbnFilter(
         meta=KbnCombinedFilterMeta(
@@ -197,7 +191,6 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     return KbnFilter(
         meta=KbnCombinedFilterMeta(
@@ -212,7 +205,7 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
     )
 
 
-def compile_filter(*, filter: AllFilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:
+def compile_filter(*, filter: AllFilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: A002, PLR0911
     """Compile a single filter object into its Kibana view model representation.
 
     Args:
@@ -222,11 +215,9 @@ def compile_filter(*, filter: AllFilterTypes, negate: bool = False, nested: bool
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
-
     """
     if isinstance(filter, NegateFilter):
         return compile_filter(filter=filter.not_filter, negate=True, nested=nested)
-
     if isinstance(filter, ExistsFilter):
         return compile_exists_filter(exists_filter=filter, negate=negate, nested=nested)
     if isinstance(filter, PhraseFilter):
@@ -237,7 +228,6 @@ def compile_filter(*, filter: AllFilterTypes, negate: bool = False, nested: bool
         return compile_range_filter(range_filter=filter, negate=negate, nested=nested)
     if isinstance(filter, CustomFilter):
         return compile_custom_filter(custom_filter=filter, negate=negate, nested=nested)
-
     if isinstance(filter, AndFilter):
         return compile_and_filter(and_filter=filter, negate=negate, nested=nested)
     if isinstance(filter, OrFilter):
@@ -255,6 +245,5 @@ def compile_filters(*, filters: list[AllFilterTypes]) -> list[KbnFilter]:
 
     Returns:
         list[KbnFilter]: The compiled list of Kibana filter view models.
-
     """
     return [compile_filter(filter=dashboard_filter) for dashboard_filter in filters]

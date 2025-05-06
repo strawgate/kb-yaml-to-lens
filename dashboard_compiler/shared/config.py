@@ -14,9 +14,11 @@ MAX_BYTES_LENGTH = 16  # UUIDs are 128 bits (16 bytes)
 class BaseCfgModel(BaseModel):
     """Base configuration model for the dashboard compiler."""
 
+
 def random_id_generator() -> str:
     """Generate a random UUID."""
     return str(uuid.uuid4())
+
 
 def stable_id_generator(values: list[str | int | float | None]) -> str:
     """Generate a GUID looking string from a hash of values.
