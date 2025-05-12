@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.queries.config import QueryTypes
+from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
 
 type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
@@ -47,7 +47,7 @@ class BaseLensDimension(BaseDimension):
 class LensFiltersDimensionFilter(BaseCfgModel):
     """A filter for a filters dimension."""
 
-    query: QueryTypes = Field(default=...)
+    query: LegacyQueryTypes = Field(default=...)
     """The query to use for the dimension."""
 
     label: str | None = Field(default=None)

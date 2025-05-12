@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import BaseModel
+from dashboard_compiler.shared.view import BaseVwModel
 
 # The following is an example of the JSON structure that these models represent. Do not remove:
 # "query": {                               <-- KbnQuery
@@ -11,14 +11,14 @@ from pydantic import BaseModel
 # }
 
 
-class KbnQuery(BaseModel):
+class KbnQuery(BaseVwModel):
     """Represents the query object within state.query in the Kibana JSON structure."""
 
     query: str
     language: Literal['kuery', 'lucene']
 
 
-class KbnESQLQuery(BaseModel):
+class KbnESQLQuery(BaseVwModel):
     """Represents the query object within state.query in the Kibana JSON structure."""
 
     esql: str

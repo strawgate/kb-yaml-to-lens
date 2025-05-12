@@ -1,7 +1,23 @@
 """Filter compilation module for Kibana dashboard compiler."""
 
-from dashboard_compiler.shared.config import Sort
+from dashboard_compiler.filters.config import (
+    AndFilter,
+    CustomFilter,
+    ExistsFilter,
+    NegateFilter,
+    OrFilter,
+    PhraseFilter,
+    PhrasesFilter,
+    RangeFilter,
+)
 
-from .config import ExistsFilter, FilterTypes, PhraseFilter, PhrasesFilter, RangeFilter
-
-__all__ = ['ExistsFilter', 'FilterTypes', 'PhraseFilter', 'PhrasesFilter', 'RangeFilter', 'Sort']
+__all__ = [
+    'AndFilter',
+    'CustomFilter',
+    'ExistsFilter',
+    'NegateFilter',
+    'OrFilter',
+    'PhraseFilter',
+    'PhrasesFilter',
+    'RangeFilter',
+]

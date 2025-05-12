@@ -1,0 +1,18 @@
+chart_defaults: &chart_defaults
+  data_view: metrics-*
+
+dashboard:
+  name: Pie Chart Only on Aerospike Namespace
+  panels:
+  - title: "Pie Chart of Aerospike Namespace" 
+    type: chart
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart: 
+      type: pie
+      <<: *chart_defaults
+      slice_by: 
+        - field: aerospike.namespace
+          type: terms
+          size: 5
+      metric:
+        - count: __records__

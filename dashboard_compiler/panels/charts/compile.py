@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from dashboard_compiler.filters.compile import compile_filters
-from dashboard_compiler.filters.config import AllFilterTypes
+from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.charts.config import (
     AllChartTypes,
     ESQLPanel,
@@ -26,8 +26,9 @@ from dashboard_compiler.panels.charts.view import (
     KbnVisualizationTypeEnum,
 )
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
-from dashboard_compiler.queries.config import QueryTypes
+from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
+from dashboard_compiler.shared.view import KbnReference
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -55,10 +56,10 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
 
 
 def compile_lens_chart_state(
-    query: QueryTypes | None,
-    filters: list[AllFilterTypes] | None,
+    query: LegacyQueryTypes | None,
+    filters: list[FilterTypes] | None,
     charts: list[AllChartTypes],
-) -> KbnLensPanelState:
+) -> tuple[KbnLensPanelState, list[KbnReference]]:
     """Compile a multi-layer chart into its Kibana view model representation."""
     layer_id: str
     lens_columns_by_id: dict[str, KbnLensColumnTypes]
@@ -66,11 +67,21 @@ def compile_lens_chart_state(
 
     form_based_datasource_state_layer_by_id: dict[str, KbnFormBasedDataSourceStateLayer] = {}
 
+    kbn_references: list[KbnReference] = []
+
     for chart in charts:
         if isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
         elif isinstance(chart, LensPieChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
+
+        kbn_references.append(
+            KbnReference(
+                type='index-pattern',
+                id=chart.data_view,
+                name=f'indexpattern-datasource-layer-{layer_id}',
+            )
+        )
 
         form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(columns=lens_columns_by_id, sampling=100)
 
@@ -81,13 +92,16 @@ def compile_lens_chart_state(
     kbn_query = compile_nonesql_query(query=query) if query else KbnQuery(query='', language='kuery')
     kbn_filters = compile_filters(filters=filters) if filters else []
 
-    return KbnLensPanelState(
-        visualization=visualization_state,
-        query=kbn_query,
-        filters=kbn_filters,
-        datasourceStates=datasource_states,
-        internalReferences=[],
-        adHocDataViews={},
+    return (
+        KbnLensPanelState(
+            visualization=visualization_state,
+            query=kbn_query,
+            filters=kbn_filters,
+            datasourceStates=datasource_states,
+            internalReferences=[],
+            adHocDataViews={},
+        ),
+        kbn_references,
     )
 
 
@@ -106,7 +120,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        query=compile_esql_query(panel.query),
+        query=compile_esql_query(panel.esql),
         columns=esql_columns,
     )
 
@@ -118,7 +132,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     return KbnLensPanelState(
         visualization=visualization_state,
-        query=compile_esql_query(panel.query),
+        query=compile_esql_query(panel.esql),
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],
@@ -126,7 +140,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
     )
 
 
-def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> KbnLensPanelAttributes:
+def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
     """Compile a LensPanel into its Kibana view model representation.
 
     Args:
@@ -136,25 +150,30 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> KbnLensPanelAttri
         KbnLensPanelAttributes: The compiled Kibana Lens panel view model.
 
     """
-    chart_state = (
-        compile_lens_chart_state(
+    chart_state: KbnLensPanelState
+    references: list[KbnReference] = []
+
+    if isinstance(panel, LensPanel):
+        chart_state, references = compile_lens_chart_state(
             query=panel.query,
             filters=panel.filters,
             charts=[panel.chart],
         )
-        if isinstance(panel, LensPanel)
-        else compile_esql_chart_state(panel)
+    elif isinstance(panel, ESQLPanel):
+        chart_state = compile_esql_chart_state(panel)
+
+    return (
+        KbnLensPanelAttributes(
+            title=panel.title,
+            visualizationType=chart_type_to_kbn_type_lens(panel.chart),
+            references=references,
+            state=chart_state,
+        ),
+        references,
     )
 
-    return KbnLensPanelAttributes(
-        title=panel.title,
-        visualizationType=chart_type_to_kbn_type_lens(panel.chart),
-        references=[],
-        state=chart_state,
-    )
 
-
-def compile_charts_embeddable_config(panel: LensPanel | ESQLPanel) -> KbnLensPanelEmbeddableConfig:
+def compile_charts_panel_config(panel: LensPanel | ESQLPanel) -> tuple[list[KbnReference], KbnLensPanelEmbeddableConfig]:
     """Compile a LensPanel into an embeddable config.
 
     Args:
@@ -164,4 +183,5 @@ def compile_charts_embeddable_config(panel: LensPanel | ESQLPanel) -> KbnLensPan
         KbnLensPanelEmbeddableConfig: The compiled Kibana Lens panel embeddable config.
 
     """
-    return KbnLensPanelEmbeddableConfig(attributes=compile_charts_attributes(panel))
+    attributes, references = compile_charts_attributes(panel)
+    return references, KbnLensPanelEmbeddableConfig(attributes=attributes)

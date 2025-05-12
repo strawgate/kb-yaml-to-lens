@@ -7,9 +7,7 @@ from deepdiff import DeepDiff
 from pydantic import BaseModel
 
 from dashboard_compiler.filters.compile import compile_filters
-from dashboard_compiler.filters.config import (
-    AllFilterTypes,
-)
+from dashboard_compiler.filters.config import FilterTypes
 from tests.conftest import DEEP_DIFF_DEFAULTS
 from tests.filters.test_filters_data import (
     TEST_CASE_IDS,
@@ -27,7 +25,7 @@ EXCLUDE_REGEX_PATHS = [
 class FilterHolder(BaseModel):
     """A holder for filter configurations to be used in tests."""
 
-    filter: AllFilterTypes
+    filter: FilterTypes
 
 
 @pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES, ids=TEST_CASE_IDS)

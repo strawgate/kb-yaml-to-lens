@@ -1,5 +1,5 @@
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
-from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn  # noqa: TC001
+from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnESQLColumnTypes,
     KbnLensColumnTypes,

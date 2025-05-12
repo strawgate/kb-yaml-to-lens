@@ -21,9 +21,9 @@ def compile_dashboard_options() -> KbnDashboardOptions:
     """
     return KbnDashboardOptions(
         useMargins=True,
-        syncColors=True,
+        syncColors=False,
         syncCursor=True,
-        syncTooltips=True,
+        syncTooltips=False,
         hidePanelTitles=False,
     )
 

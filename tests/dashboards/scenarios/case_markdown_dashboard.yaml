@@ -1,0 +1,14 @@
+dashboard:
+  name: Case Markdown Dashboard
+  description: A dashboard for viewing case markdown
+  panels:
+  - type: markdown
+    title: Markdown Panel
+    description: Cool description
+    grid:
+      x: 0
+      y: 0
+      w: 12
+      h: 10
+    content: |
+      # This is a basic markdown test

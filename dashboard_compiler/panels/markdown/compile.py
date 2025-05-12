@@ -27,7 +27,7 @@ def compile_markdown_saved_vis_data() -> KbnMarkdownSavedVisData:
     return KbnMarkdownSavedVisData(
         aggs=[],
         searchSource=KbnMarkdownSavedVisDataSearchSource(
-            query=KbnQuery(query='', language='lucene'),
+            query=KbnQuery(query='', language='kuery'),
             filter=[],
         ),
     )
@@ -61,8 +61,8 @@ def compile_markdown_saved_vis(markdown_panel: MarkdownPanel) -> KbnMarkdownSave
 
     """
     return KbnMarkdownSavedVis(
-        title='',  # title is not used here,
-        description='',  # description is not used here
+        title=markdown_panel.title,
+        description=markdown_panel.description or '',
         type='markdown',
         params=compile_markdown_saved_vis_params(markdown_panel=markdown_panel),
         uiState={},
@@ -83,6 +83,6 @@ def compile_markdown_panel_config(markdown_panel: MarkdownPanel) -> tuple[list[K
     return [], KbnMarkdownEmbeddableConfig(
         hidePanelTitles=markdown_panel.hide_title,
         enhancements={'dynamicActions': {'events': []}},
-        description=markdown_panel.description,
+        description=None,
         savedVis=compile_markdown_saved_vis(markdown_panel=markdown_panel),
     )

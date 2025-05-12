@@ -1,13 +1,14 @@
 """Compile Dashboard Panels to Kibana View Models."""
 
-from dashboard_compiler.panels import LinksPanel, MarkdownPanel, PanelTypes
-
-# from dashboard_compiler.panels.esql.compile import compile_esql_panel
-# from dashboard_compiler.panels.lens.compile import compile_lens_panel
+from dashboard_compiler.panels import LinksPanel, MarkdownPanel
+from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
+from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+from dashboard_compiler.panels.charts.view import KbnLensPanel
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.view import KbnLinksPanel
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
 from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
+from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData, KbnPanelTypes
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.view import KbnReference
@@ -68,9 +69,9 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnP
         references, embeddable_config = compile_links_panel_config(panel)
         return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
 
-    # if isinstance(panel, LensPanel):
-    #     references, kbn_panel = compile_lens_panel(panel)
-    #     return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
+    if isinstance(panel, LensPanel | ESQLPanel):
+        references, kbn_panel = compile_charts_panel_config(panel)
+        return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
 
     # if isinstance(panel, ESQLPanel):
     #     return compile_esql_panel(panel)

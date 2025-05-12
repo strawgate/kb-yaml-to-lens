@@ -10,7 +10,7 @@ from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 if TYPE_CHECKING:
-    # from dashboard_compiler.panels.lens.view import KbnLensPanel
+    from dashboard_compiler.panels.charts.view import KbnLensPanel
     from dashboard_compiler.panels.links.view import KbnLinksPanel
     from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
     from dashboard_compiler.panels.search.view import KbnSearchPanel
@@ -24,7 +24,7 @@ __all__ = [
     'KbnSearchSourceJSON',
 ]
 
-type KbnPanelTypes = KbnMarkdownPanel | KbnSearchPanel | KbnLinksPanel  # | KbnLensPanel
+type KbnPanelTypes = 'KbnMarkdownPanel | KbnSearchPanel | KbnLinksPanel | KbnLensPanel'
 
 
 class KbnGridData(BaseVwModel):

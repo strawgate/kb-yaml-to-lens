@@ -7,8 +7,8 @@ from deepdiff import DeepDiff
 from pydantic import BaseModel
 
 from dashboard_compiler.queries.compile import compile_nonesql_query
-from dashboard_compiler.queries.config import (
-    QueryTypes,
+from dashboard_compiler.queries.types import (
+    LegacyQueryTypes,
 )
 from tests.conftest import DEEP_DIFF_DEFAULTS
 from tests.queries.test_queries_data import (
@@ -25,7 +25,7 @@ EXCLUDE_REGEX_PATHS = []
 class QueryHolder(BaseModel):
     """A holder for query configurations to be used in tests."""
 
-    query: QueryTypes
+    query: LegacyQueryTypes
 
 
 @pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES, ids=TEST_CASE_IDS)

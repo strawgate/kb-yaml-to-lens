@@ -66,6 +66,7 @@ ignore = [
     "D100",    # Ignore missing docstrings for modules
     "FBT001",  # Boolean in parameters
     "FBT002",  # Boolean in parameters
+    "TC001",   # Ignore move type into type checking block
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -84,6 +85,7 @@ unfixable = []
     "RUF029", # Ignore await not used in async function
     "PGH003", # Don't require specific rule exclusions for type checking ignores
     "D104", #Docstrings in public packages
+    "E501", # Line too long
 ] 
 "dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models

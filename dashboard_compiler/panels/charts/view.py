@@ -46,7 +46,7 @@ class KbnFormBasedDataSourceStateLayer(BaseVwModel):
     columnOrder: list[str] = Field(default_factory=list)
     incompleteColumns: dict[str, Any] = Field(default_factory=dict)
     sampling: int
-    indexPatternId: str | None = None
+    indexPatternId: Annotated[str | None, OmitIfNone()] = None
 
 
 class KbnFormBasedDataSourceStateLayerById(RootModel):
@@ -59,7 +59,7 @@ class KbnFormBasedDataSourceState(BaseVwModel):
     """Represents the datasource state for a Lens panel in the Kibana JSON structure."""
 
     layers: KbnFormBasedDataSourceStateLayerById = Field(default_factory=KbnFormBasedDataSourceStateLayerById)
-    currentIndexPatternId: str | None = None
+    currentIndexPatternId: Annotated[str | None, OmitIfNone()] = None
 
 
 # endregion Form Data Source
@@ -111,11 +111,22 @@ class KbnIndexPatternRef(BaseVwModel):
 
 
 class KbnTextBasedDataSourceState(BaseVwModel):
-    layers: KbnTextBasedDataSourceStateLayerById = Field(default_factory=KbnTextBasedDataSourceStateLayerById)
-    indexPatternRefs: list[KbnIndexPatternRef] = Field(default_factory=list)
+    layers: KbnTextBasedDataSourceStateLayerById | None = Field(default=None)
+    indexPatternRefs: Annotated[list[KbnIndexPatternRef] | None, OmitIfNone()] = None
 
 
 # endregion Text Data Source
+
+# region Index Pattern
+
+
+class KbnIndexPatternBasedDataSourceState(BaseVwModel):
+    """Index Pattern based datasource is not yet implemented."""
+
+    layers: dict[str, str] = Field(default_factory=dict)
+
+
+# endregion Index Pattern
 
 
 # region DataSourceState

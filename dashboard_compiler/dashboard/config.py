@@ -1,18 +1,15 @@
 """Configuration for a Dashboard."""
 
-from typing import TYPE_CHECKING, Self
+from typing import Self
 
 from pydantic import Field
 
+from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import ControlSettings
+from dashboard_compiler.filters.config import FilterTypes
+from dashboard_compiler.panels.types import PanelTypes
+from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel
-
-if TYPE_CHECKING:
-    from dashboard_compiler.controls import ControlTypes
-    from dashboard_compiler.filters import FilterTypes
-    from dashboard_compiler.filters.config import AllFilterTypes
-    from dashboard_compiler.panels import PanelTypes
-    from dashboard_compiler.queries import QueryTypes
 
 
 class DashboardSyncSettings(BaseCfgModel):
@@ -57,19 +54,19 @@ class Dashboard(BaseCfgModel):
     data_view: str | None = Field(default=None)
     """The default data view (index pattern) used by items in this dashboard."""
 
-    query: 'QueryTypes | None' = Field(default=None)
+    query: LegacyQueryTypes | None = Field(default=None)
     """A query (KQL or Lucene) applied to the dashboard."""
 
-    filters: list['AllFilterTypes'] = Field(default_factory=list)
+    filters: list[FilterTypes] = Field(default_factory=list)
     """A list of filters applied to the dashboard."""
 
-    controls: list['ControlTypes'] = Field(default_factory=list)
+    controls: list[ControlTypes] = Field(default_factory=list)
     """A list of Controls for the dashboard."""
 
-    panels: list['PanelTypes'] = Field(default_factory=list)
+    panels: list[PanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
 
-    def add_filter(self, filter: 'FilterTypes') -> Self:  # noqa: A002
+    def add_filter(self, filter: FilterTypes) -> Self:  # noqa: A002
         """Add a filter to the dashboard's global filters list.
 
         Args:
@@ -83,7 +80,7 @@ class Dashboard(BaseCfgModel):
 
         return self
 
-    def add_control(self, control: 'ControlTypes') -> Self:
+    def add_control(self, control: ControlTypes) -> Self:
         """Add a control panel configuration to the dashboard's controls list.
 
         Args:
@@ -97,7 +94,7 @@ class Dashboard(BaseCfgModel):
 
         return self
 
-    def add_panel(self, panel: 'PanelTypes') -> Self:
+    def add_panel(self, panel: PanelTypes) -> Self:
         """Add a panel object to the dashboard's panels list.
 
         Args:

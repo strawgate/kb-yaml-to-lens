@@ -92,7 +92,7 @@ class PieTitlesAndText(BaseCfgModel):
 
 
 class PieChartAppearance(BaseCfgModel):
-    """Represents chart appearance formatting options for charts."""
+    """Represents chart appearance formatting options for Pie charts."""
 
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""

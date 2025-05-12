@@ -1,0 +1,12 @@
+dashboard:
+  name: one-link
+  description: "A dashboard with a single link to a specific URL"
+  panels:
+  - title: "A links panel" 
+    id: e19a731d-0163-490a-a691-0bd1b1264d0b
+    layout: horizontal
+    type: links
+    grid: { x: 0, y: 0, w: 48, h: 2 }
+    links:
+    - id: 9f2896f6-9ca0-4f63-9960-631d5af3840c
+      dashboard: e52208aa-f836-45a8-b960-8e72a139acf7

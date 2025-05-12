@@ -1,0 +1,31 @@
+{
+    "attributes": {
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
+            "panelsJSON": "{}",
+            "showApplySelections": false
+        },
+        "description": "A dashboard with a single query",
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"myquery: myvalue\",\"language\":\"kuery\"}}"
+        },
+        "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
+        "panelsJSON": "[]",
+        "timeRestore": false,
+        "title": "One Query Dashboard",
+        "version": 3
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2025-04-26T20:50:41.423Z",
+    "created_by": "u_Qp1Xm9BzTPJitPWkSGyWVGs466-E2PJfI5EIfTpxkl8_0",
+    "id": "14fe5fc0-69db-4b7e-a573-cee4073555d3",
+    "managed": false,
+    "references": [],
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2025-04-26T20:50:49.670Z",
+    "updated_by": "u_Qp1Xm9BzTPJitPWkSGyWVGs466-E2PJfI5EIfTpxkl8_0",
+    "version": "WzE4ODgsMV0="
+}

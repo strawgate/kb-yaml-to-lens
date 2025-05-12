@@ -6,13 +6,12 @@ from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
-type FilterTypes = 'ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter | CustomFilter'
+type FilterPredicateTypes = ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter | CustomFilter
 
-type FilterJunctionTypes = 'AndFilter | OrFilter'
+type FilterLogicalTypes = AndFilter | OrFilter
+type FilterModifierTypes = NegateFilter
 
-type FilterModifierTypes = 'NegateFilter'
-
-type AllFilterTypes = 'FilterTypes | FilterJunctionTypes | FilterModifierTypes'
+type FilterTypes = FilterPredicateTypes | FilterLogicalTypes | FilterModifierTypes
 
 
 class BaseFilter(BaseCfgModel):
@@ -108,7 +107,7 @@ class NegateFilter(BaseCfgModel):
     This allows for excluding documents that match the nested filter.
     """
 
-    not_filter: FilterTypes = Field(..., validation_alias='not')
+    not_filter: 'FilterTypes' = Field(..., validation_alias='not')
     """The filter to negate. Can be a phrase, phrases, or range filter."""
 
 
@@ -118,7 +117,7 @@ class AndFilter(BaseFilter):
     This filter matches documents that satisfy all of the specified filters.
     """
 
-    and_filters: list['AllFilterTypes'] = Field(..., alias='and')
+    and_filters: list['FilterTypes'] = Field(..., alias='and')
     """A list of filters. All filters must match for a document to be included."""
 
 
@@ -128,5 +127,5 @@ class OrFilter(BaseFilter):
     This filter matches documents that satisfy at least one of the specified filters.
     """
 
-    or_filters: list['AllFilterTypes'] = Field(..., alias='or')
+    or_filters: list['FilterTypes'] = Field(..., alias='or')
     """A list of filters. At least one filter must match for a document to be included."""

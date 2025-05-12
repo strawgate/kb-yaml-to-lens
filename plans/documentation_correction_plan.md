@@ -9,7 +9,7 @@ Based on the review of `config.py` and `.md` files, the following discrepancies 
 ### dashboard_compiler/filters/config.md
 
 *   **Update Filter Types:** The `config.py` defines `CustomFilter`, `NegateFilter`, `AndFilter`, and `OrFilter` which are not fully or accurately reflected in the `filters/config.md`. The markdown needs to be updated to include detailed descriptions and examples for these filter types, especially the junction (`AndFilter`, `OrFilter`) and modifier (`NegateFilter`) types, and the `CustomFilter` with its `dsl` field.
-*   **Panel Filters Section:** The "Panel Filters" section in `filters/config.md` describes a different structure (`type`, `value`, `operator`, `negate`) than what is implied by the `AllFilterTypes` used in `dashboard/config.py` for the `filters` field within the `Dashboard` model. It seems panel filters should use the same filter types as dashboard filters. This section needs to be corrected or removed if panel-specific filter types are no longer supported or defined differently.
+*   **Panel Filters Section:** The "Panel Filters" section in `filters/config.md` describes a different structure (`type`, `value`, `operator`, `negate`) than what is implied by the `FilterTypes` used in `dashboard/config.py` for the `filters` field within the `Dashboard` model. It seems panel filters should use the same filter types as dashboard filters. This section needs to be corrected or removed if panel-specific filter types are no longer supported or defined differently.
 
 ### dashboard_compiler/panels/base.md
 

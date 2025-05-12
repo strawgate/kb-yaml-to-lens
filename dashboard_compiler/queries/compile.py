@@ -1,22 +1,23 @@
 """Compile dashboard queries into their Kibana view model representation."""
 
-from dashboard_compiler.queries.config import ESQLQuery, KqlQuery, LuceneQuery, QueryTypes
+from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
+from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 from dashboard_compiler.shared.errors import UnexpectedTypeError
 
 
-def compile_esql_query(query: ESQLQuery) -> KbnESQLQuery:
+def compile_esql_query(query: ESQLQueryTypes) -> KbnESQLQuery:
     """Compile an ESQL query into its Kibana view model representation."""
     return KbnESQLQuery(
-        esql=query.esql,
+        esql=query.root,
     )
 
 
-def compile_nonesql_query(query: QueryTypes) -> KbnQuery:
+def compile_nonesql_query(query: LegacyQueryTypes) -> KbnQuery:
     """Compile the query of a Dashboard object into its Kibana view model representation.
 
     Args:
-        query (QueryTypes): The query object to compile.
+        query (LegacyQueryTypes): The query object to compile.
 
     Returns:
         KbnQuery: The compiled Kibana query view model.
@@ -37,4 +38,4 @@ def compile_nonesql_query(query: QueryTypes) -> KbnQuery:
             language='lucene',
         )
 
-    raise UnexpectedTypeError(QueryTypes, type(query))
+    raise UnexpectedTypeError(LegacyQueryTypes, type(query))

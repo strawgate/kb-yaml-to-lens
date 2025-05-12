@@ -27,16 +27,19 @@ def load(path: str) -> Dashboard:
     return Dashboard(**dashboard_dict['dashboard'])
 
 
-def render(dashboard: Dashboard) -> KbnDashboard:
+def render(dashboard: Dashboard | dict) -> KbnDashboard:
     """Render a Dashboard object into its Kibana JSON representation.
 
     Args:
-        dashboard (Dashboard): The Dashboard object to render.
+        dashboard (Dashboard | dict): The Dashboard object to render.
 
     Returns:
         KbnDashboard: The rendered Kibana dashboard view model.
 
     """
+    if isinstance(dashboard, dict):
+        dashboard = Dashboard(**dashboard['dashboard'])
+
     return compile_dashboard(dashboard)
 
 

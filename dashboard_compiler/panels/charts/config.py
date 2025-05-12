@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Literal
+from typing import Literal
 
 from pydantic import Field
 
+from dashboard_compiler.filters.config import FilterTypes
+from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
-from dashboard_compiler.panels.config import BasePanel
-
-if TYPE_CHECKING:
-    from dashboard_compiler.filters.config import AllFilterTypes
-    from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
+from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 
 type AllChartTypes = LensChartTypes | ESQLChartTypes
 
@@ -26,10 +24,10 @@ class LensPanel(BasePanel):
 
     type: Literal['charts'] = 'charts'
 
-    filters: list['AllFilterTypes'] | None = Field(default=None)
+    filters: list['FilterTypes'] | None = Field(default=None)
     """A list of filters to apply to the panel."""
 
-    query: 'KqlQuery | LuceneQuery | None' = Field(default=None)
+    query: 'LegacyQueryTypes | None' = Field(default=None)
     """The query to be executed. This is the core of the chart definition."""
 
     chart: 'LensChartTypes' = Field(default=...)
@@ -48,6 +46,6 @@ class ESQLPanel(BasePanel):
 
     type: Literal['charts'] = 'charts'
 
-    esql: str = Field(...)
+    esql: 'ESQLQueryTypes' = Field(...)
 
     chart: 'ESQLChartTypes' = Field(default=...)

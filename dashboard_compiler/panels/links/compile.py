@@ -44,7 +44,7 @@ def compile_dashboard_link(order: int, link: DashboardLink) -> tuple[KbnReferenc
 
     kbn_link = KbnDashboardLink(
         id=link_id,
-        label=link.label or '',
+        label=link.label,
         order=order,
         destinationRefName=link_ref_id,
         options=options,
@@ -128,6 +128,7 @@ def compile_links(links: list[LinkTypes]) -> tuple[list[KbnReference], list[KbnL
     """
     kbn_references: list[KbnReference] = []
     kbn_links: list[KbnLinkTypes] = []
+
     for i, link in enumerate(links):
         kbn_reference, kbn_link = compile_link(link, i)
 

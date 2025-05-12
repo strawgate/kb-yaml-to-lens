@@ -1,7 +1,6 @@
 """Compile Dashboard filter objects into their Kibana view model representations."""
 
-from dashboard_compiler.filters.config import (
-    AllFilterTypes,
+from dashboard_compiler.filters import (
     AndFilter,
     CustomFilter,
     ExistsFilter,
@@ -11,6 +10,7 @@ from dashboard_compiler.filters.config import (
     PhrasesFilter,
     RangeFilter,
 )
+from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta, KbnFilterState
 
 
@@ -205,11 +205,11 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
     )
 
 
-def compile_filter(*, filter: AllFilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: A002, PLR0911
+def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: A002, PLR0911
     """Compile a single filter object into its Kibana view model representation.
 
     Args:
-        filter (AllFilterTypes): The filter object to compile.
+        filter (FilterTypes): The filter object to compile.
         negate (bool): Whether to negate the filter. Defaults to False.
         nested (bool): Whether the filter is nested within another filter. Defaults to False.
 
@@ -237,11 +237,11 @@ def compile_filter(*, filter: AllFilterTypes, negate: bool = False, nested: bool
     raise NotImplementedError(msg)
 
 
-def compile_filters(*, filters: list[AllFilterTypes]) -> list[KbnFilter]:
+def compile_filters(*, filters: list[FilterTypes]) -> list[KbnFilter]:
     """Compile the filters of a Dashboard object into its Kibana view model representation.
 
     Args:
-        filters (list[AllFilterTypes]): The list of filter objects to compile.
+        filters (list[FilterTypes]): The list of filter objects to compile.
 
     Returns:
         list[KbnFilter]: The compiled list of Kibana filter view models.

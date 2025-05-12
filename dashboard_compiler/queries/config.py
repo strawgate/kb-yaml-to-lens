@@ -3,10 +3,7 @@
 from pydantic import Field
 
 from dashboard_compiler.shared.config import BaseCfgModel
-
-type QueryTypes = KqlQuery | LuceneQuery
-
-type AllQueryTypes = KqlQuery | LuceneQuery | ESQLQuery
+from dashboard_compiler.shared.model import BaseRootCfgModel
 
 
 class KqlQuery(BaseCfgModel):
@@ -29,10 +26,10 @@ class LuceneQuery(BaseCfgModel):
     """The Lucene query string to apply."""
 
 
-class ESQLQuery(BaseCfgModel):
+class ESQLQuery(BaseRootCfgModel):
     """Represents an ESQL (Elasticsearch Query Language) query configuration.
 
     ESQL is a powerful query language for Elasticsearch that provides a flexible syntax for filtering data.
     """
 
-    esql: str = Field(...)
+    root: str = Field(...)

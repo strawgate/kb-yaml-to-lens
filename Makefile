@@ -31,7 +31,7 @@ help:
 
 install:
 	poetry install
-	poetry install -E dev
+	poetry install --all-groups
 
 uv-sync:
 	@echo "Running uv sync..."

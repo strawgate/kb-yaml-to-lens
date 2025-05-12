@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.config import BasePanel
+from dashboard_compiler.panels.base import BasePanel
 
 
 class ImagePanel(BasePanel):

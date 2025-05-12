@@ -45,7 +45,7 @@ class KbnBaseLink(BaseVwModel):
     order: int = Field(...)
     """Order of the link in the list."""
 
-    label: str | None = Field(default=None)
+    label: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Friendly label for the link. Optional, can be used for display purposes."""
 
 
