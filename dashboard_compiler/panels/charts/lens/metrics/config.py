@@ -61,16 +61,6 @@ class BaseLensMetric(BaseMetric):
     """A KQL filter applied before determining the metric value."""
 
 
-class LensFormulaMetric(BaseLensMetric):
-    """Represents a formula metric configuration within a Lens chart.
-
-    Formula metrics allow for custom calculations based on other fields or metrics.
-    """
-
-    formula: str = Field(...)
-    """The formula string to be evaluated for this metric."""
-
-
 type LensAggregatedMetricTypes = (
     LensOtherAggregatedMetric
     | LensLastValueAggregatedMetric
@@ -160,3 +150,81 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
     field: str = Field(...)
 
     percentile: int = Field(...)
+
+
+type LensFormulaAggregations = LensFormulaMinAgg | LensFormulaMaxAgg | LensFormulaSumAgg
+
+type LensFormulaOperations = LensFormulaSubtract | LensFormulaAdd | LensFormulaDivide | LensFormulaMultiply | int | float
+
+
+class LensFormulaMetric(BaseLensMetric):
+    """Represents a formula metric configuration within a Lens chart.
+
+    Formula metrics allow for custom calculations based on other fields or metrics.
+    """
+
+    formula: str = Field(...)
+    """The formula string to be evaluated for this metric."""
+
+
+class LensFormulaLeftRightOperation(BaseCfgModel):
+    left: LensFormulaOperations | LensFormulaAggregations = Field(...)
+    right: LensFormulaOperations | LensFormulaAggregations = Field(...)
+
+
+class LensFormulaAggregation(BaseCfgModel):
+    field: str = Field(...)
+    kql: str | None = Field(...)
+    lucene: str | None = Field(...)
+
+
+class LensFormulaMinAgg(BaseCfgModel):
+    min: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaMaxAgg(BaseCfgModel):
+    max: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaSumAgg(BaseCfgModel):
+    sum: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaCountAgg(BaseCfgModel):
+    count: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaUniqueCountAgg(BaseCfgModel):
+    unique_count: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaAverageAgg(BaseCfgModel):
+    average: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaLastCountAgg(BaseCfgModel):
+    last_count: LensFormulaAggregation = Field(...)
+
+
+class LensFormulaSubtract(BaseCfgModel):
+    """Lens formula for subtracting two operands"""
+
+    subtract: LensFormulaLeftRightOperation = Field(...)
+
+
+class LensFormulaAdd(BaseCfgModel):
+    """Lens formula for adding two operands"""
+
+    add: LensFormulaLeftRightOperation = Field(...)
+
+
+class LensFormulaMultiply(BaseCfgModel):
+    """Lens formula for multiplying two operands"""
+
+    multiply: LensFormulaLeftRightOperation = Field(...)
+
+
+class LensFormulaDivide(BaseCfgModel):
+    """Lens formula for dividing two operands"""
+
+    divide: LensFormulaLeftRightOperation = Field(...)

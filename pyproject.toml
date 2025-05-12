@@ -85,6 +85,7 @@ unfixable = []
     "RUF029", # Ignore await not used in async function
     "PGH003", # Don't require specific rule exclusions for type checking ignores
     "D104", #Docstrings in public packages
+    "E501", # Line too long
 ] 
 "dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models

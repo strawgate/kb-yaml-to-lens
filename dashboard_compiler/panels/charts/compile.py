@@ -70,7 +70,6 @@ def compile_lens_chart_state(
     kbn_references: list[KbnReference] = []
 
     for chart in charts:
-
         if isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
         elif isinstance(chart, LensPieChart):
@@ -162,7 +161,6 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
         )
     elif isinstance(panel, ESQLPanel):
         chart_state = compile_esql_chart_state(panel)
-
 
     return (
         KbnLensPanelAttributes(

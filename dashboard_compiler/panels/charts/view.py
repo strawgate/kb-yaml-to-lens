@@ -119,10 +119,12 @@ class KbnTextBasedDataSourceState(BaseVwModel):
 
 # region Index Pattern
 
+
 class KbnIndexPatternBasedDataSourceState(BaseVwModel):
     """Index Pattern based datasource is not yet implemented."""
-    
+
     layers: dict[str, str] = Field(default_factory=dict)
+
 
 # endregion Index Pattern
 

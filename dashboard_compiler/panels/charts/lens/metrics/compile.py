@@ -117,6 +117,10 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
     raise NotImplementedError(msg)
 
 
+# def compile_lens_formula(metric: LensFormulaMetric) -> tuple[str, KbnLensFormulaMetricColumnTypes]:
+#     """Compile a lens formula into its Kibana view model"""
+
+
 def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColumnTypes]:
     """Compile a single LensMetricTypes object into its Kibana view model.
 

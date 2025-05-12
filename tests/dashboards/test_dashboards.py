@@ -1,7 +1,6 @@
 import pytest
 from deepdiff import DeepDiff
 
-from dashboard_compiler.dashboard import Dashboard, compile_dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.dashboard_compiler import render
 from tests.conftest import DEEP_DIFF_DEFAULTS, de_json_kbn_dashboard
@@ -18,7 +17,7 @@ EXCLUDE_REGEX_PATHS = [
     'updated_by',
     'version',
     'id',
-    #"root['attributes']['panelsJSON'][0]['panelIndex']"
+    # "root['attributes']['panelsJSON'][0]['panelIndex']"
     r'root\[\'attributes\'\]\[\'panelsJSON\'\]\[\d*]\[\'panelIndex\'\]',
     # r"root\['panelIndex'\]",  # Exclude the panelIndex field
     # r"root\['gridData'\]\['i'\]",  # Exclude the gridData.i field
@@ -48,6 +47,5 @@ async def test_compile_dashboard(db_input_dict: dict, kb_desired_dict: dict) -> 
 
     kbn_dashboard_desired: dict = de_json_kbn_dashboard(kb_desired_dict)
     kbn_dashboard_compiled: dict = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
-    
 
     assert DeepDiff(kbn_dashboard_desired, kbn_dashboard_compiled, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore

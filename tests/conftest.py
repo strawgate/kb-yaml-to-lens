@@ -1,11 +1,10 @@
 import json
+
 import pytest
 import yaml
 from freezegun.api import FrozenDateTimeFactory
 from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.json import JSONSnapshotExtension
-
-from dashboard_compiler.dashboard.view import KbnDashboard
 
 DEEP_DIFF_DEFAULTS: dict[str, bool | int] = {
     'ignore_order': True,

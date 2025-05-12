@@ -5,7 +5,6 @@ class ConfigValidationError(Exception):
     """Exception raised for errors in the YAML to Lens conversion process."""
 
 
-
 class YamlToLensError(Exception):
     """Exception raised for errors in the YAML to Lens conversion process."""
 
