@@ -27,33 +27,6 @@ from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
 
-# def compile_lens_formula_metric(
-#     metric_id: str,
-#     metric: LensFormulaMetric,
-# ) -> tuple[str, KbnLensFormulaSourcedColumn]:
-#     """Compile a LensFormulaMetric object into its Kibana view model.
-
-#     Args:
-#         metric_id (str): The ID of the metric.
-#         metric (LensFormulaMetric): The LensFormulaMetric object to compile.
-
-#     Returns:
-#         tuple[str, KbnLensFormulaSourcedColumn]: A tuple containing the metric ID and its compiled KbnLensFormulaSourcedColumn.
-
-#     """
-#     return metric_id, KbnLensFormulaSourcedColumn(
-#         label=metric.label,
-#         customLabel=metric.label is not None or None,
-#         dataType='number',
-#         operationType=metric.type,
-#         scale='ratio',
-#         formula=metric.formula,
-#         isBucketed=False,
-#         params={
-#             'emptyAsNull': True,
-#         },
-#     )
-
 FORMAT_TO_DEFAULT_DECIMALS = {
     'number': 2,
     'bytes': 2,
@@ -136,21 +109,19 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
 
     # Handle formula metrics separately since they have a different structure
     if isinstance(metric, LensFormulaMetric):
-        msg = f'Formula metrics are not supported yet: {metric}'
-        raise NotImplementedError(msg)
-        # metric_id = metric.id or stable_id_generator(['formula', metric.label, metric.formula])
-        # return metric_id, KbnLensFieldMetricColumn(
-        #     label=metric.label or 'Formula',
-        #     customLabel=custom_label,
-        #     dataType='number',
-        #     operationType='formula',
-        #     scale='ratio',
-        #     sourceField=metric.formula,  # Use formula as the source field
-        #     params=KbnLensMetricColumnParams(
-        #         format=metric_format,
-        #         emptyAsNull=True,
-        #     ),
-        # )
+        metric_id = metric.id or stable_id_generator(['formula', metric.label, metric.formula])
+        return metric_id, KbnLensFieldMetricColumn(
+            label=metric.label or 'Formula',
+            customLabel=custom_label,
+            dataType='number',
+            operationType='formula',
+            scale='ratio',
+            sourceField=metric.formula,  # Use formula as the source field
+            params=KbnLensMetricColumnParams(
+                format=metric_format,
+                emptyAsNull=True,
+            ),
+        )
 
     metric_column_params: KbnLensMetricColumnParams
     metric_filter: KbnQuery | None = None
