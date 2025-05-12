@@ -34,12 +34,13 @@ ESQL_PIE_DIMENSION = {
 CASE_PIE_CHART: TestCaseType = (
     {
         'type': 'pie',
+        'data_view': 'metrics-*',
         'metric': LENS_PIE_METRIC,
         'slice_by': [LENS_PIE_DIMENSION],
     },
     {
         'type': 'pie',
-        #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': ESQL_PIE_METRIC,
         'slice_by': [ESQL_PIE_DIMENSION],
     },
@@ -68,6 +69,7 @@ CASE_PIE_CHART: TestCaseType = (
 CASE_DONUT_CHART: TestCaseType = (
     {
         'type': 'pie',
+        'data_view': 'metrics-*',
         'metric': LENS_PIE_METRIC,
         'slice_by': [LENS_PIE_DIMENSION],
         'appearance': {
@@ -76,7 +78,7 @@ CASE_DONUT_CHART: TestCaseType = (
     },
     {
         'type': 'pie',
-        #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': ESQL_PIE_METRIC,
         'slice_by': [ESQL_PIE_DIMENSION],
         'appearance': {
@@ -108,6 +110,7 @@ CASE_DONUT_CHART: TestCaseType = (
 CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
     {
         'type': 'pie',
+        'data_view': 'metrics-*',
         'metric': LENS_PIE_METRIC,
         'slice_by': [LENS_PIE_DIMENSION],
         'titles_and_text': {
@@ -117,7 +120,7 @@ CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
     },
     {
         'type': 'pie',
-        #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': ESQL_PIE_METRIC,
         'slice_by': [ESQL_PIE_DIMENSION],
         'titles_and_text': {
@@ -150,6 +153,7 @@ CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
 CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
     {
         'type': 'pie',
+        'data_view': 'metrics-*',
         'metric': LENS_PIE_METRIC,
         'slice_by': [LENS_PIE_DIMENSION],
         'legend': {
@@ -160,7 +164,7 @@ CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
     },
     {
         'type': 'pie',
-        #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': ESQL_PIE_METRIC,
         'slice_by': [ESQL_PIE_DIMENSION],
         'legend': {

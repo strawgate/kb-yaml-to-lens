@@ -119,6 +119,9 @@ class LensPieChart(BasePieChart):
     Pie charts are used to visualize the proportion of categories.
     """
 
+    data_view: str = Field(default=...)
+    """The data view that determines the data for the pie chart."""
+
     metric: LensMetricTypes = Field(default=...)
     """A metric that determines the size of the slice of the pie chart."""
 
@@ -135,5 +138,5 @@ class ESQLPieChart(BasePieChart):
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart."""
 
-    # query: str = Field(default=...)
-    # """The ES|QL query that determines the data for the pie chart."""
+    esql: str = Field(default=...)
+    """The ES|QL query that determines the data for the pie chart."""

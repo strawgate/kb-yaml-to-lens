@@ -16,6 +16,7 @@ from tests.panels.markdown.test_markdown_data import (
 EXCLUDE_REGEX_PATHS = [
     r"root\['panelIndex'\]",  # Exclude the panelIndex field
     r"root\['gridData'\]\['i'\]",  # Exclude the gridData.i field
+    r"root\['savedVis'\]\['data'\]\['searchSource'\]\['query'\]\['language'\]",
 ]
 
 
