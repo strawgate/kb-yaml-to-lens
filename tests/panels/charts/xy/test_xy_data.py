@@ -6,54 +6,61 @@ type InLensConfigType = dict[str, Any]
 
 type InESQLConfigType = dict[str, Any]
 
-type OutLensShapeType = dict[str, Any]
-
 type OutViewType = dict[str, Any]
 
-type TestCaseType = tuple[InLensConfigType, InESQLConfigType, OutLensShapeType, OutViewType]
+type TestCaseType = tuple[InLensConfigType, InESQLConfigType, OutViewType]
 
 
-LENS_PIE_DIMENSION = {
-    'field': 'aerospike.namespace.name',
-    'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df',
+LENS_XY_DIMENSION = {
+    'field': '@timestamp',
+    'id': 'f1c1076b-5312-4458-aa74-535c908194fe',
 }
 
-LENS_PIE_METRIC = {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}
+LENS_XY_METRIC = {'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}
 
-ESQL_PIE_METRIC = {
+LENS_XY_BREAKDOWN = {
+    'field': 'aerospike.namespace.name',
+    'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+}
+
+ESQL_XY_METRIC = {
     'field': 'count(*)',
-    'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5',
+    'id': 'f1c1076b-5312-4458-aa74-535c908194fe',
 }
 
-ESQL_PIE_DIMENSION = {
+ESQL_XY_DIMENSION = {
+    'field': '@timestamp',
+    'id': '451e4374-f869-4ee9-8569-3092cd16ac18',
+}
+
+ESQL_XY_BREAKDOWN = {
     'field': 'aerospike.namespace.name',
-    'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df',
+    'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
 }
 
 
-CASE_PIE_CHART: TestCaseType = (
+CASE_BAR_STACKED_CHART: TestCaseType = (
     {
-        'type': 'pie',
-        'metric': LENS_PIE_METRIC,
-        'slice_by': [LENS_PIE_DIMENSION],
+        'type': 'bar',
+        'mode': 'stacked',
+        'dimensions': [LENS_XY_DIMENSION],
+        'metrics': [LENS_XY_METRIC],
+        'breakdown': LENS_XY_BREAKDOWN,
     },
     {
-        'type': 'pie',
+        'type': 'bar',
+        'mode': 'stacked',
         #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': ESQL_PIE_METRIC,
-        'slice_by': [ESQL_PIE_DIMENSION],
+        'dimensions': [ESQL_XY_DIMENSION],
+        'metrics': [ESQL_XY_METRIC],
+        'breakdown': ESQL_XY_BREAKDOWN,
     },
     {
-        'shape': 'pie',
-    },
-    {
-        'layerId': 'a72f6386-04e9-4228-ab7a-6e5edb63ca4a',
-        'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
-        'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
-        'numberDisplay': 'percent',
-        'categoryDisplay': 'default',
-        'legendDisplay': 'default',
-        'nestedLegend': False,
+        'layerId': '6f7b3b27-cc23-4061-82e0-f5227c7c0ed9',
+        'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+        'position': 'top',
+        'seriesType': 'bar_stacked',
+        'showGridlines': False,
         'layerType': 'data',
         'colorMapping': {
             'assignments': [],
@@ -61,39 +68,33 @@ CASE_PIE_CHART: TestCaseType = (
             'paletteId': 'eui_amsterdam_color_blind',
             'colorMode': {'type': 'categorical'},
         },
+        'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+        'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
 """Tuple[Config as Dict, View as Dict, References as List] for a pie chart."""
 
-CASE_DONUT_CHART: TestCaseType = (
+CASE_BAR_UNSTACKED_CHART: TestCaseType = (
     {
-        'type': 'pie',
-        'metric': LENS_PIE_METRIC,
-        'slice_by': [LENS_PIE_DIMENSION],
-        'appearance': {
-            'donut': 'medium',
-        },
+        'type': 'bar',
+        'mode': 'unstacked',
+        'dimensions': [LENS_XY_DIMENSION],
+        'metrics': [LENS_XY_METRIC],
+        'breakdown': LENS_XY_BREAKDOWN,
     },
     {
-        'type': 'pie',
-        #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': ESQL_PIE_METRIC,
-        'slice_by': [ESQL_PIE_DIMENSION],
-        'appearance': {
-            'donut': 'medium',
-        },
+        'type': 'bar',
+        'mode': 'unstacked',
+        'dimensions': [ESQL_XY_DIMENSION],
+        'metrics': [ESQL_XY_METRIC],
+        'breakdown': ESQL_XY_BREAKDOWN,
     },
     {
-        'shape': 'donut',
-    },
-    {
-        'layerId': 'a72f6386-04e9-4228-ab7a-6e5edb63ca4a',
-        'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
-        'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
-        'numberDisplay': 'percent',
-        'categoryDisplay': 'default',
-        'legendDisplay': 'default',
-        'nestedLegend': False,
+        'layerId': '6f7b3b27-cc23-4061-82e0-f5227c7c0ed9',
+        'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+        'position': 'top',
+        'seriesType': 'bar_stacked',
+        'showGridlines': False,
         'layerType': 'data',
         'colorMapping': {
             'assignments': [],
@@ -101,41 +102,31 @@ CASE_DONUT_CHART: TestCaseType = (
             'paletteId': 'eui_amsterdam_color_blind',
             'colorMode': {'type': 'categorical'},
         },
+        'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+        'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
-"""Tuple[Config as Dict, View as Dict, References as List] for a donut chart."""
 
-CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
+CASE_LINE_CHART: TestCaseType = (
     {
-        'type': 'pie',
-        'metric': LENS_PIE_METRIC,
-        'slice_by': [LENS_PIE_DIMENSION],
-        'titles_and_text': {
-            'slice_labels': 'inside',
-            'slice_values': 'integer',
-        },
+        'type': 'line',
+        'dimensions': [LENS_XY_DIMENSION],
+        'metrics': LENS_XY_METRIC,
+        'breakdown': LENS_XY_BREAKDOWN,
     },
     {
-        'type': 'pie',
+        'type': 'line',
         #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': ESQL_PIE_METRIC,
-        'slice_by': [ESQL_PIE_DIMENSION],
-        'titles_and_text': {
-            'slice_labels': 'inside',
-            'slice_values': 'integer',
-        },
+        'dimensions': [ESQL_XY_DIMENSION],
+        'metrics': ESQL_XY_METRIC,
+        'breakdown': ESQL_XY_BREAKDOWN,
     },
     {
-        'shape': 'pie',
-    },
-    {
-        'layerId': 'a72f6386-04e9-4228-ab7a-6e5edb63ca4a',
-        'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
-        'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
-        'numberDisplay': 'value',
-        'categoryDisplay': 'inside',
-        'legendDisplay': 'default',
-        'nestedLegend': False,
+        'layerId': '6f7b3b27-cc23-4061-82e0-f5227c7c0ed9',
+        'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+        'position': 'top',
+        'seriesType': 'line',
+        'showGridlines': False,
         'layerType': 'data',
         'colorMapping': {
             'assignments': [],
@@ -143,43 +134,32 @@ CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
             'paletteId': 'eui_amsterdam_color_blind',
             'colorMode': {'type': 'categorical'},
         },
+        'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+        'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
-"""Tuple[Config as Dict, View as Dict, References as List] for a pie chart with inside labels and integer values."""
 
-CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
+CASE_AREA_CHART: TestCaseType = (
     {
-        'type': 'pie',
-        'metric': LENS_PIE_METRIC,
-        'slice_by': [LENS_PIE_DIMENSION],
-        'legend': {
-            'visible': 'show',
-            'width': 'large',
-            'truncate_labels': 0,
-        },
+        'type': 'area',
+        'mode': 'stacked',
+        'dimensions': [LENS_XY_DIMENSION],
+        'metrics': [LENS_XY_METRIC],
+        'breakdown': LENS_XY_BREAKDOWN,
     },
     {
-        'type': 'pie',
-        #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': ESQL_PIE_METRIC,
-        'slice_by': [ESQL_PIE_DIMENSION],
-        'legend': {
-            'visible': 'show',
-            'width': 'large',
-            'truncate_labels': 0,
-        },
+        'type': 'area',
+        'mode': 'stacked',
+        'dimensions': [ESQL_XY_DIMENSION],
+        'metrics': [ESQL_XY_METRIC],
+        'breakdown': ESQL_XY_BREAKDOWN,
     },
     {
-        'shape': 'pie',
-    },
-    {
-        'layerId': 'a72f6386-04e9-4228-ab7a-6e5edb63ca4a',
-        'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
-        'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
-        'numberDisplay': 'percent',
-        'categoryDisplay': 'default',
-        'legendDisplay': 'show',
-        'nestedLegend': False,
+        'layerId': '6f7b3b27-cc23-4061-82e0-f5227c7c0ed9',
+        'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+        'position': 'top',
+        'seriesType': 'area',
+        'showGridlines': False,
         'layerType': 'data',
         'colorMapping': {
             'assignments': [],
@@ -187,22 +167,57 @@ CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
             'paletteId': 'eui_amsterdam_color_blind',
             'colorMode': {'type': 'categorical'},
         },
-        'legendSize': 'large',
-        'truncateLegend': False,
+        'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+        'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
-"""Tuple[Config as Dict, View as Dict, References as List] for a pie chart with a large legend and no label truncation."""
+
+CASE_AREA_PERCENT_CHART: TestCaseType = (
+    {
+        'type': 'area',
+        'mode': 'percent',
+        'dimensions': [LENS_XY_DIMENSION],
+        'metrics': [LENS_XY_METRIC],
+        'breakdown': LENS_XY_BREAKDOWN,
+    },
+    {
+        'type': 'area',
+        'mode': 'percent',
+        'dimensions': [ESQL_XY_DIMENSION],
+        'metrics': [ESQL_XY_METRIC],
+        'breakdown': ESQL_XY_BREAKDOWN,
+    },
+    {
+        'layerId': '6f7b3b27-cc23-4061-82e0-f5227c7c0ed9',
+        'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+        'position': 'top',
+        'seriesType': 'area_percentage_stacked',
+        'showGridlines': False,
+        'layerType': 'data',
+        'colorMapping': {
+            'assignments': [],
+            'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            'paletteId': 'eui_amsterdam_color_blind',
+            'colorMode': {'type': 'categorical'},
+        },
+        'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+        'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+    },
+)
+
 
 TEST_CASES = [
-    CASE_PIE_CHART,
-    CASE_DONUT_CHART,
-    CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES,
-    CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE,
+    CASE_BAR_STACKED_CHART,
+    CASE_BAR_UNSTACKED_CHART,
+    CASE_LINE_CHART,
+    CASE_AREA_CHART,
+    CASE_AREA_PERCENT_CHART,
 ]
 
 TEST_CASE_IDS = [
-    'Basic Pie Chart',
-    'Basic Donut Chart',
-    'Pie Chart with Inside Labels and Integer Values',
-    'Pie Chart with Large Legend and No Label Truncation',
+    'Basic Bar Stacked Chart',
+    'Basic Bar Unstacked Chart',
+    'Basic Line Chart',
+    'Basic Area Chart',
+    'Basic Area Percent Chart',
 ]
