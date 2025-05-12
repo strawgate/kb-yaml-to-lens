@@ -98,6 +98,12 @@ class PieChartAppearance(BaseCfgModel):
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
 
 
+class ColorMapping(BaseCfgModel):
+    """Formatting options for the chart color."""
+
+    palette: str = Field(...)
+    """The palette to use for the chart color."""
+
 class BasePieChart(BaseChart):
     """Base model for defining Pie chart objects."""
 
@@ -111,6 +117,9 @@ class BasePieChart(BaseChart):
 
     legend: PieLegend | None = Field(default=None)
     """Formatting options for the chart legend."""
+
+    color: ColorMapping | None = Field(default=None)
+    """Formatting options for the chart color."""
 
 
 class LensPieChart(BasePieChart):

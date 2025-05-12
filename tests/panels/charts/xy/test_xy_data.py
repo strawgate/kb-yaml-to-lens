@@ -13,7 +13,7 @@ type TestCaseType = tuple[InLensConfigType, InESQLConfigType, OutViewType]
 
 LENS_XY_DIMENSION = {
     'field': '@timestamp',
-    'id': 'f1c1076b-5312-4458-aa74-535c908194fe',
+    'id': '451e4374-f869-4ee9-8569-3092cd16ac18',
 }
 
 LENS_XY_METRIC = {'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}
@@ -72,7 +72,7 @@ CASE_BAR_STACKED_CHART: TestCaseType = (
         'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
-"""Tuple[Config as Dict, View as Dict, References as List] for a pie chart."""
+"""Tuple[Lens chart config, ESQL chart config, Kibana view config] for a bar stacked chart."""
 
 CASE_BAR_UNSTACKED_CHART: TestCaseType = (
     {
@@ -93,7 +93,7 @@ CASE_BAR_UNSTACKED_CHART: TestCaseType = (
         'layerId': '6f7b3b27-cc23-4061-82e0-f5227c7c0ed9',
         'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
         'position': 'top',
-        'seriesType': 'bar_stacked',
+        'seriesType': 'bar_unstacked',
         'showGridlines': False,
         'layerType': 'data',
         'colorMapping': {
@@ -106,19 +106,20 @@ CASE_BAR_UNSTACKED_CHART: TestCaseType = (
         'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
+"""Tuple[Lens chart config, ESQL chart config, Kibana view config] for a bar unstacked chart."""
 
 CASE_LINE_CHART: TestCaseType = (
     {
         'type': 'line',
         'dimensions': [LENS_XY_DIMENSION],
-        'metrics': LENS_XY_METRIC,
+        'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
     },
     {
         'type': 'line',
         #'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'dimensions': [ESQL_XY_DIMENSION],
-        'metrics': ESQL_XY_METRIC,
+        'metrics': [ESQL_XY_METRIC],
         'breakdown': ESQL_XY_BREAKDOWN,
     },
     {
@@ -138,18 +139,16 @@ CASE_LINE_CHART: TestCaseType = (
         'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
-
+"""Tuple[Lens chart config, ESQL chart config, Kibana view config] for a line chart."""
 CASE_AREA_CHART: TestCaseType = (
     {
         'type': 'area',
-        'mode': 'stacked',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
     },
     {
         'type': 'area',
-        'mode': 'stacked',
         'dimensions': [ESQL_XY_DIMENSION],
         'metrics': [ESQL_XY_METRIC],
         'breakdown': ESQL_XY_BREAKDOWN,
@@ -171,18 +170,19 @@ CASE_AREA_CHART: TestCaseType = (
         'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
+"""Tuple[Lens chart config, ESQL chart config, Kibana view config] for a area chart."""
 
 CASE_AREA_PERCENT_CHART: TestCaseType = (
     {
         'type': 'area',
-        'mode': 'percent',
+        'mode': 'percentage',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
     },
     {
         'type': 'area',
-        'mode': 'percent',
+        'mode': 'percentage',
         'dimensions': [ESQL_XY_DIMENSION],
         'metrics': [ESQL_XY_METRIC],
         'breakdown': ESQL_XY_BREAKDOWN,
@@ -204,6 +204,7 @@ CASE_AREA_PERCENT_CHART: TestCaseType = (
         'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
     },
 )
+"""Tuple[Lens chart config, ESQL chart config, Kibana view config] for a area percent chart."""
 
 
 TEST_CASES = [

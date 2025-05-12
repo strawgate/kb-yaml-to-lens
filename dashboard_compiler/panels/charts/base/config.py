@@ -1,4 +1,5 @@
 from enum import StrEnum
+
 from pydantic import Field
 
 from dashboard_compiler.shared.config import BaseCfgModel
@@ -9,7 +10,7 @@ class BaseChart(BaseCfgModel):
 
     id: str | None = Field(default=None)
 
-    #data_view: str = Field(default=...)
+    # data_view: str = Field(default=...)
 
 
 class LegendWidthEnum(StrEnum):

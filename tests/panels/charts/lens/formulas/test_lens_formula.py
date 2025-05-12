@@ -9,7 +9,6 @@ from pydantic import BaseModel
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.lens.metrics.config import LensFormulaMetric
 from tests.conftest import DEEP_DIFF_DEFAULTS
-
 from tests.panels.charts.lens.formulas.test_lens_formulas_data import (
     TEST_CASE_IDS,
     TEST_CASES,

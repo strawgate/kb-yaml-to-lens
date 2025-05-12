@@ -6,44 +6,46 @@ from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnType
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.view import KbnLayerColorMapping
-from dashboard_compiler.panels.charts.xy.config import ESQLXYChartTypes, LensXYChartTypes
+from dashboard_compiler.panels.charts.xy.config import (
+    ESQLAreaChart,
+    ESQLBarChart,
+    ESQLLineChart,
+    ESQLXYChartTypes,
+    LensAreaChart,
+    LensBarChart,
+    LensLineChart,
+    LensXYChartTypes,
+)
 from dashboard_compiler.panels.charts.xy.view import (
     KbnXYVisualizationState,
-    SeriesTypeEnum,
     XYDataLayerConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
 
 
-def chart_to_series_type(chart_type: str, mode: str | None = None) -> SeriesTypeEnum:
-    """Convert chart type and mode to Kibana SeriesType.
+def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
+    if isinstance(chart, LensLineChart | ESQLLineChart):
+        series_type = 'line'
+    elif isinstance(chart, LensBarChart | ESQLBarChart):
+        if chart.mode == 'unstacked':
+            series_type = 'bar_unstacked'
+        elif chart.mode == 'stacked':
+            series_type = 'bar_stacked'
+        elif chart.mode == 'percentage':
+            series_type = 'bar_percentage_stacked'
+        else:  # default to stacked
+            series_type = 'bar_stacked'
+    elif isinstance(chart, LensAreaChart | ESQLAreaChart):
+        if chart.mode == 'unstacked':
+            series_type = 'area_unstacked'
+        elif chart.mode == 'stacked':
+            series_type = 'area'
+        elif chart.mode == 'percentage':
+            series_type = 'area_percentage_stacked'
+        else:  # default to stacked
+            series_type = 'area'
 
-    Args:
-        chart_type (str): The type of the chart (e.g., 'line', 'bar', 'area').
-        mode (str | None): The mode of the chart (e.g., 'unstacked', 'percentage', 'stacked').
-
-    Returns:
-        SeriesTypeEnum: The corresponding Kibana SeriesType.
-    """
-    if chart_type == 'line':
-        return SeriesTypeEnum.line
-
-    if chart_type == 'bar':
-        if mode == 'unstacked':
-            return SeriesTypeEnum.bar
-        if mode == 'percentage':
-            return SeriesTypeEnum.bar_percentage_stacked
-        return SeriesTypeEnum.bar_stacked
-
-    if chart_type == 'area':
-        if mode == 'unstacked':
-            return SeriesTypeEnum.area
-        if mode == 'percentage':
-            return SeriesTypeEnum.area_percentage_stacked
-        return SeriesTypeEnum.area_stacked
-
-    msg = f'Unsupported chart type: {chart_type} with mode: {mode}'
-    raise NotImplementedError(msg)
+    return series_type
 
 
 def compile_xy_chart_visualization_state(
@@ -65,7 +67,7 @@ def compile_xy_chart_visualization_state(
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
     """
-    series_type = chart_to_series_type(chart.type, getattr(chart, 'mode', None))
+    series_type: str = compile_series_type(chart=chart)
 
     kbn_color_mapping = KbnLayerColorMapping()
 
@@ -81,11 +83,7 @@ def compile_xy_chart_visualization_state(
         splitAccessor=breakdown_id,
     )
 
-    return KbnXYVisualizationState(
-        preferredSeriesType=series_type,
-        layers=[kbn_layer_visualization],
-        legend={}
-    )
+    return KbnXYVisualizationState(preferredSeriesType=series_type, layers=[kbn_layer_visualization], legend={})
 
 
 def compile_lens_xy_chart(
@@ -121,7 +119,7 @@ def compile_lens_xy_chart(
     if lens_xy_chart.breakdown:
         kbn_breakdown_columns = compile_lens_dimensions(dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns)
         breakdown_id = next(iter(kbn_breakdown_columns.keys()))
-        
+
         dimension_ids.append(breakdown_id)
 
         kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]

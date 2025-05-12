@@ -37,12 +37,18 @@ CASE_PIE_CHART: TestCaseType = (
         'data_view': 'metrics-*',
         'metric': LENS_PIE_METRIC,
         'slice_by': [LENS_PIE_DIMENSION],
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
+        },
     },
     {
         'type': 'pie',
         'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': ESQL_PIE_METRIC,
         'slice_by': [ESQL_PIE_DIMENSION],
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
+        },
     },
     {
         'shape': 'pie',
@@ -75,6 +81,9 @@ CASE_DONUT_CHART: TestCaseType = (
         'appearance': {
             'donut': 'medium',
         },
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
+        },
     },
     {
         'type': 'pie',
@@ -83,6 +92,9 @@ CASE_DONUT_CHART: TestCaseType = (
         'slice_by': [ESQL_PIE_DIMENSION],
         'appearance': {
             'donut': 'medium',
+        },
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
         },
     },
     {
@@ -117,6 +129,9 @@ CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
             'slice_labels': 'inside',
             'slice_values': 'integer',
         },
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
+        },
     },
     {
         'type': 'pie',
@@ -126,6 +141,9 @@ CASE_PIE_CHART_INSIDE_LABELS_INTEGER_VALUES: TestCaseType = (
         'titles_and_text': {
             'slice_labels': 'inside',
             'slice_values': 'integer',
+        },
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
         },
     },
     {
@@ -161,6 +179,9 @@ CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
             'width': 'large',
             'truncate_labels': 0,
         },
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
+        },
     },
     {
         'type': 'pie',
@@ -171,6 +192,9 @@ CASE_PIE_CHART_SHOW_LARGE_LEGEND_NO_TRUNCATE: TestCaseType = (
             'visible': 'show',
             'width': 'large',
             'truncate_labels': 0,
+        },
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
         },
     },
     {

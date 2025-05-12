@@ -70,7 +70,9 @@ def compile_pie_chart_visualization_state(
         else:
             legend_max_lines = chart.legend.truncate_labels
 
-    kbn_color_mapping = KbnLayerColorMapping()
+    kbn_color_mapping = KbnLayerColorMapping(paletteId='default')
+    if chart.color and chart.color.palette:
+        kbn_color_mapping = KbnLayerColorMapping(paletteId=chart.color.palette)
 
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,

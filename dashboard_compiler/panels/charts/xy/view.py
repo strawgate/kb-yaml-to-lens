@@ -1,38 +1,28 @@
-from enum import StrEnum
-from pydantic import BaseModel, Field
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
+
+from pydantic import Field
 
 from dashboard_compiler.panels.charts.view import KbnBaseStateVisualization, KbnLayerColorMapping
+from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
-
-class SeriesTypeEnum(StrEnum):
-    line = 'line'
-    bar = 'bar'
-    area = 'area'
-    area_stacked = 'area_stacked'
-    bar_stacked = 'bar_stacked'
-    area_percentage_stacked = 'area_percentage_stacked'
-    bar_percentage_stacked = 'bar_percentage_stacked'
-
-
-class LabelsOrientationConfig(BaseModel):
+class LabelsOrientationConfig(BaseVwModel):
     x: float | None = None
     yLeft: float | None = None
     yRight: float | None = None
 
 
-class YAxisMode(BaseModel):
+class YAxisMode(BaseVwModel):
     # Define fields based on actual Kibana structure if needed, using object for now
     name: str  # Added name field based on usage in compile logic
 
 
-class AxisConfig(BaseModel):
+class AxisConfig(BaseVwModel):
     # Define fields based on actual Kibana structure if needed, using object for now
     pass
 
 
-class YConfig(BaseModel):
+class YConfig(BaseVwModel):
     forAccessor: str
     color: str | None = None
     icon: str | None = None
@@ -44,37 +34,39 @@ class YConfig(BaseModel):
     axisMode: YAxisMode | None = None
 
 
-class XYDataLayerConfig(BaseModel):
+class XYDataLayerConfig(BaseVwModel):
     layerId: str
     accessors: list[str]
     layerType: Literal['data']
-    seriesType: SeriesTypeEnum
+    seriesType: str
     xAccessor: str | None = None
-    simpleView: bool | None = None
-    yConfig: list[YConfig] | None = None
+    position: Literal['top'] | None = None
+    showGridlines: bool
+    simpleView: Annotated[bool | None, OmitIfNone()] = None
+    yConfig: Annotated[list[YConfig] | None, OmitIfNone()] = None
     splitAccessor: str | None = None
-    palette: Any | None = None
-    collapseFn: Literal['sum', 'avg', 'min', 'max'] | None = None
-    xScaleType: Any | None = None
-    isHistogram: bool | None = None
-    columnToLabel: str | None = None
+    palette: Annotated[Any | None, OmitIfNone()] = None
+    collapseFn: Annotated[Literal['sum', 'avg', 'min', 'max'] | None, OmitIfNone()] = None
+    xScaleType: Annotated[Any | None, OmitIfNone()] = None
+    isHistogram: Annotated[bool | None, OmitIfNone()] = None
+    columnToLabel: Annotated[str | None, OmitIfNone()] = None
     colorMapping: KbnLayerColorMapping | None = None
 
 
-class XYReferenceLineLayerConfig(BaseModel):
+class XYReferenceLineLayerConfig(BaseVwModel):
     layerId: str
     accessors: list[str]
     yConfig: list[YConfig] | None = None
     layerType: Literal['referenceLine']
 
 
-class XYAnnotationLayerConfigCachedMetadata(BaseModel):
+class XYAnnotationLayerConfigCachedMetadata(BaseVwModel):
     title: str
     description: str
     tags: list[str]
 
 
-class XYByValueAnnotationLayerConfig(BaseModel):
+class XYByValueAnnotationLayerConfig(BaseVwModel):
     layerId: str
     layerType: Literal['annotations']
     annotations: list[Any]
@@ -83,7 +75,7 @@ class XYByValueAnnotationLayerConfig(BaseModel):
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
 
 
-class XYByReferenceAnnotationLayerConfig(BaseModel):
+class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     layerId: str
     layerType: Literal['annotations']
     annotations: list[Any]
@@ -91,14 +83,14 @@ class XYByReferenceAnnotationLayerConfig(BaseModel):
     ignoreGlobalFilters: bool
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
     annotationGroupId: str
-    __lastSaved: Any # type: ignore
+    __lastSaved: Any  # type: ignore
 
 
 # Subclass Kbnfor XY visualizations state (JSON structure)
 class KbnXYVisualizationState(KbnBaseStateVisualization):
     """Represents the 'visualization' object for XY charts (bar, line, area) in the Kibana JSON structure."""
 
-    preferredSeriesType: SeriesTypeEnum | None = None
+    preferredSeriesType: str | None = None
     legend: Any
     valueLabels: Literal['hide', 'show'] | None = None
     fittingFunction: Any | None = None

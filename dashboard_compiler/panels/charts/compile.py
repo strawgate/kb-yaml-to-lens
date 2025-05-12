@@ -83,7 +83,7 @@ def compile_lens_chart_state(
             )
         )
 
-        form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(columns=lens_columns_by_id, sampling=100)
+        form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(columns=lens_columns_by_id, sampling=1)
 
     datasource_states = KbnDataSourceState(
         formBased=KbnFormBasedDataSourceState(layers=KbnFormBasedDataSourceStateLayerById(form_based_datasource_state_layer_by_id))

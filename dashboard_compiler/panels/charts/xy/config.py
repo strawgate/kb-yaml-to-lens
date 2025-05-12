@@ -13,6 +13,7 @@ type XYChartTypes = LensXYChartTypes | ESQLXYChartTypes
 type LensXYChartTypes = LensBarChart | LensLineChart | LensAreaChart
 type ESQLXYChartTypes = ESQLBarChart | ESQLLineChart | ESQLAreaChart
 
+
 class XYLegend(BaseCfgModel):
     """Represents legend formatting options for XY charts."""
 
@@ -119,8 +120,8 @@ class BaseXYBarChart(BaseXYChart):
     type: Literal['bar'] = Field('bar', description="The type of XY chart to display. Defaults to 'bar'.")
 
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
-        'unstacked',
-        description="The stacking mode for bar and area charts. Defaults to 'unstacked'.",
+        'stacked',
+        description="The stacking mode for bar and area charts. Defaults to 'stacked'.",
     )
 
 
@@ -136,8 +137,8 @@ class BaseXYAreaChart(BaseXYLineChart):
     type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
 
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
-        'unstacked',
-        description="The stacking mode for bar and area charts. Defaults to 'unstacked'.",
+        'stacked',
+        description="The stacking mode for bar and area charts. Defaults to 'stacked'.",
     )
 
 

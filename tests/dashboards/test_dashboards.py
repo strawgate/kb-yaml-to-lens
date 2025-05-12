@@ -24,8 +24,8 @@ EXCLUDE_REGEX_PATHS = [
 ]
 
 
-@pytest.mark.parametrize(('db_input_dict', 'kb_desired_dict'), TEST_CASES, ids=TEST_CASE_IDS)
-async def test_compile_dashboard(db_input_dict: dict, kb_desired_dict: dict) -> None:
+@pytest.mark.parametrize(('db_input_dict', 'kb_desired_dict', 'exclusions'), TEST_CASES, ids=TEST_CASE_IDS)
+async def test_compile_dashboard(db_input_dict: dict, kb_desired_dict: dict, exclusions: list[str]) -> None:
     """Test the compilation of various ImagePanel configurations to their Kibana view model."""
     # Compile the dashboard
 
@@ -48,4 +48,6 @@ async def test_compile_dashboard(db_input_dict: dict, kb_desired_dict: dict) -> 
     kbn_dashboard_desired: dict = de_json_kbn_dashboard(kb_desired_dict)
     kbn_dashboard_compiled: dict = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
 
-    assert DeepDiff(kbn_dashboard_desired, kbn_dashboard_compiled, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+    exclude_regex_paths = [*EXCLUDE_REGEX_PATHS, *exclusions]
+
+    assert DeepDiff(kbn_dashboard_desired, kbn_dashboard_compiled, exclude_regex_paths=exclude_regex_paths, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
