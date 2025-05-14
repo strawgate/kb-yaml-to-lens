@@ -1,0 +1,20 @@
+dashboard:
+  name: One Line Chart
+  panels:
+  - id: c7a35c4f-e82d-4f16-b1a6-12229363244e
+    type: charts
+    title: "Empty XY Chart"
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart: 
+      type: bar
+      mode: stacked
+      id: 0f3a20be-b703-4935-b518-6baf2006e773
+      data_view: metrics-*
+      dimensions: 
+        - field: "@timestamp"
+          type: date_histogram
+          id: 27ebdeb3-213f-4587-8231-d7fb2a1c5dc3
+      metrics:
+      - aggregation: min
+        field: aerospike.namespace.query.count
+        id: e50ccc00-a3a4-4e56-8246-4e71c1a35203

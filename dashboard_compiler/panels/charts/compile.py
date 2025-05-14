@@ -16,6 +16,8 @@ from dashboard_compiler.panels.charts.view import (
     KbnFormBasedDataSourceState,
     KbnFormBasedDataSourceStateLayer,
     KbnFormBasedDataSourceStateLayerById,
+    KbnIndexPatternBasedDataSourceState,
+    KbnIndexPatternBasedDataSourceStateById,
     KbnLensPanelAttributes,
     KbnLensPanelEmbeddableConfig,
     KbnLensPanelState,
@@ -25,6 +27,8 @@ from dashboard_compiler.panels.charts.view import (
     KbnVisualizationStateTypes,
     KbnVisualizationTypeEnum,
 )
+from dashboard_compiler.panels.charts.xy.compile import compile_lens_xy_chart
+from dashboard_compiler.panels.charts.xy.config import LensAreaChart, LensBarChart, LensLineChart
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
@@ -44,8 +48,8 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
     if isinstance(chart, LensPieChart):
         return KbnVisualizationTypeEnum.PIE
-    # if isinstance(chart, LensXYChart):
-    #     return KbnVisualizationTypeEnum.XY
+    if isinstance(chart, LensLineChart | LensBarChart | LensAreaChart):
+        return KbnVisualizationTypeEnum.XY
     if isinstance(chart, LensMetricChart):
         return KbnVisualizationTypeEnum.METRIC
     # if isinstance(chart, LensDatatableChart):
@@ -74,6 +78,8 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
         elif isinstance(chart, LensPieChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
+        elif isinstance(chart, LensLineChart | LensBarChart | LensAreaChart):
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
 
         kbn_references.append(
             KbnReference(
@@ -83,10 +89,16 @@ def compile_lens_chart_state(
             )
         )
 
-        form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(columns=lens_columns_by_id, sampling=1)
+        form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(
+            columns=lens_columns_by_id,
+            columnOrder=list(lens_columns_by_id.keys()),
+            sampling=1,
+        )
 
     datasource_states = KbnDataSourceState(
-        formBased=KbnFormBasedDataSourceState(layers=KbnFormBasedDataSourceStateLayerById(form_based_datasource_state_layer_by_id))
+        formBased=KbnFormBasedDataSourceState(layers=KbnFormBasedDataSourceStateLayerById(form_based_datasource_state_layer_by_id)),
+        textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById()),
+        indexpattern=KbnIndexPatternBasedDataSourceState(layers=KbnIndexPatternBasedDataSourceStateById()),
     )
 
     kbn_query = compile_nonesql_query(query=query) if query else KbnQuery(query='', language='kuery')
@@ -184,4 +196,12 @@ def compile_charts_panel_config(panel: LensPanel | ESQLPanel) -> tuple[list[KbnR
 
     """
     attributes, references = compile_charts_attributes(panel)
-    return references, KbnLensPanelEmbeddableConfig(attributes=attributes)
+    return references, KbnLensPanelEmbeddableConfig(
+        enhancements={'dynamicActions': {'events': []}},
+        attributes=attributes,
+        syncTooltips=False,
+        syncColors=False,
+        syncCursor=True,
+        filters=[],
+        query=KbnQuery(query='', language='kuery'),
+    )

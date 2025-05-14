@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, field_serializer
 
+from dashboard_compiler.shared.model import BaseModel
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone, RootDict
 
 # The following is an example of the JSON structure that these models represent. Do not remove:
@@ -232,7 +233,7 @@ class ChainingSystemEnum(str, Enum):
     """No chaining system applied to the controls."""
 
 
-class KbnControlGroupInput(BaseVwModel):
+class KbnControlGroupInput(BaseModel):
     """Definition for the Controls part of a Kibana Dashboard."""
 
     chainingSystem: ChainingSystemEnum = Field(...)
@@ -245,7 +246,7 @@ class KbnControlGroupInput(BaseVwModel):
     panelsJSON: KbnControlPanelsJson
     showApplySelections: bool
 
-    @field_serializer('ignoreParentSettingsJSON')
+    @field_serializer('ignoreParentSettingsJSON', when_used='always')
     def serialize_parent_settings_json(self, value: KbnIgnoreParentSettingsJson) -> str:
         """Serialize the ignoreParentSettingsJSON field to a stringified JSON.
 
@@ -258,7 +259,7 @@ class KbnControlGroupInput(BaseVwModel):
         """
         return value.model_dump_json()
 
-    @field_serializer('panelsJSON')
+    @field_serializer('panelsJSON', when_used='always')
     def serialize_panels_json(self, value: KbnControlPanelsJson) -> str:
         """Serialize the panelsJSON field to a stringified JSON.
 

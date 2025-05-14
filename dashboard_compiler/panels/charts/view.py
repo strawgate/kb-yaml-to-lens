@@ -9,12 +9,13 @@ from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnType
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
-
+ 
 if TYPE_CHECKING:
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
+    from .xy.view import KbnXYVisualizationState
 
-type KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState
+type KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState
 
 # region Form Data Source
 ## Form Based
@@ -120,10 +121,14 @@ class KbnTextBasedDataSourceState(BaseVwModel):
 # region Index Pattern
 
 
+class KbnIndexPatternBasedDataSourceStateById(RootModel):
+    root: dict[str, str] = Field(default_factory=dict)
+
+
 class KbnIndexPatternBasedDataSourceState(BaseVwModel):
     """Index Pattern based datasource is not yet implemented."""
 
-    layers: dict[str, str] = Field(default_factory=dict)
+    layers: KbnIndexPatternBasedDataSourceStateById = Field(default_factory=KbnIndexPatternBasedDataSourceStateById)
 
 
 # endregion Index Pattern
@@ -136,7 +141,9 @@ class KbnDataSourceState(BaseVwModel):
     formBased: KbnFormBasedDataSourceState = Field(
         default_factory=KbnFormBasedDataSourceState,
     )  # Structure: formBased -> layers -> {layerId: KbnFormBasedDataSourceStateLayer}
-    indexpattern: dict = Field(default_factory=dict)
+    indexpattern: KbnIndexPatternBasedDataSourceState = Field(
+        default_factory=KbnIndexPatternBasedDataSourceState,
+    )  # Structure: indexpattern -> layers -> {layerId: KbnIndexPatternBasedDataSourceStateLayer}
     # not implemented
     textBased: KbnTextBasedDataSourceState = Field(
         default_factory=KbnTextBasedDataSourceState,
@@ -221,21 +228,34 @@ class KbnLensPanelAttributes(BaseVwModel):
 
 class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     attributes: KbnLensPanelAttributes
+    
+    syncTooltips: bool = Field(
+        default=False,
+        description="(Optional) Whether to sync tooltips across visualizations. Defaults to False.",
+    )
+
+    syncColors: bool = Field(
+        default=False,
+        description="(Optional) Whether to sync colors across visualizations. Defaults to False.",
+    )
+
+    syncCursor: bool = Field(
+        default=True,
+        description="(Optional) Whether to sync cursor across visualizations. Defaults to True.",
+    )
+
+    filters: list = Field(
+        default_factory=list,
+        description="(Optional) List of filters applied to the Lens visualization. Defaults to empty list.",
+    )
+
+    query: KbnQuery = Field(
+        ...,
+        description="(Optional) Query object for the Lens visualization. Defaults to empty query with 'kuery' language.",
+    )
 
 
 class KbnLensPanel(KbnBasePanel):
     type: Literal['lens'] = 'lens'
     embeddableConfig: KbnLensPanelEmbeddableConfig
 
-    # syncTooltips: bool = Field(
-    #     default=False,
-    #     description="(Optional) Whether to sync tooltips across visualizations. Defaults to False.",
-    # )
-    # filters: list = Field(
-    #     default_factory=list,
-    #     description="(Optional) List of filters applied to the Lens visualization. Defaults to empty list.",
-    # )
-    # query: dict[str, Any] = Field(
-    #     default_factory=lambda: {"query": "", "language": "kuery"},
-    #     description="(Optional) Query object for the Lens visualization. Defaults to empty query with 'kuery' language.",
-    # )

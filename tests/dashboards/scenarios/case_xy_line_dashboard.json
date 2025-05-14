@@ -1,0 +1,40 @@
+{
+    "id": "3399d3e4-06bd-4fd3-a564-f47410f141da",
+    "type": "dashboard",
+    "namespaces": [
+      "default"
+    ],
+    "updated_at": "2025-05-14T07:29:01.310Z",
+    "created_at": "2025-05-14T07:29:01.310Z",
+    "created_by": "u_24320541_cloud",
+    "updated_by": "u_24320541_cloud",
+    "version": "WzUyMTAsMV0=",
+    "attributes": {
+      "version": 3,
+      "description": "",
+      "timeRestore": false,
+      "title": "One Line Chart",
+      "controlGroupInput": {
+        "chainingSystem": "HIERARCHICAL",
+        "controlStyle": "oneLine",
+        "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
+        "panelsJSON": "{}",
+        "showApplySelections": false
+      },
+      "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
+      "panelsJSON": "[{\"type\":\"lens\",\"embeddableConfig\":{\"attributes\":{\"title\":\"\",\"visualizationType\":\"lnsXY\",\"type\":\"lens\",\"references\":[{\"type\":\"index-pattern\",\"id\":\"metrics-*\",\"name\":\"indexpattern-datasource-layer-0f3a20be-b703-4935-b518-6baf2006e773\"}],\"state\":{\"visualization\":{\"title\":\"Empty XY chart\",\"legend\":{\"isVisible\":true,\"position\":\"right\"},\"valueLabels\":\"hide\",\"preferredSeriesType\":\"bar_stacked\",\"layers\":[{\"layerId\":\"0f3a20be-b703-4935-b518-6baf2006e773\",\"accessors\":[\"e50ccc00-a3a4-4e56-8246-4e71c1a35203\"],\"position\":\"top\",\"seriesType\":\"bar_stacked\",\"showGridlines\":false,\"layerType\":\"data\",\"colorMapping\":{\"assignments\":[],\"specialAssignments\":[{\"rule\":{\"type\":\"other\"},\"color\":{\"type\":\"loop\"},\"touched\":false}],\"paletteId\":\"eui_amsterdam_color_blind\",\"colorMode\":{\"type\":\"categorical\"}},\"xAccessor\":\"27ebdeb3-213f-4587-8231-d7fb2a1c5dc3\"}]},\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filters\":[],\"datasourceStates\":{\"formBased\":{\"layers\":{\"0f3a20be-b703-4935-b518-6baf2006e773\":{\"columns\":{\"e50ccc00-a3a4-4e56-8246-4e71c1a35203\":{\"label\":\"Minimum of aerospike.namespace.query.count\",\"dataType\":\"number\",\"operationType\":\"min\",\"sourceField\":\"aerospike.namespace.query.count\",\"isBucketed\":false,\"scale\":\"ratio\",\"params\":{\"emptyAsNull\":true}},\"27ebdeb3-213f-4587-8231-d7fb2a1c5dc3\":{\"label\":\"@timestamp\",\"dataType\":\"date\",\"operationType\":\"date_histogram\",\"sourceField\":\"@timestamp\",\"isBucketed\":true,\"scale\":\"interval\",\"params\":{\"interval\":\"auto\",\"includeEmptyRows\":true,\"dropPartials\":false}}},\"columnOrder\":[\"27ebdeb3-213f-4587-8231-d7fb2a1c5dc3\",\"e50ccc00-a3a4-4e56-8246-4e71c1a35203\"],\"sampling\":1,\"ignoreGlobalFilters\":false,\"incompleteColumns\":{}}}},\"indexpattern\":{\"layers\":{}},\"textBased\":{\"layers\":{}}},\"internalReferences\":[],\"adHocDataViews\":{}}},\"enhancements\":{}},\"panelIndex\":\"975f65d9-6a01-484b-af32-a38fdfd73418\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"975f65d9-6a01-484b-af32-a38fdfd73418\"}}]",
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    },
+    "references": [
+      {
+        "type": "index-pattern",
+        "id": "metrics-*",
+        "name": "975f65d9-6a01-484b-af32-a38fdfd73418:indexpattern-datasource-layer-0f3a20be-b703-4935-b518-6baf2006e773"
+      }
+    ],
+    "managed": false,
+    "coreMigrationVersion": "8.8.0",
+    "typeMigrationVersion": "10.2.0"
+  }

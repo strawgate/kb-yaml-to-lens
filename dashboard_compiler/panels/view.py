@@ -7,6 +7,7 @@ from pydantic import Field, field_serializer
 
 from dashboard_compiler.filters.view import KbnFilter
 from dashboard_compiler.queries.view import KbnQuery
+from dashboard_compiler.shared.model import BaseModel
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 if TYPE_CHECKING:
@@ -57,9 +58,10 @@ class KbnSearchSourceJSON(BaseVwModel):
 
     filter: list[KbnFilter] = Field(...)
     query: KbnQuery = Field(...)
+    
 
 
-class KbnSavedObjectMeta(BaseVwModel):
+class KbnSavedObjectMeta(BaseModel):
     """Represents the 'kibanaSavedObjectMeta' object in the Kibana JSON structure."""
 
     searchSourceJSON: KbnSearchSourceJSON = Field(...)
@@ -72,4 +74,4 @@ class KbnSavedObjectMeta(BaseVwModel):
             str: The JSON string representation of the search source.
 
         """
-        return json.dumps(searchSourceJSON.model_dump(serialize_as_any=True, exclude_none=True))
+        return searchSourceJSON.model_dump_json(by_alias=True)

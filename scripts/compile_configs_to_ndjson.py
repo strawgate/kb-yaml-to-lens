@@ -3,14 +3,14 @@ import logging
 import sys
 from pathlib import Path
 
-from dashboard_compiler.dashboard.compile import compile_yaml_dashboard
+from dashboard_compiler.dashboard_compiler import load, render
 
 logger = logging.getLogger(__name__)
 
 project_root = Path(__file__).parent.parent
 
 INPUT_DIR = project_root / 'inputs'
-SCENARIO_DIR = project_root / 'tests/scenarios'
+SCENARIO_DIR = project_root / 'tests/dashboards/scenarios'
 OUTPUT_DIR = project_root / 'output'
 
 
@@ -45,9 +45,11 @@ def compile_and_format(yaml_path: Path) -> str | None:
         msg = f'Compiling: {yaml_path.relative_to(project_root)}'
         logger.info(msg)
         # compile_dashboard_to_testable_dict returns the dictionary representation
-        dashboard_dict = compile_yaml_dashboard(str(yaml_path))
+        dashboard_model = load(str(yaml_path))
+        dashboard_kbn_model = render(dashboard_model)
+        dashboard_kbn_model_dict = dashboard_kbn_model.model_dump(by_alias=True)
 
-        return json.dumps(dashboard_dict.model_dump(serialize_as_any=True, exclude_none=True), separators=(',', ':'))
+        return dashboard_kbn_model.model_dump_json(by_alias=True)
 
     except FileNotFoundError:
         msg = f'Error: YAML file not found: {yaml_path}'

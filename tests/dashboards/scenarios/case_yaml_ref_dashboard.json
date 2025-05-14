@@ -157,7 +157,7 @@
             }
         ],
         "timeRestore": false,
-        "title": "Pie Chart Only on Aerospike Namespace",
+        "title": "Pie Chart Only on Aerospike Namespace with yaml ref",
         "version": 3
     },
     "coreMigrationVersion": "8.8.0",

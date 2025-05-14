@@ -21,7 +21,7 @@ def load(path: str) -> Dashboard:
     """
     load_path = Path(path)
 
-    with load_path.open(path) as file:
+    with load_path.open() as file:
         dashboard_dict = yaml.safe_load(file)
 
     return Dashboard(**dashboard_dict['dashboard'])

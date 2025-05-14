@@ -52,7 +52,7 @@ class KbnDashboardAttributes(BaseModel):
     @field_serializer('optionsJSON', when_used='always')
     def options_json_stringified(self, optionsJSON: KbnDashboardOptions) -> str:
         """Kibana wants this field to be stringified JSON."""
-        return json.dumps(optionsJSON.model_dump())
+        return optionsJSON.model_dump_json(by_alias=True)
 
     # def from_dashboard(cls, dashboard: Dashboard):
     #     """Create options from a dashboard object."""

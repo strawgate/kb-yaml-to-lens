@@ -44,7 +44,7 @@ class XYDataLayerConfig(BaseVwModel):
     showGridlines: bool
     simpleView: Annotated[bool | None, OmitIfNone()] = None
     yConfig: Annotated[list[YConfig] | None, OmitIfNone()] = None
-    splitAccessor: str | None = None
+    splitAccessor: Annotated[str | None, OmitIfNone()] = None
     palette: Annotated[Any | None, OmitIfNone()] = None
     collapseFn: Annotated[Literal['sum', 'avg', 'min', 'max'] | None, OmitIfNone()] = None
     xScaleType: Annotated[Any | None, OmitIfNone()] = None
@@ -93,29 +93,29 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     preferredSeriesType: str | None = None
     legend: Any
     valueLabels: Literal['hide', 'show'] | None = None
-    fittingFunction: Any | None = None
-    emphasizeFitting: bool | None = None
-    endValue: Any | None = None
-    xExtent: Any | None = None
-    yLeftExtent: Any | None = None
-    yRightExtent: Any | None = None
+    fittingFunction: Annotated[Any | None, OmitIfNone()] = None
+    emphasizeFitting: Annotated[bool | None, OmitIfNone()] = None
+    endValue: Annotated[Any | None, OmitIfNone()] = None
+    xExtent: Annotated[Any | None, OmitIfNone()] = None
+    yLeftExtent: Annotated[Any | None, OmitIfNone()] = None
+    yRightExtent: Annotated[Any | None, OmitIfNone()] = None
     layers: list[XYDataLayerConfig | XYReferenceLineLayerConfig | XYByValueAnnotationLayerConfig | XYByReferenceAnnotationLayerConfig] = (
         Field(default_factory=list)
     )
-    xTitle: str | None = None
-    yTitle: str | None = None
-    yRightTitle: str | None = None
-    yLeftScale: Any | None = None
-    yRightScale: Any | None = None
-    axisTitlesVisibilitySettings: Any | None = None
-    tickLabelsVisibilitySettings: Any | None = None
-    gridlinesVisibilitySettings: Any | None = None
-    labelsOrientation: LabelsOrientationConfig | None = None
-    curveType: Any | None = None
-    fillOpacity: float | None = None
-    minBarHeight: float | None = None
-    hideEndzones: bool | None = None
-    showCurrentTimeMarker: bool | None = None
+    xTitle: Annotated[str | None, OmitIfNone()] = None
+    yTitle: Annotated[str | None, OmitIfNone()] = None
+    yRightTitle: Annotated[str | None, OmitIfNone()] = None
+    yLeftScale: Annotated[Any | None, OmitIfNone()] = None
+    yRightScale: Annotated[Any | None, OmitIfNone()] = None
+    axisTitlesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    tickLabelsVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    gridlinesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    labelsOrientation: Annotated[LabelsOrientationConfig | None, OmitIfNone()] = None
+    curveType: Annotated[Any | None, OmitIfNone()] = None
+    fillOpacity: Annotated[float | None, OmitIfNone()] = None
+    minBarHeight: Annotated[float | None, OmitIfNone()] = None
+    hideEndzones: Annotated[bool | None, OmitIfNone()] = None
+    showCurrentTimeMarker: Annotated[bool | None, OmitIfNone()] = None
 
 
 # Note: ValidLayer is not di

@@ -31,6 +31,7 @@ CASE_FILTER_DASHBOARD = (
         r"root\[\'attributes\'\]\['kibanaSavedObjectMeta'\]\['searchSourceJSON'\]\['filter'\]\[\d*\]\['meta'\]\['indexRefName'\]",
     ],
 )
+CASE_XY_LINE_DASHBOARD = (get_db_yaml('case_xy_line_dashboard'), get_kb_json('case_xy_line_dashboard'), [])
 CASE_YAML_REF_DASHBOARD = (get_db_yaml('case_yaml_ref_dashboard'), get_kb_json('case_yaml_ref_dashboard'), [])
 
 TEST_CASES = [
@@ -40,6 +41,7 @@ TEST_CASES = [
     CASE_LINK_DASHBOARD,
     CASE_FILTER_DASHBOARD,
     CASE_YAML_REF_DASHBOARD,
+    CASE_XY_LINE_DASHBOARD,
 ]
 
 TEST_CASE_IDS = [
@@ -49,4 +51,5 @@ TEST_CASE_IDS = [
     'Dashboard with One Link',
     'Dashboard with One Filter',
     'Dashboard with One YAML Ref',
+    'Dashboard with One XY Line Chart',
 ]

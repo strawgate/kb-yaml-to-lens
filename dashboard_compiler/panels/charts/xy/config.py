@@ -71,6 +71,7 @@ class BaseXYChart(BaseChart):
 
 
 class LensXYChartMixin:
+    data_view: str = Field(default=..., description='The data view to use for the chart.')
     dimensions: list[LensDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')
     metrics: list[LensMetricTypes] = Field(..., description='Defines the metrics for the chart.')
     breakdown: LensDimensionTypes | None = Field(

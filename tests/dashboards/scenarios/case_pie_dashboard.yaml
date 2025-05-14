@@ -18,5 +18,4 @@ dashboard:
           id: 439aa452-8525-4644-8d5b-42d66f8b41fd
       metric:
         aggregation: count
-        field: ___records___
         id: fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33
