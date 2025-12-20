@@ -12,6 +12,9 @@ on:
       - 'vscode-extension/**'
       - '.github/workflows/test-vscode-extension.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test-python-scripts:
     runs-on: ubuntu-latest
