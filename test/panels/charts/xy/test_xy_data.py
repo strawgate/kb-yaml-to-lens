@@ -43,6 +43,7 @@ CASE_BAR_STACKED_CHART: TestCaseType = (
     {
         'type': 'bar',
         'mode': 'stacked',
+        'data_view': 'metrics-*',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
@@ -78,6 +79,7 @@ CASE_BAR_UNSTACKED_CHART: TestCaseType = (
     {
         'type': 'bar',
         'mode': 'unstacked',
+        'data_view': 'metrics-*',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
@@ -111,6 +113,7 @@ CASE_BAR_UNSTACKED_CHART: TestCaseType = (
 CASE_LINE_CHART: TestCaseType = (
     {
         'type': 'line',
+        'data_view': 'metrics-*',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
@@ -143,6 +146,7 @@ CASE_LINE_CHART: TestCaseType = (
 CASE_AREA_CHART: TestCaseType = (
     {
         'type': 'area',
+        'data_view': 'metrics-*',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
@@ -176,6 +180,7 @@ CASE_AREA_PERCENT_CHART: TestCaseType = (
     {
         'type': 'area',
         'mode': 'percentage',
+        'data_view': 'metrics-*',
         'dimensions': [LENS_XY_DIMENSION],
         'metrics': [LENS_XY_METRIC],
         'breakdown': LENS_XY_BREAKDOWN,
