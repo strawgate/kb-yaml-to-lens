@@ -35,7 +35,11 @@ cd fixture-generator
 docker-compose build
 ```
 
-**Note**: First build takes 15-30 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
+**Note**: First build takes 30-60 minutes to bootstrap and compile Kibana. This includes:
+- Bootstrapping Kibana packages (~15-30 minutes)
+- Compiling TypeScript to JavaScript (~15-30 minutes)
+
+The compilation step is required because Node.js cannot directly `require()` TypeScript files.
 
 ### 2. Generate Fixtures
 
@@ -193,10 +197,11 @@ docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node examples/metric-b
 
 The Dockerfile:
 
-1. Installs Node.js 20.x (matches Kibana requirement)
-2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
-3. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
-4. Runs your generator scripts and exports JSON to `./output/`
+1. Installs Node.js 22.x (matches Kibana requirement)
+2. Clones and bootstraps Kibana (creating package symlinks)
+3. Compiles `@kbn/*` packages from TypeScript to JavaScript
+4. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
+5. Runs your generator scripts and exports JSON to `./output/`
 
 ## Troubleshooting
 

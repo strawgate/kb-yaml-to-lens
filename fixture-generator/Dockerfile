@@ -39,6 +39,11 @@ RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/ki
 # This makes @kbn/lens-embeddable-utils and other packages available
 RUN yarn kbn bootstrap --allow-root
 
+# Compile @kbn/* packages from TypeScript to JavaScript
+# This is necessary because Node.js cannot require() TypeScript files
+# Note: This significantly increases build time but is required for the generator to work
+RUN yarn kbn build
+
 # Create tool workspace
 WORKDIR /tool
 RUN mkdir -p /tool/output /tool/examples
