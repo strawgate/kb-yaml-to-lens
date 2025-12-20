@@ -1,5 +1,7 @@
 """Compile Lens metrics into their Kibana view models."""
 
+from collections.abc import Sequence
+
 from humanize import ordinal
 
 from dashboard_compiler.panels.charts.lens.columns.view import (
@@ -213,14 +215,14 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     )
 
 
-def compile_lens_metrics(metrics: list[LensMetricTypes]) -> dict[str, KbnLensMetricColumnTypes]:
-    """Compile a list of LensMetricTypes into their Kibana view model representation.
+def compile_lens_metrics(metrics: Sequence[LensMetricTypes]) -> dict[str, KbnLensMetricColumnTypes]:
+    """Compile a sequence of LensMetricTypes into their Kibana view model representation.
 
     Args:
-        metrics (list[LensMetricTypes]): The list of LensMetricTypes objects to compile.
+        metrics (Sequence[LensMetricTypes]): The sequence of LensMetricTypes objects to compile.
 
     Returns:
-        tuple[dict[str, KbnLensColumnTypes]] A dictionary of metric IDs to their compiled KbnLensColumnTypes.
+        dict[str, KbnLensMetricColumnTypes]: A dictionary of metric IDs to their compiled KbnLensColumnTypes.
 
     """
     compiled_metrics = [compile_lens_metric(metric) for metric in metrics]

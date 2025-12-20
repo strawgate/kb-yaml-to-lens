@@ -1,5 +1,7 @@
 """Compile Dashboard Panels to Kibana View Models."""
 
+from collections.abc import Sequence
+
 from dashboard_compiler.panels import LinksPanel, MarkdownPanel
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
@@ -80,14 +82,14 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnP
     raise NotImplementedError(msg)
 
 
-def compile_dashboard_panels(panels: list[PanelTypes]) -> tuple[list[KbnReference], list[KbnBasePanel]]:
+def compile_dashboard_panels(panels: Sequence[PanelTypes]) -> tuple[list[KbnReference], list[KbnBasePanel]]:
     """Compile the panels of a Dashboard object into their Kibana view model representation.
 
     Args:
-        panels (list): The list of panel objects to compile.
+        panels (Sequence[PanelTypes]): The sequence of panel objects to compile.
 
     Returns:
-        list: The compiled list of Kibana panel view models.
+        tuple[list[KbnReference], list[KbnBasePanel]]: The compiled references and panel view models.
 
     """
     kbn_panels: list[KbnBasePanel] = []
