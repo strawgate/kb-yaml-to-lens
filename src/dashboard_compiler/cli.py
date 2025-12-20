@@ -228,7 +228,12 @@ def compile_dashboards(  # noqa: PLR0913
         task = progress.add_task('Compiling dashboards...', total=len(yaml_files))
 
         for yaml_file in yaml_files:
-            progress.update(task, description=f'Compiling: {yaml_file.relative_to(PROJECT_ROOT)}')
+            # Show relative path if within project, otherwise show full path
+            try:
+                display_path = yaml_file.relative_to(PROJECT_ROOT)
+            except ValueError:
+                display_path = yaml_file
+            progress.update(task, description=f'Compiling: {display_path}')
             compiled_json, error = compile_yaml_to_json(yaml_file)
 
             if compiled_json:
