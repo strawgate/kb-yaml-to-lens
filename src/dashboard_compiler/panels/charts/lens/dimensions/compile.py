@@ -1,3 +1,5 @@
+from collections.abc import Mapping, Sequence
+
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensCustomIntervalsDimensionColumnParentFormat,
     KbnLensCustomIntervalsDimensionColumnParentFormatParams,
@@ -41,13 +43,13 @@ GRANULARITY_TO_BARS = {
 
 def compile_lens_dimension(
     dimension: LensDimensionTypes,
-    kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes],
+    kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> tuple[str, KbnLensDimensionColumnTypes]:
     """Compile a single LensDimensionTypes object into its Kibana view model.
 
     Args:
         dimension (LensDimensionTypes): The LensDimensionTypes object to compile.
-        kbn_metric_column_by_id (dict[str, KbnLensMetricColumnTypes]): A dictionary of compiled KbnLensFieldMetricColumn objects.
+        kbn_metric_column_by_id (Mapping[str, KbnLensMetricColumnTypes]): A mapping of compiled KbnLensFieldMetricColumn objects.
 
     Returns:
         tuple[str, KbnLensDimensionColumnTypes]: A tuple containing the dimension ID and the compiled Kibana view model.
@@ -174,14 +176,14 @@ def compile_lens_dimension(
 
 
 def compile_lens_dimensions(
-    dimensions: list[LensDimensionTypes],
-    kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes],
+    dimensions: Sequence[LensDimensionTypes],
+    kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> dict[str, KbnLensDimensionColumnTypes]:
-    """Compile a list of LensDimensionTypes objects into their Kibana view model representation.
+    """Compile a sequence of LensDimensionTypes objects into their Kibana view model representation.
 
     Args:
-        dimensions (list[LensDimensionTypes]): The list of LensDimensionTypes objects to compile.
-        kbn_metric_column_by_id (dict[str, KbnLensMetricColumnTypes]): A dictionary of compiled KbnLensFieldMetricColumn objects.
+        dimensions (Sequence[LensDimensionTypes]): The sequence of LensDimensionTypes objects to compile.
+        kbn_metric_column_by_id (Mapping[str, KbnLensMetricColumnTypes]): A mapping of compiled KbnLensFieldMetricColumn objects.
 
     Returns:
         dict[str, KbnLensDimensionColumnTypes]: A dictionary of compiled KbnLensDimensionColumnTypes objects.

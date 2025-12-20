@@ -2,6 +2,7 @@
 
 import hashlib
 import uuid
+from collections.abc import Sequence
 from typing import Literal
 
 from pydantic import Field
@@ -20,7 +21,7 @@ def random_id_generator() -> str:
     return str(uuid.uuid4())
 
 
-def stable_id_generator(values: list[str | int | float | None]) -> str:
+def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     """Generate a GUID looking string from a hash of values.
 
     This produces a stable ID as long as the input values are stable.

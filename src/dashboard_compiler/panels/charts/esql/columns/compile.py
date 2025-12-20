@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
 from dashboard_compiler.shared.config import random_id_generator, stable_id_generator
@@ -21,11 +23,11 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLFieldMetricColumn:
     )
 
 
-def compile_esql_metrics(metrics: list[ESQLMetricTypes]) -> list[KbnESQLFieldMetricColumn]:
-    """Compile a list of ESQLMetricTypes into their Kibana view model representation.
+def compile_esql_metrics(metrics: Sequence[ESQLMetricTypes]) -> list[KbnESQLFieldMetricColumn]:
+    """Compile a sequence of ESQLMetricTypes into their Kibana view model representation.
 
     Args:
-        metrics (list[ESQLMetricTypes]): The list of ESQLMetricTypes objects to compile.
+        metrics (Sequence[ESQLMetricTypes]): The sequence of ESQLMetricTypes objects to compile.
 
     Returns:
         list[KbnESQLFieldMetricColumn]: A list of compiled KbnESQLFieldMetricColumn objects.
@@ -52,11 +54,11 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
     )
 
 
-def compile_esql_dimensions(dimensions: list[ESQLDimensionTypes]) -> list[KbnESQLFieldDimensionColumn]:
-    """Compile a list of ESQLDimensionTypes objects into their Kibana view model representation.
+def compile_esql_dimensions(dimensions: Sequence[ESQLDimensionTypes]) -> list[KbnESQLFieldDimensionColumn]:
+    """Compile a sequence of ESQLDimensionTypes objects into their Kibana view model representation.
 
     Args:
-        dimensions (list[ESQLDimensionTypes]): The list of ESQLDimensionTypes objects to compile.
+        dimensions (Sequence[ESQLDimensionTypes]): The sequence of ESQLDimensionTypes objects to compile.
 
     Returns:
         list[KbnESQLFieldDimensionColumn]: The compiled Kibana view model.

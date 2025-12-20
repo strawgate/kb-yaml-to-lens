@@ -1,5 +1,7 @@
 """Compile links for a dashboard into their Kibana view models."""
 
+from collections.abc import Sequence
+
 from dashboard_compiler.panels.links.config import BaseLink, DashboardLink, LinksPanel, LinkTypes, UrlLink
 from dashboard_compiler.panels.links.view import (
     KbnDashboardLink,
@@ -115,15 +117,14 @@ def compile_link(link: BaseLink, order: int) -> tuple[KbnReference | None, KbnLi
     raise NotImplementedError(msg)
 
 
-def compile_links(links: list[LinkTypes]) -> tuple[list[KbnReference], list[KbnLinkTypes]]:
-    """Convert a list of KbnLink objects to a list of KbnReference objects.
+def compile_links(links: Sequence[LinkTypes]) -> tuple[list[KbnReference], list[KbnLinkTypes]]:
+    """Convert a sequence of KbnLink objects to lists of KbnReference and KbnLink objects.
 
     Args:
-        links (list[KbnLink]): The list of KbnLink objects to convert.
-        panel_index (str): The index of the panel to which these links belong.
+        links (Sequence[LinkTypes]): The sequence of link objects to convert.
 
     Returns:
-        list[KbnReference]: The converted list of KbnReference objects.
+        tuple[list[KbnReference], list[KbnLinkTypes]]: The converted references and link objects.
 
     """
     kbn_references: list[KbnReference] = []
