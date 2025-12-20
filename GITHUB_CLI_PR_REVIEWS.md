@@ -11,11 +11,13 @@ Claude can resolve review conversation threads in PRs after addressing feedback 
 ## Implementation
 
 Claude has restricted access to `gh api` commands via the Bash tool allowlist:
+
 ```yaml
 --allowed-tools Bash(make:*,gh:api:*)
 ```
 
 This allows only `gh api` for GraphQL operations, preventing Claude from using:
+
 - ❌ `gh pr comment` - Blocked to prevent random comments
 - ❌ `gh pr review` - Blocked to prevent unsolicited reviews
 - ✅ `gh api graphql` - Allowed for resolving threads only
@@ -23,6 +25,7 @@ This allows only `gh api` for GraphQL operations, preventing Claude from using:
 ## Key Commands
 
 ### Get review threads (including CodeRabbit comments)
+
 ```bash
 gh api graphql -f query='
   query {
@@ -48,6 +51,7 @@ gh api graphql -f query='
 ```
 
 ### Resolve a review thread
+
 ```bash
 gh api graphql -f query='
   mutation {
@@ -78,6 +82,7 @@ Claude will **not** add its own comments explaining the changes. The code change
 ```
 
 Claude will:
+
 1. View the CodeRabbit review comments
 2. Make necessary code changes to fix error handling
 3. Identify the relevant review thread ID
@@ -95,6 +100,7 @@ Claude will:
 ## Permissions
 
 The workflows have the necessary permissions:
+
 - `pull-requests: write` - For resolving threads
 - `contents: write` - For making code changes
 

@@ -1,5 +1,10 @@
+from typing import TYPE_CHECKING
+
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
-from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
+
+if TYPE_CHECKING:
+    from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
+
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnESQLColumnTypes,
     KbnLensColumnTypes,
