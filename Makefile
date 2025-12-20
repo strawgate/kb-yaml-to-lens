@@ -17,6 +17,10 @@ help:
 	@echo "  test          - Run unit tests"
 	@echo "  test-smoke    - Run smoke tests"
 
+	@echo "Dashboard Compilation:"
+	@echo "  compile       - Compile YAML dashboards to NDJSON"
+	@echo "  upload        - Compile and upload dashboards to Kibana"
+
 	@echo "Cleaning:"
 	@echo "  clean-full    - Clean up all including virtual environment"
 	@echo "  - clean       - Clean up cache and temporary files"
@@ -84,3 +88,11 @@ setup:
 update-deps:
 	@echo "Updating dependencies..."
 	./.venv/bin/poetry update
+
+compile:
+	@echo "Compiling dashboards..."
+	uv run kb-dashboard compile
+
+upload:
+	@echo "Compiling and uploading dashboards to Kibana..."
+	uv run kb-dashboard compile --upload
