@@ -64,6 +64,7 @@ The `grid` object is required for every panel and defines its placement and dime
 | `h`      | `integer` | The height of the panel in grid units.                                   | N/A            | Yes      |
 
 **Example of `grid` usage:**
+
 ```yaml
 # ...
 # panels:
@@ -89,14 +90,14 @@ The `grid` object is required for every panel and defines its placement and dime
 
 The `BasePanel` fields are common to all panel types. For details on the specific configuration fields available for each panel `type`, refer to their individual documentation pages:
 
-*   [Markdown Panel](./markdown/markdown.md)
-*   [Links Panel](./links/links.md)
-*   [Search Panel](./search/search.md) (*Documentation to be created/updated*)
-*   **Charts:**
-    *   [Lens Panel (for various chart types like bar, line, area, pie, metric, table)](./charts/lens/lens.md)
-    *   [ESQL Panel (for ESQL-driven visualizations)](./charts/esql/esql.md) (*Documentation to be created/updated*)
-    *   (*Other chart types like Vega, Timelion, TSVB might be added here if supported*)
+* [Markdown Panel](./markdown/markdown.md)
+* [Links Panel](./links/links.md)
+* [Search Panel](./search/search.md) (*Documentation to be created/updated*)
+* **Charts:**
+  * [Lens Panel (for various chart types like bar, line, area, pie, metric, table)](./charts/lens/lens.md)
+  * [ESQL Panel (for ESQL-driven visualizations)](./charts/esql/esql.md) (*Documentation to be created/updated*)
+  * (*Other chart types like Vega, Timelion, TSVB might be added here if supported*)
 
 ## Related Documentation
 
-*   [Dashboard Configuration](../dashboard/dashboard.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)

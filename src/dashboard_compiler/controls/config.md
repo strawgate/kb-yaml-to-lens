@@ -134,10 +134,10 @@ Allows users to select a sub-section of the dashboard's current time range. This
 
 This enum defines the possible search techniques used for filtering options in an `OptionsListControl`.
 
-*   `prefix`: (Default) Filters options starting with the input text.
-*   `contains`: Filters options containing the input text.
-*   `exact`: Filters options matching the input text exactly.
+* `prefix`: (Default) Filters options starting with the input text.
+* `contains`: Filters options containing the input text.
+* `exact`: Filters options matching the input text exactly.
 
 ## Related Documentation
 
-*   [Dashboard Configuration](./../dashboard/dashboard.md)
+* [Dashboard Configuration](./../dashboard/dashboard.md)

@@ -29,5 +29,6 @@ dashboard:
 | `description`| `string`          | Panel description.                               | No       |
 
 ## Related
+
 - [Base Panel Configuration](../../base.md)
-- [Dashboard Configuration](../../../dashboard/dashboard.md) 
+- [Dashboard Configuration](../../../dashboard/dashboard.md)

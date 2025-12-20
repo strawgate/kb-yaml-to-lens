@@ -19,6 +19,7 @@ This document provides a complete, tested guide for using the Kibana fixture gen
 The fixture generator uses Docker to bootstrap Kibana from source, giving you access to the real `LensConfigBuilder` API. You write simple JavaScript files that call this API and export JSON fixtures for testing.
 
 **Key Benefits:**
+
 - Generates *real* Kibana JSON (not AI-generated approximations)
 - Uses Kibana's actual `LensConfigBuilder` API
 - Provides known-good test data for validating the Python compiler
@@ -27,6 +28,7 @@ The fixture generator uses Docker to bootstrap Kibana from source, giving you ac
 ### What You'll Get
 
 Running this tool produces:
+
 - JSON files containing complete Lens visualization configurations
 - Exact output that Kibana would generate if you created the same panel in the UI
 - Test fixtures you can use for snapshot testing and validation
@@ -114,6 +116,7 @@ Before writing a generator, understand how the panel works in Kibana's API.
 For heatmaps, you'd find:
 
 **Required Parameters:**
+
 - `chartType: 'heatmap'` - Identifies the visualization type
 - `title: string` - Visualization name
 - `breakdown: string | LensBreakdownConfig` - Y-axis dimension
@@ -122,6 +125,7 @@ For heatmaps, you'd find:
 - `dataset: { esql: string }` - The data query
 
 **Optional Parameters:**
+
 - `legend: { show: boolean, position: 'top'|'left'|'bottom'|'right' }` - Legend configuration
 
 ### Step 2: Build the Docker Container
@@ -136,6 +140,7 @@ docker compose build
 **Build Process:** Takes 15-30 minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
 
 **Common Issues:**
+
 - "Kibana should not be run as root" → Ensure `--allow-root` flag in Dockerfile
 - Node version mismatch → Update `NODE_VERSION` to match Kibana's `.node-version`
 
@@ -383,12 +388,14 @@ module.exports = { generateHeatmap };
 ```
 
 **Add to `generate-all.js`:**
+
 ```javascript
 const { generateHeatmap } = require('./examples/heatmap');
 generators.push({ name: 'Heatmap', fn: generateHeatmap });
 ```
 
 **Run it:**
+
 ```bash
 docker compose run generator node examples/heatmap.js
 # Or run all: docker compose run generator
