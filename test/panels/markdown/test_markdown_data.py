@@ -28,12 +28,11 @@ CASE_MARKDOWN_DESCRIPTION = (
         'content': 'title and description',
     },
     {
-        'description': 'description',
         'enhancements': {'dynamicActions': {'events': []}},
         'savedVis': {
             'id': '',
             'title': '',
-            'description': '',
+            'description': 'description',
             'type': 'markdown',
             'params': {'fontSize': 12, 'openLinksInNewTab': False, 'markdown': 'title and description'},
             'uiState': {},
@@ -55,7 +54,7 @@ CASE_MARKDOWN_CUSTOM_FONT_SIZE = (
         'enhancements': {'dynamicActions': {'events': []}},
         'savedVis': {
             'id': '',
-            'title': '',
+            'title': 'Important Note',
             'description': '',
             'type': 'markdown',
             'params': {'fontSize': 18, 'openLinksInNewTab': False, 'markdown': '# large font'},

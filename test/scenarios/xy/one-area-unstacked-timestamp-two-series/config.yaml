@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   type: lens
   title: Unstacked Area Timestamp and two series
   index_pattern: 27a3148b-d1d4-4455-8acf-e63c94071a5b

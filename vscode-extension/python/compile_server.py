@@ -20,7 +20,12 @@ def compile_dashboard(yaml_path: str) -> dict:
         dict: Result dictionary with 'success' and either 'data' or 'error'.
     """
     try:
-        dashboard = load(yaml_path)
+        dashboards = load(yaml_path)
+        # For now, the VSCode extension only handles single dashboards
+        # TODO: Update UI to support multi-dashboard files
+        if not dashboards:
+            return {'success': False, 'error': 'No dashboards found in YAML file'}
+        dashboard = dashboards[0]
         kbn_dashboard = render(dashboard)
         return {'success': True, 'data': kbn_dashboard.model_dump(by_alias=True, mode='json')}
     except Exception as e:
@@ -30,7 +35,7 @@ def compile_dashboard(yaml_path: str) -> dict:
 def main():
     """Run the main server loop reading JSON requests from stdin and writing responses to stdout."""
     # Ensure stdout is line-buffered
-    sys.stdout.reconfigure(line_buffering=True)
+    sys.stdout.reconfigure(line_buffering=True)  # type: ignore[attr-defined]
 
     for line in sys.stdin:
         request_id = 0  # Initialize request_id before parsing

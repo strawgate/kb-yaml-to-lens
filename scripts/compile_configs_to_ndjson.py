@@ -29,33 +29,34 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
         f.writelines(line + '\n' for line in lines)
 
 
-def compile_and_format(yaml_path: Path) -> str | None:
-    """Compile a dashboard YAML, formats the output dictionary for Kibana import, and returns it as a compressed JSON string.
+def compile_and_format(yaml_path: Path) -> list[str]:
+    """Compile dashboard YAML, formats the output dictionaries for Kibana import, and returns them as compressed JSON strings.
 
     Args:
         yaml_path: Path to the dashboard YAML configuration file.
 
     Returns:
-        The compressed JSON string for the NDJSON line, or None if compilation fails.
+        List of compressed JSON strings for NDJSON lines, or empty list if compilation fails.
 
     """
     try:
         msg = f'Compiling: {yaml_path.relative_to(project_root)}'
         logger.info(msg)
-        # compile_dashboard_to_testable_dict returns the dictionary representation
-        dashboard_model = load(str(yaml_path))
-        dashboard_kbn_model = render(dashboard_model)
-
-        return dashboard_kbn_model.model_dump_json(by_alias=True)
+        dashboards = load(str(yaml_path))
+        json_lines = []
+        for dashboard in dashboards:
+            dashboard_kbn_model = render(dashboard)
+            json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
+        return json_lines
 
     except FileNotFoundError:
         msg = f'Error: YAML file not found: {yaml_path}'
         logger.exception(msg)
-        return None
+        return []
     except Exception as e:
         msg = f'Error compiling {yaml_path}: {e}'
         logger.exception(msg)
-        return None
+        return []
 
 
 def get_scenarios() -> list[Path]:
@@ -114,20 +115,20 @@ def main() -> None:
     for scenario in scenarios:
         yaml_file = scenario.resolve()
         try:
-            compressed_line = compile_and_format(yaml_file)
+            compressed_lines = compile_and_format(yaml_file)
         except Exception as e:
             msg = f'Error compiling {yaml_file}: {e}'
             logger.exception(msg)
             continue
 
-        if compressed_line:
+        if compressed_lines:
             # write a standalone ndjson file for each scenario
             filename = scenario.parent.stem
             file_path = OUTPUT_DIR / f'{filename}.ndjson'
             msg = f'Writing compiled dashboard to: {file_path.relative_to(project_root)}'
             logger.info(msg)
-            write_ndjson(file_path, [compressed_line], overwrite=True)
-            ndjson_lines.append(compressed_line)
+            write_ndjson(file_path, compressed_lines, overwrite=True)
+            ndjson_lines.extend(compressed_lines)
 
     if ndjson_lines:
         # Write a joined NDJSON lines to the output file

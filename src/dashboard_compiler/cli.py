@@ -77,24 +77,27 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
             f.write(line + '\n')
 
 
-def compile_yaml_to_json(yaml_path: Path) -> tuple[str | None, str | None]:
-    """Compile a dashboard YAML to a JSON string for NDJSON.
+def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
+    """Compile dashboard YAML to JSON strings for NDJSON.
 
     Args:
         yaml_path: Path to the dashboard YAML configuration file.
 
     Returns:
-        Tuple of (JSON string for NDJSON line or None, error message or None).
+        Tuple of (list of JSON strings for NDJSON lines, error message or None).
 
     """
     try:
-        dashboard_model = load(str(yaml_path))
-        dashboard_kbn_model = render(dashboard_model)
-        return dashboard_kbn_model.model_dump_json(by_alias=True), None
+        dashboards = load(str(yaml_path))
+        json_lines = []
+        for dashboard in dashboards:
+            dashboard_kbn_model = render(dashboard)
+            json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
+        return json_lines, None
     except FileNotFoundError:
-        return None, f'YAML file not found: {yaml_path}'
+        return [], f'YAML file not found: {yaml_path}'
     except (ValueError, TypeError, KeyError) as e:
-        return None, f'Error compiling {yaml_path}: {e}'
+        return [], f'Error compiling {yaml_path}: {e}'
 
 
 def get_yaml_files(directory: Path) -> list[Path]:
@@ -234,14 +237,14 @@ def compile_dashboards(  # noqa: PLR0913
             except ValueError:
                 display_path = yaml_file
             progress.update(task, description=f'Compiling: {display_path}')
-            compiled_json, error = compile_yaml_to_json(yaml_file)
+            compiled_jsons, error = compile_yaml_to_json(yaml_file)
 
-            if compiled_json:
+            if compiled_jsons:
                 # Write individual file
                 filename = yaml_file.parent.stem
                 individual_file = output_dir / f'{filename}.ndjson'
-                write_ndjson(individual_file, [compiled_json], overwrite=True)
-                ndjson_lines.append(compiled_json)
+                write_ndjson(individual_file, compiled_jsons, overwrite=True)
+                ndjson_lines.extend(compiled_jsons)
             elif error:
                 errors.append(error)
 

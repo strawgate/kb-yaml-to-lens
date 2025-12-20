@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   title: Controls Dashboard
   description: "A dashboard with various control elements"
   controls:

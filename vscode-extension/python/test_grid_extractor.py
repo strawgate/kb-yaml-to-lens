@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for grid_extractor.py."""
 
-import json
 import sys
 import tempfile
 import unittest
@@ -18,11 +17,12 @@ class TestGridExtractor(unittest.TestCase):
     def setUp(self):
         """Create temporary test files."""
         self.temp_dir = tempfile.mkdtemp()
-        self.temp_file = Path(self.temp_dir) / "test_dashboard.yaml"
+        self.temp_file = Path(self.temp_dir) / 'test_dashboard.yaml'
 
     def tearDown(self):
         """Clean up temporary files."""
         import shutil
+
         shutil.rmtree(self.temp_dir)
 
     def test_extract_simple_dashboard(self):
@@ -44,18 +44,18 @@ class TestGridExtractor(unittest.TestCase):
 
         result = extract_grid_layout(str(self.temp_file))
 
-        self.assertEqual(result["title"], "Test Dashboard")
-        self.assertEqual(result["description"], "A test dashboard")
-        self.assertEqual(len(result["panels"]), 2)
+        assert result['title'] == 'Test Dashboard'
+        assert result['description'] == 'A test dashboard'
+        assert len(result['panels']) == 2
 
         # Check first panel
-        panel1 = result["panels"][0]
-        self.assertEqual(panel1["title"], "Panel 1")
-        self.assertEqual(panel1["type"], "markdown")
-        self.assertEqual(panel1["grid"]["x"], 0)
-        self.assertEqual(panel1["grid"]["y"], 0)
-        self.assertEqual(panel1["grid"]["w"], 24)
-        self.assertEqual(panel1["grid"]["h"], 15)
+        panel1 = result['panels'][0]
+        assert panel1['title'] == 'Panel 1'
+        assert panel1['type'] == 'markdown'
+        assert panel1['grid']['x'] == 0
+        assert panel1['grid']['y'] == 0
+        assert panel1['grid']['w'] == 24
+        assert panel1['grid']['h'] == 15
 
     def test_extract_dashboard_with_panel_ids(self):
         """Test extracting grid info when panels have explicit IDs."""
@@ -72,9 +72,9 @@ class TestGridExtractor(unittest.TestCase):
 
         result = extract_grid_layout(str(self.temp_file))
 
-        self.assertEqual(len(result["panels"]), 1)
-        panel = result["panels"][0]
-        self.assertEqual(panel["id"], "my-panel-1")
+        assert len(result['panels']) == 1
+        panel = result['panels'][0]
+        assert panel['id'] == 'my-panel-1'
 
     def test_extract_dashboard_without_panel_ids(self):
         """Test that panels without IDs get auto-generated IDs."""
@@ -90,8 +90,8 @@ class TestGridExtractor(unittest.TestCase):
 
         result = extract_grid_layout(str(self.temp_file))
 
-        panel = result["panels"][0]
-        self.assertEqual(panel["id"], "panel_0")
+        panel = result['panels'][0]
+        assert panel['id'] == 'panel_0'
 
     def test_extract_dashboard_missing_title(self):
         """Test handling of panels without titles."""
@@ -106,21 +106,21 @@ class TestGridExtractor(unittest.TestCase):
 
         result = extract_grid_layout(str(self.temp_file))
 
-        panel = result["panels"][0]
-        self.assertEqual(panel["title"], "Untitled Panel")
+        panel = result['panels'][0]
+        assert panel['title'] == 'Untitled Panel'
 
     def test_extract_nonexistent_file(self):
         """Test that extracting from a nonexistent file raises an error."""
         with self.assertRaises(Exception):
-            extract_grid_layout("/nonexistent/file.yaml")
+            extract_grid_layout('/nonexistent/file.yaml')
 
     def test_extract_invalid_yaml(self):
         """Test that invalid YAML raises an error."""
-        self.temp_file.write_text("invalid: yaml: content: [[[")
+        self.temp_file.write_text('invalid: yaml: content: [[[')
 
         with self.assertRaises(Exception):
             extract_grid_layout(str(self.temp_file))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

@@ -38,13 +38,7 @@ def _validate_grid_coords(grid: dict) -> bool:
         return False
 
     # Check all values are non-negative integers
-    for key in required_keys:
-        if not isinstance(grid[key], int) or grid[key] < 0:
-            return False
-
-    # Warn but don't reject if grid exceeds 48 columns (Kibana will handle it)
-    # Just validate that coordinates are reasonable (not negative, not missing)
-    return True
+    return all(not (not isinstance(grid[key], int) or grid[key] < 0) for key in required_keys)
 
 
 def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
@@ -60,14 +54,14 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
     """
     # Validate inputs
     if not _validate_panel_id(panel_id):
-        return {"success": False, "error": f"Invalid panel ID: {panel_id}. Only alphanumeric, underscore, and hyphen allowed."}
+        return {'success': False, 'error': f'Invalid panel ID: {panel_id}. Only alphanumeric, underscore, and hyphen allowed.'}
 
     if not _validate_grid_coords(new_grid):
-        return {"success": False, "error": f"Invalid grid coordinates: {new_grid}"}
+        return {'success': False, 'error': f'Invalid grid coordinates: {new_grid}'}
 
     yaml_file = Path(yaml_path)
     if not yaml_file.exists():
-        return {"success": False, "error": f"File not found: {yaml_path}"}
+        return {'success': False, 'error': f'File not found: {yaml_path}'}
 
     # Read the YAML file
     content = yaml_file.read_text()
@@ -81,24 +75,20 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
     # and multi-line format
 
     # First, let's try to find the panel by ID
-    panel_pattern = None
-    if panel_id.startswith("panel_"):
+    if panel_id.startswith('panel_'):
         # This is an index-based ID, extract the index
         try:
-            panel_index = int(panel_id.split("_")[1])
+            panel_index = int(panel_id.split('_')[1])
             # Find the Nth panel block (panels are indented with 4 spaces under "panels:")
             panel_blocks = list(re.finditer(r'^\s*- (?:title:|id:|type:|grid:)', content, re.MULTILINE))
             if panel_index < len(panel_blocks):
                 panel_start = panel_blocks[panel_index].start()
                 # Find the end of this panel block (next panel or end of panels section)
-                if panel_index + 1 < len(panel_blocks):
-                    panel_end = panel_blocks[panel_index + 1].start()
-                else:
-                    panel_end = len(content)
+                panel_end = panel_blocks[panel_index + 1].start() if panel_index + 1 < len(panel_blocks) else len(content)
                 panel_content = content[panel_start:panel_end]
 
                 # Find and replace the grid in this panel block
-                new_grid_str = f"grid: {{ x: {new_grid['x']}, y: {new_grid['y']}, w: {new_grid['w']}, h: {new_grid['h']} }}"
+                new_grid_str = f'grid: {{ x: {new_grid["x"]}, y: {new_grid["y"]}, w: {new_grid["w"]}, h: {new_grid["h"]} }}'
 
                 # Match both inline and multi-line grid formats
                 inline_pattern = r'grid:\s*\{[^}]+\}'
@@ -113,34 +103,31 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
                 # Update the content
                 updated_content = content[:panel_start] + updated_panel + content[panel_end:]
                 yaml_file.write_text(updated_content)
-                return {"success": True, "message": f"Updated grid for {panel_id}"}
+                return {'success': True, 'message': f'Updated grid for {panel_id}'}
         except (ValueError, IndexError) as e:
-            return {"success": False, "error": f"Invalid panel ID format: {e}"}
+            return {'success': False, 'error': f'Invalid panel ID format: {e}'}
     else:
         # Search by actual ID
         # Find the panel with this ID
         id_pattern = rf'id:\s+{re.escape(panel_id)}'
         id_match = re.search(id_pattern, content)
         if not id_match:
-            return {"success": False, "error": f"Panel with ID {panel_id} not found"}
+            return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
 
         # Find the panel block containing this ID
         # Work backwards to find the panel start (- title: or - id: or - type:)
         # Use a regex to find panel boundaries with flexible indentation
-        panel_markers = list(re.finditer(r'\n\s*- (?:title:|id:|type:|grid:)', content[:id_match.start()]))
+        panel_markers = list(re.finditer(r'\n\s*- (?:title:|id:|type:|grid:)', content[: id_match.start()]))
         panel_start = panel_markers[-1].start() if panel_markers else 0
 
         # Find the next panel or end of panels
-        next_panel_match = re.search(r'\n\s*- (?:title:|id:|type:|grid:)', content[id_match.end():])
-        if next_panel_match:
-            panel_end = id_match.end() + next_panel_match.start()
-        else:
-            panel_end = len(content)
+        next_panel_match = re.search(r'\n\s*- (?:title:|id:|type:|grid:)', content[id_match.end() :])
+        panel_end = id_match.end() + next_panel_match.start() if next_panel_match else len(content)
 
         panel_content = content[panel_start:panel_end]
 
         # Find and replace the grid in this panel block
-        new_grid_str = f"grid: {{ x: {new_grid['x']}, y: {new_grid['y']}, w: {new_grid['w']}, h: {new_grid['h']} }}"
+        new_grid_str = f'grid: {{ x: {new_grid["x"]}, y: {new_grid["y"]}, w: {new_grid["w"]}, h: {new_grid["h"]} }}'
 
         inline_pattern = r'grid:\s*\{[^}]+\}'
         updated_panel = re.sub(inline_pattern, new_grid_str, panel_content, count=1)
@@ -148,14 +135,14 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
         # Update the content
         updated_content = content[:panel_start] + updated_panel + content[panel_end:]
         yaml_file.write_text(updated_content)
-        return {"success": True, "message": f"Updated grid for panel {panel_id}"}
+        return {'success': True, 'message': f'Updated grid for panel {panel_id}'}
 
-    return {"success": False, "error": "Failed to update grid"}
+    return {'success': False, 'error': 'Failed to update grid'}
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print(json.dumps({"error": "Usage: grid_updater.py <yaml_path> <panel_id> <grid_json>"}))
+        print(json.dumps({'error': 'Usage: grid_updater.py <yaml_path> <panel_id> <grid_json>'}))
         sys.exit(1)
 
     yaml_path = sys.argv[1]
@@ -166,11 +153,11 @@ if __name__ == "__main__":
         new_grid = json.loads(grid_json)
         result = update_panel_grid(yaml_path, panel_id, new_grid)
         print(json.dumps(result))
-        if not result.get("success"):
+        if not result.get('success'):
             sys.exit(1)
     except json.JSONDecodeError as e:
-        print(json.dumps({"error": f"Invalid grid JSON: {e}"}))
+        print(json.dumps({'error': f'Invalid grid JSON: {e}'}))
         sys.exit(1)
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
+        print(json.dumps({'error': str(e)}))
         sys.exit(1)

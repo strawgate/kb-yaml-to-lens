@@ -104,6 +104,19 @@ unfixable = []
     "D104", # Docstrings in public packages
     "E501", # Line too long
 ]
+"vscode-extension/python/**/*.py" = [
+    "PT009", # Allow unittest-style assertions in test files
+    "S101", # Ignore use of assert
+    "ANN201", # Ignore missing type annotations in python extension files
+    "E501", # Line too long
+    "PLR2004", # Ignore magic numbers in test files
+    "B017", # Allow broad exception assertions in test files
+    "PT011", # Allow broad pytest.raises in test files
+    "PT027", # Allow unittest-style assertRaises in test files
+    "PLR0911", # Ignore too many return statements
+    "D400", # Ignore docstring formatting in test files
+    "D415", # Ignore docstring formatting in test files
+]
 "src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models

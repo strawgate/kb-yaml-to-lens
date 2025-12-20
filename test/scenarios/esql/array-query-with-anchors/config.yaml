@@ -5,7 +5,8 @@
 base_from: &base_from "FROM logs-*"
 time_filter: &time_filter "WHERE @timestamp > NOW() - 1h"
 
-dashboard:
+dashboards:
+-
   title: "ESQL Array Query with Anchors Test"
   panels:
     # Panel 1: Using array format with anchors
