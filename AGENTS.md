@@ -28,7 +28,7 @@ Or run together: `make check`
 Dashboard Compiler converts human-readable YAML into Kibana dashboard JSON using three layers:
 
 1. **YAML Loading**: `PyYAML` parses YAML config files into Python dictionaries
-2. **Pydantic Models**: Models in `dashboard_compiler/*/config.py` define schema, validate data, and handle panel type polymorphism
+2. **Pydantic Models**: Models in `src/dashboard_compiler/*/config.py` define schema, validate data, and handle panel type polymorphism
 3. **JSON Compilation**: Each model's `to_json()` (or `model_dump_json`) method converts to Kibana JSON format
 
 Goal: Maintainability and abstraction from Kibana's complex native JSON. See `architecture.md` for details.
@@ -48,11 +48,11 @@ Goal: Maintainability and abstraction from Kibana's complex native JSON. See `ar
 
 ### Pydantic Model Conventions
 
-**Configuration models** (`BaseCfgModel` in `dashboard_compiler/shared/model.py`):
+**Configuration models** (`BaseCfgModel` in `src/dashboard_compiler/shared/model.py`):
 - `strict=True`, `extra='forbid'`, `frozen=True`, `validate_default=True`
 - Use attribute docstrings for field descriptions
 
-**View models** (`BaseVwModel` in `dashboard_compiler/shared/view.py`):
+**View models** (`BaseVwModel` in `src/dashboard_compiler/shared/view.py`):
 - Custom serializer omits fields with `OmitIfNone` metadata when value is `None`
 - May narrow types in subclasses (e.g., `str` -> `Literal['value']`)
 - `reportIncompatibleVariableOverride = false` in basedpyright config allows this
@@ -140,14 +140,14 @@ Before suggesting changes:
 
 | Directory | Why it matters |
 |---|---|
-| `dashboard_compiler/` | Contains the core logic for YAML parsing, Pydantic model definitions, and JSON compilation. |
-| `dashboard_compiler/dashboard/` | Defines the top-level `Dashboard` configuration (config.py) and its compilation logic (compile.py). |
-| `dashboard_compiler/panels/` | Houses definitions and compilation logic for various Kibana panel types (e.g., `markdown`, `links`, `charts`). |
-| `dashboard_compiler/panels/charts/` | Specific compilation logic for Lens and ESQL chart types (e.g., `metric`, `pie`, `xy`). |
+| `src/dashboard_compiler/` | Contains the core logic for YAML parsing, Pydantic model definitions, and JSON compilation. |
+| `src/dashboard_compiler/dashboard/` | Defines the top-level `Dashboard` configuration (config.py) and its compilation logic (compile.py). |
+| `src/dashboard_compiler/panels/` | Houses definitions and compilation logic for various Kibana panel types (e.g., `markdown`, `links`, `charts`). |
+| `src/dashboard_compiler/panels/charts/` | Specific compilation logic for Lens and ESQL chart types (e.g., `metric`, `pie`, `xy`). |
 | `scripts/` | Contains utility scripts for compiling configurations to NDJSON (`compile_configs_to_ndjson.py`) and generating documentation (`compile_docs.py`). |
 | `inputs/` | Example YAML dashboard configurations for compilation. |
 | `test/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
-| `dashboard_compiler/dashboard_compiler.py` | Main entry point for loading, rendering, and dumping dashboard configurations (load, render, dump functions). |
+| `src/dashboard_compiler/dashboard_compiler.py` | Main entry point for loading, rendering, and dumping dashboard configurations (load, render, dump functions). |
 
 ---
 
@@ -200,8 +200,8 @@ uv run pytest test/panels/test_metrics.py  # Specific file
 
 ## Unique Workflows
 
-- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `test/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `dashboard_compiler/dashboard_compiler.py` - render function).
-- **Documentation Generation:** A script (`scripts/compile_docs.py`) automatically compiles all markdown files within the `dashboard_compiler/` directory into a single `yaml_reference.md` file at the repository root. It prioritizes `dashboard/dashboard.md` and then sorts others by path (see `scripts/compile_docs.py` - main compilation logic).
+- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `test/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `src/dashboard_compiler/dashboard_compiler.py` - render function).
+- **Documentation Generation:** A script (`scripts/compile_docs.py`) automatically compiles all markdown files within the `src/dashboard_compiler/` directory into a single `yaml_reference.md` file at the repository root. It prioritizes `dashboard/dashboard.md` and then sorts others by path (see `scripts/compile_docs.py` - main compilation logic).
 - **NDJSON Output:** Compiled Kibana dashboards can be output as NDJSON (Newline Delimited JSON) files, suitable for direct import into Kibana. The `scripts/compile_configs_to_ndjson.py` script handles this, processing YAML files from `inputs/` and `test/dashboards/scenarios/` (see `scripts/compile_configs_to_ndjson.py`).
 
 ---
@@ -211,9 +211,9 @@ uv run pytest test/panels/test_metrics.py  # Specific file
 The project's primary "API" is its YAML configuration schema for defining Kibana dashboards.
 
 - **YAML Schema:** The root element is `dashboard`, which defines global settings, queries, filters, controls, and a list of `panels` (see `yaml_reference.md` - Dashboard section).
-- **Panel Types:** Supported panel types include `markdown` (see `quickstart.md` - Markdown panel examples), `lens` (see `quickstart.md` - Lens panel examples), `links`, `search`, and various chart types (e.g., `metric`, `pie`, `xy`) (see `dashboard_compiler/panels/types.py` and `dashboard_compiler/panels/charts/config.py`).
-- **Compilation Functions:** The core programmatic interface is exposed through `dashboard_compiler.dashboard_compiler.load` (loads YAML), `dashboard_compiler.dashboard_compiler.render` (compiles to Kibana JSON view model), and `dashboard_compiler.dashboard_compiler.dump` (dumps Pydantic config to YAML) (see `dashboard_compiler/dashboard_compiler.py`).
-- **Where to learn more:** Detailed YAML configuration options for each component (dashboard, panels, controls, filters, queries) are documented in `yaml_reference.md` and individual `config.md` files within the `dashboard_compiler/` subdirectories (see `quickstart.md` - Additional Resources).
+- **Panel Types:** Supported panel types include `markdown` (see `quickstart.md` - Markdown panel examples), `lens` (see `quickstart.md` - Lens panel examples), `links`, `search`, and various chart types (e.g., `metric`, `pie`, `xy`) (see `src/dashboard_compiler/panels/types.py` and `src/dashboard_compiler/panels/charts/config.py`).
+- **Compilation Functions:** The core programmatic interface is exposed through `dashboard_compiler.dashboard_compiler.load` (loads YAML), `dashboard_compiler.dashboard_compiler.render` (compiles to Kibana JSON view model), and `dashboard_compiler.dashboard_compiler.dump` (dumps Pydantic config to YAML) (see `src/dashboard_compiler/dashboard_compiler.py`).
+- **Where to learn more:** Detailed YAML configuration options for each component (dashboard, panels, controls, filters, queries) are documented in `yaml_reference.md` and individual `config.md` files within the `src/dashboard_compiler/` subdirectories (see `quickstart.md` - Additional Resources).
 
 ---
 
@@ -221,8 +221,8 @@ The project's primary "API" is its YAML configuration schema for defining Kibana
 
 - **Understand Core Architecture:** Review `architecture.md` to grasp the overall design and data flow.
 - **Explore YAML Schema:** Read `yaml_reference.md` and `quickstart.md` for a comprehensive understanding of the YAML configuration structure and examples.
-- **Examine Pydantic Models:** Dive into `dashboard_compiler/**/config.py` files to see the definitive source of truth for configuration options, types, and validation rules.
-- **Trace Compilation Logic:** Follow the `compile_dashboard` function in `dashboard_compiler/dashboard/compile.py` to understand how YAML models are transformed into Kibana JSON view models.
+- **Examine Pydantic Models:** Dive into `src/dashboard_compiler/**/config.py` files to see the definitive source of truth for configuration options, types, and validation rules.
+- **Trace Compilation Logic:** Follow the `compile_dashboard` function in `src/dashboard_compiler/dashboard/compile.py` to understand how YAML models are transformed into Kibana JSON view models.
 - **Run Tests:** Execute `uv run pytest` and inspect the `test/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
 
 ---
