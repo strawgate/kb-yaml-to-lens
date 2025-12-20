@@ -7,6 +7,7 @@ The `LensPanel` is the primary container. Its `chart` field will define the spec
 ## Minimal Configuration Examples
 
 **Minimal Lens Metric Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts  # This is the LensPanel type
@@ -36,6 +37,7 @@ dashboard:
 ```
 
 **Minimal Lens Pie Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts
@@ -90,8 +92,9 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `layers` | `list of MultiLayerChartTypes`             | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None`                          | No       |
 
 **Note on `layers` vs `chart`**:
-*   Use the `chart` field for single-layer visualizations (most common use case, e.g., one metric display, one pie chart).
-*   Use the `layers` field if you need to define multiple, distinct visualizations within the same Lens panel (e.g., overlaying different chart types or configurations). If `layers` is used, the `chart` field should not be.
+
+* Use the `chart` field for single-layer visualizations (most common use case, e.g., one metric display, one pie chart).
+* Use the `layers` field if you need to define multiple, distinct visualizations within the same Lens panel (e.g., overlaying different chart types or configurations). If `layers` is used, the `chart` field should not be.
 
 ---
 
@@ -109,6 +112,7 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `breakdown` | `LensDimensionTypes` object                | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions). | `None`           | No       |
 
 **Example (Lens Metric Chart):**
+
 ```yaml
 # Within a LensPanel's 'chart' field:
 # type: metric
@@ -148,6 +152,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping).                       | `None`           | No       |
 
 **Example (Lens Pie Chart):**
+
 ```yaml
 # Within a LensPanel's 'chart' field:
 # type: pie
@@ -225,6 +230,7 @@ Creates buckets based on a list of custom KQL/Lucene queries.
 | `filters` | `list of LensFiltersDimensionFilter` objects | A list of filter definitions. Each filter object has `query` (KQL/Lucene) and an optional `label`.         | N/A              | Yes      |
 
 **`LensFiltersDimensionFilter` Object:**
+
 | YAML Key | Data Type                 | Description                                      | Kibana Default   | Required |
 | -------- | ------------------------- | ------------------------------------------------ | ---------------- | -------- |
 | `query`  | `LegacyQueryTypes` object | The KQL or Lucene query for this filter bucket.  | N/A              | Yes      |
@@ -244,6 +250,7 @@ Groups data into numeric ranges (buckets).
 | `empty_bucket`| `boolean`                                  | If `true`, shows a bucket for documents with missing values for the field.                                 | `false`          | No       |
 
 **`LensIntervalsDimensionInterval` Object:**
+
 | YAML Key | Data Type | Description                                      | Kibana Default   | Required |
 | -------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `from`   | `integer` | The start of the interval (inclusive).           | `None`           | No       |
@@ -272,6 +279,7 @@ All specific metric types below can include:
 These metrics perform an aggregation on a field.
 
 **Count / Unique Count (`aggregation: count` or `aggregation: unique_count`)**
+
 | YAML Key        | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation`   | `Literal['count', 'unique_count']`         | Type of count.                                                                                             | N/A              | Yes      |
@@ -279,6 +287,7 @@ These metrics perform an aggregation on a field.
 | `exclude_zeros` | `boolean`                                  | If `true`, zero values are excluded from the aggregation.                                                  | `true`           | No       |
 
 **Sum (`aggregation: sum`)**
+
 | YAML Key        | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation`   | `Literal['sum']`                           | Specifies sum aggregation.                                                                                 | `sum`            | Yes      |
@@ -286,12 +295,14 @@ These metrics perform an aggregation on a field.
 | `exclude_zeros` | `boolean`                                  | If `true`, zero values are excluded from the sum.                                                          | `true`           | No       |
 
 **Min, Max, Average, Median (`aggregation: min` / `max` / `average` / `median`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['min', 'max', 'average', 'median']` | The aggregation type.                                                                                      | N/A              | Yes      |
 | `field`       | `string`                                   | The numeric field for the aggregation.                                                                     | N/A              | Yes      |
 
 **Last Value (`aggregation: last_value`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['last_value']`                    | Retrieves the most recent value of a field.                                                                | `last_value`     | Yes      |
@@ -299,6 +310,7 @@ These metrics perform an aggregation on a field.
 | `date_field`  | `string`                                   | The date field used to determine the "last" value.                                                         | `@timestamp`     | No       |
 
 **Percentile (`aggregation: percentile`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['percentile']`                    | Calculates the value at a specific percentile.                                                             | `percentile`     | Yes      |
@@ -306,6 +318,7 @@ These metrics perform an aggregation on a field.
 | `percentile`  | `integer`                                  | The percentile to calculate (e.g., `95` for 95th percentile).                                              | N/A              | Yes      |
 
 **Percentile Rank (`aggregation: percentile_rank`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['percentile_rank']`               | Determines the rank of a specific value within the dataset.                                                | `percentile_rank`| Yes      |
@@ -336,11 +349,12 @@ Defines how metric values are displayed.
 | `pattern` | `string`                                   | A Numeral.js format pattern (used if `type` is `number` or `percent`).                                     | Default for type | No       |
 
 **Default Decimal Places (Kibana):**
-*   `number`: 2
-*   `bytes`: 2
-*   `bits`: 0
-*   `percent`: 2
-*   `duration`: 0 (Kibana often uses smart duration formatting like "1m 30s")
+
+* `number`: 2
+* `bytes`: 2
+* `bits`: 0
+* `percent`: 2
+* `duration`: 0 (Kibana often uses smart duration formatting like "1m 30s")
 
 ### Custom Format (`format.type: custom`)
 
@@ -383,10 +397,9 @@ These objects are used within the `LensPieChart` configuration.
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
 
-
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Queries Configuration](../../queries/config.md)
-*   [Filters Configuration](../../filters/config.md)
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Queries Configuration](../../queries/config.md)
+* [Filters Configuration](../../filters/config.md)

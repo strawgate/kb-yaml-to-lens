@@ -116,13 +116,13 @@ Configure whether cursor, tooltips, and colors should synchronize across panels.
 
 While primarily declarative, the underlying Pydantic models for `Dashboard` support methods for adding components if you are generating configurations programmatically (not directly used in YAML):
 
-*   `add_filter(filter: FilterTypes)`: Adds a filter to the `filters` list.
-*   `add_control(control: ControlTypes)`: Adds a control to the `controls` list.
-*   `add_panel(panel: PanelTypes)`: Adds a panel to the `panels` list.
+* `add_filter(filter: FilterTypes)`: Adds a filter to the `filters` list.
+* `add_control(control: ControlTypes)`: Adds a control to the `controls` list.
+* `add_panel(panel: PanelTypes)`: Adds a panel to the `panels` list.
 
 ## Related Documentation
 
-*   [Controls Configuration](../controls/config.md)
-*   [Filters Configuration](../filters/config.md)
-*   [Queries Configuration](../queries/config.md)
-*   [Panels Overview](../panels/base.md)
+* [Controls Configuration](../controls/config.md)
+* [Filters Configuration](../filters/config.md)
+* [Queries Configuration](../queries/config.md)
+* [Panels Overview](../panels/base.md)

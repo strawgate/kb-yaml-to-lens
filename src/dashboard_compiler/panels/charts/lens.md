@@ -11,8 +11,8 @@ The `lens` panel is used to display data visualizations created with Kibana Lens
 
 ## Fields
 
-*   `type` (required, string): Must be `lens`.
-*   `chart` (required, object): The chart configuration for the Lens panel. See [Lens Chart Types](#lens-chart-types) for details.
+* `type` (required, string): Must be `lens`.
+* `chart` (required, object): The chart configuration for the Lens panel. See [Lens Chart Types](#lens-chart-types) for details.
 
 ## Lens Chart Types
 
@@ -32,13 +32,13 @@ chart:
   legend: object      # (Optional) Legend formatting options.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `pie`.
-    *   `metric` (required, object): A metric that determines the size of the slice of the pie chart. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of Lens dimension objects. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
-    *   `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](#pie-chart-appearance) for details.
-    *   `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](#pie-chart-titles-and-text) for details.
-    *   `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](#pie-chart-legend) for details.
+* **Fields:**
+  * `type` (required, string): Must be `pie`.
+  * `metric` (required, object): A metric that determines the size of the slice of the pie chart. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of Lens dimension objects. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
+  * `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](#pie-chart-appearance) for details.
+  * `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](#pie-chart-titles-and-text) for details.
+  * `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](#pie-chart-legend) for details.
 
 ### Lens Metric Chart
 
@@ -53,12 +53,12 @@ chart:
   breakdown: object   # (Optional) An optional breakdown dimension.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `metric`.
-    *   `primary` (required, object): The primary metric to display in the chart. This is the main value shown in the metric visualization. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `breakdown` (optional, object): An optional breakdown dimension to display. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
+* **Fields:**
+  * `type` (required, string): Must be `metric`.
+  * `primary` (required, object): The primary metric to display in the chart. This is the main value shown in the metric visualization. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `breakdown` (optional, object): An optional breakdown dimension to display. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
 
 ## Pie Chart Appearance
 
@@ -69,7 +69,7 @@ appearance:
   donut: string       # (Optional) The size of the donut hole (small, medium, large).
 ```
 
-*   `donut` (optional, string): The size of the donut hole in the pie chart. Options are `small`, `medium`, or `large`.
+* `donut` (optional, string): The size of the donut hole in the pie chart. Options are `small`, `medium`, or `large`.
 
 ## Pie Chart Titles and Text
 
@@ -82,9 +82,9 @@ titles_and_text:
   value_decimal_places: integer # (Optional) Number of decimal places for slice values (0-10). Defaults to 2.
 ```
 
-*   `slice_labels` (optional, string): Controls the visibility of slice labels in the pie chart. Valid values are `hide`, `show`, or `auto`. Kibana defaults to `auto` if not specified.
-*   `slice_values` (optional, string): Controls the display of slice values in the pie chart. Valid values are `hide`, `integer`, or `percent`. Kibana defaults to `percentage` if not specified.
-*   `value_decimal_places` (optional, integer): Controls the number of decimal places for slice values in the pie chart. Value should be between 0 and 10. Kibana defaults to 2, if not specified.
+* `slice_labels` (optional, string): Controls the visibility of slice labels in the pie chart. Valid values are `hide`, `show`, or `auto`. Kibana defaults to `auto` if not specified.
+* `slice_values` (optional, string): Controls the display of slice values in the pie chart. Valid values are `hide`, `integer`, or `percent`. Kibana defaults to `percentage` if not specified.
+* `value_decimal_places` (optional, integer): Controls the number of decimal places for slice values in the pie chart. Value should be between 0 and 10. Kibana defaults to 2, if not specified.
 
 ## Pie Chart Legend
 
@@ -97,12 +97,12 @@ legend:
   truncate_labels: integer # (Optional) Number of lines to truncate labels (0-5). Defaults to 1.
 ```
 
-*   `visible` (optional, string): Visibility of the legend in the pie chart. Valid values are `show`, `hide`, or `auto`. Kibana defaults to `auto` if not specified.
-*   `width` (optional, string): Width of the legend in the pie chart. Valid values are `small`, `medium`, `large`, or `extra_large`. Kibana defaults to `medium` if not specified.
-*   `truncate_labels` (optional, integer): Number of lines to truncate the legend labels to. Value should be between 0 and 5. Kibana defaults to 1 if not specified. Set to 0 to disable truncation.
+* `visible` (optional, string): Visibility of the legend in the pie chart. Valid values are `show`, `hide`, or `auto`. Kibana defaults to `auto` if not specified.
+* `width` (optional, string): Width of the legend in the pie chart. Valid values are `small`, `medium`, `large`, or `extra_large`. Kibana defaults to `medium` if not specified.
+* `truncate_labels` (optional, integer): Number of lines to truncate the legend labels to. Value should be between 0 and 5. Kibana defaults to 1 if not specified. Set to 0 to disable truncation.
 
 ## Related Documentation
 
-*   [Base Panel Object](../base.md)
-*   [Metric Objects](../metrics/metric.md)
-*   [Dimension Objects](../dimensions/dimension.md)
+* [Base Panel Object](../base.md)
+* [Metric Objects](../metrics/metric.md)
+* [Dimension Objects](../dimensions/dimension.md)

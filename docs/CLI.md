@@ -21,6 +21,7 @@ kb-dashboard compile
 ```
 
 This will:
+
 - Find all YAML files in `tests/dashboards/scenarios/` (by default)
 - Compile them to Kibana JSON format
 - Output NDJSON files to `output/` directory
@@ -185,6 +186,7 @@ kb-dashboard compile --upload
 ```
 
 To create an API key in Kibana:
+
 1. Go to Stack Management → API Keys
 2. Click "Create API key"
 3. Give it a name and set appropriate privileges
@@ -195,6 +197,7 @@ To create an API key in Kibana:
 ### Connection Refused
 
 If you get a connection refused error:
+
 - Verify Kibana is running: `curl http://localhost:5601/api/status`
 - Check the Kibana URL is correct
 - Ensure there are no firewall rules blocking the connection
@@ -202,6 +205,7 @@ If you get a connection refused error:
 ### Authentication Failed
 
 If you get authentication errors:
+
 - Verify your credentials are correct
 - Check that the user has appropriate permissions
 - For API keys, ensure the key hasn't expired
@@ -209,6 +213,7 @@ If you get authentication errors:
 ### Upload Errors
 
 If objects fail to upload:
+
 - Check the Kibana logs for detailed error messages
 - Verify the NDJSON format is valid
 - Use `--no-overwrite` if you want to preserve existing objects
