@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NODE_VERSION: 20.19.4
+        NODE_VERSION: 22.21.1
         KIBANA_VERSION: main
     volumes:
       # Output JSON files

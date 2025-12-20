@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20.x (match Kibana's .node-version)
-ARG NODE_VERSION=20.19.4
+# Install Node.js 22.x (match Kibana's .node-version)
+ARG NODE_VERSION=22.21.1
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | \
     tar -xJ -C /usr/local --strip-components=1
 
@@ -37,7 +37,7 @@ RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/ki
 
 # Bootstrap Kibana (this takes 15-30 minutes)
 # This makes @kbn/lens-embeddable-utils and other packages available
-RUN yarn kbn bootstrap
+RUN yarn kbn bootstrap --allow-root
 
 # Create tool workspace
 WORKDIR /tool
