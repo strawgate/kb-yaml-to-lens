@@ -2,26 +2,62 @@
 
 import asyncio
 import logging
-import sys
 import webbrowser
 from pathlib import Path
 
-import click
+import rich_click as click
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient
+
+# Configure rich-click
+click.rich_click.USE_RICH_MARKUP = True
+click.rich_click.SHOW_ARGUMENTS = True
+click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
 
 logger = logging.getLogger(__name__)
 
 # Set up basic logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-# Get project root (parent of dashboard_compiler)
-project_root = Path(__file__).parent.parent
+# Create a Rich console for output
+console = Console()
 
-DEFAULT_INPUT_DIR = project_root / 'inputs'
-DEFAULT_SCENARIO_DIR = project_root / 'tests/dashboards/scenarios'
-DEFAULT_OUTPUT_DIR = project_root / 'output'
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
+DEFAULT_SCENARIO_DIR = PROJECT_ROOT / 'tests/dashboards/scenarios'
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
+
+# Icons for consistent output
+ICON_SUCCESS = '✓'
+ICON_ERROR = '✗'
+ICON_WARNING = '⚠'
+ICON_UPLOAD = '📤'
+ICON_BROWSER = '🌐'
+
+
+def create_error_table(errors: list[dict | str]) -> Table:
+    """Create a Rich table to display errors.
+
+    Args:
+        errors: List of error messages or error dicts.
+
+    Returns:
+        A formatted Rich table with error messages.
+
+    """
+    error_table = Table(show_header=True, header_style='bold red')
+    error_table.add_column('Error', style='red')
+
+    for error in errors:
+        error_msg = error.get('error', {}).get('message', str(error)) if isinstance(error, dict) else str(error)
+        error_table.add_row(error_msg)
+
+    return error_table
 
 
 def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -> None:
@@ -41,27 +77,24 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
             f.write(line + '\n')
 
 
-def compile_yaml_to_json(yaml_path: Path) -> str | None:
+def compile_yaml_to_json(yaml_path: Path) -> tuple[str | None, str | None]:
     """Compile a dashboard YAML to a JSON string for NDJSON.
 
     Args:
         yaml_path: Path to the dashboard YAML configuration file.
 
     Returns:
-        The JSON string for the NDJSON line, or None if compilation fails.
+        Tuple of (JSON string for NDJSON line or None, error message or None).
 
     """
     try:
-        click.echo(f'Compiling: {yaml_path.relative_to(project_root)}')
         dashboard_model = load(str(yaml_path))
         dashboard_kbn_model = render(dashboard_model)
-        return dashboard_kbn_model.model_dump_json(by_alias=True)
+        return dashboard_kbn_model.model_dump_json(by_alias=True), None
     except FileNotFoundError:
-        click.echo(f'Error: YAML file not found: {yaml_path}', err=True)
-        return None
+        return None, f'YAML file not found: {yaml_path}'
     except (ValueError, TypeError, KeyError) as e:
-        click.echo(f'Error compiling {yaml_path}: {e}', err=True)
-        return None
+        return None, f'Error compiling {yaml_path}: {e}'
 
 
 def get_yaml_files(directory: Path) -> list[Path]:
@@ -73,15 +106,18 @@ def get_yaml_files(directory: Path) -> list[Path]:
     Returns:
         List of Path objects pointing to YAML files.
 
+    Raises:
+        click.ClickException: If directory is not found.
+
     """
     if not directory.is_dir():
-        click.echo(f'Error: Directory not found: {directory}', err=True)
-        sys.exit(1)
+        msg = f'Directory not found: {directory}'
+        raise click.ClickException(msg)
 
     yaml_files = sorted(directory.rglob('*.yaml'))
 
     if not yaml_files:
-        click.echo(f'Warning: No YAML files found in {directory}', err=True)
+        console.print(f'[yellow]{ICON_WARNING}[/yellow] Warning: No YAML files found in {directory}', style='yellow')
 
     return yaml_files
 
@@ -177,33 +213,66 @@ def compile_dashboards(  # noqa: PLR0913
     # Get all YAML files
     yaml_files = get_yaml_files(input_dir)
     if not yaml_files:
-        click.echo('No YAML files to compile.')
+        console.print('[yellow]No YAML files to compile.[/yellow]')
         return
 
-    # Compile all files
+    # Compile all files with progress bar
     ndjson_lines = []
-    for yaml_file in yaml_files:
-        compiled_json = compile_yaml_to_json(yaml_file)
-        if compiled_json:
-            # Write individual file
-            filename = yaml_file.parent.stem
-            individual_file = output_dir / f'{filename}.ndjson'
-            write_ndjson(individual_file, [compiled_json], overwrite=True)
-            click.echo(f'  ✓ Wrote: {individual_file.relative_to(project_root)}')
-            ndjson_lines.append(compiled_json)
+    errors = []
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn('[progress.description]{task.description}'),
+        console=console,
+    ) as progress:
+        task = progress.add_task('Compiling dashboards...', total=len(yaml_files))
+
+        for yaml_file in yaml_files:
+            # Show relative path if within project, otherwise show full path
+            try:
+                display_path = yaml_file.relative_to(PROJECT_ROOT)
+            except ValueError:
+                display_path = yaml_file
+            progress.update(task, description=f'Compiling: {display_path}')
+            compiled_json, error = compile_yaml_to_json(yaml_file)
+
+            if compiled_json:
+                # Write individual file
+                filename = yaml_file.parent.stem
+                individual_file = output_dir / f'{filename}.ndjson'
+                write_ndjson(individual_file, [compiled_json], overwrite=True)
+                ndjson_lines.append(compiled_json)
+            elif error:
+                errors.append(error)
+
+            progress.advance(task)
+
+    # Show results
+    if ndjson_lines:
+        console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
+
+    if errors:
+        console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(errors)} error(s):', style='yellow')
+        for error in errors:
+            console.print(f'  [red]•[/red] {error}', style='red')
 
     if not ndjson_lines:
-        click.echo('No valid YAML configurations found or compiled.', err=True)
+        console.print(f'[red]{ICON_ERROR}[/red] No valid YAML configurations found or compiled.', style='red')
         return
 
     # Write combined file
     combined_file = output_dir / output_file
     write_ndjson(combined_file, ndjson_lines, overwrite=True)
-    click.echo(f'\n✓ Compiled {len(ndjson_lines)} dashboard(s) to: {combined_file.relative_to(project_root)}')
+    # Show relative path if within project, otherwise show full path
+    try:
+        display_path = combined_file.relative_to(PROJECT_ROOT)
+    except ValueError:
+        display_path = combined_file
+    console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
 
     # Upload to Kibana if requested
     if upload:
-        click.echo(f'\n📤 Uploading to Kibana at {kibana_url}...')
+        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana at {kibana_url}...')
         asyncio.run(
             upload_to_kibana(
                 combined_file,
@@ -237,6 +306,9 @@ async def upload_to_kibana(
         overwrite: Whether to overwrite existing objects
         open_browser: Whether to open browser after successful upload
 
+    Raises:
+        click.ClickException: If upload fails.
+
     """
     client = KibanaClient(
         url=kibana_url,
@@ -250,31 +322,30 @@ async def upload_to_kibana(
 
         if result.get('success'):
             success_count = result.get('successCount', 0)
-            click.echo(f'✓ Successfully uploaded {success_count} object(s) to Kibana')
+            console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {success_count} object(s) to Kibana')
 
             # Extract dashboard IDs
             dashboard_ids = [obj['id'] for obj in result.get('successResults', []) if obj.get('type') == 'dashboard']
 
             if dashboard_ids and open_browser:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                click.echo(f'🌐 Opening dashboard: {dashboard_url}')
+                console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
                 webbrowser.open_new_tab(dashboard_url)
 
-            # Show errors if any
+            # Show errors if any using a table
             if result.get('errors'):
-                click.echo(f'\n⚠ Encountered {len(result["errors"])} error(s):', err=True)
-                for error in result['errors']:
-                    click.echo(f'  - {error.get("error", {}).get("message", error)}', err=True)
+                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result["errors"])} error(s):')
+                console.print(create_error_table(result['errors']))
         else:
-            click.echo('✗ Upload failed', err=True)
+            console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
             if result.get('errors'):
-                for error in result['errors']:
-                    click.echo(f'  - {error.get("error", {}).get("message", error)}', err=True)
-            sys.exit(1)
+                console.print(create_error_table(result['errors']))
+            msg = 'Upload to Kibana failed'
+            raise click.ClickException(msg)
 
     except (OSError, ValueError) as e:
-        click.echo(f'✗ Error uploading to Kibana: {e}', err=True)
-        sys.exit(1)
+        msg = f'Error uploading to Kibana: {e}'
+        raise click.ClickException(msg) from e
 
 
 if __name__ == '__main__':
