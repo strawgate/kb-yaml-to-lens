@@ -40,7 +40,7 @@ The primary goal is maintainability and abstraction from Kibana's native JSON co
 | `dashboard_compiler/panels/charts/` | Specific compilation logic for Lens and ESQL chart types (e.g., `metric`, `pie`, `xy`). |
 | `scripts/` | Contains utility scripts for compiling configurations to NDJSON (`compile_configs_to_ndjson.py`) and generating documentation (`compile_docs.py`). |
 | `inputs/` | Example YAML dashboard configurations for compilation. |
-| `tests/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
+| `test/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
 | `dashboard_compiler/dashboard_compiler.py` | Main entry point for loading, rendering, and dumping dashboard configurations (load, render, dump functions). |
 
 ---
@@ -49,29 +49,29 @@ The primary goal is maintainability and abstraction from Kibana's native JSON co
 
 | Command | Description |
 |---|---|
-| Install dependencies | `poetry install` |
-| Run tests | `poetry run pytest` |
-| Run specific test | `poetry run pytest tests/dashboards/test_dashboards.py` |
-| Compile all input YAMLs to NDJSON | `poetry run python scripts/compile_configs_to_ndjson.py` |
-| Compile documentation | `poetry run python scripts/compile_docs.py` |
-| Format code | `poetry run ruff format .` |
-| Lint code | `poetry run ruff check .` |
+| Install dependencies | `uv sync` |
+| Run tests | `uv run pytest` |
+| Run specific test | `uv run pytest test/dashboards/test_dashboards.py` |
+| Compile all input YAMLs to NDJSON | `uv run python scripts/compile_configs_to_ndjson.py` |
+| Compile documentation | `uv run python scripts/compile_docs.py` |
+| Format code | `uv run ruff format .` |
+| Lint code | `uv run ruff check .` |
 
 ---
 
 ## Dependencies & Compatibility
 
-- **Runtime Dependencies:** Python `>=3.12`, `PyYAML >=6.0` for YAML parsing, `Pydantic >=2.11.3` for schema definition and validation (see `pyproject.toml` - tool.poetry.dependencies section).
-- **Toolchain:** Python 3.12+ is required. Project uses `Poetry` for dependency management (see `pyproject.toml`).
-- **Testing/Dev Dependencies:** `pytest >=7.0`, `syrupy >=4.9.1` for snapshot testing, `pytest-freezer >=0.4.9` for time-sensitive tests, `deepdiff >=8.4.2` for comparing complex data structures, and `ruff >=0.11.6` for linting and formatting (see `pyproject.toml` - tool.poetry.group.dev.dependencies section).
+- **Runtime Dependencies:** Python `>=3.12`, `PyYAML >=6.0` for YAML parsing, `Pydantic >=2.11.3` for schema definition and validation (see `pyproject.toml` - project.dependencies section).
+- **Toolchain:** Python 3.12+ is required. Project uses `uv` for dependency management (see `pyproject.toml`).
+- **Testing/Dev Dependencies:** `pytest >=7.0`, `syrupy >=4.9.1` for snapshot testing, `pytest-freezer >=0.4.9` for time-sensitive tests, `deepdiff >=8.4.2` for comparing complex data structures, and `ruff >=0.11.6` for linting and formatting (see `pyproject.toml` - project.optional-dependencies.dev section).
 
 ---
 
 ## Unique Workflows
 
-- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `tests/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `dashboard_compiler/dashboard_compiler.py` - render function).
+- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `test/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `dashboard_compiler/dashboard_compiler.py` - render function).
 - **Documentation Generation:** A script (`scripts/compile_docs.py`) automatically compiles all markdown files within the `dashboard_compiler/` directory into a single `yaml_reference.md` file at the repository root. It prioritizes `dashboard/dashboard.md` and then sorts others by path (see `scripts/compile_docs.py` - main compilation logic).
-- **NDJSON Output:** Compiled Kibana dashboards can be output as NDJSON (Newline Delimited JSON) files, suitable for direct import into Kibana. The `scripts/compile_configs_to_ndjson.py` script handles this, processing YAML files from `inputs/` and `tests/dashboards/scenarios/` (see `scripts/compile_configs_to_ndjson.py`).
+- **NDJSON Output:** Compiled Kibana dashboards can be output as NDJSON (Newline Delimited JSON) files, suitable for direct import into Kibana. The `scripts/compile_configs_to_ndjson.py` script handles this, processing YAML files from `inputs/` and `test/dashboards/scenarios/` (see `scripts/compile_configs_to_ndjson.py`).
 
 ---
 
@@ -92,12 +92,12 @@ The project's primary "API" is its YAML configuration schema for defining Kibana
 - **Explore YAML Schema:** Read `yaml_reference.md` and `quickstart.md` for a comprehensive understanding of the YAML configuration structure and examples.
 - **Examine Pydantic Models:** Dive into `dashboard_compiler/**/config.py` files to see the definitive source of truth for configuration options, types, and validation rules.
 - **Trace Compilation Logic:** Follow the `compile_dashboard` function in `dashboard_compiler/dashboard/compile.py` to understand how YAML models are transformed into Kibana JSON view models.
-- **Run Tests:** Execute `poetry run pytest` and inspect the `tests/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
+- **Run Tests:** Execute `uv run pytest` and inspect the `test/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
 
 ---
 
 ## Getting Unstuck
 
 - **Pydantic Validation Errors:** If YAML parsing or model validation fails, check the `strict=True` and `extra='forbid'` settings in `dashboard_compiler/shared/model.py` (search for BaseCfgModel class). These ensure strict adherence to the defined schema, so any unexpected fields or incorrect types will raise an error.
-- **Snapshot Test Failures:** If snapshot tests (`poetry run pytest`) fail, it usually means the generated Kibana JSON has changed. Review the `deepdiff` output to understand the differences and update the snapshots if the change is intentional (see `tests/conftest.py` - snapshot_json fixture).
+- **Snapshot Test Failures:** If snapshot tests (`uv run pytest`) fail, it usually means the generated Kibana JSON has changed. Review the `deepdiff` output to understand the differences and update the snapshots if the change is intentional (see `tests/conftest.py` - snapshot_json fixture).
 - **Documentation Generation Issues:** If `yaml_reference.md` is not updating correctly, ensure `scripts/compile_docs.py` is run and check for warnings about missing markdown files.

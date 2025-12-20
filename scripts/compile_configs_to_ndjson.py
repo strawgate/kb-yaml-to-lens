@@ -1,4 +1,3 @@
-import json
 import logging
 import sys
 from pathlib import Path
@@ -27,8 +26,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
         output_path.unlink()
 
     with Path(output_path).open('w') as f:
-        for line in lines:
-            f.write(line + '\n')
+        f.writelines(line + '\n' for line in lines)
 
 
 def compile_and_format(yaml_path: Path) -> str | None:

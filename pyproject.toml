@@ -22,6 +22,7 @@ dev = [
     "deepdiff>=8.4.2",
     "ruff>=0.11.6",
     "pytest-asyncio>=0.26.0",
+    "basedpyright>=1.21.0",
 ]
 
 [project.scripts]
@@ -81,7 +82,7 @@ unfixable = []
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
-"tests/**.py" = [
+"test/**.py" = [
     "PLR2004", # Ignore magic numbers and docstring length in tests
     "W505",
     "INP001",
@@ -124,12 +125,16 @@ max-statements = 50
 
 [tool.basedpyright]
 pythonVersion = "3.12"
-typeCheckingMode = "basic"  # Start with basic, increase to strict later
+typeCheckingMode = "standard"  # Bumped from basic to standard
 reportExplicitAny = false
 reportMissingTypeStubs = false
+# Allow Pydantic view models to narrow types in subclasses (e.g., str -> Literal['value'])
+# This is a common pattern for serialization models
+reportIncompatibleVariableOverride = false
 include = ["src/dashboard_compiler"]
 exclude = [
     "**/test/**",
     "**/.venv/**",
     "**/output/**",
+    "**/*.old.py",
 ]

@@ -2,4 +2,4 @@
 
 from .config import LensFormulaAverageAgg, LensFormulaCountAgg, LensFormulaMinAgg, LensMetricTypes
 
-__all__ = [LensMetricTypes, LensFormulaAverageAgg, LensFormulaMinAgg, LensFormulaCountAgg]
+__all__ = ['LensFormulaAverageAgg', 'LensFormulaCountAgg', 'LensFormulaMinAgg', 'LensMetricTypes']

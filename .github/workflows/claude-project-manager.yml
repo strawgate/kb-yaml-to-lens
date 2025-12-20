@@ -10,6 +10,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: read
+  id-token: write
   actions: read
 
 jobs:
@@ -137,6 +138,12 @@ jobs:
           
           Analyze the project and create a structured report with these sections:
 
+          ## 🎯 Easy Pickings
+          Items that are immediately ready to act on with minimal effort:
+          - PRs that are approved and ready to merge
+          - Issues that can be closed (already resolved, duplicates, or no longer relevant)
+          - Quick wins that require minimal discussion
+
           ## 🚨 Urgent Items
           Items that are blocking progress or need immediate attention.
 
@@ -151,12 +158,6 @@ jobs:
 
           ## 💡 Suggested Next Steps
           Based on the current project state, what should maintainers focus on?
-
-          ## 📊 Project Health Metrics
-          - Open issues count
-          - Open PRs count  
-          - Average time to close issues/PRs
-          - Issues/PRs with no recent activity (>14 days)
 
           # OUTPUT FORMAT
           

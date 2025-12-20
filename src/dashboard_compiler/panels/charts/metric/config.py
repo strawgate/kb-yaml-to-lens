@@ -18,6 +18,9 @@ class LensMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
+    data_view: str = Field(default=...)
+    """The data view that determines the data for the metric chart."""
+
     primary: LensMetricTypes = Field(...)
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 

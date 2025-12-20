@@ -19,7 +19,7 @@ class BaseVwModel(BaseModel):
     """Base view model for the dashboard compiler."""
 
     @model_serializer
-    def _serialize(self):  # noqa: ANN202
+    def _serialize(self):
         model_class = self.__class__
 
         omit_if_none_fields = {k for k, v in model_class.model_fields.items() if any(isinstance(m, OmitIfNone) for m in v.metadata)}

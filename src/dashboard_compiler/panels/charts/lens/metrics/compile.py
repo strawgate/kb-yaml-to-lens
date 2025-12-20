@@ -167,38 +167,41 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
             emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
         )
 
-    if isinstance(metric, LensSumAggregatedMetric):
+    elif isinstance(metric, LensSumAggregatedMetric):
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
         )
 
-    if isinstance(metric, LensPercentileRankAggregatedMetric):
+    elif isinstance(metric, LensPercentileRankAggregatedMetric):
         default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} ({metric.rank}) of {metric.field}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             value=metric.rank,
         )
 
-    if isinstance(metric, LensPercentileAggregatedMetric):
+    elif isinstance(metric, LensPercentileAggregatedMetric):
         default_label = f'{ordinal(metric.percentile)} {AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             percentile=metric.percentile,
         )
 
-    if isinstance(metric, LensLastValueAggregatedMetric):
+    elif isinstance(metric, LensLastValueAggregatedMetric):
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             sortField=metric.date_field or '@timestamp',
         )
         metric_filter = KbnQuery(query=f'"{metric.field}": *', language='kuery')
 
-    if isinstance(metric, LensOtherAggregatedMetric):
+    elif isinstance(metric, LensOtherAggregatedMetric):
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation, None),
         )
+    else:
+        msg = f'Unsupported metric type: {type(metric)}'
+        raise NotImplementedError(msg)
 
     return metric_id, KbnLensFieldMetricColumn(
         label=metric.label or default_label,

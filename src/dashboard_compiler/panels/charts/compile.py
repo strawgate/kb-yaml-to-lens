@@ -5,6 +5,7 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.charts.config import (
     AllChartTypes,
     ESQLPanel,
+    LensChartTypes,
     LensPanel,
 )
 from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
@@ -36,7 +37,6 @@ from dashboard_compiler.shared.view import KbnReference
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 
 CHART_TYPE_TO_KBN_TYPE_MAP = {
     'metric': KbnVisualizationTypeEnum.METRIC,
@@ -62,17 +62,19 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
 def compile_lens_chart_state(
     query: LegacyQueryTypes | None,
     filters: list[FilterTypes] | None,
-    charts: list[AllChartTypes],
+    charts: list[LensChartTypes],
 ) -> tuple[KbnLensPanelState, list[KbnReference]]:
     """Compile a multi-layer chart into its Kibana view model representation."""
-    layer_id: str
-    lens_columns_by_id: dict[str, KbnLensColumnTypes]
-    visualization_state: KbnVisualizationStateTypes
+    if not charts:
+        msg = 'At least one chart must be provided'
+        raise ValueError(msg)
 
     form_based_datasource_state_layer_by_id: dict[str, KbnFormBasedDataSourceStateLayer] = {}
-
     kbn_references: list[KbnReference] = []
+    visualization_state: KbnVisualizationStateTypes | None = None
 
+    # Process all charts
+    # Note: Currently only the last chart's visualization state is used
     for chart in charts:
         if isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
@@ -80,6 +82,9 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
         elif isinstance(chart, LensLineChart | LensBarChart | LensAreaChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
+        else:
+            msg = f'Unsupported chart type: {type(chart)}'
+            raise NotImplementedError(msg)
 
         kbn_references.append(
             KbnReference(
@@ -94,6 +99,11 @@ def compile_lens_chart_state(
             columnOrder=list(lens_columns_by_id.keys()),
             sampling=1,
         )
+
+    # Ensure at least one chart was processed
+    if visualization_state is None:
+        msg = 'No charts were successfully processed'
+        raise ValueError(msg)
 
     datasource_states = KbnDataSourceState(
         formBased=KbnFormBasedDataSourceState(layers=KbnFormBasedDataSourceStateLayerById(form_based_datasource_state_layer_by_id)),
@@ -130,6 +140,9 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
     elif isinstance(panel.chart, ESQLPieChart):
         layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
+    else:
+        msg = f'Unsupported ESQL chart type: {type(panel.chart)}'
+        raise NotImplementedError(msg)
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
         query=compile_esql_query(panel.esql),

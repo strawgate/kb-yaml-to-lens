@@ -6,7 +6,14 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
-from dashboard_compiler.panels.charts.xy.config import LensLineChart, LensBarChart, LensAreaChart, ESQLBarChart, ESQLAreaChart, ESQLLineChart
+from dashboard_compiler.panels.charts.xy.config import (
+    ESQLAreaChart,
+    ESQLBarChart,
+    ESQLLineChart,
+    LensAreaChart,
+    LensBarChart,
+    LensLineChart,
+)
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 
 type AllChartTypes = LensChartTypes | ESQLChartTypes
