@@ -9,50 +9,53 @@ from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
 
 
-def load(path: str) -> Dashboard:
-    """Load a dashboard configuration from a YAML file.
+def load(path: str) -> list[Dashboard]:
+    """Load dashboard configurations from a YAML file.
 
     Args:
         path (str): The path to the YAML file containing the dashboard configuration.
 
     Returns:
-        Dashboard: The loaded Dashboard object.
+        list[Dashboard]: The loaded Dashboard objects.
 
     """
     load_path = Path(path)
 
     with load_path.open() as file:
-        dashboard_dict = yaml.safe_load(file)
+        config = yaml.safe_load(file)
 
-    return Dashboard(**dashboard_dict['dashboard'])
+    dashboards_data = config.get('dashboards', [])
+    if not isinstance(dashboards_data, list):
+        msg = f"'dashboards' must be a list in YAML file: {path}"
+        raise TypeError(msg)
+
+    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]
 
 
-def render(dashboard: Dashboard | dict) -> KbnDashboard:
+def render(dashboard: Dashboard) -> KbnDashboard:
     """Render a Dashboard object into its Kibana JSON representation.
 
     Args:
-        dashboard (Dashboard | dict): The Dashboard object to render.
+        dashboard (Dashboard): The Dashboard object to render.
 
     Returns:
         KbnDashboard: The rendered Kibana dashboard view model.
 
     """
-    if isinstance(dashboard, dict):
-        dashboard = Dashboard(**dashboard['dashboard'])
-
     return compile_dashboard(dashboard)
 
 
-def dump(dashboard: Dashboard, path: str) -> None:
-    """Dump a Dashboard object to a YAML file.
+def dump(dashboards: list[Dashboard], path: str) -> None:
+    """Dump Dashboard objects to a YAML file.
 
     Args:
-        dashboard (Dashboard): The Dashboard object to dump.
+        dashboards (list[Dashboard]): The Dashboard objects to dump.
         path (str): The path where the YAML file will be saved.
 
     """
     dashboard_path = Path(path)
 
     with dashboard_path.open(mode='w', encoding='utf-8') as file:
-        dashboard_as_dict = dashboard.model_dump(serialize_as_any=True, exclude_none=True)
-        yaml.dump(dashboard_as_dict, file, default_flow_style=False, sort_keys=False)
+        dashboards_as_list = [dashboard.model_dump(serialize_as_any=True, exclude_none=True) for dashboard in dashboards]
+        config = {'dashboards': dashboards_as_list}
+        yaml.dump(config, file, default_flow_style=False, sort_keys=False)

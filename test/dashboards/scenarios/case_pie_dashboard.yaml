@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   name: Pie Chart Only on Aerospike Namespace
   panels:
   - title: "Pie Chart of Aerospike Namespace" 

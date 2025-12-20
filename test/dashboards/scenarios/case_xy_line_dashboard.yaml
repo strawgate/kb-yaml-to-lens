@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   name: One Line Chart
   panels:
   - id: c7a35c4f-e82d-4f16-b1a6-12229363244e

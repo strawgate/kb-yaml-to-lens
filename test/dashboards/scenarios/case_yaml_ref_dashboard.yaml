@@ -1,7 +1,8 @@
 chart_defaults: &chart_defaults
   data_view: metrics-*
 
-dashboard:
+dashboards:
+-
   name: Pie Chart Only on Aerospike Namespace with yaml ref
   panels:
   - title: "Pie Chart of Aerospike Namespace" 

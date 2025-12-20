@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   name: Case Markdown Dashboard
   description: A dashboard for viewing case markdown
   panels:
