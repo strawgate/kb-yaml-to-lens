@@ -51,39 +51,55 @@ jobs:
           5. If anything you needed or wanted to do during your work was not possible, document the problem in a `Problems Encountered` section
           of your response. Especially if it was something you were asked to do like research the web, run tests, lint, etc.
 
-          # PR Review Interaction Tools
-          You now have access to tools for interacting with pull request reviews:
-          - **get_pr_review_threads**: Get all review threads (including CodeRabbit feedback) with their IDs and resolved status
-          - **get_pr_review_comments**: Get all review comments with comment IDs for replying
-          - **reply_to_review_comment**: Reply to any review comment (including CodeRabbit's) using the comment ID
-          - **resolve_review_thread**: Mark a review conversation thread as resolved using the thread ID
-          - **unresolve_review_thread**: Mark a review conversation thread as unresolved using the thread ID
+          # PR Review Interaction with GitHub CLI
+          You have access to the `gh` CLI tool to interact with pull request reviews, including CodeRabbit feedback.
+
+          Available `gh` commands:
+          - **gh pr comment <pr-number> --body "comment text"** - Add a comment to a PR
+          - **gh pr review <pr-number> --comment --body "review comment"** - Add a review comment
+          - **gh pr review <pr-number> --approve** - Approve a PR
+          - **gh api graphql -f query='...'** - Make GraphQL API calls to resolve threads
+
+          To resolve a review thread, use the GraphQL API:
+          ```bash
+          gh api graphql -f query='
+            mutation {
+              resolveReviewThread(input: {threadId: "THREAD_ID"}) {
+                thread { id isResolved }
+              }
+            }'
+          ```
+
+          To get review threads and their IDs:
+          ```bash
+          gh api graphql -f query='
+            query {
+              repository(owner: "OWNER", name: "REPO") {
+                pullRequest(number: PR_NUMBER) {
+                  reviewThreads(first: 100) {
+                    nodes { id isResolved path line
+                      comments(first: 10) { nodes { body author { login } } }
+                    }
+                  }
+                }
+              }
+            }' -f owner=OWNER -f name=REPO -F number=PR_NUMBER
+          ```
 
           When responding to CodeRabbit or other review feedback:
-          1. Use get_pr_review_comments or get_pr_review_threads to find the relevant comment/thread
-          2. Use reply_to_review_comment to respond to specific feedback
-          3. Use resolve_review_thread to mark conversations as resolved after addressing them
+          1. Use `gh api graphql` to fetch review threads and find relevant comments
+          2. Use `gh pr comment` to reply to feedback
+          3. Use `gh api graphql` with resolveReviewThread mutation to mark conversations as resolved
 
           PROMPT_END
           EOF
 
       - name: Setup GitHub MCP Server
         run: |
-          # Install dependencies for the custom GitHub PR MCP server
-          pip install fastmcp httpx
-          
           mkdir -p /tmp/mcp-config
           cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
           {
             "mcpServers": {
-              "github-pr": {
-                "type": "stdio",
-                "command": "python",
-                "args": ["scripts/github_pr_mcp_server.py"],
-                "env": {
-                  "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              },
               "repository-summary": {
                 "type": "http",
                 "url": "https://agents-md-generator.fastmcp.app/mcp"
@@ -119,5 +135,5 @@ jobs:
           prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
           track_progress: true
           claude_args: |
-            --allowed-tools mcp__github-pr,mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*)
+            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:*)
             --mcp-config /tmp/mcp-config/mcp-servers.json
