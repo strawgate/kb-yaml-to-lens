@@ -2,14 +2,56 @@
 
 Filter configuration and compilation.
 
-## Filter Configuration
+## Base Filter
 
-::: dashboard_compiler.filters.config.Filter
+::: dashboard_compiler.filters.config.BaseFilter
     options:
       show_source: true
 
-## Filter Types
+## Exists Filter
 
-::: dashboard_compiler.filters.config.FilterType
+::: dashboard_compiler.filters.config.ExistsFilter
+    options:
+      show_source: true
+
+## Custom Filter
+
+::: dashboard_compiler.filters.config.CustomFilter
+    options:
+      show_source: true
+
+## Phrase Filter
+
+::: dashboard_compiler.filters.config.PhraseFilter
+    options:
+      show_source: true
+
+## Phrases Filter
+
+::: dashboard_compiler.filters.config.PhrasesFilter
+    options:
+      show_source: true
+
+## Range Filter
+
+::: dashboard_compiler.filters.config.RangeFilter
+    options:
+      show_source: true
+
+## Negate Filter
+
+::: dashboard_compiler.filters.config.NegateFilter
+    options:
+      show_source: true
+
+## And Filter
+
+::: dashboard_compiler.filters.config.AndFilter
+    options:
+      show_source: true
+
+## Or Filter
+
+::: dashboard_compiler.filters.config.OrFilter
     options:
       show_source: true

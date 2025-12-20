@@ -3,7 +3,7 @@ site_description: Convert human-friendly YAML dashboard definitions into Kibana 
 site_url: https://strawgate.github.io/kb-yaml-to-lens/
 repo_url: https://github.com/strawgate/kb-yaml-to-lens
 repo_name: strawgate/kb-yaml-to-lens
-edit_uri: edit/main/docs/
+edit_uri: edit/main/
 
 theme:
   name: material
@@ -80,6 +80,8 @@ nav:
   - YAML Reference: yaml_reference.md
   - CLI Guide: CLI.md
   - Contributing: CONTRIBUTING.md
+  - Guides:
+      - Kibana Fixture Generator: kibana-fixture-generator-guide.md
   - API Reference:
       - api/index.md
       - Dashboard: api/dashboard.md

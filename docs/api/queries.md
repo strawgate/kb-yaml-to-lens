@@ -2,14 +2,20 @@
 
 Query configuration and compilation.
 
-## Query Configuration
+## KQL Query
 
-::: dashboard_compiler.queries.config.Query
+::: dashboard_compiler.queries.config.KqlQuery
     options:
       show_source: true
 
-## Query Types
+## Lucene Query
 
-::: dashboard_compiler.queries.config.QueryType
+::: dashboard_compiler.queries.config.LuceneQuery
+    options:
+      show_source: true
+
+## ESQL Query
+
+::: dashboard_compiler.queries.config.ESQLQuery
     options:
       show_source: true

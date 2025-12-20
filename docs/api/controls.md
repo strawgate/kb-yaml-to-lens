@@ -1,15 +1,33 @@
 # Controls
 
-Control group configuration and compilation.
+Control configuration and compilation.
 
-## Control Group Configuration
+## Control Settings
 
-::: dashboard_compiler.controls.config.ControlGroup
+::: dashboard_compiler.controls.config.ControlSettings
     options:
       show_source: true
 
-## Control Types
+## Base Control
 
-::: dashboard_compiler.controls.config.Control
+::: dashboard_compiler.controls.config.BaseControl
+    options:
+      show_source: true
+
+## Options List Control
+
+::: dashboard_compiler.controls.config.OptionsListControl
+    options:
+      show_source: true
+
+## Range Slider Control
+
+::: dashboard_compiler.controls.config.RangeSliderControl
+    options:
+      show_source: true
+
+## Time Slider Control
+
+::: dashboard_compiler.controls.config.TimeSliderControl
     options:
       show_source: true
