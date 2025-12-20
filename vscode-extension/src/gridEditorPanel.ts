@@ -30,6 +30,12 @@ export class GridEditorPanel {
     }
 
     async show(dashboardPath: string) {
+        // Validate that the dashboard path is within the workspace
+        if (!this.isPathInWorkspace(dashboardPath)) {
+            vscode.window.showErrorMessage('Dashboard file must be within the workspace');
+            return;
+        }
+
         this.currentDashboardPath = dashboardPath;
 
         if (!this.panel) {
@@ -159,6 +165,24 @@ export class GridEditorPanel {
                 }
             });
         });
+    }
+
+    private isPathInWorkspace(filePath: string): boolean {
+        // Check if the file path is within any workspace folder
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            return false;
+        }
+
+        const normalizedPath = path.resolve(filePath);
+        for (const folder of workspaceFolders) {
+            const folderPath = path.resolve(folder.uri.fsPath);
+            if (normalizedPath.startsWith(folderPath)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private getLoadingContent(): string {

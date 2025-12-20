@@ -34,10 +34,11 @@ class TestGridExtractor(unittest.TestCase):
     - title: Panel 1
       type: markdown
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      markdown: "Test content"
+      content: "Test content 1"
     - title: Panel 2
-      type: lens
+      type: markdown
       grid: { x: 24, y: 0, w: 24, h: 15 }
+      content: "Test content 2"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -63,8 +64,9 @@ class TestGridExtractor(unittest.TestCase):
   panels:
     - id: my-panel-1
       title: Panel with ID
-      type: metric
+      type: markdown
       grid: { x: 0, y: 0, w: 12, h: 8 }
+      content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -82,7 +84,7 @@ class TestGridExtractor(unittest.TestCase):
     - title: No ID Panel
       type: markdown
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      markdown: "Test"
+      content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -98,7 +100,7 @@ class TestGridExtractor(unittest.TestCase):
   panels:
     - type: markdown
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      markdown: "Test"
+      content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
