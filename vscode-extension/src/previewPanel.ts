@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { DashboardCompiler } from './compiler';
+import { DashboardCompiler, CompiledDashboard } from './compiler';
 
 export class PreviewPanel {
     private panel: vscode.WebviewPanel | undefined;
@@ -81,7 +81,10 @@ export class PreviewPanel {
         `;
     }
 
-    private getWebviewContent(dashboard: any, filePath: string): string {
+    private getWebviewContent(dashboard: CompiledDashboard, filePath: string): string {
+        // Cast to any for property access since CompiledDashboard structure is dynamic
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dashboardData = dashboard as any;
         const fileName = path.basename(filePath);
         const ndjson = JSON.stringify(dashboard);
 
@@ -182,7 +185,7 @@ export class PreviewPanel {
             </head>
             <body>
                 <div class="header">
-                    <div class="title">${this.escapeHtml(dashboard.attributes?.title || 'Dashboard')}</div>
+                    <div class="title">${this.escapeHtml(dashboardData.attributes?.title || 'Dashboard')}</div>
                     <div class="file-path">${this.escapeHtml(fileName)}</div>
                     <div class="actions">
                         <button class="export-btn" onclick="copyToClipboard()">
@@ -201,11 +204,11 @@ export class PreviewPanel {
                     <div class="section-title">Dashboard Information</div>
                     <div class="info-grid">
                         <div class="info-label">Type:</div>
-                        <div class="info-value">${this.escapeHtml(dashboard.type || 'N/A')}</div>
+                        <div class="info-value">${this.escapeHtml(dashboardData.type || 'N/A')}</div>
                         <div class="info-label">ID:</div>
-                        <div class="info-value">${this.escapeHtml(dashboard.id || 'N/A')}</div>
+                        <div class="info-value">${this.escapeHtml(dashboardData.id || 'N/A')}</div>
                         <div class="info-label">Version:</div>
-                        <div class="info-value">${this.escapeHtml(dashboard.version || 'N/A')}</div>
+                        <div class="info-value">${this.escapeHtml(dashboardData.version || 'N/A')}</div>
                     </div>
                 </div>
 
@@ -224,6 +227,9 @@ export class PreviewPanel {
                             setTimeout(() => {
                                 message.classList.remove('show');
                             }, 3000);
+                        }).catch((err) => {
+                            console.error('Failed to copy:', err);
+                            alert('Failed to copy to clipboard: ' + err.message);
                         });
                     }
 
@@ -244,7 +250,7 @@ export class PreviewPanel {
         `;
     }
 
-    private getErrorContent(error: any): string {
+    private getErrorContent(error: unknown): string {
         return `
             <!DOCTYPE html>
             <html>
@@ -270,20 +276,22 @@ export class PreviewPanel {
             </head>
             <body>
                 <h2>Compilation Error</h2>
-                <pre>${this.escapeHtml(error.message || String(error))}</pre>
+                <pre>${this.escapeHtml(error instanceof Error ? error.message : String(error))}</pre>
             </body>
             </html>
         `;
     }
 
     private escapeHtml(text: string): string {
-        const map: { [key: string]: string } = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
+        return text.replace(/[&<>"']/g, (char) => {
+            switch (char) {
+                case '&': return '&amp;';
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '"': return '&quot;';
+                case "'": return '&#039;';
+                default: return char;
+            }
+        });
     }
 }

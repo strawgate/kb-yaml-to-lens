@@ -39,6 +39,7 @@ def main():
     sys.stdout.reconfigure(line_buffering=True)
 
     for line in sys.stdin:
+        request_id = 0  # Initialize request_id before parsing
         try:
             request = json.loads(line)
             request_id = request.get("id", 0)
@@ -46,6 +47,17 @@ def main():
             params = request.get("params", {})
 
             if method == "compile":
+                # Validate required parameters
+                if "path" not in params:
+                    error_response = {
+                        "id": request_id,
+                        "success": False,
+                        "error": "Missing required parameter: path"
+                    }
+                    sys.stdout.write(json.dumps(error_response) + "\n")
+                    sys.stdout.flush()
+                    continue
+
                 result = compile_dashboard(params["path"])
                 result["id"] = request_id
                 sys.stdout.write(json.dumps(result) + "\n")
@@ -59,8 +71,9 @@ def main():
                 sys.stdout.write(json.dumps(error_response) + "\n")
                 sys.stdout.flush()
         except Exception as e:
+            # Use the parsed request_id instead of 0
             error_response = {
-                "id": 0,
+                "id": request_id,
                 "success": False,
                 "error": f"Server error: {str(e)}"
             }

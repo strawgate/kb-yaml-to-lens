@@ -21,6 +21,7 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 ### From VSIX (Manual Installation)
 
 1. Build the extension:
+
    ```bash
    cd vscode-extension
    npm install
@@ -39,12 +40,14 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 1. Clone the repository
 2. Navigate to the extension folder:
+
    ```bash
    cd vscode-extension
    npm install
    ```
 
 3. Open the folder in VS Code:
+
    ```bash
    code .
    ```

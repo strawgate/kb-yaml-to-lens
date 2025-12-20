@@ -2,13 +2,19 @@ import { spawn, ChildProcess } from 'child_process';
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+// Interface for the compiled dashboard result
+// Using unknown since the structure depends on the dashboard configuration
+export type CompiledDashboard = unknown;
+
+interface PendingRequest {
+    resolve: (value: CompiledDashboard) => void;
+    reject: (error: Error) => void;
+}
+
 export class DashboardCompiler {
     private pythonProcess: ChildProcess | null = null;
     private requestId = 0;
-    private pendingRequests = new Map<number, {
-        resolve: (value: any) => void;
-        reject: (error: Error) => void;
-    }>();
+    private pendingRequests = new Map<number, PendingRequest>();
 
     constructor(private context: vscode.ExtensionContext) {
         this.startPythonServer();
@@ -63,10 +69,15 @@ export class DashboardCompiler {
         this.pythonProcess.on('exit', (code) => {
             console.log(`Python server exited with code ${code}`);
             this.pythonProcess = null;
+            // Reject all pending requests
+            for (const pending of this.pendingRequests.values()) {
+                pending.reject(new Error('Python server exited unexpectedly'));
+            }
+            this.pendingRequests.clear();
         });
     }
 
-    async compile(filePath: string): Promise<any> {
+    async compile(filePath: string): Promise<CompiledDashboard> {
         if (!this.pythonProcess || !this.pythonProcess.stdin) {
             throw new Error('Python server not running');
         }
@@ -79,21 +90,40 @@ export class DashboardCompiler {
         };
 
         return new Promise((resolve, reject) => {
-            this.pendingRequests.set(id, { resolve, reject });
-
-            if (this.pythonProcess && this.pythonProcess.stdin) {
-                this.pythonProcess.stdin.write(JSON.stringify(request) + '\n');
-            } else {
-                reject(new Error('Python server stdin not available'));
-            }
-
-            // Timeout after 30 seconds
-            setTimeout(() => {
+            // Setup timeout timer that will be cleared on success/failure
+            const timeoutId = setTimeout(() => {
                 if (this.pendingRequests.has(id)) {
                     this.pendingRequests.delete(id);
                     reject(new Error('Compilation timeout'));
                 }
             }, 30000);
+
+            // Wrap resolve/reject to clear timeout
+            const wrappedResolve = (value: CompiledDashboard) => {
+                clearTimeout(timeoutId);
+                resolve(value);
+            };
+
+            const wrappedReject = (error: Error) => {
+                clearTimeout(timeoutId);
+                reject(error);
+            };
+
+            this.pendingRequests.set(id, { resolve: wrappedResolve, reject: wrappedReject });
+
+            if (this.pythonProcess && this.pythonProcess.stdin) {
+                try {
+                    this.pythonProcess.stdin.write(JSON.stringify(request) + '\n');
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    this.pendingRequests.delete(id);
+                    reject(new Error(`Failed to write to Python server: ${error instanceof Error ? error.message : String(error)}`));
+                }
+            } else {
+                clearTimeout(timeoutId);
+                this.pendingRequests.delete(id);
+                reject(new Error('Python server stdin not available'));
+            }
         });
     }
 
@@ -101,6 +131,10 @@ export class DashboardCompiler {
         if (this.pythonProcess) {
             this.pythonProcess.kill();
             this.pythonProcess = null;
+        }
+        // Reject all pending requests before clearing
+        for (const pending of this.pendingRequests.values()) {
+            pending.reject(new Error('Compiler disposed'));
         }
         this.pendingRequests.clear();
     }
