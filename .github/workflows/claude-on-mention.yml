@@ -51,15 +51,39 @@ jobs:
           5. If anything you needed or wanted to do during your work was not possible, document the problem in a `Problems Encountered` section
           of your response. Especially if it was something you were asked to do like research the web, run tests, lint, etc.
 
+          # PR Review Interaction Tools
+          You now have access to tools for interacting with pull request reviews:
+          - **get_pr_review_threads**: Get all review threads (including CodeRabbit feedback) with their IDs and resolved status
+          - **get_pr_review_comments**: Get all review comments with comment IDs for replying
+          - **reply_to_review_comment**: Reply to any review comment (including CodeRabbit's) using the comment ID
+          - **resolve_review_thread**: Mark a review conversation thread as resolved using the thread ID
+          - **unresolve_review_thread**: Mark a review conversation thread as unresolved using the thread ID
+
+          When responding to CodeRabbit or other review feedback:
+          1. Use get_pr_review_comments or get_pr_review_threads to find the relevant comment/thread
+          2. Use reply_to_review_comment to respond to specific feedback
+          3. Use resolve_review_thread to mark conversations as resolved after addressing them
+
           PROMPT_END
           EOF
 
       - name: Setup GitHub MCP Server
         run: |
+          # Install dependencies for the custom GitHub PR MCP server
+          pip install fastmcp httpx
+          
           mkdir -p /tmp/mcp-config
           cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
           {
             "mcpServers": {
+              "github-pr": {
+                "type": "stdio",
+                "command": "python",
+                "args": ["scripts/github_pr_mcp_server.py"],
+                "env": {
+                  "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+                }
+              },
               "repository-summary": {
                 "type": "http",
                 "url": "https://agents-md-generator.fastmcp.app/mcp"
@@ -95,5 +119,5 @@ jobs:
           prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
           track_progress: true
           claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*)
+            --allowed-tools mcp__github-pr,mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*)
             --mcp-config /tmp/mcp-config/mcp-servers.json
