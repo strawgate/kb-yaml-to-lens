@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   title: "[Metrics Aerospike] Overview Yaml"
   description: A dashboard for Aerospike Metrics
   controls:

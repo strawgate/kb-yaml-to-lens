@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
   title: "[Metrics Aerospike] Namespace Metrics"
   description: ""
