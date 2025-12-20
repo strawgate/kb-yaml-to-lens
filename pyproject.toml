@@ -5,6 +5,14 @@ description = "Compiles dashboard definitions from YAML to Kibana format"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
+]
 dependencies = [
     "pyyaml>=6.0",
     "pydantic>=2.11.3",
@@ -15,7 +23,15 @@ dependencies = [
     "aiohttp>=3.9.0",
 ]
 
-[project.optional-dependencies]
+[project.scripts]
+kb-dashboard = "dashboard_compiler.cli:cli"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+addopts = "-vv"
+
+[dependency-groups]
 dev = [
     "pytest>=7.0",
     "syrupy>=4.9.1",
@@ -33,27 +49,17 @@ docs = [
     "mkdocstrings-python>=1.10.0",
 ]
 
-[project.scripts]
-kb-dashboard = "dashboard_compiler.cli:cli"
-
-[tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
-asyncio_mode = "auto" 
-addopts = "-vv"
-
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/dashboard_compiler"]
+[tool.uv.build-backend]
+module-name = "dashboard_compiler"
 
 [tool.ruff]
 line-length = 140
 # Assume Python 3.12
 target-version = "py312"
-# Exclude files/directories listed in .gitignore
-respect-gitignore = true
 # Add commonly ignored directories
 extend-exclude = [
     ".git",
@@ -83,10 +89,6 @@ ignore = [
     "D413",    # multi-line-summary-second-line
     "D100",    # Ignore missing docstrings for modules
 ]
-
-# Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
 
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]

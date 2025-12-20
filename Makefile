@@ -43,7 +43,7 @@ help:
 
 install:
 	@echo "Running uv sync..."
-	uv sync --all-extras
+	uv sync --group dev
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
 
@@ -103,7 +103,7 @@ clean-full: clean
 setup:
 	@echo "Setting up environment..."
 	curl -LsSf https://astral.sh/uv/install.sh | sh
-	uv sync --all-extras
+	uv sync --group dev
 	echo "Environment set up successfully!"
 
 update-deps:
