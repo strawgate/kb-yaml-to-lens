@@ -21,13 +21,6 @@ Before committing:
 
 Or run together: `make check`
 
-### Testing Requirements
-
-- Use fixture-based approach with `snapshot_json` from `test/conftest.py`
-- Test files in `test/` mirror `dashboard_compiler/` structure
-- Snapshots freeze timestamps using pytest-freezer
-- Update snapshots when intentional changes occur: `uv run pytest --snapshot-update`
-
 ---
 
 ## Architecture Overview
@@ -47,7 +40,6 @@ Goal: Maintainability and abstraction from Kibana's complex native JSON. See `ar
 - **Line length**: 140 characters (Ruff enforced)
 - **Config models** (`BaseCfgModel`): Strict, frozen, validate defaults, use attribute docstrings
 - **View models** (`BaseVwModel`): Omit fields with `OmitIfNone` metadata when value is `None`
-- **Testing**: `pytest` + `syrupy` for snapshot testing with frozen timestamps (`snapshot_json` fixture)
 - **Docstrings**: Use attribute docstrings on Pydantic model fields
 
 ---
@@ -64,12 +56,6 @@ Goal: Maintainability and abstraction from Kibana's complex native JSON. See `ar
 - Custom serializer omits fields with `OmitIfNone` metadata when value is `None`
 - May narrow types in subclasses (e.g., `str` -> `Literal['value']`)
 - `reportIncompatibleVariableOverride = false` in basedpyright config allows this
-
-### Testing Patterns
-
-- Use `snapshot_json` fixture from `test/conftest.py` (provides frozen timestamps)
-- Write independent, runnable tests with inline snapshots via `syrupy`
-- Mirror source structure: tests for `dashboard_compiler/foo/bar.py` go in `test/foo/test_bar.py`
 
 ### Type Checking
 
@@ -131,7 +117,6 @@ If feedback isn't implemented, explain why:
 
 #### Project-Specific Patterns
 
-- Tests use `snapshot_json` fixture with `syrupy` for inline snapshots
 - Pydantic view models may narrow types in subclasses - intentional design
 - CLI output uses Rich/rich-click for formatting
 - Documentation auto-generated from markdown files via `scripts/compile_docs.py`
