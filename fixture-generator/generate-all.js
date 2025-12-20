@@ -9,6 +9,7 @@ const { generateMetricBasic } = require('./examples/metric-basic');
 const { generateMetricWithBreakdown } = require('./examples/metric-with-breakdown');
 const { generateXYChart } = require('./examples/xy-chart');
 const { generatePieChart } = require('./examples/pie-chart');
+const { generateHeatmap } = require('./examples/heatmap');
 
 async function generateAll() {
   console.log('Generating all test fixtures...\n');
@@ -18,6 +19,7 @@ async function generateAll() {
     { name: 'Metric (Breakdown)', fn: generateMetricWithBreakdown },
     { name: 'XY Chart', fn: generateXYChart },
     { name: 'Pie Chart', fn: generatePieChart },
+    { name: 'Heatmap', fn: generateHeatmap },
   ];
 
   for (const { name, fn } of generators) {
