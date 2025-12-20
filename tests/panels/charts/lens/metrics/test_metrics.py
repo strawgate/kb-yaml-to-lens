@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from deepdiff import DeepDiff
+from inline_snapshot import snapshot
 from pydantic import BaseModel
 
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_metric
@@ -36,6 +37,33 @@ class LensMetricHolder(BaseModel):
     """A holder for metrics to be used in tests."""
 
     metric: LensMetricTypes
+
+
+async def test_compile_lens_metric_count_with_inline_snapshot() -> None:
+    """Test the compilation of a count metric using inline-snapshot (POC)."""
+    config = {'aggregation': 'count'}
+    metric_holder = LensMetricHolder.model_validate({'metric': config})
+
+    column_id: str
+    kbn_column: KbnLensColumnTypes
+    column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
+
+    assert kbn_column is not None
+
+    kbn_column_as_dict = kbn_column.model_dump()
+
+    # Using inline-snapshot instead of separate data file
+    assert kbn_column_as_dict == snapshot(
+        {
+            'label': 'Count of records',
+            'dataType': 'number',
+            'operationType': 'count',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'sourceField': '___records___',
+            'params': {'emptyAsNull': True},
+        }
+    )
 
 
 @pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES_LENS, ids=TEST_CASE_IDS_LENS)
