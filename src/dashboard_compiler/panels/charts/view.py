@@ -9,7 +9,7 @@ from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnType
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
- 
+
 if TYPE_CHECKING:
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
@@ -228,25 +228,25 @@ class KbnLensPanelAttributes(BaseVwModel):
 
 class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     attributes: KbnLensPanelAttributes
-    
+
     syncTooltips: bool = Field(
         default=False,
-        description="(Optional) Whether to sync tooltips across visualizations. Defaults to False.",
+        description='(Optional) Whether to sync tooltips across visualizations. Defaults to False.',
     )
 
     syncColors: bool = Field(
         default=False,
-        description="(Optional) Whether to sync colors across visualizations. Defaults to False.",
+        description='(Optional) Whether to sync colors across visualizations. Defaults to False.',
     )
 
     syncCursor: bool = Field(
         default=True,
-        description="(Optional) Whether to sync cursor across visualizations. Defaults to True.",
+        description='(Optional) Whether to sync cursor across visualizations. Defaults to True.',
     )
 
     filters: list = Field(
         default_factory=list,
-        description="(Optional) List of filters applied to the Lens visualization. Defaults to empty list.",
+        description='(Optional) List of filters applied to the Lens visualization. Defaults to empty list.',
     )
 
     query: KbnQuery = Field(
@@ -258,4 +258,3 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
 class KbnLensPanel(KbnBasePanel):
     type: Literal['lens'] = 'lens'
     embeddableConfig: KbnLensPanelEmbeddableConfig
-
