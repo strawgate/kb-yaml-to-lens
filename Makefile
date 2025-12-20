@@ -5,9 +5,8 @@
 help:
 	@echo "Dependency Management:"
 	@echo "  setup         - Set up the environment"
-	@echo "  install       - Install dependencies using poetry"
+	@echo "  install       - Install dependencies using uv"
 	@echo "  update-deps   - Update dependencies"
-	@echo "  uv-sync       - Create uv lockfile"
 
 	@echo "Build and Check:"
 	@echo "  build         - Build the project"
@@ -34,13 +33,8 @@ help:
 	@echo "  inspector     - Run MCP Inspector"
 
 install:
-	poetry install
-	poetry install --all-groups
-
-uv-sync:
 	@echo "Running uv sync..."
-	uv sync
-	uv sync --extra dev
+	uv sync --all-extras
 
 check: lint test test-smoke
 
@@ -80,14 +74,13 @@ clean-full: clean
 
 setup:
 	@echo "Setting up environment..."
-	python3 -m venv .venv
-	./.venv/bin/python3 -m pip install poetry
-	./.venv/bin/poetry install
-	echo "Activate the environment with 'source .venv/bin/activate'"
+	curl -LsSf https://astral.sh/uv/install.sh | sh
+	uv sync --all-extras
+	echo "Environment set up successfully!"
 
 update-deps:
 	@echo "Updating dependencies..."
-	./.venv/bin/poetry update
+	uv lock --upgrade
 
 compile:
 	@echo "Compiling dashboards..."
