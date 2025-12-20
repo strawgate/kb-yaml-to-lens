@@ -7,12 +7,10 @@ The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations 
 After installing the project dependencies, the CLI will be available:
 
 ```bash
-# Using poetry
-poetry install
-
-# Using uv
-uv sync
+uv sync --all-extras
 ```
+
+For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ## Basic Usage
 
