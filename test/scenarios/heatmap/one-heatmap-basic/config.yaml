@@ -1,0 +1,15 @@
+title: Test Dashboard - Heatmap
+panels:
+  - type: lens
+    chart:
+      type: heatmap
+      data_view: kibana_sample_data_logs
+      x_axis:
+        field: geo.src
+        operation: terms
+      y_axis:
+        field: geo.dest
+        operation: terms
+      value:
+        field: bytes
+        operation: sum
