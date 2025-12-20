@@ -55,6 +55,7 @@ test-extension-python:
 
 test-extension-typescript:
 	@echo "Running TypeScript tests for VSCode extension..."
+	# Using npm install for local development flexibility (vs npm ci in CI)
 	cd vscode-extension && npm install && npm run compile && npm run test:unit
 
 
