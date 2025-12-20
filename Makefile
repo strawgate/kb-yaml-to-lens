@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format inspector
+.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format inspector test-extension test-extension-python
 
 help:
 	@echo "Dependency Management:"
@@ -13,8 +13,10 @@ help:
 	@echo "  check         - Run linting and tests"
 
 	@echo "Testing:"
-	@echo "  test          - Run unit tests"
-	@echo "  test-smoke    - Run smoke tests"
+	@echo "  test                - Run unit tests"
+	@echo "  test-smoke          - Run smoke tests"
+	@echo "  test-extension      - Run VSCode extension tests"
+	@echo "  test-extension-python - Run Python tests for extension"
 
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON"
@@ -36,11 +38,19 @@ install:
 	@echo "Running uv sync..."
 	uv sync --all-extras
 
-check: lint test test-smoke
+check: lint test test-smoke test-extension-python
 
 test:
 	@echo "Running pytest..."
 	uv run pytest
+
+test-extension:
+	@echo "Running VSCode extension tests..."
+	cd vscode-extension && npm install && npm test
+
+test-extension-python:
+	@echo "Running Python tests for VSCode extension..."
+	uv run python -m pytest vscode-extension/python/test_*.py -v
 
 
 inspector:

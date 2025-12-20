@@ -1,0 +1,96 @@
+# This file should be added to .github/workflows/test-vscode-extension.yml
+# Claude cannot directly modify .github/workflows due to permission restrictions
+# Please manually copy this file to .github/workflows/test-vscode-extension.yml
+
+name: Test VSCode Extension
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'vscode-extension/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'vscode-extension/**'
+
+jobs:
+  test-python-scripts:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12']
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install UV
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        uv sync --all-extras
+
+    - name: Run Python tests for extension
+      run: |
+        uv run python -m pytest vscode-extension/python/test_*.py -v
+
+  test-typescript:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: vscode-extension/package-lock.json
+
+    - name: Install dependencies
+      working-directory: vscode-extension
+      run: npm ci
+
+    - name: Compile TypeScript
+      working-directory: vscode-extension
+      run: npm run compile
+
+    - name: Run linting
+      working-directory: vscode-extension
+      run: npm run lint
+
+    - name: Run unit tests
+      working-directory: vscode-extension
+      run: npm run test:unit
+
+  lint-typescript:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: vscode-extension/package-lock.json
+
+    - name: Install dependencies
+      working-directory: vscode-extension
+      run: npm ci
+
+    - name: Run ESLint
+      working-directory: vscode-extension
+      run: npm run lint

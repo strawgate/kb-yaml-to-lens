@@ -92,6 +92,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
+    "test": "npm run compile && node ./out/test/runTest.js",
+    "test:unit": "npm run compile && mocha out/test/unit/**/*.test.js",
     "lint": "eslint src --ext ts",
     "package": "vsce package"
   },
@@ -102,7 +104,12 @@
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "typescript": "^5.0.0",
-    "@vscode/vsce": "^2.22.0"
+    "@vscode/vsce": "^2.22.0",
+    "@types/mocha": "^10.0.0",
+    "@vscode/test-electron": "^2.3.0",
+    "mocha": "^10.0.0",
+    "glob": "^10.0.0",
+    "@types/glob": "^8.1.0"
   },
   "repository": {
     "type": "git",
