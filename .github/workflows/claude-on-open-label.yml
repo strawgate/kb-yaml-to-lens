@@ -8,7 +8,7 @@ jobs:
   claude:
     if: |
       (github.event.action == 'labeled' && github.event.label.name == 'triage-claude') ||
-      (github.event_name == 'issues' && github.event.action == 'opened')
+      (github.event_name == 'issues' && github.event.action == 'opened' && !github.event.issue.assignee)
     runs-on: ubuntu-latest
     permissions:
       contents: read

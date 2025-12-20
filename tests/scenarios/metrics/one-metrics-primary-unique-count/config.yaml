@@ -1,0 +1,18 @@
+dashboards:
+-
+  title: one-metrics-primary-unique-count
+  description: "A dashboard with a single unique count metrics"
+  panels:
+  - title: "Number of Aerospike Namespaces" 
+    id: 6e77d8cd-e2b7-4be7-93c8-bee6c39979dd # Fixed ID for testing
+    type: lens
+    index_pattern: metrics-*
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart: 
+      type: metric
+      id: d4b6506d-f2d9-4cbc-8db1-83e6a60b7976 # Fixed ID for testing
+      metrics:
+        - type: unique_count
+          id: a8c13c5f-ee3f-487e-b6db-bb49583e7922 # Fixed ID for testing
+          label: "Aerospike Namespaces"
+          field: aerospike.namespace

@@ -1,0 +1,37 @@
+{
+    "attributes": {
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
+            "panelsJSON": "{}",
+            "showApplySelections": false
+        },
+        "description": "A dashboard with a horizontal bar chart with two series",
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+        },
+        "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
+        "panelsJSON": "[{\"type\":\"lens\",\"embeddableConfig\":{\"attributes\":{\"title\":\"\",\"visualizationType\":\"lnsXY\",\"type\":\"lens\",\"references\":[{\"type\":\"index-pattern\",\"id\":\"27a3148b-d1d4-4455-8acf-e63c94071a5b\",\"name\":\"indexpattern-datasource-layer-94793652-40b0-4337-bf6a-8c2f7188a37c\"}],\"state\":{\"visualization\":{\"title\":\"Empty XY chart\",\"legend\":{\"isVisible\":true,\"position\":\"right\"},\"valueLabels\":\"hide\",\"preferredSeriesType\":\"bar_stacked\",\"layers\":[{\"layerId\":\"94793652-40b0-4337-bf6a-8c2f7188a37c\",\"accessors\":[\"c44fbd5f-413e-414a-ad6b-a0ca09727b94\",\"51800b32-6dbd-483f-a95e-9b7c533fd9bb\"],\"position\":\"top\",\"seriesType\":\"bar_horizontal_stacked\",\"showGridlines\":false,\"layerType\":\"data\",\"colorMapping\":{\"assignments\":[],\"specialAssignments\":[{\"rule\":{\"type\":\"other\"},\"color\":{\"type\":\"loop\"},\"touched\":false}],\"paletteId\":\"eui_amsterdam_color_blind\",\"colorMode\":{\"type\":\"categorical\"}},\"xAccessor\":\"956ee036-4f4d-47f7-b9fb-be3c1ac3c143\"}]},\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filters\":[],\"datasourceStates\":{\"formBased\":{\"layers\":{\"94793652-40b0-4337-bf6a-8c2f7188a37c\":{\"columns\":{\"956ee036-4f4d-47f7-b9fb-be3c1ac3c143\":{\"label\":\"@timestamp\",\"dataType\":\"date\",\"operationType\":\"date_histogram\",\"sourceField\":\"@timestamp\",\"isBucketed\":true,\"scale\":\"interval\",\"params\":{\"interval\":\"auto\",\"includeEmptyRows\":true,\"dropPartials\":false}},\"c44fbd5f-413e-414a-ad6b-a0ca09727b94\":{\"label\":\"Count of records\",\"dataType\":\"number\",\"operationType\":\"count\",\"isBucketed\":false,\"scale\":\"ratio\",\"sourceField\":\"___records___\",\"params\":{\"emptyAsNull\":true}},\"51800b32-6dbd-483f-a95e-9b7c533fd9bb\":{\"label\":\"Minimum of aerospike.namespace.query.count\",\"dataType\":\"number\",\"operationType\":\"min\",\"sourceField\":\"aerospike.namespace.query.count\",\"isBucketed\":false,\"scale\":\"ratio\",\"params\":{\"emptyAsNull\":true}}},\"columnOrder\":[\"956ee036-4f4d-47f7-b9fb-be3c1ac3c143\",\"c44fbd5f-413e-414a-ad6b-a0ca09727b94\",\"51800b32-6dbd-483f-a95e-9b7c533fd9bb\"],\"sampling\":1,\"ignoreGlobalFilters\":false,\"incompleteColumns\":{}}}},\"indexpattern\":{\"layers\":{}},\"textBased\":{\"layers\":{}}},\"internalReferences\":[],\"adHocDataViews\":{}}},\"enhancements\":{}},\"panelIndex\":\"2d5fded0-ee3c-4419-b73d-f9292b15c822\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"2d5fded0-ee3c-4419-b73d-f9292b15c822\"}}]",
+        "timeRestore": false,
+        "title": "Horizontal Bar Timestamp and two series",
+        "version": 3
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2025-04-27T17:10:06.361Z",
+    "created_by": "u_4224993909_cloud",
+    "id": "cf057b2d-c519-4c9c-8122-8860b529cd31",
+    "managed": false,
+    "references": [
+        {
+            "id": "27a3148b-d1d4-4455-8acf-e63c94071a5b",
+            "name": "2d5fded0-ee3c-4419-b73d-f9292b15c822:indexpattern-datasource-layer-94793652-40b0-4337-bf6a-8c2f7188a37c",
+            "type": "index-pattern"
+        }
+    ],
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2025-04-27T17:10:40.369Z",
+    "updated_by": "u_4224993909_cloud",
+    "version": "WzI1MjAsMV0="
+}

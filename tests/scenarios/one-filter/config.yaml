@@ -1,0 +1,7 @@
+dashboards:
+-
+  title: One Filter Dashboard
+  description: "A dashboard with a single filter for namespace"
+  filters:
+  - field: aerospike.namespace
+    equals: test

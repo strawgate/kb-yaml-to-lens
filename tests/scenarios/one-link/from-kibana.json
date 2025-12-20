@@ -1,0 +1,63 @@
+{
+    "attributes": {
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": "{\"ignoreFilters\":false,\"ignoreQuery\":false,\"ignoreTimerange\":false,\"ignoreValidations\":false}",
+            "panelsJSON": "{}",
+            "showApplySelections": false
+        },
+        "description": "A dashboard with a single link to a specific URL",
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"kuery\"}}"
+        },
+        "optionsJSON": "{\"useMargins\":true,\"syncColors\":false,\"syncCursor\":true,\"syncTooltips\":false,\"hidePanelTitles\":false}",
+        "panelsJSON": [
+            {
+                "type": "links",
+                "embeddableConfig": {
+                    "attributes": {
+                        "layout": "horizontal",
+                        "links": [
+                            {
+                                "type": "dashboardLink",
+                                "id": "9f2896f6-9ca0-4f63-9960-631d5af3840c",
+                                "order": 0,
+                                "destinationRefName": "link_9f2896f6-9ca0-4f63-9960-631d5af3840c_dashboard"
+                            }
+                        ]
+                    },
+                    "enhancements": {}
+                },
+                "panelIndex": "e19a731d-0163-490a-a691-0bd1b1264d0b",
+                "gridData": {
+                    "i": "e19a731d-0163-490a-a691-0bd1b1264d0b",
+                    "y": 0,
+                    "x": 0,
+                    "w": 48,
+                    "h": 2
+                }
+            }
+        ],
+        "timeRestore": false,
+        "title": "one-link",
+        "version": 3
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2025-04-24T03:42:06.944Z",
+    "created_by": "u_Qp1Xm9BzTPJitPWkSGyWVGs466-E2PJfI5EIfTpxkl8_0",
+    "id": "1861a3f7-9b98-4ab7-97fe-944d40794b75",
+    "managed": false,
+    "references": [
+        {
+            "id": "e52208aa-f836-45a8-b960-8e72a139acf7",
+            "name": "e19a731d-0163-490a-a691-0bd1b1264d0b:link_9f2896f6-9ca0-4f63-9960-631d5af3840c_dashboard",
+            "type": "dashboard"
+        }
+    ],
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2025-04-24T03:42:06.944Z",
+    "updated_by": "u_Qp1Xm9BzTPJitPWkSGyWVGs466-E2PJfI5EIfTpxkl8_0",
+    "version": "WzE4NDAsMV0="
+}

@@ -1,0 +1,13 @@
+dashboards:
+-
+  title: one-link
+  description: "A dashboard with a single link to a specific URL"
+  panels:
+  - title: "A links panel" 
+    id: e19a731d-0163-490a-a691-0bd1b1264d0b # ID from kibana export for testing
+    layout: horizontal
+    type: links
+    grid: { x: 0, y: 0, w: 48, h: 2 }
+    links:
+    - label: Pie Charts
+      dashboard: 9f2896f6-9ca0-4f63-9960-631d5af3840c # ID from kibana export for testing

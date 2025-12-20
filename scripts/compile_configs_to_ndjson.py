@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 project_root = Path(__file__).parent.parent
 
 INPUT_DIR = project_root / 'inputs'
-SCENARIO_DIR = project_root / 'test/dashboards/scenarios'
+SCENARIO_DIR = project_root / 'tests/dashboards/scenarios'
 OUTPUT_DIR = project_root / 'output'
 
 
@@ -47,8 +47,6 @@ def compile_and_format(yaml_path: Path) -> list[str]:
         for dashboard in dashboards:
             dashboard_kbn_model = render(dashboard)
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
-        return json_lines
-
     except FileNotFoundError:
         msg = f'Error: YAML file not found: {yaml_path}'
         logger.exception(msg)
@@ -57,6 +55,8 @@ def compile_and_format(yaml_path: Path) -> list[str]:
         msg = f'Error compiling {yaml_path}: {e}'
         logger.exception(msg)
         return []
+    else:
+        return json_lines
 
 
 def get_scenarios() -> list[Path]:

@@ -1,0 +1,5 @@
+dashboards:
+-
+  title: Empty Dashboard
+  description: ""
+  panels: []
