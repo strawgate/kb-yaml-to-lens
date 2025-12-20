@@ -39,11 +39,13 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
     # Load the dashboard configurations (returns a list)
     dashboards = load(yaml_path)
     if not dashboards:
-        raise ValueError('No dashboards found in YAML file')
+        msg = 'No dashboards found in YAML file'
+        raise ValueError(msg)
 
     # Select the specified dashboard
     if dashboard_index < 0 or dashboard_index >= len(dashboards):
-        raise ValueError(f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})')
+        msg = f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})'
+        raise ValueError(msg)
 
     dashboard_config = dashboards[dashboard_index]
 

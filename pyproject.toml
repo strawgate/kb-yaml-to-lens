@@ -93,7 +93,7 @@ ignore = [
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
-"test/**/*.py" = [
+"tests/**/*.py" = [
     "PLR2004", # Ignore magic numbers and docstring length in tests
     "W505",
     "INP001",
@@ -160,7 +160,7 @@ reportMissingTypeStubs = false
 reportIncompatibleVariableOverride = false
 include = ["src/dashboard_compiler"]
 exclude = [
-    "**/test/**",
+    "**/tests/**",
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",

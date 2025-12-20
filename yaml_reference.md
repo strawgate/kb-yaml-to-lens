@@ -1,4 +1,4 @@
-\n---\n\n<!-- Source: dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
+\n---\n\n<!-- Source: src/dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
 
 The `dashboard` object is the root element in your YAML configuration file. It defines the overall structure, content, and global settings for a Kibana dashboard.
 
@@ -125,7 +125,8 @@ While primarily declarative, the underlying Pydantic models for `Dashboard` supp
 * [Controls Configuration](../controls/config.md)
 * [Filters Configuration](../filters/config.md)
 * [Queries Configuration](../queries/config.md)
-* [Panels Overview](../panels/base.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
+* [Panels Overview](../panels/base.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
 
 Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within the `controls` field of the main `dashboard` configuration. Global behavior of controls can be managed via the `settings.controls` object.
 
@@ -267,7 +268,8 @@ This enum defines the possible search techniques used for filtering options in a
 
 ## Related Documentation
 
-* [Dashboard Configuration](./../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/filters/config.md -->\n\n# Filters Configuration
+* [Dashboard Configuration](./../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/filters/config.md -->\n\n# Filters Configuration
 
 Filters are used to narrow down the data displayed on a dashboard or within individual panels. They are defined as a list of filter objects, typically under the `filters` key of a `dashboard` object or a panel that supports filtering.
 
@@ -429,7 +431,8 @@ Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 ## Related Documentation
 
 * [Dashboard Configuration](../dashboard/dashboard.md)
-* [Queries Configuration](../queries/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/base.md -->\n\n# Base Panel Configuration
+* [Queries Configuration](../queries/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/base.md -->\n\n# Base Panel Configuration
 
 All panel types used within a dashboard (e.g., Markdown, Lens charts, Search panels) share a common set of base configuration fields. These fields define fundamental properties like the panel's title, its position and size on the dashboard grid, and an optional description.
 
@@ -531,7 +534,8 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 
 ## Related Documentation
 
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/esql.md -->\n\n# ESQL Panel
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/esql.md -->\n\n# ESQL Panel
 
 The `esql` panel is used to display data visualizations based on an ESQL query.
 
@@ -602,7 +606,8 @@ chart:
 * [Dimension Objects](../dimensions/dimension.md)
 * [Pie Chart Appearance](../lens.md#pie-chart-appearance)
 * [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text)
-* [Pie Chart Legend](../lens.md#pie-chart-legend)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/esql/esql.md -->\n\n# ESQL Panel Configuration
+* [Pie Chart Legend](../lens.md#pie-chart-legend)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/esql/esql.md -->\n\n# ESQL Panel Configuration
 
 ESQL panels leverage the power of Elasticsearch Query Language (ESQL) to create visualizations. This allows for more complex data transformations and aggregations directly within the query that feeds the chart.
 
@@ -818,7 +823,8 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 * [Base Panel Configuration](../base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
 * [Queries Configuration](../../queries/config.md#esql-query)
-* Elasticsearch ESQL Reference (external)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens.md -->\n\n# Lens Panel
+* Elasticsearch ESQL Reference (external)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens.md -->\n\n# Lens Panel
 
 The `lens` panel is used to display data visualizations created with Kibana Lens.
 
@@ -925,7 +931,8 @@ legend:
 
 * [Base Panel Object](../base.md)
 * [Metric Objects](../metrics/metric.md)
-* [Dimension Objects](../dimensions/dimension.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/dimensions/dimension.md -->\n\n# Dimension Objects
+* [Dimension Objects](../dimensions/dimension.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/dimensions/dimension.md -->\n\n# Dimension Objects
 
 Dimension objects are used within chart panels (Lens and ESQL) to define how data is grouped or categorized, often corresponding to an axis or a breakdown.
 
@@ -1116,7 +1123,8 @@ This enum defines the possible aggregation types to use when collapsing interval
 ## Related Structures
 
 * [Sort Object](../shared/config.md#sort-object)
-* [Queries Documentation](../queries/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/lens.md -->\n\n# Lens Panel Configuration
+* [Queries Documentation](../queries/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/lens.md -->\n\n# Lens Panel Configuration
 
 Lens panels in Kibana provide a flexible and user-friendly way to create various types of visualizations, such as metric displays, pie charts, bar charts, line charts, and more. This document covers the YAML configuration for Lens panels using this compiler.
 
@@ -1520,7 +1528,8 @@ These objects are used within the `LensPieChart` configuration.
 * [Base Panel Configuration](../base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
 * [Queries Configuration](../../queries/config.md)
-* [Filters Configuration](../../filters/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/metrics/metric.md -->\n\n# Metric Objects
+* [Filters Configuration](../../filters/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/metrics/metric.md -->\n\n# Metric Objects
 
 Metric objects are used within chart panels (Lens and ESQL) to define the values being visualized, typically corresponding to the y-axis or the size of elements.
 
@@ -1764,7 +1773,81 @@ A metric that is defined in the ESQL query.
 
     ```yaml
     - field: total_requests
-      label: Total Requests from ESQL\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
+      label: Total Requests from ESQL
+
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/metric/config.md -->\n\n# Metric Chart Panel Configuration
+
+The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "KPI Dashboard"
+  panels:
+    - type: metric
+      title: "Total Revenue"
+      grid: { x: 0, y: 0, w: 3, h: 2 }
+      data:
+        index: "sales-data"
+        value: "revenue"
+```
+
+## Full Configuration Options
+
+| YAML Key      | Data Type         | Description                                      | Required |
+|--------------|-------------------|--------------------------------------------------|----------|
+| `type`       | `Literal['metric']`| Specifies the panel type.                        | Yes      |
+| `title`      | `string`          | Title of the panel.                              | No       |
+| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
+| `data`       | `object`          | Data source and field mapping.                   | Yes      |
+| `value`      | `string`          | Field for the metric value.                      | Yes      |
+| `color`      | `string`          | Color for the metric display.                    | No       |
+| `description`| `string`          | Panel description.                               | No       |
+
+## Related
+
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/pie/config.md -->\n\n# Pie Chart Panel Configuration
+
+The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "Traffic Sources"
+  panels:
+    - type: pie
+      title: "Website Traffic Sources"
+      grid: { x: 0, y: 0, w: 6, h: 6 }
+      data:
+        index: "traffic-data"
+        category: "source"
+        value: "visits"
+```
+
+## Full Configuration Options
+
+| YAML Key      | Data Type         | Description                                      | Required |
+|--------------|-------------------|--------------------------------------------------|----------|
+| `type`       | `Literal['pie']`  | Specifies the panel type.                        | Yes      |
+| `title`      | `string`          | Title of the panel.                              | No       |
+| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
+| `data`       | `object`          | Data source and field mapping.                   | Yes      |
+| `category`   | `string`          | Field for pie slices (categories).               | Yes      |
+| `value`      | `string`          | Field for values (size of slices).               | Yes      |
+| `donut`      | `boolean`         | Display as donut chart.                          | No       |
+| `color`      | `string/list`     | Color(s) for slices.                             | No       |
+| `legend`     | `object`          | Legend display options.                          | No       |
+| `description`| `string`          | Panel description.                               | No       |
+
+## Related
+
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
 
@@ -1844,7 +1927,8 @@ Image panels inherit from the [Base Panel Configuration](../base.md) and have th
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/links/links.md -->\n\n# Links Panel Configuration
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/links/links.md -->\n\n# Links Panel Configuration
 
 The `links` panel type is used to display a collection of hyperlinks on your dashboard. These links can point to other Kibana dashboards or external web URLs. This panel is useful for creating navigation hubs or providing quick access to related resources.
 
@@ -1988,7 +2072,8 @@ The `LinksPanel` Pydantic model includes an `add_link(link: LinkTypes)` method, 
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/markdown/markdown.md -->\n\n# Markdown Panel Configuration
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/markdown/markdown.md -->\n\n# Markdown Panel Configuration
 
 The `markdown` panel type is used to display rich text content, formatted using Markdown syntax, directly on your dashboard. This is equivalent to the "Text" visualization in Kibana.
 
@@ -2076,7 +2161,8 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
 
 The `search` panel type is used to embed the results of a pre-existing, saved Kibana search directly onto your dashboard. This allows you to display dynamic log views, event lists, or any other data set defined by a saved search in Discover.
 
@@ -2149,7 +2235,8 @@ Search panels inherit from the [Base Panel Configuration](../base.md) and have o
 
 * [Base Panel Configuration](../base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
-* Kibana Discover and Saved Searches documentation (external to this project).\n\n\n---\n\n<!-- Source: dashboard_compiler/queries/config.md -->\n\n# Queries Configuration
+* Kibana Discover and Saved Searches documentation (external to this project).
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/queries/config.md -->\n\n# Queries Configuration
 
 Queries are used to define the search criteria for retrieving data. They can be applied globally at the dashboard level or specifically to individual panels that support them. This compiler supports KQL (Kibana Query Language), Lucene, and ESQL (Elasticsearch Query Language).
 
