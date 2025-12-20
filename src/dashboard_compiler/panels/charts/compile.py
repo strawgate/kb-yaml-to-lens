@@ -71,37 +71,11 @@ def compile_lens_chart_state(
 
     form_based_datasource_state_layer_by_id: dict[str, KbnFormBasedDataSourceStateLayer] = {}
     kbn_references: list[KbnReference] = []
+    visualization_state: KbnVisualizationStateTypes | None = None
 
-    # Compile the first chart to get the visualization state
+    # Process all charts
     # Note: Currently only the last chart's visualization state is used
-    # This variable is reassigned in the loop and the final value is used
-    chart = charts[0]
-    if isinstance(chart, LensMetricChart):
-        layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
-    elif isinstance(chart, LensPieChart):
-        layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
-    elif isinstance(chart, LensLineChart | LensBarChart | LensAreaChart):
-        layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
-    else:
-        msg = f'Unsupported chart type: {type(chart)}'
-        raise NotImplementedError(msg)
-
-    kbn_references.append(
-        KbnReference(
-            type='index-pattern',
-            id=chart.data_view,
-            name=f'indexpattern-datasource-layer-{layer_id}',
-        )
-    )
-
-    form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(
-        columns=lens_columns_by_id,
-        columnOrder=list(lens_columns_by_id.keys()),
-        sampling=1,
-    )
-
-    # Process remaining charts if any
-    for chart in charts[1:]:
+    for chart in charts:
         if isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
         elif isinstance(chart, LensPieChart):
@@ -125,6 +99,11 @@ def compile_lens_chart_state(
             columnOrder=list(lens_columns_by_id.keys()),
             sampling=1,
         )
+
+    # Ensure at least one chart was processed
+    if visualization_state is None:
+        msg = 'No charts were successfully processed'
+        raise ValueError(msg)
 
     datasource_states = KbnDataSourceState(
         formBased=KbnFormBasedDataSourceState(layers=KbnFormBasedDataSourceStateLayerById(form_based_datasource_state_layer_by_id)),
