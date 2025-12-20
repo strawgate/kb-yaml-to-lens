@@ -1,5 +1,11 @@
-# Dockerfile for Kibana Lens Fixture Generator
-# This tool generates test fixtures using Kibana's official LensConfigBuilder API
+# Kibana Dashboard Fixture Generator
+#
+# This Dockerfile creates an environment that:
+# 1. Bootstraps Kibana from source (to access @kbn/* packages)
+# 2. Builds TypeScript dashboard definitions
+# 3. Generates JSON fixtures using Kibana's APIs
+#
+# Note: The first build takes 15-30 minutes due to Kibana bootstrap
 
 FROM ubuntu:22.04
 
@@ -23,25 +29,32 @@ RUN npm install -g yarn@1.22.19
 # Set heap size for large builds
 ENV NODE_OPTIONS="--max_old_space_size=8192"
 
-# Clone Kibana main branch (shallow clone for speed)
+# Clone Kibana (use build arg for version flexibility)
+ARG KIBANA_VERSION=main
 WORKDIR /kibana
-RUN git clone --depth 1 --branch main https://github.com/elastic/kibana.git .
+RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/kibana.git . || \
+    git clone --depth 1 https://github.com/elastic/kibana.git .
 
-# Run bootstrap (this takes 15-30 minutes)
+# Bootstrap Kibana (this takes 15-30 minutes)
+# This makes @kbn/* packages available for import
 RUN yarn kbn bootstrap
 
 # Create tool directories
 WORKDIR /tool
-RUN mkdir -p /tool/input /tool/output
+RUN mkdir -p /tool/output
 
 # Copy tool source files
-COPY src/ /tool/src/
-COPY package.json /tool/
-COPY tsconfig.json /tool/
+COPY package.json tsconfig.json ./
+COPY src/ ./src/
 
 # Install tool dependencies
 RUN yarn install
 
-# Entry point
-ENTRYPOINT ["node", "/tool/src/cli.js"]
-CMD ["--help"]
+# Build TypeScript
+RUN yarn build
+
+# Set output directory
+ENV OUTPUT_DIR=/tool/output
+
+# Default command: generate all fixtures
+CMD ["node", "dist/cli.js"]

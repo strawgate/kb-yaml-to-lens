@@ -1,4 +1,8 @@
-# Multi-stage Dockerfile with bootstrap caching
+# Optimized multi-stage Dockerfile for faster rebuilds
+#
+# Stage 1 caches the expensive Kibana bootstrap
+# Stage 2 is the runtime with tool code that can be rebuilt quickly
+
 # Stage 1: Bootstrap Kibana (cached layer)
 FROM ubuntu:22.04 AS kibana-bootstrap
 
@@ -9,12 +13,17 @@ RUN apt-get update && apt-get install -y \
 ARG NODE_VERSION=20.19.4
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | \
     tar -xJ -C /usr/local --strip-components=1
+
 RUN npm install -g yarn@1.22.19
 
 ENV NODE_OPTIONS="--max_old_space_size=8192"
 
+ARG KIBANA_VERSION=main
 WORKDIR /kibana
-RUN git clone --depth 1 --branch main https://github.com/elastic/kibana.git .
+RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/kibana.git . || \
+    git clone --depth 1 https://github.com/elastic/kibana.git .
+
+# Bootstrap Kibana - this layer is cached
 RUN yarn kbn bootstrap
 
 # Stage 2: Tool runtime
@@ -25,14 +34,21 @@ RUN apt-get update && apt-get install -y curl ca-certificates && rm -rf /var/lib
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | \
     tar -xJ -C /usr/local --strip-components=1
 
-# Copy bootstrapped Kibana
+RUN npm install -g yarn@1.22.19
+
+# Copy bootstrapped Kibana from stage 1
 COPY --from=kibana-bootstrap /kibana /kibana
 
+# Setup tool
 WORKDIR /tool
-COPY src/ ./src/
-COPY package.json tsconfig.json ./
+RUN mkdir -p /tool/output
 
-RUN npm install -g yarn@1.22.19
+COPY package.json tsconfig.json ./
 RUN yarn install
 
-ENTRYPOINT ["node", "src/cli.js"]
+COPY src/ ./src/
+RUN yarn build
+
+ENV OUTPUT_DIR=/tool/output
+
+CMD ["node", "dist/cli.js"]

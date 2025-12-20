@@ -1,26 +1,23 @@
 {
-  "name": "lens-fixture-generator",
+  "name": "kibana-fixture-generator",
   "version": "1.0.0",
-  "description": "Generate Kibana Lens test fixtures using LensConfigBuilder API",
+  "description": "Generate Kibana dashboard test fixtures using TypeScript and Kibana APIs",
   "main": "dist/cli.js",
   "bin": {
-    "lens-fixture-generator": "./dist/cli.js"
+    "generate-fixtures": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
-    "dev": "ts-node src/cli.ts",
-    "test": "jest"
+    "dev": "ts-node src/cli.ts"
   },
   "dependencies": {
-    "commander": "^11.1.0",
-    "js-yaml": "^4.1.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.0",
     "@types/uuid": "^9.0.7",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.0"
   }
 }

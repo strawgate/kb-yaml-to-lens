@@ -1,21 +1,23 @@
 version: '3.8'
 
 services:
-  fixture-generator:
+  generator:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20.19.4
+        KIBANA_VERSION: main
     volumes:
-      # Input YAML files
-      - ./input:/tool/input:ro
-      # Output JSON/NDJSON files
+      # Output JSON files
       - ./output:/tool/output
-      # Cache node_modules between runs
+      # Cache Kibana node_modules between runs
       - kibana_node_modules:/kibana/node_modules
       # Cache yarn cache
       - yarn_cache:/root/.cache/yarn
     environment:
       - NODE_OPTIONS=--max_old_space_size=8192
+      - OUTPUT_DIR=/tool/output
     mem_limit: 10g
 
 volumes:
