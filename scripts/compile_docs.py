@@ -44,7 +44,7 @@ def compile_markdown_references():
 
             print(f'Processing: {rel_file_path}')
             outfile.write('\\n---\\n\\n')
-            outfile.write(f"<!-- Source: {str(rel_file_path).replace(os.sep, '/')} -->\\n\\n")  # HTML comment for source
+            outfile.write(f'<!-- Source: {str(rel_file_path).replace(os.sep, "/")} -->\\n\\n')  # HTML comment for source
             # outfile.write(f"## Source: {str(rel_file_path).replace(os.sep, '/')}\\n\\n") # Alternative: Markdown header
 
             with open(abs_file_path, encoding='utf-8') as infile:

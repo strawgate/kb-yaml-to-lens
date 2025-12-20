@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
 )
@@ -7,12 +9,12 @@ from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_m
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 
 
-def compile_lens_columns(dimensions: list[LensDimensionTypes], metrics: list[LensMetricTypes]) -> dict[str, KbnLensColumnTypes]:
-    """Compile a list of LensDimensionTypes and LensMetricTypes into their Kibana view model representation.
+def compile_lens_columns(dimensions: Sequence[LensDimensionTypes], metrics: Sequence[LensMetricTypes]) -> dict[str, KbnLensColumnTypes]:
+    """Compile sequences of LensDimensionTypes and LensMetricTypes into their Kibana view model representation.
 
     Args:
-        dimensions (list[LensDimensionTypes]): The list of LensDimensionTypes to compile.
-        metrics (list[LensMetricTypes]): The list of LensMetricTypes to compile.
+        dimensions (Sequence[LensDimensionTypes]): The sequence of LensDimensionTypes to compile.
+        metrics (Sequence[LensMetricTypes]): The sequence of LensMetricTypes to compile.
 
     Returns:
         dict[str, KbnLensColumnTypes]: A dictionary mapping column IDs to their compiled KbnLensColumnTypes.

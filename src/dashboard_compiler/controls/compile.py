@@ -1,6 +1,7 @@
 """Compile Control configurations into Kibana view models."""
 
 import uuid
+from collections.abc import Sequence
 
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import ControlSettings, MatchTechnique, OptionsListControl, RangeSliderControl, TimeSliderControl
@@ -136,11 +137,11 @@ def compile_control(order: int, control: ControlTypes) -> KbnControlTypes:
     raise NotImplementedError(msg)
 
 
-def compile_control_panels_json(controls: list[ControlTypes]) -> KbnControlPanelsJson:
+def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:
     """Compile the control group input for a Dashboard object into its Kibana view model representation.
 
     Args:
-        controls (list[ControlTypes]): The list of control objects to compile.
+        controls (Sequence[ControlTypes]): The sequence of control objects to compile.
 
     Returns:
         KbnControlPanelsJson: The compiled Kibana control panels JSON view model.
@@ -158,12 +159,12 @@ def compile_control_panels_json(controls: list[ControlTypes]) -> KbnControlPanel
     return kbn_control_panels_json
 
 
-def compile_control_group(control_settings: ControlSettings, controls: list[ControlTypes]) -> KbnControlGroupInput:
-    """Compile a control group from a list of ControlTypes into a Kibana view model.
+def compile_control_group(control_settings: ControlSettings, controls: Sequence[ControlTypes]) -> KbnControlGroupInput:
+    """Compile a control group from a sequence of ControlTypes into a Kibana view model.
 
     Args:
         control_settings (ControlSettings): The settings for the control group.
-        controls (list[ControlTypes]): The list of control configurations to compile.
+        controls (Sequence[ControlTypes]): The sequence of control configurations to compile.
 
     Returns:
         KbnControlGroupInput: The compiled Kibana control group input view model.

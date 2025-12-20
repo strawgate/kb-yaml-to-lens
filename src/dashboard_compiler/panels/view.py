@@ -1,6 +1,5 @@
 """Base classes and data structures for panels in Kibana dashboards."""
 
-import json
 from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import Field, field_serializer
@@ -58,7 +57,6 @@ class KbnSearchSourceJSON(BaseVwModel):
 
     filter: list[KbnFilter] = Field(...)
     query: KbnQuery = Field(...)
-    
 
 
 class KbnSavedObjectMeta(BaseModel):

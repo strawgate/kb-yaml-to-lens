@@ -4,7 +4,13 @@ This guide will help you get started with creating Kibana dashboards using the s
 
 ## Installation
 
-[//]: # (TODO: Add installation instructions once available)
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
+
+```bash
+uv sync --all-extras
+```
+
+For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ## Basic Dashboard Structure
 
@@ -58,6 +64,7 @@ dashboard:
 
 ## Next Steps
 
-*   Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in this `docs` folder.
-*   Refer to the example YAML files in the `tests/scenarios` directory for more complex examples.
-*   [//]: # (TODO: Add link to compilation instructions once available)
+*   Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in the `src/dashboard_compiler/*/` directories.
+*   Refer to the example YAML files in the `inputs/` and `tests/dashboards/scenarios/` directories for more complex examples.
+*   See the [YAML Reference](yaml_reference.md) for complete schema documentation.
+*   Check the [CLI Documentation](docs/CLI.md) for compilation and upload instructions.

@@ -11,7 +11,6 @@ from dashboard_compiler.shared.config import BaseCfgModel, Sort
 type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 
 
-
 class BaseDimension(BaseCfgModel):
     """Base model for defining dimensions."""
 
@@ -19,6 +18,7 @@ class BaseDimension(BaseCfgModel):
     """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
 
     # color: ColorMapping | None = Field(default=None)
+
 
 class CollapseAggregationEnum(StrEnum):
     """The aggregation to use for the dimension."""
@@ -43,7 +43,6 @@ class BaseLensDimension(BaseDimension):
     """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
     label: str | None = Field(default=None)
     """The display label for the dimension. If not provided, a label may be inferred from the field and type."""
-
 
 
 class LensFiltersDimensionFilter(BaseCfgModel):
