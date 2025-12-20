@@ -8,6 +8,7 @@ from dashboard_compiler.panels.lens.charts.xy.view import (
     SeriesTypeEnum,
     XYDataLayerConfig,
 )
+
 from dashboard_compiler.shared.config import stable_id_generator
 
 ORIENTATION_MAP = {

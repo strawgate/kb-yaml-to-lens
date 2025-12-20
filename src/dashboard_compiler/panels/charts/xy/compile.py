@@ -83,10 +83,12 @@ def compile_xy_chart_visualization_state(
         splitAccessor=breakdown_id,
     )
 
-    return KbnXYVisualizationState(preferredSeriesType=series_type, layers=[kbn_layer_visualization], legend={
-        'isVisible': True,
-        'position': 'right'
-    }, valueLabels="hide")
+    return KbnXYVisualizationState(
+        preferredSeriesType=series_type,
+        layers=[kbn_layer_visualization],
+        legend={'isVisible': True, 'position': 'right'},
+        valueLabels='hide',
+    )
 
 
 def compile_lens_xy_chart(

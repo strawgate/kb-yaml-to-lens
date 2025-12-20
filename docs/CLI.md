@@ -7,10 +7,8 @@ The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations 
 After installing the project dependencies, the CLI will be available:
 
 ```bash
-uv sync --all-extras
+uv sync
 ```
-
-For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ## Basic Usage
 

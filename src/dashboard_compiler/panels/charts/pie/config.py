@@ -104,6 +104,7 @@ class ColorMapping(BaseCfgModel):
     palette: str = Field(...)
     """The palette to use for the chart color."""
 
+
 class BasePieChart(BaseChart):
     """Base model for defining Pie chart objects."""
 
