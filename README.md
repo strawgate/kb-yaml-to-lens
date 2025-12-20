@@ -18,17 +18,13 @@ This tool simplifies the process of creating and managing Kibana dashboards by a
 
 ### Installation
 
-This project supports two package managers.
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
-#### Using Poetry
 ```bash
-poetry install
+uv sync --all-extras
 ```
 
-#### Using uv
-```bash
-uv sync --extra dev
-```
+For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ### Compile Your First Dashboard
 
@@ -44,7 +40,7 @@ dashboard:
         grid: { x: 0, y: 0, w: 24, h: 15 }
         content: |
           # Welcome to Kibana!
-          
+
           This is my first dashboard compiled from YAML.
 ```
 
@@ -87,7 +83,7 @@ kb-dashboard compile [OPTIONS]
 
 **Options:**
 
-- `--input-dir PATH` – Directory containing YAML files (default: `tests/dashboards/scenarios`)
+- `--input-dir PATH` – Directory containing YAML files (default: `test/dashboards/scenarios`)
 - `--output-dir PATH` – Output directory for NDJSON files (default: `output`)
 - `--output-file NAME` – Combined output filename (default: `compiled_dashboards.ndjson`)
 - `--upload` – Upload to Kibana after compilation
@@ -101,7 +97,7 @@ kb-dashboard compile [OPTIONS]
 ## Project Structure
 
 ```
-dashboard_compiler/
+src/dashboard_compiler/
 ├── cli.py                 # Command-line interface
 ├── dashboard_compiler.py  # Main compilation logic
 ├── kibana_client.py       # Kibana API client
@@ -118,7 +114,7 @@ dashboard_compiler/
 ### Running Tests
 
 ```bash
-pytest
+uv run pytest
 ```
 
 ### Code Quality
@@ -127,10 +123,10 @@ This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and form
 
 ```bash
 # Check code quality
-ruff check .
+uv run ruff check .
 
 # Format code
-ruff format .
+uv run ruff format .
 ```
 
 ### Adding New Features

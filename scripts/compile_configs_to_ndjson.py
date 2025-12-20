@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 project_root = Path(__file__).parent.parent
 
 INPUT_DIR = project_root / 'inputs'
-SCENARIO_DIR = project_root / 'tests/dashboards/scenarios'
+SCENARIO_DIR = project_root / 'test/dashboards/scenarios'
 OUTPUT_DIR = project_root / 'output'
 
 
