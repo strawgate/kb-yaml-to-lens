@@ -233,7 +233,8 @@ GitHub Actions workflows in `.github/workflows/`:
 
 - **test.yml**: Runs tests, linting, and type checking
 - **claude-on-mention.yml**: Claude Code assistant (can make PRs when @claude mentioned)
-- **claude-on-open-label.yml**: Claude triage assistant (read-only analysis on labeled issues)
+- **claude-on-open-label.yml**: Claude triage assistant (read-only analysis on labeled issues or newly opened unassigned issues)
+- **claude-on-merge-conflict.yml**: Claude merge conflict resolver (automatically resolves merge conflicts in PRs)
 
 ### Workflow Modification Restrictions
 
