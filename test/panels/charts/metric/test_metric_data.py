@@ -49,6 +49,7 @@ ESQL_METRIC_DIMENSION = {
 CASE_METRIC_CHART_PRIMARY_ONLY: TestCaseType = (
     {
         'type': 'metric',
+        'data_view': 'metrics-*',
         'primary': LENS_METRIC_PRIMARY,
     },
     {
@@ -67,6 +68,7 @@ CASE_METRIC_CHART_PRIMARY_ONLY: TestCaseType = (
 CASE_METRIC_CHART_PRIMARY_AND_SECONDARY: TestCaseType = (
     {
         'type': 'metric',
+        'data_view': 'metrics-*',
         'primary': LENS_METRIC_PRIMARY,
         'secondary': LENS_METRIC_SECONDARY,
     },
@@ -88,6 +90,7 @@ CASE_METRIC_CHART_PRIMARY_AND_SECONDARY: TestCaseType = (
 CASE_METRIC_CHART_PRIMARY_AND_SECONDARY_AND_BREAKDOWN: TestCaseType = (
     {
         'type': 'metric',
+        'data_view': 'metrics-*',
         'primary': LENS_METRIC_PRIMARY,
         'secondary': LENS_METRIC_SECONDARY,
         'breakdown': LENS_METRIC_DIMENSION,
