@@ -235,14 +235,6 @@ GitHub Actions workflows in `.github/workflows/`:
 - **claude-on-mention.yml**: Claude Code assistant (can make PRs when @claude mentioned)
 - **claude-on-open-label.yml**: Claude triage assistant (read-only analysis on labeled issues)
 
-### Workflow Modification Restrictions
-
-**Claude cannot modify files in `.github/workflows/`** - only GitHub Copilot has permissions to change workflow files. If Claude attempts to commit changes to workflow files, the commit will be rejected with an error.
-
-If workflow changes are needed, either:
-- Use GitHub Copilot to make the changes
-- Manually edit workflow files outside of Claude's scope
-
 ### Pre-commit Expectations
 
 CI will fail if:
