@@ -38,6 +38,11 @@
         "command": "yamlDashboard.export",
         "title": "Export Dashboard to NDJSON",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.editLayout",
+        "title": "Edit Dashboard Layout",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -72,6 +77,11 @@
         {
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.preview",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.editLayout",
           "group": "navigation"
         }
       ]
