@@ -29,7 +29,7 @@ console = Console()
 # Constants
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
-DEFAULT_SCENARIO_DIR = PROJECT_ROOT / 'test/dashboards/scenarios'
+DEFAULT_SCENARIO_DIR = PROJECT_ROOT / 'tests/dashboards/scenarios'
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 
 # Icons for consistent output
