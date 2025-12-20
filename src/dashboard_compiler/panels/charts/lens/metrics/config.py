@@ -168,63 +168,81 @@ class LensFormulaMetric(BaseLensMetric):
 
 
 class LensFormulaLeftRightOperation(BaseCfgModel):
+    """Represents a binary formula operation with `left` and `right` operands."""
+
     left: LensFormulaOperations | LensFormulaAggregations = Field(...)
     right: LensFormulaOperations | LensFormulaAggregations = Field(...)
 
 
 class LensFormulaAggregation(BaseCfgModel):
+    """Represents an aggregation used as an operand in a Lens formula."""
+
     field: str = Field(...)
     kql: str | None = Field(...)
     lucene: str | None = Field(...)
 
 
 class LensFormulaMinAgg(BaseCfgModel):
+    """Represents a `min()` aggregation in a Lens formula."""
+
     min: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaMaxAgg(BaseCfgModel):
+    """Represents a `max()` aggregation in a Lens formula."""
+
     max: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaSumAgg(BaseCfgModel):
+    """Represents a `sum()` aggregation in a Lens formula."""
+
     sum: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaCountAgg(BaseCfgModel):
+    """Represents a `count()` aggregation in a Lens formula."""
+
     count: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaUniqueCountAgg(BaseCfgModel):
+    """Represents a `unique_count()` aggregation in a Lens formula."""
+
     unique_count: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaAverageAgg(BaseCfgModel):
+    """Represents an `average()` aggregation in a Lens formula."""
+
     average: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaLastCountAgg(BaseCfgModel):
+    """Represents a `last_count()` aggregation in a Lens formula."""
+
     last_count: LensFormulaAggregation = Field(...)
 
 
 class LensFormulaSubtract(BaseCfgModel):
-    """Lens formula for subtracting two operands"""
+    """Lens formula for subtracting two operands."""
 
     subtract: LensFormulaLeftRightOperation = Field(...)
 
 
 class LensFormulaAdd(BaseCfgModel):
-    """Lens formula for adding two operands"""
+    """Lens formula for adding two operands."""
 
     add: LensFormulaLeftRightOperation = Field(...)
 
 
 class LensFormulaMultiply(BaseCfgModel):
-    """Lens formula for multiplying two operands"""
+    """Lens formula for multiplying two operands."""
 
     multiply: LensFormulaLeftRightOperation = Field(...)
 
 
 class LensFormulaDivide(BaseCfgModel):
-    """Lens formula for dividing two operands"""
+    """Lens formula for dividing two operands."""
 
     divide: LensFormulaLeftRightOperation = Field(...)

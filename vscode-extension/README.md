@@ -6,6 +6,7 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 - **Auto-compile on Save**: Automatically compiles your YAML dashboard files whenever you save them
 - **Live Preview**: View your compiled dashboard in a side-by-side preview panel with live reload functionality
+- **Visual Grid Layout Editor**: Drag and drop panels to rearrange them, resize panels interactively, with automatic YAML updates
 - **Export to NDJSON**: Copy or download compiled dashboards as NDJSON for direct import into Kibana
 - **Error Reporting**: Clear error messages when compilation fails
 - **Python Integration**: Leverages the existing `dashboard_compiler` Python package
@@ -90,6 +91,7 @@ The extension provides the following commands (accessible via Command Palette - 
 
 - **YAML Dashboard: Compile Dashboard** - Manually compile the current YAML file
 - **YAML Dashboard: Preview Dashboard** - Open preview panel for the current YAML file
+- **YAML Dashboard: Edit Dashboard Layout** - Open visual grid layout editor for drag-and-drop panel positioning
 - **YAML Dashboard: Export Dashboard to NDJSON** - Copy compiled NDJSON to clipboard
 
 ### Keyboard Shortcuts
@@ -110,8 +112,13 @@ You can add custom keyboard shortcuts in VS Code:
 2. The extension activates automatically for YAML files
 3. Save the file (Ctrl+S) - it will automatically compile
 4. Run "YAML Dashboard: Preview Dashboard" to see the compiled output
-5. The preview updates automatically when you save changes
-6. Use the "Copy NDJSON" button in the preview to export for Kibana
+5. Run "YAML Dashboard: Edit Dashboard Layout" to visually rearrange panels
+   - Drag panels to move them on the 48-column Kibana grid
+   - Drag the bottom-right corner of panels to resize them
+   - Changes are saved automatically to the YAML file
+   - Use "Show Grid Lines" and "Snap to Grid" options for easier alignment
+6. The preview updates automatically when you save changes
+7. Use the "Copy NDJSON" button in the preview to export for Kibana
 
 ## Preview Panel
 

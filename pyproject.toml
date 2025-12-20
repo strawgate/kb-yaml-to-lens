@@ -58,7 +58,8 @@ extend-exclude = [
     "__pycache__",
     "build",
     "dist",
-    "reference"
+    "reference",
+    "**/*.old.py",
 ]
 
 [tool.ruff.lint]
@@ -83,24 +84,27 @@ unfixable = []
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
-"test/**.py" = [
+"test/**/*.py" = [
     "PLR2004", # Ignore magic numbers and docstring length in tests
     "W505",
     "INP001",
     "S101", # Ignore use of assert
     "ANN201", # Ignore missing type annotations in tests
     "RUF029", # Ignore await not used in async function
+    "RUF059", # Allow unused unpacking in tests
+    "TC001", # Allow value imports used only for typing in tests
     "PGH003", # Don't require specific rule exclusions for type checking ignores
-    "D104", #Docstrings in public packages
+    "D104", # Docstrings in public packages
     "E501", # Line too long
-] 
-"dashboard_compiler/**/view.py" = [
+]
+"src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
 ]
-"dashboard_compiler/**/config.py" = [
-    "TC008" # allow quotes around type alias for forward references
+"src/dashboard_compiler/**/config.py" = [
+    "TC001", # Pydantic config models rely on runtime imports for type evaluation
+    "TC008", # allow quotes around type alias for forward references
 ]
 
 [tool.ruff.format]
