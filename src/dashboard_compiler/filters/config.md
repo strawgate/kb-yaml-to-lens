@@ -5,12 +5,14 @@ Filters are used to narrow down the data displayed on a dashboard or within indi
 ## Minimal Configuration Examples
 
 **Exists Filter:** Check if the `error.message` field exists.
+
 ```yaml
 filters:
   - exists: "error.message"
 ```
 
 **Phrase Filter:** Find documents where `status.keyword` is exactly "active".
+
 ```yaml
 filters:
   - field: "status.keyword"
@@ -18,6 +20,7 @@ filters:
 ```
 
 **Phrases Filter (using `in` alias):** Find documents where `event.category` is "authentication" OR "network".
+
 ```yaml
 filters:
   - field: "event.category"
@@ -25,6 +28,7 @@ filters:
 ```
 
 **Range Filter:** Find documents where `response_time` is between 100 (inclusive) and 500 (exclusive).
+
 ```yaml
 filters:
   - field: "response_time"
@@ -155,5 +159,5 @@ Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 
 ## Related Documentation
 
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Queries Configuration](../queries/config.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Queries Configuration](../queries/config.md)

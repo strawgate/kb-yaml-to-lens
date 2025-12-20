@@ -6,7 +6,7 @@ Metric objects are used within chart panels (Lens and ESQL) to define the values
 
 All metric types inherit from a base metric with the following optional field:
 
-*   `id` (optional, string): A unique identifier for the metric. If not provided, one may be generated during compilation.
+* `id` (optional, string): A unique identifier for the metric. If not provided, one may be generated during compilation.
 
 ## Lens Metric Types
 
@@ -16,9 +16,9 @@ Lens charts use the following metric types:
 
 All Lens metric types inherit from a base Lens metric with the following optional fields:
 
-*   `label` (optional, string): The display label for the metric. If not provided, a label may be inferred from the type and field.
-*   `format` (optional, object): The format of the metric. See [Lens Metric Format](#lens-metric-format) for details.
-*   `filter` (optional, object): A query (KQL or Lucene) applied before determining the metric value. See [Queries Documentation](../queries/config.md) for details.
+* `label` (optional, string): The display label for the metric. If not provided, a label may be inferred from the type and field.
+* `format` (optional, object): The format of the metric. See [Lens Metric Format](#lens-metric-format) for details.
+* `filter` (optional, object): A query (KQL or Lucene) applied before determining the metric value. See [Queries Documentation](../queries/config.md) for details.
 
 ### Lens Formula Metric
 
@@ -30,10 +30,11 @@ Represents a formula metric configuration within a Lens chart. Formula metrics a
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `formula`.
-    *   `formula` (required, string): The formula string to be evaluated for this metric.
-*   **Example:**
+* **Fields:**
+  * `type` (required, string): Must be `formula`.
+  * `formula` (required, string): The formula string to be evaluated for this metric.
+* **Example:**
+
     ```yaml
     - type: formula
       label: Error Rate
@@ -55,16 +56,19 @@ Represents a count metric configuration within a Lens chart. Count metrics are u
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): The aggregation type. Must be `count` or `unique_count`.
-    *   `field` (optional, string): The field to count. Required for `unique_count`. If not provided for `count`, it will count all documents.
-    *   `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
-*   **Example (Count):**
+* **Fields:**
+  * `aggregation` (required, string): The aggregation type. Must be `count` or `unique_count`.
+  * `field` (optional, string): The field to count. Required for `unique_count`. If not provided for `count`, it will count all documents.
+  * `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
+* **Example (Count):**
+
     ```yaml
     - aggregation: count
       label: Total Documents
     ```
-*   **Example (Unique Count):**
+
+* **Example (Unique Count):**
+
     ```yaml
     - aggregation: unique_count
       field: user.id
@@ -82,11 +86,12 @@ Represents a sum metric configuration within a Lens chart. Sum metrics are used 
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `sum`.
-    *   `field` (required, string): The field to sum.
-    *   `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `sum`.
+  * `field` (required, string): The field to sum.
+  * `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
+* **Example:**
+
     ```yaml
     - aggregation: sum
       field: bytes
@@ -103,10 +108,11 @@ Represents various aggregated metric configurations within a Lens chart, includi
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): The aggregation type. Must be `min`, `max`, `median`, or `average`.
-    *   `field` (required, string): The field to aggregate on.
-*   **Example (Average):**
+* **Fields:**
+  * `aggregation` (required, string): The aggregation type. Must be `min`, `max`, `median`, or `average`.
+  * `field` (required, string): The field to aggregate on.
+* **Example (Average):**
+
     ```yaml
     - aggregation: average
       field: response_time
@@ -124,11 +130,12 @@ Represents a last value metric configuration within a Lens chart. Last value met
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `last_value`.
-    *   `field` (required, string): The field whose last value is retrieved.
-    *   `date_field` (optional, string): The field used to determine the 'last' value. If not provided, the default time field for the data view is used.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `last_value`.
+  * `field` (required, string): The field whose last value is retrieved.
+  * `date_field` (optional, string): The field used to determine the 'last' value. If not provided, the default time field for the data view is used.
+* **Example:**
+
     ```yaml
     - aggregation: last_value
       field: system.load.5
@@ -147,11 +154,12 @@ Represents a percentile rank metric configuration within a Lens chart. Percentil
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `percentile_rank`.
-    *   `field` (required, string): The field to calculate the percentile rank on.
-    *   `rank` (required, integer): The rank to determine the percentile for.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `percentile_rank`.
+  * `field` (required, string): The field to calculate the percentile rank on.
+  * `rank` (required, integer): The rank to determine the percentile for.
+* **Example:**
+
     ```yaml
     - aggregation: percentile_rank
       field: response_time
@@ -170,11 +178,12 @@ Represents a percentile metric configuration within a Lens chart. Percentile met
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `percentile`.
-    *   `field` (required, string): The field to calculate the percentile on.
-    *   `percentile` (required, integer): The percentile to determine the value for.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `percentile`.
+  * `field` (required, string): The field to calculate the percentile on.
+  * `percentile` (required, integer): The percentile to determine the value for.
+* **Example:**
+
     ```yaml
     - aggregation: percentile
       field: response_time
@@ -194,11 +203,11 @@ format:
   pattern: string     # (Optional for type: custom, Required for other types) The pattern to display the number in.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): The format type. Valid values are `number`, `bytes`, `bits`, `percent`, `duration`, or `custom`.
-    *   `suffix` (optional, string): The suffix to display after the number.
-    *   `compact` (optional, boolean): Whether to display the number in a compact format (e.g., 1k instead of 1000).
-    *   `pattern` (optional, string): The pattern to display the number in. Required for `custom` type.
+* **Fields:**
+  * `type` (required, string): The format type. Valid values are `number`, `bytes`, `bits`, `percent`, `duration`, or `custom`.
+  * `suffix` (optional, string): The suffix to display after the number.
+  * `compact` (optional, boolean): Whether to display the number in a compact format (e.g., 1k instead of 1000).
+  * `pattern` (optional, string): The pattern to display the number in. Required for `custom` type.
 
 #### Lens Custom Metric Format
 
@@ -210,9 +219,9 @@ format:
   pattern: string     # (Required) The custom pattern to display the number in.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `custom`.
-    *   `pattern` (required, string): The custom pattern to display the number in.
+* **Fields:**
+  * `type` (required, string): Must be `custom`.
+  * `pattern` (required, string): The custom pattern to display the number in.
 
 ## ESQL Metric Type
 
@@ -227,9 +236,10 @@ A metric that is defined in the ESQL query.
   # Base Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `field` (required, string): The field in the data view that this metric is based on. This field should correspond to a column returned by the ESQL query.
-*   **Example:**
+* **Fields:**
+  * `field` (required, string): The field in the data view that this metric is based on. This field should correspond to a column returned by the ESQL query.
+* **Example:**
+
     ```yaml
     - field: total_requests
       label: Total Requests from ESQL

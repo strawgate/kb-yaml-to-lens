@@ -146,6 +146,7 @@ The preview panel shows:
 **Problem**: Extension shows "Python server not running" error
 
 **Solutions**:
+
 - Verify `dashboard_compiler` is installed: `python -c "import dashboard_compiler"`
 - Check the Python path in extension settings
 - View the Output panel (View → Output) and select "YAML Dashboard Compiler" to see logs
@@ -155,6 +156,7 @@ The preview panel shows:
 **Problem**: "Compilation failed" messages
 
 **Solutions**:
+
 - Check your YAML syntax
 - Verify your dashboard structure matches the expected schema
 - Review the error message in the preview panel for details
@@ -165,6 +167,7 @@ The preview panel shows:
 **Problem**: Preview doesn't refresh after saving
 
 **Solutions**:
+
 - Check that `yamlDashboard.compileOnSave` is enabled
 - Try manually running "YAML Dashboard: Preview Dashboard"
 - Close and reopen the preview panel
@@ -174,6 +177,7 @@ The preview panel shows:
 **Problem**: Extension can't find Python or packages
 
 **Solutions**:
+
 - Use absolute path in settings: `"yamlDashboard.pythonPath": "/full/path/to/python"`
 - For virtual environments, use the venv Python: `"yamlDashboard.pythonPath": "/path/to/venv/bin/python"`
 - For conda: `"yamlDashboard.pythonPath": "/path/to/conda/envs/yourenv/bin/python"`

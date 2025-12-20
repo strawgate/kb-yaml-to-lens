@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format inspector test-extension test-extension-python test-extension-typescript
+.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format lint-markdown inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript
 
 help:
 	@echo "Dependency Management:"
@@ -28,9 +28,15 @@ help:
 	@echo "  - clean       - Clean up cache and temporary files"
 
 	@echo "Linting:"
-	@echo "  lint                - Run format and autocorrect"
+	@echo "  lint                - Run format, autocorrect, and markdown linting"
 	@echo "  - lint-autocorrect  - Run ruff check --fix"
 	@echo "  - lint-format       - Run ruff format"
+	@echo "  - lint-markdown     - Run markdownlint"
+
+	@echo "Documentation:"
+	@echo "  docs-serve    - Start local documentation server"
+	@echo "  docs-build    - Build documentation static site"
+	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
 
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
@@ -38,6 +44,8 @@ help:
 install:
 	@echo "Running uv sync..."
 	uv sync --all-extras
+	@echo "Installing markdownlint-cli..."
+	npm install -g markdownlint-cli
 
 check: lint test test-smoke test-extension-python test-extension-typescript
 
@@ -66,7 +74,7 @@ inspector:
 test-smoke:
 	uv run es_knowledge_base_mcp --help
 
-lint: autocorrect format
+lint: autocorrect format lint-markdown
 
 autocorrect:
 	@echo "Running ruff check --fix..."
@@ -75,6 +83,10 @@ autocorrect:
 format:
 	@echo "Running ruff format..."
 	uv run ruff format .
+
+lint-markdown:
+	@echo "Running markdownlint..."
+	markdownlint --fix -c .markdownlint.jsonc .
 
 clean:
 	@echo "Cleaning up..."
@@ -105,3 +117,15 @@ compile:
 upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
 	uv run kb-dashboard compile --upload
+
+docs-serve:
+	@echo "Starting documentation server..."
+	uv run --extra docs mkdocs serve
+
+docs-build:
+	@echo "Building documentation..."
+	uv run --extra docs mkdocs build
+
+docs-deploy:
+	@echo "Deploying documentation to GitHub Pages..."
+	uv run --extra docs mkdocs gh-deploy --force

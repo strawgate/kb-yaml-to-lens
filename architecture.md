@@ -10,11 +10,11 @@ The primary goal is to provide a human-readable and maintainable way to define K
 
 The compiler is designed using a layered approach with distinct components responsible for different stages of the conversion process.
 
-1.  **YAML Loading and Parsing:**
+1. **YAML Loading and Parsing:**
     - The process begins by loading the YAML configuration file.
     - The `PyYAML` library is used to parse the YAML content into a Python dictionary.
 
-2.  **Pydantic Model Representation:**
+2. **Pydantic Model Representation:**
     - The codebase uses a three-layer pattern with separate models for input configuration and output views:
       - **Config Models** (`**/config.py`): Define the YAML schema structure using Pydantic, handling validation and ensuring the parsed YAML conforms to the defined schema. These models use a `BaseCfgModel` base class.
       - **View Models** (`**/view.py`): Define the Kibana JSON output structure using Pydantic. These models use a `BaseVwModel` base class and include custom serialization logic.
@@ -22,17 +22,17 @@ The compiler is designed using a layered approach with distinct components respo
     - Each major component of a dashboard (Dashboard, Panel, Grid, etc.) and its variations (different panel types, Lens visualizations, dimensions, metrics, etc.) follows this pattern.
     - A custom validator in the base `Panel` class is used to dynamically instantiate the correct panel subclass based on the `type` field in the YAML data.
 
-3.  **Compilation Process:**
+3. **Compilation Process:**
     - Compile functions in `compile.py` files take config model instances and transform them into view model instances.
     - These functions handle the specific formatting and nesting required for each element (panels, visualizations, layers, etc.).
     - The top-level dashboard compilation orchestrates the compilation of all components (panels, controls, filters, queries) and assembles the final Kibana JSON structure.
     - View models use Pydantic's `model_dump_json()` method to serialize to JSON.
 
-4.  **ID and Reference Management (Future Enhancement):**
+4. **ID and Reference Management (Future Enhancement):**
     - The Kibana dashboard JSON relies heavily on unique IDs and references between components.
     - A future enhancement will involve implementing a system for generating unique IDs and managing these references during the compilation process to ensure the generated dashboards are valid and functional in Kibana.
 
-5.  **Error Handling (Future Enhancement):**
+5. **Error Handling (Future Enhancement):**
     - Robust error handling will be added to catch and report issues during YAML parsing, data validation, and JSON compilation.
 
 ## Components
@@ -52,13 +52,13 @@ The codebase is organized into a hierarchical structure under `src/dashboard_com
 
 ## Data Flow
 
-1.  YAML file is read.
-2.  YAML content is parsed into a Python dictionary.
-3.  The dictionary is validated and converted into a hierarchy of Pydantic config model objects.
-4.  Compile functions transform the config model hierarchy into view model objects.
-5.  The compile functions are called recursively on nested objects to build the view model structure.
-6.  View models are serialized to JSON using Pydantic's `model_dump_json()` method.
-7.  A Kibana-compatible NDJSON file is generated.
+1. YAML file is read.
+2. YAML content is parsed into a Python dictionary.
+3. The dictionary is validated and converted into a hierarchy of Pydantic config model objects.
+4. Compile functions transform the config model hierarchy into view model objects.
+5. The compile functions are called recursively on nested objects to build the view model structure.
+6. View models are serialized to JSON using Pydantic's `model_dump_json()` method.
+7. A Kibana-compatible NDJSON file is generated.
 
 ```mermaid
 graph TD

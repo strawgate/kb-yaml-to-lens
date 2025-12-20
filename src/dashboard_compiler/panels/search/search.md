@@ -69,6 +69,6 @@ Search panels inherit from the [Base Panel Configuration](../base.md) and have o
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   Kibana Discover and Saved Searches documentation (external to this project).
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* Kibana Discover and Saved Searches documentation (external to this project).
