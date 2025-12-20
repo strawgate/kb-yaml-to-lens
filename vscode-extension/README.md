@@ -65,10 +65,10 @@ The extension requires the `dashboard_compiler` package to be installed in your 
 pip install -e .
 ```
 
-Or if you're using Poetry:
+Or using uv:
 
 ```bash
-poetry install
+uv sync
 ```
 
 ### Extension Configuration

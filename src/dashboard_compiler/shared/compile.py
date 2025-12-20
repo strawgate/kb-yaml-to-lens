@@ -35,7 +35,7 @@ def return_if(var: bool | None, is_false: T, is_true: T, default: T) -> T:
     return default if var is None else (is_true if var else is_false)
 
 
-def return_if_equals(var: Any, equals: Any, is_false: T, is_true: T, is_none: T) -> T:  # noqa: ANN401
+def return_if_equals(var: Any, equals: Any, is_false: T, is_true: T, is_none: T) -> T:
     """Evaluate var against a value and return a corresponding value.
 
     Args:
