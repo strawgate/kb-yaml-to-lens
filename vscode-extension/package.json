@@ -1,0 +1,102 @@
+{
+  "name": "yaml-dashboard-compiler",
+  "displayName": "YAML Dashboard Compiler",
+  "description": "Compile and preview Kibana YAML dashboards with live reload",
+  "version": "0.1.0",
+  "publisher": "strawgate",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization"
+  ],
+  "keywords": [
+    "yaml",
+    "kibana",
+    "dashboard",
+    "lens",
+    "elastic"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "yamlDashboard.compile",
+        "title": "Compile Dashboard",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.preview",
+        "title": "Preview Dashboard",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.export",
+        "title": "Export Dashboard to NDJSON",
+        "category": "YAML Dashboard"
+      }
+    ],
+    "configuration": {
+      "title": "YAML Dashboard Compiler",
+      "properties": {
+        "yamlDashboard.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Path to Python interpreter (must have dashboard_compiler package installed)"
+        },
+        "yamlDashboard.compileOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically compile dashboard when YAML file is saved"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.preview",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.compile",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.preview",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/strawgate/kb-yaml-to-lens.git"
+  },
+  "license": "MIT"
+}
