@@ -1,5 +1,7 @@
 """Compile Dashboard filter objects into their Kibana view model representations."""
 
+from collections.abc import Sequence
+
 from dashboard_compiler.filters import (
     AndFilter,
     CustomFilter,
@@ -237,11 +239,11 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     raise NotImplementedError(msg)
 
 
-def compile_filters(*, filters: list[FilterTypes]) -> list[KbnFilter]:
+def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
     """Compile the filters of a Dashboard object into its Kibana view model representation.
 
     Args:
-        filters (list[FilterTypes]): The list of filter objects to compile.
+        filters (Sequence[FilterTypes]): The sequence of filter objects to compile.
 
     Returns:
         list[KbnFilter]: The compiled list of Kibana filter view models.
