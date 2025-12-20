@@ -1,10 +1,27 @@
+[project]
+name = "dashboard-compiler"
+version = "0.1.0"
+description = "Compiles dashboard definitions from YAML to Kibana format"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "syrupy>=4.9.1",
+    "pytest-freezer>=0.4.9",
+    "deepdiff>=8.4.2",
+    "ruff>=0.11.6",
+    "pytest-asyncio>=0.26.0",
+]
+
 [tool.poetry]
 name = "dashboard-compiler"
 version = "0.1.0"
 description = "Compiles dashboard definitions from YAML to Kibana format"
-authors = ["Your Name <you@example.com>"] # Please update this with your details
-readme = "README.md" # Optional: Add a README later if you wish
-license = "MIT" # Using MIT as a common default, change if needed
+readme = "README.md"
+license = "MIT"
 packages = [{include = "dashboard_compiler"}]
 
 [tool.poetry.scripts]
@@ -14,11 +31,6 @@ kb-dashboard = "dashboard_compiler.cli:cli"
 python = ">=3.12"
 pyyaml = ">=6.0"
 pydantic = ">=2.11.3"
-syrupy = ">=4.9.1"
-pytest-freezer = ">=0.4.9"
-deepdiff = ">=8.4.2"
-ruff = ">=0.11.6"
-pytest-asyncio = ">=0.26.0"
 beartype = "^0.20.2"
 humanize = "^4.12.3"
 click = ">=8.1.0"
@@ -26,6 +38,11 @@ aiohttp = ">=3.9.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.0"
+syrupy = ">=4.9.1"
+pytest-freezer = ">=0.4.9"
+deepdiff = ">=8.4.2"
+ruff = ">=0.11.6"
+pytest-asyncio = ">=0.26.0"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
@@ -57,21 +74,18 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
-# Enable recommended rules + isort
-select = ["ALL"]
+extend-select = [
+    "A", "ARG", "B", "C4", "COM", "DTZ", "E", "EM", "F", "FURB", "I",
+    "LOG", "N", "PERF", "PIE", "PLR", "PLW", "PT", "PTH", "Q", "RET",
+    "RSE", "RUF", "S", "SIM", "TC", "TID", "TRY", "UP", "W",
+    "D",  # Add docstring checks since kb-yaml-to-lens uses them
+]
 ignore = [
-    "CPY001", # No copyright notice for meee
-    "ERA001", # I like commented out code sometimes
-    "PLR6301", # Ignore functions that don't use self
-    "D203",    # incorrect-blank-line-before-class
-    "D413",    # multi-line-summary-second-line
-    "D213",    # multi-line-summary-second-line
     "COM812",  # Conflicts with formatter
-    "INP001",  # ignore __init__ requirements
+    "D203",    # incorrect-blank-line-before-class
+    "D213",    # multi-line-summary-second-line
+    "D413",    # multi-line-summary-second-line
     "D100",    # Ignore missing docstrings for modules
-    "FBT001",  # Boolean in parameters
-    "FBT002",  # Boolean in parameters
-    "TC001",   # Ignore move type into type checking block
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -121,3 +135,15 @@ classmethod-decorators = ["classmethod", "pydantic.validator"]
 [tool.ruff.lint.pylint]
 max-args = 8
 max-statements = 50
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"  # Start with basic, increase to strict later
+reportExplicitAny = false
+reportMissingTypeStubs = false
+include = ["dashboard_compiler"]
+exclude = [
+    "**/tests/**",
+    "**/.venv/**",
+    "**/output/**",
+]
