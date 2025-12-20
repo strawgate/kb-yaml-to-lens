@@ -49,10 +49,12 @@ Goal: Maintainability and abstraction from Kibana's complex native JSON. See `ar
 ### Pydantic Model Conventions
 
 **Configuration models** (`BaseCfgModel` in `src/dashboard_compiler/shared/model.py`):
+
 - `strict=True`, `extra='forbid'`, `frozen=True`, `validate_default=True`
 - Use attribute docstrings for field descriptions
 
 **View models** (`BaseVwModel` in `src/dashboard_compiler/shared/view.py`):
+
 - Custom serializer omits fields with `OmitIfNone` metadata when value is `None`
 - May narrow types in subclasses (e.g., `str` -> `Literal['value']`)
 - `reportIncompatibleVariableOverride = false` in basedpyright config allows this
@@ -78,6 +80,7 @@ Goal: Maintainability and abstraction from Kibana's complex native JSON. See `ar
 #### 1. Triage Before Acting
 
 Categorize feedback:
+
 - **Critical**: Security issues, data corruption, type safety violations, test failures
 - **Important**: Error handling, performance, missing tests, type annotations
 - **Optional**: Style preferences, minor refactors, conflicting patterns
@@ -85,6 +88,7 @@ Categorize feedback:
 #### 2. Evaluate Against Existing Patterns
 
 Before accepting suggestions:
+
 - Search codebase for similar patterns
 - Check how other panels/compilers handle similar cases
 - Preserve consistency over isolated best practices
@@ -92,6 +96,7 @@ Before accepting suggestions:
 #### 3. Consider Context and Scope
 
 Requirements vary by code type:
+
 - **Compilation logic**: Prioritize correctness, type safety
 - **CLI code**: Focus on user experience, error messages, Rich formatting
 - **Test code**: Emphasize clarity, coverage, fixture patterns
@@ -100,6 +105,7 @@ Requirements vary by code type:
 #### 4. Verify Completion
 
 Before claiming work is ready:
+
 - All critical issues addressed or documented as out-of-scope
 - All important issues addressed or explicitly deferred with rationale
 - `make check` passes (lint + test)
@@ -109,6 +115,7 @@ Before claiming work is ready:
 #### 5. Document Deferrals
 
 If feedback isn't implemented, explain why:
+
 - Conflicts with established pattern (cite similar code)
 - Out of scope for component purpose
 - Trade-off not worth the complexity
@@ -124,6 +131,7 @@ If feedback isn't implemented, explain why:
 #### Prioritization Guidance
 
 Categorize by severity:
+
 - **Critical**: Type safety violations, security issues, data corruption, test failures
 - **Important**: Missing error handling, performance issues, missing tests
 - **Minor/Optional**: Style preferences, optimizations, refactoring
@@ -131,6 +139,7 @@ Categorize by severity:
 #### Pattern Consistency
 
 Before suggesting changes:
+
 - Check if similar patterns exist in other compile.py files
 - If pattern exists across multiple panels/charts, likely intentional
 
@@ -146,7 +155,7 @@ Before suggesting changes:
 | `src/dashboard_compiler/panels/charts/` | Specific compilation logic for Lens and ESQL chart types (e.g., `metric`, `pie`, `xy`). |
 | `scripts/` | Contains utility scripts for compiling configurations to NDJSON (`compile_configs_to_ndjson.py`) and generating documentation (`compile_docs.py`). |
 | `inputs/` | Example YAML dashboard configurations for compilation. |
-| `test/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
+| `tests/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
 | `src/dashboard_compiler/dashboard_compiler.py` | Main entry point for loading, rendering, and dumping dashboard configurations (load, render, dump functions). |
 
 ---
@@ -185,7 +194,7 @@ make check          # Before committing
 
 ```bash
 make test           # Full suite
-uv run pytest test/panels/test_metrics.py  # Specific file
+uv run pytest tests/panels/test_metrics.py  # Specific file
 ```
 
 ---
@@ -200,9 +209,9 @@ uv run pytest test/panels/test_metrics.py  # Specific file
 
 ## Unique Workflows
 
-- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `test/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `src/dashboard_compiler/dashboard_compiler.py` - render function).
+- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `tests/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `src/dashboard_compiler/dashboard_compiler.py` - render function).
 - **Documentation Generation:** A script (`scripts/compile_docs.py`) automatically compiles all markdown files within the `src/dashboard_compiler/` directory into a single `yaml_reference.md` file at the repository root. It prioritizes `dashboard/dashboard.md` and then sorts others by path (see `scripts/compile_docs.py` - main compilation logic).
-- **NDJSON Output:** Compiled Kibana dashboards can be output as NDJSON (Newline Delimited JSON) files, suitable for direct import into Kibana. The `scripts/compile_configs_to_ndjson.py` script handles this, processing YAML files from `inputs/` and `test/dashboards/scenarios/` (see `scripts/compile_configs_to_ndjson.py`).
+- **NDJSON Output:** Compiled Kibana dashboards can be output as NDJSON (Newline Delimited JSON) files, suitable for direct import into Kibana. The `scripts/compile_configs_to_ndjson.py` script handles this, processing YAML files from `inputs/` and `tests/dashboards/scenarios/` (see `scripts/compile_configs_to_ndjson.py`).
 
 ---
 
@@ -223,7 +232,7 @@ The project's primary "API" is its YAML configuration schema for defining Kibana
 - **Explore YAML Schema:** Read `yaml_reference.md` and `quickstart.md` for a comprehensive understanding of the YAML configuration structure and examples.
 - **Examine Pydantic Models:** Dive into `src/dashboard_compiler/**/config.py` files to see the definitive source of truth for configuration options, types, and validation rules.
 - **Trace Compilation Logic:** Follow the `compile_dashboard` function in `src/dashboard_compiler/dashboard/compile.py` to understand how YAML models are transformed into Kibana JSON view models.
-- **Run Tests:** Execute `uv run pytest` and inspect the `test/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
+- **Run Tests:** Execute `uv run pytest` and inspect the `tests/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
 
 ---
 
@@ -241,12 +250,14 @@ GitHub Actions workflows in `.github/workflows/`:
 **Claude cannot modify files in `.github/workflows/`** - only GitHub Copilot has permissions to change workflow files. If Claude attempts to commit changes to workflow files, the commit will be rejected with an error.
 
 If workflow changes are needed, either:
+
 - Use GitHub Copilot to make the changes
 - Manually edit workflow files outside of Claude's scope
 
 ### Pre-commit Expectations
 
 CI will fail if:
+
 - Ruff linting fails
 - Tests fail
 - Type checking fails (basedpyright standard mode)
