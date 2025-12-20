@@ -2,10 +2,10 @@ import os
 import pathlib
 
 
-def compile_markdown_references():
-    """Finds all markdown files in the 'dashboard_compiler' directory,
-    orders them with 'dashboard.md' first, then sorts the rest by path,
-    and concatenates their content into 'yaml_reference.md' at the repo root.
+def compile_markdown_references() -> None:
+    """Compile markdown docs under `src/dashboard_compiler` into `yaml_reference.md`.
+
+    The main `dashboard/dashboard.md` file is placed first (if present), followed by all other markdown files sorted by relative path.
     """
     repo_root = pathlib.Path(__file__).parent.parent
     output_file_path = repo_root / 'yaml_reference.md'
@@ -35,7 +35,7 @@ def compile_markdown_references():
 
     ordered_files_to_compile.extend(other_md_files)
 
-    with open(output_file_path, 'w', encoding='utf-8') as outfile:
+    with output_file_path.open('w', encoding='utf-8') as outfile:
         for i, rel_file_path in enumerate(ordered_files_to_compile):
             abs_file_path = repo_root / rel_file_path
             if not abs_file_path.is_file():
@@ -47,7 +47,7 @@ def compile_markdown_references():
             outfile.write(f'<!-- Source: {str(rel_file_path).replace(os.sep, "/")} -->\\n\\n')  # HTML comment for source
             # outfile.write(f"## Source: {str(rel_file_path).replace(os.sep, '/')}\\n\\n") # Alternative: Markdown header
 
-            with open(abs_file_path, encoding='utf-8') as infile:
+            with abs_file_path.open(encoding='utf-8') as infile:
                 content = infile.read()
                 outfile.write(content)
 

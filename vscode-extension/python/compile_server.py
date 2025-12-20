@@ -28,7 +28,7 @@ def compile_dashboard(yaml_path: str) -> dict:
 
 
 def main():
-    """Main server loop - reads JSON requests from stdin, writes responses to stdout."""
+    """Run the main server loop reading JSON requests from stdin and writing responses to stdout."""
     # Ensure stdout is line-buffered
     sys.stdout.reconfigure(line_buffering=True)
 

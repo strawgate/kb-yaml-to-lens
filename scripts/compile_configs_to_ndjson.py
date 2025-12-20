@@ -45,7 +45,6 @@ def compile_and_format(yaml_path: Path) -> str | None:
         # compile_dashboard_to_testable_dict returns the dictionary representation
         dashboard_model = load(str(yaml_path))
         dashboard_kbn_model = render(dashboard_model)
-        dashboard_kbn_model_dict = dashboard_kbn_model.model_dump(by_alias=True)
 
         return dashboard_kbn_model.model_dump_json(by_alias=True)
 
