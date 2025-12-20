@@ -122,7 +122,7 @@ classmethod-decorators = ["classmethod", "pydantic.validator"]
 max-args = 8
 max-statements = 50
 
-[tool.pyright]
+[tool.basedpyright]
 pythonVersion = "3.12"
 typeCheckingMode = "basic"  # Start with basic, increase to strict later
 reportExplicitAny = false
