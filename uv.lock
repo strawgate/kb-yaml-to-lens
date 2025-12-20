@@ -281,7 +281,7 @@ dependencies = [
     { name = "rich-click" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "basedpyright" },
     { name = "deepdiff" },
@@ -301,27 +301,32 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = ">=3.9.0" },
-    { name = "basedpyright", marker = "extra == 'dev'", specifier = ">=1.21.0" },
-    { name = "beartype", specifier = ">=0.20.2" },
-    { name = "click", specifier = ">=8.1.0" },
-    { name = "deepdiff", marker = "extra == 'dev'", specifier = ">=8.4.2" },
-    { name = "humanize", specifier = ">=4.12.3" },
-    { name = "inline-snapshot", marker = "extra == 'dev'", specifier = ">=0.31.1" },
-    { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.6.0" },
-    { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5.0" },
-    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'", specifier = ">=0.30.0" },
-    { name = "mkdocstrings-python", marker = "extra == 'docs'", specifier = ">=1.10.0" },
-    { name = "pydantic", specifier = ">=2.11.3" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.26.0" },
-    { name = "pytest-freezer", marker = "extra == 'dev'", specifier = ">=0.4.9" },
-    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "aiohttp", specifier = ">=3.13" },
+    { name = "beartype", specifier = ">=0.22" },
+    { name = "click", specifier = ">=8.3" },
+    { name = "humanize", specifier = ">=4.15" },
+    { name = "pydantic", specifier = ">=2.12" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rich-click", specifier = ">=1.9.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.6" },
-    { name = "syrupy", marker = "extra == 'dev'", specifier = ">=4.9.1" },
 ]
-provides-extras = ["dev", "docs"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "basedpyright", specifier = ">=1.36" },
+    { name = "deepdiff", specifier = ">=8.4.2" },
+    { name = "inline-snapshot", specifier = ">=0.31.1" },
+    { name = "pytest", specifier = ">=9.0" },
+    { name = "pytest-asyncio", specifier = ">=1.3" },
+    { name = "pytest-freezer", specifier = ">=0.4.9" },
+    { name = "ruff", specifier = ">=0.14" },
+    { name = "syrupy", specifier = ">=5.0" },
+]
+docs = [
+    { name = "mkdocs", specifier = ">=1.6.0" },
+    { name = "mkdocs-material", specifier = ">=9.5.0" },
+    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.30.0" },
+    { name = "mkdocstrings-python", specifier = ">=1.10.0" },
+]
 
 [[package]]
 name = "deepdiff"
