@@ -23,31 +23,32 @@ Or run together: `make check`
 
 ### Testing Requirements
 
-- Fixture-based approach (Pattern 3) preferred for new tests
-- Test files in `test/` mirror `src/dashboard_compiler/` structure
+- Use fixture-based approach with `snapshot_json` from `test/conftest.py`
+- Test files in `test/` mirror `dashboard_compiler/` structure
 - Snapshots freeze timestamps using pytest-freezer
-- Update snapshots when intentional changes occur
+- Update snapshots when intentional changes occur: `uv run pytest --snapshot-update`
 
 ---
 
 ## Architecture Overview
 
-The `kb-yaml-to-lens` project, also known as the "Dashboard Compiler," aims to simplify Kibana dashboard creation by converting a human-readable YAML representation into the complex native Kibana dashboard JSON format. It uses a layered architecture:
+Dashboard Compiler converts human-readable YAML into Kibana dashboard JSON using three layers:
 
-1. **YAML Loading & Parsing:** `PyYAML` parses YAML config files into Python dictionaries (see `architecture.md` - YAML Loading & Parsing section).
-2. **Pydantic Model Representation:** Pydantic models (e.g., `Dashboard` in `dashboard_compiler/dashboard/config.py`) define the YAML schema, handling data validation and dynamic instantiation of panel subclasses (see `architecture.md` - Pydantic Model Representation section).
-3. **JSON Compilation:** Each Pydantic model includes a `to_json()` method (or `model_dump_json` for view models) to convert its data into the corresponding Kibana JSON structure, orchestrated by the top-level `Dashboard` model (see `architecture.md` - JSON Compilation section).
+1. **YAML Loading**: `PyYAML` parses YAML config files into Python dictionaries
+2. **Pydantic Models**: Models in `dashboard_compiler/*/config.py` define schema, validate data, and handle panel type polymorphism
+3. **JSON Compilation**: Each model's `to_json()` (or `model_dump_json`) method converts to Kibana JSON format
 
-The primary goal is maintainability and abstraction from Kibana's native JSON complexity (see `architecture.md` - Project Goals).
+Goal: Maintainability and abstraction from Kibana's complex native JSON. See `architecture.md` for details.
 
 ---
 
 ## Code Style & Conventions
 
-- **Python Formatting:** Line length is set to 140 characters, enforced by Ruff (see `pyproject.toml` - line-length setting in tool.ruff section).
-- **Pydantic Models:** Configuration models (`BaseCfgModel`) are strict, validate defaults, use enum values, are frozen (immutable), use attribute docstrings for descriptions, and serialize by alias (see `dashboard_compiler/shared/model.py` - BaseCfgModel class definition). View models (`BaseVwModel`) extend this, adding a custom serializer to omit fields with `OmitIfNone` metadata if their value is `None` (see `dashboard_compiler/shared/view.py` - BaseVwModel class definition).
-- **Testing:** `pytest` is used for testing, with `pytest-asyncio` configured for `function` scope and `auto` mode (see `pyproject.toml` - tool.pytest.ini_options section). `syrupy` with `JSONSnapshotExtension` is used for snapshot testing, freezing timestamps for consistency (see `tests/conftest.py` - snapshot_json fixture).
-- **Docstrings:** Pydantic models leverage attribute docstrings for field descriptions (see `dashboard_compiler/shared/model.py` - BaseCfgModel class).
+- **Line length**: 140 characters (Ruff enforced)
+- **Config models** (`BaseCfgModel`): Strict, frozen, validate defaults, use attribute docstrings
+- **View models** (`BaseVwModel`): Omit fields with `OmitIfNone` metadata when value is `None`
+- **Testing**: `pytest` + `syrupy` for snapshot testing with frozen timestamps (`snapshot_json` fixture)
+- **Docstrings**: Use attribute docstrings on Pydantic model fields
 
 ---
 
@@ -66,9 +67,9 @@ The primary goal is maintainability and abstraction from Kibana's native JSON co
 
 ### Testing Patterns
 
-- **Preferred**: Pattern 3 (fixture-based with inline-snapshot)
-- Test fixtures in `test/conftest.py` provide `snapshot_json` with frozen timestamps
-- Each test independent and runnable
+- Use `snapshot_json` fixture from `test/conftest.py` (provides frozen timestamps)
+- Write independent, runnable tests with inline snapshots via `syrupy`
+- Mirror source structure: tests for `dashboard_compiler/foo/bar.py` go in `test/foo/test_bar.py`
 
 ### Type Checking
 
@@ -130,10 +131,10 @@ If feedback isn't implemented, explain why:
 
 #### Project-Specific Patterns
 
-- Test patterns: Pattern 3 (fixture-based with inline-snapshot) preferred
-- Pydantic view models may narrow types in subclasses - intentional
-- CLI output uses Rich/rich-click
-- Documentation auto-generated from markdown files
+- Tests use `snapshot_json` fixture with `syrupy` for inline snapshots
+- Pydantic view models may narrow types in subclasses - intentional design
+- CLI output uses Rich/rich-click for formatting
+- Documentation auto-generated from markdown files via `scripts/compile_docs.py`
 
 #### Prioritization Guidance
 
@@ -188,6 +189,7 @@ Before suggesting changes:
 ### Common Workflows
 
 **Development cycle:**
+
 ```bash
 make install        # First time setup
 # Make changes
@@ -195,6 +197,7 @@ make check          # Before committing
 ```
 
 **Testing specific changes:**
+
 ```bash
 make test           # Full suite
 uv run pytest test/panels/test_metrics.py  # Specific file
