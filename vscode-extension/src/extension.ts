@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
 import { DashboardCompiler } from './compiler';
 import { PreviewPanel } from './previewPanel';
+import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
 
 let compiler: DashboardCompiler;
 let previewPanel: PreviewPanel;
+let gridEditorPanel: GridEditorPanel;
 
 /**
  * Validates that the active editor is a YAML file and returns its path.
@@ -32,6 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     compiler = new DashboardCompiler(context);
     previewPanel = new PreviewPanel(compiler);
+    gridEditorPanel = new GridEditorPanel(context);
 
     // Setup file watching for auto-compile
     const fileWatcherDisposables = setupFileWatcher(compiler, previewPanel);
@@ -87,6 +90,18 @@ export function activate(context: vscode.ExtensionContext) {
             } catch (error) {
                 vscode.window.showErrorMessage(`Export failed: ${error instanceof Error ? error.message : String(error)}`);
             }
+        })
+    );
+
+    // Register grid editor command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.editLayout', async () => {
+            const filePath = getActiveYamlFile();
+            if (!filePath) {
+                return;
+            }
+
+            await gridEditorPanel.show(filePath);
         })
     );
 }
