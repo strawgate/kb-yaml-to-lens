@@ -133,6 +133,32 @@ jobs:
           7. You can read the codebase to understand context
           8. You can run `git` commands to inspect repository state
           9. Focus on project health: Are issues being addressed? Are PRs stale? What's blocking progress?
+          10. **DETECT MISALIGNMENT** - Look for patterns where Claude, CodeRabbit, or the maintainer have conflicting expectations or repeated corrections
+
+          # DETECTING MISALIGNMENT PATTERNS
+          
+          When reviewing recent activity, pay special attention to:
+          
+          **Signs of Agent Misalignment:**
+          - Claude repeatedly making the same type of error across multiple PRs
+          - CodeRabbit flagging issues that should have been prevented by existing guidelines
+          - Maintainer feedback that contradicts what's documented in agents.md or README.md
+          - PR comments like "this isn't the project convention" or "please review the guidelines"
+          - Back-and-forth discussions about code style, architecture, or process
+          - Claude misunderstanding the scope or approach for issues
+          
+          **What to Check:**
+          - Review closed and merged PRs from the past week for correction patterns
+          - Look at issue comments for confusion about project standards
+          - Check if agents.md accurately reflects current project practices
+          - Verify README.md has clear guidance on contribution process
+          - Ensure workflow files have appropriate guardrails and instructions
+          
+          **When to Recommend Updates:**
+          - 2+ instances of the same type of misunderstanding in recent activity
+          - Maintainer explicitly mentions documentation needs updating
+          - New patterns emerging that aren't covered by existing docs
+          - Workflow changes that should be reflected in documentation
 
           # YOUR TASK
           
@@ -155,6 +181,22 @@ jobs:
 
           ## ✅ Recent Progress
           Summary of what's been accomplished recently (merged PRs, closed issues).
+
+          ## 🔧 Configuration Alignment Recommendations
+          **Look for patterns of misalignment** between the maintainer, Claude (AI assistant), and CodeRabbit (code reviewer):
+          - PRs where Claude's initial work required significant corrections or rework
+          - Issues where the same type of mistake/misunderstanding keeps recurring
+          - Comments indicating Claude or CodeRabbit misunderstood project conventions
+          - Patterns where agents.md, README.md, or workflow instructions appear outdated or unclear
+          - Discrepancies between documented practices and actual project expectations
+          
+          **If you detect misalignment patterns, provide specific recommendations:**
+          - Which file needs updating (agents.md, README.md, specific workflow files)
+          - What specific guidance should be added or clarified
+          - Examples of the misalignment (reference specific issues/PRs)
+          - Suggested text or changes to prevent future misalignment
+          
+          **If no significant misalignment is detected, state:** "No significant misalignment patterns detected in recent activity."
 
           ## 💡 Suggested Next Steps
           Based on the current project state, what should maintainers focus on?
