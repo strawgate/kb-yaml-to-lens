@@ -1,6 +1,0 @@
-dashboards:
--
-  title: One Query Dashboard
-  description: "A dashboard with a single query"
-  query:
-    kql: 'myquery: myvalue'
