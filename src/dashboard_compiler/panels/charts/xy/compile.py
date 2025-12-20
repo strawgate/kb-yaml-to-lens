@@ -2,7 +2,7 @@
 
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
+from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.view import KbnLayerColorMapping
@@ -24,6 +24,14 @@ from dashboard_compiler.shared.config import random_id_generator
 
 
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
+    """Determine the Kibana series type based on the chart configuration.
+
+    Args:
+        chart: The XY chart configuration (Lens or ESQL).
+
+    Returns:
+        The Kibana series type string (e.g., 'line', 'bar_stacked', 'area').
+    """
     if isinstance(chart, LensLineChart | ESQLLineChart):
         series_type = 'line'
     elif isinstance(chart, LensBarChart | ESQLBarChart):
@@ -83,10 +91,12 @@ def compile_xy_chart_visualization_state(
         splitAccessor=breakdown_id,
     )
 
-    return KbnXYVisualizationState(preferredSeriesType=series_type, layers=[kbn_layer_visualization], legend={
-        'isVisible': True,
-        'position': 'right'
-    }, valueLabels="hide")
+    return KbnXYVisualizationState(
+        preferredSeriesType=series_type,
+        layers=[kbn_layer_visualization],
+        legend={'isVisible': True, 'position': 'right'},
+        valueLabels='hide',
+    )
 
 
 def compile_lens_xy_chart(
@@ -104,7 +114,7 @@ def compile_lens_xy_chart(
 
     # Compile metrics
     metric_ids: list[str] = []
-    kbn_metric_columns: dict[str, KbnLensColumnTypes] = {}
+    kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_xy_chart.metrics:
         metric_id, kbn_metric = compile_lens_metric(metric=metric)
         metric_ids.append(metric_id)
