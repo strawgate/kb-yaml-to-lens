@@ -5,11 +5,13 @@ import { DashboardCompiler, CompiledDashboard } from './compiler';
 export class PreviewPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
+    private currentDashboardIndex: number = 0;
 
     constructor(private compiler: DashboardCompiler) {}
 
-    async show(dashboardPath: string) {
+    async show(dashboardPath: string, dashboardIndex: number = 0) {
         this.currentDashboardPath = dashboardPath;
+        this.currentDashboardIndex = dashboardIndex;
 
         if (!this.panel) {
             this.panel = vscode.window.createWebviewPanel(
@@ -27,23 +29,23 @@ export class PreviewPanel {
             });
         }
 
-        await this.updatePreview(dashboardPath);
+        await this.updatePreview(dashboardPath, dashboardIndex);
     }
 
-    async updatePreview(dashboardPath: string) {
+    async updatePreview(dashboardPath: string, dashboardIndex: number = 0) {
         if (!this.panel) {
             return;
         }
 
         // Only update if this is the currently previewed dashboard
-        if (this.currentDashboardPath !== dashboardPath) {
+        if (this.currentDashboardPath !== dashboardPath || this.currentDashboardIndex !== dashboardIndex) {
             return;
         }
 
         this.panel.webview.html = this.getLoadingContent();
 
         try {
-            const compiled = await this.compiler.compile(dashboardPath);
+            const compiled = await this.compiler.compile(dashboardPath, dashboardIndex);
             this.panel.webview.html = this.getWebviewContent(compiled, dashboardPath);
         } catch (error) {
             this.panel.webview.html = this.getErrorContent(error);
