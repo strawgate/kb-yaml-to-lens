@@ -39,9 +39,9 @@ def extract_grid_layout(yaml_path: str) -> dict:
 
     # Extract panel information
     panels = []
-    for panel in dashboard_config.panels:
+    for index, panel in enumerate(dashboard_config.panels):
         panel_info = {
-            "id": panel.id or f"panel_{len(panels)}",
+            "id": panel.id or f"panel_{index}",
             "title": panel.title or "Untitled Panel",
             "type": panel.__class__.__name__.replace("Panel", "").lower(),
             "grid": {

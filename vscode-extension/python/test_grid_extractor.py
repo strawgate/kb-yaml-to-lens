@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for grid_extractor.py"""
+"""Unit tests for grid_extractor.py."""
 
 import json
 import sys

@@ -100,6 +100,16 @@ export class GridEditorPanel {
             let stdout = '';
             let stderr = '';
 
+            const timeout = setTimeout(() => {
+                process.kill();
+                reject(new Error('Grid extraction timed out after 30 seconds'));
+            }, 30000);
+
+            process.on('error', (err) => {
+                clearTimeout(timeout);
+                reject(new Error(`Failed to start Python: ${err.message}`));
+            });
+
             process.stdout.on('data', (data) => {
                 stdout += data.toString();
             });
@@ -109,6 +119,7 @@ export class GridEditorPanel {
             });
 
             process.on('close', (code) => {
+                clearTimeout(timeout);
                 if (code !== 0) {
                     reject(new Error(`Grid extraction failed: ${stderr || stdout}`));
                     return;
@@ -128,7 +139,7 @@ export class GridEditorPanel {
         });
     }
 
-    private async updatePanelGrid(panelId: string, grid: { x: number; y: number; w: number; h: number }) {
+    private async updatePanelGrid(panelId: string, grid: { x: number; y: number; w: number; h: number }): Promise<string | undefined> {
         if (!this.currentDashboardPath) {
             return;
         }
@@ -148,6 +159,16 @@ export class GridEditorPanel {
             let stdout = '';
             let stderr = '';
 
+            const timeout = setTimeout(() => {
+                process.kill();
+                reject(new Error('Grid update timed out after 30 seconds'));
+            }, 30000);
+
+            process.on('error', (err) => {
+                clearTimeout(timeout);
+                reject(new Error(`Failed to start Python: ${err.message}`));
+            });
+
             process.stdout.on('data', (data) => {
                 stdout += data.toString();
             });
@@ -157,6 +178,7 @@ export class GridEditorPanel {
             });
 
             process.on('close', (code) => {
+                clearTimeout(timeout);
                 if (code !== 0) {
                     vscode.window.showErrorMessage(`Failed to update grid: ${stderr || stdout}`);
                     reject(new Error(stderr || stdout));
@@ -218,7 +240,8 @@ export class GridEditorPanel {
 
     private getGridEditorContent(gridInfo: DashboardGridInfo, filePath: string): string {
         const fileName = path.basename(filePath);
-        const panelsJson = JSON.stringify(gridInfo.panels);
+        // Escape </script to prevent script tag injection
+        const panelsJson = JSON.stringify(gridInfo.panels).replace(/<\//g, '<\\/');
 
         return `
             <!DOCTYPE html>
@@ -535,7 +558,7 @@ export class GridEditorPanel {
 
                         e.preventDefault();
                         draggedPanel = e.currentTarget;
-                        const index = parseInt(draggedPanel.dataset.index);
+                        const index = parseInt(draggedPanel.dataset.index, 10);
                         dragStartX = e.clientX;
                         dragStartY = e.clientY;
                         dragStartGridX = panels[index].grid.x;
@@ -553,7 +576,7 @@ export class GridEditorPanel {
 
                         isResizing = true;
                         draggedPanel = e.target.closest('.panel');
-                        const index = parseInt(draggedPanel.dataset.index);
+                        const index = parseInt(draggedPanel.dataset.index, 10);
 
                         dragStartX = e.clientX;
                         dragStartY = e.clientY;
@@ -569,7 +592,7 @@ export class GridEditorPanel {
                     function handleMouseMove(e) {
                         if (!draggedPanel) return;
 
-                        const index = parseInt(draggedPanel.dataset.index);
+                        const index = parseInt(draggedPanel.dataset.index, 10);
                         const panel = panels[index];
 
                         if (isResizing) {
@@ -637,7 +660,7 @@ export class GridEditorPanel {
                     function handleMouseUp() {
                         if (!draggedPanel) return;
 
-                        const index = parseInt(draggedPanel.dataset.index);
+                        const index = parseInt(draggedPanel.dataset.index, 10);
                         const panel = panels[index];
 
                         // Send update to extension

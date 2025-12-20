@@ -126,17 +126,16 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
 
         # Find the panel block containing this ID
         # Work backwards to find the panel start (- title: or - id: or - type:)
-        # Use a more flexible pattern that matches any indentation
-        panel_start = content.rfind('\n    - ', 0, id_match.start())
-        if panel_start == -1:
-            panel_start = 0
+        # Use a regex to find panel boundaries with flexible indentation
+        panel_markers = list(re.finditer(r'\n\s*- (?:title:|id:|type:|grid:)', content[:id_match.start()]))
+        panel_start = panel_markers[-1].start() if panel_markers else 0
 
         # Find the next panel or end of panels
-        next_panel = content.find('\n    - ', id_match.end())
-        if next_panel == -1:
-            panel_end = len(content)
+        next_panel_match = re.search(r'\n\s*- (?:title:|id:|type:|grid:)', content[id_match.end():])
+        if next_panel_match:
+            panel_end = id_match.end() + next_panel_match.start()
         else:
-            panel_end = next_panel
+            panel_end = len(content)
 
         panel_content = content[panel_start:panel_end]
 
