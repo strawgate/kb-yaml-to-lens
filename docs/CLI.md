@@ -25,7 +25,7 @@ kb-dashboard compile
 ```
 
 This will:
-- Find all YAML files in `tests/dashboards/scenarios/` (by default)
+- Find all YAML files in `test/dashboards/scenarios/` (by default)
 - Compile them to Kibana JSON format
 - Output NDJSON files to `output/` directory
 - Create individual NDJSON files per scenario
@@ -81,7 +81,7 @@ Compile YAML dashboard configurations to NDJSON format.
 
 **Options:**
 
-- `--input-dir PATH` - Directory containing YAML dashboard files (default: `tests/dashboards/scenarios/`)
+- `--input-dir PATH` - Directory containing YAML dashboard files (default: `test/dashboards/scenarios/`)
 - `--output-dir PATH` - Directory to write compiled NDJSON files (default: `output/`)
 - `--output-file NAME` - Name of the combined output NDJSON file (default: `compiled_dashboards.ndjson`)
 - `--upload` - Upload compiled dashboards to Kibana after compilation

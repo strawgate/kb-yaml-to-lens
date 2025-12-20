@@ -36,7 +36,7 @@ The compiler is designed using a layered approach with distinct components respo
 
 - **`models.py`:** Contains the Pydantic model definitions for the YAML schema and the `to_json()` methods for converting models to JSON fragments.
 - **`compiler.py`:** Contains the main compilation logic, including loading and parsing YAML, validating with Pydantic models, and triggering the JSON generation.
-- **`tests/`:** Directory for test files to verify the compiler's output against expected JSON.
+- **`test/`:** Directory for test files to verify the compiler's output against expected JSON.
 
 ## Data Flow
 

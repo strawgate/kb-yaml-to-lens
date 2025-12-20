@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 project_root = Path(__file__).parent.parent
 
 DEFAULT_INPUT_DIR = project_root / 'inputs'
-DEFAULT_SCENARIO_DIR = project_root / 'tests/dashboards/scenarios'
+DEFAULT_SCENARIO_DIR = project_root / 'test/dashboards/scenarios'
 DEFAULT_OUTPUT_DIR = project_root / 'output'
 
 

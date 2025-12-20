@@ -59,5 +59,5 @@ dashboard:
 ## Next Steps
 
 *   Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in this `docs` folder.
-*   Refer to the example YAML files in the `tests/scenarios` directory for more complex examples.
+*   Refer to the example YAML files in the `test/scenarios` directory for more complex examples.
 *   [//]: # (TODO: Add link to compilation instructions once available)
