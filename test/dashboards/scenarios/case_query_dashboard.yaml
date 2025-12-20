@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   name: One Query Dashboard
   description: "A dashboard with a single query"
   query:

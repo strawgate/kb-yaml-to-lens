@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   title: Markdown Only
   description: ""
   panels:

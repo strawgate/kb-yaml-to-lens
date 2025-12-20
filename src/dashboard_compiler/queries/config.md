@@ -5,6 +5,7 @@ Queries are used to define the search criteria for retrieving data. They can be 
 ## Minimal Configuration Examples
 
 **KQL Query:**
+
 ```yaml
 # Applied at the dashboard level
 dashboard:
@@ -14,6 +15,7 @@ dashboard:
 ```
 
 **Lucene Query:**
+
 ```yaml
 # Applied at the dashboard level
 dashboard:
@@ -23,6 +25,7 @@ dashboard:
 ```
 
 **ESQL Query (typically for specific panel types like ESQL-backed charts):**
+
 ```yaml
 # Example within a panel configuration that supports ESQL
 panels:
@@ -47,6 +50,7 @@ Filters documents using the Kibana Query Language (KQL). This is often the defau
 | `query`  | `object`  | The parent object containing the `kql` key.      | N/A            | Yes      |
 
 **Usage Example (Dashboard Level):**
+
 ```yaml
 dashboard:
   # ...
@@ -64,6 +68,7 @@ Filters documents using the more expressive, but complex, Lucene query syntax.
 | `query`  | `object`  | The parent object containing the `lucene` key.   | N/A            | Yes      |
 
 **Usage Example (Dashboard Level):**
+
 ```yaml
 dashboard:
   # ...
@@ -80,6 +85,7 @@ Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQ
 | `query`  | `string`  | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A            | Yes      |
 
 **Usage Example (Panel Level - for a hypothetical ESQL panel):**
+
 ```yaml
 panels:
   - type: esql_backed_chart # This panel type would be designed to use ESQL
@@ -94,13 +100,13 @@ panels:
 
 ## Query Scope
 
-*   **Dashboard Level Query**: Defined under `dashboard.query`. This query is applied globally to all panels that do not explicitly override it or ignore global queries. KQL and Lucene are supported at this level.
-*   **Panel Level Query**: Defined under `panel.query` (for panels that support it, e.g., Lens panels, ESQL panels). This query is specific to the panel and is often combined with (or can override) the dashboard-level query, depending on the panel's behavior.
-    *   Lens panels typically use KQL for their panel-specific query.
-    *   ESQL-specific panels will use an ESQL query string.
+* **Dashboard Level Query**: Defined under `dashboard.query`. This query is applied globally to all panels that do not explicitly override it or ignore global queries. KQL and Lucene are supported at this level.
+* **Panel Level Query**: Defined under `panel.query` (for panels that support it, e.g., Lens panels, ESQL panels). This query is specific to the panel and is often combined with (or can override) the dashboard-level query, depending on the panel's behavior.
+  * Lens panels typically use KQL for their panel-specific query.
+  * ESQL-specific panels will use an ESQL query string.
 
 ## Related Documentation
 
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Filters Configuration](../filters/config.md)
-*   [Panel Documentation (e.g., Lens, ESQL specific panels)](../panels/base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Filters Configuration](../filters/config.md)
+* [Panel Documentation (e.g., Lens, ESQL specific panels)](../panels/base.md)

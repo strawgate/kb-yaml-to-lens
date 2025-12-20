@@ -1,4 +1,5 @@
-dashboard:
+dashboards:
+-
   title: one-esql-pie-chart
   panels:
     - type: lens_esql

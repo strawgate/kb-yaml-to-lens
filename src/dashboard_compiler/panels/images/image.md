@@ -69,12 +69,13 @@ Image panels inherit from the [Base Panel Configuration](../base.md) and have th
 | `background_color` | `string`                                    | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`).   | `""` (empty string, likely transparent in Kibana) | No       |
 
 **Details for `fit` options:**
-*   `contain`: (Default) Scales the image to fit within the panel while maintaining its aspect ratio. The entire image will be visible.
-*   `cover`: Scales the image to fill the panel while maintaining its aspect ratio. Some parts of the image may be cropped to achieve this.
-*   `fill`: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
-*   `none`: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
+
+* `contain`: (Default) Scales the image to fit within the panel while maintaining its aspect ratio. The entire image will be visible.
+* `cover`: Scales the image to fill the panel while maintaining its aspect ratio. Some parts of the image may be cropped to achieve this.
+* `fill`: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
+* `none`: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
