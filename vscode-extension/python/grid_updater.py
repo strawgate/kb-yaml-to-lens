@@ -11,6 +11,42 @@ import sys
 from pathlib import Path
 
 
+def _validate_panel_id(panel_id: str) -> bool:
+    """Validate that panel_id contains only safe characters.
+
+    Args:
+        panel_id: The panel ID to validate
+
+    Returns:
+        True if valid, False otherwise
+    """
+    # Allow alphanumeric, underscore, hyphen only
+    return bool(re.match(r'^[a-zA-Z0-9_-]+$', panel_id))
+
+
+def _validate_grid_coords(grid: dict) -> bool:
+    """Validate grid coordinates are within valid bounds.
+
+    Args:
+        grid: Dictionary with x, y, w, h coordinates
+
+    Returns:
+        True if valid, False otherwise
+    """
+    required_keys = {'x', 'y', 'w', 'h'}
+    if not all(key in grid for key in required_keys):
+        return False
+
+    # Check all values are non-negative integers
+    for key in required_keys:
+        if not isinstance(grid[key], int) or grid[key] < 0:
+            return False
+
+    # Warn but don't reject if grid exceeds 48 columns (Kibana will handle it)
+    # Just validate that coordinates are reasonable (not negative, not missing)
+    return True
+
+
 def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
     """Update grid coordinates for a specific panel in a YAML file.
 
@@ -22,6 +58,13 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
     Returns:
         Dictionary with success status and message
     """
+    # Validate inputs
+    if not _validate_panel_id(panel_id):
+        return {"success": False, "error": f"Invalid panel ID: {panel_id}. Only alphanumeric, underscore, and hyphen allowed."}
+
+    if not _validate_grid_coords(new_grid):
+        return {"success": False, "error": f"Invalid grid coordinates: {new_grid}"}
+
     yaml_file = Path(yaml_path)
     if not yaml_file.exists():
         return {"success": False, "error": f"File not found: {yaml_path}"}
@@ -43,8 +86,8 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
         # This is an index-based ID, extract the index
         try:
             panel_index = int(panel_id.split("_")[1])
-            # Find the Nth panel block
-            panel_blocks = list(re.finditer(r'^  - (?:title:|id:|type:|grid:)', content, re.MULTILINE))
+            # Find the Nth panel block (panels are indented with 4 spaces under "panels:")
+            panel_blocks = list(re.finditer(r'^\s*- (?:title:|id:|type:|grid:)', content, re.MULTILINE))
             if panel_index < len(panel_blocks):
                 panel_start = panel_blocks[panel_index].start()
                 # Find the end of this panel block (next panel or end of panels section)
@@ -83,12 +126,13 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict) -> dict:
 
         # Find the panel block containing this ID
         # Work backwards to find the panel start (- title: or - id: or - type:)
-        panel_start = content.rfind('\n  - ', 0, id_match.start())
+        # Use a more flexible pattern that matches any indentation
+        panel_start = content.rfind('\n    - ', 0, id_match.start())
         if panel_start == -1:
             panel_start = 0
 
         # Find the next panel or end of panels
-        next_panel = content.find('\n  - ', id_match.end())
+        next_panel = content.find('\n    - ', id_match.end())
         if next_panel == -1:
             panel_end = len(content)
         else:

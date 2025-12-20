@@ -19,11 +19,20 @@ def extract_grid_layout(yaml_path: str) -> dict:
     Returns:
         Dictionary containing dashboard metadata and panel grid information
     """
-    # Add the parent directory to sys.path to import dashboard_compiler
+    # Add the src directory to sys.path to import dashboard_compiler
+    # This is necessary because the extension is not installed as a package
     repo_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(repo_root / "src"))
+    src_path = repo_root / "src"
+    if src_path.exists() and str(src_path) not in sys.path:
+        sys.path.insert(0, str(src_path))
 
-    from dashboard_compiler.dashboard_compiler import load
+    try:
+        from dashboard_compiler.dashboard_compiler import load
+    except ImportError as e:
+        raise ImportError(
+            f"Failed to import dashboard_compiler. Make sure the dashboard_compiler "
+            f"package is installed or the src directory exists at {src_path}"
+        ) from e
 
     # Load the dashboard configuration
     dashboard_config = load(yaml_path)

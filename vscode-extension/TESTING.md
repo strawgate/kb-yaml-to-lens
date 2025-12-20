@@ -2,11 +2,16 @@
 
 This document describes the testing infrastructure for the YAML Dashboard Compiler VSCode extension.
 
+## Test Philosophy
+
+We focus on **high-value, maintainable tests** that validate business logic and catch real bugs:
+
+- ✅ **Python tests**: Test core functionality (YAML parsing, grid updates, error handling)
+- ❌ **Low-value smoke tests**: Avoid tests that only check if classes/functions exist without validating behavior
+
 ## Test Structure
 
-The extension has two types of tests:
-
-### 1. Python Tests
+### Python Tests
 
 Located in `python/test_*.py`, these test the Python scripts that handle YAML manipulation:
 
@@ -23,66 +28,19 @@ make test-extension-python
 uv run python -m pytest vscode-extension/python/test_*.py -v
 ```
 
-### 2. TypeScript Tests
-
-Located in `src/test/`, these test the TypeScript modules:
-
-- `unit/compiler.test.ts` - Tests for the DashboardCompiler class
-- `unit/gridEditorPanel.test.ts` - Tests for the GridEditorPanel class
-- `unit/previewPanel.test.ts` - Tests for the PreviewPanel class
-- `unit/fileWatcher.test.ts` - Tests for the file watcher setup
-
-**Running TypeScript tests:**
+## Running Tests
 
 ```bash
-# From vscode-extension directory
-npm test
-
-# Or run only unit tests
-npm run test:unit
-
-# From repository root
-make test-extension
-```
-
-## Running All Tests
-
-To run all extension tests (both Python and TypeScript):
-
-```bash
-# From repository root
+# Run all tests including extension Python tests
 make check
-```
 
-This will run:
-1. Python linting and formatting
-2. Python unit tests
-3. Python smoke tests
-4. VSCode extension Python tests
+# Run only extension Python tests
+make test-extension-python
+```
 
 ## Continuous Integration
 
-The extension tests are integrated into the CI pipeline:
-
-### Manual Setup Required
-
-Due to GitHub Actions permissions, the CI workflow file must be manually added:
-
-1. Copy `vscode-extension/proposed-ci-workflow.yml` to `.github/workflows/test-vscode-extension.yml`
-2. Commit and push the changes
-
-The CI workflow will:
-- Run Python tests for the extension scripts
-- Compile TypeScript code
-- Run TypeScript linting
-- Run TypeScript unit tests
-
-### Triggered By
-
-The CI workflow runs when:
-- Code is pushed to `main` or `develop` branches
-- Pull requests target `main` or `develop` branches
-- Changes are made to files in the `vscode-extension/` directory
+Extension tests are run in CI when changes are made to the `vscode-extension/` directory.
 
 ## Writing New Tests
 
@@ -105,38 +63,34 @@ class TestMyFeature(unittest.TestCase):
         self.assertEqual(actual, expected)
 ```
 
-### TypeScript Tests
-
-Follow the Mocha test pattern:
-
-```typescript
-import * as assert from 'assert';
-
-suite('MyFeature Tests', () => {
-    test('should do something', () => {
-        // Test implementation
-        assert.strictEqual(actual, expected);
-    });
-});
-```
-
 ## Test Coverage
 
-Current test coverage focuses on:
+Current test coverage:
 
 - ✅ Grid extraction from YAML files
 - ✅ Grid coordinate updates
 - ✅ YAML formatting preservation
 - ✅ Error handling for missing files
 - ✅ Invalid input handling
-- ✅ Basic module loading and structure
+- ✅ Input validation (panel IDs, grid coordinates)
+- ✅ Path traversal prevention
 
-Areas for future improvement:
+### What We Test
 
-- Integration tests with VSCode API
-- Webview rendering tests
-- End-to-end workflow tests
-- Performance tests for large dashboards
+Focus on **business logic** and **security**:
+- Core functionality (parsing, updating YAML)
+- Edge cases (missing fields, invalid data)
+- Security (input validation, path checks)
+- Error handling (file not found, parse errors)
+
+### What We Don't Test
+
+We avoid low-value tests like:
+- Simple class instantiation checks
+- Tests that just verify a module can be imported
+- Tests that don't validate actual behavior
+
+For TypeScript, testing VSCode webview interactions requires a full extension development environment. The Python scripts are where the core business logic lives, so that's where we focus testing efforts.
 
 ## Troubleshooting
 
@@ -149,20 +103,10 @@ If Python tests fail with import errors:
 uv sync --all-extras
 ```
 
-### TypeScript Tests Fail
+### Import Errors
 
-If TypeScript tests fail:
+If you see import errors about `dashboard_compiler`, ensure the main package is installed:
 
 ```bash
-cd vscode-extension
-npm install
-npm run compile
-npm test
+uv sync --all-extras
 ```
-
-### CI Workflow Not Running
-
-Ensure:
-1. The workflow file is in `.github/workflows/` (not in `vscode-extension/`)
-2. The file is committed to the repository
-3. Changes were made to `vscode-extension/` directory

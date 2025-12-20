@@ -33,10 +33,11 @@ class TestGridUpdater(unittest.TestCase):
     - title: Panel 1
       type: markdown
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      markdown: "Test"
+      content: "Test 1"
     - title: Panel 2
-      type: lens
+      type: markdown
       grid: { x: 24, y: 0, w: 24, h: 15 }
+      content: "Test 2"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -62,8 +63,9 @@ class TestGridUpdater(unittest.TestCase):
   panels:
     - id: my-panel
       title: Panel with ID
-      type: metric
+      type: markdown
       grid: { x: 0, y: 0, w: 12, h: 8 }
+      content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -88,10 +90,11 @@ class TestGridUpdater(unittest.TestCase):
     - title: Panel 1
       grid: { x: 0, y: 0, w: 24, h: 15 }
       type: markdown
-      markdown: "Test"
+      content: "Test 1"
     - title: Panel 2
       grid: { x: 24, y: 0, w: 24, h: 15 }
-      type: lens
+      type: markdown
+      content: "Test 2"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -130,7 +133,7 @@ class TestGridUpdater(unittest.TestCase):
     - title: Panel 1
       grid: { x: 0, y: 0, w: 24, h: 15 }
       type: markdown
-      markdown: "Test"
+      content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -167,6 +170,66 @@ class TestGridUpdater(unittest.TestCase):
         self.assertIn("# This is a comment", updated_content)
         # Other content should be preserved
         self.assertIn('markdown: "Test content"', updated_content)
+
+    def test_reject_invalid_panel_id(self):
+        """Test that invalid panel IDs are rejected."""
+        yaml_content = """dashboard:
+  name: Test Dashboard
+  panels:
+    - title: Panel 1
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      type: markdown
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        # Try various invalid panel IDs
+        invalid_ids = [
+            "panel/../../../etc/passwd",  # Path traversal
+            "panel;rm -rf /",              # Command injection attempt
+            "panel{test}",                 # Special characters
+            "panel\nmalicious",            # Newline injection
+        ]
+
+        for invalid_id in invalid_ids:
+            result = update_panel_grid(
+                str(self.temp_file),
+                invalid_id,
+                {"x": 0, "y": 0, "w": 10, "h": 10}
+            )
+            self.assertFalse(result["success"], f"Should reject invalid ID: {invalid_id}")
+            self.assertIn("Invalid panel ID", result["error"])
+
+    def test_reject_invalid_grid_coordinates(self):
+        """Test that invalid grid coordinates are rejected."""
+        yaml_content = """dashboard:
+  name: Test Dashboard
+  panels:
+    - title: Panel 1
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      type: markdown
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        # Test various invalid grid coordinates
+        invalid_grids = [
+            {"x": -1, "y": 0, "w": 10, "h": 10},       # Negative x
+            {"x": 0, "y": -1, "w": 10, "h": 10},       # Negative y
+            {"x": 0, "y": 0, "w": -10, "h": 10},       # Negative width
+            {"x": 0, "y": 0, "w": 10, "h": -10},       # Negative height
+            {"x": 0, "y": 0, "h": 10},                 # Missing w
+            {"x": 0, "y": 0, "w": 10},                 # Missing h
+        ]
+
+        for invalid_grid in invalid_grids:
+            result = update_panel_grid(
+                str(self.temp_file),
+                "panel_0",
+                invalid_grid
+            )
+            self.assertFalse(result["success"], f"Should reject invalid grid: {invalid_grid}")
+            self.assertIn("Invalid grid", result["error"])
 
 
 if __name__ == "__main__":
