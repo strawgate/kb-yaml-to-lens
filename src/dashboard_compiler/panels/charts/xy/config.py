@@ -71,12 +71,16 @@ class BaseXYChart(BaseChart):
 
 
 class LensXYChartMixin:
+    """Shared fields for Lens-based XY charts."""
+
     data_view: str = Field(default=..., description='The data view to use for the chart.')
     dimensions: list[LensDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')
     metrics: list[LensMetricTypes] = Field(..., description='Defines the metrics for the chart.')
     breakdown: LensDimensionTypes | None = Field(
         None,
-        description='An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.',
+        description=(
+            'An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.'
+        ),
     )
 
     def add_dimension(self, lens_dimension: LensDimensionTypes) -> Self:
@@ -93,13 +97,17 @@ class LensXYChartMixin:
 
 
 class ESQLXYChartMixin:
+    """Shared fields for ESQL-based XY charts."""
+
     dimensions: list[ESQLDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')
 
     metrics: list[ESQLMetricTypes] = Field(..., description='Defines the metrics for the chart.')
 
     breakdown: ESQLDimensionTypes | None = Field(
         None,
-        description='An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.',
+        description=(
+            'An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.'
+        ),
     )
 
     def add_dimension(self, esql_dimension: ESQLDimensionTypes) -> Self:
