@@ -77,8 +77,12 @@ class OptionsListControl(BaseControl):
     fill_width: bool = Field(default=False)
     """If true, the control will automatically adjust its width to fill available space."""
 
-    match_technique: MatchTechnique | None = Field(default=None, strict=False)  # strict=False for enum coercion
-    """The search technique used for filtering options (e.g., 'prefix', 'contains', 'exact')."""
+    match_technique: MatchTechnique | None = Field(default=None, strict=False)
+    """The search technique used for filtering options (e.g., 'prefix', 'contains', 'exact').
+
+    Note: strict=False allows string-to-enum coercion for better YAML authoring experience,
+    so users can write 'prefix' instead of needing to know the enum structure.
+    """
 
     wait_for_results: bool = Field(default=False)
     """If set to true, delay the display of the list of values until the results are fully loaded."""
@@ -116,10 +120,10 @@ class RangeSliderControl(BaseControl):
 
 
 class TimeSliderControl(BaseControl):
-    """Represents a Range Slider control.
+    """Represents a Time Slider control.
 
-    This control allows users to select a range of numeric or date values
-    to filter data.
+    This control allows users to select a time range to filter data
+    by adjusting start and end offsets within the global time range.
     """
 
     type: Literal['time'] = 'time'

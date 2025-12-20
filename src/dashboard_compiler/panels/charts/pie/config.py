@@ -42,11 +42,17 @@ class PieLegendVisibleEnum(StrEnum):
 class PieLegend(BaseCfgModel):
     """Represents legend formatting options for pie charts."""
 
-    visible: PieLegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified."""
+    visible: PieLegendVisibleEnum | None = Field(default=None, strict=False)
+    """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified.
 
-    width: PieLegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified."""
+    Note: strict=False allows string-to-enum coercion for better YAML authoring experience.
+    """
+
+    width: PieLegendWidthEnum | None = Field(default=None, strict=False)
+    """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified.
+
+    Note: strict=False allows string-to-enum coercion for better YAML authoring experience.
+    """
 
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
     """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
@@ -81,11 +87,17 @@ class PieSliceLabelsEnum(StrEnum):
 class PieTitlesAndText(BaseCfgModel):
     """Represents titles and text formatting options for pie charts."""
 
-    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
+    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)
+    """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified.
 
-    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the display of slice values in the pie chart. Kibana defaults to 'percentage' if not specified."""
+    Note: strict=False allows string-to-enum coercion for better YAML authoring experience.
+    """
+
+    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)
+    """Controls the display of slice values in the pie chart. Kibana defaults to 'percentage' if not specified.
+
+    Note: strict=False allows string-to-enum coercion for better YAML authoring experience.
+    """
 
     value_decimal_places: int | None = Field(default=None, ge=0, le=10)
     """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
@@ -140,13 +152,14 @@ class LensPieChart(BasePieChart):
 
 
 class ESQLPieChart(BasePieChart):
-    """Represents a Pie chart configuration within an ES|QL panel."""
+    """Represents a Pie chart configuration within an ES|QL panel.
+
+    Note: The ES|QL query is defined at the panel level (ESQLPanel.esql),
+    not at the chart level.
+    """
 
     metric: ESQLMetricTypes = Field(default=...)
     """A metric that determines the size of the slice of the pie chart."""
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart."""
-
-    esql: str = Field(default=...)
-    """The ES|QL query that determines the data for the pie chart."""
