@@ -1,0 +1,22 @@
+# Basic metric visualization example
+# Generates a simple count metric
+
+version: "1.0"
+
+settings:
+  dataView: "logs-*"
+  timeFrom: "now-24h"
+  timeTo: "now"
+
+dashboard:
+  title: "Basic Metric Test"
+  description: "Simple metric visualization for testing"
+
+panels:
+  - type: metric
+    title: "Total Events"
+    layout: full
+    config:
+      metric:
+        operation: count
+        label: "Total Events"

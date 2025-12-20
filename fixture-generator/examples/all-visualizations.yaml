@@ -1,0 +1,129 @@
+# Comprehensive example with all visualization types
+# Use this to generate fixtures for all supported visualizations
+
+version: "1.0"
+
+settings:
+  dataView: "logs-*"
+  timeFrom: "now-24h"
+  timeTo: "now"
+
+dashboard:
+  title: "All Visualization Types"
+  description: "Test fixtures for all supported Lens visualizations"
+
+panels:
+  # Metric visualization
+  - type: metric
+    title: "Total Requests"
+    layout: quarter
+    config:
+      metric:
+        operation: count
+        label: "Total"
+      trendLine: true
+      color: "#00BFB3"
+
+  # Metric with breakdown
+  - type: metric
+    title: "Requests by Agent"
+    layout: quarter
+    config:
+      metric:
+        operation: count
+      breakdown:
+        field: "agent.name"
+        size: 5
+
+  # XY line chart
+  - type: xy
+    title: "Requests Over Time"
+    layout: half
+    config:
+      seriesType: line
+      xAxis:
+        field: "@timestamp"
+        type: date_histogram
+        interval: auto
+      yAxis:
+        operation: count
+        label: "Requests"
+
+  # Pie chart
+  - type: pie
+    title: "Status Code Distribution"
+    layout: quarter
+    config:
+      shape: donut
+      sliceBy:
+        - field: "response.status_code"
+          size: 10
+      metric:
+        operation: count
+
+  # Treemap
+  - type: pie
+    title: "Top Endpoints"
+    layout: quarter
+    config:
+      shape: treemap
+      sliceBy:
+        - field: "url.path"
+          size: 20
+      metric:
+        operation: count
+
+  # Data table
+  - type: datatable
+    title: "Detailed Breakdown"
+    layout: half
+    config:
+      columns:
+        - field: "@timestamp"
+          operation: date_histogram
+          interval: "1h"
+          label: "Time"
+        - field: "url.path"
+          operation: terms
+          size: 20
+          label: "Endpoint"
+        - operation: count
+          label: "Requests"
+        - field: "response.time"
+          operation: average
+          label: "Avg Response Time"
+      sorting:
+        columnIndex: 2
+        direction: desc
+
+  # Gauge
+  - type: gauge
+    title: "Error Rate"
+    layout: quarter
+    config:
+      shape: arc
+      metric:
+        operation: count
+        label: "Errors"
+      min: 0
+      max: 100
+      goal: 5
+      colorMode: palette
+
+  # Heatmap
+  - type: heatmap
+    title: "Request Heatmap"
+    layout: half
+    config:
+      xAxis:
+        field: "@timestamp"
+        type: date_histogram
+        interval: "1h"
+      yAxis:
+        field: "url.path"
+        size: 10
+      value:
+        operation: count
+      legend:
+        isVisible: true
+        position: right
