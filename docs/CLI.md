@@ -7,10 +7,6 @@ The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations 
 After installing the project dependencies, the CLI will be available:
 
 ```bash
-# Using poetry
-poetry install
-
-# Using uv
 uv sync
 ```
 

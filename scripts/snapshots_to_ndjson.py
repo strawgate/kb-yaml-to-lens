@@ -35,7 +35,7 @@ def read_and_compress_snapshot(snapshot_path: Path) -> str | None:
         msg = f'Warning: Skipping invalid JSON in {snapshot_path}'
         logger.warning(msg)
         return None
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         msg = f'Warning: Error processing {snapshot_path}: {e}'
         logger.warning(msg)
         return None
@@ -67,8 +67,7 @@ def main() -> None:
         try:
             # Write each compressed JSON object followed by a newline character
             with Path(OUTPUT_FILE).open('w') as f:
-                for line in ndjson_lines:
-                    f.write(line + '\n')  # Use '\n' for actual newline
+                f.writelines(line + '\n' for line in ndjson_lines)  # Use '\n' for actual newline
             msg = f'Successfully wrote compressed NDJSON output to: {OUTPUT_FILE}'
             logger.info(msg)
         except OSError as e:
