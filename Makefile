@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format inspector test-extension test-extension-python
+.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format inspector test-extension test-extension-python test-extension-typescript
 
 help:
 	@echo "Dependency Management:"
@@ -13,10 +13,11 @@ help:
 	@echo "  check         - Run linting and tests"
 
 	@echo "Testing:"
-	@echo "  test                - Run unit tests"
-	@echo "  test-smoke          - Run smoke tests"
-	@echo "  test-extension      - Run VSCode extension tests"
+	@echo "  test                  - Run unit tests"
+	@echo "  test-smoke            - Run smoke tests"
+	@echo "  test-extension        - Run all VSCode extension tests"
 	@echo "  test-extension-python - Run Python tests for extension"
+	@echo "  test-extension-typescript - Run TypeScript tests for extension"
 
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON"
@@ -38,7 +39,7 @@ install:
 	@echo "Running uv sync..."
 	uv sync --all-extras
 
-check: lint test test-smoke test-extension-python
+check: lint test test-smoke test-extension-python test-extension-typescript
 
 test:
 	@echo "Running pytest..."
@@ -51,6 +52,11 @@ test-extension:
 test-extension-python:
 	@echo "Running Python tests for VSCode extension..."
 	uv run python -m pytest vscode-extension/python/test_*.py -v
+
+test-extension-typescript:
+	@echo "Running TypeScript tests for VSCode extension..."
+	# Using npm install for local development flexibility (vs npm ci in CI)
+	cd vscode-extension && npm install && npm run compile && npm run test:unit
 
 
 inspector:
