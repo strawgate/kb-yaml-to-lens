@@ -21,7 +21,7 @@ This tool simplifies the process of creating and managing Kibana dashboards by a
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
 ```bash
-uv sync --all-extras
+uv sync --group dev
 ```
 
 For more information, see the [uv documentation](https://docs.astral.sh/uv/).
