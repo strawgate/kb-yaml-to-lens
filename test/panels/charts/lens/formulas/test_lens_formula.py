@@ -35,7 +35,7 @@ class LensFormulaMetricHolder(BaseModel):
 @pytest.mark.parametrize(('config', 'desired_output'), TEST_CASES, ids=TEST_CASE_IDS)
 async def test_compile_lens_formula(config: dict, desired_output: dict) -> None:
     """Test the compilation of various Lens metric configurations to their Kibana view model."""
-    metric_holder = LensFormulaMetricHolder.model_validate(**config)
+    metric_holder = LensFormulaMetricHolder.model_validate(config)
 
     column_id: str
     kbn_column: KbnLensColumnTypes
