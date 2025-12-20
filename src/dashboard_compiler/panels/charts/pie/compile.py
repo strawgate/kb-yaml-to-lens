@@ -25,6 +25,7 @@ def compile_pie_chart_visualization_state(
     layer_id: str,
     chart: LensPieChart | ESQLPieChart,
     slice_by_ids: list[str],
+    secondary_slice_by_ids: list[str] | None,
     metric_ids: list[str],
 ) -> KbnPieVisualizationState:
     """Compile a PieChart config object into a Kibana Pie visualization state.
@@ -33,6 +34,7 @@ def compile_pie_chart_visualization_state(
         layer_id (str): The ID of the layer.
         chart (LensPieChart | ESQLPieChart): The PieChart config object.
         slice_by_ids (list[str]): The IDs of the slice by dimensions.
+        secondary_slice_by_ids (list[str] | None): The IDs of the secondary slice by dimensions.
         metric_ids (list[str]): The IDs of the metric.
 
     Returns:
@@ -74,17 +76,24 @@ def compile_pie_chart_visualization_state(
     if chart.color and chart.color.palette:
         kbn_color_mapping = KbnLayerColorMapping(paletteId=chart.color.palette)
 
+    # Determine if multiple metrics are allowed
+    allow_multiple_metrics = True if len(metric_ids) > 1 else None
+    empty_size_ratio = 0.0 if len(metric_ids) > 1 else None
+
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=slice_by_ids,
+        secondaryGroups=secondary_slice_by_ids if secondary_slice_by_ids else None,
         metrics=metric_ids,
+        allowMultipleMetrics=allow_multiple_metrics,
+        collapseFns=chart.collapse_fns if chart.collapse_fns else None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
         nestedLegend=False,
         layerType='data',
         colorMapping=kbn_color_mapping,
-        emptySizeRatio=0 if len(metric_ids) > 1 else None,
+        emptySizeRatio=empty_size_ratio,
         legendSize=legend_size,
         truncateLegend=False if truncate_legend == 0 else None,
         legendMaxLines=legend_max_lines,
@@ -104,18 +113,45 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
 
     """
     layer_id = lens_pie_chart.id or random_id_generator()
-    metric_id: str
-    metric: KbnLensMetricColumnTypes
-    metric_id, metric = compile_lens_metric(metric=lens_pie_chart.metric)
 
-    kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {metric_id: metric}
+    # Handle both single metric and multiple metrics
+    kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
+    metric_ids: list[str] = []
 
+    if lens_pie_chart.metrics:
+        # Multiple metrics mode
+        for metric_cfg in lens_pie_chart.metrics:
+            metric_id, metric = compile_lens_metric(metric=metric_cfg)
+            kbn_metric_column_by_id[metric_id] = metric
+            metric_ids.append(metric_id)
+    elif lens_pie_chart.metric:
+        # Single metric mode (backward compatibility)
+        metric_id, metric = compile_lens_metric(metric=lens_pie_chart.metric)
+        kbn_metric_column_by_id[metric_id] = metric
+        metric_ids.append(metric_id)
+    else:
+        raise ValueError('Either metric or metrics must be provided for LensPieChart')
+
+    # Compile primary dimensions
     slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.slice_by, kbn_metric_column_by_id=kbn_metric_column_by_id)
     slice_by_ids = list(slices_by_ids.keys())
 
-    kbn_columns: dict[str, KbnLensColumnTypes] = {**slices_by_ids, metric_id: metric}
+    # Compile secondary dimensions if provided
+    secondary_slice_by_ids = None
+    secondary_slices_by_ids = {}
+    if lens_pie_chart.secondary_slice_by:
+        secondary_slices_by_ids = compile_lens_dimensions(
+            dimensions=lens_pie_chart.secondary_slice_by, kbn_metric_column_by_id=kbn_metric_column_by_id
+        )
+        secondary_slice_by_ids = list(secondary_slices_by_ids.keys())
 
-    return layer_id, kbn_columns, compile_pie_chart_visualization_state(layer_id, lens_pie_chart, slice_by_ids, [metric_id])
+    kbn_columns: dict[str, KbnLensColumnTypes] = {**slices_by_ids, **secondary_slices_by_ids, **kbn_metric_column_by_id}
+
+    return (
+        layer_id,
+        kbn_columns,
+        compile_pie_chart_visualization_state(layer_id, lens_pie_chart, slice_by_ids, secondary_slice_by_ids, metric_ids),
+    )
 
 
 def compile_esql_pie_chart(
@@ -132,11 +168,35 @@ def compile_esql_pie_chart(
     """
     layer_id = esql_pie_chart.id or random_id_generator()
 
-    metric = compile_esql_metric(esql_pie_chart.metric)
+    # Handle both single metric and multiple metrics
+    metrics: list[KbnESQLColumnTypes] = []
+    metric_ids: list[str] = []
 
+    if esql_pie_chart.metrics:
+        # Multiple metrics mode
+        for metric_cfg in esql_pie_chart.metrics:
+            metric = compile_esql_metric(metric_cfg)
+            metrics.append(metric)
+            metric_ids.append(metric.columnId)
+    elif esql_pie_chart.metric:
+        # Single metric mode (backward compatibility)
+        metric = compile_esql_metric(esql_pie_chart.metric)
+        metrics.append(metric)
+        metric_ids.append(metric.columnId)
+    else:
+        raise ValueError('Either metric or metrics must be provided for ESQLPieChart')
+
+    # Compile primary dimensions
     dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.slice_by)
 
-    kbn_columns: list[KbnESQLColumnTypes] = [metric, *dimensions]
+    # Compile secondary dimensions if provided
+    secondary_dimensions = []
+    secondary_slice_by_ids = None
+    if esql_pie_chart.secondary_slice_by:
+        secondary_dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.secondary_slice_by)
+        secondary_slice_by_ids = [column.columnId for column in secondary_dimensions]
+
+    kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions, *secondary_dimensions]
 
     return (
         layer_id,
@@ -145,6 +205,7 @@ def compile_esql_pie_chart(
             layer_id=layer_id,
             chart=esql_pie_chart,
             slice_by_ids=[column.columnId for column in dimensions],
-            metric_ids=[metric.columnId],
+            secondary_slice_by_ids=secondary_slice_by_ids,
+            metric_ids=metric_ids,
         ),
     )
