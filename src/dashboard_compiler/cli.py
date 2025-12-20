@@ -93,11 +93,12 @@ def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
         for dashboard in dashboards:
             dashboard_kbn_model = render(dashboard)
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
-        return json_lines, None
     except FileNotFoundError:
         return [], f'YAML file not found: {yaml_path}'
     except (ValueError, TypeError, KeyError) as e:
         return [], f'Error compiling {yaml_path}: {e}'
+    else:
+        return json_lines, None
 
 
 def get_yaml_files(directory: Path) -> list[Path]:

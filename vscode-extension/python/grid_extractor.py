@@ -36,7 +36,11 @@ def extract_grid_layout(yaml_path: str) -> dict:
         raise ImportError(msg) from e
 
     # Load the dashboard configuration
-    dashboard_config = load(yaml_path)
+    dashboards = load(yaml_path)
+    if not dashboards:
+        msg = 'No dashboards found in the YAML file'
+        raise ValueError(msg)
+    dashboard_config = dashboards[0]
 
     # Extract panel information
     panels = []
