@@ -6,8 +6,14 @@ import * as path from 'path';
 // Using unknown since the structure depends on the dashboard configuration
 export type CompiledDashboard = unknown;
 
+export interface DashboardInfo {
+    index: number;
+    title: string;
+    description: string;
+}
+
 interface PendingRequest {
-    resolve: (value: CompiledDashboard) => void;
+    resolve: (value: CompiledDashboard | DashboardInfo[]) => void;
     reject: (error: Error) => void;
 }
 
@@ -77,7 +83,7 @@ export class DashboardCompiler {
         });
     }
 
-    async compile(filePath: string): Promise<CompiledDashboard> {
+    async compile(filePath: string, dashboardIndex: number = 0): Promise<CompiledDashboard> {
         if (!this.pythonProcess || !this.pythonProcess.stdin) {
             throw new Error('Python server not running');
         }
@@ -86,7 +92,7 @@ export class DashboardCompiler {
         const request = {
             id,
             method: 'compile',
-            params: { path: filePath }
+            params: { path: filePath, dashboard_index: dashboardIndex }
         };
 
         return new Promise((resolve, reject) => {
@@ -102,6 +108,54 @@ export class DashboardCompiler {
             const wrappedResolve = (value: CompiledDashboard) => {
                 clearTimeout(timeoutId);
                 resolve(value);
+            };
+
+            const wrappedReject = (error: Error) => {
+                clearTimeout(timeoutId);
+                reject(error);
+            };
+
+            this.pendingRequests.set(id, { resolve: wrappedResolve, reject: wrappedReject });
+
+            if (this.pythonProcess && this.pythonProcess.stdin) {
+                try {
+                    this.pythonProcess.stdin.write(JSON.stringify(request) + '\n');
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    this.pendingRequests.delete(id);
+                    reject(new Error(`Failed to write to Python server: ${error instanceof Error ? error.message : String(error)}`));
+                }
+            } else {
+                clearTimeout(timeoutId);
+                this.pendingRequests.delete(id);
+                reject(new Error('Python server stdin not available'));
+            }
+        });
+    }
+
+    async getDashboards(filePath: string): Promise<DashboardInfo[]> {
+        if (!this.pythonProcess || !this.pythonProcess.stdin) {
+            throw new Error('Python server not running');
+        }
+
+        const id = ++this.requestId;
+        const request = {
+            id,
+            method: 'get_dashboards',
+            params: { path: filePath }
+        };
+
+        return new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                if (this.pendingRequests.has(id)) {
+                    this.pendingRequests.delete(id);
+                    reject(new Error('Get dashboards timeout'));
+                }
+            }, 30000);
+
+            const wrappedResolve = (value: CompiledDashboard | DashboardInfo[]) => {
+                clearTimeout(timeoutId);
+                resolve(value as DashboardInfo[]);
             };
 
             const wrappedReject = (error: Error) => {
