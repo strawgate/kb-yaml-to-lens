@@ -6,14 +6,10 @@ Lens info is here: https://github.com/elastic/kibana/tree/main/x-pack/platform/p
 
 ## Installation
 
-This project supports two package managers:
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
-### Using Poetry
 ```bash
-poetry install
+uv sync --all-extras
 ```
 
-### Using uv
-```bash
-uv sync --extra dev
-```
+For more information, see the [uv documentation](https://docs.astral.sh/uv/).

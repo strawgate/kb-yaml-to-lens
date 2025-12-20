@@ -9,7 +9,7 @@ def compile_markdown_references():
     """
     repo_root = pathlib.Path(__file__).parent.parent
     output_file_path = repo_root / 'yaml_reference.md'
-    docs_root_path = repo_root / 'dashboard_compiler'
+    docs_root_path = repo_root / 'src' / 'dashboard_compiler'
 
     main_dashboard_doc_rel_path = 'dashboard/dashboard.md'
     main_dashboard_doc_abs_path = docs_root_path / main_dashboard_doc_rel_path
