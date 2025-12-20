@@ -10,6 +10,11 @@ const { generateMetricWithBreakdown } = require('./examples/metric-with-breakdow
 const { generateXYChart } = require('./examples/xy-chart');
 const { generatePieChart } = require('./examples/pie-chart');
 const { generateHeatmap } = require('./examples/heatmap');
+const { generateHeatmapBasic } = require('./examples/heatmap-basic');
+const { generateHeatmapWithPalette } = require('./examples/heatmap-with-palette');
+const { generateHeatmapAverageAggregation } = require('./examples/heatmap-average-aggregation');
+const { generateHeatmapCountMetric } = require('./examples/heatmap-count-metric');
+const { generateHeatmapNoLegend } = require('./examples/heatmap-no-legend');
 
 async function generateAll() {
   console.log('Generating all test fixtures...\n');
@@ -20,6 +25,11 @@ async function generateAll() {
     { name: 'XY Chart', fn: generateXYChart },
     { name: 'Pie Chart', fn: generatePieChart },
     { name: 'Heatmap', fn: generateHeatmap },
+    { name: 'Heatmap (Basic)', fn: generateHeatmapBasic },
+    { name: 'Heatmap (With Palette)', fn: generateHeatmapWithPalette },
+    { name: 'Heatmap (Average Aggregation)', fn: generateHeatmapAverageAggregation },
+    { name: 'Heatmap (Count Metric)', fn: generateHeatmapCountMetric },
+    { name: 'Heatmap (No Legend)', fn: generateHeatmapNoLegend },
   ];
 
   for (const { name, fn } of generators) {
