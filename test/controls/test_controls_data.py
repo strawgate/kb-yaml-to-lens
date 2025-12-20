@@ -281,8 +281,8 @@ CASE_SETTINGS = (
     {
         'chainingSystem': 'HIERARCHICAL',
         'controlStyle': 'oneLine',
-        'ignoreParentSettingsJSON': '{"ignoreFilters":false,"ignoreQuery":false,"ignoreTimerange":false,"ignoreValidations":false}',
-        'panelsJSON': '{}',
+        'ignoreParentSettingsJSON': {'ignoreFilters': False, 'ignoreQuery': False, 'ignoreTimerange': False, 'ignoreValidations': False},
+        'panelsJSON': {},
         'showApplySelections': False,
     },
 )
@@ -299,8 +299,8 @@ CASE_SETTINGS_CUSTOM = (
     {
         'chainingSystem': 'NONE',
         'controlStyle': 'twoLine',
-        'ignoreParentSettingsJSON': '{"ignoreFilters":true,"ignoreQuery":true,"ignoreTimerange":true,"ignoreValidations":true}',
-        'panelsJSON': '{}',
+        'ignoreParentSettingsJSON': {'ignoreFilters': True, 'ignoreQuery': True, 'ignoreTimerange': True, 'ignoreValidations': True},
+        'panelsJSON': {},
         'showApplySelections': True,
     },
 )
