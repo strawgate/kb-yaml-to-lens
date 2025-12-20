@@ -28,6 +28,7 @@ def extract_grid_layout(yaml_path: str) -> dict:
 
     try:
         from dashboard_compiler.dashboard_compiler import load
+        import yaml
     except ImportError as e:
         msg = (
             f'Failed to import dashboard_compiler. Make sure the dashboard_compiler '
@@ -36,7 +37,34 @@ def extract_grid_layout(yaml_path: str) -> dict:
         raise ImportError(msg) from e
 
     # Load the dashboard configuration
-    dashboard_config = load(yaml_path)
+    dashboard_configs = load(yaml_path)
+    
+    # Handle both single dashboard and multiple dashboards
+    # If load returns an empty list, it might be because the YAML uses 'dashboard:' instead of 'dashboards:'
+    if isinstance(dashboard_configs, list) and len(dashboard_configs) > 0:
+        dashboard_config = dashboard_configs[0]
+    elif isinstance(dashboard_configs, list) and len(dashboard_configs) == 0:
+        # Try to load the YAML directly and handle the single dashboard format
+        try:
+            with open(yaml_path, 'r') as file:
+                yaml_content = yaml.safe_load(file)
+            
+            # Check if the YAML has a 'dashboard' key (singular) instead of 'dashboards'
+            if 'dashboard' in yaml_content:
+                # Wrap the single dashboard in the expected format
+                wrapped_content = {'dashboards': [yaml_content['dashboard']]}
+                dashboard_configs = load_from_wrapped(yaml_path, wrapped_content)
+                if dashboard_configs and len(dashboard_configs) > 0:
+                    dashboard_config = dashboard_configs[0]
+                else:
+                    raise ValueError('Failed to load dashboard from wrapped content')
+            else:
+                raise ValueError(f'YAML file does not contain expected "dashboard" or "dashboards" key')
+        except Exception as e:
+            raise ValueError(f'Failed to load YAML file: {str(e)}') from e
+    else:
+        # Fallback for unexpected formats
+        raise ValueError(f'Expected list of dashboards, got {type(dashboard_configs)}')
 
     # Extract panel information
     panels = []
@@ -60,6 +88,40 @@ def extract_grid_layout(yaml_path: str) -> dict:
         'description': dashboard_config.description or '',
         'panels': panels,
     }
+
+
+def load_from_wrapped(yaml_path: str, wrapped_content: dict):
+    """Helper function to load dashboard from wrapped content."""
+    # Create a temporary file with the wrapped content
+    import tempfile
+    import yaml
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as temp_file:
+        yaml.dump(wrapped_content, temp_file)
+        temp_path = temp_file.name
+    
+    try:
+        from dashboard_compiler.dashboard_compiler import load
+        return load(temp_path)
+    finally:
+        import os
+        os.unlink(temp_path)
+
+
+def load_from_wrapped(yaml_path: str, wrapped_content: dict):
+    """Helper function to load dashboard from wrapped content."""
+    # Create a temporary file with the wrapped content
+    import tempfile
+    import yaml
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as temp_file:
+        yaml.dump(wrapped_content, temp_file)
+        temp_path = temp_file.name
+    
+    try:
+        from dashboard_compiler.dashboard_compiler import load
+        return load(temp_path)
+    finally:
+        import os
+        os.unlink(temp_path)
 
 
 if __name__ == '__main__':
