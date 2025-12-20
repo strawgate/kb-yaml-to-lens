@@ -1,21 +1,21 @@
 # Kibana Dashboard Fixture Generator
 
-A Docker-based tool for generating Kibana dashboard JSON fixtures using TypeScript and Kibana's official APIs. These fixtures are used as test data for the `kb-yaml-to-lens` Python compiler.
+A simple helper tool for generating Kibana dashboard JSON fixtures using Kibana's `LensConfigBuilder` API. These fixtures are used as test data for the `kb-yaml-to-lens` Python compiler.
 
 ## Purpose
 
 Generate **known-good** Kibana dashboard JSON by:
-1. Writing dashboard definitions in **TypeScript code**
-2. Using Kibana's **LensConfigBuilder API** to generate proper JSON
+1. Using Kibana's **LensConfigBuilder API** directly in JavaScript
+2. Building visualizations programmatically with the config builder
 3. Exporting JSON fixtures for Python test suite validation
 4. Supporting multiple Kibana versions for compatibility testing
 
 ## Why This Approach?
 
-- **Authoritative**: Uses Kibana's actual API, not reverse-engineering
-- **Version Flexibility**: Easy to regenerate fixtures for different Kibana versions
-- **Type Safety**: TypeScript provides autocomplete and type checking
-- **Test Accuracy**: Ensures Python compiler output matches Kibana's format exactly
+- **Authoritative**: Uses Kibana's actual config builder API, not reverse-engineering
+- **Simple**: Just JavaScript files that call the API and export JSON
+- **Version Flexible**: Easy to regenerate fixtures for different Kibana versions
+- **Direct**: No TypeScript compilation, no complex tooling—just Node.js scripts
 
 ## System Requirements
 
@@ -34,7 +34,7 @@ cd fixture-generator
 docker-compose build
 ```
 
-**Note**: First build takes 15-30 minutes to bootstrap Kibana.
+**Note**: First build takes 15-30 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
 
 ### 2. Generate Fixtures
 
@@ -42,8 +42,9 @@ docker-compose build
 # Generate all fixtures
 docker-compose run generator
 
-# Generate specific dashboard
-docker-compose run generator node dist/dashboards/metric-examples.js
+# Generate specific fixture
+docker-compose run generator node examples/metric-basic.js
+docker-compose run generator node examples/xy-chart.js
 ```
 
 ### 3. Copy to Python Tests
@@ -57,140 +58,142 @@ cp output/metric-basic.json ../tests/fixtures/
 
 ```
 fixture-generator/
-├── src/
-│   ├── dashboards/          # Dashboard definitions (you edit these)
-│   │   ├── metric-examples.ts
-│   │   ├── xy-examples.ts
-│   │   └── pie-examples.ts
-│   ├── lib/
-│   │   └── generator.ts     # Helper to run Kibana API and export JSON
-│   └── cli.ts               # Main entry point
-├── output/                  # Generated JSON files
+├── examples/                    # Example generator scripts
+│   ├── metric-basic.js         # Basic metric visualization
+│   ├── metric-with-breakdown.js # Metric with breakdown
+│   ├── xy-chart.js             # Line/area/bar charts
+│   └── pie-chart.js            # Pie/donut charts
+├── generate-all.js             # Runs all examples
+├── output/                     # Generated JSON files
 ├── Dockerfile
 ├── docker-compose.yml
 └── package.json
 ```
 
-## Creating Dashboard Definitions
+## How It Works
 
-Dashboard definitions are TypeScript files in `src/dashboards/` that use Kibana's LensConfigBuilder:
+Each example script:
+1. Imports `LensConfigBuilder` from Kibana's package
+2. Creates a config object defining the visualization
+3. Calls `builder.build(config, options)` to generate the Lens attributes
+4. Writes the result as JSON to the output directory
 
-```typescript
-// src/dashboards/metric-examples.ts
-import { generateFixture } from '../lib/generator';
+### Example Script
 
-// Define your dashboard using Kibana's API
-export async function generateMetricBasic() {
-  const { LensConfigBuilder } = await import('@kbn/lens-embeddable-utils/config_builder');
+```javascript
+// examples/metric-basic.js
+const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
+const fs = require('fs');
+const path = require('path');
 
+async function generateMetricBasic() {
+  // Initialize builder
   const builder = new LensConfigBuilder();
 
-  // Use Kibana's API to build the visualization
-  const lensConfig = builder
-    .metric()
-    .addMetric('count')
-    .build();
+  // Define visualization config
+  const config = {
+    chartType: 'metric',
+    title: 'Basic Count Metric',
+    dataset: {
+      esql: 'FROM logs-* | STATS count = COUNT()'
+    },
+    value: 'count',
+    label: 'Total Events'
+  };
 
-  // Export as JSON fixture
-  await generateFixture('metric-basic.json', {
-    title: 'Basic Metric',
-    visualizationType: 'lnsMetric',
-    ...lensConfig
+  // Build the Lens attributes
+  const lensAttributes = await builder.build(config, {
+    timeRange: { from: 'now-24h', to: 'now', type: 'relative' }
   });
+
+  // Write to output
+  const outputPath = path.join(__dirname, '..', 'output', 'metric-basic.json');
+  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
+  console.log('✓ Generated: metric-basic.json');
 }
 
-// Export multiple variations
-export async function generateMetricWithBreakdown() {
-  // ... define another dashboard variant
-}
-
-// Run all generators in this file
-if (require.main === module) {
-  Promise.all([
-    generateMetricBasic(),
-    generateMetricWithBreakdown(),
-  ]).then(() => console.log('✓ Metric fixtures generated'));
-}
+generateMetricBasic();
 ```
 
-## Workflow for Adding Test Fixtures
+## Creating New Fixtures
 
-1. **Create dashboard definition** in `src/dashboards/my-test.ts`
-2. **Use Kibana's LensConfigBuilder** to programmatically build the dashboard
-3. **Run fixture generator** via Docker
-4. **Copy JSON to Python tests** in appropriate location
-5. **Use in test cases** to validate compiler output
+1. **Create a new script** in `examples/` directory
+2. **Use LensConfigBuilder** to define your visualization
+3. **Run the script** via Docker
+4. **Copy the JSON** to your test suite
 
 ### Example Workflow
 
 ```bash
-# 1. Create new dashboard definition
-cat > src/dashboards/my-test.ts << 'EOF'
-import { generateFixture } from '../lib/generator';
+# 1. Create new example script
+cat > examples/my-custom-metric.js << 'EOF'
+const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
+const fs = require('fs');
+const path = require('path');
 
-export async function generateMyTest() {
-  const { LensConfigBuilder } = await import('@kbn/lens-embeddable-utils/config_builder');
+async function generateCustomMetric() {
   const builder = new LensConfigBuilder();
 
-  const config = builder
-    .metric()
-    .addMetric('count', { label: 'Total Events' })
-    .build();
+  const config = {
+    chartType: 'metric',
+    title: 'Custom Metric',
+    dataset: { esql: 'FROM my-index | STATS avg = AVG(my_field)' },
+    value: 'avg'
+  };
 
-  await generateFixture('my-test.json', config);
+  const result = await builder.build(config);
+  fs.writeFileSync(
+    path.join(__dirname, '..', 'output', 'my-custom-metric.json'),
+    JSON.stringify(result, null, 2)
+  );
 }
 
-if (require.main === module) {
-  generateMyTest();
-}
+generateCustomMetric();
 EOF
 
-# 2. Rebuild and generate
-docker-compose build
-docker-compose run generator node dist/dashboards/my-test.js
+# 2. Run the generator
+docker-compose run generator node examples/my-custom-metric.js
 
 # 3. Copy to Python tests
-cp output/my-test.json ../tests/fixtures/
-
-# 4. Use in Python test
-# In tests/panels/charts/metric/test_metric_data.py:
-# import json
-# MY_FIXTURE = json.loads(Path('../fixtures/my-test.json').read_text())
-# TEST_CASES.append((IN_CONFIG, ESQL_CONFIG, MY_FIXTURE))
+cp output/my-custom-metric.json ../tests/fixtures/
 ```
+
+## Chart Types
+
+The LensConfigBuilder supports these chart types:
+
+- **metric** - Single value metrics, with optional secondary metrics and breakdowns
+- **xy** - Line, bar, area charts with time series or categorical data
+- **pie** - Pie and donut charts
+- **table** - Data tables
+- **gauge** - Gauge visualizations
+- **heatmap** - Heatmap visualizations
+- **tagcloud** - Tag cloud visualizations
+- **treemap** - Treemap visualizations
+- **mosaic** - Mosaic visualizations
+- **regionmap** - Region map visualizations
+
+See [Kibana's Lens documentation](https://github.com/elastic/kibana/tree/main/dev_docs/lens) for configuration options.
 
 ## Multi-Version Support
 
 To generate fixtures for different Kibana versions:
 
 ```bash
-# Build for Kibana 8.15
-docker build --build-arg KIBANA_VERSION=8.15 -t fixture-gen:8.15 .
-
-# Build for Kibana 9.0
-docker build --build-arg KIBANA_VERSION=9.0 -t fixture-gen:9.0 .
+# Build for specific Kibana version
+docker build --build-arg KIBANA_VERSION=v8.15.0 -t fixture-gen:8.15 .
 
 # Generate with specific version
-docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node dist/dashboards/metric-examples.js
+docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node examples/metric-basic.js
 ```
 
-## Docker Setup Details
+## Docker Setup
 
 The Dockerfile:
 1. Installs Node.js 20.x (matches Kibana requirement)
 2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
-3. Installs TypeScript and builds your dashboard definitions
-4. Runs generators and exports JSON to `./output/`
-
-## Example Dashboard Definitions
-
-See `src/dashboards/` for examples:
-- `metric-examples.ts` - Metric visualizations (basic, with breakdown, with secondary)
-- `xy-examples.ts` - XY charts (line, bar, area, stacked)
-- `pie-examples.ts` - Pie/donut charts
-- `table-examples.ts` - Data tables
-- `gauge-examples.ts` - Gauge visualizations
-- `heatmap-examples.ts` - Heatmap visualizations
+3. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
+4. Runs your generator scripts and exports JSON to `./output/`
 
 ## Troubleshooting
 
@@ -206,17 +209,17 @@ services:
     mem_limit: 10g
 ```
 
-### Kibana Packages Not Found
+### LensConfigBuilder Not Found
 
 **Problem**: Cannot find `@kbn/lens-embeddable-utils`
 
-**Solution**: Ensure Kibana bootstrap completed successfully. Check build logs.
+**Solution**: Ensure Kibana bootstrap completed successfully. Check build logs for errors during the `yarn kbn bootstrap` step.
 
-### Generated JSON Looks Wrong
+### Invalid Configuration
 
-**Problem**: Fixture doesn't match expected format
+**Problem**: Builder throws error about invalid config
 
-**Solution**: Compare with actual Kibana export. The LensConfigBuilder API should produce correct output, but you may need to adjust your TypeScript code.
+**Solution**: Check the [Kibana Lens config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx) for valid configuration options for your chart type.
 
 ## CI/CD Integration
 
@@ -231,7 +234,7 @@ jobs:
   regenerate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build fixture generator
         run: |
@@ -254,16 +257,20 @@ jobs:
 
 When adding new visualization types:
 
-1. Create `src/dashboards/new-viz-examples.ts`
-2. Use Kibana's LensConfigBuilder to define examples
-3. Run generator and verify output
-4. Copy fixtures to Python tests
-5. Update Python compiler to match (if needed)
+1. Create `examples/new-viz.js`
+2. Use `LensConfigBuilder` API to define the visualization
+3. Add to `generate-all.js` if it should be generated by default
+4. Run generator and verify output
+5. Copy fixtures to Python tests
+6. Update Python compiler to match (if needed)
+
+## Documentation
+
+- [Kibana Lens Config API](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx)
+- [Metric Visualizations](https://github.com/elastic/kibana/blob/main/dev_docs/lens/metric.mdx)
+- [XY Charts](https://github.com/elastic/kibana/blob/main/dev_docs/lens/xy.mdx)
+- [Pie Charts](https://github.com/elastic/kibana/blob/main/dev_docs/lens/pie.mdx)
 
 ## License
 
 Same as parent project
-
-## Support
-
-File issues in main repository with `fixture-generator` label

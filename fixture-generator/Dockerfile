@@ -1,9 +1,9 @@
 # Kibana Dashboard Fixture Generator
 #
 # This Dockerfile creates an environment that:
-# 1. Bootstraps Kibana from source (to access @kbn/* packages)
-# 2. Builds TypeScript dashboard definitions
-# 3. Generates JSON fixtures using Kibana's APIs
+# 1. Bootstraps Kibana from source (to access @kbn/lens-embeddable-utils)
+# 2. Provides LensConfigBuilder API for generating fixtures
+# 3. Runs simple JavaScript scripts to export dashboard JSON
 #
 # Note: The first build takes 15-30 minutes due to Kibana bootstrap
 
@@ -36,25 +36,23 @@ RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/ki
     git clone --depth 1 https://github.com/elastic/kibana.git .
 
 # Bootstrap Kibana (this takes 15-30 minutes)
-# This makes @kbn/* packages available for import
+# This makes @kbn/lens-embeddable-utils and other packages available
 RUN yarn kbn bootstrap
 
-# Create tool directories
+# Create tool workspace
 WORKDIR /tool
-RUN mkdir -p /tool/output
+RUN mkdir -p /tool/output /tool/examples
 
-# Copy tool source files
-COPY package.json tsconfig.json ./
-COPY src/ ./src/
-
-# Install tool dependencies
-RUN yarn install
-
-# Build TypeScript
-RUN yarn build
+# Copy generator scripts
+COPY package.json ./
+COPY generate-all.js ./
+COPY examples/ ./examples/
 
 # Set output directory
 ENV OUTPUT_DIR=/tool/output
 
+# Set NODE_PATH so Node can find @kbn packages from Kibana
+ENV NODE_PATH=/kibana/node_modules
+
 # Default command: generate all fixtures
-CMD ["node", "dist/cli.js"]
+CMD ["node", "generate-all.js"]

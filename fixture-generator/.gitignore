@@ -3,13 +3,7 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# Build output
-dist/
-*.js
-*.d.ts
-*.js.map
-
-# Test output
+# Generated fixtures
 output/*.json
 output/*.ndjson
 
