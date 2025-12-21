@@ -70,6 +70,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 - **[Quickstart Guide](docs/quickstart.md)** – Step-by-step guide for creating your first dashboard
 - **[Architecture](docs/architecture.md)** – Technical design and data flow overview
 - **[YAML Reference](yaml_reference.md)** – Complete schema documentation for all dashboard elements
+- **[ES|QL Pie Chart Capabilities](docs/esql-pie-chart-capabilities.md)** – Comprehensive feature comparison and usage guide
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities
 
 ## CLI Commands
