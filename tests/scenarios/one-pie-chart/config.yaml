@@ -1,7 +1,7 @@
 dashboards:
 -
   id: e8f68160-778e-4b85-a425-5ff1b1d17511 # Fixed ID for testing
-  title: Pie Chart Only on Aerospike Namespace
+  name: Pie Chart Only on Aerospike Namespace
   description: ""
   panels:
   - title: "Pie Chart of Aerospike Namespace" 
