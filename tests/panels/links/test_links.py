@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 import pytest
+from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
@@ -35,16 +36,17 @@ def test_compile_links_panel_basic_url(compile_links_panel_snapshot) -> None:
             ],
         }
     )
-    assert references == []
-    assert result['attributes']['layout'] == 'horizontal'
-    assert len(result['attributes']['links']) == 1
-    link = result['attributes']['links'][0]
-    assert link['label'] == ''
-    assert link['type'] == 'externalLink'
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link['id'])
-    assert link['destination'] == 'https://elastic.co'
-    assert link['order'] == 0
-    assert result['enhancements'] == {}
+    assert references == snapshot([])
+    # Note: URL links generate dynamic UUIDs, so we validate the UUID format separately
+    link_id = result['attributes']['links'][0]['id']
+    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
+    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
+    assert result == snapshot(
+        {
+            'attributes': {'layout': 'horizontal', 'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}]},
+            'enhancements': {},
+        }
+    )
 
 
 def test_compile_links_panel_custom_id(compile_links_panel_snapshot) -> None:
@@ -60,17 +62,17 @@ def test_compile_links_panel_custom_id(compile_links_panel_snapshot) -> None:
             ],
         }
     )
-    assert references == []
-    assert result['attributes']['layout'] == 'horizontal'
-    assert len(result['attributes']['links']) == 1
-    link = result['attributes']['links'][0]
-    assert link['label'] == ''
-    assert link['type'] == 'externalLink'
+    assert references == snapshot([])
     # Note: URL links currently generate new IDs even when one is provided
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link['id'])
-    assert link['destination'] == 'https://elastic.co'
-    assert link['order'] == 0
-    assert result['enhancements'] == {}
+    link_id = result['attributes']['links'][0]['id']
+    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
+    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
+    assert result == snapshot(
+        {
+            'attributes': {'layout': 'horizontal', 'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}]},
+            'enhancements': {},
+        }
+    )
 
 
 def test_compile_links_panel_with_label(compile_links_panel_snapshot) -> None:
@@ -83,16 +85,17 @@ def test_compile_links_panel_with_label(compile_links_panel_snapshot) -> None:
             ],
         }
     )
-    assert references == []
-    assert result['attributes']['layout'] == 'horizontal'
-    assert len(result['attributes']['links']) == 1
-    link = result['attributes']['links'][0]
-    assert link['label'] == 'Custom Label'
-    assert link['type'] == 'externalLink'
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link['id'])
-    assert link['destination'] == 'https://elastic.co'
-    assert link['order'] == 0
-    assert result['enhancements'] == {}
+    assert references == snapshot([])
+    # Note: URL links generate dynamic UUIDs, so we validate the UUID format separately
+    link_id = result['attributes']['links'][0]['id']
+    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
+    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
+    assert result == snapshot(
+        {
+            'attributes': {'layout': 'horizontal', 'links': [{'label': 'Custom Label', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}]},
+            'enhancements': {},
+        }
+    )
 
 
 def test_compile_links_panel_inverted_options(compile_links_panel_snapshot) -> None:
@@ -105,17 +108,29 @@ def test_compile_links_panel_inverted_options(compile_links_panel_snapshot) -> N
             ],
         }
     )
-    assert references == []
-    assert result['attributes']['layout'] == 'horizontal'
-    assert len(result['attributes']['links']) == 1
-    link = result['attributes']['links'][0]
-    assert link['label'] == 'Custom Label'
-    assert link['type'] == 'externalLink'
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link['id'])
-    assert link['destination'] == 'https://elastic.co'
-    assert link['order'] == 0
-    assert link['options'] == {'encodeUrl': False, 'openInNewTab': False}
-    assert result['enhancements'] == {}
+    assert references == snapshot([])
+    # Note: URL links generate dynamic UUIDs, so we validate the UUID format separately
+    link_id = result['attributes']['links'][0]['id']
+    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
+    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
+    assert result == snapshot(
+        {
+            'attributes': {
+                'layout': 'horizontal',
+                'links': [
+                    {
+                        'label': 'Custom Label',
+                        'type': 'externalLink',
+                        'id': 'DYNAMIC_UUID',
+                        'destination': 'https://elastic.co',
+                        'order': 0,
+                        'options': {'encodeUrl': False, 'openInNewTab': False},
+                    }
+                ],
+            },
+            'enhancements': {},
+        }
+    )
 
 
 def test_compile_links_panel_dashboard_link(compile_links_panel_snapshot) -> None:
@@ -134,20 +149,24 @@ def test_compile_links_panel_dashboard_link(compile_links_panel_snapshot) -> Non
             ],
         }
     )
-    assert len(references) == 1
-    assert references[0]['id'] == '71a1e537-15ed-4891-b102-4ef0f314a037'
-    assert references[0]['name'] == 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard'
-    assert references[0]['type'] == 'dashboard'
-
-    assert result['attributes']['layout'] == 'vertical'
-    assert len(result['attributes']['links']) == 1
-    link = result['attributes']['links'][0]
-    assert link['label'] == 'Go to Dashboard'
-    assert link['type'] == 'dashboardLink'
-    assert link['id'] == 'f1057dc0-1132-4143-8a58-ccbc853aee46'
-    assert link['order'] == 0
-    assert link['destinationRefName'] == 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard'
-    assert result['enhancements'] == {}
+    assert references == snapshot([{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}])
+    assert result == snapshot(
+        {
+            'attributes': {
+                'layout': 'vertical',
+                'links': [
+                    {
+                        'label': 'Go to Dashboard',
+                        'type': 'dashboardLink',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'order': 0,
+                        'destinationRefName': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard',
+                    }
+                ],
+            },
+            'enhancements': {},
+        }
+    )
 
 
 def test_compile_links_panel_dashboard_link_inverted_options(compile_links_panel_snapshot) -> None:
@@ -169,18 +188,22 @@ def test_compile_links_panel_dashboard_link_inverted_options(compile_links_panel
             ],
         }
     )
-    assert len(references) == 1
-    assert references[0]['id'] == '71a1e537-15ed-4891-b102-4ef0f314a037'
-    assert references[0]['name'] == 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard'
-    assert references[0]['type'] == 'dashboard'
-
-    assert result['attributes']['layout'] == 'vertical'
-    assert len(result['attributes']['links']) == 1
-    link = result['attributes']['links'][0]
-    assert link['label'] == 'Go to Dashboard'
-    assert link['type'] == 'dashboardLink'
-    assert link['id'] == 'f1057dc0-1132-4143-8a58-ccbc853aee46'
-    assert link['order'] == 0
-    assert link['destinationRefName'] == 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard'
-    assert link['options'] == {'openInNewTab': True, 'useCurrentDateRange': False, 'useCurrentFilters': False}
-    assert result['enhancements'] == {}
+    assert references == snapshot([{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}])
+    assert result == snapshot(
+        {
+            'attributes': {
+                'layout': 'vertical',
+                'links': [
+                    {
+                        'label': 'Go to Dashboard',
+                        'type': 'dashboardLink',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'order': 0,
+                        'destinationRefName': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard',
+                        'options': {'openInNewTab': True, 'useCurrentDateRange': False, 'useCurrentFilters': False},
+                    }
+                ],
+            },
+            'enhancements': {},
+        }
+    )
