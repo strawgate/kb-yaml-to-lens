@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: one-esql-pie-chart
+  name: one-esql-pie-chart
   panels:
     - type: lens_esql
       grid_data:

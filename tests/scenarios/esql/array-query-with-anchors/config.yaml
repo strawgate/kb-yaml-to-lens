@@ -7,7 +7,7 @@ time_filter: &time_filter "WHERE @timestamp > NOW() - 1h"
 
 dashboards:
 -
-  title: "ESQL Array Query with Anchors Test"
+  name: "ESQL Array Query with Anchors Test"
   panels:
     # Panel 1: Using array format with anchors
     - type: lens_esql

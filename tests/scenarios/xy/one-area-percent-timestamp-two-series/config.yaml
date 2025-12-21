@@ -1,7 +1,7 @@
 dashboards:
 -
   id: 39567430-d468-44c7-8128-b4b983234504
-  title: Percentage Area Timestamp and two series
+  name: Percentage Area Timestamp and two series
   description: A dashboard with an Percentage area chart with two series
   panels:
   - type: lens
