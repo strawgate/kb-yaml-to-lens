@@ -93,24 +93,13 @@ jobs:
             echo "has_activity=true" >> $GITHUB_OUTPUT
           fi
 
-  project-manager-review:
+  prepare-pm-review:
     needs: check-activity
     if: needs.check-activity.outputs.has_activity == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      prompt: ${{ steps.pm-prompt.outputs.PROMPT }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
-
       - name: Set project manager prompt
         id: pm-prompt
         run: |
@@ -217,33 +206,12 @@ jobs:
           PROMPT_END
           EOF
 
-      - name: Setup GitHub MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          {
-            "mcpServers": {
-              "repository-summary": {
-                "type": "http",
-                "url": "https://agents-md-generator.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              }
-            }
-          }
-          EOF
-
+  close-previous-pm-issue:
+    needs: [check-activity, prepare-pm-review]
+    if: needs.check-activity.outputs.last_pm_issue != ''
+    runs-on: ubuntu-latest
+    steps:
       - name: Close previous PM issue
-        if: needs.check-activity.outputs.last_pm_issue != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -251,17 +219,49 @@ jobs:
           echo "Closing previous PM issue #$LAST_ISSUE"
           gh issue close "$LAST_ISSUE" --comment "Closing this PM report. New daily report has been generated."
 
-      - name: Run Claude Project Manager
-        id: claude
-        uses: anthropics/claude-code-action@v1.0.23
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          
-          additional_permissions: |
-            actions: read
-            issues: write
-
-          prompt: ${{ steps.pm-prompt.outputs.PROMPT }}
-          claude_args: |
-            --allowed-tools mcp__repository-summary__generate_agents_md,mcp__github-research__search_issues,mcp__github-research__search_pull_requests,mcp__github-research__list_issues,mcp__github-research__list_pull_requests,mcp__github-research__get_issue,mcp__github-research__get_pull_request,Bash(git:*)
-            --mcp-config /tmp/mcp-config/mcp-servers.json
+  project-manager-review:
+    needs: [check-activity, prepare-pm-review, close-previous-pm-issue]
+    if: |
+      always() &&
+      needs.check-activity.outputs.has_activity == 'true' &&
+      needs.prepare-pm-review.result == 'success' &&
+      (needs.close-previous-pm-issue.result == 'success' || needs.close-previous-pm-issue.result == 'skipped')
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      id-token: write
+      actions: read
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      python-version: '3.12'
+      fetch-depth: 1
+      prompt: ${{ needs.prepare-pm-review.outputs.prompt }}
+      claude-args: |
+        --allowed-tools mcp__repository-summary__generate_agents_md,mcp__github-research__search_issues,mcp__github-research__search_pull_requests,mcp__github-research__list_issues,mcp__github-research__list_pull_requests,mcp__github-research__get_issue,mcp__github-research__get_pull_request,Bash(git:*)
+        --mcp-config /tmp/mcp-config/mcp-servers.json
+      additional-permissions: |
+        actions: read
+        issues: write
+      mcp-config: |
+        {
+          "mcpServers": {
+            "repository-summary": {
+              "type": "http",
+              "url": "https://agents-md-generator.fastmcp.app/mcp"
+            },
+            "github-research": {
+              "type": "stdio",
+              "command": "uvx",
+              "args": [
+                "github-research-mcp"
+              ],
+              "env": {
+                "DISABLE_SUMMARIES": "true",
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+              }
+            }
+          }
+        }
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
