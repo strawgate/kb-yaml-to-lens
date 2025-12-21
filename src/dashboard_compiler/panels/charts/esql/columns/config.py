@@ -1,5 +1,6 @@
 from pydantic import Field
 
+from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type ESQLColumnTypes = ESQLDimension | ESQLMetric
@@ -24,6 +25,9 @@ class ESQLDimension(BaseESQLColumn):
 
     field: str = Field(default=...)
     """The field to use for the dimension."""
+
+    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
+    """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
 
 class ESQLMetric(BaseESQLColumn):
