@@ -47,14 +47,15 @@ def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
         return {'success': False, 'error': str(e)}
 
 
-# Method 1: Using workspace/executeCommand (standard LSP approach)
 @server.command('dashboard.compile')
 def compile_command(_ls: LanguageServer, args: list) -> dict:
     """Compile a dashboard using the workspace/executeCommand pattern.
 
-    This is the "standard" LSP way - using executeCommand for custom operations.
-    The client would call this via: client.sendRequest('workspace/executeCommand',
-    {command: 'dashboard.compile', arguments: [path, dashboard_index]})
+    Args:
+        args: List containing [path, dashboard_index (optional)]
+
+    Returns:
+        Dictionary with compilation result
     """
     if not args or len(args) < 1:
         return {'success': False, 'error': 'Missing path argument'}
@@ -65,16 +66,15 @@ def compile_command(_ls: LanguageServer, args: list) -> dict:
     return _compile_dashboard(path, dashboard_index)
 
 
-# Method 2: Custom request handler (more direct, non-standard LSP)
 @server.feature('dashboard/compile')
 def compile_custom(params: dict) -> dict:
     """Handle custom compilation request for a dashboard.
 
-    This is a custom LSP method (not in the standard LSP spec).
-    The client would call this via: client.sendRequest('dashboard/compile',
-    {path: '...', dashboard_index: 0})
+    Args:
+        params: Dictionary containing path and dashboard_index
 
-    This is cleaner than executeCommand but requires custom protocol extension.
+    Returns:
+        Dictionary with compilation result
     """
     path = params.get('path', '')
     dashboard_index = params.get('dashboard_index', 0)
@@ -86,8 +86,11 @@ def compile_custom(params: dict) -> dict:
 def get_dashboards_custom(params: dict) -> dict:
     """Get list of dashboards from a YAML file.
 
-    The client would call this via: client.sendRequest('dashboard/getDashboards',
-    {path: '...'})
+    Args:
+        params: Dictionary containing path to YAML file
+
+    Returns:
+        Dictionary with list of dashboards or error
     """
     path = params.get('path')
 
@@ -106,45 +109,17 @@ def get_dashboards_custom(params: dict) -> dict:
         return {'success': True, 'data': dashboard_list}
 
 
-# Optional: File watching support
-# LSP servers can watch for file changes and send notifications to the client
 @server.feature(types.TEXT_DOCUMENT_DID_SAVE)
 def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> None:
-    """Handle file save events.
+    """Handle file save events and notify client of changes.
 
-    This can be used to automatically recompile when a YAML file is saved.
-    The server can send a custom notification back to the client.
+    Args:
+        ls: Language server instance
+        params: Save event parameters
     """
-    # Get the file path from the URI
     file_path = params.text_document.uri
-
-    # Send a custom notification to the client that the file was saved
-    # The client can then trigger a recompilation
     ls.send_notification('dashboard/fileChanged', {'uri': file_path})
 
 
-# Optional: Diagnostics support
-# LSP can provide real-time error checking
-@server.feature(types.TEXT_DOCUMENT_DID_OPEN)
-async def did_open(_ls: LanguageServer, _params: types.DidOpenTextDocumentParams) -> None:
-    """Validate the dashboard when a file is opened.
-
-    This demonstrates how LSP can provide real-time diagnostics.
-    """
-    # This would be called when a YAML file is opened
-    # We could validate it and send diagnostics (errors/warnings) back
-
-
-@server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
-async def did_change(_ls: LanguageServer, _params: types.DidChangeTextDocumentParams) -> None:
-    """Validate the dashboard as it changes.
-
-    This could provide real-time validation feedback in the editor.
-    """
-    # This would be called as the user types
-    # We could validate and send diagnostics back
-
-
 if __name__ == '__main__':
-    # Start the server in stdio mode (same transport as current implementation)
     server.start_io()

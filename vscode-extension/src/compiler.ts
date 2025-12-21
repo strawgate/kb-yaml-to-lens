@@ -88,23 +88,24 @@ export class DashboardCompilerLSP {
         // Start the client (this will also start the server)
         await this.client.start();
 
-        // Register custom notification handler for file changes after client starts
+        // Register notification handler for file changes
         this.client.onNotification('dashboard/fileChanged', (params: { uri: string }) => {
             this.outputChannel.appendLine(`Dashboard file changed: ${params.uri}`);
-            // Could trigger automatic recompilation here
         });
     }
 
     /**
-     * Compile a dashboard using the custom LSP method approach.
-     * This is cleaner but requires custom protocol support.
+     * Compile a dashboard from a YAML file.
+     *
+     * @param filePath Path to the YAML file
+     * @param dashboardIndex Index of the dashboard to compile (default: 0)
+     * @returns Compiled dashboard object
      */
     async compile(filePath: string, dashboardIndex: number = 0): Promise<CompiledDashboard> {
         if (!this.client) {
             throw new Error('LSP client not started');
         }
 
-        // Method 1: Use custom request (cleaner, but non-standard LSP)
         const result = await this.client.sendRequest<CompileResult>(
             'dashboard/compile',
             // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -119,32 +120,10 @@ export class DashboardCompilerLSP {
     }
 
     /**
-     * Compile a dashboard using the standard workspace/executeCommand approach.
-     * This is the "official" LSP way but more verbose.
-     */
-    async compileViaCommand(filePath: string, dashboardIndex: number = 0): Promise<CompiledDashboard> {
-        if (!this.client) {
-            throw new Error('LSP client not started');
-        }
-
-        // Method 2: Use workspace/executeCommand (standard LSP, but more verbose)
-        const result = await this.client.sendRequest<CompileResult>(
-            'workspace/executeCommand',
-            {
-                command: 'dashboard.compile',
-                arguments: [filePath, dashboardIndex]
-            }
-        );
-
-        if (!result.success) {
-            throw new Error(result.error || 'Compilation failed');
-        }
-
-        return result.data as CompiledDashboard;
-    }
-
-    /**
      * Get list of dashboards from a YAML file.
+     *
+     * @param filePath Path to the YAML file
+     * @returns Array of dashboard information objects
      */
     async getDashboards(filePath: string): Promise<DashboardInfo[]> {
         if (!this.client) {
