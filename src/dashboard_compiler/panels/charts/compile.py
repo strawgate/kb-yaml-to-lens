@@ -25,7 +25,6 @@ from dashboard_compiler.panels.charts.view import (
     KbnTextBasedDataSourceState,
     KbnTextBasedDataSourceStateLayer,
     KbnTextBasedDataSourceStateLayerById,
-    KbnVisualizationStateTypes,
     KbnVisualizationTypeEnum,
 )
 from dashboard_compiler.panels.charts.xy.compile import compile_lens_xy_chart
@@ -37,6 +36,7 @@ from dashboard_compiler.shared.view import KbnReference
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
+    from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
 
 CHART_TYPE_TO_KBN_TYPE_MAP = {
     'metric': KbnVisualizationTypeEnum.METRIC,

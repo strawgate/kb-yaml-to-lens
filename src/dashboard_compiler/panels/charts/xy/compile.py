@@ -5,7 +5,7 @@ from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnType
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.panels.charts.view import KbnLayerColorMapping
+from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
 from dashboard_compiler.panels.charts.xy.config import (
     ESQLAreaChart,
     ESQLBarChart,

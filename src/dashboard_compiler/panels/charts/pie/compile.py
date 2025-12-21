@@ -11,12 +11,10 @@ from dashboard_compiler.panels.charts.lens.dimensions.compile import (
 )
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieChart
+from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
 from dashboard_compiler.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
-)
-from dashboard_compiler.panels.charts.view import (
-    KbnLayerColorMapping,
 )
 from dashboard_compiler.shared.config import random_id_generator
 
