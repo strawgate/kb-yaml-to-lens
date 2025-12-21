@@ -64,8 +64,13 @@ RUN mkdir -p /tool/output /tool/examples
 ENV NODE_PATH=/kibana/node_modules
 ENV OUTPUT_DIR=/tool/output
 
+# Preload Kibana's setup_node_env to enable TypeScript/babel transpilation for @kbn packages
+# This allows example scripts to directly require('@kbn/...') without manual setup
+ENV NODE_OPTIONS="--max_old_space_size=8192 --require /kibana/src/setup_node_env"
+
 # Add a simple test to verify the environment
-RUN node -e "try { require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder available'); } catch(e) { console.error('✗ LensConfigBuilder not available:', e.message); process.exit(1); }"
+# NODE_OPTIONS automatically preloads setup_node_env for TypeScript/babel support
+RUN node -e "const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder available');"
 
 # Default command: show help
 CMD ["node", "-e", "console.log('Kibana Fixture Generator\\nKibana Version: ${KIBANA_VERSION}\\nNode Version: ${NODE_VERSION}\\n\\nMount your scripts to /tool/examples and output to /tool/output\\nExample: docker run -v ./examples:/tool/examples -v ./output:/tool/output <image> node examples/metric-basic.js')"]

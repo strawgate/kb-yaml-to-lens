@@ -180,10 +180,12 @@ jobs:
           VERSION="${{ needs.determine-version.outputs.kibana_version }}"
           echo "Pulling image to verify..."
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}
-          
+
           echo "Testing LensConfigBuilder availability..."
+          # Note: Kibana packages are TypeScript - we need to load src/setup_node_env first
+          # to set up babel/TypeScript transpilation before requiring @kbn packages
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION} \
-            node -e "require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder verified')"
+            node -e "require('/kibana/src/setup_node_env'); const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder verified');"
       
       - name: Image summary
         run: |
