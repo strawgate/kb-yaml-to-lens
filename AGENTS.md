@@ -146,7 +146,7 @@ Before suggesting changes:
 | `src/dashboard_compiler/panels/charts/` | Specific compilation logic for Lens and ESQL chart types (e.g., `metric`, `pie`, `xy`). |
 | `scripts/` | Contains utility scripts for compiling configurations to NDJSON (`compile_configs_to_ndjson.py`) and generating documentation (`compile_docs.py`). |
 | `inputs/` | Example YAML dashboard configurations for compilation. |
-| `test/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
+| `tests/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
 | `src/dashboard_compiler/dashboard_compiler.py` | Main entry point for loading, rendering, and dumping dashboard configurations (load, render, dump functions). |
 
 ---
@@ -185,7 +185,7 @@ make check          # Before committing
 
 ```bash
 make test           # Full suite
-uv run pytest test/panels/test_metrics.py  # Specific file
+uv run pytest tests/panels/test_metrics.py  # Specific file
 ```
 
 ---
@@ -223,7 +223,7 @@ The project's primary "API" is its YAML configuration schema for defining Kibana
 - **Explore YAML Schema:** Read `yaml_reference.md` and `docs/quickstart.md` for a comprehensive understanding of the YAML configuration structure and examples.
 - **Examine Pydantic Models:** Dive into `src/dashboard_compiler/**/config.py` files to see the definitive source of truth for configuration options, types, and validation rules.
 - **Trace Compilation Logic:** Follow the `compile_dashboard` function in `src/dashboard_compiler/dashboard/compile.py` to understand how YAML models are transformed into Kibana JSON view models.
-- **Run Tests:** Execute `uv run pytest` and inspect the `test/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
+- **Run Tests:** Execute `uv run pytest` and inspect the `tests/__snapshots__/` directory to see examples of generated Kibana JSON for various dashboard configurations.
 
 ---
 
