@@ -71,7 +71,6 @@ def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
 
     references, attributes = compile_dashboard_attributes(dashboard)
 
-    # Create the KbnDashboard view model
     return KbnDashboard(
         attributes=attributes,
         coreMigrationVersion='8.8.0',

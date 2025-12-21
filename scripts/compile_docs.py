@@ -23,8 +23,6 @@ def compile_markdown_references() -> None:
         # Store relative path from repo_root for consistent sorting and display
         all_md_files.append(md_file.relative_to(repo_root))
 
-    # Sort other_md_files by their string representation (path)
-    # Ensure paths are treated as strings for sorting
     other_md_files = sorted(all_md_files, key=lambda p: str(p))
 
     ordered_files_to_compile = []

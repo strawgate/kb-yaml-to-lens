@@ -112,7 +112,6 @@ def compile_lens_xy_chart(
     """
     layer_id = lens_xy_chart.id or random_id_generator()
 
-    # Compile metrics
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_xy_chart.metrics:
@@ -120,14 +119,12 @@ def compile_lens_xy_chart(
         metric_ids.append(metric_id)
         kbn_metric_columns[metric_id] = kbn_metric
 
-    # Compile dimensions
     kbn_dimension_columns = compile_lens_dimensions(
         dimensions=lens_xy_chart.dimensions,
         kbn_metric_column_by_id=kbn_metric_columns,
     )
     dimension_ids = list(kbn_dimension_columns.keys())
 
-    # Compile breakdown if present
     breakdown_id = None
     if lens_xy_chart.breakdown:
         kbn_breakdown_columns = compile_lens_dimensions(dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns)
@@ -165,15 +162,12 @@ def compile_esql_xy_chart(
     """
     layer_id = esql_xy_chart.id or random_id_generator()
 
-    # Compile metrics
     metrics = [compile_esql_metric(esql_xy_chart.metrics[0])]  # For now just handle first metric
     metric_ids = [metric.columnId for metric in metrics]
 
-    # Compile dimensions
     dimensions = compile_esql_dimensions(dimensions=esql_xy_chart.dimensions)
     dimension_ids = [column.columnId for column in dimensions]
 
-    # Compile breakdown if present
     breakdown_id = None
     if esql_xy_chart.breakdown:
         breakdown = compile_esql_dimensions(dimensions=[esql_xy_chart.breakdown])
