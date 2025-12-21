@@ -1,105 +1,181 @@
-"""Simple stdio-based compilation server for VS Code extension."""
+"""LSP-based compilation server using pygls for VS Code extension.
+
+This is a proof-of-concept implementation showing how the dashboard compiler
+could be implemented using the Language Server Protocol with pygls.
+"""
 
 import json
 import sys
 from pathlib import Path
+from typing import Optional
+
+from lsprotocol import types
+from pygls.server import LanguageServer
 
 # Add the src directory to the path so we can import dashboard_compiler
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
 
 from dashboard_compiler.dashboard_compiler import load, render
 
+# Create the language server instance
+server = LanguageServer("dashboard-compiler", "v0.1")
 
-def compile_dashboard(yaml_path: str, dashboard_index: int = 0) -> dict:
-    """Compile dashboard and return result.
 
-    Args:
-        yaml_path: Path to the YAML dashboard file.
-        dashboard_index: Index of the dashboard to compile (default: 0).
+class CompileParams(types.WorkDoneProgressParams):
+    """Parameters for the compile command."""
+    path: str
+    dashboard_index: int = 0
 
-    Returns:
-        dict: Result dictionary with 'success' and either 'data' or 'error'.
+
+class DashboardInfo(types.Structure):
+    """Information about a dashboard."""
+    index: int
+    title: str
+    description: str
+
+
+# Method 1: Using workspace/executeCommand (standard LSP approach)
+@server.command("dashboard.compile")
+def compile_command(ls: LanguageServer, args):
+    """Compile a dashboard using the workspace/executeCommand pattern.
+
+    This is the "standard" LSP way - using executeCommand for custom operations.
+    The client would call this via: client.sendRequest('workspace/executeCommand',
+    {command: 'dashboard.compile', arguments: [path, dashboard_index]})
     """
-    try:
-        dashboards = load(yaml_path)
-        if not dashboards:
-            return {'success': False, 'error': 'No dashboards found in YAML file'}
+    if not args or len(args) < 1:
+        return {"success": False, "error": "Missing path argument"}
 
-        # Validate dashboard index
+    path = args[0]
+    dashboard_index = args[1] if len(args) > 1 else 0
+
+    try:
+        dashboards = load(path)
+        if not dashboards:
+            return {"success": False, "error": "No dashboards found in YAML file"}
+
         if dashboard_index < 0 or dashboard_index >= len(dashboards):
             return {
-                'success': False,
-                'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})'
+                "success": False,
+                "error": f"Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})"
             }
 
         dashboard = dashboards[dashboard_index]
         kbn_dashboard = render(dashboard)
-        return {'success': True, 'data': kbn_dashboard.model_dump(by_alias=True, mode='json')}
+        return {
+            "success": True,
+            "data": kbn_dashboard.model_dump(by_alias=True, mode='json')
+        }
     except Exception as e:
-        return {'success': False, 'error': str(e)}
+        return {"success": False, "error": str(e)}
 
 
-def main():
-    """Run the main server loop reading JSON requests from stdin and writing responses to stdout."""
-    # Ensure stdout is line-buffered
-    sys.stdout.reconfigure(line_buffering=True)  # type: ignore[attr-defined]
+# Method 2: Custom request handler (more direct, non-standard LSP)
+@server.feature("dashboard/compile")
+def compile_custom(params: dict):
+    """Custom request handler for compilation.
 
-    for line in sys.stdin:
-        request_id = 0  # Initialize request_id before parsing
-        try:
-            request = json.loads(line)
-            request_id = request.get('id', 0)
-            method = request.get('method')
-            params = request.get('params', {})
+    This is a custom LSP method (not in the standard LSP spec).
+    The client would call this via: client.sendRequest('dashboard/compile',
+    {path: '...', dashboard_index: 0})
 
-            if method == 'compile':
-                # Validate required parameters
-                if 'path' not in params:
-                    error_response = {'id': request_id, 'success': False, 'error': 'Missing required parameter: path'}
-                    sys.stdout.write(json.dumps(error_response) + '\n')
-                    sys.stdout.flush()
-                    continue
+    This is cleaner than executeCommand but requires custom protocol extension.
+    """
+    path = params.get("path")
+    dashboard_index = params.get("dashboard_index", 0)
 
-                dashboard_index = params.get('dashboard_index', 0)
-                result = compile_dashboard(params['path'], dashboard_index)
-                result['id'] = request_id
-                sys.stdout.write(json.dumps(result) + '\n')
-                sys.stdout.flush()
-            elif method == 'get_dashboards':
-                # New method to get list of dashboards
-                if 'path' not in params:
-                    error_response = {'id': request_id, 'success': False, 'error': 'Missing required parameter: path'}
-                    sys.stdout.write(json.dumps(error_response) + '\n')
-                    sys.stdout.flush()
-                    continue
+    if not path:
+        return {"success": False, "error": "Missing path parameter"}
 
-                try:
-                    dashboards = load(params['path'])
-                    dashboard_list = [
-                        {
-                            'index': i,
-                            'title': dashboard.name or f'Dashboard {i + 1}',
-                            'description': dashboard.description or ''
-                        }
-                        for i, dashboard in enumerate(dashboards)
-                    ]
-                    result = {'id': request_id, 'success': True, 'data': dashboard_list}
-                    sys.stdout.write(json.dumps(result) + '\n')
-                    sys.stdout.flush()
-                except Exception as e:
-                    error_response = {'id': request_id, 'success': False, 'error': str(e)}
-                    sys.stdout.write(json.dumps(error_response) + '\n')
-                    sys.stdout.flush()
-            else:
-                error_response = {'id': request_id, 'success': False, 'error': f'Unknown method: {method}'}
-                sys.stdout.write(json.dumps(error_response) + '\n')
-                sys.stdout.flush()
-        except Exception as e:
-            # Use the parsed request_id instead of 0
-            error_response = {'id': request_id, 'success': False, 'error': f'Server error: {e!s}'}
-            sys.stdout.write(json.dumps(error_response) + '\n')
-            sys.stdout.flush()
+    try:
+        dashboards = load(path)
+        if not dashboards:
+            return {"success": False, "error": "No dashboards found in YAML file"}
+
+        if dashboard_index < 0 or dashboard_index >= len(dashboards):
+            return {
+                "success": False,
+                "error": f"Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})"
+            }
+
+        dashboard = dashboards[dashboard_index]
+        kbn_dashboard = render(dashboard)
+        return {
+            "success": True,
+            "data": kbn_dashboard.model_dump(by_alias=True, mode='json')
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
-if __name__ == '__main__':
-    main()
+@server.feature("dashboard/getDashboards")
+def get_dashboards_custom(params: dict):
+    """Custom request handler to get list of dashboards.
+
+    The client would call this via: client.sendRequest('dashboard/getDashboards',
+    {path: '...'})
+    """
+    path = params.get("path")
+
+    if not path:
+        return {"success": False, "error": "Missing path parameter"}
+
+    try:
+        dashboards = load(path)
+        dashboard_list = [
+            {
+                "index": i,
+                "title": dashboard.name or f"Dashboard {i + 1}",
+                "description": dashboard.description or ""
+            }
+            for i, dashboard in enumerate(dashboards)
+        ]
+        return {"success": True, "data": dashboard_list}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+# Optional: File watching support
+# LSP servers can watch for file changes and send notifications to the client
+@server.feature(types.TEXT_DOCUMENT_DID_SAVE)
+def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams):
+    """Handle file save events.
+
+    This can be used to automatically recompile when a YAML file is saved.
+    The server can send a custom notification back to the client.
+    """
+    # Get the file path from the URI
+    file_path = params.text_document.uri
+
+    # Send a custom notification to the client that the file was saved
+    # The client can then trigger a recompilation
+    ls.send_notification("dashboard/fileChanged", {"uri": file_path})
+
+
+# Optional: Diagnostics support
+# LSP can provide real-time error checking
+@server.feature(types.TEXT_DOCUMENT_DID_OPEN)
+async def did_open(ls: LanguageServer, params: types.DidOpenTextDocumentParams):
+    """Validate the dashboard when a file is opened.
+
+    This demonstrates how LSP can provide real-time diagnostics.
+    """
+    # This would be called when a YAML file is opened
+    # We could validate it and send diagnostics (errors/warnings) back
+    pass
+
+
+@server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
+async def did_change(ls: LanguageServer, params: types.DidChangeTextDocumentParams):
+    """Validate the dashboard as it changes.
+
+    This could provide real-time validation feedback in the editor.
+    """
+    # This would be called as the user types
+    # We could validate and send diagnostics back
+    pass
+
+
+if __name__ == "__main__":
+    # Start the server in stdio mode (same transport as current implementation)
+    server.start_io()

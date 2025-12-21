@@ -1,9 +1,20 @@
-import { spawn, ChildProcess } from 'child_process';
-import * as vscode from 'vscode';
+/**
+ * LSP-based Dashboard Compiler using vscode-languageclient
+ *
+ * This is a proof-of-concept implementation showing how the dashboard compiler
+ * could be implemented using the Language Server Protocol.
+ */
+
 import * as path from 'path';
+import * as vscode from 'vscode';
+import {
+    LanguageClient,
+    LanguageClientOptions,
+    ServerOptions,
+    TransportKind,
+} from 'vscode-languageclient/node';
 
 // Interface for the compiled dashboard result
-// Using unknown since the structure depends on the dashboard configuration
 export type CompiledDashboard = unknown;
 
 export interface DashboardInfo {
@@ -12,184 +23,197 @@ export interface DashboardInfo {
     description: string;
 }
 
-interface PendingRequest {
-    resolve: (value: CompiledDashboard | DashboardInfo[]) => void;
-    reject: (error: Error) => void;
+interface CompileResult {
+    success: boolean;
+    data?: CompiledDashboard;
+    error?: string;
 }
 
-export class DashboardCompiler {
-    private pythonProcess: ChildProcess | null = null;
-    private requestId = 0;
-    private pendingRequests = new Map<number, PendingRequest>();
+interface DashboardListResult {
+    success: boolean;
+    data?: DashboardInfo[];
+    error?: string;
+}
+
+export class DashboardCompilerLSP {
+    private client: LanguageClient | null = null;
+    private outputChannel: vscode.OutputChannel;
 
     constructor(private context: vscode.ExtensionContext) {
-        this.startPythonServer();
+        this.outputChannel = vscode.window.createOutputChannel('Dashboard Compiler LSP');
     }
 
-    private startPythonServer() {
+    async start(): Promise<void> {
+        if (this.client) {
+            return; // Already started
+        }
+
         const config = vscode.workspace.getConfiguration('yamlDashboard');
         const pythonPath = config.get<string>('pythonPath', 'python');
 
-        // Find the extension root and the python server script
+        // Path to the LSP server script
         const extensionPath = this.context.extensionPath;
         const serverScript = path.join(extensionPath, 'python', 'compile_server.py');
 
-        this.pythonProcess = spawn(pythonPath, [serverScript], {
-            cwd: path.join(extensionPath, '..'), // Set cwd to repo root
-        });
+        // Server options - how to start the Python LSP server
+        const serverOptions: ServerOptions = {
+            command: pythonPath,
+            args: [serverScript],
+            options: {
+                cwd: path.join(extensionPath, '..'), // Set cwd to repo root
+            },
+        };
 
-        if (this.pythonProcess.stdout) {
-            let buffer = '';
-            this.pythonProcess.stdout.on('data', (data: Buffer) => {
-                buffer += data.toString();
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
+        // Client options - what files the LSP server should watch
+        const clientOptions: LanguageClientOptions = {
+            // Register the server for YAML files
+            documentSelector: [{ scheme: 'file', language: 'yaml' }],
 
-                for (const line of lines) {
-                    if (line.trim()) {
-                        try {
-                            const response = JSON.parse(line);
-                            const pending = this.pendingRequests.get(response.id);
-                            if (pending) {
-                                if (response.success) {
-                                    pending.resolve(response.data);
-                                } else {
-                                    pending.reject(new Error(response.error));
-                                }
-                                this.pendingRequests.delete(response.id);
-                            }
-                        } catch (error) {
-                            console.error('Failed to parse response:', line, error);
-                        }
-                    }
-                }
-            });
-        }
+            // Synchronize file changes - notify server when YAML files change
+            synchronize: {
+                fileEvents: vscode.workspace.createFileSystemWatcher('**/*.yaml'),
+            },
 
-        if (this.pythonProcess.stderr) {
-            this.pythonProcess.stderr.on('data', (data: Buffer) => {
-                console.error('Python server error:', data.toString());
-            });
-        }
+            // Use our output channel for logging
+            outputChannel: this.outputChannel,
+        };
 
-        this.pythonProcess.on('exit', (code) => {
-            console.log(`Python server exited with code ${code}`);
-            this.pythonProcess = null;
-            // Reject all pending requests
-            for (const pending of this.pendingRequests.values()) {
-                pending.reject(new Error('Python server exited unexpectedly'));
-            }
-            this.pendingRequests.clear();
+        // Create the language client
+        this.client = new LanguageClient(
+            'dashboardCompiler',
+            'Dashboard Compiler',
+            serverOptions,
+            clientOptions
+        );
+
+        // Start the client (this will also start the server)
+        await this.client.start();
+
+        // Register custom notification handler for file changes after client starts
+        this.client.onNotification('dashboard/fileChanged', (params: { uri: string }) => {
+            this.outputChannel.appendLine(`Dashboard file changed: ${params.uri}`);
+            // Could trigger automatic recompilation here
         });
     }
 
+    /**
+     * Compile a dashboard using the custom LSP method approach.
+     * This is cleaner but requires custom protocol support.
+     */
     async compile(filePath: string, dashboardIndex: number = 0): Promise<CompiledDashboard> {
-        if (!this.pythonProcess || !this.pythonProcess.stdin) {
-            throw new Error('Python server not running');
+        if (!this.client) {
+            throw new Error('LSP client not started');
         }
 
-        const id = ++this.requestId;
-        const request = {
-            id,
-            method: 'compile',
-            params: { path: filePath, dashboard_index: dashboardIndex }
-        };
+        // Method 1: Use custom request (cleaner, but non-standard LSP)
+        const result = await this.client.sendRequest<CompileResult>(
+            'dashboard/compile',
+            { path: filePath, dashboard_index: dashboardIndex }
+        );
 
-        return new Promise((resolve, reject) => {
-            // Setup timeout timer that will be cleared on success/failure
-            const timeoutId = setTimeout(() => {
-                if (this.pendingRequests.has(id)) {
-                    this.pendingRequests.delete(id);
-                    reject(new Error('Compilation timeout'));
-                }
-            }, 30000);
+        if (!result.success) {
+            throw new Error(result.error || 'Compilation failed');
+        }
 
-            // Wrap resolve/reject to clear timeout
-            const wrappedResolve = (value: CompiledDashboard) => {
-                clearTimeout(timeoutId);
-                resolve(value);
-            };
-
-            const wrappedReject = (error: Error) => {
-                clearTimeout(timeoutId);
-                reject(error);
-            };
-
-            this.pendingRequests.set(id, { resolve: wrappedResolve, reject: wrappedReject });
-
-            if (this.pythonProcess && this.pythonProcess.stdin) {
-                try {
-                    this.pythonProcess.stdin.write(JSON.stringify(request) + '\n');
-                } catch (error) {
-                    clearTimeout(timeoutId);
-                    this.pendingRequests.delete(id);
-                    reject(new Error(`Failed to write to Python server: ${error instanceof Error ? error.message : String(error)}`));
-                }
-            } else {
-                clearTimeout(timeoutId);
-                this.pendingRequests.delete(id);
-                reject(new Error('Python server stdin not available'));
-            }
-        });
+        return result.data as CompiledDashboard;
     }
 
+    /**
+     * Compile a dashboard using the standard workspace/executeCommand approach.
+     * This is the "official" LSP way but more verbose.
+     */
+    async compileViaCommand(filePath: string, dashboardIndex: number = 0): Promise<CompiledDashboard> {
+        if (!this.client) {
+            throw new Error('LSP client not started');
+        }
+
+        // Method 2: Use workspace/executeCommand (standard LSP, but more verbose)
+        const result = await this.client.sendRequest<CompileResult>(
+            'workspace/executeCommand',
+            {
+                command: 'dashboard.compile',
+                arguments: [filePath, dashboardIndex]
+            }
+        );
+
+        if (!result.success) {
+            throw new Error(result.error || 'Compilation failed');
+        }
+
+        return result.data as CompiledDashboard;
+    }
+
+    /**
+     * Get list of dashboards from a YAML file.
+     */
     async getDashboards(filePath: string): Promise<DashboardInfo[]> {
-        if (!this.pythonProcess || !this.pythonProcess.stdin) {
-            throw new Error('Python server not running');
+        if (!this.client) {
+            throw new Error('LSP client not started');
         }
 
-        const id = ++this.requestId;
-        const request = {
-            id,
-            method: 'get_dashboards',
-            params: { path: filePath }
-        };
+        const result = await this.client.sendRequest<DashboardListResult>(
+            'dashboard/getDashboards',
+            { path: filePath }
+        );
 
-        return new Promise((resolve, reject) => {
-            const timeoutId = setTimeout(() => {
-                if (this.pendingRequests.has(id)) {
-                    this.pendingRequests.delete(id);
-                    reject(new Error('Get dashboards timeout'));
-                }
-            }, 30000);
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to get dashboards');
+        }
 
-            const wrappedResolve = (value: CompiledDashboard | DashboardInfo[]) => {
-                clearTimeout(timeoutId);
-                resolve(value as DashboardInfo[]);
-            };
-
-            const wrappedReject = (error: Error) => {
-                clearTimeout(timeoutId);
-                reject(error);
-            };
-
-            this.pendingRequests.set(id, { resolve: wrappedResolve, reject: wrappedReject });
-
-            if (this.pythonProcess && this.pythonProcess.stdin) {
-                try {
-                    this.pythonProcess.stdin.write(JSON.stringify(request) + '\n');
-                } catch (error) {
-                    clearTimeout(timeoutId);
-                    this.pendingRequests.delete(id);
-                    reject(new Error(`Failed to write to Python server: ${error instanceof Error ? error.message : String(error)}`));
-                }
-            } else {
-                clearTimeout(timeoutId);
-                this.pendingRequests.delete(id);
-                reject(new Error('Python server stdin not available'));
-            }
-        });
+        return result.data || [];
     }
 
-    dispose() {
-        if (this.pythonProcess) {
-            this.pythonProcess.kill();
-            this.pythonProcess = null;
+    async dispose(): Promise<void> {
+        if (this.client) {
+            await this.client.stop();
+            this.client = null;
         }
-        // Reject all pending requests before clearing
-        for (const pending of this.pendingRequests.values()) {
-            pending.reject(new Error('Compiler disposed'));
-        }
-        this.pendingRequests.clear();
+        this.outputChannel.dispose();
     }
 }
+
+/**
+ * Comparison: Current vs LSP Implementation
+ *
+ * CURRENT IMPLEMENTATION (compile.ts):
+ * - Manual stdio handling with child_process.spawn
+ * - Custom JSON-RPC protocol (line-delimited JSON)
+ * - Manual request/response matching with IDs
+ * - Manual timeout handling
+ * - Manual error handling
+ * - ~195 lines of code
+ *
+ * LSP IMPLEMENTATION (this file):
+ * - vscode-languageclient handles all communication
+ * - Standard LSP protocol (or custom extensions)
+ * - Automatic request/response matching
+ * - Built-in timeout handling
+ * - Structured error types
+ * - ~180 lines of code (but much simpler logic)
+ *
+ * BENEFITS OF LSP:
+ * ✅ Auto-restart on server crash (handled by LanguageClient)
+ * ✅ Structured logging via OutputChannel
+ * ✅ File watching built-in (synchronize.fileEvents)
+ * ✅ Bidirectional notifications (server can notify client)
+ * ✅ Can add diagnostics (real-time validation)
+ * ✅ Can add more LSP features later (hover, autocomplete, etc.)
+ * ✅ Industry-standard protocol
+ *
+ * TRADEOFFS:
+ * ❌ New dependencies: vscode-languageclient, pygls, lsprotocol
+ * ❌ More boilerplate in Python (but pygls handles most of it)
+ * ❌ Custom methods still require non-standard protocol extensions
+ * ❌ No built-in chunking (still need to handle large responses manually)
+ *
+ * FILE WATCHING EXAMPLE:
+ * With LSP, you can automatically recompile on save:
+ *
+ * 1. Client registers file watcher (see clientOptions.synchronize above)
+ * 2. When user saves YAML file, LSP sends textDocument/didSave
+ * 3. Server receives notification, processes it
+ * 4. Server sends custom notification back: dashboard/fileChanged
+ * 5. Client receives notification, triggers recompilation
+ *
+ * This is all handled by the LSP infrastructure - no manual file watching needed.
+ */
