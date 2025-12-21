@@ -41,7 +41,7 @@ def _validate_grid_coords(grid: dict) -> bool:
     return all(not (not isinstance(grid[key], int) or grid[key] < 0) for key in required_keys)
 
 
-def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_index: int = 0) -> dict:
+def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_index: int = 0) -> dict:  # noqa: PLR0912, PLR0915
     """Update grid coordinates for a specific panel in a YAML file.
 
     Args:
