@@ -4,12 +4,12 @@ The `dashboards` array is the root element in your YAML configuration file. Each
 
 ## Minimal Configuration Example
 
-A minimal dashboard requires a `title` and at least one panel.
+A minimal dashboard requires a `name` and at least one panel.
 
 ```yaml
 dashboards:
   -
-    title: "Simple Log Dashboard"
+    name: "Simple Log Dashboard"
     panels:
       - type: markdown
         content: "Welcome to the dashboard!"
@@ -27,7 +27,7 @@ This example showcases a dashboard with various settings, a default data view, a
 ```yaml
 dashboards:
   -
-    title: "Comprehensive Application Overview"
+    name: "Comprehensive Application Overview"
     id: "app-overview-001"
     description: "An overview of application performance and logs, with interactive filtering."
     data_view: "production-logs-*" # Default data view for all items unless overridden
@@ -47,7 +47,7 @@ dashboards:
       - field: "geo.country_iso_code"
         equals: "US"
       - field: "service.environment"
-        in: ["production", "staging"]
+        in_list: ["production", "staging"]
     controls:
       - type: options
         label: "Filter by Region"

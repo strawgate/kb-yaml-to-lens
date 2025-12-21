@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: Table with two rows
+  name: Table with two rows
   description: "A dashboard with a Table with two rows and a metric"
   panels:
   - title: "table"

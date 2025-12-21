@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: Markdown Only
+  name: Markdown Only
   description: ""
   panels:
   - title: "Markdown Panel" 
