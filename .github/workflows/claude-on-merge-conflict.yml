@@ -23,15 +23,23 @@ jobs:
           git fetch origin ${{ github.event.pull_request.base.ref }}
           
           # Use modern git merge-tree with --write-tree to detect conflicts
-          # This performs a three-way merge and outputs CONFLICT messages if conflicts exist
+          # Per git documentation: exit status 0 = no conflicts, 1 = conflicts exist, >1 = error
+          # This is more reliable than grepping output, as some conflict types don't print "CONFLICT"
           echo "Checking for conflicts between HEAD and origin/${{ github.event.pull_request.base.ref }}"
           
-          if git merge-tree --write-tree HEAD origin/${{ github.event.pull_request.base.ref }} 2>&1 | grep -q '^CONFLICT'; then
-            echo "has_conflicts=true" >> $GITHUB_OUTPUT
-            echo "✗ Merge conflicts detected"
-          else
+          # Run merge-tree and capture exit code
+          if git merge-tree --write-tree HEAD origin/${{ github.event.pull_request.base.ref }} > /dev/null 2>&1; then
             echo "has_conflicts=false" >> $GITHUB_OUTPUT
             echo "✓ No merge conflicts"
+          else
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 1 ]; then
+              echo "has_conflicts=true" >> $GITHUB_OUTPUT
+              echo "✗ Merge conflicts detected"
+            else
+              echo "has_conflicts=false" >> $GITHUB_OUTPUT
+              echo "⚠ Error running merge-tree (exit $EXIT_CODE), assuming no conflicts"
+            fi
           fi
 
   resolve-conflicts:
