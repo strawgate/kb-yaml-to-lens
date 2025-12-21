@@ -5,6 +5,7 @@ The `links` panel type is used to display a collection of hyperlinks on your das
 ## Minimal Configuration Examples
 
 **Linking to another Dashboard:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: links
@@ -27,6 +28,7 @@ dashboard:
 ```
 
 **Linking to an External URL:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: links
@@ -108,7 +110,6 @@ Each item in the `links` list will be one of the following types. They share com
 | `id`     | `string`  | An optional unique identifier for the individual link item. Not typically needed.                          | Generated ID        | No       |
 | `label`  | `string`  | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No       |
 
-
 #### Dashboard Link
 
 Represents a link to another Kibana dashboard.
@@ -140,5 +141,5 @@ The `LinksPanel` Pydantic model includes an `add_link(link: LinkTypes)` method, 
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)

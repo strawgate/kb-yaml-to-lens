@@ -5,26 +5,22 @@ description = "Compiles dashboard definitions from YAML to Kibana format"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
-dependencies = [
-    "pyyaml>=6.0",
-    "pydantic>=2.11.3",
-    "beartype>=0.20.2",
-    "humanize>=4.12.3",
-    "click>=8.1.0",
-    "rich-click>=1.9.0",
-    "aiohttp>=3.9.0",
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0",
-    "syrupy>=4.9.1",
-    "pytest-freezer>=0.4.9",
-    "deepdiff>=8.4.2",
-    "ruff>=0.11.6",
-    "pytest-asyncio>=0.26.0",
-    "basedpyright>=1.21.0",
-    "inline-snapshot>=0.31.1",
+dependencies = [
+    "pyyaml>=6.0.3",
+    "pydantic>=2.12",
+    "beartype>=0.22",
+    "humanize>=4.15",
+    "click>=8.3",
+    "rich-click>=1.9.0",
+    "aiohttp>=3.13",
 ]
 
 [project.scripts]
@@ -32,22 +28,38 @@ kb-dashboard = "dashboard_compiler.cli:cli"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
-asyncio_mode = "auto" 
+asyncio_mode = "auto"
 addopts = "-vv"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "syrupy>=5.0",
+    "pytest-freezer>=0.4.9",
+    "deepdiff>=8.4.2",
+    "ruff>=0.14",
+    "pytest-asyncio>=1.3",
+    "basedpyright>=1.36",
+    "inline-snapshot>=0.31.1",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.30.0",
+    "mkdocstrings-python>=1.10.0",
+]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/dashboard_compiler"]
+[build-system]
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "dashboard_compiler"
 
 [tool.ruff]
 line-length = 140
 # Assume Python 3.12
 target-version = "py312"
-# Exclude files/directories listed in .gitignore
-respect-gitignore = true
 # Add commonly ignored directories
 extend-exclude = [
     ".git",
@@ -78,14 +90,10 @@ ignore = [
     "D100",    # Ignore missing docstrings for modules
 ]
 
-# Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
-
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
-"test/**/*.py" = [
+"tests/**/*.py" = [
     "PLR2004", # Ignore magic numbers and docstring length in tests
     "W505",
     "INP001",
@@ -97,6 +105,19 @@ unfixable = []
     "PGH003", # Don't require specific rule exclusions for type checking ignores
     "D104", # Docstrings in public packages
     "E501", # Line too long
+]
+"vscode-extension/python/**/*.py" = [
+    "PT009", # Allow unittest-style assertions in test files
+    "S101", # Ignore use of assert
+    "ANN201", # Ignore missing type annotations in python extension files
+    "E501", # Line too long
+    "PLR2004", # Ignore magic numbers in test files
+    "B017", # Allow broad exception assertions in test files
+    "PT011", # Allow broad pytest.raises in test files
+    "PT027", # Allow unittest-style assertRaises in test files
+    "PLR0911", # Ignore too many return statements
+    "D400", # Ignore docstring formatting in test files
+    "D415", # Ignore docstring formatting in test files
 ]
 "src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
@@ -139,7 +160,7 @@ reportMissingTypeStubs = false
 reportIncompatibleVariableOverride = false
 include = ["src/dashboard_compiler"]
 exclude = [
-    "**/test/**",
+    "**/tests/**",
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",

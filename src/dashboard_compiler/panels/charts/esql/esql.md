@@ -7,6 +7,7 @@ The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query,
 ## Minimal Configuration Examples
 
 **Minimal ESQL Metric Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts  # This is the ESQLPanel type (distinguished by `esql` field)
@@ -38,6 +39,7 @@ dashboard:
 ```
 
 **Minimal ESQL Pie Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts
@@ -107,6 +109,7 @@ Displays a single primary metric derived from an ESQL query, optionally with a s
 | `breakdown` | `ESQLDimension` object                     | An optional dimension to break down the metric by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None`           | No       |
 
 **Example (ESQL Metric Chart):**
+
 ```yaml
 # Within an ESQLPanel's 'chart' field:
 # type: metric
@@ -136,6 +139,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None`           | No       |
 
 **Example (ESQL Pie Chart):**
+
 ```yaml
 # Within an ESQLPanel's 'chart' field:
 # type: pie
@@ -205,10 +209,9 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
 
-
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Queries Configuration](../../queries/config.md#esql-query)
-*   Elasticsearch ESQL Reference (external)
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Queries Configuration](../../queries/config.md#esql-query)
+* Elasticsearch ESQL Reference (external)

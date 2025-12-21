@@ -12,9 +12,9 @@ The `esql` panel is used to display data visualizations based on an ESQL query.
 
 ## Fields
 
-*   `type` (required, string): Must be `esql`.
-*   `query` (required, string): The ESQL query string that determines the data for the chart.
-*   `chart` (required, object): The chart configuration for the ESQL panel. See [ESQL Chart Types](#esql-chart-types) for details.
+* `type` (required, string): Must be `esql`.
+* `query` (required, string): The ESQL query string that determines the data for the chart.
+* `chart` (required, object): The chart configuration for the ESQL panel. See [ESQL Chart Types](#esql-chart-types) for details.
 
 ## ESQL Chart Types
 
@@ -34,13 +34,13 @@ chart:
   legend: object      # (Optional) Legend formatting options.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `pie`.
-    *   `metric` (required, object): A metric that determines the size of the slice of the pie chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of [ESQL Dimension Objects](../dimensions/dimension.md#esql-dimension-type) referencing columns from the ESQL query results.
-    *   `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](../lens.md#pie-chart-appearance) for details.
-    *   `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text) for details.
-    *   `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](../lens.md#pie-chart-legend) for details.
+* **Fields:**
+  * `type` (required, string): Must be `pie`.
+  * `metric` (required, object): A metric that determines the size of the slice of the pie chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of [ESQL Dimension Objects](../dimensions/dimension.md#esql-dimension-type) referencing columns from the ESQL query results.
+  * `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](../lens.md#pie-chart-appearance) for details.
+  * `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text) for details.
+  * `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](../lens.md#pie-chart-legend) for details.
 
 ### ESQL Metric Chart
 
@@ -55,18 +55,18 @@ chart:
   breakdown: object   # (Optional) An optional breakdown dimension.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `metric`.
-    *   `primary` (required, object): The primary metric to display in the chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `breakdown` (optional, object): An optional breakdown dimension to display. This should be an [ESQL Dimension Object](../dimensions/dimension.md#esql-dimension-type) referencing a column from the ESQL query results.
+* **Fields:**
+  * `type` (required, string): Must be `metric`.
+  * `primary` (required, object): The primary metric to display in the chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `breakdown` (optional, object): An optional breakdown dimension to display. This should be an [ESQL Dimension Object](../dimensions/dimension.md#esql-dimension-type) referencing a column from the ESQL query results.
 
 ## Related Documentation
 
-*   [Base Panel Object](../base.md)
-*   [Metric Objects](../metrics/metric.md)
-*   [Dimension Objects](../dimensions/dimension.md)
-*   [Pie Chart Appearance](../lens.md#pie-chart-appearance)
-*   [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text)
-*   [Pie Chart Legend](../lens.md#pie-chart-legend)
+* [Base Panel Object](../base.md)
+* [Metric Objects](../metrics/metric.md)
+* [Dimension Objects](../dimensions/dimension.md)
+* [Pie Chart Appearance](../lens.md#pie-chart-appearance)
+* [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text)
+* [Pie Chart Legend](../lens.md#pie-chart-legend)

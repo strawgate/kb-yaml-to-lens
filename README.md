@@ -21,7 +21,7 @@ This tool simplifies the process of creating and managing Kibana dashboards by a
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
 ```bash
-uv sync --all-extras
+uv sync --group dev
 ```
 
 For more information, see the [uv documentation](https://docs.astral.sh/uv/).
@@ -44,13 +44,13 @@ dashboard:
           This is my first dashboard compiled from YAML.
 ```
 
-2. Compile to NDJSON:
+1. Compile to NDJSON:
 
 ```bash
 kb-dashboard compile --input-dir inputs --output-dir output
 ```
 
-3. (Optional) Upload directly to Kibana:
+1. (Optional) Upload directly to Kibana:
 
 ```bash
 kb-dashboard compile \
@@ -66,6 +66,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 
 ## Documentation
 
+- **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with API reference
 - **[Quickstart Guide](quickstart.md)** – Step-by-step guide for creating your first dashboard
 - **[Architecture](architecture.md)** – Technical design and data flow overview
 - **[YAML Reference](yaml_reference.md)** – Complete schema documentation for all dashboard elements
@@ -119,14 +120,38 @@ uv run pytest
 
 ### Code Quality
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting:
+This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
 
 ```bash
-# Check code quality
+# Run all linters and formatters
+make lint
+
+# Check Python code quality
 uv run ruff check .
 
-# Format code
+# Format Python code
 uv run ruff format .
+
+# Lint markdown files
+markdownlint --fix -c .markdownlint.jsonc .
+```
+
+### Documentation
+
+Build and preview the documentation locally:
+
+```bash
+# Install documentation dependencies
+uv sync --extra docs
+
+# Serve documentation locally
+make docs-serve
+
+# Build static documentation site
+make docs-build
+
+# Deploy to GitHub Pages
+make docs-deploy
 ```
 
 ### Adding New Features
@@ -139,6 +164,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the process of adding new dashboard c
 - PyYAML 6.0+
 - Pydantic 2.11.3+
 - beartype 0.20.2+
+- Node.js/npm (for markdown linting, development only)
 
 ## License
 

@@ -5,6 +5,7 @@ A simple helper tool for generating Kibana dashboard JSON fixtures using Kibana'
 ## Purpose
 
 Generate **known-good** Kibana dashboard JSON by:
+
 1. Using Kibana's **LensConfigBuilder API** directly in JavaScript
 2. Building visualizations programmatically with the config builder
 3. Exporting JSON fixtures for Python test suite validation
@@ -27,7 +28,23 @@ Generate **known-good** Kibana dashboard JSON by:
 
 ## Quick Start
 
-### 1. Build the Docker Image
+### Option A: Use Pre-Built GHCR Image (Recommended)
+
+**Fast path** - Uses pre-built images from GitHub Container Registry, no build required:
+
+```bash
+cd fixture-generator
+docker-compose -f docker-compose.ghcr.yml run generator
+
+# Generate specific fixture
+docker-compose -f docker-compose.ghcr.yml run generator node examples/metric-basic.js
+```
+
+See [GHCR.md](GHCR.md) for complete GHCR documentation.
+
+### Option B: Build Locally
+
+**Build from source** - Takes 15-30 minutes but works offline:
 
 ```bash
 cd fixture-generator
@@ -73,6 +90,7 @@ fixture-generator/
 ## How It Works
 
 Each example script:
+
 1. Imports `LensConfigBuilder` from Kibana's package
 2. Creates a config object defining the visualization
 3. Calls `builder.build(config, options)` to generate the Lens attributes
@@ -190,6 +208,7 @@ docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node examples/metric-b
 ## Docker Setup
 
 The Dockerfile:
+
 1. Installs Node.js 20.x (matches Kibana requirement)
 2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
 3. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
@@ -202,6 +221,7 @@ The Dockerfile:
 **Problem**: Out of memory during Kibana bootstrap
 
 **Solution**: Increase Docker memory limit
+
 ```yaml
 # docker-compose.yml
 services:

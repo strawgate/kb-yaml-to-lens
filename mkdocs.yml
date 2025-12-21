@@ -1,0 +1,91 @@
+site_name: Dashboard Compiler Documentation
+site_description: Convert human-friendly YAML dashboard definitions into Kibana NDJSON format
+site_url: https://strawgate.github.io/kb-yaml-to-lens/
+repo_url: https://github.com/strawgate/kb-yaml-to-lens
+repo_name: strawgate/kb-yaml-to-lens
+edit_uri: edit/main/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - navigation.instant
+    - navigation.path
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            docstring_style: google
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            separate_signature: true
+            line_length: 80
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: quickstart.md
+  - Architecture: architecture.md
+  - YAML Reference: yaml_reference.md
+  - CLI Guide: CLI.md
+  - Contributing: CONTRIBUTING.md
+  - Guides:
+      - Kibana Fixture Generator: kibana-fixture-generator-guide.md
+  - API Reference:
+      - api/index.md
+      - Dashboard: api/dashboard.md
+      - Panels: api/panels.md
+      - Controls: api/controls.md
+      - Filters: api/filters.md
+      - Queries: api/queries.md

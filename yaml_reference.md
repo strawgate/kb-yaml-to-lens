@@ -1,4 +1,4 @@
-\n---\n\n<!-- Source: dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
+\n---\n\n<!-- Source: src/dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
 
 The `dashboard` object is the root element in your YAML configuration file. It defines the overall structure, content, and global settings for a Kibana dashboard.
 
@@ -116,16 +116,17 @@ Configure whether cursor, tooltips, and colors should synchronize across panels.
 
 While primarily declarative, the underlying Pydantic models for `Dashboard` support methods for adding components if you are generating configurations programmatically (not directly used in YAML):
 
-*   `add_filter(filter: FilterTypes)`: Adds a filter to the `filters` list.
-*   `add_control(control: ControlTypes)`: Adds a control to the `controls` list.
-*   `add_panel(panel: PanelTypes)`: Adds a panel to the `panels` list.
+* `add_filter(filter: FilterTypes)`: Adds a filter to the `filters` list.
+* `add_control(control: ControlTypes)`: Adds a control to the `controls` list.
+* `add_panel(panel: PanelTypes)`: Adds a panel to the `panels` list.
 
 ## Related Documentation
 
-*   [Controls Configuration](../controls/config.md)
-*   [Filters Configuration](../filters/config.md)
-*   [Queries Configuration](../queries/config.md)
-*   [Panels Overview](../panels/base.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
+* [Controls Configuration](../controls/config.md)
+* [Filters Configuration](../filters/config.md)
+* [Queries Configuration](../queries/config.md)
+* [Panels Overview](../panels/base.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
 
 Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within the `controls` field of the main `dashboard` configuration. Global behavior of controls can be managed via the `settings.controls` object.
 
@@ -261,25 +262,28 @@ Allows users to select a sub-section of the dashboard's current time range. This
 
 This enum defines the possible search techniques used for filtering options in an `OptionsListControl`.
 
-*   `prefix`: (Default) Filters options starting with the input text.
-*   `contains`: Filters options containing the input text.
-*   `exact`: Filters options matching the input text exactly.
+* `prefix`: (Default) Filters options starting with the input text.
+* `contains`: Filters options containing the input text.
+* `exact`: Filters options matching the input text exactly.
 
 ## Related Documentation
 
-*   [Dashboard Configuration](./../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/filters/config.md -->\n\n# Filters Configuration
+* [Dashboard Configuration](./../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/filters/config.md -->\n\n# Filters Configuration
 
 Filters are used to narrow down the data displayed on a dashboard or within individual panels. They are defined as a list of filter objects, typically under the `filters` key of a `dashboard` object or a panel that supports filtering.
 
 ## Minimal Configuration Examples
 
 **Exists Filter:** Check if the `error.message` field exists.
+
 ```yaml
 filters:
   - exists: "error.message"
 ```
 
 **Phrase Filter:** Find documents where `status.keyword` is exactly "active".
+
 ```yaml
 filters:
   - field: "status.keyword"
@@ -287,6 +291,7 @@ filters:
 ```
 
 **Phrases Filter (using `in` alias):** Find documents where `event.category` is "authentication" OR "network".
+
 ```yaml
 filters:
   - field: "event.category"
@@ -294,6 +299,7 @@ filters:
 ```
 
 **Range Filter:** Find documents where `response_time` is between 100 (inclusive) and 500 (exclusive).
+
 ```yaml
 filters:
   - field: "response_time"
@@ -424,8 +430,9 @@ Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 
 ## Related Documentation
 
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Queries Configuration](../queries/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/base.md -->\n\n# Base Panel Configuration
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Queries Configuration](../queries/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/base.md -->\n\n# Base Panel Configuration
 
 All panel types used within a dashboard (e.g., Markdown, Lens charts, Search panels) share a common set of base configuration fields. These fields define fundamental properties like the panel's title, its position and size on the dashboard grid, and an optional description.
 
@@ -491,6 +498,7 @@ The `grid` object is required for every panel and defines its placement and dime
 | `h`      | `integer` | The height of the panel in grid units.                                   | N/A            | Yes      |
 
 **Example of `grid` usage:**
+
 ```yaml
 # ...
 # panels:
@@ -516,17 +524,18 @@ The `grid` object is required for every panel and defines its placement and dime
 
 The `BasePanel` fields are common to all panel types. For details on the specific configuration fields available for each panel `type`, refer to their individual documentation pages:
 
-*   [Markdown Panel](./markdown/markdown.md)
-*   [Links Panel](./links/links.md)
-*   [Search Panel](./search/search.md) (*Documentation to be created/updated*)
-*   **Charts:**
-    *   [Lens Panel (for various chart types like bar, line, area, pie, metric, table)](./charts/lens/lens.md)
-    *   [ESQL Panel (for ESQL-driven visualizations)](./charts/esql/esql.md) (*Documentation to be created/updated*)
-    *   (*Other chart types like Vega, Timelion, TSVB might be added here if supported*)
+* [Markdown Panel](./markdown/markdown.md)
+* [Links Panel](./links/links.md)
+* [Search Panel](./search/search.md) (*Documentation to be created/updated*)
+* **Charts:**
+  * [Lens Panel (for various chart types like bar, line, area, pie, metric, table)](./charts/lens/lens.md)
+  * [ESQL Panel (for ESQL-driven visualizations)](./charts/esql/esql.md) (*Documentation to be created/updated*)
+  * (*Other chart types like Vega, Timelion, TSVB might be added here if supported*)
 
 ## Related Documentation
 
-*   [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/esql.md -->\n\n# ESQL Panel
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/esql.md -->\n\n# ESQL Panel
 
 The `esql` panel is used to display data visualizations based on an ESQL query.
 
@@ -540,9 +549,9 @@ The `esql` panel is used to display data visualizations based on an ESQL query.
 
 ## Fields
 
-*   `type` (required, string): Must be `esql`.
-*   `query` (required, string): The ESQL query string that determines the data for the chart.
-*   `chart` (required, object): The chart configuration for the ESQL panel. See [ESQL Chart Types](#esql-chart-types) for details.
+* `type` (required, string): Must be `esql`.
+* `query` (required, string): The ESQL query string that determines the data for the chart.
+* `chart` (required, object): The chart configuration for the ESQL panel. See [ESQL Chart Types](#esql-chart-types) for details.
 
 ## ESQL Chart Types
 
@@ -562,13 +571,13 @@ chart:
   legend: object      # (Optional) Legend formatting options.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `pie`.
-    *   `metric` (required, object): A metric that determines the size of the slice of the pie chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of [ESQL Dimension Objects](../dimensions/dimension.md#esql-dimension-type) referencing columns from the ESQL query results.
-    *   `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](../lens.md#pie-chart-appearance) for details.
-    *   `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text) for details.
-    *   `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](../lens.md#pie-chart-legend) for details.
+* **Fields:**
+  * `type` (required, string): Must be `pie`.
+  * `metric` (required, object): A metric that determines the size of the slice of the pie chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of [ESQL Dimension Objects](../dimensions/dimension.md#esql-dimension-type) referencing columns from the ESQL query results.
+  * `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](../lens.md#pie-chart-appearance) for details.
+  * `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text) for details.
+  * `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](../lens.md#pie-chart-legend) for details.
 
 ### ESQL Metric Chart
 
@@ -583,21 +592,22 @@ chart:
   breakdown: object   # (Optional) An optional breakdown dimension.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `metric`.
-    *   `primary` (required, object): The primary metric to display in the chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
-    *   `breakdown` (optional, object): An optional breakdown dimension to display. This should be an [ESQL Dimension Object](../dimensions/dimension.md#esql-dimension-type) referencing a column from the ESQL query results.
+* **Fields:**
+  * `type` (required, string): Must be `metric`.
+  * `primary` (required, object): The primary metric to display in the chart. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. This should be an [ESQL Metric Object](../metrics/metric.md#esql-metric) referencing a column from the ESQL query results.
+  * `breakdown` (optional, object): An optional breakdown dimension to display. This should be an [ESQL Dimension Object](../dimensions/dimension.md#esql-dimension-type) referencing a column from the ESQL query results.
 
 ## Related Documentation
 
-*   [Base Panel Object](../base.md)
-*   [Metric Objects](../metrics/metric.md)
-*   [Dimension Objects](../dimensions/dimension.md)
-*   [Pie Chart Appearance](../lens.md#pie-chart-appearance)
-*   [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text)
-*   [Pie Chart Legend](../lens.md#pie-chart-legend)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/esql/esql.md -->\n\n# ESQL Panel Configuration
+* [Base Panel Object](../base.md)
+* [Metric Objects](../metrics/metric.md)
+* [Dimension Objects](../dimensions/dimension.md)
+* [Pie Chart Appearance](../lens.md#pie-chart-appearance)
+* [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text)
+* [Pie Chart Legend](../lens.md#pie-chart-legend)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/esql/esql.md -->\n\n# ESQL Panel Configuration
 
 ESQL panels leverage the power of Elasticsearch Query Language (ESQL) to create visualizations. This allows for more complex data transformations and aggregations directly within the query that feeds the chart.
 
@@ -606,6 +616,7 @@ The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query,
 ## Minimal Configuration Examples
 
 **Minimal ESQL Metric Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts  # This is the ESQLPanel type (distinguished by `esql` field)
@@ -637,6 +648,7 @@ dashboard:
 ```
 
 **Minimal ESQL Pie Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts
@@ -706,6 +718,7 @@ Displays a single primary metric derived from an ESQL query, optionally with a s
 | `breakdown` | `ESQLDimension` object                     | An optional dimension to break down the metric by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None`           | No       |
 
 **Example (ESQL Metric Chart):**
+
 ```yaml
 # Within an ESQLPanel's 'chart' field:
 # type: metric
@@ -735,6 +748,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None`           | No       |
 
 **Example (ESQL Pie Chart):**
+
 ```yaml
 # Within an ESQLPanel's 'chart' field:
 # type: pie
@@ -804,13 +818,13 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
 
-
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Queries Configuration](../../queries/config.md#esql-query)
-*   Elasticsearch ESQL Reference (external)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens.md -->\n\n# Lens Panel
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Queries Configuration](../../queries/config.md#esql-query)
+* Elasticsearch ESQL Reference (external)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens.md -->\n\n# Lens Panel
 
 The `lens` panel is used to display data visualizations created with Kibana Lens.
 
@@ -823,8 +837,8 @@ The `lens` panel is used to display data visualizations created with Kibana Lens
 
 ## Fields
 
-*   `type` (required, string): Must be `lens`.
-*   `chart` (required, object): The chart configuration for the Lens panel. See [Lens Chart Types](#lens-chart-types) for details.
+* `type` (required, string): Must be `lens`.
+* `chart` (required, object): The chart configuration for the Lens panel. See [Lens Chart Types](#lens-chart-types) for details.
 
 ## Lens Chart Types
 
@@ -844,13 +858,13 @@ chart:
   legend: object      # (Optional) Legend formatting options.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `pie`.
-    *   `metric` (required, object): A metric that determines the size of the slice of the pie chart. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of Lens dimension objects. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
-    *   `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](#pie-chart-appearance) for details.
-    *   `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](#pie-chart-titles-and-text) for details.
-    *   `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](#pie-chart-legend) for details.
+* **Fields:**
+  * `type` (required, string): Must be `pie`.
+  * `metric` (required, object): A metric that determines the size of the slice of the pie chart. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `slice_by` (required, list of objects): The dimensions that determine the slices of the pie chart. This is a list of Lens dimension objects. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
+  * `appearance` (optional, object): Formatting options for the chart appearance, including donut size. See [Pie Chart Appearance](#pie-chart-appearance) for details.
+  * `titles_and_text` (optional, object): Formatting options for the chart titles and text. See [Pie Chart Titles and Text](#pie-chart-titles-and-text) for details.
+  * `legend` (optional, object): Formatting options for the chart legend. See [Pie Chart Legend](#pie-chart-legend) for details.
 
 ### Lens Metric Chart
 
@@ -865,12 +879,12 @@ chart:
   breakdown: object   # (Optional) An optional breakdown dimension.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `metric`.
-    *   `primary` (required, object): The primary metric to display in the chart. This is the main value shown in the metric visualization. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
-    *   `breakdown` (optional, object): An optional breakdown dimension to display. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
+* **Fields:**
+  * `type` (required, string): Must be `metric`.
+  * `primary` (required, object): The primary metric to display in the chart. This is the main value shown in the metric visualization. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `secondary` (optional, object): An optional secondary metric to display alongside the primary metric. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `maximum` (optional, object): An optional maximum metric to display, often used for comparison or thresholds. See [Metric Objects](../metrics/metric.md) for details on Lens metric types.
+  * `breakdown` (optional, object): An optional breakdown dimension to display. See [Dimension Objects](../dimensions/dimension.md) for details on Lens dimension types.
 
 ## Pie Chart Appearance
 
@@ -881,7 +895,7 @@ appearance:
   donut: string       # (Optional) The size of the donut hole (small, medium, large).
 ```
 
-*   `donut` (optional, string): The size of the donut hole in the pie chart. Options are `small`, `medium`, or `large`.
+* `donut` (optional, string): The size of the donut hole in the pie chart. Options are `small`, `medium`, or `large`.
 
 ## Pie Chart Titles and Text
 
@@ -894,9 +908,9 @@ titles_and_text:
   value_decimal_places: integer # (Optional) Number of decimal places for slice values (0-10). Defaults to 2.
 ```
 
-*   `slice_labels` (optional, string): Controls the visibility of slice labels in the pie chart. Valid values are `hide`, `show`, or `auto`. Kibana defaults to `auto` if not specified.
-*   `slice_values` (optional, string): Controls the display of slice values in the pie chart. Valid values are `hide`, `integer`, or `percent`. Kibana defaults to `percentage` if not specified.
-*   `value_decimal_places` (optional, integer): Controls the number of decimal places for slice values in the pie chart. Value should be between 0 and 10. Kibana defaults to 2, if not specified.
+* `slice_labels` (optional, string): Controls the visibility of slice labels in the pie chart. Valid values are `hide`, `show`, or `auto`. Kibana defaults to `auto` if not specified.
+* `slice_values` (optional, string): Controls the display of slice values in the pie chart. Valid values are `hide`, `integer`, or `percent`. Kibana defaults to `percentage` if not specified.
+* `value_decimal_places` (optional, integer): Controls the number of decimal places for slice values in the pie chart. Value should be between 0 and 10. Kibana defaults to 2, if not specified.
 
 ## Pie Chart Legend
 
@@ -909,15 +923,16 @@ legend:
   truncate_labels: integer # (Optional) Number of lines to truncate labels (0-5). Defaults to 1.
 ```
 
-*   `visible` (optional, string): Visibility of the legend in the pie chart. Valid values are `show`, `hide`, or `auto`. Kibana defaults to `auto` if not specified.
-*   `width` (optional, string): Width of the legend in the pie chart. Valid values are `small`, `medium`, `large`, or `extra_large`. Kibana defaults to `medium` if not specified.
-*   `truncate_labels` (optional, integer): Number of lines to truncate the legend labels to. Value should be between 0 and 5. Kibana defaults to 1 if not specified. Set to 0 to disable truncation.
+* `visible` (optional, string): Visibility of the legend in the pie chart. Valid values are `show`, `hide`, or `auto`. Kibana defaults to `auto` if not specified.
+* `width` (optional, string): Width of the legend in the pie chart. Valid values are `small`, `medium`, `large`, or `extra_large`. Kibana defaults to `medium` if not specified.
+* `truncate_labels` (optional, integer): Number of lines to truncate the legend labels to. Value should be between 0 and 5. Kibana defaults to 1 if not specified. Set to 0 to disable truncation.
 
 ## Related Documentation
 
-*   [Base Panel Object](../base.md)
-*   [Metric Objects](../metrics/metric.md)
-*   [Dimension Objects](../dimensions/dimension.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/dimensions/dimension.md -->\n\n# Dimension Objects
+* [Base Panel Object](../base.md)
+* [Metric Objects](../metrics/metric.md)
+* [Dimension Objects](../dimensions/dimension.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/dimensions/dimension.md -->\n\n# Dimension Objects
 
 Dimension objects are used within chart panels (Lens and ESQL) to define how data is grouped or categorized, often corresponding to an axis or a breakdown.
 
@@ -925,7 +940,7 @@ Dimension objects are used within chart panels (Lens and ESQL) to define how dat
 
 All dimension types inherit from a base dimension with the following optional field:
 
-*   `id` (optional, string): A unique identifier for the dimension. If not provided, one may be generated during compilation.
+* `id` (optional, string): A unique identifier for the dimension. If not provided, one may be generated during compilation.
 
 ## Lens Dimension Types
 
@@ -935,7 +950,7 @@ Lens charts use the following dimension types:
 
 All Lens dimension types inherit from a base Lens dimension with the following optional fields:
 
-*   `label` (optional, string): The display label for the dimension. If not provided, a label may be inferred from the field and type.
+* `label` (optional, string): The display label for the dimension. If not provided, a label may be inferred from the field and type.
 
 ### Lens Top Values Dimension
 
@@ -955,18 +970,19 @@ Represents a top values dimension configuration within a Lens chart. Top values 
   # Base Lens Dimension fields also apply
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `values`.
-    *   `field` (required, string): The name of the field in the data view that this dimension is based on.
-    *   `size` (optional, integer): The number of top terms to display.
-    *   `sort` (optional, object): Defines how the terms are sorted. See [Sort Object](../shared/config.md#sort-object).
-    *   `other_bucket` (optional, boolean): If `true`, a bucket for all other terms not included in the top `size` will be shown. Defaults to `false`.
-    *   `missing_bucket` (optional, boolean): If `true`, a bucket for documents with a missing value for the field will be shown. Defaults to `false`.
-    *   `include` (optional, list of strings): A list of term values or regex patterns to include.
-    *   `exclude` (optional, list of strings): A list of term values or regex patterns to exclude.
-    *   `include_is_regex` (optional, boolean): If `true`, the values in the `include` list will be treated as regular expressions. Defaults to `false`.
-    *   `exclude_is_regex` (optional, boolean): If `true`, the values in the `exclude` list will be treated as regular expressions. Defaults to `false`.
-*   **Example:**
+* **Fields:**
+  * `type` (required, string): Must be `values`.
+  * `field` (required, string): The name of the field in the data view that this dimension is based on.
+  * `size` (optional, integer): The number of top terms to display.
+  * `sort` (optional, object): Defines how the terms are sorted. See [Sort Object](../shared/config.md#sort-object).
+  * `other_bucket` (optional, boolean): If `true`, a bucket for all other terms not included in the top `size` will be shown. Defaults to `false`.
+  * `missing_bucket` (optional, boolean): If `true`, a bucket for documents with a missing value for the field will be shown. Defaults to `false`.
+  * `include` (optional, list of strings): A list of term values or regex patterns to include.
+  * `exclude` (optional, list of strings): A list of term values or regex patterns to exclude.
+  * `include_is_regex` (optional, boolean): If `true`, the values in the `include` list will be treated as regular expressions. Defaults to `false`.
+  * `exclude_is_regex` (optional, boolean): If `true`, the values in the `exclude` list will be treated as regular expressions. Defaults to `false`.
+* **Example:**
+
     ```yaml
     - type: values
       field: user.country
@@ -991,13 +1007,14 @@ Represents a date histogram dimension configuration within a Lens chart. Date hi
   # Base Lens Dimension fields also apply
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `date_histogram`.
-    *   `field` (required, string): The name of the field in the data view that this dimension is based on.
-    *   `minimum_interval` (optional, string): The minimum time interval for the histogram buckets. Defaults to `auto` if not specified.
-    *   `partial_intervals` (optional, boolean): If `true`, show partial intervals. Kibana defaults to `true` if not specified.
-    *   `collapse` (optional, string): The aggregation to use for the dimension when intervals are collapsed. See [Collapse Aggregation Enum](#collapse-aggregation-enum).
-*   **Example:**
+* **Fields:**
+  * `type` (required, string): Must be `date_histogram`.
+  * `field` (required, string): The name of the field in the data view that this dimension is based on.
+  * `minimum_interval` (optional, string): The minimum time interval for the histogram buckets. Defaults to `auto` if not specified.
+  * `partial_intervals` (optional, boolean): If `true`, show partial intervals. Kibana defaults to `true` if not specified.
+  * `collapse` (optional, string): The aggregation to use for the dimension when intervals are collapsed. See [Collapse Aggregation Enum](#collapse-aggregation-enum).
+* **Example:**
+
     ```yaml
     - type: date_histogram
       field: "@timestamp"
@@ -1015,10 +1032,11 @@ Represents a filters dimension configuration within a Lens chart. Filters dimens
   # Base Lens Dimension fields also apply
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `filters`.
-    *   `filters` (required, list of objects): A list of filter objects. Each object should have a `query` (see [Queries Documentation](../queries/config.md)) and an optional `label` (string).
-*   **Example:**
+* **Fields:**
+  * `type` (required, string): Must be `filters`.
+  * `filters` (required, list of objects): A list of filter objects. Each object should have a `query` (see [Queries Documentation](../queries/config.md)) and an optional `label` (string).
+* **Example:**
+
     ```yaml
     - type: filters
       label: Response Status
@@ -1048,14 +1066,15 @@ Represents an intervals dimension configuration within a Lens chart. Intervals d
   # Base Lens Dimension fields also apply
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `intervals`.
-    *   `field` (required, string): The name of the field in the data view that this dimension is based on.
-    *   `intervals` (optional, list of objects): A list of interval objects. Each object should have optional `from` (integer) and `to` (integer) values and an optional `label` (string). If not provided, intervals will be automatically picked.
-    *   `granularity` (optional, integer): Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field. Kibana defaults to 4 if not specified. Value should be between 1 and 7.
-    *   `collapse` (optional, string): The aggregation to use for the dimension when intervals are collapsed. See [Collapse Aggregation Enum](#collapse-aggregation-enum).
-    *   `empty_bucket` (optional, boolean): If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`.
-*   **Example:**
+* **Fields:**
+  * `type` (required, string): Must be `intervals`.
+  * `field` (required, string): The name of the field in the data view that this dimension is based on.
+  * `intervals` (optional, list of objects): A list of interval objects. Each object should have optional `from` (integer) and `to` (integer) values and an optional `label` (string). If not provided, intervals will be automatically picked.
+  * `granularity` (optional, integer): Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field. Kibana defaults to 4 if not specified. Value should be between 1 and 7.
+  * `collapse` (optional, string): The aggregation to use for the dimension when intervals are collapsed. See [Collapse Aggregation Enum](#collapse-aggregation-enum).
+  * `empty_bucket` (optional, boolean): If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`.
+* **Example:**
+
     ```yaml
     - type: intervals
       field: response_time
@@ -1083,9 +1102,10 @@ A dimension that is defined in the ESQL query.
   # Base Dimension fields also apply
 ```
 
-*   **Fields:**
-    *   `field` (required, string): The field in the data view that this dimension is based on. This field should correspond to a column returned by the ESQL query.
-*   **Example:**
+* **Fields:**
+  * `field` (required, string): The field in the data view that this dimension is based on. This field should correspond to a column returned by the ESQL query.
+* **Example:**
+
     ```yaml
     - field: country
       label: Country from ESQL
@@ -1095,15 +1115,16 @@ A dimension that is defined in the ESQL query.
 
 This enum defines the possible aggregation types to use when collapsing intervals in Lens Date Histogram and Intervals dimensions.
 
-*   `SUM`
-*   `MIN`
-*   `MAX`
-*   `AVG`
+* `SUM`
+* `MIN`
+* `MAX`
+* `AVG`
 
 ## Related Structures
 
-*   [Sort Object](../shared/config.md#sort-object)
-*   [Queries Documentation](../queries/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/lens.md -->\n\n# Lens Panel Configuration
+* [Sort Object](../shared/config.md#sort-object)
+* [Queries Documentation](../queries/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/lens.md -->\n\n# Lens Panel Configuration
 
 Lens panels in Kibana provide a flexible and user-friendly way to create various types of visualizations, such as metric displays, pie charts, bar charts, line charts, and more. This document covers the YAML configuration for Lens panels using this compiler.
 
@@ -1112,6 +1133,7 @@ The `LensPanel` is the primary container. Its `chart` field will define the spec
 ## Minimal Configuration Examples
 
 **Minimal Lens Metric Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts  # This is the LensPanel type
@@ -1141,6 +1163,7 @@ dashboard:
 ```
 
 **Minimal Lens Pie Chart:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: charts
@@ -1195,8 +1218,9 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `layers` | `list of MultiLayerChartTypes`             | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None`                          | No       |
 
 **Note on `layers` vs `chart`**:
-*   Use the `chart` field for single-layer visualizations (most common use case, e.g., one metric display, one pie chart).
-*   Use the `layers` field if you need to define multiple, distinct visualizations within the same Lens panel (e.g., overlaying different chart types or configurations). If `layers` is used, the `chart` field should not be.
+
+* Use the `chart` field for single-layer visualizations (most common use case, e.g., one metric display, one pie chart).
+* Use the `layers` field if you need to define multiple, distinct visualizations within the same Lens panel (e.g., overlaying different chart types or configurations). If `layers` is used, the `chart` field should not be.
 
 ---
 
@@ -1214,6 +1238,7 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `breakdown` | `LensDimensionTypes` object                | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions). | `None`           | No       |
 
 **Example (Lens Metric Chart):**
+
 ```yaml
 # Within a LensPanel's 'chart' field:
 # type: metric
@@ -1253,6 +1278,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping).                       | `None`           | No       |
 
 **Example (Lens Pie Chart):**
+
 ```yaml
 # Within a LensPanel's 'chart' field:
 # type: pie
@@ -1330,6 +1356,7 @@ Creates buckets based on a list of custom KQL/Lucene queries.
 | `filters` | `list of LensFiltersDimensionFilter` objects | A list of filter definitions. Each filter object has `query` (KQL/Lucene) and an optional `label`.         | N/A              | Yes      |
 
 **`LensFiltersDimensionFilter` Object:**
+
 | YAML Key | Data Type                 | Description                                      | Kibana Default   | Required |
 | -------- | ------------------------- | ------------------------------------------------ | ---------------- | -------- |
 | `query`  | `LegacyQueryTypes` object | The KQL or Lucene query for this filter bucket.  | N/A              | Yes      |
@@ -1349,6 +1376,7 @@ Groups data into numeric ranges (buckets).
 | `empty_bucket`| `boolean`                                  | If `true`, shows a bucket for documents with missing values for the field.                                 | `false`          | No       |
 
 **`LensIntervalsDimensionInterval` Object:**
+
 | YAML Key | Data Type | Description                                      | Kibana Default   | Required |
 | -------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `from`   | `integer` | The start of the interval (inclusive).           | `None`           | No       |
@@ -1377,6 +1405,7 @@ All specific metric types below can include:
 These metrics perform an aggregation on a field.
 
 **Count / Unique Count (`aggregation: count` or `aggregation: unique_count`)**
+
 | YAML Key        | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation`   | `Literal['count', 'unique_count']`         | Type of count.                                                                                             | N/A              | Yes      |
@@ -1384,6 +1413,7 @@ These metrics perform an aggregation on a field.
 | `exclude_zeros` | `boolean`                                  | If `true`, zero values are excluded from the aggregation.                                                  | `true`           | No       |
 
 **Sum (`aggregation: sum`)**
+
 | YAML Key        | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation`   | `Literal['sum']`                           | Specifies sum aggregation.                                                                                 | `sum`            | Yes      |
@@ -1391,12 +1421,14 @@ These metrics perform an aggregation on a field.
 | `exclude_zeros` | `boolean`                                  | If `true`, zero values are excluded from the sum.                                                          | `true`           | No       |
 
 **Min, Max, Average, Median (`aggregation: min` / `max` / `average` / `median`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['min', 'max', 'average', 'median']` | The aggregation type.                                                                                      | N/A              | Yes      |
 | `field`       | `string`                                   | The numeric field for the aggregation.                                                                     | N/A              | Yes      |
 
 **Last Value (`aggregation: last_value`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['last_value']`                    | Retrieves the most recent value of a field.                                                                | `last_value`     | Yes      |
@@ -1404,6 +1436,7 @@ These metrics perform an aggregation on a field.
 | `date_field`  | `string`                                   | The date field used to determine the "last" value.                                                         | `@timestamp`     | No       |
 
 **Percentile (`aggregation: percentile`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['percentile']`                    | Calculates the value at a specific percentile.                                                             | `percentile`     | Yes      |
@@ -1411,6 +1444,7 @@ These metrics perform an aggregation on a field.
 | `percentile`  | `integer`                                  | The percentile to calculate (e.g., `95` for 95th percentile).                                              | N/A              | Yes      |
 
 **Percentile Rank (`aggregation: percentile_rank`)**
+
 | YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `aggregation` | `Literal['percentile_rank']`               | Determines the rank of a specific value within the dataset.                                                | `percentile_rank`| Yes      |
@@ -1441,11 +1475,12 @@ Defines how metric values are displayed.
 | `pattern` | `string`                                   | A Numeral.js format pattern (used if `type` is `number` or `percent`).                                     | Default for type | No       |
 
 **Default Decimal Places (Kibana):**
-*   `number`: 2
-*   `bytes`: 2
-*   `bits`: 0
-*   `percent`: 2
-*   `duration`: 0 (Kibana often uses smart duration formatting like "1m 30s")
+
+* `number`: 2
+* `bytes`: 2
+* `bits`: 0
+* `percent`: 2
+* `duration`: 0 (Kibana often uses smart duration formatting like "1m 30s")
 
 ### Custom Format (`format.type: custom`)
 
@@ -1488,13 +1523,13 @@ These objects are used within the `LensPieChart` configuration.
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
 
-
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Queries Configuration](../../queries/config.md)
-*   [Filters Configuration](../../filters/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/metrics/metric.md -->\n\n# Metric Objects
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Queries Configuration](../../queries/config.md)
+* [Filters Configuration](../../filters/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/metrics/metric.md -->\n\n# Metric Objects
 
 Metric objects are used within chart panels (Lens and ESQL) to define the values being visualized, typically corresponding to the y-axis or the size of elements.
 
@@ -1502,7 +1537,7 @@ Metric objects are used within chart panels (Lens and ESQL) to define the values
 
 All metric types inherit from a base metric with the following optional field:
 
-*   `id` (optional, string): A unique identifier for the metric. If not provided, one may be generated during compilation.
+* `id` (optional, string): A unique identifier for the metric. If not provided, one may be generated during compilation.
 
 ## Lens Metric Types
 
@@ -1512,9 +1547,9 @@ Lens charts use the following metric types:
 
 All Lens metric types inherit from a base Lens metric with the following optional fields:
 
-*   `label` (optional, string): The display label for the metric. If not provided, a label may be inferred from the type and field.
-*   `format` (optional, object): The format of the metric. See [Lens Metric Format](#lens-metric-format) for details.
-*   `filter` (optional, object): A query (KQL or Lucene) applied before determining the metric value. See [Queries Documentation](../queries/config.md) for details.
+* `label` (optional, string): The display label for the metric. If not provided, a label may be inferred from the type and field.
+* `format` (optional, object): The format of the metric. See [Lens Metric Format](#lens-metric-format) for details.
+* `filter` (optional, object): A query (KQL or Lucene) applied before determining the metric value. See [Queries Documentation](../queries/config.md) for details.
 
 ### Lens Formula Metric
 
@@ -1526,10 +1561,11 @@ Represents a formula metric configuration within a Lens chart. Formula metrics a
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `formula`.
-    *   `formula` (required, string): The formula string to be evaluated for this metric.
-*   **Example:**
+* **Fields:**
+  * `type` (required, string): Must be `formula`.
+  * `formula` (required, string): The formula string to be evaluated for this metric.
+* **Example:**
+
     ```yaml
     - type: formula
       label: Error Rate
@@ -1551,16 +1587,19 @@ Represents a count metric configuration within a Lens chart. Count metrics are u
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): The aggregation type. Must be `count` or `unique_count`.
-    *   `field` (optional, string): The field to count. Required for `unique_count`. If not provided for `count`, it will count all documents.
-    *   `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
-*   **Example (Count):**
+* **Fields:**
+  * `aggregation` (required, string): The aggregation type. Must be `count` or `unique_count`.
+  * `field` (optional, string): The field to count. Required for `unique_count`. If not provided for `count`, it will count all documents.
+  * `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
+* **Example (Count):**
+
     ```yaml
     - aggregation: count
       label: Total Documents
     ```
-*   **Example (Unique Count):**
+
+* **Example (Unique Count):**
+
     ```yaml
     - aggregation: unique_count
       field: user.id
@@ -1578,11 +1617,12 @@ Represents a sum metric configuration within a Lens chart. Sum metrics are used 
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `sum`.
-    *   `field` (required, string): The field to sum.
-    *   `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `sum`.
+  * `field` (required, string): The field to sum.
+  * `exclude_zeros` (optional, boolean): Whether to exclude zero values from the count. Kibana defaults to true if not specified.
+* **Example:**
+
     ```yaml
     - aggregation: sum
       field: bytes
@@ -1599,10 +1639,11 @@ Represents various aggregated metric configurations within a Lens chart, includi
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): The aggregation type. Must be `min`, `max`, `median`, or `average`.
-    *   `field` (required, string): The field to aggregate on.
-*   **Example (Average):**
+* **Fields:**
+  * `aggregation` (required, string): The aggregation type. Must be `min`, `max`, `median`, or `average`.
+  * `field` (required, string): The field to aggregate on.
+* **Example (Average):**
+
     ```yaml
     - aggregation: average
       field: response_time
@@ -1620,11 +1661,12 @@ Represents a last value metric configuration within a Lens chart. Last value met
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `last_value`.
-    *   `field` (required, string): The field whose last value is retrieved.
-    *   `date_field` (optional, string): The field used to determine the 'last' value. If not provided, the default time field for the data view is used.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `last_value`.
+  * `field` (required, string): The field whose last value is retrieved.
+  * `date_field` (optional, string): The field used to determine the 'last' value. If not provided, the default time field for the data view is used.
+* **Example:**
+
     ```yaml
     - aggregation: last_value
       field: system.load.5
@@ -1643,11 +1685,12 @@ Represents a percentile rank metric configuration within a Lens chart. Percentil
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `percentile_rank`.
-    *   `field` (required, string): The field to calculate the percentile rank on.
-    *   `rank` (required, integer): The rank to determine the percentile for.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `percentile_rank`.
+  * `field` (required, string): The field to calculate the percentile rank on.
+  * `rank` (required, integer): The rank to determine the percentile for.
+* **Example:**
+
     ```yaml
     - aggregation: percentile_rank
       field: response_time
@@ -1666,11 +1709,12 @@ Represents a percentile metric configuration within a Lens chart. Percentile met
   # Base Lens Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `aggregation` (required, string): Must be `percentile`.
-    *   `field` (required, string): The field to calculate the percentile on.
-    *   `percentile` (required, integer): The percentile to determine the value for.
-*   **Example:**
+* **Fields:**
+  * `aggregation` (required, string): Must be `percentile`.
+  * `field` (required, string): The field to calculate the percentile on.
+  * `percentile` (required, integer): The percentile to determine the value for.
+* **Example:**
+
     ```yaml
     - aggregation: percentile
       field: response_time
@@ -1690,11 +1734,11 @@ format:
   pattern: string     # (Optional for type: custom, Required for other types) The pattern to display the number in.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): The format type. Valid values are `number`, `bytes`, `bits`, `percent`, `duration`, or `custom`.
-    *   `suffix` (optional, string): The suffix to display after the number.
-    *   `compact` (optional, boolean): Whether to display the number in a compact format (e.g., 1k instead of 1000).
-    *   `pattern` (optional, string): The pattern to display the number in. Required for `custom` type.
+* **Fields:**
+  * `type` (required, string): The format type. Valid values are `number`, `bytes`, `bits`, `percent`, `duration`, or `custom`.
+  * `suffix` (optional, string): The suffix to display after the number.
+  * `compact` (optional, boolean): Whether to display the number in a compact format (e.g., 1k instead of 1000).
+  * `pattern` (optional, string): The pattern to display the number in. Required for `custom` type.
 
 #### Lens Custom Metric Format
 
@@ -1706,9 +1750,9 @@ format:
   pattern: string     # (Required) The custom pattern to display the number in.
 ```
 
-*   **Fields:**
-    *   `type` (required, string): Must be `custom`.
-    *   `pattern` (required, string): The custom pattern to display the number in.
+* **Fields:**
+  * `type` (required, string): Must be `custom`.
+  * `pattern` (required, string): The custom pattern to display the number in.
 
 ## ESQL Metric Type
 
@@ -1723,12 +1767,87 @@ A metric that is defined in the ESQL query.
   # Base Metric fields also apply
 ```
 
-*   **Fields:**
-    *   `field` (required, string): The field in the data view that this metric is based on. This field should correspond to a column returned by the ESQL query.
-*   **Example:**
+* **Fields:**
+  * `field` (required, string): The field in the data view that this metric is based on. This field should correspond to a column returned by the ESQL query.
+* **Example:**
+
     ```yaml
     - field: total_requests
-      label: Total Requests from ESQL\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
+      label: Total Requests from ESQL
+
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/metric/config.md -->\n\n# Metric Chart Panel Configuration
+
+The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "KPI Dashboard"
+  panels:
+    - type: metric
+      title: "Total Revenue"
+      grid: { x: 0, y: 0, w: 3, h: 2 }
+      data:
+        index: "sales-data"
+        value: "revenue"
+```
+
+## Full Configuration Options
+
+| YAML Key      | Data Type         | Description                                      | Required |
+|--------------|-------------------|--------------------------------------------------|----------|
+| `type`       | `Literal['metric']`| Specifies the panel type.                        | Yes      |
+| `title`      | `string`          | Title of the panel.                              | No       |
+| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
+| `data`       | `object`          | Data source and field mapping.                   | Yes      |
+| `value`      | `string`          | Field for the metric value.                      | Yes      |
+| `color`      | `string`          | Color for the metric display.                    | No       |
+| `description`| `string`          | Panel description.                               | No       |
+
+## Related
+
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/pie/config.md -->\n\n# Pie Chart Panel Configuration
+
+The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "Traffic Sources"
+  panels:
+    - type: pie
+      title: "Website Traffic Sources"
+      grid: { x: 0, y: 0, w: 6, h: 6 }
+      data:
+        index: "traffic-data"
+        category: "source"
+        value: "visits"
+```
+
+## Full Configuration Options
+
+| YAML Key      | Data Type         | Description                                      | Required |
+|--------------|-------------------|--------------------------------------------------|----------|
+| `type`       | `Literal['pie']`  | Specifies the panel type.                        | Yes      |
+| `title`      | `string`          | Title of the panel.                              | No       |
+| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
+| `data`       | `object`          | Data source and field mapping.                   | Yes      |
+| `category`   | `string`          | Field for pie slices (categories).               | Yes      |
+| `value`      | `string`          | Field for values (size of slices).               | Yes      |
+| `donut`      | `boolean`         | Display as donut chart.                          | No       |
+| `color`      | `string/list`     | Color(s) for slices.                             | No       |
+| `legend`     | `object`          | Legend display options.                          | No       |
+| `description`| `string`          | Panel description.                               | No       |
+
+## Related
+
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
 
@@ -1799,21 +1918,24 @@ Image panels inherit from the [Base Panel Configuration](../base.md) and have th
 | `background_color` | `string`                                    | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`).   | `""` (empty string, likely transparent in Kibana) | No       |
 
 **Details for `fit` options:**
-*   `contain`: (Default) Scales the image to fit within the panel while maintaining its aspect ratio. The entire image will be visible.
-*   `cover`: Scales the image to fill the panel while maintaining its aspect ratio. Some parts of the image may be cropped to achieve this.
-*   `fill`: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
-*   `none`: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
+
+* `contain`: (Default) Scales the image to fit within the panel while maintaining its aspect ratio. The entire image will be visible.
+* `cover`: Scales the image to fill the panel while maintaining its aspect ratio. Some parts of the image may be cropped to achieve this.
+* `fill`: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
+* `none`: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/links/links.md -->\n\n# Links Panel Configuration
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/links/links.md -->\n\n# Links Panel Configuration
 
 The `links` panel type is used to display a collection of hyperlinks on your dashboard. These links can point to other Kibana dashboards or external web URLs. This panel is useful for creating navigation hubs or providing quick access to related resources.
 
 ## Minimal Configuration Examples
 
 **Linking to another Dashboard:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: links
@@ -1836,6 +1958,7 @@ dashboard:
 ```
 
 **Linking to an External URL:**
+
 ```yaml
 # Within a dashboard's 'panels' list:
 # - type: links
@@ -1917,7 +2040,6 @@ Each item in the `links` list will be one of the following types. They share com
 | `id`     | `string`  | An optional unique identifier for the individual link item. Not typically needed.                          | Generated ID        | No       |
 | `label`  | `string`  | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No       |
 
-
 #### Dashboard Link
 
 Represents a link to another Kibana dashboard.
@@ -1949,8 +2071,9 @@ The `LinksPanel` Pydantic model includes an `add_link(link: LinkTypes)` method, 
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/markdown/markdown.md -->\n\n# Markdown Panel Configuration
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/markdown/markdown.md -->\n\n# Markdown Panel Configuration
 
 The `markdown` panel type is used to display rich text content, formatted using Markdown syntax, directly on your dashboard. This is equivalent to the "Text" visualization in Kibana.
 
@@ -2037,8 +2160,9 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
 
 The `search` panel type is used to embed the results of a pre-existing, saved Kibana search directly onto your dashboard. This allows you to display dynamic log views, event lists, or any other data set defined by a saved search in Discover.
 
@@ -2109,15 +2233,17 @@ Search panels inherit from the [Base Panel Configuration](../base.md) and have o
 
 ## Related Documentation
 
-*   [Base Panel Configuration](../base.md)
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   Kibana Discover and Saved Searches documentation (external to this project).\n\n\n---\n\n<!-- Source: dashboard_compiler/queries/config.md -->\n\n# Queries Configuration
+* [Base Panel Configuration](../base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* Kibana Discover and Saved Searches documentation (external to this project).
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/queries/config.md -->\n\n# Queries Configuration
 
 Queries are used to define the search criteria for retrieving data. They can be applied globally at the dashboard level or specifically to individual panels that support them. This compiler supports KQL (Kibana Query Language), Lucene, and ESQL (Elasticsearch Query Language).
 
 ## Minimal Configuration Examples
 
 **KQL Query:**
+
 ```yaml
 # Applied at the dashboard level
 dashboard:
@@ -2127,6 +2253,7 @@ dashboard:
 ```
 
 **Lucene Query:**
+
 ```yaml
 # Applied at the dashboard level
 dashboard:
@@ -2136,6 +2263,7 @@ dashboard:
 ```
 
 **ESQL Query (typically for specific panel types like ESQL-backed charts):**
+
 ```yaml
 # Example within a panel configuration that supports ESQL
 panels:
@@ -2160,6 +2288,7 @@ Filters documents using the Kibana Query Language (KQL). This is often the defau
 | `query`  | `object`  | The parent object containing the `kql` key.      | N/A            | Yes      |
 
 **Usage Example (Dashboard Level):**
+
 ```yaml
 dashboard:
   # ...
@@ -2177,6 +2306,7 @@ Filters documents using the more expressive, but complex, Lucene query syntax.
 | `query`  | `object`  | The parent object containing the `lucene` key.   | N/A            | Yes      |
 
 **Usage Example (Dashboard Level):**
+
 ```yaml
 dashboard:
   # ...
@@ -2193,6 +2323,7 @@ Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQ
 | `query`  | `string`  | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A            | Yes      |
 
 **Usage Example (Panel Level - for a hypothetical ESQL panel):**
+
 ```yaml
 panels:
   - type: esql_backed_chart # This panel type would be designed to use ESQL
@@ -2207,13 +2338,13 @@ panels:
 
 ## Query Scope
 
-*   **Dashboard Level Query**: Defined under `dashboard.query`. This query is applied globally to all panels that do not explicitly override it or ignore global queries. KQL and Lucene are supported at this level.
-*   **Panel Level Query**: Defined under `panel.query` (for panels that support it, e.g., Lens panels, ESQL panels). This query is specific to the panel and is often combined with (or can override) the dashboard-level query, depending on the panel's behavior.
-    *   Lens panels typically use KQL for their panel-specific query.
-    *   ESQL-specific panels will use an ESQL query string.
+* **Dashboard Level Query**: Defined under `dashboard.query`. This query is applied globally to all panels that do not explicitly override it or ignore global queries. KQL and Lucene are supported at this level.
+* **Panel Level Query**: Defined under `panel.query` (for panels that support it, e.g., Lens panels, ESQL panels). This query is specific to the panel and is often combined with (or can override) the dashboard-level query, depending on the panel's behavior.
+  * Lens panels typically use KQL for their panel-specific query.
+  * ESQL-specific panels will use an ESQL query string.
 
 ## Related Documentation
 
-*   [Dashboard Configuration](../dashboard/dashboard.md)
-*   [Filters Configuration](../filters/config.md)
-*   [Panel Documentation (e.g., Lens, ESQL specific panels)](../panels/base.md)
+* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Filters Configuration](../filters/config.md)
+* [Panel Documentation (e.g., Lens, ESQL specific panels)](../panels/base.md)

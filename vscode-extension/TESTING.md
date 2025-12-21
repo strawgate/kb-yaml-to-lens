@@ -78,6 +78,7 @@ Current test coverage:
 ### What We Test
 
 Focus on **business logic** and **security**:
+
 - Core functionality (parsing, updating YAML)
 - Edge cases (missing fields, invalid data)
 - Security (input validation, path checks)
@@ -86,6 +87,7 @@ Focus on **business logic** and **security**:
 ### What We Don't Test
 
 We avoid low-value tests like:
+
 - Simple class instantiation checks
 - Tests that just verify a module can be imported
 - Tests that don't validate actual behavior

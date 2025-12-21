@@ -23,13 +23,14 @@ interface DashboardGridInfo {
 export class GridEditorPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
+    private currentDashboardIndex: number = 0;
     private extensionPath: string;
 
     constructor(private context: vscode.ExtensionContext) {
         this.extensionPath = context.extensionPath;
     }
 
-    async show(dashboardPath: string) {
+    async show(dashboardPath: string, dashboardIndex: number = 0) {
         // Validate that the dashboard path is within the workspace
         if (!this.isPathInWorkspace(dashboardPath)) {
             vscode.window.showErrorMessage('Dashboard file must be within the workspace');
@@ -37,6 +38,7 @@ export class GridEditorPanel {
         }
 
         this.currentDashboardPath = dashboardPath;
+        this.currentDashboardIndex = dashboardIndex;
 
         if (!this.panel) {
             this.panel = vscode.window.createWebviewPanel(
@@ -70,10 +72,10 @@ export class GridEditorPanel {
             );
         }
 
-        await this.loadAndDisplayGrid(dashboardPath);
+        await this.loadAndDisplayGrid(dashboardPath, dashboardIndex);
     }
 
-    private async loadAndDisplayGrid(dashboardPath: string) {
+    private async loadAndDisplayGrid(dashboardPath: string, dashboardIndex: number = 0) {
         if (!this.panel) {
             return;
         }
@@ -81,19 +83,19 @@ export class GridEditorPanel {
         this.panel.webview.html = this.getLoadingContent();
 
         try {
-            const gridInfo = await this.extractGridInfo(dashboardPath);
+            const gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
             this.panel.webview.html = this.getGridEditorContent(gridInfo, dashboardPath);
         } catch (error) {
             this.panel.webview.html = this.getErrorContent(error);
         }
     }
 
-    private async extractGridInfo(dashboardPath: string): Promise<DashboardGridInfo> {
+    private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
         const pythonPath = vscode.workspace.getConfiguration('yamlDashboard').get<string>('pythonPath', 'python');
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
 
         return new Promise((resolve, reject) => {
-            const process = spawn(pythonPath, [scriptPath, dashboardPath], {
+            const process = spawn(pythonPath, [scriptPath, dashboardPath, dashboardIndex.toString()], {
                 cwd: path.join(this.extensionPath, '..')
             });
 
@@ -150,7 +152,7 @@ export class GridEditorPanel {
         return new Promise((resolve, reject) => {
             const process = spawn(
                 pythonPath,
-                [scriptPath, this.currentDashboardPath!, panelId, JSON.stringify(grid)],
+                [scriptPath, this.currentDashboardPath!, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
                 {
                     cwd: path.join(this.extensionPath, '..')
                 }
