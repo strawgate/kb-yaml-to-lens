@@ -37,7 +37,9 @@ def _encode_rison(obj: dict) -> str:
         if isinstance(val, int | float):
             return str(val)
         if isinstance(val, str):
-            return f"'{val}'"
+            # Escape single quotes and exclamation marks per Rison spec
+            escaped = val.replace('!', '!!').replace("'", "!'")
+            return f"'{escaped}'"
         if isinstance(val, dict):
             items = ','.join(f'{k}:{encode_value(v)}' for k, v in val.items())
             return f'({items})'
@@ -149,9 +151,26 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
+        # Build locator params for DASHBOARD_APP_LOCATOR
+        locator_params = {
+            'id': 'DASHBOARD_APP_LOCATOR',
+            'params': {
+                'dashboardId': dashboard_id,
+                'useHash': False,
+                'viewMode': 'view',
+                'preserveSavedFilters': True,
+            },
+        }
+
+        # Add time range to locator params if specified
+        if time_from or time_to:
+            locator_params['params']['timeRange'] = {
+                'from': time_from or 'now-15m',
+                'to': time_to or 'now',
+            }
+
         # Build job parameters
         job_params = {
-            'objectType': 'dashboard',
             'layout': {
                 'id': 'preserve_layout',
                 'dimensions': {
@@ -160,13 +179,8 @@ class KibanaClient:
                 },
             },
             'browserTimezone': browser_timezone,
+            'locatorParams': locator_params,
         }
-
-        # Add time range if specified
-        if time_from or time_to:
-            job_params['relativeUrls'] = [
-                f"/app/dashboards#/view/{dashboard_id}?_g=(time:(from:'{time_from or 'now-15m'}',to:'{time_to or 'now'}'))"
-            ]
 
         # Rison-encode the job parameters
         rison_params = _encode_rison(job_params)
