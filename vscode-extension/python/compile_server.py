@@ -126,7 +126,7 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
 # Optional: Diagnostics support
 # LSP can provide real-time error checking
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
-async def did_open(_ls: LanguageServer, params: types.DidOpenTextDocumentParams) -> None:
+async def did_open(_ls: LanguageServer, _params: types.DidOpenTextDocumentParams) -> None:
     """Validate the dashboard when a file is opened.
 
     This demonstrates how LSP can provide real-time diagnostics.
@@ -136,7 +136,7 @@ async def did_open(_ls: LanguageServer, params: types.DidOpenTextDocumentParams)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
-async def did_change(_ls: LanguageServer, params: types.DidChangeTextDocumentParams) -> None:
+async def did_change(_ls: LanguageServer, _params: types.DidChangeTextDocumentParams) -> None:
     """Validate the dashboard as it changes.
 
     This could provide real-time validation feedback in the editor.
