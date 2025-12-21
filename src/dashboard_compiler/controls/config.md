@@ -7,25 +7,25 @@ Controls are interactive elements that can be added to a dashboard, allowing use
 Here's a minimal example of an `options` list control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: options
-      label: "Filter by Status"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "status.keyword"      # Replace with the field to filter on
+dashboards:
+  -
+    controls:
+      - type: options
+        label: "Filter by Status"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "status.keyword"      # Replace with the field to filter on
 ```
 
 Here's a minimal example of a `range` slider control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: range
-      label: "Response Time (ms)"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "response.time"       # Replace with the numeric field
+dashboards:
+  -
+    controls:
+      - type: range
+        label: "Response Time (ms)"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "response.time"       # Replace with the numeric field
 ```
 
 ## Complex Configuration Example
