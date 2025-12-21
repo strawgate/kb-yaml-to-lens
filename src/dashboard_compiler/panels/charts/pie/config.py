@@ -140,13 +140,14 @@ class LensPieChart(BasePieChart):
 
 
 class ESQLPieChart(BasePieChart):
-    """Represents a Pie chart configuration within an ES|QL panel."""
+    """Represents a Pie chart configuration within an ES|QL panel.
+
+    Note: The ES|QL query is defined at the panel level (ESQLPanel.esql),
+    not at the chart level.
+    """
 
     metric: ESQLMetricTypes = Field(default=...)
     """A metric that determines the size of the slice of the pie chart."""
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart."""
-
-    esql: str = Field(default=...)
-    """The ES|QL query that determines the data for the pie chart."""
