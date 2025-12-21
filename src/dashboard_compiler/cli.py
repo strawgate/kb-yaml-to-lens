@@ -5,6 +5,7 @@ import logging
 import webbrowser
 from pathlib import Path
 
+import aiohttp
 import rich_click as click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -68,7 +69,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
 
     with output_path.open('w') as f:
         for line in lines:
-            f.write(line + '\n')
+            _ = f.write(line + '\n')
 
 
 def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
@@ -332,6 +333,216 @@ async def upload_to_kibana(
 
     except (OSError, ValueError) as e:
         msg = f'Error uploading to Kibana: {e}'
+        raise click.ClickException(msg) from e
+
+
+@cli.command('screenshot')
+@click.option(
+    '--dashboard-id',
+    required=True,
+    help='Dashboard ID to screenshot',
+)
+@click.option(
+    '--output',
+    type=click.Path(path_type=Path),
+    required=True,
+    help='Output PNG file path',
+)
+@click.option(
+    '--time-from',
+    type=str,
+    help='Start time for dashboard time range (ISO 8601 format, e.g., "2024-01-01T00:00:00Z" or "now-7d")',
+)
+@click.option(
+    '--time-to',
+    type=str,
+    help='End time for dashboard time range (ISO 8601 format, e.g., "2024-12-31T23:59:59Z" or "now")',
+)
+@click.option(
+    '--width',
+    type=click.IntRange(min=1),
+    default=1920,
+    help='Screenshot width in pixels (minimum: 1)',
+)
+@click.option(
+    '--height',
+    type=click.IntRange(min=1),
+    default=1080,
+    help='Screenshot height in pixels (minimum: 1)',
+)
+@click.option(
+    '--browser-timezone',
+    type=str,
+    default='UTC',
+    help='Timezone for the screenshot',
+)
+@click.option(
+    '--timeout',
+    type=click.IntRange(min=1),
+    default=300,
+    help='Maximum seconds to wait for screenshot generation (minimum: 1)',
+)
+@click.option(
+    '--kibana-url',
+    type=str,
+    envvar='KIBANA_URL',
+    default='http://localhost:5601',
+    help='Kibana base URL (can also set KIBANA_URL env var)',
+)
+@click.option(
+    '--kibana-username',
+    type=str,
+    envvar='KIBANA_USERNAME',
+    help='Kibana username for basic auth (can also set KIBANA_USERNAME env var)',
+)
+@click.option(
+    '--kibana-password',
+    type=str,
+    envvar='KIBANA_PASSWORD',
+    help='Kibana password for basic auth (can also set KIBANA_PASSWORD env var)',
+)
+@click.option(
+    '--kibana-api-key',
+    type=str,
+    envvar='KIBANA_API_KEY',
+    help='Kibana API key for authentication (can also set KIBANA_API_KEY env var)',
+)
+def screenshot_dashboard(  # noqa: PLR0913
+    dashboard_id: str,
+    output: Path,
+    time_from: str | None,
+    time_to: str | None,
+    width: int,
+    height: int,
+    browser_timezone: str,
+    timeout: int,
+    kibana_url: str,
+    kibana_username: str | None,
+    kibana_password: str | None,
+    kibana_api_key: str | None,
+) -> None:
+    r"""Generate a PNG screenshot of a Kibana dashboard.
+
+    This command uses Kibana's Reporting API to generate a screenshot of
+    the specified dashboard. You can optionally specify a time range for
+    the dashboard data.
+
+    Examples:
+        # Screenshot with default settings
+        kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+
+        # Screenshot with custom time range
+        kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+            --time-from "2024-01-01T00:00:00Z" --time-to "2024-12-31T23:59:59Z"
+
+        # Screenshot with relative time range
+        kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+            --time-from "now-7d" --time-to "now"
+
+        # Screenshot with custom dimensions
+        kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+            --width 3840 --height 2160
+    """
+    asyncio.run(
+        generate_screenshot(
+            dashboard_id=dashboard_id,
+            output_path=output,
+            time_from=time_from,
+            time_to=time_to,
+            width=width,
+            height=height,
+            browser_timezone=browser_timezone,
+            timeout=timeout,
+            kibana_url=kibana_url,
+            kibana_username=kibana_username,
+            kibana_password=kibana_password,
+            kibana_api_key=kibana_api_key,
+        )
+    )
+
+
+async def generate_screenshot(  # noqa: PLR0913
+    dashboard_id: str,
+    output_path: Path,
+    time_from: str | None,
+    time_to: str | None,
+    width: int,
+    height: int,
+    browser_timezone: str,
+    timeout: int,
+    kibana_url: str,
+    kibana_username: str | None,
+    kibana_password: str | None,
+    kibana_api_key: str | None,
+) -> None:
+    """Generate a screenshot of a Kibana dashboard.
+
+    Args:
+        dashboard_id: The dashboard ID to screenshot
+        output_path: Path to save the PNG file
+        time_from: Start time for dashboard time range
+        time_to: End time for dashboard time range
+        width: Screenshot width in pixels
+        height: Screenshot height in pixels
+        browser_timezone: Timezone for the screenshot
+        timeout: Maximum seconds to wait for screenshot generation
+        kibana_url: Kibana base URL
+        kibana_username: Basic auth username
+        kibana_password: Basic auth password
+        kibana_api_key: API key for authentication
+
+    Raises:
+        click.ClickException: If screenshot generation fails.
+
+    """
+    client = KibanaClient(
+        url=kibana_url,
+        username=kibana_username,
+        password=kibana_password,
+        api_key=kibana_api_key,
+    )
+
+    try:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn('[progress.description]{task.description}'),
+            console=console,
+        ) as progress:
+            task = progress.add_task(f'Generating screenshot for dashboard: {dashboard_id}...', total=None)
+
+            await client.download_screenshot(
+                dashboard_id=dashboard_id,
+                output_path=output_path,
+                time_from=time_from,
+                time_to=time_to,
+                width=width,
+                height=height,
+                browser_timezone=browser_timezone,
+                timeout=timeout,
+            )
+
+            progress.update(task, description='Screenshot generated successfully')
+
+        # Show relative path if within project, otherwise show full path
+        try:
+            display_path = output_path.relative_to(PROJECT_ROOT)
+        except ValueError:
+            display_path = output_path
+
+        console.print(f'[green]{ICON_SUCCESS}[/green] Screenshot saved to: {display_path}')
+        console.print(f'  Dashboard: {dashboard_id}')
+        console.print(f'  Size: {width}x{height}')
+        if time_from or time_to:
+            console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
+
+    except aiohttp.ClientError as e:
+        msg = f'Error communicating with Kibana: {e}'
+        raise click.ClickException(msg) from e
+    except TimeoutError as e:
+        msg = f'Screenshot generation timed out: {e}'
+        raise click.ClickException(msg) from e
+    except (OSError, ValueError) as e:
+        msg = f'Error generating screenshot: {e}'
         raise click.ClickException(msg) from e
 
 
