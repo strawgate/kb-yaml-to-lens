@@ -40,7 +40,7 @@ For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ```yaml
 dashboard:
-  title: My First Dashboard
+  name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
     - panel:
