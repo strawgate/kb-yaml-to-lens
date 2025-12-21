@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DashboardCompiler, DashboardInfo } from './compiler';
+import { DashboardCompiler } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
