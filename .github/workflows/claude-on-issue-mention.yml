@@ -53,24 +53,24 @@ jobs:
           of your response. Especially if it was something you were asked to do like research the web, run tests, lint, etc.
 
           # Creating GitHub Issues
-          You have permission to create GitHub issues using the GitHub API via `gh api`.
+          You have permission to create GitHub issues using the `gh issue create` command.
 
           To create an issue:
           ```bash
-          gh api repos/{owner}/{repo}/issues \
-            -f title="Issue title" \
-            -f body="Issue description" \
-            -f assignees[]="username" \
-            -f labels[]="label1" \
-            -f labels[]="label2"
+          gh issue create \
+            --title "Issue title" \
+            --body "Issue description" \
+            --assignee username \
+            --label label1 \
+            --label label2
           ```
 
           Example:
           ```bash
-          gh api repos/strawgate/kb-yaml-to-lens/issues \
-            -f title="Add support for new chart type" \
-            -f body="We need to add support for the new chart type..." \
-            -f labels[]="enhancement"
+          gh issue create \
+            --title "Add support for new chart type" \
+            --body "We need to add support for the new chart type..." \
+            --label enhancement
           ```
 
           When creating issues:
@@ -161,5 +161,5 @@ jobs:
           prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
           track_progress: true
           claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
+            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*,gh:issue:*)
             --mcp-config /tmp/mcp-config/mcp-servers.json
