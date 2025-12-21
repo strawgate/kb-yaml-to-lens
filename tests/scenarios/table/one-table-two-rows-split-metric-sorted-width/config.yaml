@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: Table with two rows - sort and width - a split metric
+  name: Table with two rows - sort and width - a split metric
   description: "A dashboard with a Table with two rows and a metric"
   id: 77075d20-cef4-b9a2-7a2a-ee46d8ad6464
   panels:
