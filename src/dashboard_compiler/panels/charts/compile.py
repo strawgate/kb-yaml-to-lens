@@ -73,7 +73,6 @@ def compile_lens_chart_state(
     kbn_references: list[KbnReference] = []
     visualization_state: KbnVisualizationStateTypes | None = None
 
-    # Process all charts
     # Note: Currently only the last chart's visualization state is used
     for chart in charts:
         if isinstance(chart, LensMetricChart):
@@ -100,7 +99,6 @@ def compile_lens_chart_state(
             sampling=1,
         )
 
-    # Ensure at least one chart was processed
     if visualization_state is None:
         msg = 'No charts were successfully processed'
         raise ValueError(msg)

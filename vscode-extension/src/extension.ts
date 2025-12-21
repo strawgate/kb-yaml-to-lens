@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { DashboardCompiler, DashboardInfo } from './compiler';
+import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
 
-let compiler: DashboardCompiler;
+let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
 let gridEditorPanel: GridEditorPanel;
 
@@ -67,10 +67,14 @@ async function selectDashboard(filePath: string): Promise<number | undefined> {
     }
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     console.log('YAML Dashboard Compiler extension is now active');
 
-    compiler = new DashboardCompiler(context);
+    compiler = new DashboardCompilerLSP(context);
+
+    // Start the LSP server
+    await compiler.start();
+
     previewPanel = new PreviewPanel(compiler);
     gridEditorPanel = new GridEditorPanel(context);
 
@@ -164,8 +168,8 @@ export function activate(context: vscode.ExtensionContext) {
     );
 }
 
-export function deactivate() {
+export async function deactivate(): Promise<void> {
     if (compiler) {
-        compiler.dispose();
+        await compiler.dispose();
     }
 }

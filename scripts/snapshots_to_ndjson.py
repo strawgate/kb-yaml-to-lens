@@ -25,10 +25,8 @@ def read_and_compress_snapshot(snapshot_path: Path) -> str | None:
     """
     try:
         with Path(snapshot_path).open('r') as f:
-            # Read and parse the JSON object
             dashboard_obj = json.load(f)
 
-        # Re-serialize with compact separators for NDJSON
         return json.dumps(dashboard_obj, separators=(',', ':'))
 
     except json.JSONDecodeError:
@@ -65,7 +63,6 @@ def main() -> None:
 
     if ndjson_lines:
         try:
-            # Write each compressed JSON object followed by a newline character
             with Path(OUTPUT_FILE).open('w') as f:
                 f.writelines(line + '\n' for line in ndjson_lines)  # Use '\n' for actual newline
             msg = f'Successfully wrote compressed NDJSON output to: {OUTPUT_FILE}'

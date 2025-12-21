@@ -45,7 +45,6 @@ class TestGridUpdater(unittest.TestCase):
 
         self.assertTrue(result['success'])
 
-        # Read back and verify
         updated_content = self.temp_file.read_text()
         self.assertIn('x: 10', updated_content)
         self.assertIn('y: 20', updated_content)
@@ -69,7 +68,6 @@ class TestGridUpdater(unittest.TestCase):
 
         self.assertTrue(result['success'])
 
-        # Read back and verify
         updated_content = self.temp_file.read_text()
         self.assertIn('x: 5', updated_content)
         self.assertIn('y: 10', updated_content)
@@ -94,7 +92,6 @@ class TestGridUpdater(unittest.TestCase):
 
         self.assertTrue(result['success'])
 
-        # Read back and verify both panels
         updated_content = self.temp_file.read_text()
         # First panel should be unchanged
         self.assertIn('{ x: 0, y: 0, w: 24, h: 15 }', updated_content)

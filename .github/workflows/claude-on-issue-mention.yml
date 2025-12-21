@@ -1,0 +1,165 @@
+name: Claude Issue Creator
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-issue')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-issue')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude-issue')) ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '@claude-issue'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read # Required for Claude to read CI results on PRs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Install UV package manager
+      - name: Install UV
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set triage prompt
+        id: triage-prompt
+        run: |
+          cat >> $GITHUB_OUTPUT << 'EOF'
+          PROMPT<<PROMPT_END
+          You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
+
+          # Getting Started
+          1. Call the generate_agents_md tool to get a high-level summary of the project you're working in
+          2. Get the ${{ github.event_name == 'issues' && 'issue' || 'pull request' }} ${{ github.event.issue.number || github.event.pull_request.number }} in the GitHub repository: ${{ github.repository }}.
+          3. Don't forget about your MCP tools to call search_code, get_files, etc. to search the repository and other repositories to identify the related classes, methods, docs, tests, etc that are relevant to the code.
+          4. Be Thorough! Go the extra mile! Do great work!
+          5. If anything you needed or wanted to do during your work was not possible, document the problem in a `Problems Encountered` section
+          of your response. Especially if it was something you were asked to do like research the web, run tests, lint, etc.
+
+          # Creating GitHub Issues
+          You have permission to create GitHub issues using the `gh issue create` command.
+
+          To create an issue:
+          ```bash
+          gh issue create \
+            --title "Issue title" \
+            --body "Issue description" \
+            --assignee username \
+            --label label1 \
+            --label label2
+          ```
+
+          Example:
+          ```bash
+          gh issue create \
+            --title "Add support for new chart type" \
+            --body "We need to add support for the new chart type..." \
+            --label enhancement
+          ```
+
+          When creating issues:
+          1. Use clear, descriptive titles
+          2. Provide detailed descriptions with context
+          3. Add appropriate labels (bug, enhancement, documentation, etc.)
+          4. Reference related issues or PRs when relevant
+          5. Include code snippets or examples when applicable
+
+          # Resolving PR Review Threads
+          You have access to resolve review threads in pull requests using the GitHub GraphQL API via `gh api`.
+
+          **IMPORTANT**: You should ONLY resolve threads after making code changes that address the feedback. Do not resolve threads without fixing the underlying issue.
+
+          To get review threads and their IDs:
+          ```bash
+          gh api graphql -f query='
+            query {
+              repository(owner: "OWNER", name: "REPO") {
+                pullRequest(number: PR_NUMBER) {
+                  reviewThreads(first: 100) {
+                    nodes { id isResolved path line
+                      comments(first: 10) { nodes { body author { login } } }
+                    }
+                  }
+                }
+              }
+            }' -f owner=OWNER -f name=REPO -F number=PR_NUMBER
+          ```
+
+          To resolve a review thread (after addressing the feedback):
+          ```bash
+          gh api graphql -f query='
+            mutation {
+              resolveReviewThread(input: {threadId: "THREAD_ID"}) {
+                thread { id isResolved }
+              }
+            }'
+          ```
+
+          When working with CodeRabbit or other review feedback:
+          1. Make the necessary code changes to address the feedback
+          2. Use `gh api graphql` to fetch review threads and identify which ones are addressed
+          3. Use `gh api graphql` with resolveReviewThread mutation to mark resolved conversations
+
+          PROMPT_END
+          EOF
+
+      - name: Setup GitHub MCP Server
+        run: |
+          mkdir -p /tmp/mcp-config
+          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
+          {
+            "mcpServers": {
+              "repository-summary": {
+                "type": "http",
+                "url": "https://agents-md-generator.fastmcp.app/mcp"
+              },
+              "code-search": {
+                "type": "http",
+                "url": "https://public-code-search.fastmcp.app/mcp"
+              },
+              "github-research": {
+                "type": "stdio",
+                "command": "uvx",
+                "args": [
+                  "github-research-mcp"
+                ],
+                "env": {
+                  "DISABLE_SUMMARIES": "true",
+                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+                }
+              }
+            }
+          }
+          EOF
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1.0.23
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          additional_permissions: |
+            actions: read
+            issues: write
+
+          prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
+          track_progress: true
+          claude_args: |
+            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*,gh:issue:*)
+            --mcp-config /tmp/mcp-config/mcp-servers.json

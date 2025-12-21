@@ -20,8 +20,6 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
     Returns:
         Dictionary containing dashboard metadata and panel grid information
     """
-    # Add the src directory to sys.path to import dashboard_compiler
-    # This is necessary because the extension is not installed as a package
     repo_root = Path(__file__).parent.parent.parent
     src_path = repo_root / 'src'
     if src_path.exists() and str(src_path) not in sys.path:
@@ -36,20 +34,17 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
         )
         raise ImportError(msg) from e
 
-    # Load the dashboard configurations (returns a list)
     dashboards = load(yaml_path)
     if not dashboards:
         msg = 'No dashboards found in YAML file'
         raise ValueError(msg)
 
-    # Select the specified dashboard
     if dashboard_index < 0 or dashboard_index >= len(dashboards):
         msg = f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})'
         raise ValueError(msg)
 
     dashboard_config = dashboards[dashboard_index]
 
-    # Extract panel information
     panels = []
     for index, panel in enumerate(dashboard_config.panels):
         panel_info = {
@@ -65,7 +60,6 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
         }
         panels.append(panel_info)
 
-    # Return dashboard metadata and panels
     return {
         'title': dashboard_config.name or 'Untitled Dashboard',
         'description': dashboard_config.description or '',

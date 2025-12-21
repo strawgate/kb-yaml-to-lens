@@ -41,8 +41,6 @@ def deterministic_id_generator():
 @pytest.mark.parametrize(('db_input_dict', 'kb_desired_dict', 'exclusions'), TEST_CASES, ids=TEST_CASE_IDS)
 async def test_compile_dashboard(db_input_dict: dict, kb_desired_dict: dict, exclusions: list[str]) -> None:
     """Test the compilation of various ImagePanel configurations to their Kibana view model."""
-    # Compile the dashboard
-
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 

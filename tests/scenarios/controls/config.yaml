@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: Controls Dashboard
+  name: Controls Dashboard
   description: "A dashboard with various control elements"
   controls:
     - type: optionsList

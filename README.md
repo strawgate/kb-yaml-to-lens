@@ -13,6 +13,7 @@ This tool simplifies the process of creating and managing Kibana dashboards by a
 - **Flexible Filtering** – Comprehensive filter DSL supporting exists, phrase, range, and custom DSL with AND/OR/NOT operators
 - **Multiple Query Types** – KQL, Lucene, and ESQL query support
 - **Direct Upload** – Optional direct upload to Kibana with authentication support
+- **Screenshot Export** – Generate PNG screenshots of dashboards with custom time ranges using Kibana's Reporting API
 
 ## Quick Start
 
@@ -94,6 +95,57 @@ kb-dashboard compile [OPTIONS]
 - `--kibana-api-key KEY` – API key for authentication (or set `KIBANA_API_KEY` env var)
 - `--no-browser` – Don't open browser after upload
 - `--overwrite/--no-overwrite` – Overwrite existing dashboards (default: `--overwrite`)
+
+### Screenshot Dashboard
+
+Generate a PNG screenshot of a Kibana dashboard using the Kibana Reporting API:
+
+```bash
+kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
+```
+
+**Required Options:**
+
+- `--dashboard-id ID` – The Kibana dashboard ID to screenshot
+- `--output PATH` – Output PNG file path
+
+**Options:**
+
+- `--time-from TIME` – Start time for dashboard time range (ISO 8601 format or relative like "now-7d")
+- `--time-to TIME` – End time for dashboard time range (ISO 8601 format or relative like "now")
+- `--width PIXELS` – Screenshot width in pixels (default: 1920)
+- `--height PIXELS` – Screenshot height in pixels (default: 1080)
+- `--browser-timezone TZ` – Timezone for the screenshot (default: UTC)
+- `--timeout SECONDS` – Maximum seconds to wait for screenshot generation (default: 300)
+- `--kibana-url URL` – Kibana URL (default: `http://localhost:5601`, or set `KIBANA_URL` env var)
+- `--kibana-username USER` – Username for basic auth (or set `KIBANA_USERNAME` env var)
+- `--kibana-password PASS` – Password for basic auth (or set `KIBANA_PASSWORD` env var)
+- `--kibana-api-key KEY` – API key for authentication (or set `KIBANA_API_KEY` env var)
+
+**Examples:**
+
+```bash
+# Screenshot with default settings
+kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+
+# Screenshot with custom time range (absolute)
+kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+  --time-from "2024-01-01T00:00:00Z" --time-to "2024-12-31T23:59:59Z"
+
+# Screenshot with relative time range
+kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+  --time-from "now-7d" --time-to "now"
+
+# Screenshot with custom dimensions (4K)
+kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+  --width 3840 --height 2160
+
+# Screenshot with API key authentication
+export KIBANA_API_KEY="your-api-key"
+kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+```
+
+**Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
 
 ## Project Structure
 

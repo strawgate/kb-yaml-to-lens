@@ -50,10 +50,8 @@ async def test_compile_lens_dimension(config: dict, metric_config: dict, desired
 
     dimension_holder = DimensionHolder.model_validate({'dimension': config})
 
-    # Create columns_by_name dictionary from the compiled metric
     kbn_metric_column_by_id: dict[str, KbnLensFieldMetricColumn] = {metric_id: kbn_metric_column}
 
-    # Call the correct Lens dimension compile function
     _, kbn_dimension_column = compile_lens_dimension(
         dimension=dimension_holder.dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
