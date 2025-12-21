@@ -6,48 +6,13 @@ from pathlib import Path
 from typing import Any
 
 import aiohttp
+import prison
 
 logger = logging.getLogger(__name__)
 
 # HTTP status codes
 HTTP_OK = 200
 HTTP_SERVICE_UNAVAILABLE = 503
-
-
-def _encode_rison(obj: dict) -> str:
-    """Encode a Python dict to Rison format for Kibana API.
-
-    Rison is a compact data serialization format similar to JSON
-    but more URL-friendly. This is a minimal implementation for
-    the subset of Rison needed for Kibana Reporting API.
-
-    Args:
-        obj: Python dictionary to encode
-
-    Returns:
-        Rison-encoded string
-
-    """
-
-    def encode_value(val: Any) -> str:
-        if val is None:
-            return '!n'
-        if isinstance(val, bool):
-            return '!t' if val else '!f'
-        if isinstance(val, int | float):
-            return str(val)
-        if isinstance(val, str):
-            # Escape single quotes and exclamation marks per Rison spec
-            escaped = val.replace('!', '!!').replace("'", "!'")
-            return f"'{escaped}'"
-        if isinstance(val, dict):
-            items = ','.join(f'{k}:{encode_value(v)}' for k, v in val.items())
-            return f'({items})'
-        # Handle lists
-        items = ','.join(encode_value(v) for v in val) if isinstance(val, list) else str(val)
-        return f'!({items})' if isinstance(val, list) else str(val)
-
-    return encode_value(obj)
 
 
 class KibanaClient:
@@ -182,8 +147,8 @@ class KibanaClient:
             'locatorParams': locator_params,
         }
 
-        # Rison-encode the job parameters
-        rison_params = _encode_rison(job_params)
+        # Rison-encode the job parameters using prison library
+        rison_params = prison.dumps(job_params)
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
