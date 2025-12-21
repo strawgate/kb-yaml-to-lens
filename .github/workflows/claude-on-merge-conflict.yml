@@ -29,11 +29,9 @@ jobs:
           if git merge-tree --write-tree HEAD origin/${{ github.event.pull_request.base.ref }} 2>&1 | grep -q '^CONFLICT'; then
             echo "has_conflicts=true" >> $GITHUB_OUTPUT
             echo "✗ Merge conflicts detected"
-            exit 0
           else
             echo "has_conflicts=false" >> $GITHUB_OUTPUT
             echo "✓ No merge conflicts"
-            exit 0
           fi
 
   resolve-conflicts:
