@@ -37,6 +37,7 @@ addopts = "-vv"
 [dependency-groups]
 dev = [
     "pytest>=9.0",
+    "pytest-cov>=6.0",
     "syrupy>=5.0",
     "pytest-freezer>=0.4.9",
     "deepdiff>=8.4.2",
@@ -168,3 +169,33 @@ exclude = [
     "**/output/**",
     "**/*.old.py",
 ]
+
+[tool.coverage.run]
+source = ["src/dashboard_compiler"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/vscode-extension/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+skip_empty = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.json]
+output = "coverage.json"

@@ -14,6 +14,7 @@ help:
 
 	@echo "Testing:"
 	@echo "  test                  - Run unit tests"
+	@echo "  test-coverage         - Run tests with coverage report"
 	@echo "  test-smoke            - Run smoke tests"
 	@echo "  test-extension        - Run all VSCode extension tests"
 	@echo "  test-extension-python - Run Python tests for extension"
@@ -53,6 +54,10 @@ test:
 	@echo "Running pytest..."
 	uv run pytest
 
+test-coverage:
+	@echo "Running pytest with coverage..."
+	uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+
 test-extension:
 	@echo "Running VSCode extension tests..."
 	cd vscode-extension && npm install && npm test
@@ -72,7 +77,7 @@ inspector:
 	npx @modelcontextprotocol/inspector
 
 test-smoke:
-	uv run es_knowledge_base_mcp --help
+	uv run kb-dashboard --help
 
 lint: autocorrect format lint-markdown
 
