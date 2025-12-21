@@ -34,56 +34,15 @@ dashboard:
 
 ## Missing Capabilities
 
-The following features are available in Kibana's native pie chart implementation but are not currently supported in kb-yaml-to-lens:
+The following Kibana pie chart features are not currently supported:
 
-### Chart Shapes
-
-**Status**: Not supported
-**Impact**: Medium
-
-Kibana supports five chart shapes: `pie`, `donut`, `treemap`, `mosaic`, and `waffle`. Currently, kb-yaml-to-lens only supports `pie` and `donut`.
-
-**Workaround**: Use standard pie or donut charts. For hierarchical data visualization needs, consider using secondary groups with pie/donut charts.
-
-### Legend Position
-
-**Status**: Not supported
-**Impact**: Low
-
-Kibana allows specifying legend position (`top`, `left`, `right`, `bottom`). kb-yaml-to-lens uses Kibana's default positioning.
-
-**Workaround**: None needed - default positioning works for most use cases.
-
-### Legend Stats
-
-**Status**: Not supported
-**Impact**: Low
-
-Kibana allows controlling which statistics appear in legend items (value, percent, comparison values).
-
-**Workaround**: Use the `titles_and_text` configuration to control label and value display on slices.
-
-### Advanced Color Mapping
-
-**Status**: Partially supported
-**Impact**: Medium
-
-kb-yaml-to-lens creates basic color mappings with palette IDs but doesn't support:
-
-- Custom color assignments for specific values
-- Special assignment rules
-- Color mode configuration
-
-**Workaround**: Use the default color palettes. Custom colors can be configured in Kibana UI after import.
-
-### Colors by Dimension
-
-**Status**: Not supported
-**Impact**: Medium
-
-Kibana allows mapping specific dimension values to hex colors (e.g., "USA" → "#0000FF").
-
-**Workaround**: Configure colors in Kibana UI after importing the dashboard.
+| Feature | Impact | Notes |
+|---------|--------|-------|
+| Chart Shapes (treemap, mosaic, waffle) | Medium | Only `pie` and `donut` are supported |
+| Legend Position | Low | Uses Kibana default positioning |
+| Legend Stats | Low | Use `titles_and_text` for slice labels instead |
+| Advanced Color Mapping | Medium | Basic palettes supported; configure custom colors in Kibana UI after import |
+| Colors by Dimension | Medium | Configure in Kibana UI after import |
 
 ## Related
 
