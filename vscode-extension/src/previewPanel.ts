@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { DashboardCompiler, CompiledDashboard } from './compiler';
+import { DashboardCompilerLSP, CompiledDashboard } from './compiler';
 
 export class PreviewPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
     private currentDashboardIndex: number = 0;
 
-    constructor(private compiler: DashboardCompiler) {}
+    constructor(private compiler: DashboardCompilerLSP) {}
 
     async show(dashboardPath: string, dashboardIndex: number = 0) {
         this.currentDashboardPath = dashboardPath;
