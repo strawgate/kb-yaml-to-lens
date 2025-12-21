@@ -27,10 +27,7 @@ def compile_dashboard(yaml_path: str, dashboard_index: int = 0) -> dict:
 
         # Validate dashboard index
         if dashboard_index < 0 or dashboard_index >= len(dashboards):
-            return {
-                'success': False,
-                'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})'
-            }
+            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'}
 
         dashboard = dashboards[dashboard_index]
         kbn_dashboard = render(dashboard)
@@ -76,11 +73,7 @@ def main():
                 try:
                     dashboards = load(params['path'])
                     dashboard_list = [
-                        {
-                            'index': i,
-                            'title': dashboard.name or f'Dashboard {i + 1}',
-                            'description': dashboard.description or ''
-                        }
+                        {'index': i, 'title': dashboard.name or f'Dashboard {i + 1}', 'description': dashboard.description or ''}
                         for i, dashboard in enumerate(dashboards)
                     ]
                     result = {'id': request_id, 'success': True, 'data': dashboard_list}
