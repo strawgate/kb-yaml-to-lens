@@ -80,8 +80,6 @@ successful upload.
 - **[Architecture](architecture.md)** – Technical design and data flow overview
 - **[YAML Reference](yaml_reference.md)** – Complete schema documentation for
   all dashboard elements
-- **[ES|QL Pie Chart Capabilities](esql-pie-chart-capabilities.md)** –
-  Comprehensive feature comparison and usage guide
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new
   capabilities
 
