@@ -109,7 +109,7 @@ kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTION
 - `--dashboard-id ID` – The Kibana dashboard ID to screenshot
 - `--output PATH` – Output PNG file path
 
-**Optional Options:**
+**Options:**
 
 - `--time-from TIME` – Start time for dashboard time range (ISO 8601 format or relative like "now-7d")
 - `--time-to TIME` – End time for dashboard time range (ISO 8601 format or relative like "now")

@@ -164,11 +164,6 @@ class KibanaClient:
 
         # Add time range if specified
         if time_from or time_to:
-            time_range = {}
-            if time_from:
-                time_range['from'] = time_from
-            if time_to:
-                time_range['to'] = time_to
             job_params['relativeUrls'] = [
                 f"/app/dashboards#/view/{dashboard_id}?_g=(time:(from:'{time_from or 'now-15m'}',to:'{time_to or 'now'}'))"
             ]
@@ -224,7 +219,7 @@ class KibanaClient:
         if self.username and self.password:
             auth = aiohttp.BasicAuth(self.username, self.password)
 
-        start_time = asyncio.get_event_loop().time()
+        start_time = asyncio.get_running_loop().time()
 
         async with aiohttp.ClientSession() as session:
             while True:
@@ -234,16 +229,20 @@ class KibanaClient:
                         content_type = response.headers.get('Content-Type', '')
                         if 'image/png' in content_type:
                             return await response.read()
+                        # Unexpected content type on success - likely an error response
+                        body = await response.text()
+                        msg = f'Unexpected response from Kibana (status {response.status}, content-type {content_type}): {body[:200]}'
+                        raise ValueError(msg)
 
                     # Check if job is still processing (503 or other status)
                     if response.status == HTTP_SERVICE_UNAVAILABLE:
                         # Job still processing, continue polling
                         pass
-                    elif response.status != HTTP_OK:
+                    else:
                         response.raise_for_status()
 
                 # Check timeout
-                elapsed = asyncio.get_event_loop().time() - start_time
+                elapsed = asyncio.get_running_loop().time() - start_time
                 if elapsed > timeout:
                     msg = f'Screenshot generation timed out after {timeout} seconds'
                     raise TimeoutError(msg)

@@ -5,6 +5,7 @@ import logging
 import webbrowser
 from pathlib import Path
 
+import aiohttp
 import rich_click as click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -376,15 +377,15 @@ async def upload_to_kibana(
 )
 @click.option(
     '--width',
-    type=int,
+    type=click.IntRange(min=1),
     default=1920,
-    help='Screenshot width in pixels',
+    help='Screenshot width in pixels (minimum: 1)',
 )
 @click.option(
     '--height',
-    type=int,
+    type=click.IntRange(min=1),
     default=1080,
-    help='Screenshot height in pixels',
+    help='Screenshot height in pixels (minimum: 1)',
 )
 @click.option(
     '--browser-timezone',
@@ -394,9 +395,9 @@ async def upload_to_kibana(
 )
 @click.option(
     '--timeout',
-    type=int,
+    type=click.IntRange(min=1),
     default=300,
-    help='Maximum seconds to wait for screenshot generation',
+    help='Maximum seconds to wait for screenshot generation (minimum: 1)',
 )
 @click.option(
     '--kibana-url',
@@ -551,6 +552,9 @@ async def generate_screenshot(  # noqa: PLR0913
         if time_from or time_to:
             console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
 
+    except aiohttp.ClientError as e:
+        msg = f'Error communicating with Kibana: {e}'
+        raise click.ClickException(msg) from e
     except TimeoutError as e:
         msg = f'Screenshot generation timed out: {e}'
         raise click.ClickException(msg) from e
