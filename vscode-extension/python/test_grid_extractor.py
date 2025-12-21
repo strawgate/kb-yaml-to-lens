@@ -48,7 +48,6 @@ class TestGridExtractor(unittest.TestCase):
         assert result['description'] == 'A test dashboard'
         assert len(result['panels']) == 2
 
-        # Check first panel
         panel1 = result['panels'][0]
         assert panel1['title'] == 'Panel 1'
         assert panel1['type'] == 'markdown'

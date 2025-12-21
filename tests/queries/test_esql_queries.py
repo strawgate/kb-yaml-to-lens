@@ -45,17 +45,14 @@ EXCLUDE_REGEX_PATHS = []
 )
 async def test_esql_query_formats(config: str | list[str], expected_esql: str) -> None:
     """Test that ESQL queries can be provided as strings or arrays and compile correctly."""
-    # Create the ESQLQuery model
     esql_query = ESQLQuery.model_validate(config)
 
     # After validation, the root should always be a string (normalized)
     assert isinstance(esql_query.root, str)
     assert esql_query.root == expected_esql
 
-    # Compile to Kibana format
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    # Verify the compiled output
     desired_output = {'esql': expected_esql}
     assert DeepDiff(desired_output, kbn_query_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore

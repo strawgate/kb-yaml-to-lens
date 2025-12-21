@@ -89,7 +89,6 @@ def compile_lens_dimension(
                 columnId=kbn_column_name_to_id[dimension.sort.by],
             )
         else:
-            # Default to the first metric column
             order_by = KbnLensTermsOrderBy(
                 type='column',
                 columnId=kbn_column_index_to_id[0],
@@ -126,7 +125,7 @@ def compile_lens_dimension(
             params=KbnLensFiltersDimensionColumnParams(
                 filters=[
                     KbnLensFiltersFilter(label=f.label or '', input=compile_nonesql_query(f.query)) for f in dimension.filters
-                ]  # Compile queries
+                ]
             ),
         )
 
@@ -145,7 +144,6 @@ def compile_lens_dimension(
                     maxBars=GRANULARITY_TO_BARS[dimension.granularity] if dimension.granularity else 'auto',
                 ),
             )
-        # Custom Intervals
         ranges = [
             KbnLensIntervalsRange(
                 from_value=interval.from_value if interval.from_value is not None else None,

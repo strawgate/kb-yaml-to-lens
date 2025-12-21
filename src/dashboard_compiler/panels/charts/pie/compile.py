@@ -78,7 +78,6 @@ def compile_pie_chart_visualization_state(
     if chart.color and chart.color.palette:
         kbn_color_mapping = KbnLayerColorMapping(paletteId=chart.color.palette)
 
-    # Determine if multiple metrics are allowed
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     empty_size_ratio = 0.0 if len(metric_ids) > 1 else None
 
@@ -116,7 +115,6 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
     """
     layer_id = lens_pie_chart.id or random_id_generator()
 
-    # Handle single metric or multiple metrics
     metric_configs = []
     if lens_pie_chart.metric:
         metric_configs = [lens_pie_chart.metric]
@@ -126,7 +124,6 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
         msg = "Either 'metric' or 'metrics' must be provided"
         raise ValueError(msg)
 
-    # Compile metrics
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
     for metric_config in metric_configs:
@@ -134,15 +131,12 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
         kbn_metric_column_by_id[metric_id] = metric
         metric_ids.append(metric_id)
 
-    # Compile dimensions (first is primary, rest are secondary)
     slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.slice_by, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
 
-    # First dimension is primary, rest are secondary
     primary_dimension_ids = [all_dimension_ids[0]] if all_dimension_ids else []
     secondary_dimension_ids = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
 
-    # Build collapse functions mapping from dimension.collapse properties
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim_id in zip(lens_pie_chart.slice_by, all_dimension_ids, strict=True):
         if dim_config.collapse:
@@ -175,7 +169,6 @@ def compile_esql_pie_chart(
     """
     layer_id = esql_pie_chart.id or random_id_generator()
 
-    # Handle single metric or multiple metrics
     metric_configs = []
     if esql_pie_chart.metric:
         metric_configs = [esql_pie_chart.metric]
@@ -185,19 +178,15 @@ def compile_esql_pie_chart(
         msg = "Either 'metric' or 'metrics' must be provided"
         raise ValueError(msg)
 
-    # Compile metrics
     metrics = [compile_esql_metric(m) for m in metric_configs]
     metric_ids = [m.columnId for m in metrics]
 
-    # Compile dimensions (first is primary, rest are secondary)
     dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.slice_by)
     all_dimension_ids = [d.columnId for d in dimensions]
 
-    # First dimension is primary, rest are secondary
     primary_dimension_ids = [all_dimension_ids[0]] if all_dimension_ids else []
     secondary_dimension_ids = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
 
-    # Build collapse functions mapping from dimension.collapse properties
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim in zip(esql_pie_chart.slice_by, dimensions, strict=True):
         if dim_config.collapse:

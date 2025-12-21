@@ -72,14 +72,12 @@ def compile_lens_metric_chart(
     primary_metric_id, primary_metric = compile_lens_metric(lens_metric_chart.primary)
     kbn_metric_columns_by_id[primary_metric_id] = primary_metric
 
-    # If a secondary metric is provided, compile it
     if lens_metric_chart.secondary:
         secondary_metric_id, secondary_metric = compile_lens_metric(lens_metric_chart.secondary)
         kbn_metric_columns_by_id[secondary_metric_id] = secondary_metric
 
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {**kbn_metric_columns_by_id}
 
-    # If a breakdown dimension is provided, compile it
     if lens_metric_chart.breakdown:
         breakdown_dimension_id, breakdown_dimension = compile_lens_dimension(
             dimension=lens_metric_chart.breakdown, kbn_metric_column_by_id=kbn_metric_columns_by_id

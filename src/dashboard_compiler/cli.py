@@ -14,26 +14,20 @@ from rich.table import Table
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient
 
-# Configure rich-click
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
 
 logger = logging.getLogger(__name__)
 
-# Set up basic logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-# Create a Rich console for output
 console = Console()
-
-# Constants
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
 DEFAULT_SCENARIO_DIR = PROJECT_ROOT / 'tests/dashboards/scenarios'
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 
-# Icons for consistent output
 ICON_SUCCESS = '✓'
 ICON_ERROR = '✗'
 ICON_WARNING = '⚠'
@@ -212,16 +206,13 @@ def compile_dashboards(  # noqa: PLR0913
     Optionally, you can upload the compiled dashboards directly to Kibana
     using the --upload flag.
     """
-    # Create output directory
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Get all YAML files
     yaml_files = get_yaml_files(input_dir)
     if not yaml_files:
         console.print('[yellow]No YAML files to compile.[/yellow]')
         return
 
-    # Compile all files with progress bar
     ndjson_lines = []
     errors = []
 
@@ -233,7 +224,6 @@ def compile_dashboards(  # noqa: PLR0913
         task = progress.add_task('Compiling dashboards...', total=len(yaml_files))
 
         for yaml_file in yaml_files:
-            # Show relative path if within project, otherwise show full path
             try:
                 display_path = yaml_file.relative_to(PROJECT_ROOT)
             except ValueError:
@@ -242,7 +232,6 @@ def compile_dashboards(  # noqa: PLR0913
             compiled_jsons, error = compile_yaml_to_json(yaml_file)
 
             if compiled_jsons:
-                # Write individual file
                 filename = yaml_file.parent.stem
                 individual_file = output_dir / f'{filename}.ndjson'
                 write_ndjson(individual_file, compiled_jsons, overwrite=True)
@@ -252,7 +241,6 @@ def compile_dashboards(  # noqa: PLR0913
 
             progress.advance(task)
 
-    # Show results
     if ndjson_lines:
         console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
 
@@ -265,17 +253,14 @@ def compile_dashboards(  # noqa: PLR0913
         console.print(f'[red]{ICON_ERROR}[/red] No valid YAML configurations found or compiled.', style='red')
         return
 
-    # Write combined file
     combined_file = output_dir / output_file
     write_ndjson(combined_file, ndjson_lines, overwrite=True)
-    # Show relative path if within project, otherwise show full path
     try:
         display_path = combined_file.relative_to(PROJECT_ROOT)
     except ValueError:
         display_path = combined_file
     console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
 
-    # Upload to Kibana if requested
     if upload:
         console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana at {kibana_url}...')
         asyncio.run(
@@ -329,7 +314,6 @@ async def upload_to_kibana(
             success_count = result.get('successCount', 0)
             console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {success_count} object(s) to Kibana')
 
-            # Extract dashboard IDs
             dashboard_ids = [obj['id'] for obj in result.get('successResults', []) if obj.get('type') == 'dashboard']
 
             if dashboard_ids and open_browser:
@@ -337,7 +321,6 @@ async def upload_to_kibana(
                 console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
                 webbrowser.open_new_tab(dashboard_url)
 
-            # Show errors if any using a table
             if result.get('errors'):
                 console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result["errors"])} error(s):')
                 console.print(create_error_table(result['errors']))

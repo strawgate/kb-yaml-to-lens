@@ -30,7 +30,6 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
         str: A stable GUID-like string generated from the input values.
 
     """
-    # Concatenate the values into a single string
     concatenated_values = '||'.join([str(value) for value in values]).encode('utf-8')
 
     # Use SHA-1 hash for better distribution (160 bits)
@@ -42,7 +41,6 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     elif len(hashed_data) < MAX_BYTES_LENGTH:
         hashed_data = hashed_data.ljust(MAX_BYTES_LENGTH, b'\0')
 
-    # Create a UUID from the hash bytes
     guid = uuid.UUID(bytes=hashed_data)
     return str(guid)
 
