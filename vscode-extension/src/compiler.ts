@@ -11,7 +11,6 @@ import {
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
-    TransportKind,
 } from 'vscode-languageclient/node';
 
 // Interface for the compiled dashboard result
@@ -71,7 +70,7 @@ export class DashboardCompilerLSP {
 
             // Synchronize file changes - notify server when YAML files change
             synchronize: {
-                fileEvents: vscode.workspace.createFileSystemWatcher('**/*.yaml'),
+                fileEvents: vscode.workspace.createFileSystemWatcher('**/*.{yaml,yml}'),
             },
 
             // Use our output channel for logging

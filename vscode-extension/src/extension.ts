@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DashboardCompilerLSP, DashboardInfo } from './compiler';
+import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
@@ -168,8 +168,8 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 }
 
-export function deactivate() {
+export async function deactivate(): Promise<void> {
     if (compiler) {
-        compiler.dispose();
+        await compiler.dispose();
     }
 }
