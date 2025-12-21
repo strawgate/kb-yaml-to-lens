@@ -39,6 +39,23 @@ class KibanaClient:
         self.password = password
         self.api_key = api_key
 
+    def _get_auth_headers_and_auth(self) -> tuple[dict[str, str], aiohttp.BasicAuth | None]:
+        """Get authentication headers and auth object for Kibana API requests.
+
+        Returns:
+            Tuple of (headers dict with kbn-xsrf and optional Authorization, BasicAuth or None)
+
+        """
+        headers = {'kbn-xsrf': 'true'}
+        if self.api_key:
+            headers['Authorization'] = f'ApiKey {self.api_key}'
+
+        auth = None
+        if self.username and self.password:
+            auth = aiohttp.BasicAuth(self.username, self.password)
+
+        return headers, auth
+
     async def upload_ndjson(
         self,
         ndjson_path: Path,
@@ -61,13 +78,7 @@ class KibanaClient:
         if overwrite:
             endpoint += '?overwrite=true'
 
-        headers = {'kbn-xsrf': 'true'}
-        if self.api_key:
-            headers['Authorization'] = f'ApiKey {self.api_key}'
-
-        auth = None
-        if self.username and self.password:
-            auth = aiohttp.BasicAuth(self.username, self.password)
+        headers, auth = self._get_auth_headers_and_auth()
 
         async with aiohttp.ClientSession() as session:
             with ndjson_path.open('rb') as f:
@@ -154,18 +165,16 @@ class KibanaClient:
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
         params = {'jobParams': rison_params}
 
-        headers = {'kbn-xsrf': 'true'}
-        if self.api_key:
-            headers['Authorization'] = f'ApiKey {self.api_key}'
-
-        auth = None
-        if self.username and self.password:
-            auth = aiohttp.BasicAuth(self.username, self.password)
+        headers, auth = self._get_auth_headers_and_auth()
 
         async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
             response.raise_for_status()
             result = await response.json()
-            return result.get('path', '')
+            job_path = result.get('path')
+            if not job_path:
+                msg = f'Kibana reporting API did not return a job path. Response: {result}'
+                raise ValueError(msg)
+            return job_path
 
     async def wait_for_job_completion(
         self,
@@ -190,13 +199,7 @@ class KibanaClient:
         """
         endpoint = f'{self.url}{job_path}'
 
-        headers = {'kbn-xsrf': 'true'}
-        if self.api_key:
-            headers['Authorization'] = f'ApiKey {self.api_key}'
-
-        auth = None
-        if self.username and self.password:
-            auth = aiohttp.BasicAuth(self.username, self.password)
+        headers, auth = self._get_auth_headers_and_auth()
 
         start_time = asyncio.get_running_loop().time()
 
