@@ -1,7 +1,7 @@
 """LSP-based compilation server using pygls for VS Code extension.
 
-This is a proof-of-concept implementation showing how the dashboard compiler
-could be implemented using the Language Server Protocol with pygls.
+This implementation uses the Language Server Protocol with pygls to provide
+dashboard compilation services to the VS Code extension.
 """
 
 import sys

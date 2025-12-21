@@ -1,8 +1,8 @@
 /**
  * LSP-based Dashboard Compiler using vscode-languageclient
  *
- * This is a proof-of-concept implementation showing how the dashboard compiler
- * could be implemented using the Language Server Protocol.
+ * This implementation uses the Language Server Protocol to provide
+ * dashboard compilation services to the VS Code extension.
  */
 
 import * as path from 'path';
@@ -107,6 +107,7 @@ export class DashboardCompilerLSP {
         // Method 1: Use custom request (cleaner, but non-standard LSP)
         const result = await this.client.sendRequest<CompileResult>(
             'dashboard/compile',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
