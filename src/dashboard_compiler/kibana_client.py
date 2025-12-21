@@ -1,5 +1,6 @@
 """Kibana client for uploading dashboards via the Saved Objects API."""
 
+import asyncio
 import logging
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,44 @@ from typing import Any
 import aiohttp
 
 logger = logging.getLogger(__name__)
+
+# HTTP status codes
+HTTP_OK = 200
+HTTP_SERVICE_UNAVAILABLE = 503
+
+
+def _encode_rison(obj: dict) -> str:
+    """Encode a Python dict to Rison format for Kibana API.
+
+    Rison is a compact data serialization format similar to JSON
+    but more URL-friendly. This is a minimal implementation for
+    the subset of Rison needed for Kibana Reporting API.
+
+    Args:
+        obj: Python dictionary to encode
+
+    Returns:
+        Rison-encoded string
+
+    """
+
+    def encode_value(val: Any) -> str:
+        if val is None:
+            return '!n'
+        if isinstance(val, bool):
+            return '!t' if val else '!f'
+        if isinstance(val, int | float):
+            return str(val)
+        if isinstance(val, str):
+            return f"'{val}'"
+        if isinstance(val, dict):
+            items = ','.join(f'{k}:{encode_value(v)}' for k, v in val.items())
+            return f'({items})'
+        # Handle lists
+        items = ','.join(encode_value(v) for v in val) if isinstance(val, list) else str(val)
+        return f'!({items})' if isinstance(val, list) else str(val)
+
+    return encode_value(obj)
 
 
 class KibanaClient:
@@ -83,3 +122,179 @@ class KibanaClient:
 
         """
         return f'{self.url}/app/dashboards#{dashboard_id}'
+
+    async def generate_screenshot(
+        self,
+        dashboard_id: str,
+        time_from: str | None = None,
+        time_to: str | None = None,
+        width: int = 1920,
+        height: int = 1080,
+        browser_timezone: str = 'UTC',
+    ) -> str:
+        """Generate a PNG screenshot of a dashboard using Kibana Reporting API.
+
+        Args:
+            dashboard_id: The dashboard ID to screenshot
+            time_from: Optional start time for the dashboard time range (ISO 8601 format)
+            time_to: Optional end time for the dashboard time range (ISO 8601 format)
+            width: Screenshot width in pixels (default: 1920)
+            height: Screenshot height in pixels (default: 1080)
+            browser_timezone: Timezone for the screenshot (default: UTC)
+
+        Returns:
+            Job path for downloading the screenshot
+
+        Raises:
+            aiohttp.ClientError: If the request fails
+
+        """
+        # Build job parameters
+        job_params = {
+            'objectType': 'dashboard',
+            'layout': {
+                'id': 'preserve_layout',
+                'dimensions': {
+                    'width': width,
+                    'height': height,
+                },
+            },
+            'browserTimezone': browser_timezone,
+        }
+
+        # Add time range if specified
+        if time_from or time_to:
+            time_range = {}
+            if time_from:
+                time_range['from'] = time_from
+            if time_to:
+                time_range['to'] = time_to
+            job_params['relativeUrls'] = [
+                f"/app/dashboards#/view/{dashboard_id}?_g=(time:(from:'{time_from or 'now-15m'}',to:'{time_to or 'now'}'))"
+            ]
+
+        # Rison-encode the job parameters
+        rison_params = _encode_rison(job_params)
+
+        # POST to Kibana Reporting API
+        endpoint = f'{self.url}/api/reporting/generate/pngV2'
+        params = {'jobParams': rison_params}
+
+        headers = {'kbn-xsrf': 'true'}
+        if self.api_key:
+            headers['Authorization'] = f'ApiKey {self.api_key}'
+
+        auth = None
+        if self.username and self.password:
+            auth = aiohttp.BasicAuth(self.username, self.password)
+
+        async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
+            response.raise_for_status()
+            result = await response.json()
+            return result.get('path', '')
+
+    async def wait_for_job_completion(
+        self,
+        job_path: str,
+        timeout: int = 300,
+        poll_interval: int = 2,
+    ) -> bytes:
+        """Poll a reporting job until completion and download the result.
+
+        Args:
+            job_path: The reporting job path returned from generate_screenshot
+            timeout: Maximum seconds to wait (default: 300)
+            poll_interval: Seconds between polls (default: 2)
+
+        Returns:
+            PNG screenshot data as bytes
+
+        Raises:
+            TimeoutError: If job doesn't complete within timeout
+            aiohttp.ClientError: If the request fails
+
+        """
+        endpoint = f'{self.url}{job_path}'
+
+        headers = {'kbn-xsrf': 'true'}
+        if self.api_key:
+            headers['Authorization'] = f'ApiKey {self.api_key}'
+
+        auth = None
+        if self.username and self.password:
+            auth = aiohttp.BasicAuth(self.username, self.password)
+
+        start_time = asyncio.get_event_loop().time()
+
+        async with aiohttp.ClientSession() as session:
+            while True:
+                async with session.get(endpoint, headers=headers, auth=auth) as response:
+                    # Check if job is complete (200 OK with content)
+                    if response.status == HTTP_OK:
+                        content_type = response.headers.get('Content-Type', '')
+                        if 'image/png' in content_type:
+                            return await response.read()
+
+                    # Check if job is still processing (503 or other status)
+                    if response.status == HTTP_SERVICE_UNAVAILABLE:
+                        # Job still processing, continue polling
+                        pass
+                    elif response.status != HTTP_OK:
+                        response.raise_for_status()
+
+                # Check timeout
+                elapsed = asyncio.get_event_loop().time() - start_time
+                if elapsed > timeout:
+                    msg = f'Screenshot generation timed out after {timeout} seconds'
+                    raise TimeoutError(msg)
+
+                # Wait before next poll
+                await asyncio.sleep(poll_interval)
+
+    async def download_screenshot(
+        self,
+        dashboard_id: str,
+        output_path: Path,
+        time_from: str | None = None,
+        time_to: str | None = None,
+        width: int = 1920,
+        height: int = 1080,
+        browser_timezone: str = 'UTC',
+        timeout: int = 300,
+    ) -> None:
+        """Generate and download a screenshot of a dashboard to a file.
+
+        This is a convenience method that combines generate_screenshot and wait_for_job_completion.
+
+        Args:
+            dashboard_id: The dashboard ID to screenshot
+            output_path: Local file path to save the PNG
+            time_from: Optional start time for the dashboard time range (ISO 8601 format)
+            time_to: Optional end time for the dashboard time range (ISO 8601 format)
+            width: Screenshot width in pixels (default: 1920)
+            height: Screenshot height in pixels (default: 1080)
+            browser_timezone: Timezone for the screenshot (default: UTC)
+            timeout: Maximum seconds to wait for screenshot generation (default: 300)
+
+        Raises:
+            aiohttp.ClientError: If the request fails
+            TimeoutError: If screenshot generation times out
+
+        """
+        # Generate screenshot job
+        job_path = await self.generate_screenshot(
+            dashboard_id=dashboard_id,
+            time_from=time_from,
+            time_to=time_to,
+            width=width,
+            height=height,
+            browser_timezone=browser_timezone,
+        )
+
+        # Wait for completion and download
+        screenshot_data = await self.wait_for_job_completion(job_path, timeout=timeout)
+
+        # Save to file
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open('wb') as f:
+            f.write(screenshot_data)
