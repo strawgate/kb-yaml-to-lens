@@ -44,7 +44,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
 
     # Select the specified dashboard
     if dashboard_index < 0 or dashboard_index >= len(dashboards):
-        msg = f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'
+        msg = f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})'
         raise ValueError(msg)
 
     dashboard_config = dashboards[dashboard_index]

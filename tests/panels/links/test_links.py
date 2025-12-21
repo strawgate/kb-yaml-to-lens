@@ -43,10 +43,7 @@ def test_compile_links_panel_basic_url(compile_links_panel_snapshot) -> None:
     result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
-            'attributes': {
-                'layout': 'horizontal',
-                'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}],
-            },
+            'attributes': {'layout': 'horizontal', 'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}]},
             'enhancements': {},
         }
     )
@@ -72,10 +69,7 @@ def test_compile_links_panel_custom_id(compile_links_panel_snapshot) -> None:
     result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
-            'attributes': {
-                'layout': 'horizontal',
-                'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}],
-            },
+            'attributes': {'layout': 'horizontal', 'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}]},
             'enhancements': {},
         }
     )
@@ -98,12 +92,7 @@ def test_compile_links_panel_with_label(compile_links_panel_snapshot) -> None:
     result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
-            'attributes': {
-                'layout': 'horizontal',
-                'links': [
-                    {'label': 'Custom Label', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}
-                ],
-            },
+            'attributes': {'layout': 'horizontal', 'links': [{'label': 'Custom Label', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}]},
             'enhancements': {},
         }
     )
@@ -160,9 +149,7 @@ def test_compile_links_panel_dashboard_link(compile_links_panel_snapshot) -> Non
             ],
         }
     )
-    assert references == snapshot(
-        [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}]
-    )
+    assert references == snapshot([{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}])
     assert result == snapshot(
         {
             'attributes': {
@@ -201,9 +188,7 @@ def test_compile_links_panel_dashboard_link_inverted_options(compile_links_panel
             ],
         }
     )
-    assert references == snapshot(
-        [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}]
-    )
+    assert references == snapshot([{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}])
     assert result == snapshot(
         {
             'attributes': {

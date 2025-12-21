@@ -96,10 +96,7 @@ def test_compile_image_panel_url_sizing_none(compile_image_panel_snapshot) -> No
 def test_compile_image_panel_url_alt_text(compile_image_panel_snapshot) -> None:
     """Test the compilation of an image panel with URL and alt text."""
     result = compile_image_panel_snapshot(
-        {
-            'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg',
-            'description': 'this is the alt text',
-        }
+        {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'description': 'this is the alt text'}
     )
     assert result == snapshot(
         {
