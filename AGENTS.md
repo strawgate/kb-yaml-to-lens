@@ -153,7 +153,7 @@ Before suggesting changes:
 | `src/dashboard_compiler/dashboard/` | Defines the top-level `Dashboard` configuration (config.py) and its compilation logic (compile.py). |
 | `src/dashboard_compiler/panels/` | Houses definitions and compilation logic for various Kibana panel types (e.g., `markdown`, `links`, `charts`). |
 | `src/dashboard_compiler/panels/charts/` | Specific compilation logic for Lens and ESQL chart types (e.g., `metric`, `pie`, `xy`). |
-| `scripts/` | Contains utility scripts for compiling configurations to NDJSON (`compile_configs_to_ndjson.py`) and generating documentation (`compile_docs.py`). |
+| `scripts/` | Contains utility scripts for generating documentation (`compile_docs.py`) and converting test snapshots to NDJSON (`snapshots_to_ndjson.py`). |
 | `inputs/` | Example YAML dashboard configurations for compilation. |
 | `tests/` | Contains unit and integration tests, including snapshot tests for generated Kibana JSON. |
 | `src/dashboard_compiler/dashboard_compiler.py` | Main entry point for loading, rendering, and dumping dashboard configurations (load, render, dump functions). |
@@ -209,9 +209,9 @@ uv run pytest tests/panels/test_metrics.py  # Specific file
 
 ## Unique Workflows
 
-- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `tests/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `src/dashboard_compiler/dashboard_compiler.py` - render function).
+- **Dashboard Compilation:** YAML configuration files (e.g., `inputs/*.yaml`, `tests/dashboards/scenarios/*.yaml`) are loaded, validated against Pydantic models, and then compiled into Kibana dashboard JSON. The `dashboard_compiler.dashboard_compiler.render` function orchestrates this process (see `src/dashboard_compiler/dashboard_compiler.py` - render function). Use the `kb-dashboard compile` CLI command or `make compile` to compile dashboards to NDJSON format.
 - **Documentation Generation:** A script (`scripts/compile_docs.py`) automatically compiles all markdown files within the `src/dashboard_compiler/` directory into a single `yaml_reference.md` file at the repository root. It prioritizes `dashboard/dashboard.md` and then sorts others by path (see `scripts/compile_docs.py` - main compilation logic).
-- **NDJSON Output:** Compiled Kibana dashboards can be output as NDJSON (Newline Delimited JSON) files, suitable for direct import into Kibana. The `scripts/compile_configs_to_ndjson.py` script handles this, processing YAML files from `inputs/` and `tests/dashboards/scenarios/` (see `scripts/compile_configs_to_ndjson.py`).
+- **Test Snapshot Export:** The `scripts/snapshots_to_ndjson.py` script converts test snapshots from `tests/__snapshots__/` to `kibana_import.ndjson`, useful for importing test fixtures directly to Kibana for validation.
 
 ---
 
