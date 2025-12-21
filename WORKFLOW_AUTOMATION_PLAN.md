@@ -102,6 +102,7 @@ jobs:
       (github.event.review.state == 'commented' || github.event.review.state == 'changes_requested') &&
       !github.event.pull_request.draft
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
       pull-requests: write
@@ -114,10 +115,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install UV
         uses: astral-sh/setup-uv@v7
@@ -256,7 +257,7 @@ jobs:
           prompt: ${{ steps.prompt.outputs.PROMPT }}
           track_progress: true
           claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
+            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*,gh:api:*)
             --mcp-config /tmp/mcp-config/mcp-servers.json
 ```
 
@@ -329,6 +330,7 @@ jobs:
       github.event.workflow_run.conclusion == 'failure' &&
       github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       pull-requests: write
@@ -341,10 +343,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install UV
         uses: astral-sh/setup-uv@v7
@@ -370,20 +372,25 @@ jobs:
              - Workflow run ID: ${{ github.event.workflow_run.id }}
              - Workflow run event: ${{ github.event.workflow_run.event }}
              - Branch: ${{ github.event.workflow_run.head_branch }}
-          3. Use GitHub MCP tools to fetch failure information:
-             - Use list_workflow_runs to see recent runs
-             - Use list_workflow_jobs to find failed jobs
-             - Use get_job_logs with failed_only=true and run_id=${{ github.event.workflow_run.id }}
+          3. Use GitHub CI MCP tools to fetch failure information:
+             - Workflow run ID: ${{ github.event.workflow_run.id }}
+             - Use mcp__github_ci__get_ci_status to get overall CI status
+             - Use mcp__github_ci__get_workflow_run_details with run_id=${{ github.event.workflow_run.id }} to get job details
+             - Use mcp__github_ci__download_job_log with job_id=<failed_job_id> to download logs for failed jobs
           4. Analyze the failures to understand root cause
           5. Search the codebase for relevant context
 
           # YOUR RESPONSE
 
           Check if you've previously commented on this PR. If so, EDIT that comment instead of creating a new one.
-          
-          To find existing comments:
+
+          To find the PR number and existing comments:
           ```bash
-          gh api repos/${{ github.repository }}/issues/ISSUE_NUMBER/comments --jq '.[] | select(.user.login=="github-actions[bot]" or .user.login=="claude") | {id: .id, body: .body}'
+          # Get PR number from workflow run
+          PR_NUMBER=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} --jq '.pull_requests[0].number')
+
+          # Find existing comments from Claude/bot
+          gh api repos/${{ github.repository }}/issues/$PR_NUMBER/comments --jq '.[] | select(.user.login=="github-actions[bot]" or .user.login=="claude") | {id: .id, body: .body}'
           ```
 
           Post (or edit) a comment with:
