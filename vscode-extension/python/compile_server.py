@@ -1,36 +1,44 @@
-"""Simple stdio-based compilation server for VS Code extension."""
+"""LSP-based compilation server using pygls for VS Code extension.
 
-import json
+This implementation uses the Language Server Protocol with pygls to provide
+dashboard compilation services to the VS Code extension.
+"""
+
 import sys
 from pathlib import Path
+
+from lsprotocol import types
+from pygls.server import LanguageServer
 
 # Add the src directory to the path so we can import dashboard_compiler
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
 
 from dashboard_compiler.dashboard_compiler import load, render
 
+# Create the language server instance
+server = LanguageServer('dashboard-compiler', 'v0.1')
 
-def compile_dashboard(yaml_path: str, dashboard_index: int = 0) -> dict:
-    """Compile dashboard and return result.
+
+def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
+    """Compile a dashboard at the given path and index.
 
     Args:
-        yaml_path: Path to the YAML dashboard file.
-        dashboard_index: Index of the dashboard to compile (default: 0).
+        path: Path to the YAML file containing dashboards
+        dashboard_index: Index of the dashboard to compile (default: 0)
 
     Returns:
-        dict: Result dictionary with 'success' and either 'data' or 'error'.
+        Dictionary with success status and either data or error message
     """
+    if not path:
+        return {'success': False, 'error': 'Missing path parameter'}
+
     try:
-        dashboards = load(yaml_path)
+        dashboards = load(path)
         if not dashboards:
             return {'success': False, 'error': 'No dashboards found in YAML file'}
 
-        # Validate dashboard index
         if dashboard_index < 0 or dashboard_index >= len(dashboards):
-            return {
-                'success': False,
-                'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards)-1})'
-            }
+            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'}
 
         dashboard = dashboards[dashboard_index]
         kbn_dashboard = render(dashboard)
@@ -39,67 +47,81 @@ def compile_dashboard(yaml_path: str, dashboard_index: int = 0) -> dict:
         return {'success': False, 'error': str(e)}
 
 
-def main():
-    """Run the main server loop reading JSON requests from stdin and writing responses to stdout."""
-    # Ensure stdout is line-buffered
-    sys.stdout.reconfigure(line_buffering=True)  # type: ignore[attr-defined]
+@server.command('dashboard.compile')
+def compile_command(_ls: LanguageServer, args: list) -> dict:
+    """Compile a dashboard using the workspace/executeCommand pattern.
 
-    for line in sys.stdin:
-        request_id = 0  # Initialize request_id before parsing
-        try:
-            request = json.loads(line)
-            request_id = request.get('id', 0)
-            method = request.get('method')
-            params = request.get('params', {})
+    Args:
+        args: List containing [path, dashboard_index (optional)]
 
-            if method == 'compile':
-                # Validate required parameters
-                if 'path' not in params:
-                    error_response = {'id': request_id, 'success': False, 'error': 'Missing required parameter: path'}
-                    sys.stdout.write(json.dumps(error_response) + '\n')
-                    sys.stdout.flush()
-                    continue
+    Returns:
+        Dictionary with compilation result
+    """
+    if not args or len(args) < 1:
+        return {'success': False, 'error': 'Missing path argument'}
 
-                dashboard_index = params.get('dashboard_index', 0)
-                result = compile_dashboard(params['path'], dashboard_index)
-                result['id'] = request_id
-                sys.stdout.write(json.dumps(result) + '\n')
-                sys.stdout.flush()
-            elif method == 'get_dashboards':
-                # New method to get list of dashboards
-                if 'path' not in params:
-                    error_response = {'id': request_id, 'success': False, 'error': 'Missing required parameter: path'}
-                    sys.stdout.write(json.dumps(error_response) + '\n')
-                    sys.stdout.flush()
-                    continue
+    path = args[0]
+    # Ensure dashboard_index is an integer
+    dashboard_index = int(args[1]) if len(args) > 1 else 0
 
-                try:
-                    dashboards = load(params['path'])
-                    dashboard_list = [
-                        {
-                            'index': i,
-                            'title': dashboard.name or f'Dashboard {i + 1}',
-                            'description': dashboard.description or ''
-                        }
-                        for i, dashboard in enumerate(dashboards)
-                    ]
-                    result = {'id': request_id, 'success': True, 'data': dashboard_list}
-                    sys.stdout.write(json.dumps(result) + '\n')
-                    sys.stdout.flush()
-                except Exception as e:
-                    error_response = {'id': request_id, 'success': False, 'error': str(e)}
-                    sys.stdout.write(json.dumps(error_response) + '\n')
-                    sys.stdout.flush()
-            else:
-                error_response = {'id': request_id, 'success': False, 'error': f'Unknown method: {method}'}
-                sys.stdout.write(json.dumps(error_response) + '\n')
-                sys.stdout.flush()
-        except Exception as e:
-            # Use the parsed request_id instead of 0
-            error_response = {'id': request_id, 'success': False, 'error': f'Server error: {e!s}'}
-            sys.stdout.write(json.dumps(error_response) + '\n')
-            sys.stdout.flush()
+    return _compile_dashboard(path, dashboard_index)
+
+
+@server.feature('dashboard/compile')
+def compile_custom(params: dict) -> dict:
+    """Handle custom compilation request for a dashboard.
+
+    Args:
+        params: Dictionary containing path and dashboard_index
+
+    Returns:
+        Dictionary with compilation result
+    """
+    path = params.get('path', '')
+    # Ensure dashboard_index is an integer
+    dashboard_index = int(params.get('dashboard_index', 0))
+
+    return _compile_dashboard(path, dashboard_index)
+
+
+@server.feature('dashboard/getDashboards')
+def get_dashboards_custom(params: dict) -> dict:
+    """Get list of dashboards from a YAML file.
+
+    Args:
+        params: Dictionary containing path to YAML file
+
+    Returns:
+        Dictionary with list of dashboards or error
+    """
+    path = params.get('path')
+
+    if not path:
+        return {'success': False, 'error': 'Missing path parameter'}
+
+    try:
+        dashboards = load(path)
+        dashboard_list = [
+            {'index': i, 'title': dashboard.name or f'Dashboard {i + 1}', 'description': dashboard.description or ''}
+            for i, dashboard in enumerate(dashboards)
+        ]
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    else:
+        return {'success': True, 'data': dashboard_list}
+
+
+@server.feature(types.TEXT_DOCUMENT_DID_SAVE)
+def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> None:
+    """Handle file save events and notify client of changes.
+
+    Args:
+        ls: Language server instance
+        params: Save event parameters
+    """
+    file_path = params.text_document.uri
+    ls.send_notification('dashboard/fileChanged', {'uri': file_path})
 
 
 if __name__ == '__main__':
-    main()
+    server.start_io()

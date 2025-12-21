@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { DashboardCompiler } from './compiler';
+import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 
-export function setupFileWatcher(compiler: DashboardCompiler, previewPanel: PreviewPanel): vscode.Disposable[] {
+export function setupFileWatcher(compiler: DashboardCompilerLSP, previewPanel: PreviewPanel): vscode.Disposable[] {
     // Watch for saves on YAML files
     const saveWatcher = vscode.workspace.onDidSaveTextDocument(async (document) => {
         if (!document.fileName.endsWith('.yaml') && !document.fileName.endsWith('.yml')) {
