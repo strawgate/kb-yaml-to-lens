@@ -69,7 +69,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
 
     with output_path.open('w') as f:
         for line in lines:
-            f.write(line + '\n')
+            _ = f.write(line + '\n')
 
 
 def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:

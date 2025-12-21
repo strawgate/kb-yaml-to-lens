@@ -77,7 +77,7 @@ inspector:
 	npx @modelcontextprotocol/inspector
 
 test-smoke:
-	uv run es_knowledge_base_mcp --help
+	uv run kb-dashboard --help
 
 lint: autocorrect format lint-markdown
 
