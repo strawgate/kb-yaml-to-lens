@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: one-metrics-primary-unique-count
+  name: one-metrics-primary-unique-count
   description: "A dashboard with a single unique count metrics"
   panels:
   - title: "Number of Aerospike Namespaces" 

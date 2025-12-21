@@ -9,7 +9,10 @@ from dashboard_compiler.shared.view import OmitIfNone
 class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     layerType: Literal['data'] = 'data'
     primaryGroups: list[str]
+    secondaryGroups: Annotated[list[str] | None, OmitIfNone()] = Field(None)
     metrics: list[str]
+    allowMultipleMetrics: Annotated[bool | None, OmitIfNone()] = Field(None)
+    collapseFns: Annotated[dict[str, str] | None, OmitIfNone()] = Field(None)
     numberDisplay: str
     categoryDisplay: str
     legendDisplay: str

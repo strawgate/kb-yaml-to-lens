@@ -1,31 +1,31 @@
 # Controls Configuration
 
-Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within the `controls` field of the main `dashboard` configuration. Global behavior of controls can be managed via the `settings.controls` object.
+Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within each dashboard's `controls` field in the `dashboards:` array. Global behavior of controls can be managed via the `settings.controls` object.
 
 ## Minimal Configuration Examples
 
 Here's a minimal example of an `options` list control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: options
-      label: "Filter by Status"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "status.keyword"      # Replace with the field to filter on
+dashboards:
+  -
+    controls:
+      - type: options
+        label: "Filter by Status"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "status.keyword"      # Replace with the field to filter on
 ```
 
 Here's a minimal example of a `range` slider control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: range
-      label: "Response Time (ms)"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "response.time"       # Replace with the numeric field
+dashboards:
+  -
+    controls:
+      - type: range
+        label: "Response Time (ms)"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "response.time"       # Replace with the numeric field
 ```
 
 ## Complex Configuration Example
@@ -33,38 +33,39 @@ dashboard:
 This example demonstrates multiple controls with custom widths and global control settings:
 
 ```yaml
-dashboard:
-  title: "Application Monitoring Dashboard"
-  description: "Dashboard with interactive controls."
-  data_view: "logs-*" # Default data view for panels
-  settings:
+dashboards:
+  -
+    name: "Application Monitoring Dashboard"
+    description: "Dashboard with interactive controls."
+    data_view: "logs-*" # Default data view for panels
+    settings:
+      controls:
+        label_position: "above"
+        chain_controls: true
+        click_to_apply: false
     controls:
-      label_position: "above"
-      chain_controls: true
-      click_to_apply: false
-  controls:
-    - type: options
-      label: "Service Name"
-      id: "service_filter"
-      width: "medium"
-      data_view: "apm-*"
-      field: "service.name"
-      singular: false
-      match_technique: "contains"
-      preselected: ["checkout-service"]
-    - type: range
-      label: "CPU Usage (%)"
-      id: "cpu_range_filter"
-      width: "large"
-      data_view: "metrics-*"
-      field: "system.cpu.user.pct"
-      step: 0.05
-    - type: time
-      label: "Custom Time Slice"
-      id: "time_slice_control"
-      width: "small"
-      start_offset: 0.1  # 10% from the start of the global time range
-      end_offset: 0.9    # 90% from the start of the global time range
+      - type: options
+        label: "Service Name"
+        id: "service_filter"
+        width: "medium"
+        data_view: "apm-*"
+        field: "service.name"
+        singular: false
+        match_technique: "contains"
+        preselected: ["checkout-service"]
+      - type: range
+        label: "CPU Usage (%)"
+        id: "cpu_range_filter"
+        width: "large"
+        data_view: "metrics-*"
+        field: "system.cpu.user.pct"
+        step: 0.05
+      - type: time
+        label: "Custom Time Slice"
+        id: "time_slice_control"
+        width: "small"
+        start_offset: 0.1  # 10% from the start of the global time range
+        end_offset: 0.9    # 90% from the start of the global time range
 ```
 
 ## Full Configuration Options

@@ -116,10 +116,10 @@ class RangeSliderControl(BaseControl):
 
 
 class TimeSliderControl(BaseControl):
-    """Represents a Range Slider control.
+    """Represents a Time Slider control.
 
-    This control allows users to select a range of numeric or date values
-    to filter data.
+    This control allows users to select a time range to filter data
+    by adjusting start and end offsets within the global time range.
     """
 
     type: Literal['time'] = 'time'

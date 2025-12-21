@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: one-esql-line-chart
+  name: one-esql-line-chart
   panels:
     - type: lens_esql
       grid_data:
