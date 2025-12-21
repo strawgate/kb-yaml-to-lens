@@ -17,6 +17,8 @@ class BaseDimension(BaseCfgModel):
     id: str | None = Field(default=None)
     """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
 
+    # color: ColorMapping | None = Field(default=None)
+
 
 class CollapseAggregationEnum(StrEnum):
     """The aggregation to use for the dimension."""
@@ -25,6 +27,13 @@ class CollapseAggregationEnum(StrEnum):
     MIN = 'min'
     MAX = 'max'
     AVG = 'avg'
+
+
+# class CollapsedDimension(BaseDimension):
+#     """A dimension that is collapsed into a single value."""
+
+#     aggregation: CollapseAggregationEnum | None = Field(default=None)
+#     """The aggregation to use for the dimension."""
 
 
 class BaseLensDimension(BaseDimension):

@@ -15,6 +15,10 @@ class BaseMetric(BaseCfgModel):
     """A unique identifier for the metric. If not provided, one may be generated during compilation."""
 
 
+# class BaseMetricFormat(BaseCfgModel):
+#     """Base class for metric format configurations in Lens charts."""
+
+
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes
 
 type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat
@@ -117,6 +121,9 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
 
     date_field: str | None = Field(default=None)
     """The field used to determine the 'last' value."""
+
+    # filter: str | None = Field(default=None)
+    # """A KQL filter applied before determining the last value."""
 
 
 class LensPercentileRankAggregatedMetric(BaseLensMetric):
