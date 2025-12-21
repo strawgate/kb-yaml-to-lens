@@ -61,7 +61,8 @@ def compile_command(_ls: LanguageServer, args: list) -> dict:
         return {'success': False, 'error': 'Missing path argument'}
 
     path = args[0]
-    dashboard_index = args[1] if len(args) > 1 else 0
+    # Ensure dashboard_index is an integer
+    dashboard_index = int(args[1]) if len(args) > 1 else 0
 
     return _compile_dashboard(path, dashboard_index)
 
@@ -77,7 +78,8 @@ def compile_custom(params: dict) -> dict:
         Dictionary with compilation result
     """
     path = params.get('path', '')
-    dashboard_index = params.get('dashboard_index', 0)
+    # Ensure dashboard_index is an integer
+    dashboard_index = int(params.get('dashboard_index', 0))
 
     return _compile_dashboard(path, dashboard_index)
 

@@ -77,9 +77,9 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_i
             return {'success': False, 'error': 'Could not find dashboards section'}
 
         # Find all dashboard starts (lines starting with "- " at the right indentation after "dashboards:")
-        dashboard_starts = list(re.finditer(r'^- (?:title:|name:|panels:)', content[dashboards_match.end() :], re.MULTILINE))
+        dashboard_starts = list(re.finditer(r'^- (?:title:|name:|panels:)', content[dashboards_match.end():], re.MULTILINE))
         if dashboard_index >= len(dashboard_starts):
-            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboard_starts) - 1})'}
+            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboard_starts)-1})'}
 
         # Calculate absolute positions
         dashboard_start = dashboards_match.end() + dashboard_starts[dashboard_index].start()
