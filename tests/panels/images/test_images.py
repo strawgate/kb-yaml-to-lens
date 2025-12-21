@@ -23,7 +23,7 @@ def compile_image_panel_snapshot():
     return _compile
 
 
-async def test_compile_image_panel_url(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url(compile_image_panel_snapshot) -> None:
     """Test the compilation of a basic image panel with URL."""
     result = compile_image_panel_snapshot({'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg'})
     assert result == snapshot(
@@ -39,7 +39,7 @@ async def test_compile_image_panel_url(compile_image_panel_snapshot) -> None:
     )
 
 
-async def test_compile_image_panel_url_sizing_cover(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_sizing_cover(compile_image_panel_snapshot) -> None:
     """Test the compilation of an image panel with URL and cover sizing."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'cover'}
@@ -57,7 +57,7 @@ async def test_compile_image_panel_url_sizing_cover(compile_image_panel_snapshot
     )
 
 
-async def test_compile_image_panel_url_fill(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_fill(compile_image_panel_snapshot) -> None:
     """Test the compilation of an image panel with URL and fill sizing."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'fill'}
@@ -75,7 +75,7 @@ async def test_compile_image_panel_url_fill(compile_image_panel_snapshot) -> Non
     )
 
 
-async def test_compile_image_panel_url_sizing_none(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_sizing_none(compile_image_panel_snapshot) -> None:
     """Test the compilation of an image panel with URL and none sizing."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'none'}
@@ -93,7 +93,7 @@ async def test_compile_image_panel_url_sizing_none(compile_image_panel_snapshot)
     )
 
 
-async def test_compile_image_panel_url_alt_text(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_alt_text(compile_image_panel_snapshot) -> None:
     """Test the compilation of an image panel with URL and alt text."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'description': 'this is the alt text'}
@@ -111,7 +111,7 @@ async def test_compile_image_panel_url_alt_text(compile_image_panel_snapshot) ->
     )
 
 
-async def test_compile_image_panel_url_background_color(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_background_color(compile_image_panel_snapshot) -> None:
     """Test the compilation of an image panel with URL and background color."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'background_color': '#a53c3c'}
