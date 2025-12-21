@@ -1,7 +1,7 @@
 dashboards:
 -
   type: lens
-  title: Vertical Bar Timestamp and Count with a Terms Breakdown
+  name: Vertical Bar Timestamp and Count with a Terms Breakdown
   index_pattern: 27a3148b-d1d4-4455-8acf-e63c94071a5b
   chart:
     type: bar

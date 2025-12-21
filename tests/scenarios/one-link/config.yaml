@@ -1,6 +1,6 @@
 dashboards:
 -
-  title: one-link
+  name: one-link
   description: "A dashboard with a single link to a specific URL"
   panels:
   - title: "A links panel" 
