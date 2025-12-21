@@ -1,8 +1,8 @@
 """Configuration for Links Panel."""
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
-from pydantic import Field
+from pydantic import Discriminator, Field, Tag
 
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.shared.config import BaseCfgModel
@@ -21,7 +21,33 @@ class BaseLink(BaseCfgModel):
     """The text that will be displayed for the link. Kibana defaults to showing the URL if not set."""
 
 
-type LinkTypes = DashboardLink | UrlLink
+def get_link_type(v: dict | object) -> str:
+    """Extract link type for discriminated union validation.
+
+    Args:
+        v: Either a dict (during validation) or a link instance.
+
+    Returns:
+        str: The link type identifier ('dashboard' or 'url').
+
+    """
+    if isinstance(v, dict):
+        if 'dashboard' in v:
+            return 'dashboard'
+        if 'url' in v:
+            return 'url'
+        return 'unknown'
+    if hasattr(v, 'dashboard'):
+        return 'dashboard'
+    if hasattr(v, 'url'):
+        return 'url'
+    return 'unknown'
+
+
+type LinkTypes = Annotated[
+    Annotated[DashboardLink, Tag('dashboard')] | Annotated[UrlLink, Tag('url')],
+    Discriminator(get_link_type),
+]
 
 
 class DashboardLink(BaseLink):

@@ -1,17 +1,87 @@
 """Configuration schema for Dashboard filters."""
 
-from typing import Any, Self
+from typing import Annotated, Any, Self
 
-from pydantic import Field, model_validator
+from pydantic import Discriminator, Field, Tag, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
-type FilterPredicateTypes = ExistsFilter | PhraseFilter | PhrasesFilter | RangeFilter | CustomFilter
 
-type FilterLogicalTypes = AndFilter | OrFilter
+def get_filter_type(v: dict | object) -> str:  # noqa: PLR0911, PLR0912
+    """Extract filter type for discriminated union validation.
+
+    Args:
+        v: Either a dict (during validation) or a filter instance.
+
+    Returns:
+        str: The filter type identifier.
+
+    """
+    if isinstance(v, dict):
+        if 'exists' in v:
+            return 'exists'
+        if 'equals' in v:
+            return 'phrase'
+        if 'in' in v:
+            return 'phrases'
+        if any(k in v for k in ('gte', 'lte', 'gt', 'lt')):
+            return 'range'
+        if 'dsl' in v:
+            return 'custom'
+        if 'and' in v:
+            return 'and'
+        if 'or' in v:
+            return 'or'
+        if 'not' in v:
+            return 'not'
+        return 'unknown'
+
+    if hasattr(v, 'exists'):
+        return 'exists'
+    if hasattr(v, 'equals'):
+        return 'phrase'
+    if hasattr(v, 'in_list'):
+        return 'phrases'
+    if any(hasattr(v, k) for k in ('gte', 'lte', 'gt', 'lt')):
+        return 'range'
+    if hasattr(v, 'dsl'):
+        return 'custom'
+    if hasattr(v, 'and_filters'):
+        return 'and'
+    if hasattr(v, 'or_filters'):
+        return 'or'
+    if hasattr(v, 'not_filter'):
+        return 'not'
+    return 'unknown'
+
+
+type FilterPredicateTypes = Annotated[
+    Annotated[ExistsFilter, Tag('exists')]
+    | Annotated[PhraseFilter, Tag('phrase')]
+    | Annotated[PhrasesFilter, Tag('phrases')]
+    | Annotated[RangeFilter, Tag('range')]
+    | Annotated[CustomFilter, Tag('custom')],
+    Discriminator(get_filter_type),
+]
+
+type FilterLogicalTypes = Annotated[
+    Annotated[AndFilter, Tag('and')] | Annotated[OrFilter, Tag('or')],
+    Discriminator(get_filter_type),
+]
+
 type FilterModifierTypes = NegateFilter
 
-type FilterTypes = FilterPredicateTypes | FilterLogicalTypes | FilterModifierTypes
+type FilterTypes = Annotated[
+    Annotated[ExistsFilter, Tag('exists')]
+    | Annotated[PhraseFilter, Tag('phrase')]
+    | Annotated[PhrasesFilter, Tag('phrases')]
+    | Annotated[RangeFilter, Tag('range')]
+    | Annotated[CustomFilter, Tag('custom')]
+    | Annotated[AndFilter, Tag('and')]
+    | Annotated[OrFilter, Tag('or')]
+    | Annotated[NegateFilter, Tag('not')],
+    Discriminator(get_filter_type),
+]
 
 
 class BaseFilter(BaseCfgModel):

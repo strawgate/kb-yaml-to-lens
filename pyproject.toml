@@ -157,6 +157,7 @@ pythonVersion = "3.12"
 typeCheckingMode = "standard"  # Bumped from basic to standard
 reportExplicitAny = false
 reportMissingTypeStubs = false
+reportImportCycles = "error"  # Enable circular import detection
 # Allow Pydantic view models to narrow types in subclasses (e.g., str -> Literal['value'])
 # This is a common pattern for serialization models
 reportIncompatibleVariableOverride = false

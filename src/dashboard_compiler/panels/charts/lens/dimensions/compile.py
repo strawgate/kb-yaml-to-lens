@@ -123,9 +123,7 @@ def compile_lens_dimension(
             operationType='filters',
             scale='ordinal',
             params=KbnLensFiltersDimensionColumnParams(
-                filters=[
-                    KbnLensFiltersFilter(label=f.label or '', input=compile_nonesql_query(f.query)) for f in dimension.filters
-                ]
+                filters=[KbnLensFiltersFilter(label=f.label or '', input=compile_nonesql_query(f.query)) for f in dimension.filters]
             ),
         )
 
