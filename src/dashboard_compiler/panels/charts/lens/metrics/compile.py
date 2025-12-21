@@ -136,7 +136,6 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     custom_label = None if metric.label is None else True
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 
-    # Handle formula metrics separately since they have a different structure
     if isinstance(metric, LensFormulaMetric):
         msg = f'Formula metrics are not supported yet: {metric}'
         raise NotImplementedError(msg)

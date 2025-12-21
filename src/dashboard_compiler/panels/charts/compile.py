@@ -100,7 +100,6 @@ def compile_lens_chart_state(
             sampling=1,
         )
 
-    # Ensure at least one chart was processed
     if visualization_state is None:
         msg = 'No charts were successfully processed'
         raise ValueError(msg)
