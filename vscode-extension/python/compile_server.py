@@ -10,12 +10,10 @@ from pathlib import Path
 from lsprotocol import types
 from pygls.server import LanguageServer
 
-# Add the src directory to the path so we can import dashboard_compiler
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
 
 from dashboard_compiler.dashboard_compiler import load, render
 
-# Create the language server instance
 server = LanguageServer('dashboard-compiler', 'v0.1')
 
 
@@ -61,7 +59,6 @@ def compile_command(_ls: LanguageServer, args: list) -> dict:
         return {'success': False, 'error': 'Missing path argument'}
 
     path = args[0]
-    # Ensure dashboard_index is an integer
     dashboard_index = int(args[1]) if len(args) > 1 else 0
 
     return _compile_dashboard(path, dashboard_index)
@@ -78,7 +75,6 @@ def compile_custom(params: dict) -> dict:
         Dictionary with compilation result
     """
     path = params.get('path', '')
-    # Ensure dashboard_index is an integer
     dashboard_index = int(params.get('dashboard_index', 0))
 
     return _compile_dashboard(path, dashboard_index)
