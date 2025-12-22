@@ -219,5 +219,6 @@ jobs:
         - Checkboxes [ ] for actionable items
         - Emojis for visual organization
       allowed-tools: mcp__github-research,Bash(git:*,gh:issue:*)
+      track-progress: false
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
