@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a heatmap visualization using Kibana's LensAttributesBuilder
+ * Example: Generate a heatmap visualization using Kibana's LensConfigBuilder
  *
  * This script demonstrates how to create a heatmap showing geographic traffic patterns
  * with data aggregated by source and destination countries.
  */
 
-const { LensAttributesBuilder } = require('@kbn/lens-embeddable-utils');
+const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
 const fs = require('fs');
 const path = require('path');
 
 async function generateHeatmap() {
   // Initialize the builder
-  const builder = new LensAttributesBuilder();
+  const builder = new LensConfigBuilder();
 
   // Define heatmap configuration
   // Based on: https://github.com/elastic/kibana/blob/main/dev_docs/lens/heatmap.mdx

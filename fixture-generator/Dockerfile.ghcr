@@ -2,7 +2,7 @@
 #
 # This Dockerfile is optimized for publishing to GitHub Container Registry (GHCR).
 # It bootstraps Kibana from source to provide access to @kbn/lens-embeddable-utils
-# and LensAttributesBuilder API for generating test fixtures.
+# and LensConfigBuilder API for generating test fixtures.
 #
 # Build time: 15-30 minutes (one-time, then cached in GHCR)
 # Image size: ~8-10GB (includes Kibana source + node_modules)
@@ -64,8 +64,8 @@ RUN mkdir -p /tool/output /tool/examples
 ENV NODE_PATH=/kibana/node_modules
 ENV OUTPUT_DIR=/tool/output
 
-# Verify tsx and LensAttributesBuilder are available
-RUN tsx -e "const { LensAttributesBuilder } = require('@kbn/lens-embeddable-utils'); console.log('✓ LensAttributesBuilder available:', typeof LensAttributesBuilder);"
+# Verify tsx and LensConfigBuilder are available
+RUN tsx -e "const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder available:', typeof LensConfigBuilder);"
 
 # Default command: show help
 CMD ["node", "-e", "console.log('Kibana Fixture Generator\\nKibana Version: ${KIBANA_VERSION}\\nNode Version: ${NODE_VERSION}\\n\\nMount your scripts to /tool/examples and output to /tool/output\\nExample: docker run -v ./examples:/tool/examples -v ./output:/tool/output <image> tsx examples/metric-basic.js')"]

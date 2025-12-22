@@ -5,12 +5,12 @@
  * Demonstrates creating a pie chart with slices
  */
 
-const { LensAttributesBuilder } = require('@kbn/lens-embeddable-utils');
+const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
 const fs = require('fs');
 const path = require('path');
 
 async function generatePieChart() {
-  const builder = new LensAttributesBuilder();
+  const builder = new LensConfigBuilder();
 
   const config = {
     chartType: 'pie',

@@ -1,36 +1,34 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a basic metric visualization using Kibana's LensAttributesBuilder
+ * Example: Generate a basic metric visualization using Kibana's LensConfigBuilder
  *
  * This script demonstrates how to use Kibana's config builder API to create
  * a simple count metric and export it as JSON for testing.
  */
 
-const { LensAttributesBuilder, MetricChart, MetricLayer, FormulaColumn } = require('@kbn/lens-embeddable-utils');
+const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
 const fs = require('fs');
 const path = require('path');
 
 async function generateMetricBasic() {
-  // Create a metric layer with a formula column for count
-  const layer = new MetricLayer({
-    options: {},
-    columns: [
-      new FormulaColumn({
-        value: 'count()',
-        label: 'Total Events'
-      })
-    ]
-  });
+  // Initialize the builder
+  const builder = new LensConfigBuilder();
 
-  // Create a metric chart
-  const chart = new MetricChart({
+  // Define metric configuration
+  const config = {
+    chartType: 'metric',
     title: 'Basic Count Metric',
-    layers: [layer]
-  });
+    dataset: {
+      esql: 'FROM logs-* | STATS count = COUNT()'
+    },
+    value: 'count',
+    label: 'Total Events'
+  };
 
   // Build the Lens attributes
-  const builder = new LensAttributesBuilder({ visualization: chart });
-  const lensAttributes = builder.build();
+  const lensAttributes = await builder.build(config, {
+    timeRange: { from: 'now-24h', to: 'now', type: 'relative' }
+  });
 
   // Write to output directory
   const outputDir = path.join(__dirname, '..', 'output');
