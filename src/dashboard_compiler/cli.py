@@ -186,22 +186,28 @@ def cli() -> None:
     '--kibana-username',
     type=str,
     envvar='KIBANA_USERNAME',
-    help='Kibana username for basic authentication. Must be used with --kibana-password. '
-    'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)',
+    help=(
+        'Kibana username for basic authentication. Must be used with --kibana-password. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
+    ),
 )
 @click.option(
     '--kibana-password',
     type=str,
     envvar='KIBANA_PASSWORD',
-    help='Kibana password for basic authentication. Must be used with --kibana-username. '
-    'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)',
+    help=(
+        'Kibana password for basic authentication. Must be used with --kibana-username. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
+    ),
 )
 @click.option(
     '--kibana-api-key',
     type=str,
     envvar='KIBANA_API_KEY',
-    help='Kibana API key for authentication (recommended for production). '
-    'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)',
+    help=(
+        'Kibana API key for authentication (recommended for production). '
+        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
+    ),
 )
 @click.option(
     '--no-browser',
@@ -399,14 +405,18 @@ async def upload_to_kibana(
 @click.option(
     '--time-from',
     type=str,
-    help='Start time for dashboard data range. Accepts ISO 8601 format ("2024-01-01T00:00:00Z") '
-    'or relative time ("now-7d", "now-24h", "now-1M"). If omitted, uses dashboard default.',
+    help=(
+        'Start time for dashboard data range. Accepts ISO 8601 format ("2024-01-01T00:00:00Z") '
+        'or relative time ("now-7d", "now-24h", "now-1M"). If omitted, uses dashboard default.'
+    ),
 )
 @click.option(
     '--time-to',
     type=str,
-    help='End time for dashboard data range. Accepts ISO 8601 format ("2024-12-31T23:59:59Z") '
-    'or relative time ("now", "now-1h"). If omitted, uses dashboard default.',
+    help=(
+        'End time for dashboard data range. Accepts ISO 8601 format ("2024-12-31T23:59:59Z") '
+        'or relative time ("now", "now-1h"). If omitted, uses dashboard default.'
+    ),
 )
 @click.option(
     '--width',
@@ -443,22 +453,28 @@ async def upload_to_kibana(
     '--kibana-username',
     type=str,
     envvar='KIBANA_USERNAME',
-    help='Kibana username for basic authentication. Must be used with --kibana-password. '
-    'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)',
+    help=(
+        'Kibana username for basic authentication. Must be used with --kibana-password. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
+    ),
 )
 @click.option(
     '--kibana-password',
     type=str,
     envvar='KIBANA_PASSWORD',
-    help='Kibana password for basic authentication. Must be used with --kibana-username. '
-    'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)',
+    help=(
+        'Kibana password for basic authentication. Must be used with --kibana-username. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
+    ),
 )
 @click.option(
     '--kibana-api-key',
     type=str,
     envvar='KIBANA_API_KEY',
-    help='Kibana API key for authentication (recommended for production). '
-    'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)',
+    help=(
+        'Kibana API key for authentication (recommended for production). '
+        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
+    ),
 )
 def screenshot_dashboard(  # noqa: PLR0913
     dashboard_id: str,
