@@ -1,51 +1,217 @@
-"""Test the compilation of Lens metrics from config models to view models."""
+"""Test the compilation of Lens metrics from config models to view models using inline snapshots."""
+
+import re
+from typing import Any
 
 import pytest
-from deepdiff import DeepDiff
+from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.metric.compile import (
     compile_esql_metric_chart,
     compile_lens_metric_chart,
 )
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
-from tests.conftest import DEEP_DIFF_DEFAULTS
-from tests.panels.charts.metric.test_metric_data import (
-    TEST_CASE_IDS,
-    TEST_CASES,
-)
-
-# Define fields to exclude from DeepDiff comparison
-EXCLUDE_REGEX_PATHS = [
-    # Add regex paths for fields to exclude, e.g., IDs
-    # r"root\['columns'\]\[\d+\]\['id'\]",  # Example: Exclude column IDs
-    r"root\['layerId'\]",
-    # Refer to links test exclude paths for more ideas
-]
 
 
-@pytest.mark.parametrize(('in_lens_config', 'in_esql_config', 'out_layer'), TEST_CASES, ids=TEST_CASE_IDS)
-async def test_compile_metric(in_lens_config: dict, in_esql_config: dict, out_layer: dict) -> None:
-    """Test the compilation of various Lens metric configurations to their Kibana view model."""
-    lens_chart = LensMetricChart.model_validate(in_lens_config)
+def normalize_layer_id(result: dict[str, Any]) -> None:
+    """Validate layerId format and replace with placeholder for snapshot comparison."""
+    layer_id = result['layerId']
+    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
+    result['layerId'] = 'DYNAMIC_LAYER_ID'
 
-    layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
 
-    assert kbn_state_visualization is not None
+@pytest.fixture
+def compile_metric_chart_snapshot():
+    """Fixture that returns a function to compile metric charts and return dict for snapshot."""
 
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+    def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
+        if chart_type == 'lens':
+            lens_chart = LensMetricChart.model_validate(config)
+            layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+        else:  # esql
+            esql_chart = ESQLMetricChart.model_validate(config)
+            layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
 
-    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
+        assert kbn_state_visualization is not None
+        assert len(kbn_state_visualization.layers) > 0
+        kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+        return kbn_state_visualization_layer.model_dump()
 
-    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+    return _compile
 
-    esql_chart = ESQLMetricChart.model_validate(in_esql_config)
 
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
+def test_compile_metric_chart_primary_only_lens(compile_metric_chart_snapshot):
+    """Test the compilation of a metric chart with only a primary metric (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'aerospike.namespace.name',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'aggregation': 'count',
+        },
+    }
 
-    assert kbn_state_visualization is not None
+    result = compile_metric_chart_snapshot(config, 'lens')
+    normalize_layer_id(result)
 
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+        }
+    )
 
-    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
 
-    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+def test_compile_metric_chart_primary_only_esql(compile_metric_chart_snapshot):
+    """Test the compilation of a metric chart with only a primary metric (ESQL)."""
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'count(aerospike.namespace)',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'esql')
+    normalize_layer_id(result)
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+        }
+    )
+
+
+def test_compile_metric_chart_primary_and_secondary_lens(compile_metric_chart_snapshot):
+    """Test the compilation of a metric chart with primary and secondary metrics (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'aerospike.namespace.name',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'aggregation': 'count',
+        },
+        'secondary': {
+            'field': 'aerospike.node.name',
+            'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+            'aggregation': 'unique_count',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+    normalize_layer_id(result)
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+        }
+    )
+
+
+def test_compile_metric_chart_primary_and_secondary_esql(compile_metric_chart_snapshot):
+    """Test the compilation of a metric chart with primary and secondary metrics (ESQL)."""
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'count(aerospike.namespace)',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+        },
+        'secondary': {
+            'field': 'count_distinct(aerospike.node.name)',
+            'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'esql')
+    normalize_layer_id(result)
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+        }
+    )
+
+
+def test_compile_metric_chart_primary_secondary_breakdown_lens(compile_metric_chart_snapshot):
+    """Test the compilation of a metric chart with primary, secondary metrics and breakdown (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'aerospike.namespace.name',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'aggregation': 'count',
+        },
+        'secondary': {
+            'field': 'aerospike.node.name',
+            'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+            'aggregation': 'unique_count',
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'agent.name',
+            'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+    normalize_layer_id(result)
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+            'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+        }
+    )
+
+
+def test_compile_metric_chart_primary_secondary_breakdown_esql(compile_metric_chart_snapshot):
+    """Test the compilation of a metric chart with primary, secondary metrics and breakdown (ESQL)."""
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'count(aerospike.namespace)',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+        },
+        'secondary': {
+            'field': 'count_distinct(aerospike.node.name)',
+            'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+        },
+        'breakdown': {
+            'field': 'agent.name',
+            'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'esql')
+    normalize_layer_id(result)
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+            'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+        }
+    )
