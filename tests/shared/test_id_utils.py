@@ -24,3 +24,7 @@ class TestGenerateId:
 
         # Should be different (random)
         assert id1 != id2
+
+    def test_returns_empty_string_when_provided(self) -> None:
+        """Test that empty string is returned when given (not converted to UUID)."""
+        assert generate_id('') == ''

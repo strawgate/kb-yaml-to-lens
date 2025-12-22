@@ -22,6 +22,6 @@ def generate_id(provided_id: str | None) -> str:
         'f47ac10b-...'  # random UUID
 
     """
-    if provided_id:
+    if provided_id is not None:
         return provided_id
     return str(uuid.uuid4())
