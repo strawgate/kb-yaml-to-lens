@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, ClassVar, TypedDict
 
 import aiohttp
 import prison
@@ -30,7 +30,7 @@ class _JobParams(TypedDict):
 class SavedObjectResult(BaseModel):
     """Represents a single saved object result from Kibana API."""
 
-    model_config = ConfigDict(extra='allow')
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     id: str
     type: str
@@ -39,7 +39,7 @@ class SavedObjectResult(BaseModel):
 class SavedObjectError(BaseModel):
     """Represents an error from Kibana saved objects API."""
 
-    model_config = ConfigDict(extra='allow', populate_by_name=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
     error: dict[str, Any] | None = None
     message: str | None = None
@@ -49,7 +49,7 @@ class SavedObjectError(BaseModel):
 class KibanaSavedObjectsResponse(BaseModel):
     """Response from Kibana saved objects import API."""
 
-    model_config = ConfigDict(extra='allow', populate_by_name=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
     success: bool = Field(default=False, description='Whether the import was successful')
     success_count: int = Field(default=0, alias='successCount', description='Number of successfully imported objects')

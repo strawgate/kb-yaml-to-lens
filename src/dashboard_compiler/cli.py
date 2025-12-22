@@ -73,7 +73,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
             _ = f.write(line + '\n')
 
 
-def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:  # type: ignore[reportUnknownVariableType]
+def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
     """Compile dashboard YAML to JSON strings for NDJSON.
 
     Args:
@@ -85,9 +85,9 @@ def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:  # ty
     """
     try:
         dashboards = load(str(yaml_path))
-        json_lines = []
+        json_lines: list[str] = []
         for dashboard in dashboards:
-            dashboard_kbn_model = render(dashboard)
+            dashboard_kbn_model = render(dashboard)  # type: ignore[reportUnknownVariableType]
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
     except FileNotFoundError:
         return [], f'YAML file not found: {yaml_path}'
