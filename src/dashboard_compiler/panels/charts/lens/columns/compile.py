@@ -27,7 +27,7 @@ def compile_lens_columns(dimensions: Sequence[LensDimensionTypes], metrics: Sequ
         columns_by_name[metric.label] = columns_by_id[metric.id]
 
     for dimension in dimensions:
-        columns_by_id[dimension.id] = compile_lens_dimension(dimension, columns_by_name)
+        columns_by_id[dimension.id] = compile_lens_dimension(dimension, columns_by_name)  # type: ignore[reportUnknownArgumentType, reportUnknownVariableType]
 
     return columns_by_id
 
