@@ -7,16 +7,19 @@ from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_d
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.base.config import ColorMapping
-    from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
+    from dashboard_compiler.panels.charts.esql.columns.view import (
+        KbnESQLColumnTypes,
+        KbnESQLFieldDimensionColumn,
+        KbnESQLFieldMetricColumn,
+    )
+    from dashboard_compiler.panels.charts.lens.columns.view import (
+        KbnLensColumnTypes,
+        KbnLensMetricColumnTypes,
+    )
+    from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 
-from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-from dashboard_compiler.panels.charts.lens.columns.view import (
-    KbnLensColumnTypes,
-    KbnLensMetricColumnTypes,
-)
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.metric.view import (
     KbnMetricStateVisualizationLayer,
     KbnMetricVisualizationState,
