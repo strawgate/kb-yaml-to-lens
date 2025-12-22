@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
 if TYPE_CHECKING:
+    from dashboard_compiler.panels.charts.base.config import ColorMapping
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
 
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -26,6 +30,7 @@ def compile_metric_chart_visualization_state(
     primary_metric_id: str,
     secondary_metric_id: str | None,
     breakdown_dimension_id: str | None,
+    color_config: ColorMapping | None = None,
 ) -> KbnMetricVisualizationState:
     """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state.
 
@@ -34,16 +39,21 @@ def compile_metric_chart_visualization_state(
         primary_metric_id (str): The ID of the primary metric.
         secondary_metric_id (str | None): The ID of the secondary metric.
         breakdown_dimension_id (str | None): The ID of the breakdown dimension.
+        color_config (ColorMapping | None): Optional color configuration.
 
     Returns:
         KbnMetricVisualizationState: The compiled visualization state.
 
     """
+    kbn_color_mapping = compile_color_mapping(color_config)
+
     kbn_layer_visualization = KbnMetricStateVisualizationLayer(
         layerId=layer_id,
         metricAccessor=primary_metric_id,
         secondaryMetricAccessor=secondary_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
+        layerType='data',
+        colorMapping=kbn_color_mapping,
     )
 
     return KbnMetricVisualizationState(layers=[kbn_layer_visualization])
@@ -95,6 +105,7 @@ def compile_lens_metric_chart(
             primary_metric_id=primary_metric_id,
             secondary_metric_id=secondary_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
+            color_config=lens_metric_chart.color,
         ),
     )
 
@@ -146,5 +157,6 @@ def compile_esql_metric_chart(
             primary_metric_id=primary_metric_id,
             secondary_metric_id=secondary_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
+            color_config=esql_metric_chart.color,
         ),
     )

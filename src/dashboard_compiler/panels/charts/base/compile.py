@@ -1,37 +1,78 @@
-"""Helper functions for compiling chart base components."""
+"""Compilation utilities for base chart components."""
 
+from dashboard_compiler.panels.charts.base.config import ColorMapping
 from dashboard_compiler.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_MODE_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
+    KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
     KBN_DEFAULT_COLOR_MAPPING_PALETTE_ID,
     KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE,
+    KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
     KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
     KbnLayerColorMapping,
+    KbnLayerColorMappingAssignment,
     KbnLayerColorMappingColor,
     KbnLayerColorMappingRule,
     KbnLayerColorMappingSpecialAssignment,
 )
 
 
-def create_default_color_mapping(palette_id: str | None = None) -> KbnLayerColorMapping:
-    """Create a KbnLayerColorMapping with default values.
+def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMapping | None:
+    """Compile a ColorMapping config object into a Kibana color mapping view model.
 
     Args:
-        palette_id: Optional palette ID to use. If None, uses the default palette.
+        color_config: The color configuration from YAML, or None for no color mapping.
 
     Returns:
-        A KbnLayerColorMapping instance with default values.
+        KbnLayerColorMapping: The compiled Kibana color mapping view model, or None if no config provided.
 
     """
+    if not color_config:
+        return None
+
+    # Build manual color assignments
+    kbn_assignments: list[KbnLayerColorMappingAssignment] = []
+
+    for assignment in color_config.assignments:
+        # Determine which values to use
+        values_to_assign: list[str] = []
+        if assignment.value:
+            values_to_assign = [assignment.value]
+        elif assignment.values:
+            values_to_assign = assignment.values
+
+        if values_to_assign:
+            kbn_rule = KbnLayerColorMappingRule(
+                type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
+                values=values_to_assign,
+            )
+            kbn_color = KbnLayerColorMappingColor(
+                type=KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
+                colorCode=assignment.color,
+            )
+            kbn_assignments.append(
+                KbnLayerColorMappingAssignment(
+                    rule=kbn_rule,
+                    color=kbn_color,
+                    touched=KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
+                )
+            )
+
+    # Build special assignments (fallback colors)
+    special_assignments = [
+        KbnLayerColorMappingSpecialAssignment(
+            rule=KbnLayerColorMappingRule(type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE),
+            color=KbnLayerColorMappingColor(type=KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE),
+            touched=KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
+        )
+    ]
+
+    # Build color mode
+    color_mode = {'type': color_config.mode}
+
     return KbnLayerColorMapping(
-        assignments=[],
-        specialAssignments=[
-            KbnLayerColorMappingSpecialAssignment(
-                rule=KbnLayerColorMappingRule(type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE),
-                color=KbnLayerColorMappingColor(type=KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE),
-                touched=KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
-            ),
-        ],
-        paletteId=palette_id or KBN_DEFAULT_COLOR_MAPPING_PALETTE_ID,
-        colorMode={'type': KBN_DEFAULT_COLOR_MAPPING_COLOR_MODE_TYPE},
+        paletteId=color_config.palette,
+        colorMode=color_mode,
+        assignments=kbn_assignments,
+        specialAssignments=special_assignments,
     )

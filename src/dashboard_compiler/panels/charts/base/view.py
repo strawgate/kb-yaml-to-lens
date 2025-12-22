@@ -1,6 +1,6 @@
 """Base classes for chart visualizations."""
 
-from typing import Annotated, Any
+from typing import Annotated
 
 from pydantic import Field
 
@@ -8,7 +8,9 @@ from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 # Default values for color mapping - set during compilation
 KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE = 'other'
+KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY = 'matchExactly'
 KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE = 'loop'
+KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE = 'colorCode'
 KBN_DEFAULT_COLOR_MAPPING_TOUCHED = False
 KBN_DEFAULT_COLOR_MAPPING_PALETTE_ID = 'eui_amsterdam_color_blind'
 KBN_DEFAULT_COLOR_MAPPING_COLOR_MODE_TYPE = 'categorical'
@@ -18,30 +20,59 @@ class KbnLayerColorMappingRule(BaseVwModel):
     """View model for color mapping rule configuration.
 
     Defines a rule for color assignment in visualization layers. Rules can be 'other'
-    for default assignments or specific rule types for conditional color mapping.
-    Values are set during compilation using the default constants defined above.
+    for default assignments, 'matchExactly' for specific value matching, or other rule
+    types for conditional color mapping. Values are set during compilation using the
+    default constants defined above.
 
     See Also:
         Related to color mapping types in Kibana Lens visualizations.
     """
 
     type: str = Field(...)
-    """Type of color mapping rule (set during compilation, typically 'other' for default)."""
+    """Type of color mapping rule (set during compilation, typically 'other' for default or 'matchExactly' for categorical)."""
+
+    values: Annotated[list[str] | None, OmitIfNone()] = None
+    """Values to match for categorical assignments (used with 'matchExactly' type)."""
 
 
 class KbnLayerColorMappingColor(BaseVwModel):
     """View model for color mapping color configuration.
 
     Defines the color assignment strategy for visualization layers. The 'loop' type
-    means colors are assigned in a repeating pattern from the palette.
-    Values are set during compilation using the default constants defined above.
+    means colors are assigned in a repeating pattern from the palette. The 'colorCode'
+    type assigns a specific custom color. Values are set during compilation using the
+    default constants defined above.
 
     See Also:
         Related to color mapping types in Kibana Lens visualizations.
     """
 
     type: str = Field(...)
-    """Color assignment type (set during compilation, typically 'loop' for repeating pattern)."""
+    """Color assignment type (set during compilation, typically 'loop' for palette or 'colorCode' for custom)."""
+
+    colorCode: Annotated[str | None, OmitIfNone()] = None
+    """Hex color code (e.g., '#FF0000') for custom color assignments (used with 'colorCode' type)."""
+
+
+class KbnLayerColorMappingAssignment(BaseVwModel):
+    """View model for manual color assignment to specific values.
+
+    Defines a manual color assignment for specific categorical values in the visualization.
+    Combines a rule (what to match), a color (what color to use), and tracking whether
+    the user has modified this assignment. Values are set during compilation.
+
+    See Also:
+        Related to color mapping types in Kibana Lens visualizations.
+    """
+
+    rule: KbnLayerColorMappingRule = Field(...)
+    """The color mapping rule defining what values this assignment applies to."""
+
+    color: KbnLayerColorMappingColor = Field(...)
+    """The color assignment strategy for matched values."""
+
+    touched: bool = Field(...)
+    """Whether this assignment has been modified by the user."""
 
 
 class KbnLayerColorMappingSpecialAssignment(BaseVwModel):
@@ -69,22 +100,22 @@ class KbnLayerColorMapping(BaseVwModel):
     """View model for color mapping configuration for visualization layers.
 
     Defines how colors are assigned to data series in a visualization layer. Includes
-    the color palette to use, color assignment mode, and special assignment rules for
-    specific conditions or categories. Values are set during compilation using the
-    default constants defined above.
+    the color palette to use, color assignment mode, manual assignments for specific
+    values, and special assignment rules for fallback colors. Values are set during
+    compilation using the default constants defined above.
 
-    This model is used across different visualization types (XY, pie, etc.) to maintain
+    This model is used across different visualization types (XY, pie, metric, etc.) to maintain
     consistent color mapping behavior.
 
     See Also:
         Related to color mapping types in Kibana Lens visualizations.
     """
 
-    assignments: list[Any] = Field(...)
-    """List of color assignments for specific categories or series."""
+    assignments: list[KbnLayerColorMappingAssignment] = Field(...)
+    """List of manual color assignments for specific categories or series."""
 
     specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(...)
-    """List of special color assignment rules for exceptional cases."""
+    """List of special color assignment rules for exceptional cases (fallback colors)."""
 
     paletteId: str = Field(...)
     """ID of the color palette to use (set during compilation)."""
