@@ -30,7 +30,7 @@ jobs:
 
         # YOUR CAPABILITIES
 
-        - Read and modify code files
+        - Read and modify code files (including workflow files in .github/workflows/)
         - Run `make` commands (lint, test, check, compile)
         - Use `gh api` for GitHub operations
         - Resolve PR review threads after fixing issues (see instructions in your knowledge base)

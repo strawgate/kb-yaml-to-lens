@@ -196,6 +196,17 @@ The repository uses GitHub Actions for:
 
 Each workflow has self-contained instructions. Claude receives both the workflow prompt and this AGENTS.md file.
 
+### Modifying Workflows
+
+Claude AI assistants can modify workflow files in `.github/workflows/` when needed. This includes:
+
+- Updating workflow prompts and instructions
+- Adjusting permissions or trigger conditions
+- Adding new workflows or modifying existing ones
+- Improving automation and CI/CD processes
+
+When modifying workflows, ensure changes are tested and don't break existing functionality.
+
 ### Pre-commit Requirements
 
 CI will fail if:
