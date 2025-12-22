@@ -18,6 +18,11 @@ HTTP_SERVICE_UNAVAILABLE = 503
 class KibanaClient:
     """Client for interacting with Kibana's Saved Objects API."""
 
+    url: str
+    username: str | None
+    password: str | None
+    api_key: str | None
+
     def __init__(
         self,
         url: str,
@@ -128,7 +133,7 @@ class KibanaClient:
 
         """
         # Build locator params for DASHBOARD_APP_LOCATOR
-        locator_params = {
+        locator_params: dict[str, Any] = {
             'id': 'DASHBOARD_APP_LOCATOR',
             'params': {
                 'dashboardId': dashboard_id,
@@ -278,4 +283,4 @@ class KibanaClient:
         # Save to file
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with output_path.open('wb') as f:
-            f.write(screenshot_data)
+            _ = f.write(screenshot_data)

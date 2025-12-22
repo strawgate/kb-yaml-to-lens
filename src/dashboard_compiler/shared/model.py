@@ -8,7 +8,7 @@ from pydantic import RootModel as PydanticRootModel
 class BaseRootCfgModel(PydanticRootModel[Any]):
     """Base configuration model for the dashboard compiler."""
 
-    model_config = ConfigDict(
+    model_config: ConfigDict = ConfigDict(
         strict=True,
         validate_default=True,
         use_enum_values=True,
@@ -21,7 +21,7 @@ class BaseRootCfgModel(PydanticRootModel[Any]):
 class BaseModel(PydanticBaseModel):
     """Base configuration model for the dashboard compiler."""
 
-    model_config = ConfigDict(
+    model_config: ConfigDict = ConfigDict(
         strict=True,
         validate_default=True,
         extra='forbid',

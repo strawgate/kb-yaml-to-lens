@@ -80,8 +80,8 @@ def compile_lens_dimension(
         dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
 
         order_by = None
-        if dimension.sort is not None and dimension.sort.by is not None:
-            if not kbn_column_name_to_id[dimension.sort.by]:
+        if dimension.sort is not None:
+            if dimension.sort.by not in kbn_column_name_to_id:
                 msg = f'Column {dimension.sort.by} not found in kbn_metric_column_by_id'
                 raise ValueError(msg)
             order_by = KbnLensTermsOrderBy(

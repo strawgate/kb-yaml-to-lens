@@ -99,7 +99,7 @@ class KbnFilterState(BaseVwModel):
 class KbnFilter(BaseVwModel):
     """Represents a filter object within state.filters in the Kibana JSON structure."""
 
-    model_config = ConfigDict(serialize_by_alias=True)
+    model_config: ConfigDict = ConfigDict(serialize_by_alias=True)
     """Configuration for the model to serialize using aliases for the $state field."""
 
     state: Annotated[KbnFilterState | None, OmitIfNone()] = Field(..., serialization_alias='$state')

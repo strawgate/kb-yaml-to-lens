@@ -323,7 +323,7 @@ async def upload_to_kibana(
             if dashboard_ids and open_browser:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                 console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
-                webbrowser.open_new_tab(dashboard_url)
+                _ = webbrowser.open_new_tab(dashboard_url)
 
             if result.get('errors'):
                 console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result["errors"])} error(s):')

@@ -9,8 +9,8 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.base.config import ColorMapping
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
 
+from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
-    KbnESQLColumnTypes,
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
 )
