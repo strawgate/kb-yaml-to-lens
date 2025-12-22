@@ -8,6 +8,8 @@ class ConfigValidationError(Exception):
 class YamlToLensError(Exception):
     """Exception raised for errors in the YAML to Lens conversion process."""
 
+    message: str
+
     def __init__(self, message: str) -> None:
         """Initialize the YamlToLensError with a message."""
         super().__init__(message)
@@ -16,6 +18,9 @@ class YamlToLensError(Exception):
 
 class UnexpectedTypeError(YamlToLensError):
     """Exception raised for unexpected types in the YAML to Lens conversion process."""
+
+    expected_type: str
+    actual_type: str
 
     def __init__(self, expected_type: str, actual_type: str) -> None:
         """Initialize the UnexpectedTypeError with expected and actual types."""
