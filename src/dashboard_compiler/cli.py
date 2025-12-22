@@ -12,7 +12,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from dashboard_compiler.dashboard_compiler import load, render
-from dashboard_compiler.kibana_client import KibanaClient
+from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
 
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
@@ -35,11 +35,11 @@ ICON_UPLOAD = '📤'
 ICON_BROWSER = '🌐'
 
 
-def create_error_table(errors: list[dict[str, dict[str, str] | str] | str]) -> Table:
+def create_error_table(errors: list[SavedObjectError]) -> Table:
     """Create a Rich table to display errors.
 
     Args:
-        errors: List of error messages or error dicts.
+        errors: List of SavedObjectError models from Kibana API.
 
     Returns:
         A formatted Rich table with error messages.
@@ -49,9 +49,11 @@ def create_error_table(errors: list[dict[str, dict[str, str] | str] | str]) -> T
     error_table.add_column('Error', style='red')
 
     for error in errors:
-        if isinstance(error, dict):
-            error_dict = error.get('error', {})
-            error_msg = error_dict.get('message', str(error)) if isinstance(error_dict, dict) else str(error)
+        # Extract error message from the SavedObjectError model
+        if error.error and isinstance(error.error, dict):
+            error_msg = error.error.get('message', error.message or str(error))
+        elif error.message:
+            error_msg = error.message
         else:
             error_msg = str(error)
         error_table.add_row(error_msg)
@@ -314,24 +316,23 @@ async def upload_to_kibana(
     try:
         result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
-        if result.get('success'):  # type: ignore[reportAny]
-            success_count = result.get('successCount', 0)  # type: ignore[reportAny]
-            console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {success_count} object(s) to Kibana')
+        if result.success:
+            console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
-            dashboard_ids = [obj['id'] for obj in result.get('successResults', []) if obj.get('type') == 'dashboard']  # type: ignore[reportAny]
+            dashboard_ids = [obj.id for obj in result.success_results if obj.type == 'dashboard']
 
             if dashboard_ids and open_browser:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                 console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
                 _ = webbrowser.open_new_tab(dashboard_url)
 
-            if result.get('errors'):  # type: ignore[reportAny]
-                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result["errors"])} error(s):')  # type: ignore[reportAny]
-                console.print(create_error_table(result['errors']))  # type: ignore[reportAny]
+            if result.errors:
+                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result.errors)} error(s):')
+                console.print(create_error_table(result.errors))
         else:
             console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
-            if result.get('errors'):  # type: ignore[reportAny]
-                console.print(create_error_table(result['errors']))  # type: ignore[reportAny]
+            if result.errors:
+                console.print(create_error_table(result.errors))
             msg = 'Upload to Kibana failed'
             raise click.ClickException(msg)
 
