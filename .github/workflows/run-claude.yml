@@ -30,7 +30,37 @@ on:
         description: 'MCP server configuration JSON'
         required: false
         type: string
-        default: |
+        default: ''
+    secrets:
+      claude-oauth-token:
+        description: 'Claude OAuth token'
+        required: true
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
+          fetch-depth: 0
+    
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+
+      - name: Setup MCP Server
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/mcp-config
+          cat > /tmp/mcp-config/mcp-servers.json << EOF
           {
             "mcpServers": {
               "repository-summary": {
@@ -49,36 +79,11 @@ on:
                 ],
                 "env": {
                   "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
                 }
               }
             }
           }
-    secrets:
-      claude-oauth-token:
-        description: 'Claude OAuth token'
-        required: true
-
-jobs:
-  claude:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
-      actions: read
-    steps:
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-        with:
-          checkout-ref: ${{ inputs.checkout-ref }}
-
-      - name: Setup MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          ${{ inputs.mcp-config }}
           EOF
 
       - name: Run Claude Code

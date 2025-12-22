@@ -21,11 +21,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-        with:
-          python-version: '3.12'
-          fetch-depth: 0
 
       - name: Install documentation dependencies
         run: |
