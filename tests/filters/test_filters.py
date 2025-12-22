@@ -1,5 +1,7 @@
 """Test the compilation of filters from config models to view models using inline snapshots."""
 
+from collections.abc import Callable
+
 import pytest
 from inline_snapshot import snapshot
 from pydantic import BaseModel
@@ -15,7 +17,7 @@ class FilterHolder(BaseModel):
 
 
 @pytest.fixture
-def compile_filter_snapshot():
+def compile_filter_snapshot() -> Callable[[dict], dict]:
     """Fixture that returns a function to compile filters and return dict for snapshot."""
 
     def _compile(config: dict) -> dict:
