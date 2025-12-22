@@ -161,7 +161,7 @@ This example demonstrates multiple controls with custom widths and global contro
 
 ```yaml
 dashboard:
-  title: "Application Monitoring Dashboard"
+  name: "Application Monitoring Dashboard"
   description: "Dashboard with interactive controls."
   data_view: "logs-*" # Default data view for panels
   settings:

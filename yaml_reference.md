@@ -1,22 +1,23 @@
 \n---\n\n<!-- Source: src/dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
 
-The `dashboard` object is the root element in your YAML configuration file. It defines the overall structure, content, and global settings for a Kibana dashboard.
+The `dashboards` array is the root element in your YAML configuration file. Each dashboard defines the overall structure, content, and global settings for a Kibana dashboard.
 
 ## Minimal Configuration Example
 
 A minimal dashboard requires a `name` and at least one panel.
 
 ```yaml
-dashboard:
-  name: "Simple Log Dashboard"
-  panels:
-    - type: markdown # Assuming a markdown panel type exists
-      content: "Welcome to the dashboard!"
-      grid:
-        x: 0
-        y: 0
-        w: 6
-        h: 3
+dashboards:
+  -
+    name: "Simple Log Dashboard"
+    panels:
+      - type: markdown
+        content: "Welcome to the dashboard!"
+        grid:
+          x: 0
+          y: 0
+          w: 6
+          h: 3
 ```
 
 ## Complex Configuration Example
@@ -24,53 +25,57 @@ dashboard:
 This example showcases a dashboard with various settings, a default data view, a global query, filters, controls, and multiple panels.
 
 ```yaml
-dashboard:
-  name: "Comprehensive Application Overview"
-  id: "app-overview-001"
-  description: "An overview of application performance and logs, with interactive filtering."
-  data_view: "production-logs-*" # Default data view for all items unless overridden
-  settings:
-    margins: true
-    titles: true
-    sync:
-      cursor: true
-      tooltips: true
-      colors: false # Use distinct color palettes per panel
+dashboards:
+  -
+    name: "Comprehensive Application Overview"
+    id: "app-overview-001"
+    description: "An overview of application performance and logs, with interactive filtering."
+    data_view: "production-logs-*" # Default data view for all items unless overridden
+    settings:
+      margins: true
+      titles: true
+      sync:
+        cursor: true
+        tooltips: true
+        colors: false # Use distinct color palettes per panel
+      controls:
+        label_position: "above"
+        chain_controls: true
+    query:
+      kql: "NOT response_code:500" # Global KQL query
+    filters:
+      - field: "geo.country_iso_code"
+        equals: "US"
+      - field: "service.environment"
+        in_list: ["production", "staging"]
     controls:
-      label_position: "above"
-      chain_controls: true
-  query:
-    kql: "NOT response_code:500" # Global KQL query
-  filters:
-    - field: "geo.country_iso_code"
-      equals: "US"
-    - field: "service.environment"
-      is_one_of: ["production", "staging"]
-  controls:
-    - type: options
-      label: "Filter by Region"
-      data_view: "user-sessions-*"
-      field: "user.geo.region_name"
-      width: "medium"
-  panels:
-    - type: markdown
-      content: "### Key Performance Indicators"
-      grid: { x: 0, y: 0, w: 12, h: 2 }
-    - type: lens_metric # Assuming a lens metric panel type
-      title: "Total Requests"
-      data_view: "apm-traces-*"
-      metrics:
-        - type: count
-      grid: { x: 0, y: 2, w: 4, h: 4 }
-    - type: lens_bar_chart # Assuming a lens bar chart panel type
-      title: "Requests by Response Code"
-      data_view: "apm-traces-*"
-      series_type: "bar"
-      x_axis:
-        field: "http.response.status_code"
-      metrics:
-        - type: count
-      grid: { x: 4, y: 2, w: 8, h: 4 }
+      - type: options
+        label: "Filter by Region"
+        data_view: "user-sessions-*"
+        field: "user.geo.region_name"
+        width: "medium"
+    panels:
+      - type: markdown
+        content: "### Key Performance Indicators"
+        grid: { x: 0, y: 0, w: 12, h: 2 }
+      - type: lens
+        title: "Total Requests"
+        data_view: "apm-traces-*"
+        chart:
+          type: metric
+          metrics:
+            - type: count
+        grid: { x: 0, y: 2, w: 4, h: 4 }
+      - type: lens
+        title: "Requests by Response Code"
+        data_view: "apm-traces-*"
+        chart:
+          type: bar
+          x_axis:
+            field: "http.response.status_code"
+          metrics:
+            - type: count
+        grid: { x: 4, y: 2, w: 8, h: 4 }
 ```
 
 ## Full Configuration Options
@@ -128,32 +133,32 @@ While primarily declarative, the underlying Pydantic models for `Dashboard` supp
 * [Panels Overview](../panels/base.md)
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
 
-Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within the `controls` field of the main `dashboard` configuration. Global behavior of controls can be managed via the `settings.controls` object.
+Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within each dashboard's `controls` field in the `dashboards:` array. Global behavior of controls can be managed via the `settings.controls` object.
 
 ## Minimal Configuration Examples
 
 Here's a minimal example of an `options` list control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: options
-      label: "Filter by Status"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "status.keyword"      # Replace with the field to filter on
+dashboards:
+  -
+    controls:
+      - type: options
+        label: "Filter by Status"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "status.keyword"      # Replace with the field to filter on
 ```
 
 Here's a minimal example of a `range` slider control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: range
-      label: "Response Time (ms)"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "response.time"       # Replace with the numeric field
+dashboards:
+  -
+    controls:
+      - type: range
+        label: "Response Time (ms)"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "response.time"       # Replace with the numeric field
 ```
 
 ## Complex Configuration Example
@@ -161,38 +166,39 @@ dashboard:
 This example demonstrates multiple controls with custom widths and global control settings:
 
 ```yaml
-dashboard:
-  title: "Application Monitoring Dashboard"
-  description: "Dashboard with interactive controls."
-  data_view: "logs-*" # Default data view for panels
-  settings:
+dashboards:
+  -
+    name: "Application Monitoring Dashboard"
+    description: "Dashboard with interactive controls."
+    data_view: "logs-*" # Default data view for panels
+    settings:
+      controls:
+        label_position: "above"
+        chain_controls: true
+        click_to_apply: false
     controls:
-      label_position: "above"
-      chain_controls: true
-      click_to_apply: false
-  controls:
-    - type: options
-      label: "Service Name"
-      id: "service_filter"
-      width: "medium"
-      data_view: "apm-*"
-      field: "service.name"
-      singular: false
-      match_technique: "contains"
-      preselected: ["checkout-service"]
-    - type: range
-      label: "CPU Usage (%)"
-      id: "cpu_range_filter"
-      width: "large"
-      data_view: "metrics-*"
-      field: "system.cpu.user.pct"
-      step: 0.05
-    - type: time
-      label: "Custom Time Slice"
-      id: "time_slice_control"
-      width: "small"
-      start_offset: 0.1  # 10% from the start of the global time range
-      end_offset: 0.9    # 90% from the start of the global time range
+      - type: options
+        label: "Service Name"
+        id: "service_filter"
+        width: "medium"
+        data_view: "apm-*"
+        field: "service.name"
+        singular: false
+        match_technique: "contains"
+        preselected: ["checkout-service"]
+      - type: range
+        label: "CPU Usage (%)"
+        id: "cpu_range_filter"
+        width: "large"
+        data_view: "metrics-*"
+        field: "system.cpu.user.pct"
+        step: 0.05
+      - type: time
+        label: "Custom Time Slice"
+        id: "time_slice_control"
+        width: "small"
+        start_offset: 0.1  # 10% from the start of the global time range
+        end_offset: 0.9    # 90% from the start of the global time range
 ```
 
 ## Full Configuration Options
@@ -1774,7 +1780,6 @@ A metric that is defined in the ESQL query.
     ```yaml
     - field: total_requests
       label: Total Requests from ESQL
-
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/metric/config.md -->\n\n# Metric Chart Panel Configuration
 
 The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
@@ -1807,8 +1812,8 @@ dashboard:
 
 ## Related
 
-* [Base Panel Configuration](../../base.md)
-* [Dashboard Configuration](../../../dashboard/dashboard.md)
+- [Base Panel Configuration](../../base.md)
+- [Dashboard Configuration](../../../dashboard/dashboard.md)
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/pie/config.md -->\n\n# Pie Chart Panel Configuration
 
 The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
@@ -1845,8 +1850,8 @@ dashboard:
 
 ## Related
 
-* [Base Panel Configuration](../../base.md)
-* [Dashboard Configuration](../../../dashboard/dashboard.md)
+- [Base Panel Configuration](../../base.md)
+- [Dashboard Configuration](../../../dashboard/dashboard.md)
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
@@ -2161,7 +2166,7 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Dashboard Configuration](../../dashboard/dashboard.md)
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
 
 The `search` panel type is used to embed the results of a pre-existing, saved Kibana search directly onto your dashboard. This allows you to display dynamic log views, event lists, or any other data set defined by a saved search in Discover.
