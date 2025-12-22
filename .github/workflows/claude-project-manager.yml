@@ -218,6 +218,7 @@ jobs:
         - Clear section headers
         - Checkboxes [ ] for actionable items
         - Emojis for visual organization
-      allowed-tools: mcp__github-research__search_issues,mcp__github-research__search_pull_requests,mcp__github-research__list_issues,mcp__github-research__list_pull_requests,mcp__github-research__get_issue,mcp__github-research__get_pull_request,Bash(git:*,gh:issue:*)
+      allowed-tools: mcp__github-research,Bash(git:*,gh:issue:*)
+      track-progress: false
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
