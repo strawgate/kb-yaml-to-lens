@@ -19,73 +19,26 @@ jobs:
     outputs:
       prompt: ${{ steps.build-prompt.outputs.PROMPT }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build prompt with shared clauses
         id: build-prompt
         run: |
-          # Define shared prompt fragments
-          read -r -d '' PROJECT_INTRO << 'INTRO_END' || true
-          You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
-          INTRO_END
-
-          read -r -d '' GETTING_STARTED << 'GETTING_STARTED_END' || true
-          # Getting Started
-          1. Call the generate_agents_md tool to get a high-level summary of the project you're working in
-          2. Get the ${{ github.event_name == 'issues' && 'issue' || 'pull request' }} ${{ github.event.issue.number || github.event.pull_request.number }} in the GitHub repository: ${{ github.repository }}.
-          3. Don't forget about your MCP tools to call search_code, get_files, etc. to search the repository and other repositories to identify the related classes, methods, docs, tests, etc that are relevant to the code.
-          4. Be Thorough! Go the extra mile! Do great work!
-          5. If anything you needed or wanted to do during your work was not possible, document the problem in a \`Problems Encountered\` section
-          of your response. Especially if it was something you were asked to do like research the web, run tests, lint, etc.
-          GETTING_STARTED_END
-
-          read -r -d '' RESOLVE_THREADS << 'RESOLVE_THREADS_END' || true
-          # Resolving PR Review Threads
-          You have access to resolve review threads in pull requests using the GitHub GraphQL API via \`gh api\`.
-
-          **IMPORTANT**: You should ONLY resolve threads after making code changes that address the feedback. Do not resolve threads without fixing the underlying issue.
-
-          To get review threads and their IDs:
-          \`\`\`bash
-          gh api graphql -f query='
-            query {
-              repository(owner: "OWNER", name: "REPO") {
-                pullRequest(number: PR_NUMBER) {
-                  reviewThreads(first: 100) {
-                    nodes { id isResolved path line
-                      comments(first: 10) { nodes { body author { login } } }
-                    }
-                  }
-                }
-              }
-            }' -f owner=OWNER -f name=REPO -F number=PR_NUMBER
-          \`\`\`
-
-          To resolve a review thread (after addressing the feedback):
-          \`\`\`bash
-          gh api graphql -f query='
-            mutation {
-              resolveReviewThread(input: {threadId: "THREAD_ID"}) {
-                thread { id isResolved }
-              }
-            }'
-          \`\`\`
-
-          When working with CodeRabbit or other review feedback:
-          1. Make the necessary code changes to address the feedback
-          2. Use \`gh api graphql\` to fetch review threads and identify which ones are addressed
-          3. Use \`gh api graphql\` with resolveReviewThread mutation to mark resolved conversations
-          RESOLVE_THREADS_END
-
-          # Combine fragments into final prompt
-          cat >> $GITHUB_OUTPUT << 'EOF'
-          PROMPT<<PROMPT_END
-          ${PROJECT_INTRO}
-
-          ${GETTING_STARTED}
-
-          ${RESOLVE_THREADS}
-
-          PROMPT_END
-          EOF
+          # Build prompt from shared fragments
+          {
+            echo 'PROMPT<<PROMPT_END'
+            cat github/prompts/project-intro.md
+            echo ""
+            cat github/prompts/getting-started.md | sed \
+              -e "s|ISSUE_OR_PR|${{ github.event_name == 'issues' && 'issue' || 'pull request' }}|g" \
+              -e "s|ISSUE_NUMBER|${{ github.event.issue.number || github.event.pull_request.number }}|g" \
+              -e "s|REPO_NAME|${{ github.repository }}|g"
+            echo ""
+            cat github/prompts/resolve-threads.md
+            echo ""
+            echo 'PROMPT_END'
+          } >> $GITHUB_OUTPUT
 
   claude:
     needs: prepare
