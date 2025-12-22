@@ -3,21 +3,11 @@ name: Run Claude Code Action
 on:
   workflow_call:
     inputs:
-      python-version:
-        description: 'Python version to install'
-        required: false
-        type: string
-        default: '3.10'
       checkout-ref:
         description: 'Git ref to checkout'
         required: false
         type: string
         default: ''
-      fetch-depth:
-        description: 'Number of commits to fetch. 0 indicates all history for all branches and tags'
-        required: false
-        type: number
-        default: 1
       prompt:
         description: 'Prompt to pass to Claude'
         required: true
@@ -79,19 +69,10 @@ jobs:
       id-token: write
       actions: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
         with:
-          ref: ${{ inputs.checkout-ref }}
-          fetch-depth: ${{ inputs.fetch-depth }}
-
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
+          checkout-ref: ${{ inputs.checkout-ref }}
 
       - name: Setup MCP Server
         run: |
