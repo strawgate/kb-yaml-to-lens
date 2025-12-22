@@ -2,7 +2,7 @@
 #
 # This Dockerfile is optimized for publishing to GitHub Container Registry (GHCR).
 # It bootstraps Kibana from source to provide access to @kbn/lens-embeddable-utils
-# and LensConfigBuilder API for generating test fixtures.
+# and LensAttributesBuilder API for generating test fixtures.
 #
 # Build time: 15-30 minutes (one-time, then cached in GHCR)
 # Image size: ~8-10GB (includes Kibana source + node_modules)

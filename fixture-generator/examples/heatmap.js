@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a heatmap visualization using Kibana's LensConfigBuilder
+ * Example: Generate a heatmap visualization using Kibana's LensAttributesBuilder
  *
  * This script demonstrates how to create a heatmap showing geographic traffic patterns
  * with data aggregated by source and destination countries.

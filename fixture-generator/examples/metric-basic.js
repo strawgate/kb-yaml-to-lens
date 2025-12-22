@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a basic metric visualization using Kibana's LensConfigBuilder
+ * Example: Generate a basic metric visualization using Kibana's LensAttributesBuilder
  *
  * This script demonstrates how to use Kibana's config builder API to create
  * a simple count metric and export it as JSON for testing.
