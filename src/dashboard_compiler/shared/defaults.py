@@ -41,7 +41,7 @@ def default_false(value: bool | None) -> bool:
         False
 
     """
-    return value or False
+    return value if value is not None else False
 
 
 def default_true(value: bool | None) -> bool:
@@ -79,7 +79,7 @@ def default_empty_list[T](value: list[T] | None) -> list[T]:
         []
 
     """
-    return value or []
+    return value if value is not None else []
 
 
 def default_empty_str(value: str | None) -> str:
@@ -98,4 +98,4 @@ def default_empty_str(value: str | None) -> str:
         ''
 
     """
-    return value or ''
+    return value if value is not None else ''

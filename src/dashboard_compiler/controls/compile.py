@@ -42,7 +42,7 @@ def compile_options_list_control(order: int, control: OptionsListControl) -> Kbn
         MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
         MatchTechnique.EXACT: SearchTechnique.EXACT,
     }
-    stable_id = generate_id(control.id, use_stable=False)
+    stable_id = generate_id(control.id)
 
     return KbnOptionsListControl(
         grow=default_false(control.fill_width),
@@ -73,7 +73,7 @@ def compile_range_slider_control(order: int, control: RangeSliderControl) -> Kbn
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
-    stable_id = generate_id(control.id, use_stable=False)
+    stable_id = generate_id(control.id)
 
     return KbnRangeSliderControl(
         grow=default_false(control.fill_width),
@@ -100,7 +100,7 @@ def compile_time_slider_control(order: int, control: TimeSliderControl) -> KbnTi
         KbnTimeSliderControl: The compiled Kibana time slider control view model.
 
     """
-    stable_id = generate_id(control.id, use_stable=False)
+    stable_id = generate_id(control.id)
 
     return KbnTimeSliderControl(
         grow=True,
