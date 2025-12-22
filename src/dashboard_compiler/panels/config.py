@@ -40,3 +40,20 @@ class Grid(BaseCfgModel):
             msg = 'Width and height (w, h) must be positive'
             raise ValueError(msg)
         return v
+
+    def overlaps_with(self, other: 'Grid') -> bool:
+        """Check if this grid overlaps with another grid.
+
+        Args:
+            other: The other grid to check for overlap.
+
+        Returns:
+            bool: True if the grids overlap, False otherwise.
+
+        """
+        return not (
+            self.x + self.w <= other.x  # self is left of other
+            or other.x + other.w <= self.x  # other is left of self
+            or self.y + self.h <= other.y  # self is above other
+            or other.y + other.h <= self.y  # other is above self
+        )

@@ -7,29 +7,9 @@ from pydantic import Field, model_validator
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import ControlSettings
 from dashboard_compiler.filters.config import FilterTypes
-from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel
-
-
-def _panels_overlap(grid1: Grid, grid2: Grid) -> bool:
-    """Check if two grid positions overlap.
-
-    Args:
-        grid1: The first panel's grid position.
-        grid2: The second panel's grid position.
-
-    Returns:
-        bool: True if the panels overlap, False otherwise.
-
-    """
-    return not (
-        grid1.x + grid1.w <= grid2.x  # grid1 is left of grid2
-        or grid2.x + grid2.w <= grid1.x  # grid2 is left of grid1
-        or grid1.y + grid1.h <= grid2.y  # grid1 is above grid2
-        or grid2.y + grid2.h <= grid1.y  # grid2 is above grid1
-    )
 
 
 class DashboardSyncSettings(BaseCfgModel):
@@ -141,7 +121,7 @@ class Dashboard(BaseCfgModel):
         """
         for i, panel1 in enumerate(self.panels):
             for panel2 in self.panels[i + 1 :]:
-                if _panels_overlap(panel1.grid, panel2.grid):
+                if panel1.grid.overlaps_with(panel2.grid):
                     panel1_title = getattr(panel1, 'title', 'Untitled')
                     panel2_title = getattr(panel2, 'title', 'Untitled')
                     msg = (
