@@ -39,12 +39,8 @@ on:
 jobs:
   claude:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
-      actions: read
+    # Note: Permissions are inherited from the calling workflow
+    # Each workflow that calls this should define its own permissions
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
