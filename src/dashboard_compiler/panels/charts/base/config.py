@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
@@ -54,6 +54,14 @@ class ColorAssignment(BaseCfgModel):
 
     color: str = Field(...)
     """The hex color code to assign (e.g., '#FF0000')."""
+
+    @model_validator(mode='after')
+    def check_value_or_values(self) -> 'ColorAssignment':
+        """Validate that at least one of value or values is provided."""
+        if self.value is None and not self.values:
+            msg = "At least one of 'value' or 'values' must be provided"
+            raise ValueError(msg)
+        return self
 
 
 class RangeColorAssignment(BaseCfgModel):
