@@ -3,29 +3,14 @@
 from enum import StrEnum
 from typing import Annotated, Literal, Self
 
-from pydantic import Discriminator, Field, Tag, model_validator
+from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
-def get_control_type(v: dict | object) -> str:
-    """Extract control type for discriminated union validation.
-
-    Args:
-        v: Either a dict (during validation) or a control instance.
-
-    Returns:
-        str: The control type identifier.
-
-    """
-    if isinstance(v, dict):
-        return v.get('type', 'unknown')
-    return getattr(v, 'type', 'unknown')
-
-
 type ControlTypes = Annotated[
-    Annotated[RangeSliderControl, Tag('range')] | Annotated[OptionsListControl, Tag('options')] | Annotated[TimeSliderControl, Tag('time')],
-    Discriminator(get_control_type),
+    RangeSliderControl | OptionsListControl | TimeSliderControl,
+    Field(discriminator='type'),
 ]
 
 
