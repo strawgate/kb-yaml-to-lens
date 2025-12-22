@@ -1,6 +1,6 @@
 """Configuration for dashboard panels."""
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
@@ -22,3 +22,21 @@ class Grid(BaseCfgModel):
 
     h: int = Field(...)
     """The height of the panel in grid units."""
+
+    @field_validator('x', 'y')
+    @classmethod
+    def validate_position(cls, v: int) -> int:
+        """Validate that position coordinates are non-negative."""
+        if v < 0:
+            msg = 'Position coordinates (x, y) must be non-negative'
+            raise ValueError(msg)
+        return v
+
+    @field_validator('w', 'h')
+    @classmethod
+    def validate_dimensions(cls, v: int) -> int:
+        """Validate that width and height are positive."""
+        if v <= 0:
+            msg = 'Width and height (w, h) must be positive'
+            raise ValueError(msg)
+        return v
