@@ -13,6 +13,13 @@ from dashboard_compiler.panels.charts.metric.compile import (
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 
 
+def normalize_layer_id(result: dict[str, Any]) -> None:
+    """Validate layerId format and replace with placeholder for snapshot comparison."""
+    layer_id = result['layerId']
+    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
+    result['layerId'] = 'DYNAMIC_LAYER_ID'
+
+
 @pytest.fixture
 def compile_metric_chart_snapshot():
     """Fixture that returns a function to compile metric charts and return dict for snapshot."""
@@ -26,6 +33,7 @@ def compile_metric_chart_snapshot():
             layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
 
         assert kbn_state_visualization is not None
+        assert len(kbn_state_visualization.layers) > 0
         kbn_state_visualization_layer = kbn_state_visualization.layers[0]
         return kbn_state_visualization_layer.model_dump()
 
@@ -45,11 +53,7 @@ def test_compile_metric_chart_primary_only_lens(compile_metric_chart_snapshot):
     }
 
     result = compile_metric_chart_snapshot(config, 'lens')
-
-    # Validate the dynamic layerId format and replace with placeholder
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
+    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
@@ -72,11 +76,7 @@ def test_compile_metric_chart_primary_only_esql(compile_metric_chart_snapshot):
     }
 
     result = compile_metric_chart_snapshot(config, 'esql')
-
-    # Validate the dynamic layerId format and replace with placeholder
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
+    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
@@ -106,11 +106,7 @@ def test_compile_metric_chart_primary_and_secondary_lens(compile_metric_chart_sn
     }
 
     result = compile_metric_chart_snapshot(config, 'lens')
-
-    # Validate the dynamic layerId format and replace with placeholder
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
+    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
@@ -138,11 +134,7 @@ def test_compile_metric_chart_primary_and_secondary_esql(compile_metric_chart_sn
     }
 
     result = compile_metric_chart_snapshot(config, 'esql')
-
-    # Validate the dynamic layerId format and replace with placeholder
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
+    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
@@ -178,11 +170,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens(compile_metric_ch
     }
 
     result = compile_metric_chart_snapshot(config, 'lens')
-
-    # Validate the dynamic layerId format and replace with placeholder
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
+    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
@@ -215,11 +203,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_esql(compile_metric_ch
     }
 
     result = compile_metric_chart_snapshot(config, 'esql')
-
-    # Validate the dynamic layerId format and replace with placeholder
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
+    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
