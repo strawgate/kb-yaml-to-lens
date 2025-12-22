@@ -7,7 +7,6 @@ from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
-
 type ControlTypes = Annotated[
     RangeSliderControl | OptionsListControl | TimeSliderControl,
     Field(discriminator='type'),

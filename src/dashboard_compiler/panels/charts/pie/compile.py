@@ -2,8 +2,8 @@
 
 from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
+from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
-    KbnESQLColumnTypes,
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
 )
