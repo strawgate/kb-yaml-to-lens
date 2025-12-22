@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.config import BaseChart
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
@@ -33,6 +33,9 @@ class LensMetricChart(BaseChart):
     breakdown: LensDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
+    color: ColorMapping | None = Field(default=None)
+    """Formatting options for the chart color palette."""
+
 
 class ESQLMetricChart(BaseChart):
     """Represents a Metric chart configuration within an ESQL panel."""
@@ -51,3 +54,6 @@ class ESQLMetricChart(BaseChart):
 
     breakdown: ESQLDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
+
+    color: ColorMapping | None = Field(default=None)
+    """Formatting options for the chart color palette."""
