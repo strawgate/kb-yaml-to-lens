@@ -1,13 +1,17 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
-type ControlTypes = RangeSliderControl | OptionsListControl | TimeSliderControl
+
+type ControlTypes = Annotated[
+    RangeSliderControl | OptionsListControl | TimeSliderControl,
+    Field(discriminator='type'),
+]
 
 
 class ControlSettings(BaseCfgModel):

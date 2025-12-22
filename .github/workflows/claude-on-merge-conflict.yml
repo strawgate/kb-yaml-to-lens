@@ -10,29 +10,45 @@ jobs:
     outputs:
       has_conflicts: ${{ steps.check.outputs.has_conflicts }}
     steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
       - name: Check for merge conflicts
         id: check
         run: |
-          # Fetch the base branch
-          git fetch origin ${{ github.event.pull_request.base.ref }}
+          # Use GitHub API to check mergeable status - this is the authoritative source
+          # that GitHub uses to determine if a PR has conflicts
+          echo "Checking PR #${{ github.event.pull_request.number }} mergeable status..."
           
-          # Use modern git merge-tree with --write-tree to detect conflicts
-          # This performs a three-way merge and outputs CONFLICT messages if conflicts exist
-          echo "Checking for conflicts between HEAD and origin/${{ github.event.pull_request.base.ref }}"
+          MERGEABLE=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.mergeable')
           
-          if git merge-tree --write-tree HEAD origin/${{ github.event.pull_request.base.ref }} 2>&1 | grep -q '^CONFLICT'; then
+          echo "Mergeable status: $MERGEABLE"
+          
+          if [ "$MERGEABLE" = "false" ]; then
             echo "has_conflicts=true" >> $GITHUB_OUTPUT
-            echo "✗ Merge conflicts detected"
-          else
+            echo "✗ PR has merge conflicts (mergeable=false)"
+          elif [ "$MERGEABLE" = "true" ]; then
             echo "has_conflicts=false" >> $GITHUB_OUTPUT
-            echo "✓ No merge conflicts"
+            echo "✓ PR can be merged cleanly (mergeable=true)"
+          else
+            # mergeable is null - GitHub is still calculating status
+            # Wait a moment and try again
+            echo "⏳ Mergeable status not yet computed, waiting 5 seconds..."
+            sleep 5
+            MERGEABLE=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.mergeable')
+            echo "Mergeable status after wait: $MERGEABLE"
+            
+            if [ "$MERGEABLE" = "false" ]; then
+              echo "has_conflicts=true" >> $GITHUB_OUTPUT
+              echo "✗ PR has merge conflicts (mergeable=false)"
+            elif [ "$MERGEABLE" = "true" ]; then
+              echo "has_conflicts=false" >> $GITHUB_OUTPUT
+              echo "✓ PR can be merged cleanly (mergeable=true)"
+            else
+              # Still null, assume no conflicts to avoid blocking
+              echo "has_conflicts=false" >> $GITHUB_OUTPUT
+              echo "⚠ Mergeable status still unknown (got: $MERGEABLE), assuming no conflicts"
+            fi
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   resolve-conflicts:
     needs: check-conflicts

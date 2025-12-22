@@ -209,7 +209,7 @@ docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node examples/metric-b
 
 The Dockerfile:
 
-1. Installs Node.js 20.x (matches Kibana requirement)
+1. Installs Node.js 22.x (matches Kibana requirement)
 2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
 3. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
 4. Runs your generator scripts and exports JSON to `./output/`

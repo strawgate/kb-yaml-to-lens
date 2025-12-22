@@ -1,5 +1,6 @@
 """Compile Lens pie visualizations into their Kibana view models."""
 
+from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnESQLColumnTypes,
@@ -14,9 +15,6 @@ from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieCha
 from dashboard_compiler.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
-)
-from dashboard_compiler.panels.charts.view import (
-    KbnLayerColorMapping,
 )
 from dashboard_compiler.shared.config import random_id_generator
 

@@ -35,7 +35,7 @@ ICON_UPLOAD = '📤'
 ICON_BROWSER = '🌐'
 
 
-def create_error_table(errors: list[dict | str]) -> Table:
+def create_error_table(errors: list[dict[str, dict[str, str] | str] | str]) -> Table:
     """Create a Rich table to display errors.
 
     Args:
@@ -49,7 +49,11 @@ def create_error_table(errors: list[dict | str]) -> Table:
     error_table.add_column('Error', style='red')
 
     for error in errors:
-        error_msg = error.get('error', {}).get('message', str(error)) if isinstance(error, dict) else str(error)
+        if isinstance(error, dict):
+            error_dict = error.get('error', {})
+            error_msg = error_dict.get('message', str(error)) if isinstance(error_dict, dict) else str(error)
+        else:
+            error_msg = str(error)
         error_table.add_row(error_msg)
 
     return error_table

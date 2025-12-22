@@ -11,7 +11,7 @@ from dashboard_compiler.panels.links.view import KbnLinksPanel
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
 from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
 from dashboard_compiler.panels.types import PanelTypes
-from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData, KbnPanelTypes
+from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.view import KbnReference
 
@@ -51,7 +51,7 @@ def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
     return panel_index, grid_data
 
 
-def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnPanelTypes]:
+def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnBasePanel]:
     """Compile a single panel into its Kibana view model representation.
 
     Args:
