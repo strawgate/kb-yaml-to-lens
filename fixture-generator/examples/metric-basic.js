@@ -6,29 +6,31 @@
  * a simple count metric and export it as JSON for testing.
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
+const { LensAttributesBuilder, MetricChart, MetricLayer, FormulaColumn } = require('@kbn/lens-embeddable-utils');
 const fs = require('fs');
 const path = require('path');
 
 async function generateMetricBasic() {
-  // Initialize the builder (dataViews API is available in Kibana context)
-  const builder = new LensConfigBuilder();
+  // Create a metric layer with a formula column for count
+  const layer = new MetricLayer({
+    options: {},
+    columns: [
+      new FormulaColumn({
+        value: 'count()',
+        label: 'Total Events'
+      })
+    ]
+  });
 
-  // Define a basic metric configuration
-  const config = {
-    chartType: 'metric',
+  // Create a metric chart
+  const chart = new MetricChart({
     title: 'Basic Count Metric',
-    dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT()'
-    },
-    value: 'count',
-    label: 'Total Events'
-  };
+    layers: [layer]
+  });
 
   // Build the Lens attributes
-  const lensAttributes = await builder.build(config, {
-    timeRange: { from: 'now-24h', to: 'now', type: 'relative' }
-  });
+  const builder = new LensAttributesBuilder({ visualization: chart });
+  const lensAttributes = builder.build();
 
   // Write to output directory
   const outputDir = path.join(__dirname, '..', 'output');

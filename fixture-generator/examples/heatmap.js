@@ -6,13 +6,13 @@
  * with data aggregated by source and destination countries.
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
+const { LensAttributesBuilder } = require('@kbn/lens-embeddable-utils');
 const fs = require('fs');
 const path = require('path');
 
 async function generateHeatmap() {
   // Initialize the builder
-  const builder = new LensConfigBuilder();
+  const builder = new LensAttributesBuilder();
 
   // Define heatmap configuration
   // Based on: https://github.com/elastic/kibana/blob/main/dev_docs/lens/heatmap.mdx

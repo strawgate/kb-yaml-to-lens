@@ -5,12 +5,12 @@
  * Demonstrates creating a metric that breaks down by a field
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
+const { LensAttributesBuilder } = require('@kbn/lens-embeddable-utils');
 const fs = require('fs');
 const path = require('path');
 
 async function generateMetricWithBreakdown() {
-  const builder = new LensConfigBuilder();
+  const builder = new LensAttributesBuilder();
 
   const config = {
     chartType: 'metric',
