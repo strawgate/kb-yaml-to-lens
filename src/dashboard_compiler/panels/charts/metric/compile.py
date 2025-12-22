@@ -48,15 +48,13 @@ def compile_metric_chart_visualization_state(
         KbnMetricVisualizationState: The compiled visualization state.
 
     """
-    kbn_color_mapping = compile_color_mapping(color_config)
-
     kbn_layer_visualization = KbnMetricStateVisualizationLayer(
         layerId=layer_id,
         metricAccessor=primary_metric_id,
         secondaryMetricAccessor=secondary_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
         layerType='data',
-        colorMapping=kbn_color_mapping,
+        colorMapping=compile_color_mapping(color_config),
     )
 
     return KbnMetricVisualizationState(layers=[kbn_layer_visualization])

@@ -24,7 +24,7 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
         color_config: The color configuration from YAML, or None for no color mapping.
 
     Returns:
-        KbnLayerColorMapping: The compiled Kibana color mapping view model, or None if no config provided.
+        KbnLayerColorMapping | None: The compiled Kibana color mapping view model, or None if no config provided.
 
     """
     if not color_config:
