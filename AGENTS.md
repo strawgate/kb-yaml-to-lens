@@ -205,7 +205,12 @@ Claude AI assistants can modify workflow files in `.github/workflows/` when need
 - Adding new workflows or modifying existing ones
 - Improving automation and CI/CD processes
 
-When modifying workflows, ensure changes are tested and don't break existing functionality.
+When modifying workflows:
+
+- Validate YAML syntax before committing changes
+- Ensure required permissions are properly configured
+- Test workflow changes in a feature branch before merging
+- Verify that workflow triggers and conditions are correct
 
 ### Pre-commit Requirements
 
