@@ -15,14 +15,6 @@ FROM ubuntu:22.04
 
 # Build arguments for version flexibility
 ARG KIBANA_VERSION=main
-ARG NODE_VERSION=22.21.1
-
-# Add labels for GHCR
-LABEL org.opencontainers.image.source="https://github.com/strawgate/kb-yaml-to-lens"
-LABEL org.opencontainers.image.description="Kibana Fixture Generator with bootstrapped Kibana ${KIBANA_VERSION}"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL kibana.version="${KIBANA_VERSION}"
-LABEL node.version="${NODE_VERSION}"
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -33,9 +25,17 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js (match Kibana's .node-version)
-RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | \
-    tar -xJ -C /usr/local --strip-components=1
+# Clone Kibana at specified version to determine Node.js version requirement
+WORKDIR /kibana
+RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/kibana.git . || \
+    git clone --depth 1 https://github.com/elastic/kibana.git .
+
+# Dynamically determine Node.js version from Kibana's .node-version file
+RUN NODE_VERSION=$(cat /kibana/.node-version | tr -d '[:space:]') && \
+    echo "Installing Node.js version: ${NODE_VERSION}" && \
+    curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | \
+    tar -xJ -C /usr/local --strip-components=1 && \
+    node --version
 
 # Install Yarn Classic and tsx (TypeScript runner)
 RUN npm install -g yarn@1.22.19 tsx@4.7.0
@@ -43,10 +43,16 @@ RUN npm install -g yarn@1.22.19 tsx@4.7.0
 # Set heap size for large builds
 ENV NODE_OPTIONS="--max_old_space_size=8192"
 
-# Clone Kibana at specified version
-WORKDIR /kibana
-RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/kibana.git . || \
-    git clone --depth 1 https://github.com/elastic/kibana.git .
+# Add labels for GHCR (after determining versions)
+RUN NODE_VERSION=$(cat /kibana/.node-version | tr -d '[:space:]') && \
+    echo "LABEL org.opencontainers.image.source=\"https://github.com/strawgate/kb-yaml-to-lens\"" > /tmp/labels && \
+    echo "LABEL org.opencontainers.image.description=\"Kibana Fixture Generator with bootstrapped Kibana ${KIBANA_VERSION}\"" >> /tmp/labels && \
+    echo "LABEL org.opencontainers.image.licenses=\"MIT\"" >> /tmp/labels && \
+    echo "LABEL kibana.version=\"${KIBANA_VERSION}\"" >> /tmp/labels && \
+    echo "LABEL node.version=\"${NODE_VERSION}\"" >> /tmp/labels
+LABEL org.opencontainers.image.source="https://github.com/strawgate/kb-yaml-to-lens"
+LABEL org.opencontainers.image.description="Kibana Fixture Generator"
+LABEL org.opencontainers.image.licenses="MIT"
 
 # Bootstrap Kibana (this takes 15-30 minutes)
 # This makes @kbn/lens-embeddable-utils and other packages available
@@ -68,4 +74,4 @@ ENV OUTPUT_DIR=/tool/output
 RUN tsx -e "const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder available:', typeof LensConfigBuilder);"
 
 # Default command: show help
-CMD ["node", "-e", "console.log('Kibana Fixture Generator\\nKibana Version: ${KIBANA_VERSION}\\nNode Version: ${NODE_VERSION}\\n\\nMount your scripts to /tool/examples and output to /tool/output\\nExample: docker run -v ./examples:/tool/examples -v ./output:/tool/output <image> tsx examples/metric-basic.js')"]
+CMD ["sh", "-c", "echo 'Kibana Fixture Generator' && node --version && echo '' && echo 'Mount your scripts to /tool/examples and output to /tool/output' && echo 'Example: docker run -v ./examples:/tool/examples -v ./output:/tool/output <image> tsx examples/metric-basic.js'"]
