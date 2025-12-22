@@ -156,7 +156,7 @@ max-statements = 50
 
 [tool.basedpyright]
 pythonVersion = "3.12"
-typeCheckingMode = "standard"  # Bumped from basic to standard
+typeCheckingMode = "recommended"  # Bumped from standard to recommended
 reportExplicitAny = false
 reportMissingTypeStubs = false
 reportImportCycles = "error"  # Enable circular import detection

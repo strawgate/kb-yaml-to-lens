@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.view import KbnBaseStateVisualization, KbnLayerColorMapping
+from dashboard_compiler.panels.charts.base import KbnBaseStateVisualization, KbnLayerColorMapping
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -83,7 +85,7 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     ignoreGlobalFilters: bool
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
     annotationGroupId: str
-    __lastSaved: Any  # type: ignore
+    last_saved: Any = Field(alias='__lastSaved')
 
 
 # Subclass Kbnfor XY visualizations state (JSON structure)

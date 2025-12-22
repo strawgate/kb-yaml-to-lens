@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from dashboard_compiler.filters.view import KbnFilter
+from dashboard_compiler.panels.charts.base import (
+    KbnBaseStateVisualization,
+)
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
@@ -15,7 +18,7 @@ if TYPE_CHECKING:
     from .pie.view import KbnPieVisualizationState
     from .xy.view import KbnXYVisualizationState
 
-type KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState
+    KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState
 
 # region Form Data Source
 ## Form Based
@@ -50,7 +53,7 @@ class KbnFormBasedDataSourceStateLayer(BaseVwModel):
     indexPatternId: Annotated[str | None, OmitIfNone()] = None
 
 
-class KbnFormBasedDataSourceStateLayerById(RootModel):
+class KbnFormBasedDataSourceStateLayerById(RootModel[dict[str, KbnFormBasedDataSourceStateLayer]]):
     """Represents a mapping of layer IDs to their corresponding KbnLayerDataSourceState objects."""
 
     root: dict[str, KbnFormBasedDataSourceStateLayer] = Field(default_factory=dict)
@@ -101,7 +104,7 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     columns: list[KbnESQLColumnTypes]
 
 
-class KbnTextBasedDataSourceStateLayerById(RootModel):
+class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):
     root: dict[str, KbnTextBasedDataSourceStateLayer] = Field(default_factory=dict)
 
 
@@ -121,7 +124,7 @@ class KbnTextBasedDataSourceState(BaseVwModel):
 # region Index Pattern
 
 
-class KbnIndexPatternBasedDataSourceStateById(RootModel):
+class KbnIndexPatternBasedDataSourceStateById(RootModel[dict[str, str]]):
     root: dict[str, str] = Field(default_factory=dict)
 
 
@@ -152,52 +155,10 @@ class KbnDataSourceState(BaseVwModel):
 
 # endregion DataSourceState
 
-
-# region Color Mapping
-class KbnLayerColorMappingRule(BaseVwModel):
-    type: str = 'other'
-
-
-class KbnLayerColorMappingColor(BaseVwModel):
-    type: str = 'loop'
-
-
-class KbnLayerColorMappingSpecialAssignment(BaseVwModel):
-    rule: KbnLayerColorMappingRule = Field(default_factory=KbnLayerColorMappingRule)
-    color: KbnLayerColorMappingColor = Field(default_factory=KbnLayerColorMappingColor)
-    touched: bool = False
-
-
-class KbnLayerColorMapping(BaseVwModel):
-    assignments: list[Any] = Field(default_factory=list)
-    specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(
-        default_factory=lambda: [KbnLayerColorMappingSpecialAssignment()],
-    )
-    paletteId: str = 'eui_amsterdam_color_blind'
-    colorMode: dict[str, str] = Field(default_factory=lambda: {'type': 'categorical'})
-
-
-# endregion Color Mapping
-
 # region Visualization
 
-
-# syncColors: bool = Field(
-#     default=False,
-#     description="(Optional) Whether to sync colors across visualizations. Defaults to False.",
-# )
-# syncCursor: bool = Field(
-#     default=True,
-#     description="(Optional) Whether to sync cursor across visualizations. Defaults to True.",
-# )
-class KbnBaseStateVisualizationLayer(BaseVwModel):
-    layerId: str
-    layerType: str
-    colorMapping: Annotated[KbnLayerColorMapping | None, OmitIfNone()] = None
-
-
-class KbnBaseStateVisualization(BaseVwModel):
-    layers: list[KbnBaseStateVisualizationLayer] = Field(...)
+# Note: Base visualization classes (KbnBaseStateVisualization, KbnBaseStateVisualizationLayer,
+# KbnLayerColorMapping, etc.) are now in base.py to avoid circular imports
 
 
 class KbnVisualizationTypeEnum(StrEnum):
@@ -226,7 +187,7 @@ class KbnLensPanelAttributes(BaseVwModel):
     state: KbnLensPanelState
 
 
-class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
+class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):  # type: ignore[misc,valid-type]
     attributes: KbnLensPanelAttributes
 
     syncTooltips: bool = Field(
@@ -244,7 +205,7 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
         description='(Optional) Whether to sync cursor across visualizations. Defaults to True.',
     )
 
-    filters: list = Field(
+    filters: list[Any] = Field(
         default_factory=list,
         description='(Optional) List of filters applied to the Lens visualization. Defaults to empty list.',
     )
@@ -255,6 +216,6 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     )
 
 
-class KbnLensPanel(KbnBasePanel):
+class KbnLensPanel(KbnBasePanel):  # type: ignore[misc,valid-type]
     type: Literal['lens'] = 'lens'
     embeddableConfig: KbnLensPanelEmbeddableConfig
