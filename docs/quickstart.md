@@ -18,7 +18,7 @@ A basic dashboard YAML file has the following structure:
 
 ```yaml
 dashboard:
-  title: Your Dashboard Title
+  name: Your Dashboard Title
   description: An optional description
   panels:
     - # Your panel definitions go here
@@ -30,7 +30,7 @@ Here's an example of a dashboard with a single markdown panel:
 
 ```yaml
 dashboard:
-  title: My First Dashboard
+  name: My First Dashboard
   description: A simple dashboard with a markdown panel
   panels:
     - panel:
@@ -48,7 +48,7 @@ Here's an example of a dashboard with a single Lens metric panel displaying a co
 
 ```yaml
 dashboard:
-  title: Metric Dashboard
+  name: Metric Dashboard
   description: A dashboard with a single metric panel
   panels:
     - panel:

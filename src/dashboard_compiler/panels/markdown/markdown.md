@@ -86,4 +86,4 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)
+* [Dashboard Configuration](../../dashboard/dashboard.md)
