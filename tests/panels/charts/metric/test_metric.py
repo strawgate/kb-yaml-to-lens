@@ -48,7 +48,7 @@ def test_compile_metric_chart_primary_only_lens(compile_metric_chart_snapshot):
         'primary': {
             'field': 'aerospike.namespace.name',
             'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
-            'aggregation': 'count',
+            'type': 'count',
         },
     }
 
@@ -96,12 +96,12 @@ def test_compile_metric_chart_primary_and_secondary_lens(compile_metric_chart_sn
         'primary': {
             'field': 'aerospike.namespace.name',
             'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
-            'aggregation': 'count',
+            'type': 'count',
         },
         'secondary': {
             'field': 'aerospike.node.name',
             'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
-            'aggregation': 'unique_count',
+            'type': 'unique_count',
         },
     }
 
@@ -155,15 +155,15 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens(compile_metric_ch
         'primary': {
             'field': 'aerospike.namespace.name',
             'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
-            'aggregation': 'count',
+            'type': 'count',
         },
         'secondary': {
             'field': 'aerospike.node.name',
             'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
-            'aggregation': 'unique_count',
+            'type': 'unique_count',
         },
         'breakdown': {
-            'type': 'values',
+            'type': 'terms',
             'field': 'agent.name',
             'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
         },

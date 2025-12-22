@@ -18,7 +18,7 @@ type TestCaseType = tuple[InputDimensionType, InputMetricType, OutputMetricType,
 # Add more test cases for different dimension operations and field types.
 
 INPUT_METRIC = {
-    'aggregation': 'count',
+    'type': 'count',
     'id': '87416118-6032-41a2-aaf9-173fc0e525eb',
 }
 
@@ -59,7 +59,7 @@ CASE_DATE_HISTOGRAM_DIMENSION: TestCaseType = (
 CASE_TERMS_DIMENSION_SORTED: TestCaseType = (
     # Input dimension
     {
-        'type': 'values',
+        'type': 'terms',
         'field': 'agent.type',
         'sort': {
             'by': 'Count of records',
@@ -94,7 +94,7 @@ CASE_TERMS_DIMENSION_SORTED: TestCaseType = (
 
 CASE_TERMS_DIMENSION_SORTED: TestCaseType = (
     # Input dimension
-    {'type': 'values', 'field': 'agent.type', 'size': 10},
+    {'type': 'terms', 'field': 'agent.type', 'size': 10},
     INPUT_METRIC,
     OUTPUT_METRIC,
     # Output dimension

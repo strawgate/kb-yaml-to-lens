@@ -77,7 +77,7 @@ class LensCountAggregatedMetric(BaseLensMetric):
     Count metrics are used to count the number of documents in a data view.
     """
 
-    aggregation: Literal['count', 'unique_count']
+    type: Literal['count', 'unique_count']
 
     field: str | None = Field(default=None)
     """The field to count. If not provided, the count will be of all documents in the data view."""
@@ -92,7 +92,7 @@ class LensSumAggregatedMetric(BaseLensMetric):
     Sum metrics are used to sum the values of a field.
     """
 
-    aggregation: Literal['sum']
+    type: Literal['sum']
 
     field: str = Field(...)
 
@@ -103,7 +103,7 @@ class LensSumAggregatedMetric(BaseLensMetric):
 class LensOtherAggregatedMetric(BaseLensMetric):
     """Represents various aggregated metric configurations within a Lens chart."""
 
-    aggregation: Literal['min', 'max', 'median', 'average'] = Field(...)
+    type: Literal['min', 'max', 'median', 'average'] = Field(...)
     """The aggregation type for the metric (e.g., 'min', 'max', 'median', 'average')."""
 
     field: str = Field(...)
@@ -115,7 +115,7 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
     Last value metrics are used to retrieve the most recent value of a field based on a specified sort order.
     """
 
-    aggregation: Literal['last_value'] = 'last_value'
+    type: Literal['last_value'] = 'last_value'
 
     field: str = Field(...)
 
@@ -132,7 +132,7 @@ class LensPercentileRankAggregatedMetric(BaseLensMetric):
     Percentile rank metrics are used to determine the rank of a value in a data set.
     """
 
-    aggregation: Literal['percentile_rank'] = 'percentile_rank'
+    type: Literal['percentile_rank'] = 'percentile_rank'
 
     field: str = Field(...)
 
@@ -145,7 +145,7 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
     Percentile metrics are used to determine the value at a specific percentile in a data set.
     """
 
-    aggregation: Literal['percentile'] = 'percentile'
+    type: Literal['percentile'] = 'percentile'
 
     field: str = Field(...)
 

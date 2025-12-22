@@ -114,7 +114,7 @@ class LensTopValuesDimension(BaseLensDimension):
     Top values dimensions are used for aggregating data based on unique values of a field.
     """
 
-    type: Literal['values'] = 'values'
+    type: Literal['terms'] = 'terms'
 
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""

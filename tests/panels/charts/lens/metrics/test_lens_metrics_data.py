@@ -6,7 +6,7 @@ type TestCaseType = tuple[dict[str, Any], dict[str, Any]]
 
 CASE_COUNT_METRIC: TestCaseType = (
     {
-        'aggregation': 'count',
+        'type': 'count',
     },
     {
         'label': 'Count of records',
@@ -21,7 +21,7 @@ CASE_COUNT_METRIC: TestCaseType = (
 """Tuple[Config as Dict, View as Dict, References as List] for a count metric."""
 CASE_SUM_METRIC: TestCaseType = (
     {
-        'aggregation': 'sum',
+        'type': 'sum',
         'field': 'aerospike.node.connection.open',
     },
     {
@@ -38,7 +38,7 @@ CASE_SUM_METRIC: TestCaseType = (
 
 CASE_SUM_VALUE_NUMBER_FORMAT: TestCaseType = (
     {
-        'aggregation': 'sum',
+        'type': 'sum',
         'field': 'aerospike.node.connection.open',
         'format': {'type': 'number'},
     },
@@ -55,7 +55,7 @@ CASE_SUM_VALUE_NUMBER_FORMAT: TestCaseType = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with number format."""
 
 CASE_SUM_VALUE_PCT_FORMAT = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'percent'}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'percent'}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -69,7 +69,7 @@ CASE_SUM_VALUE_PCT_FORMAT = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with percent format."""
 
 CASE_SUM_VALUE_BYTES_FORMAT = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'bytes'}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'bytes'}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -83,7 +83,7 @@ CASE_SUM_VALUE_BYTES_FORMAT = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with bytes format."""
 
 CASE_SUM_VALUE_BITS_FORMAT = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'bits'}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'bits'}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -97,7 +97,7 @@ CASE_SUM_VALUE_BITS_FORMAT = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with bits format."""
 
 CASE_SUM_VALUE_DURATION_FORMAT = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'duration'}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'duration'}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -111,7 +111,7 @@ CASE_SUM_VALUE_DURATION_FORMAT = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with duration format."""
 
 CASE_SUM_VALUE_CUSTOM_FORMAT = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'custom', 'pattern': '0,0.[0000]'}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'custom', 'pattern': '0,0.[0000]'}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -125,7 +125,7 @@ CASE_SUM_VALUE_CUSTOM_FORMAT = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with custom format."""
 
 CASE_SUM_VALUE_NUMBER_FORMAT_WITH_SUFFIX: TestCaseType = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number', 'suffix': 'KB'}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number', 'suffix': 'KB'}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -139,7 +139,7 @@ CASE_SUM_VALUE_NUMBER_FORMAT_WITH_SUFFIX: TestCaseType = (
 """Tuple[Config as Dict, View as Dict, References as List] for a sum metric with number format and suffix."""
 
 CASE_SUM_VALUE_NUMBER_FORMAT_WITH_COMPACT: TestCaseType = (
-    {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number', 'compact': True}},
+    {'type': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number', 'compact': True}},
     {
         'label': 'Sum of aerospike.node.connection.open',
         'dataType': 'number',
@@ -154,7 +154,7 @@ CASE_SUM_VALUE_NUMBER_FORMAT_WITH_COMPACT: TestCaseType = (
 
 CASE_LAST_VALUE_METRIC: TestCaseType = (
     {
-        'aggregation': 'last_value',
+        'type': 'last_value',
         'field': 'aerospike.namespace.query.count',
     },
     {
@@ -172,7 +172,7 @@ CASE_LAST_VALUE_METRIC: TestCaseType = (
 
 CASE_MIN_METRIC: TestCaseType = (
     {
-        'aggregation': 'min',
+        'type': 'min',
         'field': 'aerospike.node.connection.open',
     },
     {
@@ -189,7 +189,7 @@ CASE_MIN_METRIC: TestCaseType = (
 
 CASE_MAX_METRIC: tuple[dict[str, Any], dict[str, Any]] = (
     {
-        'aggregation': 'max',
+        'type': 'max',
         'field': 'aerospike.node.connection.open',
     },
     {
@@ -206,7 +206,7 @@ CASE_MAX_METRIC: tuple[dict[str, Any], dict[str, Any]] = (
 
 CASE_PCT_RANK_METRIC: tuple[dict[str, str | int], dict[str, Any]] = (
     {
-        'aggregation': 'percentile_rank',
+        'type': 'percentile_rank',
         'field': 'aerospike.node.connection.open',
         'rank': 5,
     },
@@ -223,7 +223,7 @@ CASE_PCT_RANK_METRIC: tuple[dict[str, str | int], dict[str, Any]] = (
 
 CASE_P95_METRIC: tuple[dict[str, str | int], dict[str, Any]] = (
     {
-        'aggregation': 'percentile',
+        'type': 'percentile',
         'field': 'aerospike.node.connection.open',
         'percentile': 95,
     },

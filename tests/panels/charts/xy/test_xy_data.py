@@ -16,7 +16,7 @@ LENS_XY_DIMENSION = {
     'id': '451e4374-f869-4ee9-8569-3092cd16ac18',
 }
 
-LENS_XY_METRIC = {'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}
+LENS_XY_METRIC = {'type': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}
 
 LENS_XY_BREAKDOWN = {
     'field': 'aerospike.namespace.name',

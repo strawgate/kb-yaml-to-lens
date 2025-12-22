@@ -18,7 +18,7 @@ LENS_PIE_DIMENSION = {
     'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df',
 }
 
-LENS_PIE_METRIC = {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}
+LENS_PIE_METRIC = {'type': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}
 
 ESQL_PIE_METRIC = {
     'field': 'count(*)',
@@ -35,7 +35,7 @@ LENS_PIE_DIMENSION_2 = {
     'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg',
 }
 
-LENS_PIE_METRIC_2 = {'aggregation': 'sum', 'field': 'bytes', 'id': '9g131718-490f-5c65-cd0f-f6661g95g6f7'}
+LENS_PIE_METRIC_2 = {'type': 'sum', 'field': 'bytes', 'id': '9g131718-490f-5c65-cd0f-f6661g95g6f7'}
 
 ESQL_PIE_DIMENSION_2 = {
     'field': 'region',
