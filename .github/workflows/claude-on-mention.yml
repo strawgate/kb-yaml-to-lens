@@ -9,39 +9,25 @@ on:
     types: [submitted]
 
 jobs:
-  claude:
+  prepare:
     if: |
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '@claude'))
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+    outputs:
+      prompt: ${{ steps.build-prompt.outputs.PROMPT }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # Install UV package manager
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
-
-      - name: Set triage prompt
-        id: triage-prompt
+      - name: Build prompt
+        id: build-prompt
         run: |
-          cat >> $GITHUB_OUTPUT << 'EOF'
-          PROMPT<<PROMPT_END
-          You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
+          cat >> $GITHUB_OUTPUT << 'PROMPT_END'
+          PROMPT<<EOF
+          $(cat github/prompts/project-intro.md)
 
           # Getting Started
           1. Call the generate_agents_md tool to get a high-level summary of the project you're working in
@@ -51,85 +37,15 @@ jobs:
           5. If anything you needed or wanted to do during your work was not possible, document the problem in a `Problems Encountered` section
           of your response. Especially if it was something you were asked to do like research the web, run tests, lint, etc.
 
-          # Resolving PR Review Threads
-          You have access to resolve review threads in pull requests using the GitHub GraphQL API via `gh api`.
-
-          **IMPORTANT**: You should ONLY resolve threads after making code changes that address the feedback. Do not resolve threads without fixing the underlying issue.
-
-          To get review threads and their IDs:
-          ```bash
-          gh api graphql -f query='
-            query {
-              repository(owner: "OWNER", name: "REPO") {
-                pullRequest(number: PR_NUMBER) {
-                  reviewThreads(first: 100) {
-                    nodes { id isResolved path line
-                      comments(first: 10) { nodes { body author { login } } }
-                    }
-                  }
-                }
-              }
-            }' -f owner=OWNER -f name=REPO -F number=PR_NUMBER
-          ```
-
-          To resolve a review thread (after addressing the feedback):
-          ```bash
-          gh api graphql -f query='
-            mutation {
-              resolveReviewThread(input: {threadId: "THREAD_ID"}) {
-                thread { id isResolved }
-              }
-            }'
-          ```
-
-          When working with CodeRabbit or other review feedback:
-          1. Make the necessary code changes to address the feedback
-          2. Use `gh api graphql` to fetch review threads and identify which ones are addressed
-          3. Use `gh api graphql` with resolveReviewThread mutation to mark resolved conversations
-
+          $(cat github/prompts/resolve-threads.md)
+          EOF
           PROMPT_END
-          EOF
 
-      - name: Setup GitHub MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          {
-            "mcpServers": {
-              "repository-summary": {
-                "type": "http",
-                "url": "https://agents-md-generator.fastmcp.app/mcp"
-              },
-              "code-search": {
-                "type": "http",
-                "url": "https://public-code-search.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              }
-            }
-          }
-          EOF
-
-      - name: Run Claude Code
-        id: claude
-        uses: anthropics/claude-code-action@v1.0.23
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          additional_permissions: |
-            actions: read
-
-          prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
-          track_progress: true
-          claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
-            --mcp-config /tmp/mcp-config/mcp-servers.json
+  claude:
+    needs: prepare
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      prompt: ${{ needs.prepare.outputs.prompt }}
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

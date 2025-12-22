@@ -5,32 +5,14 @@ on:
     types: [opened, labeled]
 
 jobs:
-  claude:
+  prepare:
     if: |
       (github.event.action == 'labeled' && github.event.label.name == 'triage-claude') ||
       (github.event_name == 'issues' && github.event.action == 'opened' && !github.event.issue.assignee)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+    outputs:
+      prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # Install UV package manager
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
-
       - name: Set triage prompt
         id: triage-prompt
         run: |
@@ -40,7 +22,7 @@ jobs:
 
           # IMPORTANT RULES
           1. You will not make branches or pull requests. Your ONLY action will be investigating the issue, locating related issues,
-          pull requests, and files in the repository and reporting your findings. 
+          pull requests, and files in the repository and reporting your findings.
           2. You will identify the issue type (bug/feature/question) up front and tailor the Recommendation (e.g., for questions: answer directly + links; for bugs: point to failing tests/lines).
           3. You will avoid speculation and only assert facts that are deeply rooted (traceable) to the codebase, language/framework conventions, related issues, related pull requests, etc.
           4. The main branch of the repository has been cloned locally, but changes will not be accepted and you are not allowed to make pull requests or other changes. You can search the local repository for relevant code. You will use the available MCP Server tools identify related issues and pull requests (search_issues and search_pull_requests) and you can use search_code to look at the code in relevant dependent packages. For example, you can use search_code to look at a particular store's SDK `https://github.com/elastic/elasticsearch-py` to see how it implements a certain class or function relevant to the issue at hand.
@@ -63,7 +45,7 @@ jobs:
 
           Populate the following sections in your response:
             Problems Encountered during the investigation
-            Recommendation (or “No recommendation” with reason)
+            Recommendation (or "No recommendation" with reason)
             Findings
             Detailed Action Plan
             Related Items
@@ -75,7 +57,7 @@ jobs:
           When formulating your response, you will never "bury the lede", you will always provide a clear and concise tl;dr as the first thing in your response. As your response grows in length you can organize the more detailed parts of your response collapsible sections using <details> and <summary> tags. You shouldn't put everything in collapsible sections, especially if the response is short. Use your discretion to determine when to use collapsible sections to avoid overwhelming the reader with too much detail -- think of them like an appendix that can be expanded if the reader is interested.
 
           # Example of Problems Encountered during the investigation:
-          
+
           While performing the investigation I encountered the following problems:
             - A tool that I thought was available I was not able to use because ...
             - I was not able to run tests because ...
@@ -123,46 +105,13 @@ jobs:
           PROMPT_END
           EOF
 
-      - name: Setup GitHub MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          {
-            "mcpServers": {
-              "repository-summary": {
-                "type": "http",
-                "url": "https://agents-md-generator.fastmcp.app/mcp"
-              },
-              "code-search": {
-                "type": "http",
-                "url": "https://public-code-search.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              }
-            }
-          }
-          EOF
-
-      - name: Run Claude Code
-        id: claude
-        uses: anthropics/claude-code-action@v1.0.23
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          additional_permissions: |
-            actions: read
-
-          prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
-          track_progress: true
-          claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
-            --mcp-config /tmp/mcp-config/mcp-servers.json
+  claude:
+    needs: prepare
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      python-version: '3.10'
+      fetch-depth: 1
+      prompt: ${{ needs.prepare.outputs.prompt }}
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

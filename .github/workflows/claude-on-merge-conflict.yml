@@ -10,76 +10,42 @@ jobs:
     outputs:
       has_conflicts: ${{ steps.check.outputs.has_conflicts }}
     steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
       - name: Check for merge conflicts
         id: check
         run: |
-          # Use GitHub API to check mergeable status - this is the authoritative source
-          # that GitHub uses to determine if a PR has conflicts
-          echo "Checking PR #${{ github.event.pull_request.number }} mergeable status..."
-          
-          MERGEABLE=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.mergeable')
-          
-          echo "Mergeable status: $MERGEABLE"
-          
-          if [ "$MERGEABLE" = "false" ]; then
-            echo "has_conflicts=true" >> $GITHUB_OUTPUT
-            echo "✗ PR has merge conflicts (mergeable=false)"
-          elif [ "$MERGEABLE" = "true" ]; then
-            echo "has_conflicts=false" >> $GITHUB_OUTPUT
-            echo "✓ PR can be merged cleanly (mergeable=true)"
-          else
-            # mergeable is null - GitHub is still calculating status
-            # Wait a moment and try again
-            echo "⏳ Mergeable status not yet computed, waiting 5 seconds..."
-            sleep 5
-            MERGEABLE=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.mergeable')
-            echo "Mergeable status after wait: $MERGEABLE"
-            
-            if [ "$MERGEABLE" = "false" ]; then
-              echo "has_conflicts=true" >> $GITHUB_OUTPUT
-              echo "✗ PR has merge conflicts (mergeable=false)"
-            elif [ "$MERGEABLE" = "true" ]; then
-              echo "has_conflicts=false" >> $GITHUB_OUTPUT
-              echo "✓ PR can be merged cleanly (mergeable=true)"
-            else
-              # Still null, assume no conflicts to avoid blocking
-              echo "has_conflicts=false" >> $GITHUB_OUTPUT
-              echo "⚠ Mergeable status still unknown (got: $MERGEABLE), assuming no conflicts"
-            fi
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
+          # Fetch the base branch
+          git fetch origin ${{ github.event.pull_request.base.ref }}
 
-  resolve-conflicts:
+          # Use modern git merge-tree with --write-tree to detect conflicts
+          # This performs a three-way merge and outputs CONFLICT messages if conflicts exist
+          echo "Checking for conflicts between HEAD and origin/${{ github.event.pull_request.base.ref }}"
+
+          if git merge-tree --write-tree HEAD origin/${{ github.event.pull_request.base.ref }} 2>&1 | grep -q '^CONFLICT'; then
+            echo "has_conflicts=true" >> $GITHUB_OUTPUT
+            echo "✗ Merge conflicts detected"
+          else
+            echo "has_conflicts=false" >> $GITHUB_OUTPUT
+            echo "✓ No merge conflicts"
+          fi
+
+  prepare-conflict-resolution:
     needs: check-conflicts
     if: needs.check-conflicts.outputs.has_conflicts == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
-      actions: read
+    outputs:
+      prompt: ${{ steps.merge-prompt.outputs.PROMPT }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # Install UV package manager
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
-
-      - name: Set merge conflict resolution prompt
+      - name: Build prompt
         id: merge-prompt
         run: |
-          cat >> $GITHUB_OUTPUT << 'EOF'
-          PROMPT<<PROMPT_END
+          cat >> $GITHUB_OUTPUT << 'PROMPT_END'
+          PROMPT<<EOF
           You're a merge conflict resolution assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
 
           # YOUR TASK
@@ -136,50 +102,15 @@ jobs:
           - Make commands for linting and testing
           - MCP tools for searching code and understanding context
           - GitHub API via gh cli for commenting on the PR
-
+          EOF
           PROMPT_END
-          EOF
 
-      - name: Setup GitHub MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          {
-            "mcpServers": {
-              "repository-summary": {
-                "type": "http",
-                "url": "https://agents-md-generator.fastmcp.app/mcp"
-              },
-              "code-search": {
-                "type": "http",
-                "url": "https://public-code-search.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              }
-            }
-          }
-          EOF
-
-      - name: Run Claude Merge Conflict Resolver
-        id: claude
-        uses: anthropics/claude-code-action@v1.0.23
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          additional_permissions: |
-            actions: read
-
-          prompt: ${{ steps.merge-prompt.outputs.PROMPT }}
-          track_progress: true
-          claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
-            --mcp-config /tmp/mcp-config/mcp-servers.json
+  resolve-conflicts:
+    needs: prepare-conflict-resolution
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      checkout-ref: ${{ github.event.pull_request.head.ref }}
+      prompt: ${{ needs.prepare-conflict-resolution.outputs.prompt }}
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

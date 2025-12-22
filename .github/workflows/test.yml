@@ -12,78 +12,45 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12']
-        
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
       with:
         python-version: ${{ matrix.python-version }}
-        
-    - name: Install UV
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        
-    - name: Install dependencies
-      run: |
-        uv sync --all-extras
-        
+        install-dependencies: 'true'
+
     - name: Run pytest
       run: |
         uv run pytest -v
-        
+
     - name: Run smoke tests
       run: |
         uv run kb-dashboard --help
-        
+
   lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
       with:
         python-version: '3.12'
-        
-    - name: Install UV
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        
-    - name: Install dependencies
-      run: |
-        uv sync --all-extras
-        
+        install-dependencies: 'true'
+
     - name: Run linting
       run: |
         uv run ruff check . --fix
         uv run ruff format . --check
-        
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
       with:
         python-version: '3.12'
-        
-    - name: Install UV
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        
-    - name: Install dependencies
-      run: |
-        uv sync --all-extras
-        
+        install-dependencies: 'true'
+
     - name: Run type checking
       run: |
         uv run basedpyright
