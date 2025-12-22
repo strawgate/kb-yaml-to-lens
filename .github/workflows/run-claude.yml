@@ -7,7 +7,7 @@ on:
         description: 'Python version to install'
         required: false
         type: string
-        default: '3.12'
+        default: '3.10'
       checkout-ref:
         description: 'Git ref to checkout'
         required: false
@@ -22,16 +22,15 @@ on:
         description: 'Prompt to pass to Claude'
         required: true
         type: string
-      claude-args:
-        description: 'Arguments to pass to Claude (e.g., --allowed-tools, --mcp-config)'
+      allowed-tools:
+        description: 'Comma-separated list of allowed tools for Claude'
         required: true
         type: string
-      additional-permissions:
-        description: 'Additional permissions for Claude (YAML format)'
+      claude-args:
+        description: 'Additional arguments to pass to Claude'
         required: false
         type: string
-        default: |
-          actions: read
+        default: ''
       track-progress:
         description: 'Whether Claude should track progress'
         required: false
@@ -76,6 +75,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
       id-token: write
       actions: read
     steps:
@@ -105,7 +105,9 @@ jobs:
         uses: anthropics/claude-code-action@v1.0.23
         with:
           claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
-          additional_permissions: ${{ inputs.additional-permissions }}
           prompt: ${{ inputs.prompt }}
           track_progress: ${{ inputs.track-progress }}
-          claude_args: ${{ inputs.claude-args }}
+          claude_args: |
+            --allowed-tools ${{ inputs.allowed-tools }}
+            --mcp-config /tmp/mcp-config/mcp-servers.json
+            ${{ inputs.claude-args }}

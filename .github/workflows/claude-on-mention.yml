@@ -75,20 +75,11 @@ jobs:
 
   claude:
     needs: prepare
-    permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
-      actions: read
     uses: ./.github/workflows/run-claude.yml
     with:
       python-version: '3.10'
       fetch-depth: 1
       prompt: ${{ needs.prepare.outputs.prompt }}
-      claude-args: |
-        --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
-        --mcp-config /tmp/mcp-config/mcp-servers.json
-      additional-permissions: |
-        actions: read
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
