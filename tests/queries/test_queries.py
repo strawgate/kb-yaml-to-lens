@@ -37,11 +37,11 @@ async def test_kql_query_with_two_components(compile_query_snapshot) -> None:
     """Test KQL query with two components."""
     config = {'kql': 'aerospike.namespace.geojson.region_query_cells : * or @timestamp >= 5'}
     result = compile_query_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot({'query': 'aerospike.namespace.geojson.region_query_cells : * or @timestamp >= 5', 'language': 'kuery'})
 
 
 async def test_lucene_query_with_two_components(compile_query_snapshot) -> None:
     """Test Lucene query with two components."""
     config = {'lucene': 'status:[400 TO 499] AND (extension:php OR extension:html)'}
     result = compile_query_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot({'query': 'status:[400 TO 499] AND (extension:php OR extension:html)', 'language': 'lucene'})

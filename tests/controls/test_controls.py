@@ -68,7 +68,22 @@ async def test_normal_options_list(compile_control_snapshot) -> None:
         'field': 'aerospike.namespace',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_custom_label(compile_control_snapshot) -> None:
@@ -80,7 +95,23 @@ async def test_options_list_with_custom_label(compile_control_snapshot) -> None:
         'label': 'Custom Label',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Custom Label',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_large_width(compile_control_snapshot) -> None:
@@ -93,7 +124,23 @@ async def test_options_list_with_large_width(compile_control_snapshot) -> None:
         'width': 'large',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'large',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Large Option',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_large_width_and_expand(compile_control_snapshot) -> None:
@@ -107,7 +154,23 @@ async def test_options_list_with_large_width_and_expand(compile_control_snapshot
         'fill_width': True,
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': True,
+            'order': 0,
+            'width': 'large',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Large Option with Expand',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_small_width_and_single_select(compile_control_snapshot) -> None:
@@ -122,7 +185,24 @@ async def test_options_list_with_small_width_and_single_select(compile_control_s
         'width': 'small',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'small',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Small Option Single Select',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_contains_search_technique(compile_control_snapshot) -> None:
@@ -135,7 +215,23 @@ async def test_options_list_with_contains_search_technique(compile_control_snaps
         'match_technique': 'contains',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Contains',
+                'searchTechnique': 'wildcard',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_exact_search_technique(compile_control_snapshot) -> None:
@@ -148,7 +244,23 @@ async def test_options_list_with_exact_search_technique(compile_control_snapshot
         'label': 'Exact',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Exact',
+                'searchTechnique': 'exact',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
 
 
 async def test_options_list_with_ignore_timeout(compile_control_snapshot) -> None:
@@ -161,7 +273,24 @@ async def test_options_list_with_ignore_timeout(compile_control_snapshot) -> Non
         'label': 'ignore-timeout',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'ignore-timeout',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'sort': {'by': '_count', 'direction': 'desc'},
+                'runPastTimeout': True,
+            },
+        }
+    )
 
 
 async def test_range_slider_with_default_step_size(compile_control_snapshot) -> None:
@@ -173,7 +302,21 @@ async def test_range_slider_with_default_step_size(compile_control_snapshot) -> 
         'field': 'aerospike.namespace.geojson.region_query_cells',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'rangeSliderControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace.geojson.region_query_cells',
+                'title': 'Default Range',
+                'step': 1,
+            },
+        }
+    )
 
 
 async def test_range_slider_with_step_size_10(compile_control_snapshot) -> None:
@@ -186,7 +329,21 @@ async def test_range_slider_with_step_size_10(compile_control_snapshot) -> None:
         'label': 'Range step 10',
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'rangeSliderControl',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace.geojson.region_query_cells',
+                'title': 'Range step 10',
+                'step': 10,
+            },
+        }
+    )
 
 
 async def test_time_slider_with_default_settings(compile_control_snapshot) -> None:
@@ -197,14 +354,39 @@ async def test_time_slider_with_default_settings(compile_control_snapshot) -> No
         'end_offset': 0.995556,
     }
     result = compile_control_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'grow': True,
+            'order': 0,
+            'width': 'medium',
+            'type': 'timeSlider',
+            'explicitInput': {
+                'id': 'DYNAMIC_ID',
+                'timesliceStartAsPercentageOfTimeRange': 0.5825778,
+                'timesliceEndAsPercentageOfTimeRange': 0.995556,
+            },
+        }
+    )
 
 
 async def test_default_control_settings(compile_control_settings_snapshot) -> None:
     """Test default control settings."""
     config = {}
     result = compile_control_settings_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'chainingSystem': 'HIERARCHICAL',
+            'controlStyle': 'oneLine',
+            'ignoreParentSettingsJSON': {
+                'ignoreFilters': False,
+                'ignoreQuery': False,
+                'ignoreTimerange': False,
+                'ignoreValidations': False,
+            },
+            'panelsJSON': {},
+            'showApplySelections': False,
+        }
+    )
 
 
 async def test_custom_control_settings(compile_control_settings_snapshot) -> None:
@@ -218,4 +400,12 @@ async def test_custom_control_settings(compile_control_settings_snapshot) -> Non
         'click_to_apply': True,
     }
     result = compile_control_settings_snapshot(config)
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'chainingSystem': 'NONE',
+            'controlStyle': 'twoLine',
+            'ignoreParentSettingsJSON': {'ignoreFilters': True, 'ignoreQuery': True, 'ignoreTimerange': True, 'ignoreValidations': True},
+            'panelsJSON': {},
+            'showApplySelections': True,
+        }
+    )

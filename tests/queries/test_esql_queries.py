@@ -25,7 +25,7 @@ async def test_esql_string_query_backward_compatibility() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot()
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-* | LIMIT 10'})
 
 
 async def test_esql_array_with_two_elements() -> None:
@@ -41,7 +41,7 @@ async def test_esql_array_with_two_elements() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot()
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-* | LIMIT 10'})
 
 
 async def test_esql_complex_multi_part_array_query() -> None:
@@ -57,7 +57,9 @@ async def test_esql_complex_multi_part_array_query() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot()
+    assert kbn_query_as_dict == snapshot(
+        {'esql': 'FROM metrics-* | WHERE service.name == "api" | STATS avg_response = AVG(http.response.time) | LIMIT 100'}
+    )
 
 
 async def test_esql_single_element_array() -> None:
@@ -73,7 +75,7 @@ async def test_esql_single_element_array() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot()
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-*'})
 
 
 async def test_esql_array_with_filter_and_aggregation() -> None:
@@ -89,4 +91,4 @@ async def test_esql_array_with_filter_and_aggregation() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot()
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-* | WHERE @timestamp > NOW() - 1h | STATS count BY service.name'})

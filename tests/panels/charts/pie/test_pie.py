@@ -38,14 +38,48 @@ async def test_basic_pie_chart() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
 
 async def test_basic_donut_chart() -> None:
@@ -72,14 +106,48 @@ async def test_basic_donut_chart() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
 
 async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
@@ -106,14 +174,48 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'value',
+            'categoryDisplay': 'inside',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'value',
+            'categoryDisplay': 'inside',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
 
 async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
@@ -140,14 +242,52 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'show',
+            'nestedLegend': False,
+            'legendSize': 'large',
+            'truncateLegend': False,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'show',
+            'nestedLegend': False,
+            'legendSize': 'large',
+            'truncateLegend': False,
+        }
+    )
 
 
 async def test_pie_chart_with_secondary_groups() -> None:
@@ -178,14 +318,50 @@ async def test_pie_chart_with_secondary_groups() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'secondaryGroups': ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'secondaryGroups': ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
 
 async def test_pie_chart_with_multiple_metrics() -> None:
@@ -216,14 +392,52 @@ async def test_pie_chart_with_multiple_metrics() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5', '9g131718-490f-5c65-cd0f-f6661g95g6f7'],
+            'allowMultipleMetrics': True,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+            'emptySizeRatio': 0.0,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5', '9g131718-490f-5c65-cd0f-f6661g95g6f7'],
+            'allowMultipleMetrics': True,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+            'emptySizeRatio': 0.0,
+        }
+    )
 
 
 async def test_pie_chart_with_collapse_functions() -> None:
@@ -252,11 +466,47 @@ async def test_pie_chart_with_collapse_functions() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'collapseFns': {'6e73286b-85cf-4343-9676-b7ee2ed0a3df': 'sum'},
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
 
     esql_chart = ESQLPieChart.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot()
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'collapseFns': {'6e73286b-85cf-4343-9676-b7ee2ed0a3df': 'sum'},
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
