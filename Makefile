@@ -15,6 +15,7 @@ help:
 	@echo "Testing:"
 	@echo "  test                  - Run unit tests"
 	@echo "  test-coverage         - Run tests with coverage report"
+	@echo "  test-links            - Check documentation links"
 	@echo "  test-smoke            - Run smoke tests"
 	@echo "  test-extension        - Run all VSCode extension tests"
 	@echo "  test-extension-python - Run Python tests for extension"
@@ -48,7 +49,7 @@ install:
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
 
-check: lint test test-smoke test-extension-python test-extension-typescript
+check: lint test test-links test-smoke test-extension-python test-extension-typescript
 
 test:
 	@echo "Running pytest..."
@@ -57,6 +58,10 @@ test:
 test-coverage:
 	@echo "Running pytest with coverage..."
 	uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+
+test-links:
+	@echo "Checking documentation links..."
+	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
 
 test-extension:
 	@echo "Running VSCode extension tests..."
