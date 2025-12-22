@@ -23,20 +23,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for git info
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
 
-      - name: Install UV
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
+      - name: Install documentation dependencies
         run: |
           uv sync --group docs
 

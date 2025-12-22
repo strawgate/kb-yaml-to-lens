@@ -10,176 +10,93 @@ jobs:
     outputs:
       has_conflicts: ${{ steps.check.outputs.has_conflicts }}
     steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
       - name: Check for merge conflicts
         id: check
         run: |
-          # Use GitHub API to check mergeable status - this is the authoritative source
-          # that GitHub uses to determine if a PR has conflicts
-          echo "Checking PR #${{ github.event.pull_request.number }} mergeable status..."
-          
-          MERGEABLE=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.mergeable')
-          
-          echo "Mergeable status: $MERGEABLE"
-          
-          if [ "$MERGEABLE" = "false" ]; then
+          # Fetch the base branch
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+
+          # Use modern git merge-tree with --write-tree to detect conflicts
+          # This performs a three-way merge and outputs CONFLICT messages if conflicts exist
+          echo "Checking for conflicts between HEAD and origin/${{ github.event.pull_request.base.ref }}"
+
+          if git merge-tree --write-tree HEAD origin/${{ github.event.pull_request.base.ref }} 2>&1 | grep -q '^CONFLICT'; then
             echo "has_conflicts=true" >> $GITHUB_OUTPUT
-            echo "✗ PR has merge conflicts (mergeable=false)"
-          elif [ "$MERGEABLE" = "true" ]; then
-            echo "has_conflicts=false" >> $GITHUB_OUTPUT
-            echo "✓ PR can be merged cleanly (mergeable=true)"
+            echo "✗ Merge conflicts detected"
           else
-            # mergeable is null - GitHub is still calculating status
-            # Wait a moment and try again
-            echo "⏳ Mergeable status not yet computed, waiting 5 seconds..."
-            sleep 5
-            MERGEABLE=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.mergeable')
-            echo "Mergeable status after wait: $MERGEABLE"
-            
-            if [ "$MERGEABLE" = "false" ]; then
-              echo "has_conflicts=true" >> $GITHUB_OUTPUT
-              echo "✗ PR has merge conflicts (mergeable=false)"
-            elif [ "$MERGEABLE" = "true" ]; then
-              echo "has_conflicts=false" >> $GITHUB_OUTPUT
-              echo "✓ PR can be merged cleanly (mergeable=true)"
-            else
-              # Still null, assume no conflicts to avoid blocking
-              echo "has_conflicts=false" >> $GITHUB_OUTPUT
-              echo "⚠ Mergeable status still unknown (got: $MERGEABLE), assuming no conflicts"
-            fi
+            echo "has_conflicts=false" >> $GITHUB_OUTPUT
+            echo "✓ No merge conflicts"
           fi
-        env:
-          GH_TOKEN: ${{ github.token }}
 
   resolve-conflicts:
     needs: check-conflicts
     if: needs.check-conflicts.outputs.has_conflicts == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
-      actions: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      checkout-ref: ${{ github.event.pull_request.head.ref }}
+      prompt: |
+        You're a merge conflict resolution assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+        # YOUR TASK
 
-      # Install UV package manager
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
+        This pull request (#${{ github.event.pull_request.number }}) has merge conflicts with the base branch (${{ github.event.pull_request.base.ref }}).
 
-      - name: Set merge conflict resolution prompt
-        id: merge-prompt
-        run: |
-          cat >> $GITHUB_OUTPUT << 'EOF'
-          PROMPT<<PROMPT_END
-          You're a merge conflict resolution assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
+        Your goal is to:
+        1. Analyze the merge conflicts
+        2. Understand the changes in both branches
+        3. Resolve the conflicts in a way that preserves the intent of both sets of changes
+        4. Ensure the code still works correctly after resolution
 
-          # YOUR TASK
+        # GETTING STARTED
 
-          This pull request (#${{ github.event.pull_request.number }}) has merge conflicts with the base branch (${{ github.event.pull_request.base.ref }}).
+        1. Check repository status: `git status`
+        2. Fetch the base branch: `git fetch origin ${{ github.event.pull_request.base.ref }}`
+        3. Attempt to merge: `git merge origin/${{ github.event.pull_request.base.ref }}`
+        4. List conflicted files: `git diff --name-only --diff-filter=U`
+        5. Review each conflicted file to understand both changes
 
-          Your goal is to:
-          1. Analyze the merge conflicts
-          2. Understand the changes in both branches
-          3. Resolve the conflicts in a way that preserves the intent of both sets of changes
-          4. Ensure the code still works correctly after resolution
+        # RESOLVING CONFLICTS
 
-          # GETTING STARTED
+        For each conflicted file:
+        1. Read the file to see the conflict markers (<<<<<<<, =======, >>>>>>>)
+        2. Understand what each side of the conflict is trying to achieve
+        3. Resolve the conflict by:
+           - Keeping changes from both sides when they're complementary
+           - Choosing one side when they're mutually exclusive (with justification)
+           - Combining changes intelligently when possible
+        4. Remove all conflict markers
+        5. Mark as resolved: `git add <file>`
 
-          1. Call the generate_agents_md tool to understand the project structure
-          2. Fetch the base branch: `git fetch origin ${{ github.event.pull_request.base.ref }}`
-          3. Attempt to merge: `git merge origin/${{ github.event.pull_request.base.ref }}`
-          4. List conflicted files: `git diff --name-only --diff-filter=U`
-          5. Review each conflicted file to understand both changes
+        # VERIFICATION
 
-          # RESOLVING CONFLICTS
+        After resolving all conflicts:
+        1. Run `make lint` to ensure code style is correct
+        2. Run `make test` to ensure tests pass
+        3. If tests or linting fail, fix the issues
+        4. Commit the resolution: `git commit -m "Resolve merge conflicts with ${{ github.event.pull_request.base.ref }}"`
+        5. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
 
-          For each conflicted file:
-          1. Read the file to see the conflict markers (<<<<<<<, =======, >>>>>>>)
-          2. Understand what each side of the conflict is trying to achieve
-          3. Resolve the conflict by:
-             - Keeping changes from both sides when they're complementary
-             - Choosing one side when they're mutually exclusive (with justification)
-             - Combining changes intelligently when possible
-          4. Remove all conflict markers
-          5. Mark as resolved: `git add <file>`
+        # IMPORTANT NOTES
 
-          # VERIFICATION
+        - Preserve the intent of both the PR changes and the base branch changes
+        - If you're unsure about how to resolve a conflict, explain the options and ask for guidance in a comment
+        - Do not simply accept one side blindly - understand why both changes were made
+        - After pushing, comment on the PR explaining how you resolved the conflicts
+        - If conflicts are too complex or risky to auto-resolve, explain why and request manual intervention
 
-          After resolving all conflicts:
-          1. Run `make lint` to ensure code style is correct
-          2. Run `make test` to ensure tests pass
-          3. If tests or linting fail, fix the issues
-          4. Commit the resolution: `git commit -m "Resolve merge conflicts with ${{ github.event.pull_request.base.ref }}"`
-          5. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
+        # AVAILABLE TOOLS
 
-          # IMPORTANT NOTES
-
-          - Preserve the intent of both the PR changes and the base branch changes
-          - If you're unsure about how to resolve a conflict, explain the options and ask for guidance in a comment
-          - Do not simply accept one side blindly - understand why both changes were made
-          - After pushing, comment on the PR explaining how you resolved the conflicts
-          - If conflicts are too complex or risky to auto-resolve, explain why and request manual intervention
-
-          # AVAILABLE TOOLS
-
-          You have access to:
-          - Git commands for conflict resolution
-          - Make commands for linting and testing
-          - MCP tools for searching code and understanding context
-          - GitHub API via gh cli for commenting on the PR
-
-          PROMPT_END
-          EOF
-
-      - name: Setup GitHub MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          {
-            "mcpServers": {
-              "repository-summary": {
-                "type": "http",
-                "url": "https://agents-md-generator.fastmcp.app/mcp"
-              },
-              "code-search": {
-                "type": "http",
-                "url": "https://public-code-search.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              }
-            }
-          }
-          EOF
-
-      - name: Run Claude Merge Conflict Resolver
-        id: claude
-        uses: anthropics/claude-code-action@v1.0.23
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          additional_permissions: |
-            actions: read
-
-          prompt: ${{ steps.merge-prompt.outputs.PROMPT }}
-          track_progress: true
-          claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
-            --mcp-config /tmp/mcp-config/mcp-servers.json
+        You have access to:
+        - Git commands for conflict resolution
+        - Make commands for linting and testing
+        - MCP tools for searching code and understanding context
+        - GitHub API via gh cli for commenting on the PR
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
