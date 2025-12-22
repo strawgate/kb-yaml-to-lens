@@ -37,8 +37,8 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | \
     tar -xJ -C /usr/local --strip-components=1
 
-# Install Yarn Classic
-RUN npm install -g yarn@1.22.19
+# Install Yarn Classic and tsx (TypeScript runner)
+RUN npm install -g yarn@1.22.19 tsx@4.7.0
 
 # Set heap size for large builds
 ENV NODE_OPTIONS="--max_old_space_size=8192"
@@ -60,12 +60,12 @@ RUN test -d /kibana/node_modules/@kbn/lens-embeddable-utils || \
 WORKDIR /tool
 RUN mkdir -p /tool/output /tool/examples
 
-# Set NODE_PATH so Node can find @kbn packages from Kibana
+# Set NODE_PATH so tsx/Node can find @kbn packages from Kibana
 ENV NODE_PATH=/kibana/node_modules
 ENV OUTPUT_DIR=/tool/output
 
-# Add a simple test to verify the environment
-RUN node -e "try { require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder available'); } catch(e) { console.error('✗ LensConfigBuilder not available:', e.message); process.exit(1); }"
+# Verify tsx and LensConfigBuilder are available
+RUN tsx -e "const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder'); console.log('✓ LensConfigBuilder available:', typeof LensConfigBuilder);"
 
 # Default command: show help
-CMD ["node", "-e", "console.log('Kibana Fixture Generator\\nKibana Version: ${KIBANA_VERSION}\\nNode Version: ${NODE_VERSION}\\n\\nMount your scripts to /tool/examples and output to /tool/output\\nExample: docker run -v ./examples:/tool/examples -v ./output:/tool/output <image> node examples/metric-basic.js')"]
+CMD ["node", "-e", "console.log('Kibana Fixture Generator\\nKibana Version: ${KIBANA_VERSION}\\nNode Version: ${NODE_VERSION}\\n\\nMount your scripts to /tool/examples and output to /tool/output\\nExample: docker run -v ./examples:/tool/examples -v ./output:/tool/output <image> tsx examples/metric-basic.js')"]
