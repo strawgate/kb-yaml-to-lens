@@ -9,34 +9,16 @@ on:
     types: [submitted]
 
 jobs:
-  claude:
+  prepare:
     if: |
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-issue')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-issue')) ||
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude-issue')) ||
       (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '@claude-issue'))
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+    outputs:
+      prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # Install UV package manager
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
-
       - name: Set triage prompt
         id: triage-prompt
         run: |
@@ -119,47 +101,13 @@ jobs:
           PROMPT_END
           EOF
 
-      - name: Setup GitHub MCP Server
-        run: |
-          mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
-          {
-            "mcpServers": {
-              "repository-summary": {
-                "type": "http",
-                "url": "https://agents-md-generator.fastmcp.app/mcp"
-              },
-              "code-search": {
-                "type": "http",
-                "url": "https://public-code-search.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
-                }
-              }
-            }
-          }
-          EOF
-
-      - name: Run Claude Code
-        id: claude
-        uses: anthropics/claude-code-action@v1.0.23
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          additional_permissions: |
-            actions: read
-            issues: write
-
-          prompt: ${{ steps.triage-prompt.outputs.PROMPT }}
-          track_progress: true
-          claude_args: |
-            --allowed-tools mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*,gh:issue:*)
-            --mcp-config /tmp/mcp-config/mcp-servers.json
+  claude:
+    needs: prepare
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      python-version: '3.10'
+      fetch-depth: 1
+      prompt: ${{ needs.prepare.outputs.prompt }}
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*,gh:issue:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

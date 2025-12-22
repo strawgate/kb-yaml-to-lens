@@ -41,11 +41,11 @@ jobs:
     outputs:
       prompt: ${{ steps.merge-prompt.outputs.PROMPT }}
     steps:
-      - name: Set merge conflict resolution prompt
+      - name: Build prompt
         id: merge-prompt
         run: |
-          cat >> $GITHUB_OUTPUT << 'EOF'
-          PROMPT<<PROMPT_END
+          cat >> $GITHUB_OUTPUT << 'PROMPT_END'
+          PROMPT<<EOF
           You're a merge conflict resolution assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
 
           # YOUR TASK
@@ -102,17 +102,14 @@ jobs:
           - Make commands for linting and testing
           - MCP tools for searching code and understanding context
           - GitHub API via gh cli for commenting on the PR
-
-          PROMPT_END
           EOF
+          PROMPT_END
 
   resolve-conflicts:
     needs: prepare-conflict-resolution
     uses: ./.github/workflows/run-claude.yml
     with:
-      python-version: '3.10'
       checkout-ref: ${{ github.event.pull_request.head.ref }}
-      fetch-depth: 0
       prompt: ${{ needs.prepare-conflict-resolution.outputs.prompt }}
       allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
     secrets:
