@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 import aiohttp
 import prison
@@ -13,6 +13,17 @@ logger = logging.getLogger(__name__)
 # HTTP status codes
 HTTP_OK = 200
 HTTP_SERVICE_UNAVAILABLE = 503
+
+
+class _JobParamsLayout(TypedDict):
+    id: str
+    dimensions: dict[str, int]
+
+
+class _JobParams(TypedDict):
+    layout: _JobParamsLayout
+    browserTimezone: str
+    locatorParams: dict[str, Any]
 
 
 class KibanaClient:
@@ -104,7 +115,7 @@ class KibanaClient:
             Full URL to the dashboard in Kibana
 
         """
-        return f'{self.url}/app/dashboards#{dashboard_id}'
+        return f'{self.url}/app/dashboards#{dashboard_id}'  # type: ignore[reportAny]
 
     async def generate_screenshot(
         self,
@@ -151,7 +162,7 @@ class KibanaClient:
             }
 
         # Build job parameters
-        job_params = {
+        job_params: _JobParams = {
             'layout': {
                 'id': 'preserve_layout',
                 'dimensions': {
@@ -164,18 +175,18 @@ class KibanaClient:
         }
 
         # Rison-encode the job parameters using prison library
-        rison_params = prison.dumps(job_params)
+        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType]
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
-        params = {'jobParams': rison_params}
+        params: dict[str, str] = {'jobParams': rison_params}
 
         headers, auth = self._get_auth_headers_and_auth()
 
         async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
             response.raise_for_status()
-            result = await response.json()
-            job_path = result.get('path')
+            result: dict[str, Any] = await response.json()  # type: ignore[reportAny]
+            job_path: str | None = result.get('path')  # type: ignore[reportAny]
             if not job_path:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
                 raise ValueError(msg)

@@ -26,7 +26,7 @@ class BaseVwModel(BaseModel):
 
         serialization_aliases = {k: v.serialization_alias for k, v in model_class.model_fields.items() if v.serialization_alias is not None}
 
-        return {serialization_aliases.get(k, k): v for k, v in self if k not in omit_if_none_fields or v is not None}
+        return {serialization_aliases.get(k, k): v for k, v in self if k not in omit_if_none_fields or v is not None}  # type: ignore[reportAny]
 
 
 class KbnReference(BaseVwModel):

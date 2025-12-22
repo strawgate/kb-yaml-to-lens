@@ -36,7 +36,7 @@ def get_link_type(v: dict[str, object] | object) -> str:
             return 'dashboard'
         if 'url' in v:
             return 'url'
-        msg = f'Cannot determine link type from dict with keys: {list(v.keys())}'
+        msg = f'Cannot determine link type from dict with keys: {list(v)}'
         raise ValueError(msg)
     if hasattr(v, 'dashboard'):
         return 'dashboard'
