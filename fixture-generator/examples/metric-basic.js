@@ -11,10 +11,10 @@ const fs = require('fs');
 const path = require('path');
 
 async function generateMetricBasic() {
-  // Initialize the builder (dataViews API is available in Kibana context)
+  // Initialize the builder
   const builder = new LensConfigBuilder();
 
-  // Define a basic metric configuration
+  // Define metric configuration
   const config = {
     chartType: 'metric',
     title: 'Basic Count Metric',
