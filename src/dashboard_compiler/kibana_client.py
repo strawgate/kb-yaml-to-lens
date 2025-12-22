@@ -103,7 +103,7 @@ class KibanaClient:
 
                 async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                     response.raise_for_status()
-                    return await response.json()
+                    return await response.json()  # type: ignore[reportAny]
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
@@ -175,7 +175,7 @@ class KibanaClient:
         }
 
         # Rison-encode the job parameters using prison library
-        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType]
+        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'

@@ -76,7 +76,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
             _ = f.write(line + '\n')
 
 
-def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
+def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:  # type: ignore[reportUnknownVariableType]
     """Compile dashboard YAML to JSON strings for NDJSON.
 
     Args:
@@ -217,8 +217,8 @@ def compile_dashboards(  # noqa: PLR0913
         console.print('[yellow]No YAML files to compile.[/yellow]')
         return
 
-    ndjson_lines = []
-    errors = []
+    ndjson_lines: list[str] = []
+    errors: list[str] = []
 
     with Progress(
         SpinnerColumn(),
@@ -314,24 +314,24 @@ async def upload_to_kibana(
     try:
         result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
-        if result.get('success'):
-            success_count = result.get('successCount', 0)
+        if result.get('success'):  # type: ignore[reportAny]
+            success_count = result.get('successCount', 0)  # type: ignore[reportAny]
             console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {success_count} object(s) to Kibana')
 
-            dashboard_ids = [obj['id'] for obj in result.get('successResults', []) if obj.get('type') == 'dashboard']
+            dashboard_ids = [obj['id'] for obj in result.get('successResults', []) if obj.get('type') == 'dashboard']  # type: ignore[reportAny]
 
             if dashboard_ids and open_browser:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                 console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
                 _ = webbrowser.open_new_tab(dashboard_url)
 
-            if result.get('errors'):
-                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result["errors"])} error(s):')
-                console.print(create_error_table(result['errors']))
+            if result.get('errors'):  # type: ignore[reportAny]
+                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result["errors"])} error(s):')  # type: ignore[reportAny]
+                console.print(create_error_table(result['errors']))  # type: ignore[reportAny]
         else:
             console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
-            if result.get('errors'):
-                console.print(create_error_table(result['errors']))
+            if result.get('errors'):  # type: ignore[reportAny]
+                console.print(create_error_table(result['errors']))  # type: ignore[reportAny]
             msg = 'Upload to Kibana failed'
             raise click.ClickException(msg)
 
