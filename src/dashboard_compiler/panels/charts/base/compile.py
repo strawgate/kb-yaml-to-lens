@@ -9,18 +9,18 @@ from dashboard_compiler.panels.charts.base.view import (
 )
 
 
-def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMapping:
+def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMapping | None:
     """Compile a ColorMapping config object into a Kibana color mapping view model.
 
     Args:
-        color_config: The color configuration from YAML, or None for defaults.
+        color_config: The color configuration from YAML, or None for no color mapping.
 
     Returns:
-        KbnLayerColorMapping: The compiled Kibana color mapping view model.
+        KbnLayerColorMapping | None: The compiled Kibana color mapping view model, or None if no config provided.
 
     """
     if not color_config:
-        return KbnLayerColorMapping()
+        return None
 
     # Build manual color assignments
     kbn_assignments: list[KbnLayerColorMappingAssignment] = []

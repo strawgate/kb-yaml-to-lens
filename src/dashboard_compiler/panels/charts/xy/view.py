@@ -52,7 +52,7 @@ class XYDataLayerConfig(BaseVwModel):
     xScaleType: Annotated[Any | None, OmitIfNone()] = None
     isHistogram: Annotated[bool | None, OmitIfNone()] = None
     columnToLabel: Annotated[str | None, OmitIfNone()] = None
-    colorMapping: KbnLayerColorMapping | None = None
+    colorMapping: Annotated[KbnLayerColorMapping | None, OmitIfNone()] = None
 
 
 class XYReferenceLineLayerConfig(BaseVwModel):
