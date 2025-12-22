@@ -28,30 +28,14 @@ Generate **known-good** Kibana dashboard JSON by:
 
 ## Quick Start
 
-### Option A: Use Pre-Built GHCR Image (Recommended)
-
-**Fast path** - Uses pre-built images from GitHub Container Registry, no build required:
-
-```bash
-cd fixture-generator
-docker-compose -f docker-compose.ghcr.yml run generator
-
-# Generate specific fixture
-docker-compose -f docker-compose.ghcr.yml run generator node examples/metric-basic.js
-```
-
-See [GHCR.md](GHCR.md) for complete GHCR documentation.
-
-### Option B: Build Locally
-
-**Build from source** - Takes 15-30 minutes but works offline:
+### 1. Build the Docker Container
 
 ```bash
 cd fixture-generator
 docker-compose build
 ```
 
-**Note**: First build takes 15-30 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
+**Note**: First build takes a few minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
 
 ### 2. Generate Fixtures
 

@@ -137,7 +137,7 @@ cd fixture-generator
 docker compose build
 ```
 
-**Build Process:** Takes 15-30 minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
+**Build Process:** Takes a few minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
 
 **Common Issues:**
 
