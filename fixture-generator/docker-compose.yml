@@ -11,7 +11,7 @@ services:
     volumes:
       # Output JSON files
       - ./output:/tool/output
-      # Mount examples directory for live editing
+      # Mount examples directory for development
       - ./examples:/tool/examples:ro
       # Cache Kibana node_modules between runs
       - kibana_node_modules:/kibana/node_modules
