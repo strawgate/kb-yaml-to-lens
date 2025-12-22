@@ -1,7 +1,5 @@
 """Base classes for chart visualizations."""
 
-from __future__ import annotations
-
 from typing import Annotated, Any
 
 from pydantic import Field
