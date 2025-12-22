@@ -1,6 +1,6 @@
 """Base classes and data structures for panels in Kibana dashboards."""
 
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import Annotated, Any
 
 from pydantic import Field, field_serializer
 
@@ -9,22 +9,13 @@ from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.model import BaseModel
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
-if TYPE_CHECKING:
-    from dashboard_compiler.panels.charts.view import KbnLensPanel
-    from dashboard_compiler.panels.links.view import KbnLinksPanel
-    from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
-    from dashboard_compiler.panels.search.view import KbnSearchPanel
-
 __all__ = [
     'KbnBasePanel',
     'KbnBasePanelEmbeddableConfig',
     'KbnGridData',
-    'KbnPanelTypes',
     'KbnSavedObjectMeta',
     'KbnSearchSourceJSON',
 ]
-
-type KbnPanelTypes = 'KbnMarkdownPanel | KbnSearchPanel | KbnLinksPanel | KbnLensPanel'
 
 
 class KbnGridData(BaseVwModel):

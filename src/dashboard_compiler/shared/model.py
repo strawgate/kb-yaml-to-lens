@@ -1,9 +1,11 @@
+from typing import Any
+
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import ConfigDict
 from pydantic import RootModel as PydanticRootModel
 
 
-class BaseRootCfgModel(PydanticRootModel):
+class BaseRootCfgModel(PydanticRootModel[Any]):
     """Base configuration model for the dashboard compiler."""
 
     model_config = ConfigDict(
