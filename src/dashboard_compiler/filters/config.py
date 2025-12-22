@@ -7,7 +7,7 @@ from pydantic import Discriminator, Field, Tag, model_validator
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
-def get_filter_type(v: dict | object) -> str:  # noqa: PLR0911, PLR0912
+def get_filter_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0912
     """Extract filter type for discriminated union validation.
 
     Args:
@@ -34,7 +34,8 @@ def get_filter_type(v: dict | object) -> str:  # noqa: PLR0911, PLR0912
             return 'or'
         if 'not' in v:
             return 'not'
-        return 'unknown'
+        msg = f'Cannot determine filter type from dict with keys: {list(v.keys())}'
+        raise ValueError(msg)
 
     if hasattr(v, 'exists'):
         return 'exists'
@@ -52,7 +53,8 @@ def get_filter_type(v: dict | object) -> str:  # noqa: PLR0911, PLR0912
         return 'or'
     if hasattr(v, 'not_filter'):
         return 'not'
-    return 'unknown'
+    msg = f'Cannot determine filter type from object: {type(v).__name__}'
+    raise ValueError(msg)
 
 
 type FilterPredicateTypes = Annotated[
@@ -175,6 +177,11 @@ class NegateFilter(BaseCfgModel):
     """Represents a negated filter configuration in the Config schema.
 
     This allows for excluding documents that match the nested filter.
+
+    Note: Unlike other filter types, NegateFilter extends BaseCfgModel directly
+    rather than BaseFilter, so it does not support 'alias' or 'disabled' fields.
+    This is intentional - negation is a logical modifier that wraps another filter,
+    and aliasing/disabling should be applied to the wrapped filter itself.
     """
 
     not_filter: 'FilterTypes' = Field(..., validation_alias='not')

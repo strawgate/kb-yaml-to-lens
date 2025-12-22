@@ -5,7 +5,7 @@ from pydantic import Discriminator, Tag
 from dashboard_compiler.queries.config import ESQLQuery, KqlQuery, LuceneQuery
 
 
-def get_query_type(v: dict | object) -> str:  # noqa: PLR0911
+def get_query_type(v: dict[str, object] | object) -> str:
     """Extract query type for discriminated union validation.
 
     Args:
@@ -22,14 +22,16 @@ def get_query_type(v: dict | object) -> str:  # noqa: PLR0911
             return 'lucene'
         if 'root' in v:
             return 'esql'
-        return 'unknown'
+        msg = f'Cannot determine query type from dict with keys: {list(v.keys())}'
+        raise ValueError(msg)
     if hasattr(v, 'kql'):
         return 'kql'
     if hasattr(v, 'lucene'):
         return 'lucene'
     if hasattr(v, 'root'):
         return 'esql'
-    return 'unknown'
+    msg = f'Cannot determine query type from object: {type(v).__name__}'
+    raise ValueError(msg)
 
 
 type LegacyQueryTypes = Annotated[

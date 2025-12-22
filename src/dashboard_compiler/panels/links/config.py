@@ -21,7 +21,7 @@ class BaseLink(BaseCfgModel):
     """The text that will be displayed for the link. Kibana defaults to showing the URL if not set."""
 
 
-def get_link_type(v: dict | object) -> str:
+def get_link_type(v: dict[str, object] | object) -> str:
     """Extract link type for discriminated union validation.
 
     Args:
@@ -36,12 +36,14 @@ def get_link_type(v: dict | object) -> str:
             return 'dashboard'
         if 'url' in v:
             return 'url'
-        return 'unknown'
+        msg = f'Cannot determine link type from dict with keys: {list(v.keys())}'
+        raise ValueError(msg)
     if hasattr(v, 'dashboard'):
         return 'dashboard'
     if hasattr(v, 'url'):
         return 'url'
-    return 'unknown'
+    msg = f'Cannot determine link type from object: {type(v).__name__}'
+    raise ValueError(msg)
 
 
 type LinkTypes = Annotated[
