@@ -48,7 +48,7 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
     if isinstance(chart, LensPieChart):
         return KbnVisualizationTypeEnum.PIE
-    if isinstance(chart, LensLineChart | LensBarChart | LensAreaChart):
+    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart)):
         return KbnVisualizationTypeEnum.XY
     if isinstance(chart, LensMetricChart):
         return KbnVisualizationTypeEnum.METRIC
@@ -75,12 +75,12 @@ def compile_lens_chart_state(
 
     # Note: Currently only the last chart's visualization state is used
     for chart in charts:
-        if isinstance(chart, LensMetricChart):
-            layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
+        if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart)):
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
         elif isinstance(chart, LensPieChart):
-            layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
-        elif isinstance(chart, LensLineChart | LensBarChart | LensAreaChart):
-            layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
+        elif isinstance(chart, LensMetricChart):
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
         else:
             msg = f'Unsupported chart type: {type(chart)}'
             raise NotImplementedError(msg)
@@ -134,10 +134,11 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
-    if isinstance(panel.chart, ESQLMetricChart):
-        layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
-    elif isinstance(panel.chart, ESQLPieChart):
-        layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
+    if isinstance(panel.chart, (ESQLMetricChart, ESQLPieChart)):
+        if isinstance(panel.chart, ESQLMetricChart):
+            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
+        else:
+            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
     else:
         msg = f'Unsupported ESQL chart type: {type(panel.chart)}'
         raise NotImplementedError(msg)

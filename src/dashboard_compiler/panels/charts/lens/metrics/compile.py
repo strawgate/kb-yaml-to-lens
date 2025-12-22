@@ -105,7 +105,9 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
             ),
         )
 
-    if isinstance(metric_format, LensMetricFormat):
+    # This check is necessary even though it appears redundant to type checkers
+    # because metric_format could be a more specific subclass at runtime
+    if isinstance(metric_format, LensMetricFormat):  # type: ignore[reportUnnecessaryIsInstance]
         return KbnLensMetricFormat(
             id=metric_format.type,
             params=KbnLensMetricFormatParams(
@@ -115,8 +117,10 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
             ),
         )
 
-    msg = f'Unsupported metric format type: {type(metric_format)}'
-    raise NotImplementedError(msg)
+    # All LensMetricFormatTypes have been handled above, this is unreachable
+    # but kept for type safety in case new types are added
+    msg = f'Unsupported metric format type: {type(metric_format)}'  # type: ignore[reportUnreachable]
+    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
 
 
 # def compile_lens_formula(metric: LensFormulaMetric) -> tuple[str, KbnLensFormulaMetricColumnTypes]:
@@ -193,14 +197,18 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         )
         metric_filter = KbnQuery(query=f'"{metric.field}": *', language='kuery')
 
-    elif isinstance(metric, LensOtherAggregatedMetric):
+    # This check is necessary even though it appears redundant to type checkers
+    # because metric could be a more specific subclass at runtime
+    elif isinstance(metric, LensOtherAggregatedMetric):  # type: ignore[reportUnnecessaryIsInstance]
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation, None),
         )
     else:
-        msg = f'Unsupported metric type: {type(metric)}'
-        raise NotImplementedError(msg)
+        # All LensMetricTypes have been handled above, this is unreachable
+        # but kept for type safety in case new types are added
+        msg = f'Unsupported metric type: {type(metric)}'  # type: ignore[reportUnreachable]
+        raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
 
     return metric_id, KbnLensFieldMetricColumn(
         label=metric.label or default_label,
