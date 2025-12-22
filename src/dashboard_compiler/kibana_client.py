@@ -51,7 +51,7 @@ class KibanaSavedObjectsResponse(BaseModel):
 
     model_config = ConfigDict(extra='allow', populate_by_name=True)
 
-    success: bool = Field(description='Whether the import was successful')
+    success: bool = Field(default=False, description='Whether the import was successful')
     success_count: int = Field(default=0, alias='successCount', description='Number of successfully imported objects')
     success_results: list[SavedObjectResult] = Field(
         default_factory=list, alias='successResults', description='List of successfully imported objects'

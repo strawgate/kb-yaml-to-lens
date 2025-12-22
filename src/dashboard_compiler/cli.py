@@ -50,12 +50,7 @@ def create_error_table(errors: list[SavedObjectError]) -> Table:
 
     for error in errors:
         # Extract error message from the SavedObjectError model
-        if error.error and isinstance(error.error, dict):
-            error_msg = error.error.get('message', error.message or str(error))
-        elif error.message:
-            error_msg = error.message
-        else:
-            error_msg = str(error)
+        error_msg = (error.error.get('message') if error.error else None) or error.message or str(error)
         error_table.add_row(error_msg)
 
     return error_table
