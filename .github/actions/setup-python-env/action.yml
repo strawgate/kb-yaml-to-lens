@@ -1,42 +1,18 @@
 name: 'Setup Python Environment'
-description: 'Checkout repository, set up Python, and install UV package manager'
-
-inputs:
-  python-version:
-    description: 'Python version to install'
-    required: false
-    default: '3.12'
-  checkout-ref:
-    description: 'Git ref to checkout'
-    required: false
-    default: ''
-  fetch-depth:
-    description: 'Number of commits to fetch. 0 indicates all history for all branches and tags'
-    required: false
-    default: '1'
-  install-dependencies:
-    description: 'Whether to install Python dependencies with uv sync --all-extras'
-    required: false
-    default: 'false'
+description: 'Set up Python and install UV package manager with dependencies'
 
 runs:
   using: 'composite'
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ inputs.checkout-ref }}
-        fetch-depth: ${{ inputs.fetch-depth }}
 
-    - name: Set up Python ${{ inputs.python-version }}
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ inputs.python-version }}
+        python-version: '3.12'
 
     - name: Install UV
       uses: astral-sh/setup-uv@v7
 
     - name: Install dependencies
-      if: inputs.install-dependencies == 'true'
       shell: bash
-      run: uv sync --all-extras
+      run: uv sync --group dev

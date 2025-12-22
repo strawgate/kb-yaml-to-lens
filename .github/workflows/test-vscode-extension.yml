@@ -2,12 +2,12 @@ name: Test VSCode Extension
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'vscode-extension/**'
       - '.github/workflows/test-vscode-extension.yml'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - 'vscode-extension/**'
       - '.github/workflows/test-vscode-extension.yml'
@@ -18,16 +18,13 @@ permissions:
 jobs:
   test-python-scripts:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.12']
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Setup Python Environment
       uses: ./.github/actions/setup-python-env
-      with:
-        python-version: ${{ matrix.python-version }}
-        install-dependencies: 'true'
 
     - name: Run Python tests for extension
       run: |
