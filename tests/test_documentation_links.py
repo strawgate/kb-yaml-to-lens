@@ -5,7 +5,7 @@ markdown documentation files are valid and not broken.
 """
 
 
-def test_readme_links(file_path='README.md'):
+def test_readme_links() -> None:
     """Check links in README.md.
 
     pytest-check-links will automatically check this file when
@@ -13,7 +13,7 @@ def test_readme_links(file_path='README.md'):
     """
 
 
-def test_contributing_links(file_path='CONTRIBUTING.md'):
+def test_contributing_links() -> None:
     """Check links in CONTRIBUTING.md.
 
     pytest-check-links will automatically check this file when
@@ -21,7 +21,7 @@ def test_contributing_links(file_path='CONTRIBUTING.md'):
     """
 
 
-def test_documentation_links(file_path='docs'):
+def test_documentation_links() -> None:
     """Check links in all documentation files.
 
     pytest-check-links will automatically check files in docs/
