@@ -258,7 +258,7 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     ignoreGlobalFilters: bool
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
     annotationGroupId: str
-    last_saved: Any = Field(alias='__lastSaved')
+    last_saved: Any = Field(alias='__lastSaved')  # type: ignore[reportAny]
 
 
 # Subclass Kbn for XY visualizations state (JSON structure)

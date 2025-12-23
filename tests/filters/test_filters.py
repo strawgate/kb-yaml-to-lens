@@ -3,6 +3,7 @@
 from collections.abc import Callable
 
 import pytest
+from dirty_equals import IsPartialDict
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -23,13 +24,7 @@ def compile_filter_snapshot() -> Callable[[dict], dict]:
     def _compile(config: dict) -> dict:
         filter_holder = FilterHolder.model_validate({'filter': config})
         kbn_filter = compile_filters(filters=[filter_holder.filter])[0]
-        kbn_filter_as_dict = kbn_filter.model_dump()
-
-        # Remove the $state field as it's dynamic and not important for testing
-        if '$state' in kbn_filter_as_dict:
-            del kbn_filter_as_dict['$state']
-
-        return kbn_filter_as_dict
+        return kbn_filter.model_dump()
 
     return _compile
 
@@ -40,8 +35,8 @@ def test_compile_phrase_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'disabled': False,
                 'negate': False,
                 'alias': None,
@@ -50,8 +45,8 @@ def test_compile_phrase_filter(compile_filter_snapshot):
                 'params': {'query': 'active'},
                 'type': 'phrase',
             },
-            'query': {'match_phrase': {'status': 'active'}},
-        }
+            query={'match_phrase': {'status': 'active'}},
+        )
     )
 
 
@@ -61,8 +56,8 @@ def test_compile_exists_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'disabled': False,
                 'negate': False,
                 'alias': None,
@@ -70,8 +65,8 @@ def test_compile_exists_filter(compile_filter_snapshot):
                 'field': 'status',
                 'type': 'exists',
             },
-            'query': {'exists': {'field': 'status'}},
-        }
+            query={'exists': {'field': 'status'}},
+        )
     )
 
 
@@ -81,8 +76,8 @@ def test_compile_not_exists_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'disabled': False,
                 'negate': True,
                 'alias': None,
@@ -90,8 +85,8 @@ def test_compile_not_exists_filter(compile_filter_snapshot):
                 'field': 'status',
                 'type': 'exists',
             },
-            'query': {'exists': {'field': 'status'}},
-        }
+            query={'exists': {'field': 'status'}},
+        )
     )
 
 
@@ -101,8 +96,8 @@ def test_compile_phrase_negated_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'disabled': False,
                 'negate': True,
                 'alias': None,
@@ -111,8 +106,8 @@ def test_compile_phrase_negated_filter(compile_filter_snapshot):
                 'params': {'query': 'active'},
                 'type': 'phrase',
             },
-            'query': {'match_phrase': {'status': 'active'}},
-        }
+            query={'match_phrase': {'status': 'active'}},
+        )
     )
 
 
@@ -122,8 +117,8 @@ def test_compile_range_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'disabled': False,
                 'negate': False,
                 'alias': None,
@@ -132,8 +127,8 @@ def test_compile_range_filter(compile_filter_snapshot):
                 'params': {'gte': '0004-12-31T18:09:24.000-05:50', 'lt': '0009-12-31T18:09:24.000-05:50'},
                 'type': 'range',
             },
-            'query': {'range': {'@timestamp': {'gte': '0004-12-31T18:09:24.000-05:50', 'lt': '0009-12-31T18:09:24.000-05:50'}}},
-        }
+            query={'range': {'@timestamp': {'gte': '0004-12-31T18:09:24.000-05:50', 'lt': '0009-12-31T18:09:24.000-05:50'}}},
+        )
     )
 
 
@@ -143,8 +138,8 @@ def test_compile_in_list_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'disabled': False,
                 'negate': False,
                 'alias': None,
@@ -153,7 +148,7 @@ def test_compile_in_list_filter(compile_filter_snapshot):
                 'params': ['active', 'inactive'],
                 'type': 'phrases',
             },
-            'query': {
+            query={
                 'bool': {
                     'minimum_should_match': 1,
                     'should': [
@@ -162,7 +157,7 @@ def test_compile_in_list_filter(compile_filter_snapshot):
                     ],
                 },
             },
-        }
+        )
     )
 
 
@@ -177,8 +172,8 @@ def test_compile_compound_and_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'type': 'combined',
                 'relation': 'AND',
                 'params': [
@@ -220,8 +215,8 @@ def test_compile_compound_and_filter(compile_filter_snapshot):
                 'negate': False,
                 'alias': None,
             },
-            'query': {},
-        }
+            query={},
+        )
     )
 
 
@@ -236,8 +231,8 @@ def test_compile_compound_or_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'type': 'combined',
                 'relation': 'OR',
                 'params': [
@@ -279,8 +274,8 @@ def test_compile_compound_or_filter(compile_filter_snapshot):
                 'negate': False,
                 'alias': None,
             },
-            'query': {},
-        }
+            query={},
+        )
     )
 
 
@@ -297,8 +292,8 @@ def test_compile_compound_or_not_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'type': 'combined',
                 'relation': 'OR',
                 'params': [
@@ -340,8 +335,8 @@ def test_compile_compound_or_not_filter(compile_filter_snapshot):
                 'negate': False,
                 'alias': None,
             },
-            'query': {},
-        }
+            query={},
+        )
     )
 
 
@@ -361,8 +356,8 @@ def test_compile_compound_or_and_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {
+        IsPartialDict(
+            meta={
                 'type': 'combined',
                 'relation': 'OR',
                 'params': [
@@ -427,8 +422,8 @@ def test_compile_compound_or_and_filter(compile_filter_snapshot):
                 'negate': False,
                 'alias': None,
             },
-            'query': {},
-        }
+            query={},
+        )
     )
 
 
@@ -438,8 +433,8 @@ def test_compile_query_dsl_filter(compile_filter_snapshot):
     result = compile_filter_snapshot(config)
 
     assert result == snapshot(
-        {
-            'meta': {'type': 'custom', 'disabled': False, 'negate': False, 'alias': None, 'key': 'query'},
-            'query': {'match_phrase': {'status': 'active'}},
-        }
+        IsPartialDict(
+            meta={'type': 'custom', 'disabled': False, 'negate': False, 'alias': None, 'key': 'query'},
+            query={'match_phrase': {'status': 'active'}},
+        )
     )

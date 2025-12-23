@@ -6,7 +6,9 @@ T = TypeVar('T')
 
 
 def return_unless(var: bool | None, is_none: bool) -> bool:
-    """Evaluate var and return a boolean value.
+    """Return `var` unless it's none, and then return the value passed for `is_none`.
+
+    A simple helper that replaces `var if var is not None else default`
 
     Args:
         var: The variable to evaluate.
@@ -35,7 +37,7 @@ def return_if(var: bool | None, is_false: T, is_true: T, default: T) -> T:
     return default if var is None else (is_true if var else is_false)
 
 
-def return_if_equals(var: Any, equals: Any, is_false: T, is_true: T, is_none: T) -> T:
+def return_if_equals(var: Any, equals: Any, is_false: T, is_true: T, is_none: T) -> T:  # type: ignore[reportAny]
     """Evaluate var against a value and return a corresponding value.
 
     Args:

@@ -22,7 +22,7 @@ def get_query_type(v: dict[str, object] | object) -> str:
             return 'lucene'
         if 'root' in v:
             return 'esql'
-        msg = f'Cannot determine query type from dict with keys: {list(v)}'
+        msg = f'Cannot determine query type from dict with keys: {list(v)}'  # type: ignore[reportUnknownArgumentType]
         raise ValueError(msg)
     if hasattr(v, 'kql'):
         return 'kql'
