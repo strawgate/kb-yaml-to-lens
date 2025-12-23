@@ -1780,6 +1780,7 @@ A metric that is defined in the ESQL query.
     ```yaml
     - field: total_requests
       label: Total Requests from ESQL
+
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/metric/config.md -->\n\n# Metric Chart Panel Configuration
 
 The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
@@ -1812,8 +1813,8 @@ dashboard:
 
 ## Related
 
-- [Base Panel Configuration](../../base.md)
-- [Dashboard Configuration](../../../dashboard/dashboard.md)
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/pie/config.md -->\n\n# Pie Chart Panel Configuration
 
 The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
@@ -1850,8 +1851,8 @@ dashboard:
 
 ## Related
 
-- [Base Panel Configuration](../../base.md)
-- [Dashboard Configuration](../../../dashboard/dashboard.md)
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
 \n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.

@@ -366,6 +366,7 @@ rows:
 ```
 
 Key implications:
+
 - Collapsed sections **lazy-load content**, improving performance
 - The `gridData.row` property links panels to their parent section
 - Uses custom CSS grid layout engine (`kbn-grid-layout`) replacing
@@ -447,6 +448,7 @@ Columns define the data transformations (metrics and buckets):
 ```
 
 **Operation types include**:
+
 - **Metrics**: `count`, `sum`, `avg`, `max`, `min`, `cardinality`, `percentile`,
   `median`, `last_value`, `unique_count`
 - **Buckets**: `date_histogram`, `terms`, `filters`, `range`
@@ -531,6 +533,7 @@ New control types enable dynamic dashboard filtering through ES|QL queries:
 | 9.2+ | "Variable controls" |
 
 Variable prefixes in ES|QL queries:
+
 - `?variableName` — value variables (filter values)
 - `??variableName` — field/function variables
 
@@ -679,6 +682,7 @@ Content-Type: application/json
 ### Version Detection Strategy
 
 Check `typeMigrationVersion` or response headers to determine target version:
+
 - **8.x**: Use stringified JSON format with SavedObjects API
 - **9.x**: Same stringified format works; new Dashboard API (when available)
   accepts destringified
@@ -743,6 +747,7 @@ authoritative type definitions:
 ## OpenAPI Specifications
 
 Official Kibana API schemas are available at:
+
 - **JSON**: `https://www.elastic.co/docs/api/doc/kibana.json`
 - **YAML**: `https://www.elastic.co/docs/api/doc/kibana.yaml`
 

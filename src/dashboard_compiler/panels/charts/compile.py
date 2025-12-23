@@ -8,6 +8,8 @@ from dashboard_compiler.panels.charts.config import (
     LensChartTypes,
     LensPanel,
 )
+from dashboard_compiler.panels.charts.gauge.compile import compile_esql_gauge_chart, compile_lens_gauge_chart
+from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
@@ -40,6 +42,7 @@ if TYPE_CHECKING:
 
 CHART_TYPE_TO_KBN_TYPE_MAP = {
     'metric': KbnVisualizationTypeEnum.METRIC,
+    'gauge': KbnVisualizationTypeEnum.GAUGE,
     'pie': KbnVisualizationTypeEnum.PIE,
 }
 
@@ -52,6 +55,8 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
         return KbnVisualizationTypeEnum.XY
     if isinstance(chart, LensMetricChart):
         return KbnVisualizationTypeEnum.METRIC
+    if isinstance(chart, LensGaugeChart):
+        return KbnVisualizationTypeEnum.GAUGE
     # if isinstance(chart, LensDatatableChart):
     #     return KbnVisualizationTypeEnum.DATATABLE
 
@@ -81,6 +86,8 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
         elif isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
+        elif isinstance(chart, LensGaugeChart):
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_gauge_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
         else:
             msg = f'Unsupported chart type: {type(chart)}'
             raise NotImplementedError(msg)
@@ -134,9 +141,11 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
-    if isinstance(panel.chart, (ESQLMetricChart, ESQLPieChart)):
+    if isinstance(panel.chart, (ESQLMetricChart, ESQLGaugeChart, ESQLPieChart)):
         if isinstance(panel.chart, ESQLMetricChart):
             layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
+        elif isinstance(panel.chart, ESQLGaugeChart):
+            layer_id, esql_columns, visualization_state = compile_esql_gauge_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
         else:
             layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
     else:
