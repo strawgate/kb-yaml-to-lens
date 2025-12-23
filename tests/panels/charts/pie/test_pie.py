@@ -1,19 +1,10 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-import re
-from typing import Any
-
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
 from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieChart
-
-
-def _replace_layer_id(result: dict[str, Any]) -> dict[str, Any]:
-    """Replace dynamic layerId with placeholder for consistent snapshots."""
-    if 'layerId' in result and re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', result['layerId']):
-        result['layerId'] = 'DYNAMIC_LAYER_ID'
-    return result
+from tests.conftest import replace_uuid_field
 
 
 async def test_basic_pie_chart() -> None:
@@ -37,7 +28,7 @@ async def test_basic_pie_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -61,7 +52,7 @@ async def test_basic_pie_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -105,7 +96,7 @@ async def test_basic_donut_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -129,7 +120,7 @@ async def test_basic_donut_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -173,7 +164,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -197,7 +188,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -241,7 +232,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -267,7 +258,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -317,7 +308,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -342,7 +333,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -391,7 +382,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -417,7 +408,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -465,7 +456,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',
@@ -490,7 +481,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
+    result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
     assert result == snapshot(
         {
             'layerId': 'DYNAMIC_LAYER_ID',

@@ -1,7 +1,6 @@
 """Test the compilation of controls from config models to view models."""
 
 import json
-import re
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -10,6 +9,7 @@ from pydantic import BaseModel
 
 from dashboard_compiler.controls.compile import compile_control, compile_control_group
 from dashboard_compiler.controls.config import ControlSettings, ControlTypes
+from tests.conftest import replace_nested_uuid_field
 
 if TYPE_CHECKING:
     from dashboard_compiler.controls.view import KbnControlGroupInput, KbnControlTypes
@@ -30,12 +30,7 @@ def compile_control_snapshot():
         control_holder: ControlHolder = ControlHolder.model_validate({'control': config})
         kbn_control_group_input: KbnControlTypes = compile_control(order=0, control=control_holder.control)
         result = kbn_control_group_input.model_dump(by_alias=True)
-        # Replace dynamic ID with placeholder
-        if 'explicitInput' in result and 'id' in result['explicitInput']:
-            pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-            if re.match(pattern, result['explicitInput']['id']):
-                result['explicitInput']['id'] = 'DYNAMIC_ID'
-        return result
+        return replace_nested_uuid_field(result, 'explicitInput.id', 'DYNAMIC_ID')
 
     return _compile
 

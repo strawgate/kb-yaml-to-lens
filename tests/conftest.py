@@ -1,4 +1,6 @@
 import json
+import re
+from typing import Any
 
 import pytest
 import yaml
@@ -66,3 +68,59 @@ def de_json_kbn_dashboard(kbn_dashboard_dict: dict) -> dict:
         )
 
     return kbn_dashboard_dict
+
+
+def replace_uuid_field(data: dict[str, Any], field_name: str, placeholder: str = 'DYNAMIC_ID') -> dict[str, Any]:
+    """Replace a UUID field value with a placeholder for consistent snapshots.
+
+    This helper is used to normalize dynamically generated UUIDs in test snapshots,
+    making them deterministic and easier to compare.
+
+    Args:
+        data: Dictionary containing the field to replace
+        field_name: Name of the field containing the UUID
+        placeholder: Placeholder value to use (default: 'DYNAMIC_ID')
+
+    Returns:
+        The modified dictionary (note: modifies in place and returns for chaining)
+
+    Example:
+        result = replace_uuid_field(layer.model_dump(), 'layerId', 'DYNAMIC_LAYER_ID')
+    """
+    uuid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    if field_name in data and isinstance(data[field_name], str) and re.match(uuid_pattern, data[field_name]):
+        data[field_name] = placeholder
+    return data
+
+
+def replace_nested_uuid_field(data: dict[str, Any], field_path: str, placeholder: str = 'DYNAMIC_ID') -> dict[str, Any]:
+    """Replace a nested UUID field value with a placeholder for consistent snapshots.
+
+    Supports dot-separated paths to navigate nested dictionaries.
+
+    Args:
+        data: Dictionary containing the nested field to replace
+        field_path: Dot-separated path to the field (e.g., 'explicitInput.id')
+        placeholder: Placeholder value to use (default: 'DYNAMIC_ID')
+
+    Returns:
+        The modified dictionary (note: modifies in place and returns for chaining)
+
+    Example:
+        result = replace_nested_uuid_field(result, 'explicitInput.id', 'DYNAMIC_ID')
+    """
+    uuid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+
+    keys = field_path.split('.')
+    current = data
+    for key in keys[:-1]:
+        if key in current and isinstance(current[key], dict):
+            current = current[key]
+        else:
+            return data
+
+    final_key = keys[-1]
+    if final_key in current and isinstance(current[final_key], str) and re.match(uuid_pattern, current[final_key]):
+        current[final_key] = placeholder
+
+    return data
