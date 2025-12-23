@@ -10,9 +10,33 @@ Panel types and compilation logic.
 
 ## Markdown Panels
 
+Display rich text content using markdown syntax.
+
+### API Reference
+
 ::: dashboard_compiler.panels.markdown.config.MarkdownPanel
     options:
       show_source: true
+
+### Example
+
+```python
+from dashboard_compiler.panels.markdown.config import MarkdownPanel
+from dashboard_compiler.panels.config import Grid
+
+panel = MarkdownPanel(
+    type='markdown',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    content="""
+# Dashboard Title
+
+This is a **markdown** panel with:
+- Lists
+- **Bold** and *italic* text
+- [Links](https://example.com)
+    """,
+)
+```
 
 ## Links Panels
 
@@ -34,9 +58,122 @@ Panel types and compilation logic.
 
 ## Lens Panel
 
+Lens panels are used to create data visualizations including metrics, pie charts, and XY charts.
+
+### API Reference
+
 ::: dashboard_compiler.panels.charts.config.LensPanel
     options:
       show_source: true
+
+### Metric Charts
+
+Display key performance indicators.
+
+#### Example: Count Metric
+
+```python
+from dashboard_compiler.panels.lens.config import LensPanel
+from dashboard_compiler.panels.charts.metric.config import LensMetricChart
+from dashboard_compiler.panels.charts.lens.metrics.config import Count
+from dashboard_compiler.panels.config import Grid
+
+# Simple count metric
+count_chart = LensMetricChart(
+    type='metric',
+    data_view='logs-*',
+    primary=Count(),
+)
+
+panel = LensPanel(
+    type='lens',
+    title='Total Documents',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=count_chart,
+)
+```
+
+#### Example: Average Metric
+
+```python
+from dashboard_compiler.panels.charts.lens.metrics.config import Average
+
+# Average metric with field
+avg_chart = LensMetricChart(
+    type='metric',
+    data_view='logs-*',
+    primary=Average(field='response_time'),
+)
+
+panel = LensPanel(
+    type='lens',
+    title='Avg Response Time',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=avg_chart,
+)
+```
+
+### Pie Charts
+
+Create pie chart visualizations to show distribution of categorical data.
+
+#### Example
+
+```python
+from dashboard_compiler.panels.lens.config import LensPanel
+from dashboard_compiler.panels.charts.pie.config import LensPieChart
+from dashboard_compiler.panels.charts.lens.dimensions.config import Terms
+from dashboard_compiler.panels.charts.lens.metrics.config import Count
+from dashboard_compiler.panels.config import Grid
+
+pie_chart = LensPieChart(
+    type='pie',
+    data_view='logs-*',
+    slices=Terms(field='status'),
+    metric=Count(),
+)
+
+panel = LensPanel(
+    type='lens',
+    title='Status Distribution',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=pie_chart,
+)
+```
+
+### XY Charts
+
+Create line, bar, and area charts for time series and other data.
+
+#### Example: Time Series Line Chart
+
+```python
+from dashboard_compiler.panels.lens.config import LensPanel
+from dashboard_compiler.panels.charts.xy.config import LensXYChart, Layer
+from dashboard_compiler.panels.charts.lens.dimensions.config import DateHistogram
+from dashboard_compiler.panels.charts.lens.metrics.config import Count
+from dashboard_compiler.panels.config import Grid
+
+# Time series line chart
+layer = Layer(
+    type='line',
+    x_axis=DateHistogram(field='@timestamp'),
+    metrics=[Count()],
+)
+
+xy_chart = LensXYChart(
+    type='xy',
+    data_view='logs-*',
+    layers=[layer],
+)
+
+panel = LensPanel(
+    type='lens',
+    title='Documents Over Time',
+    grid=Grid(x=0, y=0, w=48, h=20),
+    chart=xy_chart,
+)
+```
 
 ## Lens Multi-Layer Panel
 

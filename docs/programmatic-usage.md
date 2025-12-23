@@ -110,113 +110,17 @@ dashboard.add_panel(panel1).add_panel(panel2).add_panel(panel3)
 
 ## Panel Types
 
-### Markdown Panels
+The Dashboard Compiler supports various panel types for different visualization needs. For detailed examples and API reference for each panel type, see the [Panels API documentation](api/panels.md).
 
-Display rich text content using markdown:
+**Available Panel Types:**
 
-```python
-from dashboard_compiler.panels.markdown.config import MarkdownPanel
-
-panel = MarkdownPanel(
-    type='markdown',
-    grid=Grid(x=0, y=0, w=24, h=15),
-    content="""
-# Dashboard Title
-
-This is a **markdown** panel with:
-- Lists
-- **Bold** and *italic* text
-- [Links](https://example.com)
-    """,
-)
-```
-
-### Metric Panels
-
-Display key performance indicators:
-
-```python
-from dashboard_compiler.panels.lens.config import LensPanel
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
-from dashboard_compiler.panels.charts.lens.metrics.config import Count, Average
-
-# Simple count metric
-count_chart = LensMetricChart(
-    type='metric',
-    data_view='logs-*',
-    primary=Count(),
-)
-
-panel = LensPanel(
-    type='lens',
-    title='Total Documents',
-    grid=Grid(x=0, y=0, w=24, h=15),
-    chart=count_chart,
-)
-
-# Average metric with field
-avg_chart = LensMetricChart(
-    type='metric',
-    data_view='logs-*',
-    primary=Average(field='response_time'),
-)
-```
-
-### Pie Charts
-
-Create pie chart visualizations:
-
-```python
-from dashboard_compiler.panels.lens.config import LensPanel
-from dashboard_compiler.panels.charts.pie.config import LensPieChart
-from dashboard_compiler.panels.charts.lens.dimensions.config import Terms
-from dashboard_compiler.panels.charts.lens.metrics.config import Count
-
-pie_chart = LensPieChart(
-    type='pie',
-    data_view='logs-*',
-    slices=Terms(field='status'),
-    metric=Count(),
-)
-
-panel = LensPanel(
-    type='lens',
-    title='Status Distribution',
-    grid=Grid(x=0, y=0, w=24, h=15),
-    chart=pie_chart,
-)
-```
-
-### XY Charts
-
-Create line, bar, and area charts:
-
-```python
-from dashboard_compiler.panels.lens.config import LensPanel
-from dashboard_compiler.panels.charts.xy.config import LensXYChart, Layer
-from dashboard_compiler.panels.charts.lens.dimensions.config import DateHistogram
-from dashboard_compiler.panels.charts.lens.metrics.config import Count
-
-# Time series line chart
-layer = Layer(
-    type='line',
-    x_axis=DateHistogram(field='@timestamp'),
-    metrics=[Count()],
-)
-
-xy_chart = LensXYChart(
-    type='xy',
-    data_view='logs-*',
-    layers=[layer],
-)
-
-panel = LensPanel(
-    type='lens',
-    title='Documents Over Time',
-    grid=Grid(x=0, y=0, w=48, h=20),
-    chart=xy_chart,
-)
-```
+- **[Markdown Panels](api/panels.md#markdown-panels)** - Display rich text content using markdown syntax
+- **[Metric Charts](api/panels.md#metric-charts)** - Display key performance indicators (KPIs)
+- **[Pie Charts](api/panels.md#pie-charts)** - Show distribution of categorical data
+- **[XY Charts](api/panels.md#xy-charts)** - Create line, bar, and area charts for time series data
+- **[Links Panels](api/panels.md#links-panels)** - Display collections of links
+- **[Image Panels](api/panels.md#image-panels)** - Embed images in dashboards
+- **[Search Panels](api/panels.md#search-panels)** - Display search results
 
 ## Filters and Controls
 
