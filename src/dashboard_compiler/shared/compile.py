@@ -6,7 +6,9 @@ T = TypeVar('T')
 
 
 def return_unless(var: bool | None, is_none: bool) -> bool:
-    """Evaluate var and return a boolean value.
+    """Return `var` unless it's none, and then return the value passed for `is_none`.
+
+    A simple helper that replaces `var if var is not None else default`
 
     Args:
         var: The variable to evaluate.
