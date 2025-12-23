@@ -128,7 +128,27 @@ def get_yaml_files(directory: Path) -> list[Path]:
 @click.group()
 @click.version_option(version='0.1.0')
 def cli() -> None:
-    """Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format."""
+    r"""Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format.
+
+    This tool helps you manage Kibana dashboards as code by compiling YAML
+    configurations into Kibana's NDJSON format and optionally uploading them
+    to your Kibana instance.
+
+    \b
+    Common workflows:
+        1. Compile dashboards:     kb-dashboard compile
+        2. Compile and upload:     kb-dashboard compile --upload
+        3. Take a screenshot:      kb-dashboard screenshot --dashboard-id ID --output file.png
+
+    \b
+    Authentication:
+        Use either username/password OR API key (not both):
+        - Basic auth: --kibana-username USER --kibana-password PASS
+        - API key:    --kibana-api-key KEY (recommended for production)
+
+    Use environment variables (KIBANA_URL, KIBANA_USERNAME, KIBANA_PASSWORD,
+    KIBANA_API_KEY) to avoid passing credentials on the command line.
+    """
 
 
 @cli.command('compile')
@@ -136,61 +156,70 @@ def cli() -> None:
     '--input-dir',
     type=click.Path(exists=True, file_okay=False, path_type=Path),
     default=DEFAULT_SCENARIO_DIR,
-    help='Directory containing YAML dashboard files',
+    help='Directory containing YAML dashboard files to compile.',
 )
 @click.option(
     '--output-dir',
     type=click.Path(file_okay=False, path_type=Path),
     default=DEFAULT_OUTPUT_DIR,
-    help='Directory to write compiled NDJSON files',
+    help='Directory where compiled NDJSON files will be written.',
 )
 @click.option(
     '--output-file',
     type=str,
     default='compiled_dashboards.ndjson',
-    help='Name of the combined output NDJSON file',
+    help='Filename for the combined output NDJSON file containing all dashboards.',
 )
 @click.option(
     '--upload',
     is_flag=True,
-    help='Upload compiled dashboards to Kibana after compilation',
+    help='Upload compiled dashboards to Kibana immediately after compilation.',
 )
 @click.option(
     '--kibana-url',
     type=str,
     envvar='KIBANA_URL',
     default='http://localhost:5601',
-    help='Kibana base URL (can also set KIBANA_URL env var)',
+    help='Kibana base URL. Example: https://kibana.example.com (env: KIBANA_URL)',
 )
 @click.option(
     '--kibana-username',
     type=str,
     envvar='KIBANA_USERNAME',
-    help='Kibana username for basic auth (can also set KIBANA_USERNAME env var)',
+    help=(
+        'Kibana username for basic authentication. Must be used with --kibana-password. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
+    ),
 )
 @click.option(
     '--kibana-password',
     type=str,
     envvar='KIBANA_PASSWORD',
-    help='Kibana password for basic auth (can also set KIBANA_PASSWORD env var)',
+    help=(
+        'Kibana password for basic authentication. Must be used with --kibana-username. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
+    ),
 )
 @click.option(
     '--kibana-api-key',
     type=str,
     envvar='KIBANA_API_KEY',
-    help='Kibana API key for authentication (can also set KIBANA_API_KEY env var)',
+    help=(
+        'Kibana API key for authentication (recommended for production). '
+        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
+    ),
 )
 @click.option(
     '--no-browser',
     is_flag=True,
-    help='Do not open browser after upload',
+    help='Prevent browser from opening automatically after successful upload.',
 )
 @click.option(
     '--overwrite/--no-overwrite',
     default=True,
-    help='Overwrite existing dashboards in Kibana',
+    help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-def compile_dashboards(  # noqa: PLR0913
+def compile_dashboards(  # noqa: PLR0913, PLR0912
     input_dir: Path,
     output_dir: Path,
     output_file: str,
@@ -202,14 +231,45 @@ def compile_dashboards(  # noqa: PLR0913
     no_browser: bool,
     overwrite: bool,
 ) -> None:
-    """Compile YAML dashboard configurations to NDJSON format.
+    r"""Compile YAML dashboard configurations to NDJSON format.
 
     This command finds all YAML files in the input directory, compiles them
     to Kibana's JSON format, and outputs them as NDJSON files.
 
     Optionally, you can upload the compiled dashboards directly to Kibana
     using the --upload flag.
+
+    \b
+    Examples:
+        # Compile dashboards from default directory
+        kb-dashboard compile
+
+        # Compile with custom input and output directories
+        kb-dashboard compile --input-dir ./dashboards --output-dir ./output
+
+        # Compile and upload to Kibana using basic auth
+        kb-dashboard compile --upload --kibana-url https://kibana.example.com \
+            --kibana-username admin --kibana-password secret
+
+        # Compile and upload using API key (recommended)
+        kb-dashboard compile --upload --kibana-url https://kibana.example.com \
+            --kibana-api-key "your-api-key-here"
+
+        # Use environment variables for credentials
+        export KIBANA_URL=https://kibana.example.com
+        export KIBANA_API_KEY=your-api-key
+        kb-dashboard compile --upload
     """
+    # Validate mutual exclusivity of authentication options
+    if kibana_api_key and (kibana_username or kibana_password):
+        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    # Validate that username and password are used together
+    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_files = get_yaml_files(input_dir)
@@ -344,72 +404,87 @@ async def upload_to_kibana(
 @click.option(
     '--dashboard-id',
     required=True,
-    help='Dashboard ID to screenshot',
+    help='Kibana dashboard ID to capture. Find this in the dashboard URL.',
 )
 @click.option(
     '--output',
     type=click.Path(path_type=Path),
     required=True,
-    help='Output PNG file path',
+    help='Path where the PNG screenshot will be saved. Example: ./dashboard.png',
 )
 @click.option(
     '--time-from',
     type=str,
-    help='Start time for dashboard time range (ISO 8601 format, e.g., "2024-01-01T00:00:00Z" or "now-7d")',
+    help=(
+        'Start time for dashboard data range. Accepts ISO 8601 format ("2024-01-01T00:00:00Z") '
+        'or relative time ("now-7d", "now-24h", "now-1M"). If omitted, uses dashboard default.'
+    ),
 )
 @click.option(
     '--time-to',
     type=str,
-    help='End time for dashboard time range (ISO 8601 format, e.g., "2024-12-31T23:59:59Z" or "now")',
+    help=(
+        'End time for dashboard data range. Accepts ISO 8601 format ("2024-12-31T23:59:59Z") '
+        'or relative time ("now", "now-1h"). If omitted, uses dashboard default.'
+    ),
 )
 @click.option(
     '--width',
     type=click.IntRange(min=1),
     default=1920,
-    help='Screenshot width in pixels (minimum: 1)',
+    help='Screenshot width in pixels. Standard resolutions: 1920 (Full HD), 3840 (4K). Default: 1920',
 )
 @click.option(
     '--height',
     type=click.IntRange(min=1),
     default=1080,
-    help='Screenshot height in pixels (minimum: 1)',
+    help='Screenshot height in pixels. Standard resolutions: 1080 (Full HD), 2160 (4K). Default: 1080',
 )
 @click.option(
     '--browser-timezone',
     type=str,
     default='UTC',
-    help='Timezone for the screenshot',
+    help='Browser timezone for rendering time-based data. Examples: "UTC", "America/New_York", "Europe/London". Default: UTC',
 )
 @click.option(
     '--timeout',
     type=click.IntRange(min=1),
     default=300,
-    help='Maximum seconds to wait for screenshot generation (minimum: 1)',
+    help='Maximum time in seconds to wait for screenshot generation. Increase for complex dashboards. Default: 300',
 )
 @click.option(
     '--kibana-url',
     type=str,
     envvar='KIBANA_URL',
     default='http://localhost:5601',
-    help='Kibana base URL (can also set KIBANA_URL env var)',
+    help='Kibana base URL. Example: https://kibana.example.com (env: KIBANA_URL)',
 )
 @click.option(
     '--kibana-username',
     type=str,
     envvar='KIBANA_USERNAME',
-    help='Kibana username for basic auth (can also set KIBANA_USERNAME env var)',
+    help=(
+        'Kibana username for basic authentication. Must be used with --kibana-password. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
+    ),
 )
 @click.option(
     '--kibana-password',
     type=str,
     envvar='KIBANA_PASSWORD',
-    help='Kibana password for basic auth (can also set KIBANA_PASSWORD env var)',
+    help=(
+        'Kibana password for basic authentication. Must be used with --kibana-username. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
+    ),
 )
 @click.option(
     '--kibana-api-key',
     type=str,
     envvar='KIBANA_API_KEY',
-    help='Kibana API key for authentication (can also set KIBANA_API_KEY env var)',
+    help=(
+        'Kibana API key for authentication (recommended for production). '
+        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
+    ),
 )
 def screenshot_dashboard(  # noqa: PLR0913
     dashboard_id: str,
@@ -447,6 +522,16 @@ def screenshot_dashboard(  # noqa: PLR0913
         kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
             --width 3840 --height 2160
     """
+    # Validate mutual exclusivity of authentication options
+    if kibana_api_key and (kibana_username or kibana_password):
+        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    # Validate that username and password are used together
+    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
     asyncio.run(
         generate_screenshot(
             dashboard_id=dashboard_id,
