@@ -1,6 +1,5 @@
 """Compile Control configurations into Kibana view models."""
 
-import uuid
 from collections.abc import Sequence
 
 from dashboard_compiler.controls import ControlTypes
@@ -23,6 +22,8 @@ from dashboard_compiler.controls.view import (
     SearchTechnique,
 )
 from dashboard_compiler.shared.compile import return_if, return_if_equals
+from dashboard_compiler.shared.defaults import default_false, default_if_none
+from dashboard_compiler.shared.id_utils import generate_id
 
 
 def compile_options_list_control(order: int, control: OptionsListControl) -> KbnOptionsListControl:
@@ -41,12 +42,12 @@ def compile_options_list_control(order: int, control: OptionsListControl) -> Kbn
         MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
         MatchTechnique.EXACT: SearchTechnique.EXACT,
     }
-    stable_id = control.id or str(uuid.uuid4())
+    stable_id = generate_id(control.id)
 
     return KbnOptionsListControl(
-        grow=control.fill_width or False,
+        grow=default_false(control.fill_width),
         order=order,
-        width=control.width or KBN_DEFAULT_CONTROL_WIDTH,
+        width=default_if_none(control.width, KBN_DEFAULT_CONTROL_WIDTH),
         explicitInput=KbnOptionsListControlExplicitInput(
             id=stable_id,
             dataViewId=control.data_view,
@@ -72,17 +73,17 @@ def compile_range_slider_control(order: int, control: RangeSliderControl) -> Kbn
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
-    stable_id = control.id or str(uuid.uuid4())
+    stable_id = generate_id(control.id)
 
     return KbnRangeSliderControl(
-        grow=control.fill_width or False,
+        grow=default_false(control.fill_width),
         order=order,
-        width=control.width or 'medium',
+        width=default_if_none(control.width, 'medium'),
         explicitInput=KbnRangeSliderControlExplicitInput(
             id=stable_id,
             dataViewId=control.data_view,
             fieldName=control.field,
-            step=control.step or 1,
+            step=default_if_none(control.step, 1),
             title=control.label,
         ),
     )
@@ -99,16 +100,16 @@ def compile_time_slider_control(order: int, control: TimeSliderControl) -> KbnTi
         KbnTimeSliderControl: The compiled Kibana time slider control view model.
 
     """
-    stable_id = control.id or str(uuid.uuid4())
+    stable_id = generate_id(control.id)
 
     return KbnTimeSliderControl(
         grow=True,
         order=order,
-        width=control.width or 'medium',
+        width=default_if_none(control.width, 'medium'),
         explicitInput=KbnTimeSliderControlExplicitInput(
             id=stable_id,
-            timesliceEndAsPercentageOfTimeRange=control.end_offset or 100.0,
-            timesliceStartAsPercentageOfTimeRange=control.start_offset or 0.0,
+            timesliceEndAsPercentageOfTimeRange=default_if_none(control.end_offset, 100.0),
+            timesliceStartAsPercentageOfTimeRange=default_if_none(control.start_offset, 0.0),
         ),
     )
 
