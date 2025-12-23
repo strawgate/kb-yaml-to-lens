@@ -73,9 +73,9 @@ class BaseXYChart(BaseChart):
 class LensXYChartMixin:
     """Shared fields for Lens-based XY charts."""
 
-    data_view: str = Field(default=..., description='The data view to use for the chart.')  # type: ignore[reportAny]
-    dimensions: list[LensDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')  # type: ignore[reportAny]
-    metrics: list[LensMetricTypes] = Field(..., description='Defines the metrics for the chart.')  # type: ignore[reportAny]
+    data_view: str = Field(description='The data view to use for the chart.')  # type: ignore[reportAny]
+    dimensions: list[LensDimensionTypes] = Field(description='Defines the dimensions for the chart.')  # type: ignore[reportAny]
+    metrics: list[LensMetricTypes] = Field(description='Defines the metrics for the chart.')  # type: ignore[reportAny]
     breakdown: LensDimensionTypes | None = Field(
         None,
         description=(
@@ -99,9 +99,9 @@ class LensXYChartMixin:
 class ESQLXYChartMixin:
     """Shared fields for ESQL-based XY charts."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')  # type: ignore[reportAny]
+    dimensions: list[ESQLDimensionTypes] = Field(description='Defines the dimensions for the chart.')  # type: ignore[reportAny]
 
-    metrics: list[ESQLMetricTypes] = Field(..., description='Defines the metrics for the chart.')  # type: ignore[reportAny]
+    metrics: list[ESQLMetricTypes] = Field(description='Defines the metrics for the chart.')  # type: ignore[reportAny]
 
     breakdown: ESQLDimensionTypes | None = Field(
         None,

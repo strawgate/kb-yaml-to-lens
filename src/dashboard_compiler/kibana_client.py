@@ -136,7 +136,7 @@ class KibanaClient:
 
                 async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                     response.raise_for_status()
-                    json_response: dict[str, Any] = await response.json()  # type: ignore[reportAny]
+                    json_response: Any = await response.json()  # type: ignore[reportAny]
                     return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
@@ -209,7 +209,7 @@ class KibanaClient:
         }
 
         # Rison-encode the job parameters using prison library
-        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        rison_params: Any = prison.dumps(job_params)  # type: ignore[reportAny, reportUnknownMemberType, reportUnknownVariableType]
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
@@ -219,12 +219,12 @@ class KibanaClient:
 
         async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
             response.raise_for_status()
-            result: dict[str, Any] = await response.json()  # type: ignore[reportAny]
-            job_path: str | None = result.get('path')  # type: ignore[reportAny]
+            result: Any = await response.json()  # type: ignore[reportAny]
+            job_path: Any = result.get('path')  # type: ignore[reportAny]
             if not job_path:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
                 raise ValueError(msg)
-            return job_path
+            return job_path  # type: ignore[reportAny]
 
     async def wait_for_job_completion(
         self,

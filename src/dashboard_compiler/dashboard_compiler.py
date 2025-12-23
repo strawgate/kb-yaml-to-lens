@@ -1,6 +1,7 @@
 """Provides functions to load, render, and dump YAML-to-Lens Dashboards."""
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -22,14 +23,14 @@ def load(path: str) -> list[Dashboard]:
     load_path = Path(path)
 
     with load_path.open() as file:
-        config = yaml.safe_load(file)
+        config: Any = yaml.safe_load(file)  # type: ignore[reportAny]
 
-    dashboards_data = config.get('dashboards', [])
+    dashboards_data: Any = config.get('dashboards', [])  # type: ignore[reportAny]
     if not isinstance(dashboards_data, list):
         msg = f"'dashboards' must be a list in YAML file: {path}"
         raise TypeError(msg)
 
-    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]
+    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]  # type: ignore[reportUnknownArgumentType, reportUnknownVariableType]
 
 
 def render(dashboard: Dashboard) -> KbnDashboard:

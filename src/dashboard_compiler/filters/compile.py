@@ -1,6 +1,7 @@
 """Compile Dashboard filter objects into their Kibana view model representations."""
 
 from collections.abc import Sequence
+from typing import Any
 
 from dashboard_compiler.filters import (
     AndFilter,
@@ -136,7 +137,7 @@ def compile_range_filter(*, range_filter: RangeFilter, negate: bool = False, nes
     Returns:
         KbnFilter: The compiled Kibana filter view model.
     """
-    range_query = {}
+    range_query: dict[str, Any] = {}
 
     if range_filter.gte is not None:
         range_query['gte'] = range_filter.gte
@@ -220,25 +221,25 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
     """
-    if isinstance(filter, NegateFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, NegateFilter):
         return compile_filter(filter=filter.not_filter, negate=True, nested=nested)
-    if isinstance(filter, ExistsFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, ExistsFilter):
         return compile_exists_filter(exists_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, PhraseFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, PhraseFilter):
         return compile_phrase_filter(phrase_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, PhrasesFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, PhrasesFilter):
         return compile_phrases_filter(phrases_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, RangeFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, RangeFilter):
         return compile_range_filter(range_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, CustomFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, CustomFilter):
         return compile_custom_filter(custom_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, AndFilter):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(filter, AndFilter):
         return compile_and_filter(and_filter=filter, negate=negate, nested=nested)
     if isinstance(filter, OrFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_or_filter(or_filter=filter, negate=negate, nested=nested)
 
-    msg = f'Unimplemented filter type: {type(filter)}'
-    raise NotImplementedError(msg)
+    msg = f'Unimplemented filter type: {type(filter)}'  # type: ignore[reportUnreachable]
+    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
 
 
 def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:

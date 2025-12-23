@@ -34,7 +34,8 @@ def get_filter_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR
             return 'or'
         if 'not' in v:
             return 'not'
-        msg = f'Cannot determine filter type from dict with keys: {list(v)}'  # type: ignore[reportUnknownArgumentType]
+        keys: Any = list(v)
+        msg = f'Cannot determine filter type from dict with keys: {keys}'
         raise ValueError(msg)
 
     if hasattr(v, 'exists'):

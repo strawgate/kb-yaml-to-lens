@@ -1,7 +1,7 @@
 """Shared view module for the dashboard compiler, defining data structures used in Kibana JSON."""
 
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import Field, RootModel, model_serializer
 
@@ -19,10 +19,10 @@ class BaseVwModel(BaseModel):
     """Base view model for the dashboard compiler."""
 
     @model_serializer
-    def _serialize(self):
+    def _serialize(self) -> dict[str, Any]:
         model_class = self.__class__
 
-        omit_if_none_fields = {k for k, v in model_class.model_fields.items() if any(isinstance(m, OmitIfNone) for m in v.metadata)}
+        omit_if_none_fields = {k for k, v in model_class.model_fields.items() if any(isinstance(m, OmitIfNone) for m in v.metadata)}  # type: ignore[reportAny]
 
         serialization_aliases = {k: v.serialization_alias for k, v in model_class.model_fields.items() if v.serialization_alias is not None}
 
