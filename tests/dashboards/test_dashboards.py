@@ -884,7 +884,31 @@ async def test_dashboard_with_one_xy_line_chart() -> None:
 
 async def test_dashboard_with_custom_options() -> None:
     """Test dashboard with custom options."""
-    db_input_dict = get_db_yaml('case_dashboard_options')
+    db_input_dict = {
+        'dashboards': [
+            {
+                'name': 'Dashboard Options Test',
+                'description': 'A dashboard to test all dashboard options',
+                'settings': {
+                    'margins': False,
+                    'sync': {
+                        'colors': True,
+                        'cursor': False,
+                        'tooltips': True,
+                    },
+                    'titles': False,
+                },
+                'panels': [
+                    {
+                        'type': 'markdown',
+                        'title': 'Test Panel',
+                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'content': '# Testing dashboard options\n',
+                    }
+                ],
+            }
+        ]
+    }
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
@@ -965,7 +989,22 @@ async def test_dashboard_with_custom_options() -> None:
 
 async def test_dashboard_with_default_options() -> None:
     """Test dashboard with default options."""
-    db_input_dict = get_db_yaml('case_dashboard_options_defaults')
+    db_input_dict = {
+        'dashboards': [
+            {
+                'name': 'Dashboard Options Defaults Test',
+                'description': 'A dashboard to test default dashboard options behavior',
+                'panels': [
+                    {
+                        'type': 'markdown',
+                        'title': 'Test Panel',
+                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'content': '# Testing default dashboard options\n',
+                    }
+                ],
+            }
+        ]
+    }
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
