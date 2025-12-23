@@ -1,9 +1,9 @@
 """Test the compilation of links panels from config models to view models."""
 
-import re
 from typing import Any
 
 import pytest
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.config import Grid
@@ -37,15 +37,11 @@ def test_compile_links_panel_basic_url(compile_links_panel_snapshot) -> None:
         }
     )
     assert references == snapshot([])
-    # Note: URL links generate dynamic UUIDs, so we validate the UUID format separately
-    link_id = result['attributes']['links'][0]['id']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
-    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
             'attributes': {
                 'layout': 'horizontal',
-                'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}],
+                'links': [{'label': '', 'type': 'externalLink', 'id': IsUUID, 'destination': 'https://elastic.co', 'order': 0}],
             },
             'enhancements': {},
         }
@@ -66,15 +62,11 @@ def test_compile_links_panel_custom_id(compile_links_panel_snapshot) -> None:
         }
     )
     assert references == snapshot([])
-    # Note: URL links currently generate new IDs even when one is provided
-    link_id = result['attributes']['links'][0]['id']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
-    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
             'attributes': {
                 'layout': 'horizontal',
-                'links': [{'label': '', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}],
+                'links': [{'label': '', 'type': 'externalLink', 'id': IsUUID, 'destination': 'https://elastic.co', 'order': 0}],
             },
             'enhancements': {},
         }
@@ -92,17 +84,11 @@ def test_compile_links_panel_with_label(compile_links_panel_snapshot) -> None:
         }
     )
     assert references == snapshot([])
-    # Note: URL links generate dynamic UUIDs, so we validate the UUID format separately
-    link_id = result['attributes']['links'][0]['id']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
-    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
             'attributes': {
                 'layout': 'horizontal',
-                'links': [
-                    {'label': 'Custom Label', 'type': 'externalLink', 'id': 'DYNAMIC_UUID', 'destination': 'https://elastic.co', 'order': 0}
-                ],
+                'links': [{'label': 'Custom Label', 'type': 'externalLink', 'id': IsUUID, 'destination': 'https://elastic.co', 'order': 0}],
             },
             'enhancements': {},
         }
@@ -120,10 +106,6 @@ def test_compile_links_panel_inverted_options(compile_links_panel_snapshot) -> N
         }
     )
     assert references == snapshot([])
-    # Note: URL links generate dynamic UUIDs, so we validate the UUID format separately
-    link_id = result['attributes']['links'][0]['id']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', link_id)
-    result['attributes']['links'][0]['id'] = 'DYNAMIC_UUID'
     assert result == snapshot(
         {
             'attributes': {
@@ -132,7 +114,7 @@ def test_compile_links_panel_inverted_options(compile_links_panel_snapshot) -> N
                     {
                         'label': 'Custom Label',
                         'type': 'externalLink',
-                        'id': 'DYNAMIC_UUID',
+                        'id': IsUUID,
                         'destination': 'https://elastic.co',
                         'order': 0,
                         'options': {'encodeUrl': False, 'openInNewTab': False},

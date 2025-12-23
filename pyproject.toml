@@ -46,6 +46,7 @@ dev = [
     "basedpyright>=1.36",
     "inline-snapshot>=0.31.1",
     "pytest-check-links>=0.9.0",
+    "dirty-equals>=0.8.0",
 ]
 docs = [
     "mkdocs>=1.6.0",
