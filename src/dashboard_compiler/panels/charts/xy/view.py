@@ -376,6 +376,3 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
 
     showCurrentTimeMarker: Annotated[bool | None, OmitIfNone()] = None
     """Whether to show a marker for the current time."""
-
-
-# Note: ValidLayer is not di
