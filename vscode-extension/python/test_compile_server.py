@@ -447,9 +447,7 @@ class TestDidSaveHandler(unittest.TestCase):
         mock_ls.protocol = mock_protocol
 
         # Create params
-        params = types.DidSaveTextDocumentParams(
-            text_document=types.TextDocumentIdentifier(uri='file:///test/dashboard.yaml')
-        )
+        params = types.DidSaveTextDocumentParams(text_document=types.TextDocumentIdentifier(uri='file:///test/dashboard.yaml'))
 
         # Call handler
         did_save(mock_ls, params)
