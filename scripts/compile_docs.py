@@ -14,8 +14,7 @@ def compile_markdown_references() -> None:
     main_dashboard_doc_rel_path = 'dashboard/dashboard.md'
     main_dashboard_doc_abs_path = docs_root_path / main_dashboard_doc_rel_path
 
-    all_md_files = []
-    other_md_files = []
+    all_md_files: list[pathlib.Path] = []
 
     for md_file in docs_root_path.rglob('*.md'):
         if md_file.resolve() == main_dashboard_doc_abs_path.resolve():
@@ -23,9 +22,9 @@ def compile_markdown_references() -> None:
         # Store relative path from repo_root for consistent sorting and display
         all_md_files.append(md_file.relative_to(repo_root))
 
-    other_md_files = sorted(all_md_files, key=lambda p: str(p))
+    other_md_files: list[pathlib.Path] = sorted(all_md_files, key=lambda p: str(p))
 
-    ordered_files_to_compile = []
+    ordered_files_to_compile: list[pathlib.Path] = []
     if main_dashboard_doc_abs_path.exists():
         ordered_files_to_compile.append(main_dashboard_doc_abs_path.relative_to(repo_root))
     else:
@@ -41,16 +40,16 @@ def compile_markdown_references() -> None:
                 continue
 
             print(f'Processing: {rel_file_path}')
-            outfile.write('\\n---\\n\\n')
-            outfile.write(f'<!-- Source: {str(rel_file_path).replace(os.sep, "/")} -->\\n\\n')  # HTML comment for source
+            _ = outfile.write('\\n---\\n\\n')
+            _ = outfile.write(f'<!-- Source: {str(rel_file_path).replace(os.sep, "/")} -->\\n\\n')  # HTML comment for source
             # outfile.write(f"## Source: {str(rel_file_path).replace(os.sep, '/')}\\n\\n") # Alternative: Markdown header
 
             with abs_file_path.open(encoding='utf-8') as infile:
                 content = infile.read()
-                outfile.write(content)
+                _ = outfile.write(content)
 
             if i < len(ordered_files_to_compile) - 1:
-                outfile.write('\\n\\n')  # Add some space before the next HR
+                _ = outfile.write('\\n\\n')  # Add some space before the next HR
 
     print(f'Successfully compiled documentation to: {output_file_path}')
 

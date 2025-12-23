@@ -3,10 +3,11 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, ClassVar, TypedDict
 
 import aiohttp
 import prison
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,38 @@ class _JobParams(TypedDict):
     layout: _JobParamsLayout
     browserTimezone: str
     locatorParams: dict[str, Any]
+
+
+class SavedObjectResult(BaseModel):
+    """Represents a single saved object result from Kibana API."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    id: str
+    type: str
+
+
+class SavedObjectError(BaseModel):
+    """Represents an error from Kibana saved objects API."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
+
+    error: dict[str, Any] | None = None
+    message: str | None = None
+    status_code: int | None = Field(default=None, alias='statusCode')
+
+
+class KibanaSavedObjectsResponse(BaseModel):
+    """Response from Kibana saved objects import API."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
+
+    success: bool = Field(default=False, description='Whether the import was successful')
+    success_count: int = Field(default=0, alias='successCount', description='Number of successfully imported objects')
+    success_results: list[SavedObjectResult] = Field(
+        default_factory=list, alias='successResults', description='List of successfully imported objects'
+    )
+    errors: list[SavedObjectError] = Field(default_factory=list, description='List of errors encountered during import')
 
 
 class KibanaClient:
@@ -76,7 +109,7 @@ class KibanaClient:
         self,
         ndjson_path: Path,
         overwrite: bool = True,
-    ) -> dict[str, Any]:
+    ) -> KibanaSavedObjectsResponse:
         """Upload an NDJSON file to Kibana using the Saved Objects Import API.
 
         Args:
@@ -84,7 +117,7 @@ class KibanaClient:
             overwrite: Whether to overwrite existing objects with the same IDs
 
         Returns:
-            Response dict from Kibana API containing success status and results
+            Pydantic model with parsed Kibana API response containing success status and results
 
         Raises:
             aiohttp.ClientError: If the request fails
@@ -103,7 +136,8 @@ class KibanaClient:
 
                 async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                     response.raise_for_status()
-                    return await response.json()
+                    json_response: dict[str, Any] = await response.json()  # type: ignore[reportAny]
+                    return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
@@ -175,7 +209,7 @@ class KibanaClient:
         }
 
         # Rison-encode the job parameters using prison library
-        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType]
+        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
