@@ -5,11 +5,10 @@ This example shows how to use Python's control flow (loops, conditionals, etc.)
 to dynamically generate dashboard panels based on data structures or configuration.
 """
 
-from dashboard_compiler.panels.lens.config import LensPanel
-
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import render
-from dashboard_compiler.panels.charts.lens.metrics.config import Average, Count
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric, LensOtherAggregatedMetric
 from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
 
@@ -37,12 +36,12 @@ for i, metric in enumerate(metrics_config):
 
     # Create the appropriate metric based on configuration
     if metric['aggregation'] == 'count':
-        primary_metric = Count()
+        primary_metric = LensCountAggregatedMetric(aggregation='count')
     elif metric['aggregation'] == 'average':
-        primary_metric = Average(field=metric['field'])
+        primary_metric = LensOtherAggregatedMetric(aggregation='average', field=metric['field'])
     else:
         # Default to count if unknown aggregation
-        primary_metric = Count()
+        primary_metric = LensCountAggregatedMetric(aggregation='count')
 
     # Create the chart
     chart = LensMetricChart(
@@ -53,7 +52,7 @@ for i, metric in enumerate(metrics_config):
 
     # Create the panel with calculated grid position
     panel = LensPanel(
-        type='lens',
+        type='charts',
         title=metric['name'],
         grid=Grid(
             x=col * 24,  # Each panel is 24 units wide

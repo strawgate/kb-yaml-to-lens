@@ -50,6 +50,7 @@ dev = [
     "inline-snapshot>=0.31.1",
     "pytest-check-links>=0.9.0",
     "dirty-equals>=0.8.0",
+    "pytest-examples>=0.0.18",
 ]
 docs = [
     "mkdocs>=1.6.0",

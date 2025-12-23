@@ -5,11 +5,10 @@ This example demonstrates how to build a more complex dashboard with multiple
 panels of different types arranged in a grid layout.
 """
 
-from dashboard_compiler.panels.lens.config import LensPanel
-
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import render
-from dashboard_compiler.panels.charts.lens.metrics.config import Average, Count
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric, LensOtherAggregatedMetric
 from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
@@ -30,49 +29,49 @@ header_panel = MarkdownPanel(
 
 # Panel 2: Document count metric
 count_metric = LensPanel(
-    type='lens',
+    type='charts',
     title='Total Documents',
     grid=Grid(x=0, y=8, w=12, h=12),
     chart=LensMetricChart(
         type='metric',
         data_view='logs-*',
-        primary=Count(),
+        primary=LensCountAggregatedMetric(aggregation='count'),
     ),
 )
 
 # Panel 3: Average bytes metric
 avg_metric = LensPanel(
-    type='lens',
+    type='charts',
     title='Average Bytes',
     grid=Grid(x=12, y=8, w=12, h=12),
     chart=LensMetricChart(
         type='metric',
         data_view='logs-*',
-        primary=Average(field='bytes'),
+        primary=LensOtherAggregatedMetric(aggregation='average', field='bytes'),
     ),
 )
 
 # Panel 4: Response time metric
 response_metric = LensPanel(
-    type='lens',
+    type='charts',
     title='Avg Response Time',
     grid=Grid(x=24, y=8, w=12, h=12),
     chart=LensMetricChart(
         type='metric',
         data_view='logs-*',
-        primary=Average(field='response_time'),
+        primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
     ),
 )
 
 # Panel 5: Error count metric
 error_metric = LensPanel(
-    type='lens',
+    type='charts',
     title='Error Count',
     grid=Grid(x=36, y=8, w=12, h=12),
     chart=LensMetricChart(
         type='metric',
         data_view='logs-*',
-        primary=Count(),
+        primary=LensCountAggregatedMetric(aggregation='count'),
     ),
 )
 

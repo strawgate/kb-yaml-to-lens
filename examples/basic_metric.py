@@ -5,11 +5,10 @@ This example shows how to create a dashboard with a metric panel that displays
 a count of documents.
 """
 
-from dashboard_compiler.panels.lens.config import LensPanel
-
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import render
-from dashboard_compiler.panels.charts.lens.metrics.config import Count
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
 
@@ -23,12 +22,12 @@ dashboard = Dashboard(
 metric_chart = LensMetricChart(
     type='metric',
     data_view='logs-*',
-    primary=Count(),
+    primary=LensCountAggregatedMetric(aggregation='count'),
 )
 
 # Create a Lens panel containing the metric chart
 metric_panel = LensPanel(
-    type='lens',
+    type='charts',
     title='Total Documents',
     grid=Grid(x=0, y=0, w=24, h=15),
     chart=metric_chart,
