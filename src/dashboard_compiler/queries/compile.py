@@ -1,9 +1,8 @@
 """Compile dashboard queries into their Kibana view model representation."""
 
-from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
+from dashboard_compiler.queries.config import KqlQuery
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
-from dashboard_compiler.shared.errors import UnexpectedTypeError
 
 
 def compile_esql_query(query: ESQLQueryTypes) -> KbnESQLQuery:
@@ -32,10 +31,9 @@ def compile_nonesql_query(query: LegacyQueryTypes) -> KbnQuery:
             language='kuery',
         )
 
-    if isinstance(query, LuceneQuery):
-        return KbnQuery(
-            query=query.lucene,
-            language='lucene',
-        )
-
-    raise UnexpectedTypeError(LegacyQueryTypes, type(query))
+    # No need for isinstance check here since LegacyQueryTypes is KqlQuery | LuceneQuery
+    # and we've already handled KqlQuery above
+    return KbnQuery(
+        query=query.lucene,
+        language='lucene',
+    )
