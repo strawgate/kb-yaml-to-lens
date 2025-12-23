@@ -1,7 +1,7 @@
 from pydantic import Field
 
 from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseIdentifiableComponent
 
 type ESQLColumnTypes = ESQLDimension | ESQLMetric
 
@@ -10,18 +10,12 @@ type ESQLDimensionTypes = ESQLDimension
 type ESQLMetricTypes = ESQLMetric
 
 
-class BaseESQLColumn(BaseCfgModel):
+class BaseESQLColumn(BaseIdentifiableComponent):
     """A base class for ESQL columns."""
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the column. If not provided, one may be generated during compilation."""
 
 
 class ESQLDimension(BaseESQLColumn):
     """A dimension that is defined in the ESQL query."""
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
 
     field: str = Field(default=...)
     """The field to use for the dimension."""

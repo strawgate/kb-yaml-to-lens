@@ -3,6 +3,7 @@
 import hashlib
 import uuid
 from collections.abc import Sequence
+from enum import StrEnum
 from typing import Literal
 
 from pydantic import Field
@@ -43,6 +44,42 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
 
     guid = uuid.UUID(bytes=hashed_data)
     return str(guid)
+
+
+class LegendWidthEnum(StrEnum):
+    """Represents the possible values for the width of the legend in a chart."""
+
+    SMALL = 'small'
+    """Small legend."""
+
+    MEDIUM = 'medium'
+    """Medium legend."""
+
+    LARGE = 'large'
+    """Large legend."""
+
+    EXTRA_LARGE = 'extra_large'
+    """Extra large legend."""
+
+
+class LegendVisibleEnum(StrEnum):
+    """Represents the possible values for the visibility of the legend in a chart."""
+
+    SHOW = 'show'
+    """Show the legend."""
+
+    HIDE = 'hide'
+    """Hide the legend."""
+
+    AUTO = 'auto'
+    """Automatically determine the visibility of the legend based on the data."""
+
+
+class BaseIdentifiableComponent(BaseCfgModel):
+    """Base class for components that can have an ID."""
+
+    id: str | None = Field(default=None)
+    """A unique identifier for the component. If not provided, one may be generated during compilation."""
 
 
 class Sort(BaseCfgModel):

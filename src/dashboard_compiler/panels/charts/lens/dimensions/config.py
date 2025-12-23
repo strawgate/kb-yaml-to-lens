@@ -6,16 +6,13 @@ from typing import Literal
 from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
-from dashboard_compiler.shared.config import BaseCfgModel, Sort
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableComponent, Sort
 
 type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 
 
-class BaseDimension(BaseCfgModel):
+class BaseDimension(BaseIdentifiableComponent):
     """Base model for defining dimensions."""
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
 
     # color: ColorMapping | None = Field(default=None)
 
@@ -39,8 +36,6 @@ class CollapseAggregationEnum(StrEnum):
 class BaseLensDimension(BaseDimension):
     """Base model for defining dimensions within a Lens chart."""
 
-    id: str | None = Field(default=None)
-    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
     label: str | None = Field(default=None)
     """The display label for the dimension. If not provided, a label may be inferred from the field and type."""
 
