@@ -220,21 +220,21 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
     """
-    if isinstance(filter, NegateFilter):
+    if isinstance(filter, NegateFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_filter(filter=filter.not_filter, negate=True, nested=nested)
-    if isinstance(filter, ExistsFilter):
+    if isinstance(filter, ExistsFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_exists_filter(exists_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, PhraseFilter):
+    if isinstance(filter, PhraseFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_phrase_filter(phrase_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, PhrasesFilter):
+    if isinstance(filter, PhrasesFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_phrases_filter(phrases_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, RangeFilter):
+    if isinstance(filter, RangeFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_range_filter(range_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, CustomFilter):
+    if isinstance(filter, CustomFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_custom_filter(custom_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, AndFilter):
+    if isinstance(filter, AndFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_and_filter(and_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, OrFilter):
+    if isinstance(filter, OrFilter):  # type: ignore[reportUnnecessaryIsInstance]
         return compile_or_filter(or_filter=filter, negate=negate, nested=nested)
 
     msg = f'Unimplemented filter type: {type(filter)}'

@@ -131,11 +131,9 @@ def compile_control(order: int, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, TimeSliderControl):
         return compile_time_slider_control(order, control)
 
-    if isinstance(control, RangeSliderControl):
-        return compile_range_slider_control(order, control)
-
-    msg = f"Control type '{control.type}' is not implemented for compilation to Kibana view model."
-    raise NotImplementedError(msg)
+    # No need for isinstance check here since ControlTypes is OptionsListControl | TimeSliderControl | RangeSliderControl
+    # and we've already handled the first two types above
+    return compile_range_slider_control(order, control)
 
 
 def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:
