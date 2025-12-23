@@ -9,3 +9,6 @@ references
 reference
 plan-*
 site/
+htmlcov/
+coverage.json
+.coverage

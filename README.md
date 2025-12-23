@@ -167,8 +167,35 @@ src/dashboard_compiler/
 ### Running Tests
 
 ```bash
+# Run all tests
 uv run pytest
+
+# Or use make
+make test
 ```
+
+### Test Coverage
+
+Generate and view test coverage reports:
+
+```bash
+# Generate coverage report (HTML + terminal)
+make test-coverage
+
+# Open HTML coverage report in browser
+make coverage-report
+
+# Run tests with coverage threshold check (fails if below 80%)
+make test-coverage-threshold
+```
+
+Coverage reports are generated in the `htmlcov/` directory and include:
+
+- **HTML Report**: Interactive browsable coverage report (`htmlcov/index.html`)
+- **Terminal Report**: Summary with missing line numbers
+- **JSON Report**: Machine-readable coverage data (`coverage.json`)
+
+The project is configured to maintain 80%+ test coverage. Coverage settings can be found in `pyproject.toml` under `[tool.coverage.*]`.
 
 ### Code Quality
 

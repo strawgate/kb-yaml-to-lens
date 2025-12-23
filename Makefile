@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format lint-markdown inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript
+.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format lint-markdown inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript test-coverage coverage-report test-coverage-threshold
 
 help:
 	@echo "Dependency Management:"
@@ -13,13 +13,15 @@ help:
 	@echo "  check         - Run linting and tests"
 
 	@echo "Testing:"
-	@echo "  test                  - Run unit tests"
-	@echo "  test-coverage         - Run tests with coverage report"
-	@echo "  test-links            - Check documentation links"
-	@echo "  test-smoke            - Run smoke tests"
-	@echo "  test-extension        - Run all VSCode extension tests"
-	@echo "  test-extension-python - Run Python tests for extension"
-	@echo "  test-extension-typescript - Run TypeScript tests for extension"
+	@echo "  test                       - Run unit tests"
+	@echo "  test-coverage              - Run tests with coverage report (HTML + terminal)"
+	@echo "  coverage-report            - Open HTML coverage report in browser"
+	@echo "  test-coverage-threshold    - Run tests with coverage threshold check (80%)"
+	@echo "  test-links                 - Check documentation links"
+	@echo "  test-smoke                 - Run smoke tests"
+	@echo "  test-extension             - Run all VSCode extension tests"
+	@echo "  test-extension-python      - Run Python tests for extension"
+	@echo "  test-extension-typescript  - Run TypeScript tests for extension"
 
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON"
@@ -57,7 +59,33 @@ test:
 
 test-coverage:
 	@echo "Running pytest with coverage..."
+	@echo "Coverage reports will be generated in htmlcov/ directory"
 	uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+	@echo ""
+	@echo "Coverage report generated successfully!"
+	@echo "  - HTML report: htmlcov/index.html"
+	@echo "  - JSON report: coverage.json"
+	@echo "  - Run 'make coverage-report' to open the HTML report in your browser"
+
+coverage-report:
+	@echo "Opening coverage report in browser..."
+	@if [ ! -f htmlcov/index.html ]; then \
+		echo "Error: Coverage report not found. Run 'make test-coverage' first."; \
+		exit 1; \
+	fi
+	@command -v xdg-open >/dev/null 2>&1 && xdg-open htmlcov/index.html || \
+	 command -v open >/dev/null 2>&1 && open htmlcov/index.html || \
+	 command -v start >/dev/null 2>&1 && start htmlcov/index.html || \
+	 echo "Could not detect browser. Please open htmlcov/index.html manually."
+
+test-coverage-threshold:
+	@echo "Running pytest with coverage threshold check (80%)..."
+	@echo "This will fail if coverage is below 80%"
+	uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json --cov-fail-under=80
+	@echo ""
+	@echo "Coverage threshold check passed! Coverage is above 80%."
+	@echo "  - HTML report: htmlcov/index.html"
+	@echo "  - JSON report: coverage.json"
 
 test-links:
 	@echo "Checking documentation links..."
@@ -105,6 +133,7 @@ clean:
 	rm -rf .ruff_cache **/.ruff_cache
 	rm -rf **/.pyc
 	rm -rf **/.pyo
+	rm -rf htmlcov coverage.json .coverage
 
 clean-full: clean
 	@echo "Cleaning up all..."
