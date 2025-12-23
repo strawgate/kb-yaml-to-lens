@@ -1,8 +1,6 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-import re
-from typing import Any
-
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.xy.compile import compile_esql_xy_chart, compile_lens_xy_chart
@@ -14,13 +12,6 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensBarChart,
     LensLineChart,
 )
-
-
-def _replace_layer_id(result: dict[str, Any]) -> dict[str, Any]:
-    """Replace dynamic layerId with placeholder for consistent snapshots."""
-    if 'layerId' in result and re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', result['layerId']):
-        result['layerId'] = 'DYNAMIC_LAYER_ID'
-    return result
 
 
 async def test_bar_stacked_chart() -> None:
@@ -45,10 +36,9 @@ async def test_bar_stacked_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'bar_stacked',
@@ -69,10 +59,9 @@ async def test_bar_stacked_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'bar_stacked',
@@ -112,10 +101,9 @@ async def test_bar_unstacked_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'bar_unstacked',
@@ -136,10 +124,9 @@ async def test_bar_unstacked_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'bar_unstacked',
@@ -177,10 +164,9 @@ async def test_line_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'line',
@@ -201,10 +187,9 @@ async def test_line_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'line',
@@ -242,10 +227,9 @@ async def test_area_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'area',
@@ -266,10 +250,9 @@ async def test_area_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'area',
@@ -309,10 +292,9 @@ async def test_area_percentage_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'area_percentage_stacked',
@@ -333,10 +315,9 @@ async def test_area_percentage_chart() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    result = _replace_layer_id(layer.model_dump())
-    assert result == snapshot(
+    assert layer.model_dump() == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
             'layerType': 'data',
             'seriesType': 'area_percentage_stacked',

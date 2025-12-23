@@ -1,8 +1,6 @@
 """Test the compilation of Lens dimensions from config models to view models."""
 
-import re
-from typing import Any
-
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 from pydantic import TypeAdapter
 
@@ -12,28 +10,6 @@ from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_m
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 
 
-def _replace_column_ids(result: dict[str, Any]) -> dict[str, Any]:
-    """Replace dynamic column IDs with placeholder for consistent snapshots."""
-    # Replace top-level column IDs
-    if 'columnId' in result and re.match(
-        r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-        str(result['columnId']),
-    ):
-        result['columnId'] = 'DYNAMIC_COLUMN_ID'
-
-    # Replace nested column IDs in params
-    if (
-        'params' in result
-        and isinstance(result['params'], dict)
-        and 'orderBy' in result['params']
-        and isinstance(result['params']['orderBy'], dict)
-        and 'columnId' in result['params']['orderBy']
-    ):
-        result['params']['orderBy']['columnId'] = 'DYNAMIC_COLUMN_ID'
-
-    return result
-
-
 async def test_date_histogram_dimension() -> None:
     """Test date histogram dimension."""
     metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
@@ -41,7 +17,7 @@ async def test_date_histogram_dimension() -> None:
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
     metric_id, kbn_metric_column = compile_lens_metric(metric)
-    metric_result = _replace_column_ids(kbn_metric_column.model_dump())
+    metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -49,7 +25,7 @@ async def test_date_histogram_dimension() -> None:
         dimension=dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
     )
-    dimension_result = _replace_column_ids(kbn_dimension_column.model_dump())
+    dimension_result = kbn_dimension_column.model_dump()
 
     assert metric_result == snapshot(
         {
@@ -86,7 +62,7 @@ async def test_terms_dimension_with_sorting() -> None:
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
     metric_id, kbn_metric_column = compile_lens_metric(metric)
-    metric_result = _replace_column_ids(kbn_metric_column.model_dump())
+    metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -94,7 +70,7 @@ async def test_terms_dimension_with_sorting() -> None:
         dimension=dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
     )
-    dimension_result = _replace_column_ids(kbn_dimension_column.model_dump())
+    dimension_result = kbn_dimension_column.model_dump()
 
     assert metric_result == snapshot(
         {
@@ -115,7 +91,7 @@ async def test_terms_dimension_with_sorting() -> None:
             'isBucketed': True,
             'scale': 'ordinal',
             'params': {
-                'orderBy': {'type': 'column', 'columnId': 'DYNAMIC_COLUMN_ID'},
+                'orderBy': {'type': 'column', 'columnId': IsUUID},
                 'orderDirection': 'desc',
                 'otherBucket': True,
                 'missingBucket': False,
@@ -143,7 +119,7 @@ async def test_filters_dimension() -> None:
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
     metric_id, kbn_metric_column = compile_lens_metric(metric)
-    metric_result = _replace_column_ids(kbn_metric_column.model_dump())
+    metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -151,7 +127,7 @@ async def test_filters_dimension() -> None:
         dimension=dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
     )
-    dimension_result = _replace_column_ids(kbn_dimension_column.model_dump())
+    dimension_result = kbn_dimension_column.model_dump()
 
     assert metric_result == snapshot(
         {
@@ -191,7 +167,7 @@ async def test_intervals_dimension() -> None:
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
     metric_id, kbn_metric_column = compile_lens_metric(metric)
-    metric_result = _replace_column_ids(kbn_metric_column.model_dump())
+    metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -199,7 +175,7 @@ async def test_intervals_dimension() -> None:
         dimension=dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
     )
-    dimension_result = _replace_column_ids(kbn_dimension_column.model_dump())
+    dimension_result = kbn_dimension_column.model_dump()
 
     assert metric_result == snapshot(
         {
@@ -236,7 +212,7 @@ async def test_intervals_dimension_with_custom_granularity() -> None:
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
     metric_id, kbn_metric_column = compile_lens_metric(metric)
-    metric_result = _replace_column_ids(kbn_metric_column.model_dump())
+    metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -244,7 +220,7 @@ async def test_intervals_dimension_with_custom_granularity() -> None:
         dimension=dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
     )
-    dimension_result = _replace_column_ids(kbn_dimension_column.model_dump())
+    dimension_result = kbn_dimension_column.model_dump()
 
     assert metric_result == snapshot(
         {
@@ -286,7 +262,7 @@ async def test_intervals_dimension_with_custom_intervals() -> None:
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
     metric_id, kbn_metric_column = compile_lens_metric(metric)
-    metric_result = _replace_column_ids(kbn_metric_column.model_dump())
+    metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -294,7 +270,7 @@ async def test_intervals_dimension_with_custom_intervals() -> None:
         dimension=dimension,
         kbn_metric_column_by_id=kbn_metric_column_by_id,
     )
-    dimension_result = _replace_column_ids(kbn_dimension_column.model_dump())
+    dimension_result = kbn_dimension_column.model_dump()
 
     assert metric_result == snapshot(
         {

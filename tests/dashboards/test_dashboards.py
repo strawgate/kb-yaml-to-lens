@@ -1,10 +1,10 @@
 import json
-import re
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
 import yaml
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.dashboard.config import Dashboard
@@ -60,19 +60,8 @@ def _replace_nested_references(attrs: dict[str, Any]) -> None:
                 ref['name'] = f'nested_ref_{i}'
 
 
-def _replace_layer_ids(attrs: dict[str, Any]) -> None:
-    """Replace layerIds in visualization layers."""
-    if 'state' in attrs and 'visualization' in attrs['state']:
-        viz = attrs['state']['visualization']
-        if 'layers' in viz:
-            pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-            for layer in viz['layers']:
-                if 'layerId' in layer and re.match(pattern, layer['layerId']):
-                    layer['layerId'] = 'DYNAMIC_LAYER_ID'
-
-
 def _replace_nested_ids(result: dict[str, Any]) -> None:
-    """Replace nested reference names and layerIds in panel embeddable config."""
+    """Replace nested reference names in panel embeddable config."""
     if 'attributes' in result and 'panelsJSON' in result['attributes']:
         panels = result['attributes']['panelsJSON']
         if isinstance(panels, list):
@@ -80,7 +69,6 @@ def _replace_nested_ids(result: dict[str, Any]) -> None:
                 if 'embeddableConfig' in panel and 'attributes' in panel['embeddableConfig']:
                     attrs = panel['embeddableConfig']['attributes']
                     _replace_nested_references(attrs)
-                    _replace_layer_ids(attrs)
 
 
 def _replace_dynamic_ids(result: dict[str, Any]) -> dict[str, Any]:
@@ -221,7 +209,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': 'DYNAMIC_LAYER_ID',
+                                                'layerId': IsUUID,
                                                 'layerType': 'data',
                                                 'colorMapping': {
                                                     'assignments': [],
@@ -611,7 +599,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': 'DYNAMIC_LAYER_ID',
+                                                'layerId': IsUUID,
                                                 'layerType': 'data',
                                                 'colorMapping': {
                                                     'assignments': [],
@@ -773,7 +761,7 @@ async def test_dashboard_with_one_xy_line_chart() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': 'DYNAMIC_LAYER_ID',
+                                                'layerId': IsUUID,
                                                 'accessors': ['e50ccc00-a3a4-4e56-8246-4e71c1a35203'],
                                                 'layerType': 'data',
                                                 'seriesType': 'bar_stacked',
