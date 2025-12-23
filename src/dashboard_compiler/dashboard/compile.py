@@ -19,6 +19,9 @@ TYPE_MIGRATION_VERSION: str = '10.2.0'
 def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOptions:
     """Compile the Kibana Dashboard Options view model.
 
+    Args:
+        settings: The dashboard settings containing option configuration.
+
     Returns:
         KbnDashboardOptions: The compiled Kibana dashboard options view model.
 
@@ -28,7 +31,7 @@ def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOption
         syncColors=return_unless(var=settings.sync.colors, is_none=False),
         syncCursor=return_unless(var=settings.sync.cursor, is_none=True),
         syncTooltips=return_unless(var=settings.sync.tooltips, is_none=False),
-        hidePanelTitles=return_unless(var=settings.titles, is_none=True),
+        hidePanelTitles=not return_unless(var=settings.titles, is_none=True),
     )
 
 
