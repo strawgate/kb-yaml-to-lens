@@ -13,7 +13,9 @@ from dashboard_compiler.filters import (
     RangeFilter,
 )
 from dashboard_compiler.filters.config import FilterTypes
-from dashboard_compiler.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta, KbnFilterState
+from dashboard_compiler.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta
+from dashboard_compiler.shared.defaults import default_false
+from dashboard_compiler.shared.filter_utils import create_filter_state
 
 
 def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
@@ -31,13 +33,13 @@ def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, 
         type='exists',
         key=exists_filter.exists,
         field=exists_filter.exists,
-        disabled=exists_filter.disabled or False,
+        disabled=default_false(exists_filter.disabled),
         negate=negate,
     )
 
     return KbnFilter(
         meta=meta,
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query={'exists': {'field': exists_filter.exists}},
     )
 
@@ -59,7 +61,7 @@ def compile_custom_filter(*, custom_filter: CustomFilter, negate: bool = False, 
             disabled=False,
             negate=negate,
         ),
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query=custom_filter.dsl,
     )
 
@@ -78,7 +80,7 @@ def compile_phrase_filter(*, phrase_filter: PhraseFilter, negate: bool = False, 
     meta = KbnFilterMeta(
         type='phrase',
         params={'query': phrase_filter.equals},
-        disabled=phrase_filter.disabled or False,
+        disabled=default_false(phrase_filter.disabled),
         key=phrase_filter.field,
         field=phrase_filter.field,
         negate=negate,
@@ -86,7 +88,7 @@ def compile_phrase_filter(*, phrase_filter: PhraseFilter, negate: bool = False, 
 
     return KbnFilter(
         meta=meta,
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query={'match_phrase': {phrase_filter.field: phrase_filter.equals}},
     )
 
@@ -105,7 +107,7 @@ def compile_phrases_filter(*, phrases_filter: PhrasesFilter, negate: bool = Fals
     meta = KbnFilterMeta(
         type='phrases',
         params=list(phrases_filter.in_list),
-        disabled=phrases_filter.disabled or False,
+        disabled=default_false(phrases_filter.disabled),
         key=phrases_filter.field,
         field=phrases_filter.field,
         negate=negate,
@@ -113,7 +115,7 @@ def compile_phrases_filter(*, phrases_filter: PhrasesFilter, negate: bool = Fals
 
     return KbnFilter(
         meta=meta,
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query={
             'bool': {
                 'minimum_should_match': 1,
@@ -149,12 +151,12 @@ def compile_range_filter(*, range_filter: RangeFilter, negate: bool = False, nes
         meta=KbnFilterMeta(
             type='range',
             params=range_query,
-            disabled=range_filter.disabled or False,
+            disabled=default_false(range_filter.disabled),
             key=range_filter.field,
             field=range_filter.field,
             negate=negate,
         ),
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query={'range': {range_filter.field: range_query}},
     )
 
@@ -175,10 +177,10 @@ def compile_and_filter(*, and_filter: AndFilter, negate: bool = False, nested: b
             type='combined',
             relation='AND',
             params=[compile_filter(filter=sub_filter, negate=negate, nested=True) for sub_filter in and_filter.and_filters],
-            disabled=and_filter.disabled or False,
+            disabled=default_false(and_filter.disabled),
             negate=negate,
         ),
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query={},
     )
 
@@ -199,10 +201,10 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
             type='combined',
             relation='OR',
             params=[compile_filter(filter=sub_filter, negate=negate, nested=True) for sub_filter in or_filter.or_filters],
-            disabled=or_filter.disabled or False,
+            disabled=default_false(or_filter.disabled),
             negate=negate,
         ),
-        state=KbnFilterState() if not nested else None,
+        state=create_filter_state(nested),
         query={},
     )
 

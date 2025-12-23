@@ -1,9 +1,9 @@
 """Test the compilation of Lens metrics from config models to view models using inline snapshots."""
 
-import re
 from typing import Any
 
 import pytest
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.metric.compile import (
@@ -11,13 +11,6 @@ from dashboard_compiler.panels.charts.metric.compile import (
     compile_lens_metric_chart,
 )
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
-
-
-def normalize_layer_id(result: dict[str, Any]) -> None:
-    """Validate layerId format and replace with placeholder for snapshot comparison."""
-    layer_id = result['layerId']
-    assert re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', layer_id)
-    result['layerId'] = 'DYNAMIC_LAYER_ID'
 
 
 @pytest.fixture
@@ -53,12 +46,11 @@ def test_compile_metric_chart_primary_only_lens(compile_metric_chart_snapshot):
     }
 
     result = compile_metric_chart_snapshot(config, 'lens')
-    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
         }
@@ -76,12 +68,11 @@ def test_compile_metric_chart_primary_only_esql(compile_metric_chart_snapshot):
     }
 
     result = compile_metric_chart_snapshot(config, 'esql')
-    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
         }
@@ -106,12 +97,11 @@ def test_compile_metric_chart_primary_and_secondary_lens(compile_metric_chart_sn
     }
 
     result = compile_metric_chart_snapshot(config, 'lens')
-    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
@@ -134,12 +124,11 @@ def test_compile_metric_chart_primary_and_secondary_esql(compile_metric_chart_sn
     }
 
     result = compile_metric_chart_snapshot(config, 'esql')
-    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
@@ -170,12 +159,11 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens(compile_metric_ch
     }
 
     result = compile_metric_chart_snapshot(config, 'lens')
-    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
@@ -203,12 +191,11 @@ def test_compile_metric_chart_primary_secondary_breakdown_esql(compile_metric_ch
     }
 
     result = compile_metric_chart_snapshot(config, 'esql')
-    normalize_layer_id(result)
 
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'layerId': 'DYNAMIC_LAYER_ID',
+            'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
