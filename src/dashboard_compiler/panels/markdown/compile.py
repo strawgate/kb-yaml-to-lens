@@ -61,6 +61,7 @@ def compile_markdown_saved_vis(markdown_panel: MarkdownPanel) -> KbnMarkdownSave
 
     """
     return KbnMarkdownSavedVis(
+        id='',
         title=markdown_panel.title,
         description=markdown_panel.description or '',
         type='markdown',
