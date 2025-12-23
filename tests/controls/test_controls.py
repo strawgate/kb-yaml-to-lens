@@ -1,10 +1,10 @@
 """Test the compilation of controls from config models to view models."""
 
 import json
-import re
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -29,13 +29,7 @@ def compile_control_snapshot():
     def _compile(config: dict[str, Any]) -> dict[str, Any]:
         control_holder: ControlHolder = ControlHolder.model_validate({'control': config})
         kbn_control_group_input: KbnControlTypes = compile_control(order=0, control=control_holder.control)
-        result = kbn_control_group_input.model_dump(by_alias=True)
-        # Replace dynamic ID with placeholder
-        if 'explicitInput' in result and 'id' in result['explicitInput']:
-            pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-            if re.match(pattern, result['explicitInput']['id']):
-                result['explicitInput']['id'] = 'DYNAMIC_ID'
-        return result
+        return kbn_control_group_input.model_dump(by_alias=True)
 
     return _compile
 
@@ -75,7 +69,7 @@ async def test_normal_options_list(compile_control_snapshot) -> None:
             'width': 'medium',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'searchTechnique': 'prefix',
@@ -102,7 +96,7 @@ async def test_options_list_with_custom_label(compile_control_snapshot) -> None:
             'width': 'medium',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Custom Label',
@@ -131,7 +125,7 @@ async def test_options_list_with_large_width(compile_control_snapshot) -> None:
             'width': 'large',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Large Option',
@@ -161,7 +155,7 @@ async def test_options_list_with_large_width_and_expand(compile_control_snapshot
             'width': 'large',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Large Option with Expand',
@@ -192,7 +186,7 @@ async def test_options_list_with_small_width_and_single_select(compile_control_s
             'width': 'small',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Small Option Single Select',
@@ -222,7 +216,7 @@ async def test_options_list_with_contains_search_technique(compile_control_snaps
             'width': 'medium',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Contains',
@@ -251,7 +245,7 @@ async def test_options_list_with_exact_search_technique(compile_control_snapshot
             'width': 'medium',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Exact',
@@ -280,7 +274,7 @@ async def test_options_list_with_ignore_timeout(compile_control_snapshot) -> Non
             'width': 'medium',
             'type': 'optionsListControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'ignore-timeout',
@@ -309,7 +303,7 @@ async def test_range_slider_with_default_step_size(compile_control_snapshot) -> 
             'width': 'medium',
             'type': 'rangeSliderControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace.geojson.region_query_cells',
                 'title': 'Default Range',
@@ -336,7 +330,7 @@ async def test_range_slider_with_step_size_10(compile_control_snapshot) -> None:
             'width': 'medium',
             'type': 'rangeSliderControl',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace.geojson.region_query_cells',
                 'title': 'Range step 10',
@@ -361,7 +355,7 @@ async def test_time_slider_with_default_settings(compile_control_snapshot) -> No
             'width': 'medium',
             'type': 'timeSlider',
             'explicitInput': {
-                'id': 'DYNAMIC_ID',
+                'id': IsUUID,
                 'timesliceStartAsPercentageOfTimeRange': 0.5825778,
                 'timesliceEndAsPercentageOfTimeRange': 0.995556,
             },
