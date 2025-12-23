@@ -10,15 +10,15 @@ from dashboard_compiler.shared.view import KbnReference  # For top-level referen
 class KbnDashboardOptions(BaseModel):
     """Represents the global options for a Kibana dashboard."""
 
-    useMargins: bool = True
+    useMargins: bool
     """Whether to put space between panels in the dashboard."""
-    syncColors: bool = True
+    syncColors: bool
     """Applies the same color palette to all panels on the dashboard."""
-    syncCursor: bool = True
+    syncCursor: bool
     'When you hover your cursor over a time series chart or a heatmap, the cursor on all other related dashboard charts appears.'
-    syncTooltips: bool = True
+    syncTooltips: bool
     'When you hover your cursor over a Lens chart, the tooltips on all other related dashboard charts automatically appear.'
-    hidePanelTitles: bool = True
+    hidePanelTitles: bool
     'Displays the titles in the panel headers'
 
     # def from_dashboard(cls, dashboard: Dashboard):
