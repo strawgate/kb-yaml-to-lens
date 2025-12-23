@@ -1,0 +1,14 @@
+dashboards:
+-
+  name: Dashboard Options Defaults Test
+  description: A dashboard to test default dashboard options behavior
+  panels:
+  - type: markdown
+    title: Test Panel
+    grid:
+      x: 0
+      y: 0
+      w: 12
+      h: 10
+    content: |
+      # Testing default dashboard options

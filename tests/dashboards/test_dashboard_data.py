@@ -33,6 +33,8 @@ CASE_FILTER_DASHBOARD = (
 )
 CASE_XY_LINE_DASHBOARD = (get_db_yaml('case_xy_line_dashboard'), get_kb_json('case_xy_line_dashboard'), [])
 CASE_YAML_REF_DASHBOARD = (get_db_yaml('case_yaml_ref_dashboard'), get_kb_json('case_yaml_ref_dashboard'), [])
+CASE_DASHBOARD_OPTIONS = (get_db_yaml('case_dashboard_options'), get_kb_json('case_dashboard_options'), [])
+CASE_DASHBOARD_OPTIONS_DEFAULTS = (get_db_yaml('case_dashboard_options_defaults'), get_kb_json('case_dashboard_options_defaults'), [])
 
 TEST_CASES = [
     CASE_MARKDOWN_DASHBOARD,
@@ -42,6 +44,8 @@ TEST_CASES = [
     CASE_FILTER_DASHBOARD,
     CASE_YAML_REF_DASHBOARD,
     CASE_XY_LINE_DASHBOARD,
+    CASE_DASHBOARD_OPTIONS,
+    CASE_DASHBOARD_OPTIONS_DEFAULTS,
 ]
 
 TEST_CASE_IDS = [
@@ -52,4 +56,6 @@ TEST_CASE_IDS = [
     'Dashboard with One Filter',
     'Dashboard with One YAML Ref',
     'Dashboard with One XY Line Chart',
+    'Dashboard with Custom Options',
+    'Dashboard with Default Options',
 ]
