@@ -48,7 +48,7 @@ def main() -> None:
         sys.exit(1)
 
     ndjson_lines: list[str] = []
-    snapshot_files = sorted(SNAPSHOT_DIR.glob('*.json'))  # Ensure consistent order
+    snapshot_files: list[Path] = sorted(SNAPSHOT_DIR.glob('*.json'))  # Ensure consistent order
 
     if not snapshot_files:
         msg = f'Warning: No snapshot files found in {SNAPSHOT_DIR}'

@@ -15,7 +15,6 @@ def compile_markdown_references() -> None:
     main_dashboard_doc_abs_path = docs_root_path / main_dashboard_doc_rel_path
 
     all_md_files: list[pathlib.Path] = []
-    other_md_files: list[pathlib.Path]
 
     for md_file in docs_root_path.rglob('*.md'):
         if md_file.resolve() == main_dashboard_doc_abs_path.resolve():
@@ -23,7 +22,7 @@ def compile_markdown_references() -> None:
         # Store relative path from repo_root for consistent sorting and display
         all_md_files.append(md_file.relative_to(repo_root))
 
-    other_md_files = sorted(all_md_files, key=lambda p: str(p))
+    other_md_files: list[pathlib.Path] = sorted(all_md_files, key=lambda p: str(p))
 
     ordered_files_to_compile: list[pathlib.Path] = []
     if main_dashboard_doc_abs_path.exists():
