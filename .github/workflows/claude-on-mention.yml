@@ -18,9 +18,9 @@ permissions:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude') && !contains(github.event.review.body, '@claude-issue'))
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue') && !contains(github.event.comment.body, '@claude-pr')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue') && !contains(github.event.comment.body, '@claude-pr')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude') && !contains(github.event.review.body, '@claude-issue') && !contains(github.event.review.body, '@claude-pr'))
     uses: ./.github/workflows/run-claude.yml
     with:
       prompt: |

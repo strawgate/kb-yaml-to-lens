@@ -81,6 +81,6 @@ jobs:
         - Reference related issues or PRs when relevant
         - Follow the project's coding standards and conventions
         - Run `make check` to ensure all tests pass before creating the PR
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,git:*,gh:api:*,gh:pr:*)
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,git:(checkout|add|commit|push|branch|status|diff|log),gh:api:*,gh:pr:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
