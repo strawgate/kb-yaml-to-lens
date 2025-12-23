@@ -219,7 +219,7 @@ def cli() -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-def compile_dashboards(  # noqa: PLR0913
+def compile_dashboards(  # noqa: PLR0913, PLR0912
     input_dir: Path,
     output_dir: Path,
     output_file: str,
@@ -260,6 +260,16 @@ def compile_dashboards(  # noqa: PLR0913
         export KIBANA_API_KEY=your-api-key
         kb-dashboard compile --upload
     """
+    # Validate mutual exclusivity of authentication options
+    if kibana_api_key and (kibana_username or kibana_password):
+        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    # Validate that username and password are used together
+    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_files = get_yaml_files(input_dir)
@@ -512,6 +522,16 @@ def screenshot_dashboard(  # noqa: PLR0913
         kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
             --width 3840 --height 2160
     """
+    # Validate mutual exclusivity of authentication options
+    if kibana_api_key and (kibana_username or kibana_password):
+        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    # Validate that username and password are used together
+    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
     asyncio.run(
         generate_screenshot(
             dashboard_id=dashboard_id,
