@@ -1,0 +1,86 @@
+name: Claude PR Creator
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+  id-token: write
+  actions: read
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-pr')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-pr')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude-pr'))
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      prompt: |
+        You're a code assistant for kb-yaml-to-lens with permission to create GitHub pull requests. You've been mentioned in ${{ github.event_name == 'issue_comment' && 'issue' || 'pull request' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
+
+        This is a Python project that compiles Kibana dashboards from YAML to Lens format. Your role is to help create pull requests based on the request.
+
+        # YOUR TASK
+
+        Address the user's request by creating one or more pull requests.
+
+        # Creating Pull Requests
+
+        Use `gh pr create` to create pull requests:
+
+        ```bash
+        gh pr create \
+          --title "PR title" \
+          --body "PR description" \
+          --base main \
+          --head branch-name \
+          --label label1 \
+          --label label2
+        ```
+
+        **IMPORTANT**: Before creating a PR, you must:
+        1. Create a new branch with a descriptive name
+        2. Make the necessary code changes on that branch
+        3. Commit your changes
+        4. Push the branch to the remote repository
+        5. Then create the PR
+
+        Example workflow:
+        ```bash
+        # Create and checkout new branch
+        git checkout -b feature/my-new-feature
+
+        # Make your changes (edit files, etc.)
+        
+        # Stage and commit
+        git add .
+        git commit -m "Add new feature"
+
+        # Push branch
+        git push -u origin feature/my-new-feature
+
+        # Create PR
+        gh pr create \
+          --title "Add new feature" \
+          --body "This PR adds..." \
+          --base main
+        ```
+
+        When creating pull requests:
+        - Use clear, descriptive titles
+        - Provide detailed descriptions with context
+        - Add appropriate labels (bug, enhancement, documentation, etc.)
+        - Reference related issues or PRs when relevant
+        - Follow the project's coding standards and conventions
+        - Run `make check` to ensure all tests pass before creating the PR
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,git:*,gh:api:*,gh:pr:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

@@ -213,6 +213,29 @@ The repository uses GitHub Actions for:
 
 Each workflow has self-contained instructions. Claude receives both the workflow prompt and this AGENTS.md file.
 
+### Claude Assistant Capabilities
+
+The repository has multiple Claude-powered workflows that can be triggered by mentioning Claude in different ways:
+
+| Mention | Trigger | Capabilities | Use Case |
+|---------|---------|--------------|----------|
+| `@claude` | Issues, PRs, comments | Read/modify code, run make commands, resolve PR threads | General code assistance and review responses |
+| `@claude-issue` | Issues, PRs, comments | Create GitHub issues | Convert discussions into tracked issues |
+| `@claude-pr` | Issues, PRs, comments | Create pull requests with code changes | Generate PRs from feature requests or bug reports |
+| (automatic) | New issues with `triage-claude` label | Issue analysis and triage | Automatic issue investigation and recommendations |
+| (automatic) | Merge conflicts | Resolve merge conflicts | Automatic conflict resolution |
+| (automatic) | Daily schedule | Project management review | Daily project health reports |
+
+**When to use `@claude-pr`:**
+- You want Claude to implement a feature and open a PR for review
+- You want to convert an issue into a working implementation
+- You need code changes created on a separate branch
+
+**Important:** When using `@claude-pr`, be specific about:
+- What changes you want
+- What branch name to use (or let Claude decide)
+- Any specific implementation requirements
+
 ### GitHub Actions Workflow Patterns
 
 When creating new Claude-powered workflows:
