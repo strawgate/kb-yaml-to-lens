@@ -42,34 +42,34 @@ dashboard:
 
 ### LensTagcloudChart
 
-| YAML Key        | Data Type                  | Description                                      | Required |
-|----------------|----------------------------|--------------------------------------------------|----------|
-| `type`         | `Literal['tagcloud']`      | Specifies the chart type.                        | Yes      |
-| `data_view`    | `string`                   | The data view that determines the data source.   | Yes      |
-| `tags`         | `LensDimensionTypes`       | The dimension for grouping (terms/tags).         | Yes      |
-| `metric`       | `LensMetricTypes`          | The metric for sizing each tag.                  | Yes      |
-| `appearance`   | `TagcloudAppearance`       | Appearance settings (fonts, orientation).        | No       |
-| `color`        | `ColorMapping`             | Color palette configuration.                     | No       |
+| YAML Key     | Data Type                | Description                                    | Default  | Required |
+| ------------ | ------------------------ | ---------------------------------------------- | -------- | -------- |
+| `type`       | `Literal['tagcloud']`    | Specifies the chart type.                      | tagcloud | Yes      |
+| `data_view`  | `string`                 | The data view that determines the data source. | -        | Yes      |
+| `tags`       | `LensDimensionTypes`     | The dimension for grouping (terms/tags).       | -        | Yes      |
+| `metric`     | `LensMetricTypes`        | The metric for sizing each tag.                | -        | Yes      |
+| `appearance` | `TagcloudAppearance`     | Appearance settings (fonts, orientation).      | None     | No       |
+| `color`      | `ColorMapping`           | Color palette configuration.                   | None     | No       |
 
 ### ESQLTagcloudChart
 
-| YAML Key        | Data Type                  | Description                                      | Required |
-|----------------|----------------------------|--------------------------------------------------|----------|
-| `type`         | `Literal['tagcloud']`      | Specifies the chart type.                        | Yes      |
-| `esql`         | `string`                   | The ES\|QL query that determines the data.       | Yes      |
-| `tags`         | `ESQLDimensionTypes`       | The dimension for grouping (terms/tags).         | Yes      |
-| `metric`       | `ESQLMetricTypes`          | The metric for sizing each tag.                  | Yes      |
-| `appearance`   | `TagcloudAppearance`       | Appearance settings (fonts, orientation).        | No       |
-| `color`        | `ColorMapping`             | Color palette configuration.                     | No       |
+| YAML Key     | Data Type               | Description                                | Default  | Required |
+| ------------ | ----------------------- | ------------------------------------------ | -------- | -------- |
+| `type`       | `Literal['tagcloud']`   | Specifies the chart type.                  | tagcloud | Yes      |
+| `esql`       | `string`                | The ES\|QL query that determines the data. | -        | Yes      |
+| `tags`       | `ESQLDimensionTypes`    | The dimension for grouping (terms/tags).   | -        | Yes      |
+| `metric`     | `ESQLMetricTypes`       | The metric for sizing each tag.            | -        | Yes      |
+| `appearance` | `TagcloudAppearance`    | Appearance settings (fonts, orientation).  | None     | No       |
+| `color`      | `ColorMapping`          | Color palette configuration.               | None     | No       |
 
 ### TagcloudAppearance
 
-| YAML Key        | Data Type                       | Description                                      | Default |
-|----------------|----------------------------------|--------------------------------------------------|---------|
-| `min_font_size`| `int` (1-100)                   | Minimum font size for tags.                      | 18      |
-| `max_font_size`| `int` (1-200)                   | Maximum font size for tags.                      | 72      |
-| `orientation`  | `TagcloudOrientationEnum`       | Text orientation configuration.                  | single  |
-| `show_label`   | `boolean`                       | Toggle for label visibility.                     | true    |
+| YAML Key        | Data Type                 | Description                        | Default | Required |
+| --------------- | ------------------------- | ---------------------------------- | ------- | -------- |
+| `min_font_size` | `int` (1-100)             | Minimum font size for tags.        | 18      | No       |
+| `max_font_size` | `int` (1-200)             | Maximum font size for tags.        | 72      | No       |
+| `orientation`   | `TagcloudOrientationEnum` | Text orientation configuration.    | single  | No       |
+| `show_label`    | `boolean`                 | Toggle for label visibility.       | true    | No       |
 
 ### TagcloudOrientationEnum
 
@@ -79,9 +79,9 @@ dashboard:
 
 ### ColorMapping
 
-| YAML Key   | Data Type | Description                                  | Default          |
-|-----------|-----------|----------------------------------------------|------------------|
-| `palette` | `string`  | The palette to use for tag cloud colors.     | default          |
+| YAML Key  | Data Type | Description                              | Default | Required |
+| --------- | --------- | ---------------------------------------- | ------- | -------- |
+| `palette` | `string`  | The palette to use for tag cloud colors. | default | No       |
 
 Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color_blind`, etc.
 

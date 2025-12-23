@@ -34,7 +34,7 @@ class TagcloudAppearance(BaseCfgModel):
     max_font_size: int | None = Field(default=72, ge=1, le=200)
     """Maximum font size for tags. Defaults to 72."""
 
-    orientation: TagcloudOrientationEnum | None = Field(default='single', strict=False)
+    orientation: TagcloudOrientationEnum | None = Field(default=TagcloudOrientationEnum.SINGLE, strict=False)  # Turn off strict for enums
     """Text orientation configuration. Defaults to 'single'."""
 
     show_label: bool | None = Field(default=True)

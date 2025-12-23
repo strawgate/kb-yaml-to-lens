@@ -49,13 +49,10 @@ def compile_tagcloud_chart_visualization_state(
             show_label = chart.appearance.show_label
 
     # Color mapping
-    kbn_color_mapping = KbnLayerColorMapping(paletteId='eui_amsterdam_color_blind')
-    if chart.color and chart.color.palette:
-        kbn_color_mapping = KbnLayerColorMapping(paletteId=chart.color.palette)
-
-    palette = {'name': 'default', 'type': 'palette'}
-    if chart.color and chart.color.palette:
-        palette = {'name': chart.color.palette, 'type': 'palette'}
+    palette_id = chart.color.palette if chart.color and chart.color.palette else 'default'
+    kbn_color_mapping_id = 'eui_amsterdam_color_blind' if palette_id == 'default' else palette_id
+    kbn_color_mapping = KbnLayerColorMapping(paletteId=kbn_color_mapping_id)
+    palette = {'name': palette_id, 'type': 'palette'}
 
     layer = KbnTagcloudStateVisualizationLayer(
         layerId=layer_id,
