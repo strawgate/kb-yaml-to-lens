@@ -88,3 +88,67 @@ def test_grid_full_width():
     grid = Grid(x=0, y=0, w=48, h=15)
     assert grid.x == 0
     assert grid.w == 48
+
+
+def test_overlaps_with_partial_overlap():
+    """Test that partially overlapping grids are detected."""
+    grid1 = Grid(x=0, y=0, w=20, h=10)
+    grid2 = Grid(x=10, y=5, w=20, h=10)
+    assert grid1.overlaps_with(grid2) is True
+    assert grid2.overlaps_with(grid1) is True
+
+
+def test_overlaps_with_complete_overlap():
+    """Test that completely overlapping grids are detected."""
+    grid1 = Grid(x=0, y=0, w=20, h=10)
+    grid2 = Grid(x=0, y=0, w=20, h=10)
+    assert grid1.overlaps_with(grid2) is True
+    assert grid2.overlaps_with(grid1) is True
+
+
+def test_overlaps_with_contained_grid():
+    """Test that a grid contained within another is detected as overlapping."""
+    grid1 = Grid(x=0, y=0, w=30, h=20)
+    grid2 = Grid(x=5, y=5, w=10, h=8)
+    assert grid1.overlaps_with(grid2) is True
+    assert grid2.overlaps_with(grid1) is True
+
+
+def test_overlaps_with_adjacent_horizontal():
+    """Test that horizontally adjacent grids (touching edges) do not overlap."""
+    grid1 = Grid(x=0, y=0, w=10, h=10)
+    grid2 = Grid(x=10, y=0, w=10, h=10)
+    assert grid1.overlaps_with(grid2) is False
+    assert grid2.overlaps_with(grid1) is False
+
+
+def test_overlaps_with_adjacent_vertical():
+    """Test that vertically adjacent grids (touching edges) do not overlap."""
+    grid1 = Grid(x=0, y=0, w=10, h=10)
+    grid2 = Grid(x=0, y=10, w=10, h=10)
+    assert grid1.overlaps_with(grid2) is False
+    assert grid2.overlaps_with(grid1) is False
+
+
+def test_overlaps_with_separated_horizontal():
+    """Test that horizontally separated grids do not overlap."""
+    grid1 = Grid(x=0, y=0, w=10, h=10)
+    grid2 = Grid(x=20, y=0, w=10, h=10)
+    assert grid1.overlaps_with(grid2) is False
+    assert grid2.overlaps_with(grid1) is False
+
+
+def test_overlaps_with_separated_vertical():
+    """Test that vertically separated grids do not overlap."""
+    grid1 = Grid(x=0, y=0, w=10, h=10)
+    grid2 = Grid(x=0, y=20, w=10, h=10)
+    assert grid1.overlaps_with(grid2) is False
+    assert grid2.overlaps_with(grid1) is False
+
+
+def test_overlaps_with_separated_diagonal():
+    """Test that diagonally separated grids do not overlap."""
+    grid1 = Grid(x=0, y=0, w=10, h=10)
+    grid2 = Grid(x=20, y=20, w=10, h=10)
+    assert grid1.overlaps_with(grid2) is False
+    assert grid2.overlaps_with(grid1) is False
