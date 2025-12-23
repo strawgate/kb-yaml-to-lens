@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ def read_and_compress_snapshot(snapshot_path: Path) -> str | None:
     """
     try:
         with Path(snapshot_path).open('r') as f:
-            dashboard_obj = json.load(f)
+            dashboard_obj: Any = json.load(f)
 
         return json.dumps(dashboard_obj, separators=(',', ':'))
 
@@ -46,8 +47,8 @@ def main() -> None:
         logger.error(msg)
         sys.exit(1)
 
-    ndjson_lines = []
-    snapshot_files = sorted(SNAPSHOT_DIR.glob('*.json'))  # Ensure consistent order
+    ndjson_lines: list[str] = []
+    snapshot_files: list[Path] = sorted(SNAPSHOT_DIR.glob('*.json'))  # Ensure consistent order
 
     if not snapshot_files:
         msg = f'Warning: No snapshot files found in {SNAPSHOT_DIR}'
