@@ -1,0 +1,119 @@
+# Tag Cloud Chart Panel Configuration
+
+The Tag Cloud chart panel visualizes term frequency as a word cloud, where the size of each tag is proportional to its metric value. This is useful for showing the most common or significant terms in your data.
+
+## Minimal Configuration Example (Lens)
+
+```yaml
+dashboard:
+  name: "Log Analysis"
+  panels:
+    - type: charts
+      title: "Top Error Messages"
+      grid: { x: 0, y: 0, w: 12, h: 6 }
+      chart:
+        type: tagcloud
+        data_view: "logs-*"
+        tags:
+          field: "error.message"
+        metric:
+          aggregation: count
+```
+
+## Minimal Configuration Example (ES|QL)
+
+```yaml
+dashboard:
+  name: "Log Analysis"
+  panels:
+    - type: charts
+      title: "Top Error Messages"
+      grid: { x: 0, y: 0, w: 12, h: 6 }
+      esql: "FROM logs-* | STATS count(*) BY error.message"
+      chart:
+        type: tagcloud
+        tags:
+          field: "error.message"
+        metric:
+          field: "count(*)"
+```
+
+## Full Configuration Options
+
+### LensTagcloudChart
+
+| YAML Key        | Data Type                  | Description                                      | Required |
+|----------------|----------------------------|--------------------------------------------------|----------|
+| `type`         | `Literal['tagcloud']`      | Specifies the chart type.                        | Yes      |
+| `data_view`    | `string`                   | The data view that determines the data source.   | Yes      |
+| `tags`         | `LensDimensionTypes`       | The dimension for grouping (terms/tags).         | Yes      |
+| `metric`       | `LensMetricTypes`          | The metric for sizing each tag.                  | Yes      |
+| `appearance`   | `TagcloudAppearance`       | Appearance settings (fonts, orientation).        | No       |
+| `color`        | `ColorMapping`             | Color palette configuration.                     | No       |
+
+### ESQLTagcloudChart
+
+| YAML Key        | Data Type                  | Description                                      | Required |
+|----------------|----------------------------|--------------------------------------------------|----------|
+| `type`         | `Literal['tagcloud']`      | Specifies the chart type.                        | Yes      |
+| `esql`         | `string`                   | The ES\|QL query that determines the data.       | Yes      |
+| `tags`         | `ESQLDimensionTypes`       | The dimension for grouping (terms/tags).         | Yes      |
+| `metric`       | `ESQLMetricTypes`          | The metric for sizing each tag.                  | Yes      |
+| `appearance`   | `TagcloudAppearance`       | Appearance settings (fonts, orientation).        | No       |
+| `color`        | `ColorMapping`             | Color palette configuration.                     | No       |
+
+### TagcloudAppearance
+
+| YAML Key        | Data Type                       | Description                                      | Default |
+|----------------|----------------------------------|--------------------------------------------------|---------|
+| `min_font_size`| `int` (1-100)                   | Minimum font size for tags.                      | 18      |
+| `max_font_size`| `int` (1-200)                   | Maximum font size for tags.                      | 72      |
+| `orientation`  | `TagcloudOrientationEnum`       | Text orientation configuration.                  | single  |
+| `show_label`   | `boolean`                       | Toggle for label visibility.                     | true    |
+
+### TagcloudOrientationEnum
+
+- `single`: Single horizontal orientation
+- `right angled`: Mix of horizontal and vertical orientations
+- `multiple`: Multiple angles
+
+### ColorMapping
+
+| YAML Key   | Data Type | Description                                  | Default          |
+|-----------|-----------|----------------------------------------------|------------------|
+| `palette` | `string`  | The palette to use for tag cloud colors.     | default          |
+
+Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color_blind`, etc.
+
+## Advanced Configuration Example
+
+```yaml
+dashboard:
+  name: "Advanced Tag Cloud"
+  panels:
+    - type: charts
+      title: "Kubernetes Pod Labels"
+      grid: { x: 0, y: 0, w: 12, h: 8 }
+      chart:
+        type: tagcloud
+        data_view: "k8s-*"
+        tags:
+          field: "kubernetes.labels.app"
+        metric:
+          aggregation: count
+        appearance:
+          min_font_size: 12
+          max_font_size: 96
+          orientation: "multiple"
+          show_label: false
+        color:
+          palette: "kibana_palette"
+```
+
+## Related
+
+- [Base Chart Configuration](../base/config.md)
+- [Lens Dimensions](../lens/dimensions/config.md)
+- [Lens Metrics](../lens/metrics/config.md)
+- [ES|QL Dimensions](../esql/columns/config.md)
+- [Dashboard Configuration](../../../dashboard/config.md)
