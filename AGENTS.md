@@ -54,7 +54,7 @@ YAML File → PyYAML Parser → Config Models (Pydantic) → Compile Functions �
 | `src/dashboard_compiler/filters/` | Filter compilation |
 | `src/dashboard_compiler/queries/` | KQL, Lucene, ESQL query support |
 | `src/dashboard_compiler/shared/` | Base models and utilities |
-| `tests/` | Unit tests with snapshot testing |
+| `tests/` | Unit tests with snapshot testing (inline snapshots via `inline-snapshot` library) |
 | `inputs/` | Example YAML dashboards |
 
 ### Three-Layer Pattern
@@ -64,6 +64,13 @@ Each component follows this structure:
 1. **`config.py`** — Pydantic models defining YAML schema (source of truth)
 2. **`view.py`** — Pydantic models defining Kibana JSON output
 3. **`compile.py`** — Functions transforming config → view models
+
+### Test Standards
+
+- **Use inline snapshots** via `inline-snapshot` library (not external snapshot files)
+- **Avoid scenario-based tests** in separate JSON files
+- **Write pytest tests directly** in Python
+- See existing tests for patterns (e.g., `tests/panels/charts/lens/metrics/test_metrics.py`)
 
 ---
 
@@ -124,6 +131,16 @@ When updating YAML configuration docs:
 - Search for similar patterns before accepting suggestions
 - If a pattern exists across multiple panels/charts, it's likely intentional
 - Preserve consistency over isolated best practices
+
+#### Verification Requirements
+
+Before claiming feedback is addressed:
+
+- [ ] **For schema changes:** Cross-reference with official documentation (Kibana repo, API docs, etc.)
+- [ ] **For test changes:** Explain WHY test data changed, not just WHAT changed
+- [ ] **For type errors:** Verify the fix compiles AND is semantically correct
+- [ ] Run `make check` after EACH fix, not just at the end
+- [ ] Test that the compiled output is valid (not just that it compiles)
 
 #### Before Claiming Complete
 
@@ -195,6 +212,34 @@ The repository uses GitHub Actions for:
 - **Build Automation** — Docker image building for fixture generators
 
 Each workflow has self-contained instructions. Claude receives both the workflow prompt and this AGENTS.md file.
+
+### GitHub Actions Workflow Patterns
+
+When creating new Claude-powered workflows:
+
+1. **Use the shared workflow:** `.github/workflows/run-claude.yml`
+2. **Standard MCP configuration** (automatically set up in shared workflow):
+   - `repository-summary` - For generating AGENTS.md summaries
+   - `code-search` - For searching code across repo
+   - `github-research` - For issue/PR analysis
+3. **Don't manually configure MCP servers** - use the shared workflow's built-in setup
+
+**Example:**
+
+```yaml
+jobs:
+  my-claude-job:
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      checkout-ref: ${{ github.event.pull_request.head.ref }}
+      prompt: |
+        Your task here...
+      allowed-tools: mcp__github-research,Bash
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+```
+
+**Note:** The `repository-summary` tool (formerly `agents_md_generator`) is automatically available but rarely needed.
 
 ### Pre-commit Requirements
 
