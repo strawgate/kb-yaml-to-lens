@@ -45,49 +45,47 @@ export class DashboardCompilerLSP {
 
     /**
      * Resolve the Python path to use for the LSP server.
-     * Checks in order:
-     * 1. Configured pythonPath setting (resolves relative paths to workspace)
-     * 2. Workspace .venv/bin/python (or Scripts/python.exe on Windows)
-     * 3. Falls back to 'python' system command
+     *
+     * Resolution order:
+     * 1. Configured pythonPath setting (relative paths resolved to workspace)
+     * 2. Workspace .venv/bin/python (or .venv/Scripts/python.exe on Windows)
+     * 3. System 'python' command
+     *
+     * @returns Absolute path to Python executable or 'python' for system Python
      */
     private resolvePythonPath(): string {
         const config = vscode.workspace.getConfiguration('yamlDashboard');
         const configuredPath = config.get<string>('pythonPath', 'python');
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        const workspaceRoot = workspaceFolders?.[0]?.uri.fsPath;
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
-        // If user explicitly configured a path (not default), resolve and use it
+        // Check explicitly configured Python path
         if (configuredPath !== 'python') {
-            let resolvedPath = configuredPath;
-
-            // Resolve relative paths against workspace root
-            if (workspaceRoot && !path.isAbsolute(configuredPath)) {
-                resolvedPath = path.join(workspaceRoot, configuredPath);
-            }
+            const resolvedPath = workspaceRoot && !path.isAbsolute(configuredPath)
+                ? path.join(workspaceRoot, configuredPath)
+                : configuredPath;
 
             if (fs.existsSync(resolvedPath)) {
-                this.outputChannel.appendLine(`Using configured Python path: ${resolvedPath}`);
+                this.outputChannel.appendLine(`Using configured Python: ${resolvedPath}`);
                 return resolvedPath;
             }
 
-            // Configured path doesn't exist, warn and fall through to auto-detection
-            this.outputChannel.appendLine(`Warning: Configured Python path not found: ${resolvedPath}`);
+            this.outputChannel.appendLine(`Warning: Configured Python not found: ${resolvedPath}`);
         }
 
-        // Try to auto-detect workspace .venv
+        // Auto-detect workspace virtual environment
         if (workspaceRoot) {
-            const isWindows = process.platform === 'win32';
-            const venvPython = isWindows
+            const venvPython = process.platform === 'win32'
                 ? path.join(workspaceRoot, '.venv', 'Scripts', 'python.exe')
                 : path.join(workspaceRoot, '.venv', 'bin', 'python');
 
             if (fs.existsSync(venvPython)) {
-                this.outputChannel.appendLine(`Auto-detected workspace venv: ${venvPython}`);
+                this.outputChannel.appendLine(`Using workspace venv: ${venvPython}`);
                 return venvPython;
             }
         }
 
-        this.outputChannel.appendLine(`Using system Python: python`);
+        // Fallback to system Python
+        this.outputChannel.appendLine('Using system Python: python');
         return 'python';
     }
 
