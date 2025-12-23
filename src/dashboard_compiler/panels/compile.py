@@ -19,6 +19,11 @@ from dashboard_compiler.shared.view import KbnReference
 def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
     """Convert a KbnReference object to a panel reference.
 
+    Kibana requires panel references to be namespaced with the panel ID to avoid
+    conflicts when multiple panels reference the same resource (e.g., data views).
+    This transforms a reference like {type: 'index-pattern', id: 'abc', name: 'dataView'}
+    into {type: 'index-pattern', id: 'abc', name: 'panel-123:dataView'}
+
     Args:
         kbn_reference (KbnReference): The KbnReference object to convert.
         panel_index (str): The index (id) of the panel to which the reference belongs.
