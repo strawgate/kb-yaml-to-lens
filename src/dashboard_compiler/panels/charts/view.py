@@ -16,9 +16,12 @@ from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 if TYPE_CHECKING:
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
+    from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
 
-    KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState
+    KbnVisualizationStateTypes = (
+        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnTagcloudVisualizationState
+    )
 
 # region Form Data Source
 ## Form Based
@@ -166,6 +169,7 @@ class KbnVisualizationTypeEnum(StrEnum):
     PIE = 'lnsPie'
     METRIC = 'lnsMetric'
     DATATABLE = 'lnsDatatable'
+    TAGCLOUD = 'lnsTagcloud'
 
 
 class KbnLensPanelState(BaseVwModel):
