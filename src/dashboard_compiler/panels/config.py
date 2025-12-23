@@ -1,8 +1,11 @@
 """Configuration for dashboard panels."""
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
+
+# Standard Kibana dashboard grid width
+KIBANA_GRID_WIDTH = 48
 
 
 class Grid(BaseCfgModel):
@@ -40,6 +43,24 @@ class Grid(BaseCfgModel):
             msg = 'Width and height (w, h) must be positive'
             raise ValueError(msg)
         return v
+
+    @model_validator(mode='after')
+    def validate_width_bounds(self) -> 'Grid':
+        """Validate that panel does not extend beyond standard Kibana grid width.
+
+        Raises:
+            ValueError: If x + w exceeds KIBANA_GRID_WIDTH (48 units).
+
+        Returns:
+            Grid: The validated Grid instance.
+
+        """
+        if self.x + self.w > KIBANA_GRID_WIDTH:
+            msg = (
+                f'Panel extends beyond standard Kibana grid width ({KIBANA_GRID_WIDTH} units): x={self.x} + w={self.w} = {self.x + self.w}'
+            )
+            raise ValueError(msg)
+        return self
 
     def overlaps_with(self, other: 'Grid') -> bool:
         """Check if this grid overlaps with another grid.
