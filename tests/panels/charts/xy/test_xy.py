@@ -1,61 +1,354 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-import pytest
-from deepdiff import DeepDiff
-from pydantic import BaseModel
+import re
+from typing import Any
+
+from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.xy.compile import compile_esql_xy_chart, compile_lens_xy_chart
-from dashboard_compiler.panels.charts.xy.config import ESQLXYChartTypes, LensXYChartTypes
-from tests.conftest import DEEP_DIFF_DEFAULTS
-from tests.panels.charts.xy.test_xy_data import (
-    TEST_CASE_IDS,
-    TEST_CASES,
+from dashboard_compiler.panels.charts.xy.config import (
+    ESQLAreaChart,
+    ESQLBarChart,
+    ESQLLineChart,
+    LensAreaChart,
+    LensBarChart,
+    LensLineChart,
 )
 
-# Define fields to exclude from DeepDiff comparison
-EXCLUDE_REGEX_PATHS = [
-    # Add regex paths for fields to exclude, e.g., IDs
-    # r"root\['columns'\]\[\d+\]\['id'\]",  # Example: Exclude column IDs
-    r"root\['layerId'\]",
-    # Refer to links test exclude paths for more ideas
-]
+
+def _replace_layer_id(result: dict[str, Any]) -> dict[str, Any]:
+    """Replace dynamic layerId with placeholder for consistent snapshots."""
+    if 'layerId' in result and re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', result['layerId']):
+        result['layerId'] = 'DYNAMIC_LAYER_ID'
+    return result
 
 
-class LensXYChartHolder(BaseModel):
-    """Holder for Lens XY chart."""
+async def test_bar_stacked_chart() -> None:
+    """Test bar stacked chart."""
+    lens_config = {
+        'type': 'bar',
+        'mode': 'stacked',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+    esql_config = {
+        'type': 'bar',
+        'mode': 'stacked',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
 
-    chart: LensXYChartTypes
-
-
-class ESQLXYChartHolder(BaseModel):
-    """Holder for ESQL XY chart."""
-
-    chart: ESQLXYChartTypes
-
-
-@pytest.mark.parametrize(('in_lens_config', 'in_esql_config', 'out_layer'), TEST_CASES, ids=TEST_CASE_IDS)
-async def test_compile_xy(in_lens_config: dict, in_esql_config: dict, out_layer: dict) -> None:
-    """Test the compilation of various Lens xy configurations to their Kibana view model."""
-    lens_chart = LensXYChartHolder.model_validate({'chart': in_lens_config})
-
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart.chart)
-
+    lens_chart = LensBarChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'bar_stacked',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
 
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
-
-    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
-
-    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
-
-    esql_chart = ESQLXYChartHolder.model_validate({'chart': in_esql_config})
-
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart.chart)
-
+    esql_chart = ESQLBarChart(**esql_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'bar_stacked',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
 
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
 
-    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
+async def test_bar_unstacked_chart() -> None:
+    """Test bar unstacked chart."""
+    lens_config = {
+        'type': 'bar',
+        'mode': 'unstacked',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+    esql_config = {
+        'type': 'bar',
+        'mode': 'unstacked',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
 
-    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+    lens_chart = LensBarChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'bar_unstacked',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    esql_chart = ESQLBarChart(**esql_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'bar_unstacked',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+
+async def test_line_chart() -> None:
+    """Test line chart."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+    esql_config = {
+        'type': 'line',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'line',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    esql_chart = ESQLLineChart(**esql_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'line',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+
+async def test_area_chart() -> None:
+    """Test area chart."""
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+    esql_config = {
+        'type': 'area',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'area',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    esql_chart = ESQLAreaChart(**esql_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'area',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+
+async def test_area_percentage_chart() -> None:
+    """Test area percentage chart."""
+    lens_config = {
+        'type': 'area',
+        'mode': 'percentage',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+    esql_config = {
+        'type': 'area',
+        'mode': 'percentage',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'area_percentage_stacked',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    esql_chart = ESQLAreaChart(**esql_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    result = _replace_layer_id(layer.model_dump())
+    assert result == snapshot(
+        {
+            'layerId': 'DYNAMIC_LAYER_ID',
+            'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+            'layerType': 'data',
+            'seriesType': 'area_percentage_stacked',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
