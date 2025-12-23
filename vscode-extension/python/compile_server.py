@@ -6,15 +6,27 @@ dashboard compilation services to the VS Code extension.
 
 import sys
 from pathlib import Path
+from typing import Any
 
+import cattrs
 from lsprotocol import types
-from pygls.server import LanguageServer
+from pygls.lsp.server import LanguageServer
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
 
 from dashboard_compiler.dashboard_compiler import load, render
 
 server = LanguageServer('dashboard-compiler', 'v0.1')
+
+
+def _params_to_dict(params: Any) -> dict:
+    """Convert pygls params object to dict.
+
+    In pygls 2.0, params are passed as cattrs-structured objects, not dicts.
+    """
+    if isinstance(params, dict):
+        return params
+    return cattrs.unstructure(params)
 
 
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
@@ -65,32 +77,34 @@ def compile_command(_ls: LanguageServer, args: list) -> dict:
 
 
 @server.feature('dashboard/compile')
-def compile_custom(params: dict) -> dict:
+def compile_custom(params: Any) -> dict:
     """Handle custom compilation request for a dashboard.
 
     Args:
-        params: Dictionary containing path and dashboard_index
+        params: Object containing path and dashboard_index
 
     Returns:
         Dictionary with compilation result
     """
-    path = params.get('path', '')
-    dashboard_index = int(params.get('dashboard_index', 0))
+    params_dict = _params_to_dict(params)
+    path = params_dict.get('path', '')
+    dashboard_index = int(params_dict.get('dashboard_index', 0))
 
     return _compile_dashboard(path, dashboard_index)
 
 
 @server.feature('dashboard/getDashboards')
-def get_dashboards_custom(params: dict) -> dict:
+def get_dashboards_custom(params: Any) -> dict:
     """Get list of dashboards from a YAML file.
 
     Args:
-        params: Dictionary containing path to YAML file
+        params: Object containing path to YAML file
 
     Returns:
         Dictionary with list of dashboards or error
     """
-    path = params.get('path')
+    params_dict = _params_to_dict(params)
+    path = params_dict.get('path')
 
     if not path:
         return {'success': False, 'error': 'Missing path parameter'}
