@@ -26,7 +26,7 @@ def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOption
     return KbnDashboardOptions(
         useMargins=return_unless(var=settings.margins, is_none=True),
         syncColors=return_unless(var=settings.sync.colors, is_none=False),
-        syncCursor=return_unless(var=settings.sync.cursor, is_none=False),
+        syncCursor=return_unless(var=settings.sync.cursor, is_none=True),
         syncTooltips=return_unless(var=settings.sync.tooltips, is_none=False),
         hidePanelTitles=return_unless(var=settings.titles, is_none=True),
     )
