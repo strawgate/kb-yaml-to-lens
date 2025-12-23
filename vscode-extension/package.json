@@ -88,9 +88,10 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run package-bundle",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "watch": "node esbuild.js --watch",
+    "package-bundle": "node esbuild.js --production",
     "pretest": "npm run compile",
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
@@ -101,18 +102,19 @@
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
-    "typescript": "^5.0.0",
-    "@vscode/vsce": "^2.22.0",
-    "@types/mocha": "^10.0.0",
     "@vscode/test-electron": "^2.3.0",
-    "mocha": "^10.0.0",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.27.2",
+    "eslint": "^8.0.0",
     "glob": "^10.0.0",
-    "@types/glob": "^8.1.0"
+    "mocha": "^10.0.0",
+    "typescript": "^5.0.0"
   },
   "repository": {
     "type": "git",
