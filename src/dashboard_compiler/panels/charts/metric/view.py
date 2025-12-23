@@ -29,7 +29,3 @@ class KbnMetricStateVisualizationLayer(KbnBaseStateVisualizationLayer):
 
 class KbnMetricVisualizationState(KbnBaseStateVisualization):
     """Represents the 'visualization' object for a Metric chart in the Kibana JSON structure."""
-
-    # @model_serializer()
-    # def serialize_model(self) -> dict[str, Any] | None:
-    #     return self.layers[0].model_dump(serialize_as_any=True, exclude_none=True) if self.layers else None
