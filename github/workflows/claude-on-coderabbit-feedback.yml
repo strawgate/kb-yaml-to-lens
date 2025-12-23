@@ -39,8 +39,7 @@ jobs:
 
         # GETTING STARTED
 
-        1. Call the generate_agents_md tool to understand the project structure
-        2. Fetch review threads using GitHub GraphQL API:
+        1. Fetch review threads using GitHub GraphQL API:
            ```bash
            gh api graphql -f query='
              query {
@@ -67,7 +66,7 @@ jobs:
                }
              }'
            ```
-        3. Filter threads to only those from coderabbitai[bot] that are unresolved
+        2. Filter threads to only those from coderabbitai[bot] that are unresolved
 
         # ADDRESSING FEEDBACK
 
