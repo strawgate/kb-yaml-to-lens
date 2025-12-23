@@ -1,45 +1,203 @@
-"""Test the compilation of tagcloud charts from config models to view models."""
+"""Test the compilation of tagcloud charts from config models to view models using inline snapshots."""
+
+from typing import Any
 
 import pytest
-from deepdiff import DeepDiff
+from dirty_equals import IsUUID
+from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.charts.tagcloud.compile import compile_esql_tagcloud_chart, compile_lens_tagcloud_chart
-from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
-from tests.conftest import DEEP_DIFF_DEFAULTS
-from tests.panels.charts.tagcloud.test_tagcloud_data import (
-    TEST_CASE_IDS,
-    TEST_CASES,
+from dashboard_compiler.panels.charts.tagcloud.compile import (
+    compile_esql_tagcloud_chart,
+    compile_lens_tagcloud_chart,
 )
-
-# Define fields to exclude from DeepDiff comparison
-EXCLUDE_REGEX_PATHS = [
-    r"root\['layerId'\]",
-]
+from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 
 
-@pytest.mark.parametrize(('in_lens_config', 'in_esql_config', 'out_lens_shape', 'out_layer'), TEST_CASES, ids=TEST_CASE_IDS)
-async def test_compile_tagcloud(in_lens_config: dict, in_esql_config: dict, out_lens_shape: dict, out_layer: dict) -> None:  # noqa: ARG001
-    """Test the compilation of various tagcloud configurations to their Kibana view model."""
-    lens_chart = LensTagcloudChart.model_validate(in_lens_config)
+@pytest.fixture
+def compile_tagcloud_chart_snapshot():
+    """Fixture that returns a function to compile tagcloud charts and return dict for snapshot."""
 
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
+    def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
+        if chart_type == 'lens':
+            lens_chart = LensTagcloudChart.model_validate(config)
+            layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
+        else:  # esql
+            esql_chart = ESQLTagcloudChart.model_validate(config)
+            layer_id, kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
 
-    assert kbn_state_visualization is not None
+        assert kbn_state_visualization is not None
+        assert len(kbn_state_visualization.layers) > 0
+        kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+        return kbn_state_visualization_layer.model_dump()
 
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+    return _compile
 
-    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
 
-    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot):
+    """Test the compilation of a basic tagcloud chart (Lens)."""
+    config = {
+        'type': 'tagcloud',
+        'data_view': 'logs-*',
+        'tags': {
+            'field': 'tags',
+            'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        },
+        'metric': {
+            'aggregation': 'count',
+            'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+        },
+    }
 
-    esql_chart = ESQLTagcloudChart.model_validate(in_esql_config)
+    result = compile_tagcloud_chart_snapshot(config, 'lens')
 
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+            'valueAccessor': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+            'maxFontSize': 72,
+            'minFontSize': 18,
+            'orientation': 'single',
+            'showLabel': True,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'palette': {'name': 'default', 'type': 'palette'},
+        }
+    )
 
-    assert kbn_state_visualization is not None
 
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot):
+    """Test the compilation of a basic tagcloud chart (ESQL)."""
+    config = {
+        'type': 'tagcloud',
+        'esql': 'FROM logs-* | STATS count(*) by tags',
+        'tags': {
+            'field': 'tags',
+            'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        },
+        'metric': {
+            'field': 'count(*)',
+            'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+        },
+    }
 
-    kbn_state_visualization_layer_as_dict = kbn_state_visualization_layer.model_dump()
+    result = compile_tagcloud_chart_snapshot(config, 'esql')
 
-    assert DeepDiff(out_layer, kbn_state_visualization_layer_as_dict, exclude_regex_paths=EXCLUDE_REGEX_PATHS, **DEEP_DIFF_DEFAULTS) == {}  # type: ignore
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+            'valueAccessor': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+            'maxFontSize': 72,
+            'minFontSize': 18,
+            'orientation': 'single',
+            'showLabel': True,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'palette': {'name': 'default', 'type': 'palette'},
+        }
+    )
+
+
+def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot):
+    """Test the compilation of a tagcloud chart with custom appearance settings (Lens)."""
+    config = {
+        'type': 'tagcloud',
+        'data_view': 'logs-*',
+        'tags': {
+            'field': 'tags',
+            'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        },
+        'metric': {
+            'aggregation': 'count',
+            'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+        },
+        'appearance': {
+            'min_font_size': 12,
+            'max_font_size': 96,
+            'orientation': 'multiple',
+            'show_label': False,
+        },
+        'color': {
+            'palette': 'kibana_palette',
+        },
+    }
+
+    result = compile_tagcloud_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+            'valueAccessor': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+            'maxFontSize': 96,
+            'minFontSize': 12,
+            'orientation': 'multiple',
+            'showLabel': False,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'kibana_palette',
+                'colorMode': {'type': 'categorical'},
+            },
+            'palette': {'name': 'kibana_palette', 'type': 'palette'},
+        }
+    )
+
+
+def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot):
+    """Test the compilation of a tagcloud chart with custom appearance settings (ESQL)."""
+    config = {
+        'type': 'tagcloud',
+        'esql': 'FROM logs-* | STATS count(*) by tags',
+        'tags': {
+            'field': 'tags',
+            'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        },
+        'metric': {
+            'field': 'count(*)',
+            'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+        },
+        'appearance': {
+            'min_font_size': 12,
+            'max_font_size': 96,
+            'orientation': 'multiple',
+            'show_label': False,
+        },
+        'color': {
+            'palette': 'kibana_palette',
+        },
+    }
+
+    result = compile_tagcloud_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+            'valueAccessor': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
+            'maxFontSize': 96,
+            'minFontSize': 12,
+            'orientation': 'multiple',
+            'showLabel': False,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'kibana_palette',
+                'colorMode': {'type': 'categorical'},
+            },
+            'palette': {'name': 'kibana_palette', 'type': 'palette'},
+        }
+    )
