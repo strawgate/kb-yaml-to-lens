@@ -1,18 +1,22 @@
 """Compile a Dashboard into its Kibana view model representation."""
 
 from dashboard_compiler.controls.compile import compile_control_group
-from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard.config import Dashboard, DashboardSettings
 from dashboard_compiler.dashboard.view import KbnDashboard, KbnDashboardAttributes, KbnDashboardOptions
 from dashboard_compiler.filters.compile import compile_filters
 from dashboard_compiler.panels.compile import compile_dashboard_panels
 from dashboard_compiler.panels.view import KbnSavedObjectMeta, KbnSearchSourceJSON
 from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
+from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.view import KbnReference
 
+CORE_MIGRATION_VERSION: str = '8.8.0'
+TYPE_MIGRATION_VERSION: str = '10.2.0'
 
-def compile_dashboard_options() -> KbnDashboardOptions:
+
+def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOptions:
     """Compile the Kibana Dashboard Options view model.
 
     Returns:
@@ -20,11 +24,11 @@ def compile_dashboard_options() -> KbnDashboardOptions:
 
     """
     return KbnDashboardOptions(
-        useMargins=True,
-        syncColors=False,
-        syncCursor=True,
-        syncTooltips=False,
-        hidePanelTitles=False,
+        useMargins=return_unless(var=settings.margins, is_none=True),
+        syncColors=return_unless(var=settings.sync.colors, is_none=False),
+        syncCursor=return_unless(var=settings.sync.cursor, is_none=False),
+        syncTooltips=return_unless(var=settings.sync.tooltips, is_none=False),
+        hidePanelTitles=return_unless(var=settings.titles, is_none=True),
     )
 
 
@@ -50,7 +54,7 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
                 query=compile_nonesql_query(query=dashboard.query) if dashboard.query else KbnQuery(query='', language='kuery'),
             ),
         ),
-        optionsJSON=compile_dashboard_options(),
+        optionsJSON=compile_dashboard_options(settings=dashboard.settings),
         timeRestore=False,
         version=1,
         controlGroupInput=compile_control_group(control_settings=dashboard.settings.controls, controls=dashboard.controls),
@@ -73,14 +77,14 @@ def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
 
     return KbnDashboard(
         attributes=attributes,
-        coreMigrationVersion='8.8.0',
+        coreMigrationVersion=CORE_MIGRATION_VERSION,
         created_at='2023-10-01T00:00:00Z',
         created_by='admin',
         id=kbn_dashboard_id,
         managed=False,
         references=references,
         type='dashboard',
-        typeMigrationVersion='10.2.0',
+        typeMigrationVersion=TYPE_MIGRATION_VERSION,
         updated_at='2023-10-01T00:00:00Z',
         updated_by='admin',
         version='1',
