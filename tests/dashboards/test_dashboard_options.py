@@ -1,8 +1,9 @@
 """Unit tests for dashboard options compilation."""
 
+from inline_snapshot import snapshot
+
 from dashboard_compiler.dashboard.compile import compile_dashboard_options
 from dashboard_compiler.dashboard.config import DashboardSettings, DashboardSyncSettings
-from dashboard_compiler.dashboard.view import KbnDashboardOptions
 
 
 def test_compile_dashboard_options_all_defaults():
@@ -10,17 +11,15 @@ def test_compile_dashboard_options_all_defaults():
     settings = DashboardSettings()
     result = compile_dashboard_options(settings)
 
-    assert isinstance(result, KbnDashboardOptions)
-    # When None, useMargins defaults to True
-    assert result.useMargins is True
-    # When None, syncColors defaults to False (inverted logic)
-    assert result.syncColors is False
-    # When None, syncCursor defaults to True
-    assert result.syncCursor is True
-    # When None, syncTooltips defaults to False (inverted logic)
-    assert result.syncTooltips is False
-    # When None, hidePanelTitles defaults to True
-    assert result.hidePanelTitles is True
+    assert result.model_dump() == snapshot(
+        {
+            'useMargins': True,
+            'syncColors': False,
+            'syncCursor': True,
+            'syncTooltips': False,
+            'hidePanelTitles': True,
+        }
+    )
 
 
 def test_compile_dashboard_options_margins_true():
@@ -28,7 +27,9 @@ def test_compile_dashboard_options_margins_true():
     settings = DashboardSettings(margins=True)
     result = compile_dashboard_options(settings)
 
-    assert result.useMargins is True
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_margins_false():
@@ -36,7 +37,9 @@ def test_compile_dashboard_options_margins_false():
     settings = DashboardSettings(margins=False)
     result = compile_dashboard_options(settings)
 
-    assert result.useMargins is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': False, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_sync_colors_true():
@@ -44,7 +47,9 @@ def test_compile_dashboard_options_sync_colors_true():
     settings = DashboardSettings(sync=DashboardSyncSettings(colors=True))
     result = compile_dashboard_options(settings)
 
-    assert result.syncColors is True
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': True, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_sync_colors_false():
@@ -52,7 +57,9 @@ def test_compile_dashboard_options_sync_colors_false():
     settings = DashboardSettings(sync=DashboardSyncSettings(colors=False))
     result = compile_dashboard_options(settings)
 
-    assert result.syncColors is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_sync_cursor_true():
@@ -60,7 +67,9 @@ def test_compile_dashboard_options_sync_cursor_true():
     settings = DashboardSettings(sync=DashboardSyncSettings(cursor=True))
     result = compile_dashboard_options(settings)
 
-    assert result.syncCursor is True
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_sync_cursor_false():
@@ -68,7 +77,9 @@ def test_compile_dashboard_options_sync_cursor_false():
     settings = DashboardSettings(sync=DashboardSyncSettings(cursor=False))
     result = compile_dashboard_options(settings)
 
-    assert result.syncCursor is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': False, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_sync_tooltips_true():
@@ -76,7 +87,9 @@ def test_compile_dashboard_options_sync_tooltips_true():
     settings = DashboardSettings(sync=DashboardSyncSettings(tooltips=True))
     result = compile_dashboard_options(settings)
 
-    assert result.syncTooltips is True
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': True, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_sync_tooltips_false():
@@ -84,7 +97,9 @@ def test_compile_dashboard_options_sync_tooltips_false():
     settings = DashboardSettings(sync=DashboardSyncSettings(tooltips=False))
     result = compile_dashboard_options(settings)
 
-    assert result.syncTooltips is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_titles_true():
@@ -92,7 +107,9 @@ def test_compile_dashboard_options_titles_true():
     settings = DashboardSettings(titles=True)
     result = compile_dashboard_options(settings)
 
-    assert result.hidePanelTitles is True
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
 
 
 def test_compile_dashboard_options_titles_false():
@@ -100,7 +117,9 @@ def test_compile_dashboard_options_titles_false():
     settings = DashboardSettings(titles=False)
     result = compile_dashboard_options(settings)
 
-    assert result.hidePanelTitles is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': False, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': False}
+    )
 
 
 def test_compile_dashboard_options_all_custom_values():
@@ -116,11 +135,9 @@ def test_compile_dashboard_options_all_custom_values():
     )
     result = compile_dashboard_options(settings)
 
-    assert result.useMargins is False
-    assert result.syncColors is True
-    assert result.syncCursor is False
-    assert result.syncTooltips is True
-    assert result.hidePanelTitles is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': False, 'syncColors': True, 'syncCursor': False, 'syncTooltips': True, 'hidePanelTitles': False}
+    )
 
 
 def test_compile_dashboard_options_partial_sync_settings():
@@ -128,9 +145,6 @@ def test_compile_dashboard_options_partial_sync_settings():
     settings = DashboardSettings(sync=DashboardSyncSettings(colors=True))
     result = compile_dashboard_options(settings)
 
-    # colors is explicitly set to True
-    assert result.syncColors is True
-    # cursor is None, defaults to True
-    assert result.syncCursor is True
-    # tooltips is None, defaults to False
-    assert result.syncTooltips is False
+    assert result.model_dump() == snapshot(
+        {'useMargins': True, 'syncColors': True, 'syncCursor': True, 'syncTooltips': False, 'hidePanelTitles': True}
+    )
