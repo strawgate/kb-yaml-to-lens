@@ -5,6 +5,7 @@
  * dashboard compilation services to the VS Code extension.
  */
 
+import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import {
@@ -42,13 +43,58 @@ export class DashboardCompilerLSP {
         this.outputChannel = vscode.window.createOutputChannel('Dashboard Compiler LSP');
     }
 
+    /**
+     * Resolve the Python path to use for the LSP server.
+     *
+     * Resolution order:
+     * 1. Configured pythonPath setting (relative paths resolved to workspace)
+     * 2. Workspace .venv/bin/python (or .venv/Scripts/python.exe on Windows)
+     * 3. System 'python' command
+     *
+     * @returns Absolute path to Python executable or 'python' for system Python
+     */
+    private resolvePythonPath(): string {
+        const config = vscode.workspace.getConfiguration('yamlDashboard');
+        const configuredPath = config.get<string>('pythonPath', 'python');
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+        // Check explicitly configured Python path
+        if (configuredPath !== 'python') {
+            const resolvedPath = workspaceRoot && !path.isAbsolute(configuredPath)
+                ? path.join(workspaceRoot, configuredPath)
+                : configuredPath;
+
+            if (fs.existsSync(resolvedPath)) {
+                this.outputChannel.appendLine(`Using configured Python: ${resolvedPath}`);
+                return resolvedPath;
+            }
+
+            this.outputChannel.appendLine(`Warning: Configured Python not found: ${resolvedPath}`);
+        }
+
+        // Auto-detect workspace virtual environment
+        if (workspaceRoot) {
+            const venvPython = process.platform === 'win32'
+                ? path.join(workspaceRoot, '.venv', 'Scripts', 'python.exe')
+                : path.join(workspaceRoot, '.venv', 'bin', 'python');
+
+            if (fs.existsSync(venvPython)) {
+                this.outputChannel.appendLine(`Using workspace venv: ${venvPython}`);
+                return venvPython;
+            }
+        }
+
+        // Fallback to system Python
+        this.outputChannel.appendLine('Using system Python: python');
+        return 'python';
+    }
+
     async start(): Promise<void> {
         if (this.client) {
             return; // Already started
         }
 
-        const config = vscode.workspace.getConfiguration('yamlDashboard');
-        const pythonPath = config.get<string>('pythonPath', 'python');
+        const pythonPath = this.resolvePythonPath();
 
         // Path to the LSP server script
         const extensionPath = this.context.extensionPath;
