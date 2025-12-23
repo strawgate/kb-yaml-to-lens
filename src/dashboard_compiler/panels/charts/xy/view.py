@@ -12,11 +12,6 @@ class LabelsOrientationConfig(BaseVwModel):
     yRight: float | None = None
 
 
-class YAxisMode(BaseVwModel):
-    # Define fields based on actual Kibana structure if needed, using object for now
-    name: str  # Added name field based on usage in compile logic
-
-
 class AxisConfig(BaseVwModel):
     # Define fields based on actual Kibana structure if needed, using object for now
     pass
@@ -24,14 +19,14 @@ class AxisConfig(BaseVwModel):
 
 class YConfig(BaseVwModel):
     forAccessor: str
-    color: str | None = None
-    icon: str | None = None
-    lineWidth: float | None = None
-    lineStyle: Any | None = None
-    fill: Any | None = None
-    iconPosition: Any | None = None
-    textVisibility: bool | None = None
-    axisMode: YAxisMode | None = None
+    color: Annotated[str | None, OmitIfNone()] = None
+    icon: Annotated[str | None, OmitIfNone()] = None
+    lineWidth: Annotated[int | None, OmitIfNone()] = None
+    lineStyle: Annotated[Literal['solid', 'dashed', 'dotted'] | None, OmitIfNone()] = None
+    fill: Annotated[Literal['none', 'below', 'above'] | None, OmitIfNone()] = None
+    iconPosition: Annotated[Literal['auto', 'left', 'right', 'above', 'below'] | None, OmitIfNone()] = None
+    textVisibility: Annotated[bool | None, OmitIfNone()] = None
+    axisMode: Annotated[str | None, OmitIfNone()] = None
 
 
 class XYDataLayerConfig(BaseVwModel):

@@ -6,6 +6,7 @@ from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnType
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
+from dashboard_compiler.panels.charts.lens.metrics.config import BaseLensMetric
 from dashboard_compiler.panels.charts.xy.config import (
     ESQLAreaChart,
     ESQLBarChart,
@@ -19,6 +20,7 @@ from dashboard_compiler.panels.charts.xy.config import (
 from dashboard_compiler.panels.charts.xy.view import (
     KbnXYVisualizationState,
     XYDataLayerConfig,
+    YConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
 
@@ -63,6 +65,7 @@ def compile_xy_chart_visualization_state(
     dimension_ids: list[str],
     metric_ids: list[str],
     breakdown_id: str | None = None,
+    metrics: list[BaseLensMetric] | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -72,6 +75,7 @@ def compile_xy_chart_visualization_state(
         dimension_ids (list[str]): The IDs of the dimensions.
         metric_ids (list[str]): The IDs of the metrics.
         breakdown_id (str | None): The ID of the breakdown dimension if any.
+        metrics (list[BaseLensMetric] | None): The metric configurations for building yConfig.
 
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
@@ -79,6 +83,28 @@ def compile_xy_chart_visualization_state(
     series_type: str = compile_series_type(chart=chart)
 
     kbn_color_mapping = KbnLayerColorMapping()
+
+    # Build yConfig from metrics if any have visual/axis properties configured
+    y_config: list[YConfig] | None = None
+    if metrics:
+        y_config_list = []
+        for metric_id, metric in zip(metric_ids, metrics, strict=True):
+            # Only create YConfig if at least one property is set
+            if any([metric.axis, metric.color, metric.line_width, metric.line_style, metric.fill, metric.icon, metric.icon_position]):
+                y_config_list.append(
+                    YConfig(
+                        forAccessor=metric_id,
+                        axisMode=metric.axis,
+                        color=metric.color,
+                        lineWidth=metric.line_width,
+                        lineStyle=metric.line_style,
+                        fill=metric.fill,
+                        icon=metric.icon,
+                        iconPosition=metric.icon_position,
+                    )
+                )
+        if y_config_list:
+            y_config = y_config_list
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
@@ -90,6 +116,7 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
+        yConfig=y_config,
     )
 
     return KbnXYVisualizationState(
@@ -146,6 +173,7 @@ def compile_lens_xy_chart(
             dimension_ids=dimension_ids,
             metric_ids=metric_ids,
             breakdown_id=breakdown_id,
+            metrics=lens_xy_chart.metrics,
         ),
     )
 
