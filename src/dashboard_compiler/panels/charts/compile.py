@@ -79,11 +79,11 @@ def compile_lens_chart_state(
     # This is a current limitation - multi-layer support is partial.
     for chart in charts:
         if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart)):
-            layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
         elif isinstance(chart, LensPieChart):
-            layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
-        elif isinstance(chart, LensMetricChart):
-            layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
+        elif isinstance(chart, LensMetricChart):  # pyright: ignore[reportUnnecessaryIsInstance]
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
         else:
             msg = f'Unsupported chart type: {type(chart)}'
             raise NotImplementedError(msg)
@@ -139,9 +139,9 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     if isinstance(panel.chart, (ESQLMetricChart, ESQLPieChart)):
         if isinstance(panel.chart, ESQLMetricChart):
-            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
+            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
         else:
-            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)  # type: ignore[reportUnnecessaryIsInstance]
+            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
     else:
         msg = f'Unsupported ESQL chart type: {type(panel.chart)}'
         raise NotImplementedError(msg)
@@ -180,13 +180,13 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
     chart_state: KbnLensPanelState
     references: list[KbnReference] = []
 
-    if isinstance(panel, LensPanel):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(panel, LensPanel):
         chart_state, references = compile_lens_chart_state(
             query=panel.query,
             filters=panel.filters,
             charts=[panel.chart],
         )
-    elif isinstance(panel, ESQLPanel):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
         chart_state = compile_esql_chart_state(panel)
 
     return (

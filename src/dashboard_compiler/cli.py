@@ -87,7 +87,7 @@ def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
         dashboards = load(str(yaml_path))
         json_lines: list[str] = []
         for dashboard in dashboards:
-            dashboard_kbn_model = render(dashboard)  # type: ignore[reportUnknownVariableType]
+            dashboard_kbn_model = render(dashboard)
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
     except FileNotFoundError:
         return [], f'YAML file not found: {yaml_path}'
