@@ -177,13 +177,13 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
     chart_state: KbnLensPanelState
     references: list[KbnReference] = []
 
-    if isinstance(panel, LensPanel):
+    if isinstance(panel, LensPanel):  # type: ignore[reportUnnecessaryIsInstance]
         chart_state, references = compile_lens_chart_state(
             query=panel.query,
             filters=panel.filters,
             charts=[panel.chart],
         )
-    elif isinstance(panel, ESQLPanel):
+    elif isinstance(panel, ESQLPanel):  # type: ignore[reportUnnecessaryIsInstance]
         chart_state = compile_esql_chart_state(panel)
 
     return (
