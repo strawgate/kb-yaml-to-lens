@@ -16,16 +16,16 @@ class LabelsOrientationConfig(BaseVwModel):
     See Also:
         Kibana type definition: `LabelsOrientationConfig` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        x: Rotation angle in degrees for X-axis labels.
-        yLeft: Rotation angle in degrees for left Y-axis labels.
-        yRight: Rotation angle in degrees for right Y-axis labels.
     """
 
     x: float | None = None
+    """Rotation angle in degrees for X-axis labels."""
+
     yLeft: float | None = None
+    """Rotation angle in degrees for left Y-axis labels."""
+
     yRight: float | None = None
+    """Rotation angle in degrees for right Y-axis labels."""
 
 
 class YAxisMode(BaseVwModel):
@@ -37,13 +37,10 @@ class YAxisMode(BaseVwModel):
     See Also:
         Kibana type definition: `YAxisMode` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        name: The name of the axis mode (e.g., 'left', 'right').
     """
 
-    # Define fields based on actual Kibana structure if needed, using object for now
-    name: str  # Added name field based on usage in compile logic
+    name: str
+    """The name of the axis mode (e.g., 'left', 'right')."""
 
 
 class AxisConfig(BaseVwModel):
@@ -71,28 +68,34 @@ class YConfig(BaseVwModel):
     See Also:
         Kibana type definition: `YConfig` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        forAccessor: The accessor ID this configuration applies to (references a metric field).
-        color: Hex color code for the series (e.g., '#FF0000').
-        icon: Icon identifier for the series marker.
-        lineWidth: Width of the line in pixels for line/area charts.
-        lineStyle: Style of the line (e.g., solid, dashed, dotted).
-        fill: Fill configuration for area charts.
-        iconPosition: Position of icons relative to data points.
-        textVisibility: Whether to show text labels for this series.
-        axisMode: Which Y-axis (left/right) to assign this series to.
     """
 
     forAccessor: str
+    """The accessor ID this configuration applies to (references a metric field)."""
+
     color: str | None = None
+    """Hex color code for the series (e.g., '#FF0000')."""
+
     icon: str | None = None
+    """Icon identifier for the series marker."""
+
     lineWidth: float | None = None
+    """Width of the line in pixels for line/area charts."""
+
     lineStyle: Any | None = None
+    """Style of the line (e.g., solid, dashed, dotted)."""
+
     fill: Any | None = None
+    """Fill configuration for area charts."""
+
     iconPosition: Any | None = None
+    """Position of icons relative to data points."""
+
     textVisibility: bool | None = None
+    """Whether to show text labels for this series."""
+
     axisMode: YAxisMode | None = None
+    """Which Y-axis (left/right) to assign this series to."""
 
 
 class XYDataLayerConfig(BaseVwModel):
@@ -108,42 +111,55 @@ class XYDataLayerConfig(BaseVwModel):
     See Also:
         Kibana type definition: `XYDataLayerConfig` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        layerId: Unique identifier for this layer.
-        accessors: List of field accessor IDs for Y-axis metrics (the values to plot).
-        layerType: Always 'data' for data layers.
-        seriesType: Chart type for this layer ('bar', 'line', 'area', etc.).
-        xAccessor: Field accessor ID for X-axis dimension (usually time or category).
-        position: Position of the layer ('top' for overlays).
-        showGridlines: Whether to show gridlines for this layer.
-        simpleView: Simplified view mode flag.
-        yConfig: Configuration for each Y-axis series (colors, line styles, etc.).
-        splitAccessor: Field accessor ID for breaking down data into multiple series.
-        palette: Color palette configuration for the layer.
-        collapseFn: Aggregation function when collapsing multiple values ('sum', 'avg', etc.).
-        xScaleType: Scale type for X-axis (linear, time, etc.).
-        isHistogram: Whether this layer displays histogram data.
-        columnToLabel: Mapping of column IDs to custom labels.
-        colorMapping: Advanced color mapping configuration.
     """
 
     layerId: str
+    """Unique identifier for this layer."""
+
     accessors: list[str]
+    """List of field accessor IDs for Y-axis metrics (the values to plot)."""
+
     layerType: Literal['data']
+    """Always 'data' for data layers."""
+
     seriesType: str
+    """Chart type for this layer ('bar', 'line', 'area', etc.)."""
+
     xAccessor: str | None = None
+    """Field accessor ID for X-axis dimension (usually time or category)."""
+
     position: Literal['top'] | None = None
+    """Position of the layer ('top' for overlays)."""
+
     showGridlines: bool
+    """Whether to show gridlines for this layer."""
+
     simpleView: Annotated[bool | None, OmitIfNone()] = None
+    """Simplified view mode flag."""
+
     yConfig: Annotated[list[YConfig] | None, OmitIfNone()] = None
+    """Configuration for each Y-axis series (colors, line styles, etc.)."""
+
     splitAccessor: Annotated[str | None, OmitIfNone()] = None
+    """Field accessor ID for breaking down data into multiple series."""
+
     palette: Annotated[Any | None, OmitIfNone()] = None
+    """Color palette configuration for the layer."""
+
     collapseFn: Annotated[Literal['sum', 'avg', 'min', 'max'] | None, OmitIfNone()] = None
+    """Aggregation function when collapsing multiple values ('sum', 'avg', etc.)."""
+
     xScaleType: Annotated[Any | None, OmitIfNone()] = None
+    """Scale type for X-axis (linear, time, etc.)."""
+
     isHistogram: Annotated[bool | None, OmitIfNone()] = None
+    """Whether this layer displays histogram data."""
+
     columnToLabel: Annotated[str | None, OmitIfNone()] = None
+    """Mapping of column IDs to custom labels."""
+
     colorMapping: KbnLayerColorMapping | None = None
+    """Advanced color mapping configuration."""
 
 
 class XYReferenceLineLayerConfig(BaseVwModel):
@@ -159,18 +175,19 @@ class XYReferenceLineLayerConfig(BaseVwModel):
     See Also:
         Kibana type definition: `XYReferenceLineLayerConfig` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        layerId: Unique identifier for this reference line layer.
-        accessors: List of field accessor IDs for the reference line values.
-        yConfig: Configuration for each reference line (color, line style, label, etc.).
-        layerType: Always 'referenceLine' for reference line layers.
     """
 
     layerId: str
+    """Unique identifier for this reference line layer."""
+
     accessors: list[str]
+    """List of field accessor IDs for the reference line values."""
+
     yConfig: list[YConfig] | None = None
+    """Configuration for each reference line (color, line style, label, etc.)."""
+
     layerType: Literal['referenceLine']
+    """Always 'referenceLine' for reference line layers."""
 
 
 class XYAnnotationLayerConfigCachedMetadata(BaseVwModel):
@@ -183,16 +200,16 @@ class XYAnnotationLayerConfigCachedMetadata(BaseVwModel):
     See Also:
         Related to annotation layer types in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        title: Display title for the annotation or annotation group.
-        description: Detailed description of the annotation's purpose.
-        tags: List of tags for categorizing and filtering annotations.
     """
 
     title: str
+    """Display title for the annotation or annotation group."""
+
     description: str
+    """Detailed description of the annotation's purpose."""
+
     tags: list[str]
+    """List of tags for categorizing and filtering annotations."""
 
 
 class XYByValueAnnotationLayerConfig(BaseVwModel):
@@ -208,22 +225,25 @@ class XYByValueAnnotationLayerConfig(BaseVwModel):
     See Also:
         Kibana type definition: `XYByValueAnnotationLayerConfig` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        layerId: Unique identifier for this annotation layer.
-        layerType: Always 'annotations' for annotation layers.
-        annotations: List of annotation configurations (event markers, ranges, etc.).
-        indexPatternId: ID of the index pattern used for querying annotation data.
-        ignoreGlobalFilters: Whether to ignore dashboard-level filters for this layer.
-        cachedMetadata: Cached metadata about the annotations (title, description, tags).
     """
 
     layerId: str
+    """Unique identifier for this annotation layer."""
+
     layerType: Literal['annotations']
+    """Always 'annotations' for annotation layers."""
+
     annotations: list[Any]
+    """List of annotation configurations (event markers, ranges, etc.)."""
+
     indexPatternId: str
+    """ID of the index pattern used for querying annotation data."""
+
     ignoreGlobalFilters: bool
+    """Whether to ignore dashboard-level filters for this layer."""
+
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
+    """Cached metadata about the annotations (title, description, tags)."""
 
 
 class XYByReferenceAnnotationLayerConfig(BaseVwModel):
@@ -239,26 +259,31 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     See Also:
         Kibana type definition: Related to annotation layer types in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        layerId: Unique identifier for this annotation layer.
-        layerType: Always 'annotations' for annotation layers.
-        annotations: List of annotation configurations from the referenced group.
-        indexPatternId: ID of the index pattern used for querying annotation data.
-        ignoreGlobalFilters: Whether to ignore dashboard-level filters for this layer.
-        cachedMetadata: Cached metadata from the annotation group (title, description, tags).
-        annotationGroupId: ID of the saved annotation group being referenced.
-        last_saved: Timestamp of when the annotation group was last saved.
     """
 
     layerId: str
+    """Unique identifier for this annotation layer."""
+
     layerType: Literal['annotations']
+    """Always 'annotations' for annotation layers."""
+
     annotations: list[Any]
+    """List of annotation configurations from the referenced group."""
+
     indexPatternId: str
+    """ID of the index pattern used for querying annotation data."""
+
     ignoreGlobalFilters: bool
+    """Whether to ignore dashboard-level filters for this layer."""
+
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
+    """Cached metadata from the annotation group (title, description, tags)."""
+
     annotationGroupId: str
+    """ID of the saved annotation group being referenced."""
+
     last_saved: Any = Field(alias='__lastSaved')  # type: ignore[reportAny]
+    """Timestamp of when the annotation group was last saved."""
 
 
 # Subclass Kbn for XY visualizations state (JSON structure)
@@ -276,60 +301,81 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     See Also:
         Kibana type definition: `XYState` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-
-    Attributes:
-        preferredSeriesType: Default series type for new layers ('bar', 'line', 'area', etc.).
-        legend: Legend configuration (position, visibility, size, etc.).
-        valueLabels: How to display value labels ('hide', 'show', or specific positioning).
-        fittingFunction: Interpolation function for missing values in line/area charts.
-        emphasizeFitting: Whether to emphasize the fitting function line.
-        endValue: How to handle the end value in line/area charts.
-        xExtent: X-axis extent/range configuration.
-        yLeftExtent: Left Y-axis extent/range configuration.
-        yRightExtent: Right Y-axis extent/range configuration.
-        layers: List of all layers (data, reference lines, annotations).
-        xTitle: Custom title for the X-axis.
-        yTitle: Custom title for the left Y-axis (deprecated, use yLeftTitle).
-        yRightTitle: Custom title for the right Y-axis.
-        yLeftScale: Scale type for the left Y-axis (linear, log, sqrt, etc.).
-        yRightScale: Scale type for the right Y-axis.
-        axisTitlesVisibilitySettings: Control visibility of axis titles.
-        tickLabelsVisibilitySettings: Control visibility of tick labels.
-        gridlinesVisibilitySettings: Control visibility of gridlines.
-        labelsOrientation: Rotation angles for axis labels.
-        curveType: Curve interpolation type for line/area charts.
-        fillOpacity: Opacity of the fill for area charts (0.0 to 1.0).
-        minBarHeight: Minimum height in pixels for bars.
-        hideEndzones: Whether to hide endzones in time series charts.
-        showCurrentTimeMarker: Whether to show a marker for the current time.
     """
 
     preferredSeriesType: str | None = None
+    """Default series type for new layers ('bar', 'line', 'area', etc.)."""
+
     legend: Any
+    """Legend configuration (position, visibility, size, etc.)."""
+
     valueLabels: Literal['hide', 'show'] | None = None
+    """How to display value labels ('hide', 'show', or specific positioning)."""
+
     fittingFunction: Annotated[Any | None, OmitIfNone()] = None
+    """Interpolation function for missing values in line/area charts."""
+
     emphasizeFitting: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to emphasize the fitting function line."""
+
     endValue: Annotated[Any | None, OmitIfNone()] = None
+    """How to handle the end value in line/area charts."""
+
     xExtent: Annotated[Any | None, OmitIfNone()] = None
+    """X-axis extent/range configuration."""
+
     yLeftExtent: Annotated[Any | None, OmitIfNone()] = None
+    """Left Y-axis extent/range configuration."""
+
     yRightExtent: Annotated[Any | None, OmitIfNone()] = None
+    """Right Y-axis extent/range configuration."""
+
     layers: list[XYDataLayerConfig | XYReferenceLineLayerConfig | XYByValueAnnotationLayerConfig | XYByReferenceAnnotationLayerConfig] = (
         Field(default_factory=list)
     )
+    """List of all layers (data, reference lines, annotations)."""
+
     xTitle: Annotated[str | None, OmitIfNone()] = None
+    """Custom title for the X-axis."""
+
     yTitle: Annotated[str | None, OmitIfNone()] = None
+    """Custom title for the left Y-axis (deprecated, use yLeftTitle)."""
+
     yRightTitle: Annotated[str | None, OmitIfNone()] = None
+    """Custom title for the right Y-axis."""
+
     yLeftScale: Annotated[Any | None, OmitIfNone()] = None
+    """Scale type for the left Y-axis (linear, log, sqrt, etc.)."""
+
     yRightScale: Annotated[Any | None, OmitIfNone()] = None
+    """Scale type for the right Y-axis."""
+
     axisTitlesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    """Control visibility of axis titles."""
+
     tickLabelsVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    """Control visibility of tick labels."""
+
     gridlinesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    """Control visibility of gridlines."""
+
     labelsOrientation: Annotated[LabelsOrientationConfig | None, OmitIfNone()] = None
+    """Rotation angles for axis labels."""
+
     curveType: Annotated[Any | None, OmitIfNone()] = None
+    """Curve interpolation type for line/area charts."""
+
     fillOpacity: Annotated[float | None, OmitIfNone()] = None
+    """Opacity of the fill for area charts (0.0 to 1.0)."""
+
     minBarHeight: Annotated[float | None, OmitIfNone()] = None
+    """Minimum height in pixels for bars."""
+
     hideEndzones: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to hide endzones in time series charts."""
+
     showCurrentTimeMarker: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to show a marker for the current time."""
 
 
 # Note: ValidLayer is not di
