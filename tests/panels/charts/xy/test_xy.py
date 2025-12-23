@@ -333,3 +333,65 @@ async def test_area_percentage_chart() -> None:
             },
         }
     )
+
+
+async def test_line_chart_with_reference_lines() -> None:
+    """Test line chart with reference lines."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'reference_lines': [
+            {
+                'label': 'SLA Threshold',
+                'value': 500.0,
+                'axis': 'left',
+                'color': '#FF0000',
+                'line_style': 'dashed',
+                'line_width': 2,
+            },
+            {
+                'label': 'Target',
+                'value': 200.0,
+                'axis': 'left',
+                'color': '#00FF00',
+                'line_style': 'solid',
+            },
+        ],
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Should have 3 layers: 1 data layer + 2 reference line layers
+    assert len(kbn_state_visualization.layers) == 3
+
+    # Check data layer
+    data_layer = kbn_state_visualization.layers[0]
+    assert data_layer.layerType == 'data'
+    assert data_layer.seriesType == 'line'
+
+    # Check first reference line layer
+    ref_layer_1 = kbn_state_visualization.layers[1]
+    assert ref_layer_1.layerType == 'referenceLine'
+    assert len(ref_layer_1.accessors) == 1
+    assert ref_layer_1.yConfig is not None
+    assert len(ref_layer_1.yConfig) == 1
+    assert ref_layer_1.yConfig[0].color == '#FF0000'
+    assert ref_layer_1.yConfig[0].lineStyle == 'dashed'
+    assert ref_layer_1.yConfig[0].lineWidth == 2
+    assert ref_layer_1.yConfig[0].axisMode is not None
+    assert ref_layer_1.yConfig[0].axisMode.name == 'left'
+
+    # Check second reference line layer
+    ref_layer_2 = kbn_state_visualization.layers[2]
+    assert ref_layer_2.layerType == 'referenceLine'
+    assert len(ref_layer_2.accessors) == 1
+    assert ref_layer_2.yConfig is not None
+    assert len(ref_layer_2.yConfig) == 1
+    assert ref_layer_2.yConfig[0].color == '#00FF00'
+    assert ref_layer_2.yConfig[0].lineStyle == 'solid'
+    assert ref_layer_2.yConfig[0].axisMode is not None
+    assert ref_layer_2.yConfig[0].axisMode.name == 'left'

@@ -8,6 +8,62 @@ from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
+
+class XYReferenceLineValue(BaseCfgModel):
+    """Defines the value for a reference line.
+
+    Ode to Reference Lines
+    By Claude, for @graphaelli
+
+    How do you know something is good
+    Without a reference to compare?
+    A line upon the graph, understood—
+    A threshold floating in the air.
+
+    Is your response time fast or slow?
+    Are metrics high or are they low?
+    Without that line to tell you so,
+    You simply cannot truly know.
+
+    I draw a line at not knowing whether
+    My dashboards show the truth or not.
+    So mark your targets, tethered
+    To values that define the plot.
+
+    A reference line—both guide and guard,
+    Your SLA in visual form.
+    When metrics stray, you're not caught off guard—
+    The line reveals what's not the norm.
+
+    So draw your lines with purpose clear,
+    Let thresholds guide your watchful eye.
+    For in this graph we hold most dear,
+    A reference line shows bad from high.
+    """
+
+    type: Literal['static'] = 'static'
+    value: float = Field(..., description='The static value for the reference line.')
+
+
+class XYReferenceLine(BaseCfgModel):
+    """Configuration for a single reference line in an XY chart."""
+
+    id: str | None = Field(default=None, description='Optional ID for the reference line.')
+    label: str | None = Field(default=None, description='Optional label for the reference line.')
+    value: XYReferenceLineValue | float = Field(
+        ..., description='The value for the reference line. Can be a float or XYReferenceLineValue object.'
+    )
+    axis: Literal['left', 'right'] | None = Field(default='left', description='The axis to assign the reference line to.')
+    color: str | None = Field(default=None, description='The color of the reference line.')
+    line_width: int | None = Field(default=None, ge=1, le=10, description='The width of the reference line (1-10).')
+    line_style: Literal['solid', 'dashed', 'dotted'] | None = Field(default=None, description='The style of the reference line.')
+    fill: Literal['above', 'below', 'none'] | None = Field(default=None, description='Fill area above or below the line.')
+    icon: str | None = Field(default=None, description='Icon to display on the reference line.')
+    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(
+        default=None, description='Position of the icon on the reference line.'
+    )
+
+
 type XYChartTypes = LensXYChartTypes | ESQLXYChartTypes
 
 type LensXYChartTypes = LensBarChart | LensLineChart | LensAreaChart
@@ -67,6 +123,11 @@ class BaseXYChart(BaseChart):
     legend: XYLegend | None = Field(
         None,
         description='Formatting options for the chart legend.',
+    )
+
+    reference_lines: list[XYReferenceLine] | None = Field(
+        None,
+        description='Reference lines to display on the chart for threshold visualization.',
     )
 
 

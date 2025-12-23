@@ -15,12 +15,49 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensBarChart,
     LensLineChart,
     LensXYChartTypes,
+    XYReferenceLine,
 )
 from dashboard_compiler.panels.charts.xy.view import (
     KbnXYVisualizationState,
     XYDataLayerConfig,
+    XYReferenceLineLayerConfig,
+    YAxisMode,
+    YConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
+
+
+def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> XYReferenceLineLayerConfig:
+    """Compile a reference line into a Kibana reference line layer.
+
+    Args:
+        ref_line: The reference line configuration.
+        layer_id: The unique layer ID for this reference line layer.
+
+    Returns:
+        XYReferenceLineLayerConfig: The compiled reference line layer.
+    """
+    # Generate accessor ID
+    accessor_id = ref_line.id or f'ref_line_{layer_id}'
+
+    # Build yConfig for styling
+    y_config = YConfig(
+        forAccessor=accessor_id,
+        color=ref_line.color,
+        lineWidth=ref_line.line_width,
+        lineStyle=ref_line.line_style,
+        fill=ref_line.fill,
+        icon=ref_line.icon,
+        iconPosition=ref_line.icon_position,
+        axisMode=YAxisMode(name=ref_line.axis) if ref_line.axis else None,
+    )
+
+    return XYReferenceLineLayerConfig(
+        layerId=layer_id,
+        accessors=[accessor_id],
+        yConfig=[y_config],
+        layerType='referenceLine',
+    )
 
 
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
@@ -92,9 +129,19 @@ def compile_xy_chart_visualization_state(
         splitAccessor=breakdown_id,
     )
 
+    # Start with the data layer
+    layers: list[XYDataLayerConfig | XYReferenceLineLayerConfig] = [kbn_layer_visualization]
+
+    # Add reference line layers if configured
+    if chart.reference_lines:
+        for ref_line in chart.reference_lines:
+            ref_layer_id = random_id_generator()
+            ref_layer = compile_reference_line_layer(ref_line, ref_layer_id)
+            layers.append(ref_layer)
+
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
-        layers=[kbn_layer_visualization],
+        layers=layers,
         legend={'isVisible': True, 'position': 'right'},
         valueLabels='hide',
     )
