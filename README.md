@@ -168,11 +168,13 @@ src/dashboard_compiler/
 
 ```bash
 # Run all tests
-uv run pytest
+make test
 
 # Run all checks (recommended before committing)
 make check
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Code Quality
 
@@ -184,27 +186,15 @@ make lint
 
 # Run type checking
 make typecheck
-# or directly:
-uv run basedpyright
-
-# Check Python code quality
-uv run ruff check .
-
-# Format Python code
-uv run ruff format .
-
-# Lint markdown files
-markdownlint --fix -c .markdownlint.jsonc .
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Documentation
 
 Build and preview the documentation locally:
 
 ```bash
-# Install documentation dependencies
-uv sync --extra docs
-
 # Serve documentation locally
 make docs-serve
 
@@ -214,6 +204,8 @@ make docs-build
 # Deploy to GitHub Pages
 make docs-deploy
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Adding New Features
 

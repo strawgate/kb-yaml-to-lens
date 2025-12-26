@@ -18,13 +18,9 @@ make lint
 
 # Run type checking
 make typecheck
-# or directly:
-uv run basedpyright
-
-# Run individually:
-uv run ruff check . --fix
-uv run ruff format .
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Markdown
 
@@ -36,10 +32,10 @@ This project uses [markdownlint](https://github.com/DavidAnson/markdownlint) for
 Run markdown linting:
 
 ```bash
-markdownlint --fix -c .markdownlint.jsonc .
-# or via make:
 make lint-markdown
 ```
+
+See the `Makefile` for the underlying command if you need to run it directly.
 
 ### Documentation
 

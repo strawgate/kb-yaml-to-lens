@@ -28,9 +28,6 @@ make install
 # 1. Make changes
 # 2. Run checks
 make check
-
-# Test specific file
-uv run pytest tests/panels/test_metrics.py
 ```
 
 ---
