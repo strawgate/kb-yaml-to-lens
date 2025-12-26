@@ -41,7 +41,7 @@ Running this tool produces:
 | **Make** | GNU Make | GNU Make | For running build commands |
 | **Disk Space** | 25GB | 30GB+ | Kibana source + node_modules are large |
 | **RAM** | 8GB | 16GB+ | Bootstrap process is memory-intensive |
-| **Time** | 15-30 min | N/A | First build only; cached thereafter |
+| **Time** | ~6 min | N/A | First build only; cached thereafter |
 
 ## Understanding the Process
 
@@ -138,7 +138,7 @@ cd fixture-generator
 make build
 ```
 
-**Build Process:** Takes 15-30 minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
+**Build Process:** Takes ~6 minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
 
 **Common Issues:**
 
@@ -322,7 +322,7 @@ make run
 
 | Problem | Solution |
 |---------|----------|
-| **Node version mismatch**<br/>`Error: Expected version "22.21.1". Got "20.19.4"` | Check Kibana's `.node-version`, update `NODE_VERSION` in Makefile, rebuild with `make build-no-cache` |
+| **Node version mismatch**<br/>`Error: Expected version "22.21.1". Got "20.19.4"` | The Node.js version is auto-detected from Kibana's `.node-version` file during build. Rebuild with `make build-no-cache` to pick up any version changes |
 | **"Kibana should not be run as root"** | Add `--allow-root` flag to `yarn kbn bootstrap` in Dockerfile |
 | **Out of memory during bootstrap** | Increase Docker memory limit in Docker Desktop settings (recommend 10GB+) |
 

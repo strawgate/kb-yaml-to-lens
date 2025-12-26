@@ -55,7 +55,7 @@ export async function generateHeatmap() {
 }
 
 // Run if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   generateHeatmap()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);

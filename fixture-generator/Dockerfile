@@ -29,6 +29,7 @@ RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/ki
 
 # Install Node.js version specified by Kibana's .node-version file
 ARG TARGETARCH
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN NODE_VERSION=$(cat .node-version) && \
     ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x64") && \
     echo "Installing Node.js ${NODE_VERSION} for ${ARCH}..." && \
@@ -40,7 +41,7 @@ RUN NODE_VERSION=$(cat .node-version) && \
 RUN npm install -g yarn@1.22.19
 
 # Set heap size for large builds
-ENV NODE_OPTIONS="--max_old_space_size=8192"
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 # Bootstrap Kibana (this takes ~6 minutes)
 # This makes @kbn/lens-embeddable-utils and other packages available
@@ -50,7 +51,7 @@ RUN yarn kbn bootstrap --allow-root
 # Install tsx and peggy globally
 # tsx: needed for TypeScript transpilation
 # peggy: needed to compile .peggy grammar files to JavaScript
-RUN npm install -g tsx peggy
+RUN npm install -g tsx@4.21.0 peggy
 
 # Compile .peggy grammar files to JavaScript
 # The kbn-es-query package has a grammar.peggy file that needs compilation

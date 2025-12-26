@@ -5,7 +5,7 @@ IMAGE_NAME := kibana-fixture-generator
 KIBANA_VERSION ?= v9.2.0
 OUTPUT_DIR := $(shell pwd)/output
 
-.PHONY: build run shell clean help
+.PHONY: help build build-no-cache run run-example shell test-import clean clean-image
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -27,7 +27,7 @@ run: ## Generate all fixtures
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
-		-e NODE_OPTIONS="--max_old_space_size=8192" \
+		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(IMAGE_NAME):$(KIBANA_VERSION)
 
 run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-basic.js)
@@ -43,7 +43,7 @@ shell: ## Open a shell in the container for debugging
 	docker run --rm -it \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
-		-e NODE_OPTIONS="--max_old_space_size=8192" \
+		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(IMAGE_NAME):$(KIBANA_VERSION) \
 		/bin/bash
 

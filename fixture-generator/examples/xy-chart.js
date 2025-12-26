@@ -24,8 +24,19 @@ export async function generateXYChart() {
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
-    value: 'count',
-    xAxis: '@timestamp',
+    layers: [
+      {
+        type: 'series',
+        seriesType: 'line',
+        xAxis: '@timestamp',
+        yAxis: [
+          {
+            label: 'Count',
+            value: 'count'
+          }
+        ]
+      }
+    ],
     legend: {
       show: true,
       position: 'right'
@@ -47,7 +58,7 @@ export async function generateXYChart() {
   console.log('✓ Generated: xy-chart.json');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   generateXYChart()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);

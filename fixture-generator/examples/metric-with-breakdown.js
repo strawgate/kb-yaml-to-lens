@@ -44,7 +44,7 @@ export async function generateMetricWithBreakdown() {
   console.log('✓ Generated: metric-with-breakdown.json');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   generateMetricWithBreakdown()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);

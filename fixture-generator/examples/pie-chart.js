@@ -25,7 +25,7 @@ export async function generatePieChart() {
       esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10'
     },
     value: 'count',
-    breakdown: 'log.level',
+    breakdown: ['log.level'],
     legend: {
       show: true,
       position: 'right'
@@ -47,7 +47,7 @@ export async function generatePieChart() {
   console.log('✓ Generated: pie-chart.json');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   generatePieChart()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);

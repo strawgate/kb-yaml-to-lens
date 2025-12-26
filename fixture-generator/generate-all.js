@@ -5,6 +5,7 @@
  * Runs all example generator scripts and produces JSON fixtures
  */
 
+import { fileURLToPath } from 'url';
 import { generateMetricBasic } from './examples/metric-basic.js';
 import { generateMetricWithBreakdown } from './examples/metric-with-breakdown.js';
 import { generateXYChart } from './examples/xy-chart.js';
@@ -35,7 +36,7 @@ async function generateAll() {
   console.log('  Output directory: ./output/');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   generateAll()
     .catch((err) => {
       console.error('Fatal error:', err);

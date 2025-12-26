@@ -36,7 +36,7 @@ cd fixture-generator
 make build
 ```
 
-**Note**: First build takes 15-30 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
+**Note**: First build takes ~6 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
 
 ### 2. Generate Fixtures
 
