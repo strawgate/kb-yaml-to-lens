@@ -157,7 +157,7 @@ classmethod-decorators = ["classmethod", "pydantic.validator"]
 
 [tool.basedpyright]
 pythonVersion = "3.12"
-typeCheckingMode = "recommended"  # Bumped from standard to recommended
+typeCheckingMode = "recommended"
 reportExplicitAny = false
 reportMissingTypeStubs = false
 reportImportCycles = "error"  # Enable circular import detection

@@ -135,7 +135,7 @@ def compile_lens_dimension(
 
     # This check is necessary even though it appears redundant to type checkers
     # because dimension could be a more specific subclass at runtime
-    if isinstance(dimension, LensIntervalsDimension):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(dimension, LensIntervalsDimension):  # pyright: ignore[reportUnnecessaryIsInstance]
         dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
 
         if dimension.intervals is None:
@@ -177,8 +177,8 @@ def compile_lens_dimension(
 
     # All LensDimensionTypes have been handled above, this is unreachable
     # but kept for type safety in case new types are added
-    msg = f'Unsupported dimension type: {type(dimension)}'  # type: ignore[reportUnreachable]
-    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+    msg = f'Unsupported dimension type: {type(dimension)}'  # pyright: ignore[reportUnreachable]
+    raise NotImplementedError(msg)
 
 
 def compile_lens_dimensions(
