@@ -60,7 +60,7 @@ class KbnMarkdownSavedVisDataSearchSource(BaseVwModel):
 
 
 class KbnMarkdownSavedVisData(BaseVwModel):
-    aggs: list[Any] = Field(default_factory=list)
+    aggs: list[Any] = Field(...)
     searchSource: KbnMarkdownSavedVisDataSearchSource
 
 
@@ -72,12 +72,12 @@ class KbnMarkdownSavedVisParams(BaseVwModel):
 
 class KbnMarkdownSavedVis(BaseVwModel):
     type: Literal['markdown'] = 'markdown'
-    id: str = ''
-    title: str
-    description: str = ''
-    params: KbnMarkdownSavedVisParams
-    uiState: dict[str, Any] = Field(default_factory=dict)
-    data: KbnMarkdownSavedVisData
+    id: str = Field(...)
+    title: str = Field(...)
+    description: str = Field(...)
+    params: KbnMarkdownSavedVisParams = Field(...)
+    uiState: dict[str, Any] = Field(...)
+    data: KbnMarkdownSavedVisData = Field(...)
 
 
 class KbnMarkdownEmbeddableConfig(KbnBasePanelEmbeddableConfig):
