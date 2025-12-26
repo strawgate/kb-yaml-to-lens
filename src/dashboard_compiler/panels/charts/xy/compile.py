@@ -3,7 +3,12 @@
 from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
+from dashboard_compiler.panels.charts.lens.columns.view import (
+    KbnLensColumnTypes,
+    KbnLensMetricColumnTypes,
+    KbnLensStaticValueColumn,
+    KbnLensStaticValueColumnParams,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
@@ -27,18 +32,34 @@ from dashboard_compiler.panels.charts.xy.view import (
 from dashboard_compiler.shared.config import random_id_generator
 
 
-def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> XYReferenceLineLayerConfig:
-    """Compile a reference line into a Kibana reference line layer.
+def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tuple[XYReferenceLineLayerConfig, KbnLensStaticValueColumn]:
+    """Compile a reference line into a Kibana reference line layer and column.
 
     Args:
         ref_line: The reference line configuration.
         layer_id: The unique layer ID for this reference line layer.
 
     Returns:
-        XYReferenceLineLayerConfig: The compiled reference line layer.
+        tuple[XYReferenceLineLayerConfig, KbnLensStaticValueColumn]: The compiled reference line layer and column.
     """
     # Generate accessor ID
     accessor_id = ref_line.id or f'ref_line_{layer_id}'
+
+    # Extract the numeric value from the ref_line.value field
+    numeric_value = ref_line.value if isinstance(ref_line.value, float) else ref_line.value.value
+
+    # Create the static value column for the reference line
+    static_value_column = KbnLensStaticValueColumn(
+        label=ref_line.label or f'Static value: {numeric_value}',
+        dataType='number',
+        operationType='static_value',
+        isBucketed=False,
+        isStaticValue=True,
+        scale='ratio',
+        params=KbnLensStaticValueColumnParams(value=str(numeric_value)),
+        references=[],
+        customLabel=ref_line.label is not None,
+    )
 
     # Build yConfig for styling
     y_config = YConfig(
@@ -52,11 +73,14 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> XY
         axisMode=YAxisMode(name=ref_line.axis) if ref_line.axis else None,
     )
 
-    return XYReferenceLineLayerConfig(
-        layerId=layer_id,
-        accessors=[accessor_id],
-        yConfig=[y_config],
-        layerType='referenceLine',
+    return (
+        XYReferenceLineLayerConfig(
+            layerId=layer_id,
+            accessors=[accessor_id],
+            yConfig=[y_config],
+            layerType='referenceLine',
+        ),
+        static_value_column,
     )
 
 
@@ -101,13 +125,14 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     return series_type
 
 
-def compile_xy_chart_visualization_state(
+def compile_xy_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],
     metric_ids: list[str],
     breakdown_id: str | None = None,
+    reference_line_layers: list[XYReferenceLineLayerConfig] | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -117,6 +142,7 @@ def compile_xy_chart_visualization_state(
         dimension_ids (list[str]): The IDs of the dimensions.
         metric_ids (list[str]): The IDs of the metrics.
         breakdown_id (str | None): The ID of the breakdown dimension if any.
+        reference_line_layers (list[XYReferenceLineLayerConfig] | None): Pre-compiled reference line layers.
 
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
@@ -140,12 +166,9 @@ def compile_xy_chart_visualization_state(
     # Start with the data layer
     layers: list[XYDataLayerConfig | XYReferenceLineLayerConfig] = [kbn_layer_visualization]
 
-    # Add reference line layers if configured
-    if chart.reference_lines:
-        for ref_line in chart.reference_lines:
-            ref_layer_id = random_id_generator()
-            ref_layer = compile_reference_line_layer(ref_line, ref_layer_id)
-            layers.append(ref_layer)
+    # Add pre-compiled reference line layers
+    if reference_line_layers:
+        layers.extend(reference_line_layers)
 
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
@@ -190,7 +213,19 @@ def compile_lens_xy_chart(
 
         kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
 
-    kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
+    # Compile reference lines if configured
+    reference_line_layers: list[XYReferenceLineLayerConfig] = []
+    reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
+    if lens_xy_chart.reference_lines:
+        for ref_line in lens_xy_chart.reference_lines:
+            ref_layer_id = random_id_generator()
+            ref_layer, ref_column = compile_reference_line_layer(ref_line, ref_layer_id)
+            reference_line_layers.append(ref_layer)
+            # Use the accessor ID from the layer to key the column
+            accessor_id = ref_layer.accessors[0]
+            reference_line_columns[accessor_id] = ref_column
+
+    kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns, **reference_line_columns}
 
     return (
         layer_id,
@@ -201,6 +236,7 @@ def compile_lens_xy_chart(
             dimension_ids=dimension_ids,
             metric_ids=metric_ids,
             breakdown_id=breakdown_id,
+            reference_line_layers=reference_line_layers,
         ),
     )
 

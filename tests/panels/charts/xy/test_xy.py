@@ -395,3 +395,26 @@ async def test_line_chart_with_reference_lines() -> None:
     assert ref_layer_2.yConfig[0].lineStyle == 'solid'
     assert ref_layer_2.yConfig[0].axisMode is not None
     assert ref_layer_2.yConfig[0].axisMode.name == 'left'
+
+    # Verify reference line columns are present with correct values
+    ref_1_accessor = ref_layer_1.accessors[0]
+    ref_2_accessor = ref_layer_2.accessors[0]
+
+    assert ref_1_accessor in kbn_columns
+    assert ref_2_accessor in kbn_columns
+
+    # Check first reference line column
+    ref_1_column = kbn_columns[ref_1_accessor]
+    assert ref_1_column.operationType == 'static_value'
+    assert ref_1_column.dataType == 'number'
+    assert ref_1_column.params.value == '500.0'
+    assert ref_1_column.label == 'SLA Threshold'
+    assert ref_1_column.customLabel is True
+
+    # Check second reference line column
+    ref_2_column = kbn_columns[ref_2_accessor]
+    assert ref_2_column.operationType == 'static_value'
+    assert ref_2_column.dataType == 'number'
+    assert ref_2_column.params.value == '200.0'
+    assert ref_2_column.label == 'Target'
+    assert ref_2_column.customLabel is True
