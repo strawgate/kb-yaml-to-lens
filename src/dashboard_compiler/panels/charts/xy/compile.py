@@ -63,6 +63,13 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> XY
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     """Determine the Kibana series type based on the chart configuration.
 
+    Maps chart config types and modes to Kibana's specific seriesType strings.
+    Kibana distinguishes between:
+    - Basic types: 'line', 'bar_stacked', 'area' (default/stacked mode)
+    - Unstacked variants: 'bar_unstacked', 'area_unstacked'
+    - Percentage variants: 'bar_percentage_stacked', 'area_percentage_stacked'
+    The exact string values must match Kibana's XY visualization registry.
+
     Args:
         chart: The XY chart configuration (Lens or ESQL).
 
@@ -95,6 +102,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
 
 
 def compile_xy_chart_visualization_state(
+    *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],

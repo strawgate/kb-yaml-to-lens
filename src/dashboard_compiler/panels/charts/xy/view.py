@@ -116,6 +116,3 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     minBarHeight: Annotated[float | None, OmitIfNone()] = None
     hideEndzones: Annotated[bool | None, OmitIfNone()] = None
     showCurrentTimeMarker: Annotated[bool | None, OmitIfNone()] = None
-
-
-# Note: ValidLayer is not di

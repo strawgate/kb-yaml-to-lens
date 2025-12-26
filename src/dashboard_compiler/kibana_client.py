@@ -70,6 +70,7 @@ class KibanaClient:
     def __init__(
         self,
         url: str,
+        *,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
@@ -151,7 +152,7 @@ class KibanaClient:
         """
         return f'{self.url}/app/dashboards#{dashboard_id}'  # type: ignore[reportAny]
 
-    async def generate_screenshot(
+    async def generate_screenshot(  # noqa: PLR0913
         self,
         dashboard_id: str,
         time_from: str | None = None,
@@ -282,7 +283,7 @@ class KibanaClient:
                 # Wait before next poll
                 await asyncio.sleep(poll_interval)
 
-    async def download_screenshot(
+    async def download_screenshot(  # noqa: PLR0913
         self,
         dashboard_id: str,
         output_path: Path,

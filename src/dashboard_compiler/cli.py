@@ -337,7 +337,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         )
 
 
-async def upload_to_kibana(
+async def upload_to_kibana(  # noqa: PLR0913
     ndjson_file: Path,
     kibana_url: str,
     username: str | None,

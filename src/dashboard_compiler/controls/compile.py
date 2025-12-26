@@ -26,7 +26,7 @@ from dashboard_compiler.shared.defaults import default_false, default_if_none
 from dashboard_compiler.shared.id_utils import generate_id
 
 
-def compile_options_list_control(order: int, control: OptionsListControl) -> KbnOptionsListControl:
+def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
     """Compile an OptionsListControl into its Kibana view model representation.
 
     Args:
@@ -62,7 +62,7 @@ def compile_options_list_control(order: int, control: OptionsListControl) -> Kbn
     )
 
 
-def compile_range_slider_control(order: int, control: RangeSliderControl) -> KbnRangeSliderControl:
+def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> KbnRangeSliderControl:
     """Compile a RangeSliderControl into its Kibana view model representation.
 
     Args:
@@ -89,7 +89,7 @@ def compile_range_slider_control(order: int, control: RangeSliderControl) -> Kbn
     )
 
 
-def compile_time_slider_control(order: int, control: TimeSliderControl) -> KbnTimeSliderControl:
+def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> KbnTimeSliderControl:
     """Compile a TimeSliderControl into its Kibana view model representation.
 
     Args:
@@ -114,7 +114,7 @@ def compile_time_slider_control(order: int, control: TimeSliderControl) -> KbnTi
     )
 
 
-def compile_control(order: int, control: ControlTypes) -> KbnControlTypes:
+def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     """Compile a single control into its Kibana view model representation.
 
     Args:
@@ -126,14 +126,14 @@ def compile_control(order: int, control: ControlTypes) -> KbnControlTypes:
 
     """
     if isinstance(control, OptionsListControl):
-        return compile_options_list_control(order, control)
+        return compile_options_list_control(order, control=control)
 
     if isinstance(control, TimeSliderControl):
-        return compile_time_slider_control(order, control)
+        return compile_time_slider_control(order, control=control)
 
     # No need for isinstance check here since ControlTypes is OptionsListControl | TimeSliderControl | RangeSliderControl
     # and we've already handled the first two types above
-    return compile_range_slider_control(order, control)
+    return compile_range_slider_control(order, control=control)
 
 
 def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:
@@ -149,7 +149,7 @@ def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlP
     kbn_control_panels_json: KbnControlPanelsJson = KbnControlPanelsJson()
 
     for i, config_control in enumerate(iterable=controls):
-        kbn_control: KbnControlTypes = compile_control(i, config_control)
+        kbn_control: KbnControlTypes = compile_control(i, control=config_control)
 
         kbn_control_id: str = kbn_control.explicitInput.id
 
@@ -158,7 +158,7 @@ def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlP
     return kbn_control_panels_json
 
 
-def compile_control_group(control_settings: ControlSettings, controls: Sequence[ControlTypes]) -> KbnControlGroupInput:
+def compile_control_group(*, control_settings: ControlSettings, controls: Sequence[ControlTypes]) -> KbnControlGroupInput:
     """Compile a control group from a sequence of ControlTypes into a Kibana view model.
 
     Args:
@@ -171,6 +171,10 @@ def compile_control_group(control_settings: ControlSettings, controls: Sequence[
     """
     panels_json = compile_control_panels_json(controls)
 
+    # Kibana's control API uses "ignore" semantics (ignoreFilters, ignoreQuery, etc.)
+    # but our config uses "apply" semantics for better UX. We invert the booleans here:
+    # - apply_global_filters: True  → ignoreFilters: False  (respect filters)
+    # - apply_global_filters: False → ignoreFilters: True   (ignore filters)
     ignore_parent_settings_json = KbnIgnoreParentSettingsJson(
         ignoreFilters=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
         ignoreQuery=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
