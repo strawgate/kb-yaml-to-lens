@@ -30,9 +30,14 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
         str: A stable GUID-like string generated from the input values.
 
     """
+    # The '||' delimiter is used to separate input values before hashing. This ensures
+    # different inputs produce different hashes: ['a', 'bc'] ≠ ['ab', 'c']
+    # (without delimiter: 'abc' = 'abc', with delimiter: 'a||bc' ≠ 'ab||c')
     concatenated_values = '||'.join([str(value) for value in values]).encode('utf-8')
 
-    # Use SHA-1 hash for better distribution (160 bits)
+    # Use SHA-1 for deterministic hashing. While SHA-1 is deprecated for cryptographic
+    # use, it's perfect here because we need speed and determinism, not security.
+    # Collision risk is acceptable for dashboard IDs.
     hashed_data = hashlib.sha1(concatenated_values).digest()  # noqa: S324
 
     # Truncate or pad to 16 bytes (128 bits) if needed
