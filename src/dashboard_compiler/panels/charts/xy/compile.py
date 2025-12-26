@@ -1,7 +1,6 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
 from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
-from dashboard_compiler.panels.charts.xy.config import XYReferenceLineValue
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
@@ -22,6 +21,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensLineChart,
     LensXYChartTypes,
     XYReferenceLine,
+    XYReferenceLineValue,
 )
 from dashboard_compiler.panels.charts.xy.view import (
     KbnXYVisualizationState,
@@ -179,7 +179,7 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
     ]
 
     # Add pre-compiled reference line layers
-    if reference_line_layers:
+    if reference_line_layers is not None and len(reference_line_layers) > 0:
         layers.extend(reference_line_layers)
 
     return KbnXYVisualizationState(
