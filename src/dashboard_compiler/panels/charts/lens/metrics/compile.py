@@ -107,7 +107,7 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
 
     # This check is necessary even though it appears redundant to type checkers
     # because metric_format could be a more specific subclass at runtime
-    if isinstance(metric_format, LensMetricFormat):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(metric_format, LensMetricFormat):  # pyright: ignore[reportUnnecessaryIsInstance]
         return KbnLensMetricFormat(
             id=metric_format.type,
             params=KbnLensMetricFormatParams(
@@ -119,8 +119,8 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
 
     # All LensMetricFormatTypes have been handled above, this is unreachable
     # but kept for type safety in case new types are added
-    msg = f'Unsupported metric format type: {type(metric_format)}'  # type: ignore[reportUnreachable]
-    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+    msg = f'Unsupported metric format type: {type(metric_format)}'  # pyright: ignore[reportUnreachable]
+    raise NotImplementedError(msg)
 
 
 # def compile_lens_formula(metric: LensFormulaMetric) -> tuple[str, KbnLensFormulaMetricColumnTypes]:
@@ -210,7 +210,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
 
     # This check is necessary even though it appears redundant to type checkers
     # because metric could be a more specific subclass at runtime
-    elif isinstance(metric, LensOtherAggregatedMetric):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(metric, LensOtherAggregatedMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation, None),
@@ -218,8 +218,8 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     else:
         # All LensMetricTypes have been handled above, this is unreachable
         # but kept for type safety in case new types are added
-        msg = f'Unsupported metric type: {type(metric)}'  # type: ignore[reportUnreachable]
-        raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+        msg = f'Unsupported metric type: {type(metric)}'  # pyright: ignore[reportUnreachable]
+        raise NotImplementedError(msg)
 
     return metric_id, KbnLensFieldMetricColumn(
         label=metric.label or default_label,

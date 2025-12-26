@@ -51,7 +51,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
         else:  # default to stacked
             series_type = 'bar_stacked'
     # This check is necessary even though it appears redundant to type checkers
-    elif isinstance(chart, (LensAreaChart, ESQLAreaChart)):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(chart, (LensAreaChart, ESQLAreaChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if chart.mode == 'unstacked':
             series_type = 'area_unstacked'
         elif chart.mode == 'stacked':

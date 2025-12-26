@@ -83,7 +83,7 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     ignoreGlobalFilters: bool
     cachedMetadata: XYAnnotationLayerConfigCachedMetadata | None = None
     annotationGroupId: str
-    last_saved: Any = Field(alias='__lastSaved')  # type: ignore[reportAny]
+    last_saved: Any = Field(alias='__lastSaved')  # pyright: ignore[reportAny]
 
 
 # Subclass Kbnfor XY visualizations state (JSON structure)
