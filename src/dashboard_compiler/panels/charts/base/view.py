@@ -6,19 +6,27 @@ from pydantic import Field
 
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
+# Default values for color mapping - set during compilation
+KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE = 'other'
+KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE = 'loop'
+KBN_DEFAULT_COLOR_MAPPING_TOUCHED = False
+KBN_DEFAULT_COLOR_MAPPING_PALETTE_ID = 'eui_amsterdam_color_blind'
+KBN_DEFAULT_COLOR_MAPPING_COLOR_MODE_TYPE = 'categorical'
+
 
 class KbnLayerColorMappingRule(BaseVwModel):
     """View model for color mapping rule configuration.
 
     Defines a rule for color assignment in visualization layers. Rules can be 'other'
     for default assignments or specific rule types for conditional color mapping.
+    Values are set during compilation using the default constants defined above.
 
     See Also:
         Related to color mapping types in Kibana Lens visualizations.
     """
 
-    type: str = 'other'
-    """Type of color mapping rule ('other' for default)."""
+    type: str = Field(...)
+    """Type of color mapping rule (set during compilation, typically 'other' for default)."""
 
 
 class KbnLayerColorMappingColor(BaseVwModel):
@@ -26,13 +34,14 @@ class KbnLayerColorMappingColor(BaseVwModel):
 
     Defines the color assignment strategy for visualization layers. The 'loop' type
     means colors are assigned in a repeating pattern from the palette.
+    Values are set during compilation using the default constants defined above.
 
     See Also:
         Related to color mapping types in Kibana Lens visualizations.
     """
 
-    type: str = 'loop'
-    """Color assignment type ('loop' for repeating pattern)."""
+    type: str = Field(...)
+    """Color assignment type (set during compilation, typically 'loop' for repeating pattern)."""
 
 
 class KbnLayerColorMappingSpecialAssignment(BaseVwModel):
@@ -40,19 +49,19 @@ class KbnLayerColorMappingSpecialAssignment(BaseVwModel):
 
     Defines a special case color assignment rule for visualization layers, combining
     a color rule with a color assignment strategy and tracking whether it has been
-    modified by the user.
+    modified by the user. Values are set during compilation using the default constants.
 
     See Also:
         Related to color mapping types in Kibana Lens visualizations.
     """
 
-    rule: KbnLayerColorMappingRule = Field(default_factory=KbnLayerColorMappingRule)
+    rule: KbnLayerColorMappingRule = Field(...)
     """The color mapping rule to apply."""
 
-    color: KbnLayerColorMappingColor = Field(default_factory=KbnLayerColorMappingColor)
+    color: KbnLayerColorMappingColor = Field(...)
     """The color assignment strategy."""
 
-    touched: bool = False
+    touched: bool = Field(...)
     """Whether this assignment has been modified by the user."""
 
 
@@ -61,7 +70,8 @@ class KbnLayerColorMapping(BaseVwModel):
 
     Defines how colors are assigned to data series in a visualization layer. Includes
     the color palette to use, color assignment mode, and special assignment rules for
-    specific conditions or categories.
+    specific conditions or categories. Values are set during compilation using the
+    default constants defined above.
 
     This model is used across different visualization types (XY, pie, etc.) to maintain
     consistent color mapping behavior.
@@ -70,19 +80,17 @@ class KbnLayerColorMapping(BaseVwModel):
         Related to color mapping types in Kibana Lens visualizations.
     """
 
-    assignments: list[Any] = Field(default_factory=list)
+    assignments: list[Any] = Field(...)
     """List of color assignments for specific categories or series."""
 
-    specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(
-        default_factory=lambda: [KbnLayerColorMappingSpecialAssignment()],
-    )
+    specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(...)
     """List of special color assignment rules for exceptional cases."""
 
-    paletteId: str = 'eui_amsterdam_color_blind'
-    """ID of the color palette to use (defaults to 'eui_amsterdam_color_blind')."""
+    paletteId: str = Field(...)
+    """ID of the color palette to use (set during compilation)."""
 
-    colorMode: dict[str, str] = Field(default_factory=lambda: {'type': 'categorical'})
-    """Color assignment mode configuration (e.g., 'categorical' for category-based colors)."""
+    colorMode: dict[str, str] = Field(...)
+    """Color assignment mode configuration (set during compilation)."""
 
 
 class KbnBaseStateVisualizationLayer(BaseVwModel):

@@ -54,7 +54,3 @@ class KbnMetricVisualizationState(KbnBaseStateVisualization):
         Kibana type definition: `MetricVisualizationState` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/metric/types.ts
     """
-
-    # @model_serializer()
-    # def serialize_model(self) -> dict[str, Any] | None:
-    #     return self.layers[0].model_dump(serialize_as_any=True, exclude_none=True) if self.layers else None

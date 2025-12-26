@@ -158,7 +158,7 @@ class XYDataLayerConfig(BaseVwModel):
     columnToLabel: Annotated[str | None, OmitIfNone()] = None
     """Mapping of column IDs to custom labels."""
 
-    colorMapping: KbnLayerColorMapping | None = None
+    colorMapping: Annotated[KbnLayerColorMapping | None, OmitIfNone()] = None
     """Advanced color mapping configuration."""
 
 
@@ -286,7 +286,6 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     """Timestamp of when the annotation group was last saved."""
 
 
-# Subclass Kbn for XY visualizations state (JSON structure)
 class KbnXYVisualizationState(KbnBaseStateVisualization):
     """View model for XY chart visualization state after compilation to Kibana Lens format.
 
