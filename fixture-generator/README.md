@@ -80,11 +80,28 @@ fixture-generator/
 │   ├── metric-with-breakdown.js # Metric with breakdown (ES|QL)
 │   ├── metric-with-trend.js    # Metric with trend (ES|QL)
 │   ├── metric-with-trend-dataview.js # Metric with trend (Data View)
+│   ├── metric-grid.js          # Metric grid layout (ES|QL)
+│   ├── metric-grid-dataview.js # Metric grid layout (Data View)
 │   ├── xy-chart.js             # Line/area/bar charts (ES|QL)
-│   ├── xy-chart-stacked-bar-dataview.js # Stacked bar (Data View)
-│   ├── pie-chart.js            # Pie/donut charts (ES|QL)
+│   ├── xy-chart-stacked-bar.js # Stacked bar chart (ES|QL)
+│   ├── xy-chart-stacked-bar-dataview.js # Stacked bar chart (Data View)
+│   ├── xy-chart-dual-axis.js   # Dual-axis chart (ES|QL)
+│   ├── xy-chart-dual-axis-dataview.js # Dual-axis chart (Data View)
+│   ├── xy-chart-multi-layer.js # Multi-layer chart (ES|QL)
+│   ├── xy-chart-multi-layer-dataview.js # Multi-layer chart (Data View)
+│   ├── pie-chart.js            # Pie chart (ES|QL)
+│   ├── pie-chart-donut.js      # Donut chart (ES|QL)
 │   ├── pie-chart-donut-dataview.js # Donut chart (Data View)
-│   └── ...                     # Additional ES|QL and Data View examples
+│   ├── datatable-advanced.js   # Advanced datatable (ES|QL)
+│   ├── datatable-advanced-dataview.js # Advanced datatable (Data View)
+│   ├── gauge.js                # Gauge chart (ES|QL)
+│   ├── gauge-dataview.js       # Gauge chart (Data View)
+│   ├── treemap.js              # Treemap visualization (ES|QL)
+│   ├── treemap-dataview.js     # Treemap visualization (Data View)
+│   ├── waffle.js               # Waffle chart (ES|QL)
+│   ├── waffle-dataview.js      # Waffle chart (Data View)
+│   └── heatmap.js              # Heatmap visualization (ES|QL)
+├── generator-utils.js          # Shared utility functions
 ├── generate-all.js             # Runs all examples
 ├── output/                     # Generated JSON files
 ├── Dockerfile

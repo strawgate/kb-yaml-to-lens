@@ -10,7 +10,7 @@ import { generateFixture, runIfMain } from '../generator-utils.js';
 export async function generateXYChartMultiLayerDataview() {
   const config = {
     chartType: 'xy',
-    title: 'Events with Success Rate Overlay (Data View)',
+    title: 'Events with Avg Bytes Overlay (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
