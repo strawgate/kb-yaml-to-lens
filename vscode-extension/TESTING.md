@@ -102,7 +102,7 @@ If Python tests fail with import errors:
 
 ```bash
 # Ensure dashboard_compiler is installed
-uv sync --all-extras
+uv sync --group dev
 ```
 
 ### Import Errors
@@ -110,5 +110,5 @@ uv sync --all-extras
 If you see import errors about `dashboard_compiler`, ensure the main package is installed:
 
 ```bash
-uv sync --all-extras
+uv sync --group dev
 ```
