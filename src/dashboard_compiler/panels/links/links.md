@@ -135,9 +135,45 @@ Represents a link to an external web URL.
 | `encode`  | `boolean` | If `true`, the URL will be URL-encoded before navigation.                                                  | `true`         | No       |
 | `new_tab` | `boolean` | If `true`, the link will open in a new browser tab.                                                        | `false`        | No       |
 
-## Methods (for programmatic generation)
+## Programmatic Usage (Python)
 
-The `LinksPanel` Pydantic model includes an `add_link(link: LinkTypes)` method, which can be used if you are generating dashboard configurations programmatically in Python (not directly used in YAML).
+You can create Links panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
+panel = LinksPanel(
+    type='links',
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[
+        UrlLink(
+            label='Documentation',
+            url='https://example.com/docs',
+        ),
+        UrlLink(
+            label='API Reference',
+            url='https://example.com/api',
+        ),
+    ],
+)
+```
+
+The `LinksPanel` model includes an `add_link(link: LinkTypes)` method for adding links dynamically:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
+panel = LinksPanel(
+    type='links',
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[],
+)
+
+panel.add_link(UrlLink(label='Docs', url='https://example.com/docs'))
+panel.add_link(UrlLink(label='API', url='https://example.com/api'))
+```
 
 ## Related Documentation
 

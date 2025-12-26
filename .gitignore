@@ -9,3 +9,5 @@ references
 reference
 plan-*
 site/
+*.ndjson
+dashboards.ndjson

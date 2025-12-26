@@ -67,6 +67,21 @@ Search panels inherit from the [Base Panel Configuration](../base.md) and have o
 
 **Note on Behavior:** The appearance, columns displayed, sort order, and underlying query of the Search panel are primarily controlled by the configuration of the saved search itself within Kibana's Discover application. The dashboard panel configuration mainly serves to embed that saved search.
 
+## Programmatic Usage (Python)
+
+You can create Search panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.search.config import SearchPanel
+
+panel = SearchPanel(
+    type='search',
+    grid=Grid(x=0, y=0, w=48, h=20),
+    saved_search_id='my-saved-search',
+)
+```
+
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
