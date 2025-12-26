@@ -50,7 +50,7 @@ def main() -> None:
     ndjson_lines: list[str] = []
     snapshot_files: list[Path] = sorted(SNAPSHOT_DIR.glob('*.json'))  # Ensure consistent order
 
-    if not snapshot_files:
+    if len(snapshot_files) == 0:
         msg = f'Warning: No snapshot files found in {SNAPSHOT_DIR}'
         logger.warning(msg)
         sys.exit(1)
@@ -59,10 +59,10 @@ def main() -> None:
         msg = f'Processing: {snapshot_file.name}'
         logger.info(msg)
         compressed_content = read_and_compress_snapshot(snapshot_file)
-        if compressed_content:
+        if compressed_content is not None:
             ndjson_lines.append(compressed_content)  # Add the compressed JSON string
 
-    if ndjson_lines:
+    if len(ndjson_lines) > 0:
         try:
             with Path(OUTPUT_FILE).open('w') as f:
                 f.writelines(line + '\n' for line in ndjson_lines)  # Use '\n' for actual newline
