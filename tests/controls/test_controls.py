@@ -3,7 +3,6 @@
 import json
 from typing import TYPE_CHECKING, Any
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 from pydantic import BaseModel
@@ -22,39 +21,29 @@ class ControlHolder(BaseModel):
     control: ControlTypes
 
 
-@pytest.fixture
-def compile_control_snapshot():
-    """Fixture that returns a function to compile control and return dict for snapshot."""
-
-    def _compile(config: dict[str, Any]) -> dict[str, Any]:
-        control_holder: ControlHolder = ControlHolder.model_validate({'control': config})
-        kbn_control_group_input: KbnControlTypes = compile_control(order=0, control=control_holder.control)
-        return kbn_control_group_input.model_dump(by_alias=True)
-
-    return _compile
+def compile_control_snapshot(config: dict[str, Any]) -> dict[str, Any]:
+    """Compile control config and return dict for snapshot testing."""
+    control_holder: ControlHolder = ControlHolder.model_validate({'control': config})
+    kbn_control_group_input: KbnControlTypes = compile_control(order=0, control=control_holder.control)
+    return kbn_control_group_input.model_dump(by_alias=True)
 
 
-@pytest.fixture
-def compile_control_settings_snapshot():
-    """Fixture that returns a function to compile control settings and return dict for snapshot."""
+def compile_control_settings_snapshot(config: dict[str, Any]) -> dict[str, Any]:
+    """Compile control settings config and return dict for snapshot testing."""
+    control_settings = ControlSettings.model_validate(obj=config)
+    kbn_control_group_input: KbnControlGroupInput = compile_control_group(control_settings=control_settings, controls=[])
+    result = kbn_control_group_input.model_dump(by_alias=True)
 
-    def _compile(config: dict[str, Any]) -> dict[str, Any]:
-        control_settings = ControlSettings.model_validate(obj=config)
-        kbn_control_group_input: KbnControlGroupInput = compile_control_group(control_settings=control_settings, controls=[])
-        result = kbn_control_group_input.model_dump(by_alias=True)
+    if 'ignoreParentSettingsJSON' in result and isinstance(result['ignoreParentSettingsJSON'], str):
+        result['ignoreParentSettingsJSON'] = json.loads(result['ignoreParentSettingsJSON'])
 
-        if 'ignoreParentSettingsJSON' in result and isinstance(result['ignoreParentSettingsJSON'], str):
-            result['ignoreParentSettingsJSON'] = json.loads(result['ignoreParentSettingsJSON'])
+    if 'panelsJSON' in result and isinstance(result['panelsJSON'], str):
+        result['panelsJSON'] = json.loads(result['panelsJSON'])
 
-        if 'panelsJSON' in result and isinstance(result['panelsJSON'], str):
-            result['panelsJSON'] = json.loads(result['panelsJSON'])
-
-        return result
-
-    return _compile
+    return result
 
 
-async def test_normal_options_list(compile_control_snapshot) -> None:
+async def test_normal_options_list() -> None:
     """Test normal options list control."""
     config = {
         'type': 'options',
@@ -80,7 +69,7 @@ async def test_normal_options_list(compile_control_snapshot) -> None:
     )
 
 
-async def test_options_list_with_custom_label(compile_control_snapshot) -> None:
+async def test_options_list_with_custom_label() -> None:
     """Test options list control with custom label."""
     config = {
         'type': 'options',
@@ -108,7 +97,7 @@ async def test_options_list_with_custom_label(compile_control_snapshot) -> None:
     )
 
 
-async def test_options_list_with_large_width(compile_control_snapshot) -> None:
+async def test_options_list_with_large_width() -> None:
     """Test options list control with large width."""
     config = {
         'type': 'options',
@@ -137,7 +126,7 @@ async def test_options_list_with_large_width(compile_control_snapshot) -> None:
     )
 
 
-async def test_options_list_with_large_width_and_expand(compile_control_snapshot) -> None:
+async def test_options_list_with_large_width_and_expand() -> None:
     """Test options list control with large width and expand option."""
     config = {
         'type': 'options',
@@ -167,7 +156,7 @@ async def test_options_list_with_large_width_and_expand(compile_control_snapshot
     )
 
 
-async def test_options_list_with_small_width_and_single_select(compile_control_snapshot) -> None:
+async def test_options_list_with_small_width_and_single_select() -> None:
     """Test options list control with small width and single select."""
     config = {
         'type': 'options',
@@ -199,7 +188,7 @@ async def test_options_list_with_small_width_and_single_select(compile_control_s
     )
 
 
-async def test_options_list_with_contains_search_technique(compile_control_snapshot) -> None:
+async def test_options_list_with_contains_search_technique() -> None:
     """Test options list control with contains search technique."""
     config = {
         'type': 'options',
@@ -228,7 +217,7 @@ async def test_options_list_with_contains_search_technique(compile_control_snaps
     )
 
 
-async def test_options_list_with_exact_search_technique(compile_control_snapshot) -> None:
+async def test_options_list_with_exact_search_technique() -> None:
     """Test options list control with exact search technique."""
     config = {
         'type': 'options',
@@ -257,7 +246,7 @@ async def test_options_list_with_exact_search_technique(compile_control_snapshot
     )
 
 
-async def test_options_list_with_ignore_timeout(compile_control_snapshot) -> None:
+async def test_options_list_with_ignore_timeout() -> None:
     """Test options list control with ignore timeout."""
     config = {
         'type': 'options',
@@ -287,7 +276,7 @@ async def test_options_list_with_ignore_timeout(compile_control_snapshot) -> Non
     )
 
 
-async def test_range_slider_with_default_step_size(compile_control_snapshot) -> None:
+async def test_range_slider_with_default_step_size() -> None:
     """Test range slider control with default step size."""
     config = {
         'type': 'range',
@@ -313,7 +302,7 @@ async def test_range_slider_with_default_step_size(compile_control_snapshot) -> 
     )
 
 
-async def test_range_slider_with_step_size_10(compile_control_snapshot) -> None:
+async def test_range_slider_with_step_size_10() -> None:
     """Test range slider control with step size 10."""
     config = {
         'type': 'range',
@@ -340,7 +329,7 @@ async def test_range_slider_with_step_size_10(compile_control_snapshot) -> None:
     )
 
 
-async def test_time_slider_with_default_settings(compile_control_snapshot) -> None:
+async def test_time_slider_with_default_settings() -> None:
     """Test time slider control with default settings."""
     config = {
         'type': 'time',
@@ -363,7 +352,7 @@ async def test_time_slider_with_default_settings(compile_control_snapshot) -> No
     )
 
 
-async def test_default_control_settings(compile_control_settings_snapshot) -> None:
+async def test_default_control_settings() -> None:
     """Test default control settings."""
     config = {}
     result = compile_control_settings_snapshot(config)
@@ -383,7 +372,7 @@ async def test_default_control_settings(compile_control_settings_snapshot) -> No
     )
 
 
-async def test_custom_control_settings(compile_control_settings_snapshot) -> None:
+async def test_custom_control_settings() -> None:
     """Test custom control settings."""
     config = {
         'label_position': 'above',

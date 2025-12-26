@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps check test test-coverage test-links test-smoke clean clean-full lint autocorrect format lint-markdown inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps check test test-coverage test-links test-smoke clean clean-full lint autocorrect format lint-markdown inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -36,6 +36,7 @@ help:
 	@echo "  - lint-markdown     - Run markdownlint"
 
 	@echo "Documentation:"
+	@echo "  compile-docs  - Regenerate YAML reference from source"
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
@@ -131,6 +132,10 @@ compile:
 upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
 	uv run kb-dashboard compile --upload
+
+compile-docs:
+	@echo "Compiling documentation reference..."
+	uv run python scripts/compile_docs.py
 
 docs-serve:
 	@echo "Starting documentation server..."

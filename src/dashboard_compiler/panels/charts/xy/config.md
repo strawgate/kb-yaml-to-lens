@@ -1,64 +1,65 @@
-# Pie Chart Panel Configuration
+# XY Chart Panel Configuration
 
-The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
+The XY chart panel creates line, bar, and area charts for time series and other data visualizations.
 
 ## Minimal Configuration Example
 
 ```yaml
 dashboard:
-  name: "Traffic Sources"
+  name: "Time Series Dashboard"
   panels:
-    - type: pie
-      title: "Website Traffic Sources"
-      grid: { x: 0, y: 0, w: 6, h: 6 }
+    - type: xy
+      title: "Events Over Time"
+      grid: { x: 0, y: 0, w: 12, h: 6 }
       data:
-        index: "traffic-data"
-        category: "source"
-        value: "visits"
+        index: "logs-*"
+        x_axis: "@timestamp"
+        metric: "count"
 ```
 
 ## Full Configuration Options
 
 | YAML Key      | Data Type         | Description                                      | Required |
 |--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['pie']`  | Specifies the panel type.                        | Yes      |
+| `type`       | `Literal['xy']`   | Specifies the panel type.                        | Yes      |
 | `title`      | `string`          | Title of the panel.                              | No       |
 | `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
 | `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `category`   | `string`          | Field for pie slices (categories).               | Yes      |
-| `value`      | `string`          | Field for values (size of slices).               | Yes      |
-| `donut`      | `boolean`         | Display as donut chart.                          | No       |
-| `color`      | `string/list`     | Color(s) for slices.                             | No       |
+| `x_axis`     | `string`          | Field for X-axis (typically timestamp).          | Yes      |
+| `metrics`    | `list`            | List of metrics to display.                      | Yes      |
+| `chart_type` | `string`          | Chart type: 'line', 'bar', or 'area'.            | No       |
 | `legend`     | `object`          | Legend display options.                          | No       |
 | `description`| `string`          | Panel description.                               | No       |
 
 ## Programmatic Usage (Python)
 
-You can create Pie chart panels programmatically using Python:
+You can create XY chart panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.charts.config import LensPanel
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
-    LensTopValuesDimension,
+    LensDateHistogramDimension,
 )
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.pie.config import LensPieChart
+from dashboard_compiler.panels.charts.xy.config import LensLineChart
 from dashboard_compiler.panels.config import Grid
 
-pie_chart = LensPieChart(
-    type='pie',
+# Time series line chart
+line_chart = LensLineChart(
+    type='line',
     data_view='logs-*',
-    slice_by=[LensTopValuesDimension(field='status')],
-    metric=LensCountAggregatedMetric(aggregation='count'),
+    dimensions=[LensDateHistogramDimension(field='@timestamp')],
+    breakdown=None,
+    metrics=[LensCountAggregatedMetric(aggregation='count')],
 )
 
 panel = LensPanel(
     type='charts',
-    title='Status Distribution',
-    grid=Grid(x=0, y=0, w=24, h=15),
-    chart=pie_chart,
+    title='Documents Over Time',
+    grid=Grid(x=0, y=0, w=48, h=20),
+    chart=line_chart,
 )
 ```
 

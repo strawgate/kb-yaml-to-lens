@@ -83,6 +83,28 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 | `font_size`        | `integer`        | The font size for the Markdown content, in pixels.                                                         | `12`                                         | No       |
 | `links_in_new_tab` | `boolean`        | If `true`, links in the Markdown content will open in a new tab.                                           | `true`                                       | No       |
 
+## Programmatic Usage (Python)
+
+You can also create Markdown panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.markdown.config import MarkdownPanel
+
+panel = MarkdownPanel(
+    type='markdown',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    content="""
+# Dashboard Title
+
+This is a **markdown** panel with:
+- Lists
+- **Bold** and *italic* text
+- [Links](https://example.com)
+    """,
+)
+```
+
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
