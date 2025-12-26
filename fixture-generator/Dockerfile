@@ -5,7 +5,7 @@
 # 2. Provides LensConfigBuilder API for generating fixtures
 # 3. Runs simple JavaScript scripts to export dashboard JSON
 #
-# Note: The first build takes 15-30 minutes due to Kibana bootstrap
+# Note: The first build takes ~6 minutes due to Kibana bootstrap and build
 
 FROM ubuntu:22.04
 
@@ -42,12 +42,21 @@ RUN npm install -g yarn@1.22.19
 # Set heap size for large builds
 ENV NODE_OPTIONS="--max_old_space_size=8192"
 
-# Bootstrap Kibana (this takes 15-30 minutes)
+# Bootstrap Kibana (this takes ~6 minutes)
 # This makes @kbn/lens-embeddable-utils and other packages available
+# Note: bootstrap also builds packages, including compiling .peggy grammar files
 RUN yarn kbn bootstrap --allow-root
 
-# Install tsx for running TypeScript directly (Kibana packages are not pre-compiled)
-RUN npm install -g tsx
+# Install tsx and peggy globally
+# tsx: needed for TypeScript transpilation
+# peggy: needed to compile .peggy grammar files to JavaScript
+RUN npm install -g tsx peggy
+
+# Compile .peggy grammar files to JavaScript
+# The kbn-es-query package has a grammar.peggy file that needs compilation
+RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
+    peggy grammar.peggy && \
+    sed -i "s|from './grammar.peggy'|from './grammar.js'|g" index.ts
 
 # Copy generator scripts to Kibana root (for proper @kbn/ module resolution)
 COPY generate-all.js /kibana/
@@ -60,5 +69,5 @@ WORKDIR /kibana
 # Set output directory
 ENV OUTPUT_DIR=/kibana/output
 
-# Default command: generate all fixtures using tsx (TypeScript runtime)
+# Default command: generate all fixtures using tsx for TypeScript support
 CMD ["tsx", "generate-all.js"]
