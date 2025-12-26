@@ -41,7 +41,6 @@ format-command = "ruff format"
 dev = [
     "pytest>=9.0",
     "pytest-cov>=6.0",
-    "syrupy>=5.0",
     "pytest-freezer>=0.4.9",
     "deepdiff>=8.4.2",
     "ruff>=0.14",
