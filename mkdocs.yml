@@ -79,7 +79,7 @@ nav:
   - Architecture: architecture.md
   - YAML Reference: yaml_reference.md
   - CLI Guide: CLI.md
-  - Contributing: CONTRIBUTING.md
+  - Contributing: ../CONTRIBUTING.md
   - Guides:
       - Kibana Fixture Generator: kibana-fixture-generator-guide.md
   - API Reference:
