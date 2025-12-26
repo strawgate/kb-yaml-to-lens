@@ -70,6 +70,7 @@ class KibanaClient:
     def __init__(
         self,
         url: str,
+        *,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
@@ -221,7 +222,7 @@ class KibanaClient:
             response.raise_for_status()
             result: dict[str, Any] = await response.json()  # type: ignore[reportAny]
             job_path: str | None = result.get('path')  # type: ignore[reportAny]
-            if not job_path:
+            if job_path is None:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
                 raise ValueError(msg)
             return job_path
