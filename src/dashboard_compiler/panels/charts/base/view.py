@@ -6,36 +6,41 @@ from pydantic import Field
 
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
+# Default values for color mapping - set during compilation
+KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE = 'other'
+KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE = 'loop'
+KBN_DEFAULT_COLOR_MAPPING_TOUCHED = False
+KBN_DEFAULT_COLOR_MAPPING_PALETTE_ID = 'eui_amsterdam_color_blind'
+KBN_DEFAULT_COLOR_MAPPING_COLOR_MODE_TYPE = 'categorical'
+
 
 class KbnLayerColorMappingRule(BaseVwModel):
     """Color mapping rule configuration."""
 
-    type: str = 'other'
+    type: str = Field(...)
 
 
 class KbnLayerColorMappingColor(BaseVwModel):
     """Color mapping color configuration."""
 
-    type: str = 'loop'
+    type: str = Field(...)
 
 
 class KbnLayerColorMappingSpecialAssignment(BaseVwModel):
     """Special assignment for color mapping."""
 
-    rule: KbnLayerColorMappingRule = Field(default_factory=KbnLayerColorMappingRule)
-    color: KbnLayerColorMappingColor = Field(default_factory=KbnLayerColorMappingColor)
-    touched: bool = False
+    rule: KbnLayerColorMappingRule = Field(...)
+    color: KbnLayerColorMappingColor = Field(...)
+    touched: bool = Field(...)
 
 
 class KbnLayerColorMapping(BaseVwModel):
     """Represents color mapping configuration for a visualization layer."""
 
-    assignments: list[Any] = Field(default_factory=list)
-    specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(
-        default_factory=lambda: [KbnLayerColorMappingSpecialAssignment()],
-    )
-    paletteId: str = 'eui_amsterdam_color_blind'
-    colorMode: dict[str, str] = Field(default_factory=lambda: {'type': 'categorical'})
+    assignments: list[Any] = Field(...)
+    specialAssignments: list[KbnLayerColorMappingSpecialAssignment] = Field(...)
+    paletteId: str = Field(...)
+    colorMode: dict[str, str] = Field(...)
 
 
 class KbnBaseStateVisualizationLayer(BaseVwModel):
