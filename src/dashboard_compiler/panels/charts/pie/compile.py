@@ -19,7 +19,7 @@ from dashboard_compiler.panels.charts.pie.view import (
 from dashboard_compiler.shared.config import random_id_generator
 
 
-def compile_pie_chart_visualization_state(
+def compile_pie_chart_visualization_state(  # noqa: PLR0913
     layer_id: str,
     chart: LensPieChart | ESQLPieChart,
     slice_by_ids: list[str],

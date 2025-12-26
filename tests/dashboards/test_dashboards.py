@@ -1,10 +1,10 @@
 import json
-import re
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
 import yaml
+from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.dashboard.config import Dashboard
@@ -60,19 +60,8 @@ def _replace_nested_references(attrs: dict[str, Any]) -> None:
                 ref['name'] = f'nested_ref_{i}'
 
 
-def _replace_layer_ids(attrs: dict[str, Any]) -> None:
-    """Replace layerIds in visualization layers."""
-    if 'state' in attrs and 'visualization' in attrs['state']:
-        viz = attrs['state']['visualization']
-        if 'layers' in viz:
-            pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-            for layer in viz['layers']:
-                if 'layerId' in layer and re.match(pattern, layer['layerId']):
-                    layer['layerId'] = 'DYNAMIC_LAYER_ID'
-
-
 def _replace_nested_ids(result: dict[str, Any]) -> None:
-    """Replace nested reference names and layerIds in panel embeddable config."""
+    """Replace nested reference names in panel embeddable config."""
     if 'attributes' in result and 'panelsJSON' in result['attributes']:
         panels = result['attributes']['panelsJSON']
         if isinstance(panels, list):
@@ -80,7 +69,6 @@ def _replace_nested_ids(result: dict[str, Any]) -> None:
                 if 'embeddableConfig' in panel and 'attributes' in panel['embeddableConfig']:
                     attrs = panel['embeddableConfig']['attributes']
                     _replace_nested_references(attrs)
-                    _replace_layer_ids(attrs)
 
 
 def _replace_dynamic_ids(result: dict[str, Any]) -> dict[str, Any]:
@@ -221,7 +209,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': 'DYNAMIC_LAYER_ID',
+                                                'layerId': IsUUID,
                                                 'layerType': 'data',
                                                 'colorMapping': {
                                                     'assignments': [],
@@ -611,7 +599,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': 'DYNAMIC_LAYER_ID',
+                                                'layerId': IsUUID,
                                                 'layerType': 'data',
                                                 'colorMapping': {
                                                     'assignments': [],
@@ -773,7 +761,7 @@ async def test_dashboard_with_one_xy_line_chart() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': 'DYNAMIC_LAYER_ID',
+                                                'layerId': IsUUID,
                                                 'accessors': ['e50ccc00-a3a4-4e56-8246-4e71c1a35203'],
                                                 'layerType': 'data',
                                                 'seriesType': 'bar_stacked',
@@ -873,6 +861,207 @@ async def test_dashboard_with_one_xy_line_chart() -> None:
             'id': 'DYNAMIC_ID',
             'managed': False,
             'references': [{'type': 'index-pattern', 'id': 'metrics-*', 'name': 'ref_0'}],
+            'type': 'dashboard',
+            'typeMigrationVersion': '10.2.0',
+            'updated_at': 'DYNAMIC_TIMESTAMP',
+            'updated_by': 'DYNAMIC_USER',
+            'version': 'DYNAMIC_VERSION',
+        }
+    )
+
+
+async def test_dashboard_with_custom_options() -> None:
+    """Test dashboard with custom options."""
+    db_input_dict = {
+        'dashboards': [
+            {
+                'name': 'Dashboard Options Test',
+                'description': 'A dashboard to test all dashboard options',
+                'settings': {
+                    'margins': False,
+                    'sync': {
+                        'colors': True,
+                        'cursor': False,
+                        'tooltips': True,
+                    },
+                    'titles': False,
+                },
+                'panels': [
+                    {
+                        'type': 'markdown',
+                        'title': 'Test Panel',
+                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'content': '# Testing dashboard options\n',
+                    }
+                ],
+            }
+        ]
+    }
+    dashboard_data = db_input_dict['dashboards'][0]
+    dashboard = Dashboard(**dashboard_data)
+
+    gen = deterministic_id_generator()
+    with (
+        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+    ):
+        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+
+    compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
+    kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
+    kbn_dashboard_compiled = _replace_dynamic_ids(kbn_dashboard_compiled)
+
+    assert kbn_dashboard_compiled == snapshot(
+        {
+            'attributes': {
+                'title': 'Dashboard Options Test',
+                'description': 'A dashboard to test all dashboard options',
+                'panelsJSON': [
+                    {
+                        'panelIndex': 'panel_0',
+                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': 'b1d1f239-34cc-36fb-f124-39cbf7e3f756'},
+                        'type': 'visualization',
+                        'embeddableConfig': {
+                            'enhancements': {'dynamicActions': {'events': []}},
+                            'savedVis': {
+                                'type': 'markdown',
+                                'id': '',
+                                'title': 'Test Panel',
+                                'description': '',
+                                'params': {'fontSize': 12, 'openLinksInNewTab': False, 'markdown': '# Testing dashboard options\n'},
+                                'uiState': {},
+                                'data': {'aggs': [], 'searchSource': {'query': {'query': '', 'language': 'kuery'}, 'filter': []}},
+                            },
+                        },
+                    }
+                ],
+                'optionsJSON': {
+                    'useMargins': False,
+                    'syncColors': True,
+                    'syncCursor': False,
+                    'syncTooltips': True,
+                    'hidePanelTitles': True,
+                },
+                'kibanaSavedObjectMeta': {'searchSourceJSON': {'filter': [], 'query': {'query': '', 'language': 'kuery'}}},
+                'timeRestore': False,
+                'version': 1,
+                'controlGroupInput': {
+                    'chainingSystem': 'HIERARCHICAL',
+                    'controlStyle': 'oneLine',
+                    'ignoreParentSettingsJSON': {
+                        'ignoreFilters': False,
+                        'ignoreQuery': False,
+                        'ignoreTimerange': False,
+                        'ignoreValidations': False,
+                    },
+                    'panelsJSON': {},
+                    'showApplySelections': False,
+                },
+            },
+            'coreMigrationVersion': '8.8.0',
+            'created_at': 'DYNAMIC_TIMESTAMP',
+            'created_by': 'DYNAMIC_USER',
+            'id': 'DYNAMIC_ID',
+            'managed': False,
+            'references': [],
+            'type': 'dashboard',
+            'typeMigrationVersion': '10.2.0',
+            'updated_at': 'DYNAMIC_TIMESTAMP',
+            'updated_by': 'DYNAMIC_USER',
+            'version': 'DYNAMIC_VERSION',
+        }
+    )
+
+
+async def test_dashboard_with_default_options() -> None:
+    """Test dashboard with default options."""
+    db_input_dict = {
+        'dashboards': [
+            {
+                'name': 'Dashboard Options Defaults Test',
+                'description': 'A dashboard to test default dashboard options behavior',
+                'panels': [
+                    {
+                        'type': 'markdown',
+                        'title': 'Test Panel',
+                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'content': '# Testing default dashboard options\n',
+                    }
+                ],
+            }
+        ]
+    }
+    dashboard_data = db_input_dict['dashboards'][0]
+    dashboard = Dashboard(**dashboard_data)
+
+    gen = deterministic_id_generator()
+    with (
+        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+    ):
+        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+
+    compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
+    kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
+    kbn_dashboard_compiled = _replace_dynamic_ids(kbn_dashboard_compiled)
+
+    assert kbn_dashboard_compiled == snapshot(
+        {
+            'attributes': {
+                'title': 'Dashboard Options Defaults Test',
+                'description': 'A dashboard to test default dashboard options behavior',
+                'panelsJSON': [
+                    {
+                        'panelIndex': 'panel_0',
+                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': 'b1d1f239-34cc-36fb-f124-39cbf7e3f756'},
+                        'type': 'visualization',
+                        'embeddableConfig': {
+                            'enhancements': {'dynamicActions': {'events': []}},
+                            'savedVis': {
+                                'type': 'markdown',
+                                'id': '',
+                                'title': 'Test Panel',
+                                'description': '',
+                                'params': {'fontSize': 12, 'openLinksInNewTab': False, 'markdown': '# Testing default dashboard options\n'},
+                                'uiState': {},
+                                'data': {'aggs': [], 'searchSource': {'query': {'query': '', 'language': 'kuery'}, 'filter': []}},
+                            },
+                        },
+                    }
+                ],
+                'optionsJSON': {
+                    'useMargins': True,
+                    'syncColors': False,
+                    'syncCursor': True,
+                    'syncTooltips': False,
+                    'hidePanelTitles': False,
+                },
+                'kibanaSavedObjectMeta': {'searchSourceJSON': {'filter': [], 'query': {'query': '', 'language': 'kuery'}}},
+                'timeRestore': False,
+                'version': 1,
+                'controlGroupInput': {
+                    'chainingSystem': 'HIERARCHICAL',
+                    'controlStyle': 'oneLine',
+                    'ignoreParentSettingsJSON': {
+                        'ignoreFilters': False,
+                        'ignoreQuery': False,
+                        'ignoreTimerange': False,
+                        'ignoreValidations': False,
+                    },
+                    'panelsJSON': {},
+                    'showApplySelections': False,
+                },
+            },
+            'coreMigrationVersion': '8.8.0',
+            'created_at': 'DYNAMIC_TIMESTAMP',
+            'created_by': 'DYNAMIC_USER',
+            'id': 'DYNAMIC_ID',
+            'managed': False,
+            'references': [],
             'type': 'dashboard',
             'typeMigrationVersion': '10.2.0',
             'updated_at': 'DYNAMIC_TIMESTAMP',

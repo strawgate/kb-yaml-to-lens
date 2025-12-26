@@ -34,6 +34,9 @@ asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 addopts = "-vv"
 
+[tool.inline-snapshot]
+format-command = "ruff format"
+
 [dependency-groups]
 dev = [
     "pytest>=9.0",
@@ -142,7 +145,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["metering"]
+known-first-party = ["dashboard_compiler"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -151,10 +154,6 @@ inline-quotes = "single"
 
 [tool.ruff.lint.pep8-naming]
 classmethod-decorators = ["classmethod", "pydantic.validator"]
-
-[tool.ruff.lint.pylint]
-max-args = 8
-max-statements = 50
 
 [tool.basedpyright]
 pythonVersion = "3.12"
