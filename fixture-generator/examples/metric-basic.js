@@ -6,11 +6,15 @@
  * a simple count metric and export it as JSON for testing.
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
-const fs = require('fs');
-const path = require('path');
+import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-async function generateMetricBasic() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function generateMetricBasic() {
   // Initialize the builder
   const builder = new LensConfigBuilder();
 
@@ -43,12 +47,10 @@ async function generateMetricBasic() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   generateMetricBasic()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);
       process.exit(1);
     });
 }
-
-module.exports = { generateMetricBasic };

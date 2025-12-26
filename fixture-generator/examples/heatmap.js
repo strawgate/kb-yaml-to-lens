@@ -6,11 +6,15 @@
  * with data aggregated by source and destination countries.
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
-const fs = require('fs');
-const path = require('path');
+import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-async function generateHeatmap() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function generateHeatmap() {
   // Initialize the builder
   const builder = new LensConfigBuilder();
 
@@ -49,12 +53,10 @@ async function generateHeatmap() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   generateHeatmap()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);
       process.exit(1);
     });
 }
-
-module.exports = { generateHeatmap };

@@ -35,7 +35,7 @@ run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-bas
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
-		-e NODE_OPTIONS="--max_old_space_size=8192" \
+		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(IMAGE_NAME):$(KIBANA_VERSION) \
 		tsx examples/$(EXAMPLE)
 

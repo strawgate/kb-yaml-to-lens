@@ -5,11 +5,15 @@
  * Demonstrates creating a metric that breaks down by a field
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
-const fs = require('fs');
-const path = require('path');
+import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-async function generateMetricWithBreakdown() {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function generateMetricWithBreakdown() {
   const builder = new LensConfigBuilder();
 
   const config = {
@@ -38,12 +42,10 @@ async function generateMetricWithBreakdown() {
   console.log('✓ Generated: metric-with-breakdown.json');
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   generateMetricWithBreakdown()
     .catch((err) => {
       console.error('Failed to generate fixture:', err);
       process.exit(1);
     });
 }
-
-module.exports = { generateMetricWithBreakdown };
