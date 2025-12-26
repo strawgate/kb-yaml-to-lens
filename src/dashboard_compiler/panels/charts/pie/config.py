@@ -51,6 +51,9 @@ class PieLegend(BaseCfgModel):
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
     """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
 
+    nested: bool | None = Field(default=None)
+    """Whether to show legend in nested format for multi-level pie charts. Kibana defaults to False if not specified."""
+
 
 class PieSliceValuesEnum(StrEnum):
     """Represents the possible values for slice values in a pie chart."""

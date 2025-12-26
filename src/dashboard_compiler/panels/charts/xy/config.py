@@ -19,6 +19,11 @@ class XYLegend(BaseCfgModel):
 
     visible: bool | None = Field(default=None, description='Whether the legend is visible.')
 
+    position: Literal['top', 'bottom', 'left', 'right'] | None = Field(
+        default=None,
+        description="Position of the legend. Kibana defaults to 'right' if not specified.",
+    )
+
 
 class XYAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for XY charts."""
