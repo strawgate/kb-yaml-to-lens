@@ -5,19 +5,9 @@
  * Demonstrates creating a pie chart in donut mode with various label configurations
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generatePieChartDonut() {
-  const mockDataViews = createDataViewsMock();
-  const builder = new LensConfigBuilder(mockDataViews);
-
   const config = {
     chartType: 'pie',
     title: 'Response Codes Distribution (Donut)',
@@ -38,25 +28,12 @@ export async function generatePieChartDonut() {
     }
   };
 
-  const lensAttributes = await builder.build(config, {
-    timeRange: { from: 'now-7d', to: 'now', type: 'relative' }
-  });
-
-  const outputDir = path.join(__dirname, '..', 'output');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  const outputPath = path.join(outputDir, 'pie-chart-donut.json');
-  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
-
-  console.log('✓ Generated: pie-chart-donut.json');
+  await generateFixture(
+    'pie-chart-donut.json',
+    config,
+    { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  generatePieChartDonut()
-    .catch((err) => {
-      console.error('Failed to generate fixture:', err);
-      process.exit(1);
-    });
-}
+runIfMain(generatePieChartDonut, import.meta.url);

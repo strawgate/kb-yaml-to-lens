@@ -5,19 +5,9 @@
  * Demonstrates creating a gauge showing a single metric value with min/max ranges
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateGauge() {
-  const mockDataViews = createDataViewsMock();
-  const builder = new LensConfigBuilder(mockDataViews);
-
   const config = {
     chartType: 'gauge',
     title: 'CPU Usage Gauge',
@@ -32,25 +22,12 @@ export async function generateGauge() {
     colorMode: 'palette'
   };
 
-  const lensAttributes = await builder.build(config, {
-    timeRange: { from: 'now-15m', to: 'now', type: 'relative' }
-  });
-
-  const outputDir = path.join(__dirname, '..', 'output');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  const outputPath = path.join(outputDir, 'gauge.json');
-  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
-
-  console.log('✓ Generated: gauge.json');
+  await generateFixture(
+    'gauge.json',
+    config,
+    { timeRange: { from: 'now-15m', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  generateGauge()
-    .catch((err) => {
-      console.error('Failed to generate fixture:', err);
-      process.exit(1);
-    });
-}
+runIfMain(generateGauge, import.meta.url);

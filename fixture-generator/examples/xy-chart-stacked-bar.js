@@ -5,19 +5,9 @@
  * Demonstrates creating a vertical stacked bar chart with multiple series
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateXYChartStackedBar() {
-  const mockDataViews = createDataViewsMock();
-  const builder = new LensConfigBuilder(mockDataViews);
-
   const config = {
     chartType: 'xy',
     title: 'Stacked Events by Response Code',
@@ -47,25 +37,12 @@ export async function generateXYChartStackedBar() {
     }
   };
 
-  const lensAttributes = await builder.build(config, {
-    timeRange: { from: 'now-7d', to: 'now', type: 'relative' }
-  });
-
-  const outputDir = path.join(__dirname, '..', 'output');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  const outputPath = path.join(outputDir, 'xy-chart-stacked-bar.json');
-  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
-
-  console.log('✓ Generated: xy-chart-stacked-bar.json');
+  await generateFixture(
+    'xy-chart-stacked-bar.json',
+    config,
+    { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  generateXYChartStackedBar()
-    .catch((err) => {
-      console.error('Failed to generate fixture:', err);
-      process.exit(1);
-    });
-}
+runIfMain(generateXYChartStackedBar, import.meta.url);
