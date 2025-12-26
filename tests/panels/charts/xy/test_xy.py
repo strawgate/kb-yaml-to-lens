@@ -381,7 +381,7 @@ async def test_line_chart_with_reference_lines() -> None:
     assert len(ref_layer_1.yConfig) == 1
     assert ref_layer_1.yConfig[0].color == '#FF0000'
     assert ref_layer_1.yConfig[0].lineStyle == 'dashed'
-    assert ref_layer_1.yConfig[0].lineWidth == 2
+    assert ref_layer_1.yConfig[0].lineWidth == 2.0
     assert ref_layer_1.yConfig[0].axisMode is not None
     assert ref_layer_1.yConfig[0].axisMode.name == 'left'
 

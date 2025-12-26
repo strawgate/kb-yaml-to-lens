@@ -1,6 +1,7 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
 from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
+from dashboard_compiler.panels.charts.xy.config import XYReferenceLineValue
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
@@ -24,6 +25,8 @@ from dashboard_compiler.panels.charts.xy.config import (
 )
 from dashboard_compiler.panels.charts.xy.view import (
     KbnXYVisualizationState,
+    XYByReferenceAnnotationLayerConfig,
+    XYByValueAnnotationLayerConfig,
     XYDataLayerConfig,
     XYReferenceLineLayerConfig,
     YAxisMode,
@@ -46,7 +49,14 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tu
     accessor_id = ref_line.id or f'ref_line_{layer_id}'
 
     # Extract the numeric value from the ref_line.value field
-    numeric_value = ref_line.value if isinstance(ref_line.value, float) else ref_line.value.value
+    if isinstance(ref_line.value, float):
+        numeric_value = ref_line.value
+    elif isinstance(ref_line.value, XYReferenceLineValue):
+        numeric_value = ref_line.value.value
+    else:
+        # This should never happen due to Pydantic validation
+        msg = f'Invalid value type: {type(ref_line.value)}'
+        raise TypeError(msg)
 
     # Create the static value column for the reference line
     static_value_column = KbnLensStaticValueColumn(
@@ -164,7 +174,9 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
     )
 
     # Start with the data layer
-    layers: list[XYDataLayerConfig | XYReferenceLineLayerConfig] = [kbn_layer_visualization]
+    layers: list[XYDataLayerConfig | XYReferenceLineLayerConfig | XYByValueAnnotationLayerConfig | XYByReferenceAnnotationLayerConfig] = [
+        kbn_layer_visualization
+    ]
 
     # Add pre-compiled reference line layers
     if reference_line_layers:

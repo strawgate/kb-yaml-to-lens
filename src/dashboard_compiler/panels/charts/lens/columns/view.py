@@ -113,7 +113,7 @@ class KbnLensStaticValueColumn(KbnLensBaseColumn):
     isStaticValue: Literal[True] = True
     scale: Literal['ratio']
     params: KbnLensStaticValueColumnParams
-    references: list = Field(default_factory=list)
+    references: list[str] = Field(default_factory=list)
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):
