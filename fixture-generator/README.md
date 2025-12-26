@@ -76,10 +76,15 @@ Run `make help` to see all commands:
 ```
 fixture-generator/
 ├── examples/                    # Example generator scripts
-│   ├── metric-basic.js         # Basic metric visualization
-│   ├── metric-with-breakdown.js # Metric with breakdown
-│   ├── xy-chart.js             # Line/area/bar charts
-│   └── pie-chart.js            # Pie/donut charts
+│   ├── metric-basic.js         # Basic metric visualization (ES|QL)
+│   ├── metric-with-breakdown.js # Metric with breakdown (ES|QL)
+│   ├── metric-with-trend.js    # Metric with trend (ES|QL)
+│   ├── metric-with-trend-dataview.js # Metric with trend (Data View)
+│   ├── xy-chart.js             # Line/area/bar charts (ES|QL)
+│   ├── xy-chart-stacked-bar-dataview.js # Stacked bar (Data View)
+│   ├── pie-chart.js            # Pie/donut charts (ES|QL)
+│   ├── pie-chart-donut-dataview.js # Donut chart (Data View)
+│   └── ...                     # Additional ES|QL and Data View examples
 ├── generate-all.js             # Runs all examples
 ├── output/                     # Generated JSON files
 ├── Dockerfile
@@ -95,6 +100,29 @@ Each example script:
 2. Creates a config object defining the visualization
 3. Calls `builder.build(config, options)` to generate the Lens attributes
 4. Writes the result as JSON to the output directory
+
+### ES|QL vs Data View Examples
+
+The fixture generator includes two types of examples:
+
+**ES|QL Examples** - Use Elasticsearch Query Language for data retrieval:
+
+```javascript
+dataset: {
+  esql: 'FROM logs-* | STATS count = COUNT()'
+}
+```
+
+**Data View Examples** - Use standard Kibana data views with index patterns:
+
+```javascript
+dataset: {
+  index: 'logs-*',
+  timeFieldName: '@timestamp'  // optional
+}
+```
+
+Both approaches generate valid Kibana Lens visualizations, providing test coverage for different data source configurations in the Python compiler.
 
 ### Example Script
 
