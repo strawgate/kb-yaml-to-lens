@@ -28,7 +28,6 @@ dashboard = Dashboard(
 
 # Add a markdown panel
 panel = MarkdownPanel(
-    type='markdown',
     grid=Grid(x=0, y=0, w=24, h=15),
     content='# Hello from Python!',
 )
@@ -123,13 +122,11 @@ metrics_config = [
 
 for i, metric in enumerate(metrics_config):
     chart = LensMetricChart(
-        type='metric',
         data_view='metrics-*',
         primary=LensOtherAggregatedMetric(aggregation='average', field=metric['field']),
     )
 
     panel = LensPanel(
-        type='charts',
         title=metric['name'],
         grid=Grid(
             x=(i % 3) * 16,  # 3 columns
@@ -149,13 +146,11 @@ for i, metric in enumerate(metrics_config):
 def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
     """Helper function to create a standard metric panel."""
     chart = LensMetricChart(
-        type='metric',
         data_view='logs-*',
         primary=LensOtherAggregatedMetric(aggregation='average', field=field),
     )
 
     return LensPanel(
-        type='charts',
         title=title,
         grid=Grid(x=x, y=y, w=24, h=15),
         chart=chart,

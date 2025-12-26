@@ -76,7 +76,6 @@ from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.search.config import SearchPanel
 
 panel = SearchPanel(
-    type='search',
     grid=Grid(x=0, y=0, w=48, h=20),
     saved_search_id='my-saved-search',
 )
