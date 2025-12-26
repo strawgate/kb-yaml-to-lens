@@ -23,13 +23,15 @@ def compile_lens_columns(dimensions: Sequence[LensDimensionTypes], metrics: Sequ
     columns_by_id = {}
     columns_by_name = {}
     for metric in metrics:
-        columns_by_id[metric.id] = compile_lens_metric(metric)
-        columns_by_name[metric.label] = columns_by_id[metric.id]
+        metric_id, metric_column = compile_lens_metric(metric)
+        columns_by_id[metric_id] = metric_column
+        columns_by_name[metric.label] = metric_column
 
     for dimension in dimensions:
-        columns_by_id[dimension.id] = compile_lens_dimension(dimension, kbn_metric_column_by_id=columns_by_id)  # pyright: ignore[reportUnknownArgumentType]
+        dimension_id, dimension_column = compile_lens_dimension(dimension, kbn_metric_column_by_id=columns_by_name)
+        columns_by_id[dimension_id] = dimension_column
 
-    return columns_by_id  # pyright: ignore[reportUnknownVariableType]
+    return columns_by_id
 
 
 # def compile_lens_dimensions(dimensions: list[LensDimensionTypes], kbn_columns: list[KbnColumn]) -> dict[str, KbnColumn]:
