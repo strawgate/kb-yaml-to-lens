@@ -48,7 +48,7 @@ def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
     Returns:
         Dictionary with success status and either data or error message
     """
-    if len(path) == 0:
+    if path is None or len(path) == 0:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
@@ -115,7 +115,7 @@ def get_dashboards_custom(params: Any) -> dict:
     params_dict = _params_to_dict(params)
     path = params_dict.get('path')
 
-    if path is None:
+    if path is None or len(path) == 0:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
