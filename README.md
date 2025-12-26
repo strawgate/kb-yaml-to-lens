@@ -167,35 +167,34 @@ src/dashboard_compiler/
 ### Running Tests
 
 ```bash
-uv run pytest
+# Run all tests
+make test
+
+# Run all checks (recommended before committing)
+make check
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Code Quality
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
+This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, [basedpyright](https://github.com/DetachHead/basedpyright) for type checking, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
 
 ```bash
 # Run all linters and formatters
 make lint
 
-# Check Python code quality
-uv run ruff check .
-
-# Format Python code
-uv run ruff format .
-
-# Lint markdown files
-markdownlint --fix -c .markdownlint.jsonc .
+# Run type checking
+make typecheck
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Documentation
 
 Build and preview the documentation locally:
 
 ```bash
-# Install documentation dependencies
-uv sync --extra docs
-
 # Serve documentation locally
 make docs-serve
 
@@ -205,6 +204,8 @@ make docs-build
 # Deploy to GitHub Pages
 make docs-deploy
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Adding New Features
 
