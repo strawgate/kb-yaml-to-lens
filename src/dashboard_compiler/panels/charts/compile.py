@@ -73,7 +73,10 @@ def compile_lens_chart_state(
     kbn_references: list[KbnReference] = []
     visualization_state: KbnVisualizationStateTypes | None = None
 
-    # Note: Currently only the last chart's visualization state is used
+    # IMPORTANT: When multiple charts are provided in a single panel, only the LAST chart's
+    # visualization state is used. Earlier charts contribute their datasource layers, but
+    # their visualization config (legend, colors, axis settings) is discarded.
+    # This is a current limitation - multi-layer support is partial.
     for chart in charts:
         if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart)):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)  # type: ignore[reportUnnecessaryIsInstance]

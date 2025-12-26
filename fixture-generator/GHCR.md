@@ -26,6 +26,7 @@ KIBANA_VERSION=v9.3.0 docker-compose -f docker-compose.ghcr.yml run generator
 Images are published to: `ghcr.io/strawgate/kb-yaml-to-lens/kibana-fixture-generator`
 
 Available tags:
+
 - `main` - Latest development version (updated weekly)
 - `latest` - Alias for `main`
 - `v9.4.0`, `v9.3.0`, etc. - Specific Kibana releases
@@ -65,6 +66,7 @@ To build a specific Kibana version:
 5. Click "Run workflow"
 
 The workflow will:
+
 - Check if image already exists (skip if found unless force rebuild enabled)
 - Build Docker image with bootstrapped Kibana
 - Push to GHCR
@@ -106,6 +108,7 @@ docker-compose --profile local-build run generator-local
 ### Image Contents
 
 Each GHCR image contains:
+
 - Ubuntu 22.04 base
 - Node.js 22.21.1 (matches Kibana requirement)
 - Yarn 1.22.19
@@ -133,7 +136,7 @@ Each GHCR image contains:
 
 If you get "image not found" error:
 
-1. Check available images: https://github.com/strawgate/kb-yaml-to-lens/pkgs/container/kb-yaml-to-lens%2Fkibana-fixture-generator
+1. Check available images: <https://github.com/strawgate/kb-yaml-to-lens/pkgs/container/kb-yaml-to-lens%2Fkibana-fixture-generator>
 2. Ensure you're authenticated with GHCR (public read access should work)
 3. Try pulling latest: `docker pull ghcr.io/strawgate/kb-yaml-to-lens/kibana-fixture-generator:latest`
 4. If unavailable, trigger manual build via workflow dispatch

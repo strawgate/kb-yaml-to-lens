@@ -171,6 +171,10 @@ def compile_control_group(control_settings: ControlSettings, controls: Sequence[
     """
     panels_json = compile_control_panels_json(controls)
 
+    # Kibana's control API uses "ignore" semantics (ignoreFilters, ignoreQuery, etc.)
+    # but our config uses "apply" semantics for better UX. We invert the booleans here:
+    # - apply_global_filters: True  → ignoreFilters: False  (respect filters)
+    # - apply_global_filters: False → ignoreFilters: True   (ignore filters)
     ignore_parent_settings_json = KbnIgnoreParentSettingsJson(
         ignoreFilters=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
         ignoreQuery=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
