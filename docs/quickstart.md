@@ -71,7 +71,7 @@ While this guide focuses on YAML, you can also create dashboards entirely in Pyt
 - Reusable dashboard templates and components
 - Integration with existing Python workflows
 
-See the [Programmatic API documentation](api/index.md#programmatic-usage) for examples and patterns.
+See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patterns.
 
 ## Next Steps
 
@@ -79,4 +79,4 @@ See the [Programmatic API documentation](api/index.md#programmatic-usage) for ex
 - Refer to the example YAML files in the `inputs/` and `tests/dashboards/scenarios/` directories for more complex examples.
 - See the [YAML Reference](yaml_reference.md) for complete schema documentation.
 - Check the [CLI Documentation](CLI.md) for compilation and upload instructions.
-- Try the [Programmatic API](api/index.md#programmatic-usage) for creating dashboards in Python code.
+- Try the [Programmatic Usage Guide](programmatic-usage.md) for creating dashboards in Python code.

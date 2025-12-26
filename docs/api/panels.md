@@ -40,21 +40,81 @@ This is a **markdown** panel with:
 
 ## Links Panels
 
+Display collections of clickable links.
+
+### API Reference
+
 ::: dashboard_compiler.panels.links.config.LinksPanel
     options:
       show_source: true
 
+### Example
+
+```python
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+from dashboard_compiler.panels.config import Grid
+
+panel = LinksPanel(
+    type='links',
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[
+        UrlLink(
+            label='Documentation',
+            url='https://example.com/docs',
+        ),
+        UrlLink(
+            label='API Reference',
+            url='https://example.com/api',
+        ),
+    ],
+)
+```
+
 ## Image Panels
+
+Embed images in your dashboard.
+
+### API Reference
 
 ::: dashboard_compiler.panels.images.config.ImagePanel
     options:
       show_source: true
 
+### Example
+
+```python
+from dashboard_compiler.panels.images.config import ImagePanel
+from dashboard_compiler.panels.config import Grid
+
+panel = ImagePanel(
+    type='image',
+    grid=Grid(x=0, y=0, w=24, h=20),
+    url='https://example.com/logo.png',
+)
+```
+
 ## Search Panels
+
+Display search results from Elasticsearch.
+
+### API Reference
 
 ::: dashboard_compiler.panels.search.config.SearchPanel
     options:
       show_source: true
+
+### Example
+
+```python
+from dashboard_compiler.panels.search.config import SearchPanel
+from dashboard_compiler.panels.config import Grid
+
+panel = SearchPanel(
+    type='search',
+    grid=Grid(x=0, y=0, w=48, h=20),
+    data_view='logs-*',
+)
+```
 
 ## Lens Panel
 
