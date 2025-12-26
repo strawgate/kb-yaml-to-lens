@@ -26,6 +26,13 @@ from dashboard_compiler.shared.config import random_id_generator
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     """Determine the Kibana series type based on the chart configuration.
 
+    Maps chart config types and modes to Kibana's specific seriesType strings.
+    Kibana distinguishes between:
+    - Basic types: 'line', 'bar_stacked', 'area' (default/stacked mode)
+    - Unstacked variants: 'bar_unstacked', 'area_unstacked'
+    - Percentage variants: 'bar_percentage_stacked', 'area_percentage_stacked'
+    The exact string values must match Kibana's XY visualization registry.
+
     Args:
         chart: The XY chart configuration (Lens or ESQL).
 
@@ -44,7 +51,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
         else:  # default to stacked
             series_type = 'bar_stacked'
     # This check is necessary even though it appears redundant to type checkers
-    elif isinstance(chart, (LensAreaChart, ESQLAreaChart)):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(chart, (LensAreaChart, ESQLAreaChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if chart.mode == 'unstacked':
             series_type = 'area_unstacked'
         elif chart.mode == 'stacked':
@@ -58,6 +65,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
 
 
 def compile_xy_chart_visualization_state(
+    *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],

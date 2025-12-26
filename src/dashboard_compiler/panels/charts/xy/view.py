@@ -282,7 +282,7 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     annotationGroupId: str
     """ID of the saved annotation group being referenced."""
 
-    last_saved: Any = Field(alias='__lastSaved')  # type: ignore[reportAny]
+    last_saved: Any = Field(alias='__lastSaved')  # pyright: ignore[reportAny]
     """Timestamp of when the annotation group was last saved."""
 
 
