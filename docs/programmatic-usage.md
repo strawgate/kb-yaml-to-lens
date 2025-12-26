@@ -50,9 +50,9 @@ The `Dashboard` class is the main entry point for creating dashboards:
 from dashboard_compiler.dashboard.config import Dashboard
 
 dashboard = Dashboard(
-    name='Dashboard Name',              # Required: Display name
-    description='Dashboard description', # Optional: Description
-    data_view='logs-*',                 # Optional: Default data view
+    name='Dashboard Name',  # Required: Display name
+    description='Dashboard description',  # Optional: Description
+    data_view='logs-*',  # Optional: Default data view
 )
 ```
 
@@ -105,9 +105,15 @@ One of the key benefits of programmatic dashboards is the ability to generate th
 ### Generating Panels from Configuration
 
 ```python
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensOtherAggregatedMetric,
+)
 from dashboard_compiler.panels.charts.metric.config import LensMetricChart
-from dashboard_compiler.panels.charts.lens.metrics.config import LensOtherAggregatedMetric
+from dashboard_compiler.panels.config import Grid
+
+dashboard = Dashboard(name='Metrics Dashboard')
 
 metrics_config = [
     {'name': 'CPU Usage', 'field': 'cpu_percent'},
@@ -167,23 +173,30 @@ dashboard.add_panel(create_metric_panel('Avg Bytes', 'bytes', 24, 0))
 Add filters that apply to all panels in the dashboard:
 
 ```python
-from dashboard_compiler.filters.config import PhraseFilter, RangeFilter, ExistsFilter
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.filters.config import ExistsFilter, PhraseFilter, RangeFilter
+
+dashboard = Dashboard(name='Filtered Dashboard')
 
 # Phrase filter
-dashboard.add_filter(PhraseFilter(
-    field='environment',
-    equals='production',
-))
+dashboard.add_filter(
+    PhraseFilter(
+        field='environment',
+        equals='production',
+    )
+)
 
 # Range filter
-dashboard.add_filter(RangeFilter(
-    field='response_time',
-    gte='0',
-    lte='1000',
-))
+dashboard.add_filter(
+    RangeFilter(
+        field='response_time',
+        gte='0',
+        lte='1000',
+    )
+)
 
 # Exists filter
-dashboard.add_filter(ExistsFilter(field='error.message'))
+dashboard.add_filter(ExistsFilter(exists='error.message'))
 ```
 
 ### Interactive Controls
@@ -195,23 +208,30 @@ from dashboard_compiler.controls.config import (
     OptionsListControl,
     RangeSliderControl,
 )
+from dashboard_compiler.dashboard.config import Dashboard
+
+dashboard = Dashboard(name='Dashboard with Controls')
 
 # Options list (dropdown filter)
-dashboard.add_control(OptionsListControl(
-    field='log.level',
-    label='Log Level',
-    width='medium',
-    data_view='logs-*',
-))
+dashboard.add_control(
+    OptionsListControl(
+        field='log.level',
+        label='Log Level',
+        width='medium',
+        data_view='logs-*',
+    )
+)
 
 # Range slider
-dashboard.add_control(RangeSliderControl(
-    field='bytes',
-    label='Response Size',
-    step=100,
-    width='medium',
-    data_view='logs-*',
-))
+dashboard.add_control(
+    RangeSliderControl(
+        field='bytes',
+        label='Response Size',
+        step=100,
+        width='medium',
+        data_view='logs-*',
+    )
+)
 ```
 
 ## Rendering and Export
@@ -221,26 +241,31 @@ dashboard.add_control(RangeSliderControl(
 Convert your dashboard to Kibana's NDJSON format:
 
 ```python
+from pathlib import Path
+
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import render
 
+dashboard = Dashboard(name='My Dashboard')
 kbn_dashboard = render(dashboard)
 output = kbn_dashboard.model_dump_json(by_alias=True, exclude_none=True)
-```
 
-### Saving to File
-
-```python
-with open('dashboard.ndjson', 'w') as f:
-    f.write(output)
+# Save to file
+Path('dashboard.ndjson').write_text(output)
 ```
 
 ### Saving Multiple Dashboards
 
 ```python
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import dump
 
+dashboard1 = Dashboard(name='Dashboard 1')
+dashboard2 = Dashboard(name='Dashboard 2')
+dashboard3 = Dashboard(name='Dashboard 3')
+
 dashboards = [dashboard1, dashboard2, dashboard3]
-dump(dashboards, 'dashboards.yaml')
+dump(dashboards, 'dashboards.ndjson')
 ```
 
 ## Panel Types

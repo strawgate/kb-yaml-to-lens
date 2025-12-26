@@ -88,8 +88,8 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 You can also create Markdown panels programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.markdown.config import MarkdownPanel
 from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
 panel = MarkdownPanel(
     type='markdown',

@@ -140,8 +140,8 @@ Represents a link to an external web URL.
 You can create Links panels programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
 from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
 
 panel = LinksPanel(
     type='links',
@@ -162,6 +162,9 @@ panel = LinksPanel(
 The `LinksPanel` model includes an `add_link(link: LinkTypes)` method for adding links dynamically:
 
 ```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
 panel = LinksPanel(
     type='links',
     grid=Grid(x=0, y=0, w=24, h=10),

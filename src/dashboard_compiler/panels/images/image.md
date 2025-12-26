@@ -80,13 +80,13 @@ Image panels inherit from the [Base Panel Configuration](../base.md) and have th
 You can create Image panels programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.images.config import ImagePanel
 from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.images.config import ImagePanel
 
 panel = ImagePanel(
     type='image',
     grid=Grid(x=0, y=0, w=24, h=20),
-    url='https://example.com/logo.png',
+    from_url='https://example.com/logo.png',
 )
 ```
 

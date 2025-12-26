@@ -36,8 +36,10 @@ You can create Metric chart panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensCountAggregatedMetric,
+)
 from dashboard_compiler.panels.charts.metric.config import LensMetricChart
-from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 from dashboard_compiler.panels.config import Grid
 
 # Simple count metric
@@ -58,7 +60,12 @@ panel = LensPanel(
 ### Average Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.lens.metrics.config import LensOtherAggregatedMetric
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensOtherAggregatedMetric,
+)
+from dashboard_compiler.panels.charts.metric.config import LensMetricChart
+from dashboard_compiler.panels.config import Grid
 
 # Average metric with field
 avg_chart = LensMetricChart(

@@ -37,29 +37,29 @@ You can create XY chart panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.charts.config import LensPanel
-from dashboard_compiler.panels.charts.xy.config import LensXYChart, LensXYLayer
-from dashboard_compiler.panels.charts.lens.dimensions.config import LensDateHistogramDimension
-from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from dashboard_compiler.panels.charts.lens.dimensions.config import (
+    LensDateHistogramDimension,
+)
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensCountAggregatedMetric,
+)
+from dashboard_compiler.panels.charts.xy.config import LensLineChart
 from dashboard_compiler.panels.config import Grid
 
 # Time series line chart
-layer = LensXYLayer(
+line_chart = LensLineChart(
     type='line',
-    x_axis=LensDateHistogramDimension(field='@timestamp'),
-    metrics=[LensCountAggregatedMetric(aggregation='count')],
-)
-
-xy_chart = LensXYChart(
-    type='xy',
     data_view='logs-*',
-    layers=[layer],
+    dimensions=[LensDateHistogramDimension(field='@timestamp')],
+    breakdown=None,
+    metrics=[LensCountAggregatedMetric(aggregation='count')],
 )
 
 panel = LensPanel(
     type='charts',
     title='Documents Over Time',
     grid=Grid(x=0, y=0, w=48, h=20),
-    chart=xy_chart,
+    chart=line_chart,
 )
 ```
 

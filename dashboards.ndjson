@@ -1,0 +1,22 @@
+dashboards:
+- name: Dashboard 1
+  settings:
+    sync: {}
+    controls: {}
+  filters: []
+  controls: []
+  panels: []
+- name: Dashboard 2
+  settings:
+    sync: {}
+    controls: {}
+  filters: []
+  controls: []
+  panels: []
+- name: Dashboard 3
+  settings:
+    sync: {}
+    controls: {}
+  filters: []
+  controls: []
+  panels: []
