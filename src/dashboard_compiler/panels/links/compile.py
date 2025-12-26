@@ -133,7 +133,7 @@ def compile_links(links: Sequence[LinkTypes]) -> tuple[list[KbnReference], list[
     for i, link in enumerate(links):
         kbn_reference, kbn_link = compile_link(link=link, order=i)
 
-        if kbn_reference:
+        if kbn_reference is not None:
             kbn_references.append(kbn_reference)
 
         kbn_links.append(kbn_link)

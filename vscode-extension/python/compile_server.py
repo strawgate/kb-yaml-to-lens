@@ -48,12 +48,12 @@ def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
     Returns:
         Dictionary with success status and either data or error message
     """
-    if not path:
+    if path is None or len(path) == 0:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
         dashboards = load(path)
-        if not dashboards:
+        if len(dashboards) == 0:
             return {'success': False, 'error': 'No dashboards found in YAML file'}
 
         if dashboard_index < 0 or dashboard_index >= len(dashboards):
@@ -76,7 +76,7 @@ def compile_command(_ls: LanguageServer, args: list) -> dict:
     Returns:
         Dictionary with compilation result
     """
-    if not args or len(args) < 1:
+    if args is None or len(args) < 1:
         return {'success': False, 'error': 'Missing path argument'}
 
     path = args[0]
@@ -115,7 +115,7 @@ def get_dashboards_custom(params: Any) -> dict:
     params_dict = _params_to_dict(params)
     path = params_dict.get('path')
 
-    if not path:
+    if path is None or len(path) == 0:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
