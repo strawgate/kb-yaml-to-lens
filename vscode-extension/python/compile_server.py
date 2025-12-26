@@ -21,7 +21,7 @@ from dashboard_compiler.dashboard_compiler import load, render
 server = LanguageServer('dashboard-compiler', 'v0.1')
 
 
-def _params_to_dict(params: Any) -> dict:
+def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Convert pygls params object to dict.
 
     In pygls v2, params are passed as cattrs-structured objects.
@@ -34,11 +34,14 @@ def _params_to_dict(params: Any) -> dict:
         Dictionary representation of the params
     """
     if isinstance(params, dict):
-        return params
-    return cattrs.unstructure(params)
+        if not all(isinstance(key, str) for key in params):  # pyright: ignore[reportUnknownVariableType]
+            msg = 'Params dictionary keys must be strings'
+            raise TypeError(msg)
+        return params  # pyright: ignore[reportUnknownVariableType]
+    return cattrs.unstructure(params)  # pyright: ignore[reportAny]
 
 
-def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
+def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
     """Compile a dashboard at the given path and index.
 
     Args:
@@ -67,7 +70,7 @@ def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict:
 
 
 @server.command('dashboard.compile')
-def compile_command(_ls: LanguageServer, args: list) -> dict:
+def compile_command(_ls: LanguageServer, args: list[Any]) -> dict[str, Any]:
     """Compile a dashboard using the workspace/executeCommand pattern.
 
     Args:
@@ -79,14 +82,14 @@ def compile_command(_ls: LanguageServer, args: list) -> dict:
     if args is None or len(args) < 1:
         return {'success': False, 'error': 'Missing path argument'}
 
-    path = args[0]
-    dashboard_index = int(args[1]) if len(args) > 1 else 0
+    path: str = args[0]  # pyright: ignore[reportAny]
+    dashboard_index: int = int(args[1]) if len(args) > 1 else 0  # pyright: ignore[reportAny]
 
     return _compile_dashboard(path, dashboard_index)
 
 
 @server.feature('dashboard/compile')
-def compile_custom(params: Any) -> dict:
+def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Handle custom compilation request for a dashboard.
 
     Args:
@@ -96,14 +99,14 @@ def compile_custom(params: Any) -> dict:
         Dictionary with compilation result
     """
     params_dict = _params_to_dict(params)
-    path = params_dict.get('path', '')
-    dashboard_index = int(params_dict.get('dashboard_index', 0))
+    path: str = params_dict.get('path', '')  # pyright: ignore[reportAny]
+    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
 
     return _compile_dashboard(path, dashboard_index)
 
 
 @server.feature('dashboard/getDashboards')
-def get_dashboards_custom(params: Any) -> dict:
+def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Get list of dashboards from a YAML file.
 
     Args:
@@ -119,7 +122,7 @@ def get_dashboards_custom(params: Any) -> dict:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
-        dashboards = load(path)
+        dashboards = load(path)  # pyright: ignore[reportAny]
         dashboard_list = [
             {'index': i, 'title': dashboard.name or f'Dashboard {i + 1}', 'description': dashboard.description or ''}
             for i, dashboard in enumerate(dashboards)

@@ -236,7 +236,7 @@ class TestCompileCommand(unittest.TestCase):
         """Test executeCommand with None args returns error."""
         mock_ls = MagicMock()
 
-        result = compile_command(mock_ls, None)  # type: ignore[arg-type]
+        result = compile_command(mock_ls, [])
 
         self.assertFalse(result['success'])
         self.assertIn('error', result)
