@@ -232,7 +232,8 @@ The Dockerfile:
 
 **Problem**: Cannot find `@kbn/lens-embeddable-utils`
 
-**Solution**: 
+**Solution**:
+
 1. Ensure Kibana bootstrap completed successfully
 2. Check build logs for errors during `yarn kbn bootstrap`
 3. Try `make test-import` to verify the module is available
