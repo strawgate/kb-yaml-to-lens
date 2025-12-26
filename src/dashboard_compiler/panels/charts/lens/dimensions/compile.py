@@ -48,6 +48,7 @@ GRANULARITY_TO_BARS = {
 
 def compile_lens_dimension(
     dimension: LensDimensionTypes,
+    *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> tuple[str, KbnLensDimensionColumnTypes]:
     """Compile a single LensDimensionTypes object into its Kibana view model.
@@ -134,7 +135,7 @@ def compile_lens_dimension(
 
     # This check is necessary even though it appears redundant to type checkers
     # because dimension could be a more specific subclass at runtime
-    if isinstance(dimension, LensIntervalsDimension):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(dimension, LensIntervalsDimension):  # pyright: ignore[reportUnnecessaryIsInstance]
         dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
 
         if dimension.intervals is None:
@@ -176,12 +177,13 @@ def compile_lens_dimension(
 
     # All LensDimensionTypes have been handled above, this is unreachable
     # but kept for type safety in case new types are added
-    msg = f'Unsupported dimension type: {type(dimension)}'  # type: ignore[reportUnreachable]
-    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+    msg = f'Unsupported dimension type: {type(dimension)}'  # pyright: ignore[reportUnreachable]
+    raise NotImplementedError(msg)
 
 
 def compile_lens_dimensions(
     dimensions: Sequence[LensDimensionTypes],
+    *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> dict[str, KbnLensDimensionColumnTypes]:
     """Compile a sequence of LensDimensionTypes objects into their Kibana view model representation.
@@ -194,4 +196,4 @@ def compile_lens_dimensions(
         dict[str, KbnLensDimensionColumnTypes]: A dictionary of compiled KbnLensDimensionColumnTypes objects.
 
     """
-    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id) for dimension in dimensions)
+    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id=kbn_metric_column_by_id) for dimension in dimensions)

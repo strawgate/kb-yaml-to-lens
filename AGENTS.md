@@ -96,6 +96,25 @@ Each component follows this structure:
 - May narrow types in subclasses (e.g., `str` → `Literal['value']`)
 - `reportIncompatibleVariableOverride = false` in basedpyright allows this
 
+### Explicit Boolean Checks
+
+Always use explicit comparisons instead of implicit truthiness:
+
+**✅ Correct:**
+
+- `if my_var is not None:` (for optional types)
+- `if my_var is None:` (for None checks)
+- `if len(my_list) > 0:` (for non-empty lists)
+- `if len(my_str) > 0:` (for non-empty strings)
+- `if my_bool is True:` or `if my_bool:` (for actual booleans)
+
+**❌ Incorrect:**
+
+- `if my_var:` (ambiguous: could be None, empty, False, 0, etc.)
+- `if not my_var:` (ambiguous truthiness check)
+
+**Exception:** `if TYPE_CHECKING:` is standard Python and acceptable.
+
 ### Documentation Updates
 
 When updating YAML configuration docs:
@@ -115,6 +134,9 @@ When updating YAML configuration docs:
 1. **Read relevant files first** — Never speculate about code you haven't inspected
 2. **Search for existing patterns** — Check how similar components handle the same problem
 3. **Understand the architecture** — Config models → compile functions → view models
+4. **Use explicit Boolean comparisons** — Never rely on implicit truthiness
+   - `if x is not None:` instead of `if x:`
+   - `if len(items) > 0:` instead of `if items:`
 
 ### Working with Code Review Feedback
 
@@ -139,6 +161,7 @@ Before claiming feedback is addressed:
 - [ ] **For schema changes:** Cross-reference with official documentation (Kibana repo, API docs, etc.)
 - [ ] **For test changes:** Explain WHY test data changed, not just WHAT changed
 - [ ] **For type errors:** Verify the fix compiles AND is semantically correct
+- [ ] **For Boolean checks:** All conditional statements use explicit comparisons
 - [ ] Run `make check` after EACH fix, not just at the end
 - [ ] Test that the compiled output is valid (not just that it compiles)
 
