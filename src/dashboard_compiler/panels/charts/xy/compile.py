@@ -65,6 +65,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
 
 
 def compile_xy_chart_visualization_state(
+    *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],

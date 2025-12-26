@@ -70,6 +70,7 @@ class KibanaClient:
     def __init__(
         self,
         url: str,
+        *,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,

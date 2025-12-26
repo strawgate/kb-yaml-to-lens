@@ -48,6 +48,7 @@ GRANULARITY_TO_BARS = {
 
 def compile_lens_dimension(
     dimension: LensDimensionTypes,
+    *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> tuple[str, KbnLensDimensionColumnTypes]:
     """Compile a single LensDimensionTypes object into its Kibana view model.
@@ -182,6 +183,7 @@ def compile_lens_dimension(
 
 def compile_lens_dimensions(
     dimensions: Sequence[LensDimensionTypes],
+    *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> dict[str, KbnLensDimensionColumnTypes]:
     """Compile a sequence of LensDimensionTypes objects into their Kibana view model representation.
@@ -194,4 +196,4 @@ def compile_lens_dimensions(
         dict[str, KbnLensDimensionColumnTypes]: A dictionary of compiled KbnLensDimensionColumnTypes objects.
 
     """
-    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id) for dimension in dimensions)
+    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id=kbn_metric_column_by_id) for dimension in dimensions)

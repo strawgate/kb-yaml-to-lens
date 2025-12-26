@@ -17,7 +17,7 @@ from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.view import KbnReference
 
 
-def compile_dashboard_link(order: int, link: DashboardLink) -> tuple[KbnReference, KbnDashboardLink]:
+def compile_dashboard_link(order: int, *, link: DashboardLink) -> tuple[KbnReference, KbnDashboardLink]:
     """Compile a DashboardLink into its Kibana view model representation.
 
     Args:
@@ -63,7 +63,7 @@ def compile_dashboard_link(order: int, link: DashboardLink) -> tuple[KbnReferenc
     return kbn_reference, kbn_link
 
 
-def compile_url_link(order: int, link: UrlLink) -> KbnWebLink:
+def compile_url_link(order: int, *, link: UrlLink) -> KbnWebLink:
     """Compile a UrlLink into its Kibana view model representation.
 
     Args:
@@ -96,7 +96,7 @@ def compile_url_link(order: int, link: UrlLink) -> KbnWebLink:
     )
 
 
-def compile_link(link: BaseLink, order: int) -> tuple[KbnReference | None, KbnLinkTypes]:
+def compile_link(*, link: BaseLink, order: int) -> tuple[KbnReference | None, KbnLinkTypes]:
     """Compile a single link into its Kibana view model representation.
 
     Args:
@@ -108,10 +108,10 @@ def compile_link(link: BaseLink, order: int) -> tuple[KbnReference | None, KbnLi
 
     """
     if isinstance(link, DashboardLink):
-        return compile_dashboard_link(order, link)
+        return compile_dashboard_link(order, link=link)
 
     if isinstance(link, UrlLink):
-        return None, compile_url_link(order, link)
+        return None, compile_url_link(order, link=link)
 
     msg = f'Link type {type(link)} is not supported for compilation.'
     raise NotImplementedError(msg)
@@ -131,7 +131,7 @@ def compile_links(links: Sequence[LinkTypes]) -> tuple[list[KbnReference], list[
     kbn_links: list[KbnLinkTypes] = []
 
     for i, link in enumerate(links):
-        kbn_reference, kbn_link = compile_link(link, i)
+        kbn_reference, kbn_link = compile_link(link=link, order=i)
 
         if kbn_reference is not None:
             kbn_references.append(kbn_reference)
