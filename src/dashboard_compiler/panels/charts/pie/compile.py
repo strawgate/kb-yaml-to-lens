@@ -20,6 +20,7 @@ from dashboard_compiler.shared.config import random_id_generator
 
 
 def compile_pie_chart_visualization_state(  # noqa: PLR0913
+    *,
     layer_id: str,
     chart: LensPieChart | ESQLPieChart,
     slice_by_ids: list[str],
@@ -148,7 +149,12 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
         layer_id,
         kbn_columns,
         compile_pie_chart_visualization_state(
-            layer_id, lens_pie_chart, primary_dimension_ids, secondary_dimension_ids, metric_ids, collapse_fns
+            layer_id=layer_id,
+            chart=lens_pie_chart,
+            slice_by_ids=primary_dimension_ids,
+            secondary_slice_by_ids=secondary_dimension_ids,
+            metric_ids=metric_ids,
+            collapse_fns=collapse_fns,
         ),
     )
 
