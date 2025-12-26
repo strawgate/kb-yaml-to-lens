@@ -18,7 +18,7 @@ Display rich text content using markdown syntax.
     options:
       show_source: true
 
-For configuration details and Python examples, see the [Markdown Panel documentation](../../src/dashboard_compiler/panels/markdown/markdown.md).
+For configuration details and examples, see the [Markdown Panel Configuration](../yaml_reference.md#markdown-panel-configuration) in the YAML Reference.
 
 ## Links Panels
 
@@ -30,7 +30,7 @@ Display collections of clickable links.
     options:
       show_source: true
 
-For configuration details and Python examples, see the [Links Panel documentation](../../src/dashboard_compiler/panels/links/links.md).
+For configuration details and examples, see the [Links Panel Configuration](../yaml_reference.md#links-panel-configuration) in the YAML Reference.
 
 ## Image Panels
 
@@ -42,7 +42,7 @@ Embed images in your dashboard.
     options:
       show_source: true
 
-For configuration details and Python examples, see the [Image Panel documentation](../../src/dashboard_compiler/panels/images/image.md).
+For configuration details and examples, see the [Image Panel Configuration](../yaml_reference.md#image-panel-configuration) in the YAML Reference.
 
 ## Search Panels
 
@@ -54,7 +54,7 @@ Display search results from Elasticsearch.
     options:
       show_source: true
 
-For configuration details and Python examples, see the [Search Panel documentation](../../src/dashboard_compiler/panels/search/search.md).
+For configuration details and examples, see the [Search Panel Configuration](../yaml_reference.md#search-panel-configuration) in the YAML Reference.
 
 ## Lens Panel
 
@@ -70,19 +70,19 @@ Lens panels are used to create data visualizations including metrics, pie charts
 
 Display key performance indicators.
 
-For configuration details and Python examples, see the [Metric Chart documentation](../../src/dashboard_compiler/panels/charts/metric/config.md).
+For configuration details and examples, see the [Metric Chart Panel Configuration](../yaml_reference.md#metric-chart-panel-configuration) in the YAML Reference.
 
 ### Pie Charts
 
 Create pie chart visualizations to show distribution of categorical data.
 
-For configuration details and Python examples, see the [Pie Chart documentation](../../src/dashboard_compiler/panels/charts/pie/config.md).
+For configuration details and examples, see the [Pie Chart Panel Configuration](../yaml_reference.md#pie-chart-panel-configuration) in the YAML Reference.
 
 ### XY Charts
 
 Create line, bar, and area charts for time series and other data.
 
-For configuration details and Python examples, see the [XY Chart documentation](../../src/dashboard_compiler/panels/charts/xy/config.md).
+For configuration details and examples, see the [XY Chart Panel Configuration](../yaml_reference.md#xy-chart-panel-configuration) in the YAML Reference.
 
 ## Lens Multi-Layer Panel
 
