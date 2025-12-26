@@ -76,6 +76,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started: quickstart.md
+  - Programmatic Usage: programmatic-usage.md
   - Architecture: architecture.md
   - YAML Reference: yaml_reference.md
   - CLI Guide: CLI.md
