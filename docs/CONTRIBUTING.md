@@ -4,17 +4,24 @@
 
 ### Python
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for Python code formatting and linting:
+This project uses [Ruff](https://github.com/astral-sh/ruff) for Python code formatting and linting, and [basedpyright](https://github.com/DetachHead/basedpyright) for type checking:
 
 - Line length: 140 characters
 - Python version: 3.12+
 - Quote style: Single quotes for inline code, double quotes for docstrings
 
-Run linting and formatting:
+Run linting, formatting, and type checking:
 
 ```bash
+# Run all linters and formatters
 make lint
-# or individually:
+
+# Run type checking
+make typecheck
+# or directly:
+uv run basedpyright
+
+# Run individually:
 uv run ruff check . --fix
 uv run ruff format .
 ```

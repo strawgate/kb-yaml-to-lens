@@ -167,16 +167,25 @@ src/dashboard_compiler/
 ### Running Tests
 
 ```bash
+# Run all tests
 uv run pytest
+
+# Run all checks (recommended before committing)
+make check
 ```
 
 ### Code Quality
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
+This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, [basedpyright](https://github.com/DetachHead/basedpyright) for type checking, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
 
 ```bash
 # Run all linters and formatters
 make lint
+
+# Run type checking
+make typecheck
+# or directly:
+uv run basedpyright
 
 # Check Python code quality
 uv run ruff check .

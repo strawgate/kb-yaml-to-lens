@@ -12,9 +12,10 @@
 | Command | Purpose |
 |---------|---------|
 | `make install` | Install all dependencies |
-| `make check` | **Run before committing** (lint + test) |
+| `make check` | **Run before committing** (lint + typecheck + test) |
 | `make test` | Run pytest suite |
 | `make lint` | Format and lint code |
+| `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
 ### Common Workflows
@@ -162,6 +163,7 @@ Before claiming feedback is addressed:
 - [ ] **For test changes:** Explain WHY test data changed, not just WHAT changed
 - [ ] **For type errors:** Verify the fix compiles AND is semantically correct
 - [ ] **For Boolean checks:** All conditional statements use explicit comparisons
+- [ ] **For type checking:** Run `make typecheck` to verify type correctness
 - [ ] Run `make check` after EACH fix, not just at the end
 - [ ] Test that the compiled output is valid (not just that it compiles)
 
