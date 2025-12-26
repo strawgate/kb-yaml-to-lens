@@ -2,6 +2,7 @@ from collections.abc import Sequence
 
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
+    KbnLensMetricColumnTypes,
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
@@ -20,15 +21,16 @@ def compile_lens_columns(dimensions: Sequence[LensDimensionTypes], metrics: Sequ
         dict[str, KbnLensColumnTypes]: A dictionary mapping column IDs to their compiled KbnLensColumnTypes.
 
     """
-    columns_by_id = {}
-    columns_by_name = {}
+    columns_by_id: dict[str, KbnLensColumnTypes] = {}
+    metrics_by_label: dict[str, KbnLensMetricColumnTypes] = {}
+
     for metric in metrics:
         metric_id, metric_column = compile_lens_metric(metric)
         columns_by_id[metric_id] = metric_column
-        columns_by_name[metric.label] = metric_column
+        metrics_by_label[metric_column.label] = metric_column
 
     for dimension in dimensions:
-        dimension_id, dimension_column = compile_lens_dimension(dimension, kbn_metric_column_by_id=columns_by_name)
+        dimension_id, dimension_column = compile_lens_dimension(dimension, kbn_metric_column_by_id=metrics_by_label)
         columns_by_id[dimension_id] = dimension_column
 
     return columns_by_id
