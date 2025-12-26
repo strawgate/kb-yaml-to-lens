@@ -1,6 +1,6 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.xy.compile import compile_esql_xy_chart, compile_lens_xy_chart
@@ -365,56 +365,96 @@ async def test_line_chart_with_reference_lines() -> None:
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
 
-    # Should have 3 layers: 1 data layer + 2 reference line layers
-    assert len(kbn_state_visualization.layers) == 3
+    # Verify the visualization state layers
+    assert kbn_state_visualization.model_dump() == snapshot(
+        {
+            'preferredSeriesType': 'line',
+            'layers': [
+                {
+                    'layerId': IsUUID,
+                    'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+                    'layerType': 'data',
+                    'seriesType': 'line',
+                    'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+                    'position': 'top',
+                    'showGridlines': False,
+                    'colorMapping': {
+                        'assignments': [],
+                        'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                        'paletteId': 'eui_amsterdam_color_blind',
+                        'colorMode': {'type': 'categorical'},
+                    },
+                },
+                {
+                    'layerId': IsUUID,
+                    'accessors': [IsStr],
+                    'layerType': 'referenceLine',
+                    'yConfig': [
+                        {
+                            'forAccessor': IsStr,
+                            'color': '#FF0000',
+                            'lineStyle': 'dashed',
+                            'lineWidth': 2.0,
+                            'axisMode': {'name': 'left'},
+                            'fill': None,
+                            'icon': None,
+                            'iconPosition': None,
+                            'textVisibility': None,
+                        }
+                    ],
+                },
+                {
+                    'layerId': IsUUID,
+                    'accessors': [IsStr],
+                    'layerType': 'referenceLine',
+                    'yConfig': [
+                        {
+                            'forAccessor': IsStr,
+                            'color': '#00FF00',
+                            'lineStyle': 'solid',
+                            'lineWidth': None,
+                            'axisMode': {'name': 'left'},
+                            'fill': None,
+                            'icon': None,
+                            'iconPosition': None,
+                            'textVisibility': None,
+                        }
+                    ],
+                },
+            ],
+            'legend': {'isVisible': True, 'position': 'right'},
+            'valueLabels': 'hide',
+        }
+    )
 
-    # Check data layer
-    data_layer = kbn_state_visualization.layers[0]
-    assert data_layer.layerType == 'data'
-    assert data_layer.seriesType == 'line'
+    # Verify reference line columns
+    ref_1_accessor = kbn_state_visualization.layers[1].accessors[0]
+    ref_2_accessor = kbn_state_visualization.layers[2].accessors[0]
 
-    # Check first reference line layer
-    ref_layer_1 = kbn_state_visualization.layers[1]
-    assert ref_layer_1.layerType == 'referenceLine'
-    assert len(ref_layer_1.accessors) == 1
-    assert ref_layer_1.yConfig is not None
-    assert len(ref_layer_1.yConfig) == 1
-    assert ref_layer_1.yConfig[0].color == '#FF0000'
-    assert ref_layer_1.yConfig[0].lineStyle == 'dashed'
-    assert ref_layer_1.yConfig[0].lineWidth == 2.0
-    assert ref_layer_1.yConfig[0].axisMode is not None
-    assert ref_layer_1.yConfig[0].axisMode.name == 'left'
+    assert kbn_columns[ref_1_accessor].model_dump() == snapshot(
+        {
+            'label': 'SLA Threshold',
+            'dataType': 'number',
+            'operationType': 'static_value',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'isStaticValue': True,
+            'params': {'value': '500.0'},
+            'references': [],
+            'customLabel': True,
+        }
+    )
 
-    # Check second reference line layer
-    ref_layer_2 = kbn_state_visualization.layers[2]
-    assert ref_layer_2.layerType == 'referenceLine'
-    assert len(ref_layer_2.accessors) == 1
-    assert ref_layer_2.yConfig is not None
-    assert len(ref_layer_2.yConfig) == 1
-    assert ref_layer_2.yConfig[0].color == '#00FF00'
-    assert ref_layer_2.yConfig[0].lineStyle == 'solid'
-    assert ref_layer_2.yConfig[0].axisMode is not None
-    assert ref_layer_2.yConfig[0].axisMode.name == 'left'
-
-    # Verify reference line columns are present with correct values
-    ref_1_accessor = ref_layer_1.accessors[0]
-    ref_2_accessor = ref_layer_2.accessors[0]
-
-    assert ref_1_accessor in kbn_columns
-    assert ref_2_accessor in kbn_columns
-
-    # Check first reference line column
-    ref_1_column = kbn_columns[ref_1_accessor]
-    assert ref_1_column.operationType == 'static_value'
-    assert ref_1_column.dataType == 'number'
-    assert ref_1_column.params.value == '500.0'
-    assert ref_1_column.label == 'SLA Threshold'
-    assert ref_1_column.customLabel is True
-
-    # Check second reference line column
-    ref_2_column = kbn_columns[ref_2_accessor]
-    assert ref_2_column.operationType == 'static_value'
-    assert ref_2_column.dataType == 'number'
-    assert ref_2_column.params.value == '200.0'
-    assert ref_2_column.label == 'Target'
-    assert ref_2_column.customLabel is True
+    assert kbn_columns[ref_2_accessor].model_dump() == snapshot(
+        {
+            'label': 'Target',
+            'dataType': 'number',
+            'operationType': 'static_value',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'isStaticValue': True,
+            'params': {'value': '200.0'},
+            'references': [],
+            'customLabel': True,
+        }
+    )
