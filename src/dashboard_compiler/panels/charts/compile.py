@@ -65,7 +65,7 @@ def compile_lens_chart_state(
     charts: list[LensChartTypes],
 ) -> tuple[KbnLensPanelState, list[KbnReference]]:
     """Compile a multi-layer chart into its Kibana view model representation."""
-    if not charts:
+    if len(charts) == 0:
         msg = 'At least one chart must be provided'
         raise ValueError(msg)
 

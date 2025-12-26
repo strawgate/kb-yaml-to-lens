@@ -116,7 +116,7 @@ def get_yaml_files(directory: Path) -> list[Path]:
 
     yaml_files = sorted(directory.rglob('*.yaml'))
 
-    if not yaml_files:
+    if len(yaml_files) == 0:
         console.print(f'[yellow]{ICON_WARNING}[/yellow] Warning: No YAML files found in {directory}', style='yellow')
 
     return yaml_files
@@ -270,7 +270,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_files = get_yaml_files(input_dir)
-    if not yaml_files:
+    if len(yaml_files) == 0:
         console.print('[yellow]No YAML files to compile.[/yellow]')
         return
 
@@ -292,25 +292,25 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
             progress.update(task, description=f'Compiling: {display_path}')
             compiled_jsons, error = compile_yaml_to_json(yaml_file)
 
-            if compiled_jsons:
+            if len(compiled_jsons) > 0:
                 filename = yaml_file.parent.stem
                 individual_file = output_dir / f'{filename}.ndjson'
                 write_ndjson(individual_file, compiled_jsons, overwrite=True)
                 ndjson_lines.extend(compiled_jsons)
-            elif error:
+            elif error is not None:
                 errors.append(error)
 
             progress.advance(task)
 
-    if ndjson_lines:
+    if len(ndjson_lines) > 0:
         console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
 
-    if errors:
+    if len(errors) > 0:
         console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(errors)} error(s):', style='yellow')
         for error in errors:
             console.print(f'  [red]•[/red] {error}', style='red')
 
-    if not ndjson_lines:
+    if len(ndjson_lines) == 0:
         console.print(f'[red]{ICON_ERROR}[/red] No valid YAML configurations found or compiled.', style='red')
         return
 

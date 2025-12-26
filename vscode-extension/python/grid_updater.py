@@ -66,7 +66,7 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_i
     if 'dashboards:' in content:
         dashboard_pattern = r'^dashboards:\s*$'
         dashboards_match = re.search(dashboard_pattern, content, re.MULTILINE)
-        if not dashboards_match:
+        if dashboards_match is None:
             return {'success': False, 'error': 'Could not find dashboards section'}
 
         dashboard_starts = list(re.finditer(r'^- (?:title:|name:|panels:)', content[dashboards_match.end() :], re.MULTILINE))
@@ -113,7 +113,7 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_i
     else:
         id_pattern = rf'id:\s+{re.escape(panel_id)}'
         id_match = re.search(id_pattern, search_content)
-        if not id_match:
+        if id_match is None:
             return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
 
         panel_markers = list(re.finditer(r'\n\s*- (?:title:|id:|type:|grid:)', search_content[: id_match.start()]))
