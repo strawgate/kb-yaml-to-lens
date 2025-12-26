@@ -23,45 +23,30 @@ Generate **known-good** Kibana dashboard JSON by:
 | Requirement | Value |
 |-------------|-------|
 | **Docker** | Latest stable |
+| **Make** | GNU Make |
 | **Disk** | 25GB+ (Kibana source + node_modules) |
 | **RAM** | 8GB+ recommended |
 
 ## Quick Start
 
-### Option A: Use Pre-Built GHCR Image (Recommended)
-
-**Fast path** - Uses pre-built images from GitHub Container Registry, no build required:
+### 1. Build the Docker Image
 
 ```bash
 cd fixture-generator
-docker-compose -f docker-compose.ghcr.yml run generator
-
-# Generate specific fixture
-docker-compose -f docker-compose.ghcr.yml run generator node examples/metric-basic.js
+make build
 ```
 
-See [GHCR.md](GHCR.md) for complete GHCR documentation.
-
-### Option B: Build Locally
-
-**Build from source** - Takes 15-30 minutes but works offline:
-
-```bash
-cd fixture-generator
-docker-compose build
-```
-
-**Note**: First build takes 15-30 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
+**Note**: First build takes ~6 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
 
 ### 2. Generate Fixtures
 
 ```bash
 # Generate all fixtures
-docker-compose run generator
+make run
 
 # Generate specific fixture
-docker-compose run generator node examples/metric-basic.js
-docker-compose run generator node examples/xy-chart.js
+make run-example EXAMPLE=metric-basic.js
+make run-example EXAMPLE=xy-chart.js
 ```
 
 ### 3. Copy to Python Tests
@@ -70,6 +55,21 @@ docker-compose run generator node examples/xy-chart.js
 # Fixtures are written to ./output/
 cp output/metric-basic.json ../tests/fixtures/
 ```
+
+## Available Commands
+
+Run `make help` to see all commands:
+
+| Command | Description |
+|---------|-------------|
+| `make build` | Build the Docker image |
+| `make build-no-cache` | Full rebuild without cache |
+| `make run` | Generate all fixtures |
+| `make run-example EXAMPLE=<file>` | Run a specific example script |
+| `make shell` | Open a shell in the container for debugging |
+| `make test-import` | Test that @kbn/lens-embeddable-utils can be imported |
+| `make clean` | Remove generated output files |
+| `make clean-image` | Remove the Docker image |
 
 ## Project Structure
 
@@ -83,7 +83,7 @@ fixture-generator/
 ├── generate-all.js             # Runs all examples
 ├── output/                     # Generated JSON files
 ├── Dockerfile
-├── docker-compose.yml
+├── Makefile
 └── package.json
 ```
 
@@ -137,7 +137,7 @@ generateMetricBasic();
 
 1. **Create a new script** in `examples/` directory
 2. **Use LensConfigBuilder** to define your visualization
-3. **Run the script** via Docker
+3. **Run the script** via Make
 4. **Copy the JSON** to your test suite
 
 ### Example Workflow
@@ -170,7 +170,7 @@ generateCustomMetric();
 EOF
 
 # 2. Run the generator
-docker-compose run generator node examples/my-custom-metric.js
+make run-example EXAMPLE=my-custom-metric.js
 
 # 3. Copy to Python tests
 cp output/my-custom-metric.json ../tests/fixtures/
@@ -199,10 +199,16 @@ To generate fixtures for different Kibana versions:
 
 ```bash
 # Build for specific Kibana version
-docker build --build-arg KIBANA_VERSION=v8.15.0 -t fixture-gen:8.15 .
+make build KIBANA_VERSION=v8.15.0
+
+# Or directly with docker
+docker build --build-arg KIBANA_VERSION=v8.15.0 -t kibana-fixture-generator:v8.15.0 .
 
 # Generate with specific version
-docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node examples/metric-basic.js
+docker run --rm \
+  -v $(pwd)/output:/kibana/output \
+  kibana-fixture-generator:v8.15.0 \
+  node examples/metric-basic.js
 ```
 
 ## Docker Setup
@@ -220,20 +226,17 @@ The Dockerfile:
 
 **Problem**: Out of memory during Kibana bootstrap
 
-**Solution**: Increase Docker memory limit
-
-```yaml
-# docker-compose.yml
-services:
-  generator:
-    mem_limit: 10g
-```
+**Solution**: Increase Docker memory limit in Docker Desktop settings (recommend 10GB+)
 
 ### LensConfigBuilder Not Found
 
 **Problem**: Cannot find `@kbn/lens-embeddable-utils`
 
-**Solution**: Ensure Kibana bootstrap completed successfully. Check build logs for errors during the `yarn kbn bootstrap` step.
+**Solution**: 
+1. Ensure Kibana bootstrap completed successfully
+2. Check build logs for errors during `yarn kbn bootstrap`
+3. Try `make test-import` to verify the module is available
+4. Use `make shell` to debug interactively
 
 ### Invalid Configuration
 
@@ -259,12 +262,12 @@ jobs:
       - name: Build fixture generator
         run: |
           cd fixture-generator
-          docker-compose build
+          make build
 
       - name: Generate all fixtures
         run: |
           cd fixture-generator
-          docker-compose run generator
+          make run
 
       - name: Create PR with updated fixtures
         uses: peter-evans/create-pull-request@v5

@@ -7,53 +7,79 @@ from dashboard_compiler.shared.view import OmitIfNone
 
 
 class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
-    """Represents a data layer within a Pie/Donut visualization state in the Kibana JSON structure."""
+    """View model for pie chart visualization layer configuration.
+
+    Represents a data layer in a pie or donut chart visualization. Defines the metrics
+    to display, grouping dimensions, legend configuration, and display options for the chart.
+
+    This model represents the compiled structure sent to Kibana for configuring pie chart
+    layers in Lens visualizations.
+
+    See Also:
+        Kibana type definition: Related layer types in
+        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/pie/types.ts
+    """
 
     layerType: Literal['data'] = 'data'
-    """Layer type identifier for pie chart data layers."""
+    """Always 'data' for pie chart layers."""
 
     primaryGroups: list[str]
-    """Column IDs for primary dimension grouping (slice categories)."""
+    """List of field accessor IDs for primary grouping dimension (slice breakdown)."""
 
     secondaryGroups: Annotated[list[str] | None, OmitIfNone()] = Field(None)
-    """Column IDs for secondary dimension grouping (nested slices)."""
+    """List of field accessor IDs for secondary grouping dimension (nested slices)."""
 
     metrics: list[str]
-    """Column IDs for metric values (slice sizes)."""
+    """List of field accessor IDs for metrics to display (slice sizes)."""
 
     allowMultipleMetrics: Annotated[bool | None, OmitIfNone()] = Field(None)
-    """Whether to allow multiple metrics in the visualization."""
+    """Whether to allow multiple metrics in a single pie chart."""
 
     collapseFns: Annotated[dict[str, str] | None, OmitIfNone()] = Field(None)
-    """Aggregation functions for collapsing multiple values."""
+    """Aggregation functions for collapsing values by accessor ID."""
 
     numberDisplay: str
-    """Display format for numeric values (e.g., 'percent', 'value')."""
+    """How to display numbers on slices ('percent', 'value', or 'hidden')."""
 
     categoryDisplay: str
-    """Display format for category labels."""
+    """How to display category labels ('default', 'inside', or 'hide')."""
 
     legendDisplay: str
-    """Legend visibility setting (e.g., 'show', 'hide', 'default')."""
+    """Legend display mode ('default', 'show', 'hide')."""
 
     nestedLegend: bool
-    """Whether to show legend in nested format."""
+    """Whether to show nested legend for multi-level grouping."""
 
     emptySizeRatio: Annotated[float | None, OmitIfNone()] = Field(None)
-    """Size ratio for the empty center (donut hole) as a value between 0 and 1."""
+    """Size ratio of the empty center hole in donut charts (0.0 to 1.0)."""
 
     legendSize: Annotated[str | None, OmitIfNone()] = Field(None)
-    """Legend size setting (e.g., 'small', 'medium', 'large', 'auto')."""
+    """Size of the legend ('small', 'medium', 'large', 'xlarge')."""
 
     truncateLegend: Annotated[bool | None, OmitIfNone()] = Field(None)
     """Whether to truncate long legend labels."""
 
     legendMaxLines: Annotated[int | None, OmitIfNone()] = Field(None)
-    """Maximum number of lines for legend labels when truncated."""
+    """Maximum number of lines to display in legend labels."""
 
 
 class KbnPieVisualizationState(KbnBaseStateVisualization):
-    """Represents the 'visualization' object for a Pie chart in the Kibana JSON structure."""
+    """View model for pie chart visualization state after compilation to Kibana Lens format.
+
+    This model represents the complete visualization state for pie and donut charts as stored
+    in the Kibana saved object JSON structure. It includes the chart shape and all data layers
+    with their configuration.
+
+    The visualization state is part of the larger Lens panel configuration and defines how
+    the pie chart should be rendered in Kibana dashboards.
+
+    See Also:
+        Kibana type definition: `PieVisualizationState` in
+        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/pie/types.ts
+    """
 
     shape: Literal['pie', 'donut']
+    """Shape of the chart ('pie' for full circle, 'donut' for ring chart)."""
+
     layers: list[KbnPieStateVisualizationLayer] = Field(...)
+    """List of data layers for the pie chart."""

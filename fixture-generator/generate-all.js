@@ -5,11 +5,12 @@
  * Runs all example generator scripts and produces JSON fixtures
  */
 
-const { generateMetricBasic } = require('./examples/metric-basic');
-const { generateMetricWithBreakdown } = require('./examples/metric-with-breakdown');
-const { generateXYChart } = require('./examples/xy-chart');
-const { generatePieChart } = require('./examples/pie-chart');
-const { generateHeatmap } = require('./examples/heatmap');
+import { fileURLToPath } from 'url';
+import { generateMetricBasic } from './examples/metric-basic.js';
+import { generateMetricWithBreakdown } from './examples/metric-with-breakdown.js';
+import { generateXYChart } from './examples/xy-chart.js';
+import { generatePieChart } from './examples/pie-chart.js';
+import { generateHeatmap } from './examples/heatmap.js';
 
 async function generateAll() {
   console.log('Generating all test fixtures...\n');
@@ -35,7 +36,7 @@ async function generateAll() {
   console.log('  Output directory: ./output/');
 }
 
-if (require.main === module) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   generateAll()
     .catch((err) => {
       console.error('Fatal error:', err);
@@ -43,4 +44,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { generateAll };
+export { generateAll };
