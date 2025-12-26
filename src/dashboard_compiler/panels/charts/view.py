@@ -14,11 +14,14 @@ from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 
 if TYPE_CHECKING:
+    from .datatable.view import KbnDatatableVisualizationState
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .xy.view import KbnXYVisualizationState
 
-    KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState
+    KbnVisualizationStateTypes = (
+        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnDatatableVisualizationState
+    )
 
 # region Form Data Source
 ## Form Based
