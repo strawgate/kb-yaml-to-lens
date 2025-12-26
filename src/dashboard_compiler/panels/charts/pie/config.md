@@ -32,6 +32,32 @@ dashboard:
 | `legend`     | `object`          | Legend display options.                          | No       |
 | `description`| `string`          | Panel description.                               | No       |
 
+## Programmatic Usage (Python)
+
+You can create Pie chart panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.pie.config import LensPieChart
+from dashboard_compiler.panels.charts.lens.dimensions.config import LensTermsDimension
+from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from dashboard_compiler.panels.config import Grid
+
+pie_chart = LensPieChart(
+    type='pie',
+    data_view='logs-*',
+    slices=LensTermsDimension(field='status'),
+    metric=LensCountAggregatedMetric(aggregation='count'),
+)
+
+panel = LensPanel(
+    type='charts',
+    title='Status Distribution',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=pie_chart,
+)
+```
+
 ## Related
 
 - [Base Panel Configuration](../../base.md)
