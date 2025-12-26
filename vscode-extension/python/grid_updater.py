@@ -36,7 +36,7 @@ def _validate_grid_coords(grid: dict) -> bool:
     if not all(key in grid for key in required_keys):
         return False
 
-    return all(not (not isinstance(grid[key], int) or grid[key] < 0) for key in required_keys)
+    return all(isinstance(grid[key], int) and grid[key] >= 0 for key in required_keys)
 
 
 def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_index: int = 0) -> dict:  # noqa: PLR0912, PLR0915
@@ -66,7 +66,7 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_i
     if 'dashboards:' in content:
         dashboard_pattern = r'^dashboards:\s*$'
         dashboards_match = re.search(dashboard_pattern, content, re.MULTILINE)
-        if not dashboards_match:
+        if dashboards_match is None:
             return {'success': False, 'error': 'Could not find dashboards section'}
 
         dashboard_starts = list(re.finditer(r'^- (?:title:|name:|panels:)', content[dashboards_match.end() :], re.MULTILINE))
@@ -113,7 +113,7 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict, dashboard_i
     else:
         id_pattern = rf'id:\s+{re.escape(panel_id)}'
         id_match = re.search(id_pattern, search_content)
-        if not id_match:
+        if id_match is None:
             return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
 
         panel_markers = list(re.finditer(r'\n\s*- (?:title:|id:|type:|grid:)', search_content[: id_match.start()]))

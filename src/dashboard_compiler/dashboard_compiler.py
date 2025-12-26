@@ -22,14 +22,14 @@ def load(path: str) -> list[Dashboard]:
     load_path = Path(path)
 
     with load_path.open() as file:
-        config = yaml.safe_load(file)
+        config = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
-    dashboards_data = config.get('dashboards', [])
+    dashboards_data = config.get('dashboards', [])  # pyright: ignore[reportAny]
     if not isinstance(dashboards_data, list):
         msg = f"'dashboards' must be a list in YAML file: {path}"
         raise TypeError(msg)
 
-    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]
+    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
 
 
 def render(dashboard: Dashboard) -> KbnDashboard:

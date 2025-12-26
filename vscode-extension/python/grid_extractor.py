@@ -35,7 +35,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
         raise ImportError(msg) from e
 
     dashboards = load(yaml_path)
-    if not dashboards:
+    if len(dashboards) == 0:
         msg = 'No dashboards found in YAML file'
         raise ValueError(msg)
 
