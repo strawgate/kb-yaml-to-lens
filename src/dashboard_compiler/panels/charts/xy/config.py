@@ -8,6 +8,33 @@ from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
+
+class XYReferenceLineValue(BaseCfgModel):
+    """Defines the value for a reference line."""
+
+    type: Literal['static'] = 'static'
+    value: float = Field(..., description='The static value for the reference line.')
+
+
+class XYReferenceLine(BaseCfgModel):
+    """Configuration for a single reference line in an XY chart."""
+
+    id: str | None = Field(default=None, description='Optional ID for the reference line.')
+    label: str | None = Field(default=None, description='Optional label for the reference line.')
+    value: XYReferenceLineValue | float = Field(
+        ..., description='The value for the reference line. Can be a float or XYReferenceLineValue object.'
+    )
+    axis: Literal['left', 'right'] | None = Field(default='left', description='The axis to assign the reference line to.')
+    color: str | None = Field(default=None, description='The color of the reference line.')
+    line_width: int | None = Field(default=None, ge=1, le=10, description='The width of the reference line (1-10).')
+    line_style: Literal['solid', 'dashed', 'dotted'] | None = Field(default=None, description='The style of the reference line.')
+    fill: Literal['above', 'below', 'none'] | None = Field(default=None, description='Fill area above or below the line.')
+    icon: str | None = Field(default=None, description='Icon to display on the reference line.')
+    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(
+        default=None, description='Position of the icon on the reference line.'
+    )
+
+
 type XYChartTypes = LensXYChartTypes | ESQLXYChartTypes
 
 type LensXYChartTypes = LensBarChart | LensLineChart | LensAreaChart
@@ -67,6 +94,11 @@ class BaseXYChart(BaseChart):
     legend: XYLegend | None = Field(
         None,
         description='Formatting options for the chart legend.',
+    )
+
+    reference_lines: list[XYReferenceLine] | None = Field(
+        None,
+        description='Reference lines to display on the chart for threshold visualization.',
     )
 
 

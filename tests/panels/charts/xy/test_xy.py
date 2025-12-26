@@ -1,6 +1,6 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.xy.compile import compile_esql_xy_chart, compile_lens_xy_chart
@@ -331,5 +331,130 @@ async def test_area_percentage_chart() -> None:
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
+        }
+    )
+
+
+async def test_line_chart_with_reference_lines() -> None:
+    """Test line chart with reference lines."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'reference_lines': [
+            {
+                'label': 'SLA Threshold',
+                'value': 500.0,
+                'axis': 'left',
+                'color': '#FF0000',
+                'line_style': 'dashed',
+                'line_width': 2,
+            },
+            {
+                'label': 'Target',
+                'value': 200.0,
+                'axis': 'left',
+                'color': '#00FF00',
+                'line_style': 'solid',
+            },
+        ],
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify the visualization state layers
+    assert kbn_state_visualization.model_dump() == snapshot(
+        {
+            'preferredSeriesType': 'line',
+            'layers': [
+                {
+                    'layerId': IsUUID,
+                    'accessors': ['f1c1076b-5312-4458-aa74-535c908194fe'],
+                    'layerType': 'data',
+                    'seriesType': 'line',
+                    'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+                    'position': 'top',
+                    'showGridlines': False,
+                    'colorMapping': {
+                        'assignments': [],
+                        'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                        'paletteId': 'eui_amsterdam_color_blind',
+                        'colorMode': {'type': 'categorical'},
+                    },
+                },
+                {
+                    'layerId': IsUUID,
+                    'accessors': [IsStr],
+                    'layerType': 'referenceLine',
+                    'yConfig': [
+                        {
+                            'forAccessor': IsStr,
+                            'color': '#FF0000',
+                            'lineStyle': 'dashed',
+                            'lineWidth': 2.0,
+                            'axisMode': {'name': 'left'},
+                            'fill': None,
+                            'icon': None,
+                            'iconPosition': None,
+                            'textVisibility': None,
+                        }
+                    ],
+                },
+                {
+                    'layerId': IsUUID,
+                    'accessors': [IsStr],
+                    'layerType': 'referenceLine',
+                    'yConfig': [
+                        {
+                            'forAccessor': IsStr,
+                            'color': '#00FF00',
+                            'lineStyle': 'solid',
+                            'lineWidth': None,
+                            'axisMode': {'name': 'left'},
+                            'fill': None,
+                            'icon': None,
+                            'iconPosition': None,
+                            'textVisibility': None,
+                        }
+                    ],
+                },
+            ],
+            'legend': {'isVisible': True, 'position': 'right'},
+            'valueLabels': 'hide',
+        }
+    )
+
+    # Verify reference line columns
+    ref_1_accessor = kbn_state_visualization.layers[1].accessors[0]
+    ref_2_accessor = kbn_state_visualization.layers[2].accessors[0]
+
+    assert kbn_columns[ref_1_accessor].model_dump() == snapshot(
+        {
+            'label': 'SLA Threshold',
+            'dataType': 'number',
+            'operationType': 'static_value',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'isStaticValue': True,
+            'params': {'value': '500.0'},
+            'references': [],
+            'customLabel': True,
+        }
+    )
+
+    assert kbn_columns[ref_2_accessor].model_dump() == snapshot(
+        {
+            'label': 'Target',
+            'dataType': 'number',
+            'operationType': 'static_value',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'isStaticValue': True,
+            'params': {'value': '200.0'},
+            'references': [],
+            'customLabel': True,
         }
     )
