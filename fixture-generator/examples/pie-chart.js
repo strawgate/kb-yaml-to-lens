@@ -6,6 +6,7 @@
  */
 
 import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
+import { createMockDataViewsAPI } from '../mock-dataviews.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -14,7 +15,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function generatePieChart() {
-  const builder = new LensConfigBuilder();
+  const mockDataViews = createMockDataViewsAPI();
+  const builder = new LensConfigBuilder(mockDataViews);
 
   const config = {
     chartType: 'pie',

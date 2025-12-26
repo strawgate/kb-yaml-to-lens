@@ -10,13 +10,15 @@ import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createMockDataViewsAPI } from '../mock-dataviews.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function generateMetricBasic() {
-  // Initialize the builder
-  const builder = new LensConfigBuilder();
+  // Initialize the builder with mock DataViews API
+  const mockDataViews = createMockDataViewsAPI();
+  const builder = new LensConfigBuilder(mockDataViews);
 
   // Define metric configuration
   const config = {

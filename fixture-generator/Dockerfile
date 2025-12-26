@@ -60,6 +60,7 @@ RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
 
 # Copy generator scripts to Kibana root (for proper @kbn/ module resolution)
 COPY generate-all.js /kibana/
+COPY mock-dataviews.js /kibana/
 COPY examples/ /kibana/examples/
 RUN mkdir -p /kibana/output
 
