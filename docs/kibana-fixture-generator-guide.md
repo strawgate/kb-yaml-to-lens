@@ -38,9 +38,10 @@ Running this tool produces:
 | Requirement | Minimum | Recommended | Notes |
 |-------------|---------|-------------|-------|
 | **Docker** | Latest stable | Latest stable | Required for containerized build |
+| **Make** | GNU Make | GNU Make | For running build commands |
 | **Disk Space** | 25GB | 30GB+ | Kibana source + node_modules are large |
 | **RAM** | 8GB | 16GB+ | Bootstrap process is memory-intensive |
-| **Time** | 15-30 min | N/A | First build only; cached thereafter |
+| **Time** | ~6 min | N/A | First build only; cached thereafter |
 
 ## Understanding the Process
 
@@ -66,7 +67,7 @@ The fixture generator follows this workflow:
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ 3. Run Generator                                            │
-│    ├── docker compose run generator                         │
+│    ├── make run                                             │
 │    └── Outputs JSON to ./output/                            │
 └─────────────────────────────────────────────────────────────┘
                             ↓
@@ -134,10 +135,10 @@ This step only needs to be done once (or when you want to update the Kibana vers
 
 ```bash
 cd fixture-generator
-docker compose build
+make build
 ```
 
-**Build Process:** Takes 15-30 minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
+**Build Process:** Takes ~6 minutes first time (installs Ubuntu, Node.js 22.21.1, clones Kibana, runs `yarn kbn bootstrap --allow-root`). Subsequent builds are cached and much faster.
 
 **Common Issues:**
 
@@ -198,14 +199,14 @@ module.exports = { generate{PanelType} };
 
 ```bash
 cd fixture-generator
-docker compose run generator node examples/your-script.js
+make run-example EXAMPLE=your-script.js
 ```
 
 **Generate All Fixtures:**
 
 ```bash
 cd fixture-generator
-docker compose run generator
+make run
 # This runs generate-all.js which executes all registered generators
 ```
 
@@ -291,7 +292,7 @@ cp fixture-generator/output/*.json tests/scenarios/
 
 1. **Research:** Check `dev_docs/lens/{panel-type}.mdx` for required/optional fields
 2. **Write:** Create `examples/{panel-type}.js` using template from Step 3
-3. **Test:** `docker compose run generator node examples/{panel-type}.js`
+3. **Test:** `make run-example EXAMPLE={panel-type}.js`
 4. **Integrate:** Add to `generate-all.js` generators array
 
 ### Testing with Different Kibana Versions
@@ -300,23 +301,19 @@ To generate fixtures for a specific Kibana version:
 
 ```bash
 # Build for specific version
-docker build \
-  --build-arg KIBANA_VERSION=v9.3.0 \
-  --build-arg NODE_VERSION=22.21.1 \
-  -t fixture-gen:9.3 \
-  .
+make build KIBANA_VERSION=v9.3.0
 
 # Generate with that version
-docker run -v $(pwd)/output:/tool/output fixture-gen:9.3 node examples/heatmap.js
+make run
 
-# Output goes to ./output/heatmap.json
+# Output goes to ./output/
 ```
 
 **Common Kibana Versions:**
 
+- `v9.2.0` - Default version (recommended)
 - `main` - Latest development version
-- `v9.4.0` - Specific release tag
-- `v9.3.0` - Previous release
+- `v9.3.0` - Specific release tag
 - `8.15` - Branch for 8.15.x releases
 
 ## Troubleshooting
@@ -325,18 +322,29 @@ docker run -v $(pwd)/output:/tool/output fixture-gen:9.3 node examples/heatmap.j
 
 | Problem | Solution |
 |---------|----------|
-| **Node version mismatch**<br/>`Error: Expected version "22.21.1". Got "20.19.4"` | Check Kibana's `.node-version`, update `NODE_VERSION` in Dockerfile and docker-compose.yml, rebuild with `--no-cache` |
+| **Node version mismatch**<br/>`Error: Expected version "22.21.1". Got "20.19.4"` | The Node.js version is auto-detected from Kibana's `.node-version` file during build. Rebuild with `make build-no-cache` to pick up any version changes |
 | **"Kibana should not be run as root"** | Add `--allow-root` flag to `yarn kbn bootstrap` in Dockerfile |
-| **Out of memory during bootstrap** | Increase `mem_limit: 16g` and `NODE_OPTIONS=--max_old_space_size=16384` in docker-compose.yml |
+| **Out of memory during bootstrap** | Increase Docker memory limit in Docker Desktop settings (recommend 10GB+) |
 
 ### Generation Issues
 
 | Problem | Solution |
 |---------|----------|
-| **LensConfigBuilder not found** | Ensure bootstrap completed successfully, verify `NODE_PATH=/kibana/node_modules` is set |
+| **LensConfigBuilder not found** | Ensure bootstrap completed successfully. Run `make test-import` to verify |
 | **Invalid configuration error**<br/>`missing required field 'breakdown'` | Review chart-specific Kibana docs, ensure all required fields present with correct types |
 | **ES\|QL query syntax error** | Use uppercase keywords (`BY`, `STATS`, `FROM`), test query in Kibana Dev Tools first |
 | **Permission denied writing to output** | Create output directory: `mkdir -p fixture-generator/output && chmod 777 fixture-generator/output` |
+
+### Debugging
+
+Use `make shell` to get an interactive shell inside the container for debugging:
+
+```bash
+make shell
+# Inside container:
+node -e "require('@kbn/lens-embeddable-utils/config_builder')"
+ls /kibana/node_modules/@kbn/ | grep lens
+```
 
 ## Real-World Example: Heatmaps
 
@@ -397,9 +405,23 @@ generators.push({ name: 'Heatmap', fn: generateHeatmap });
 **Run it:**
 
 ```bash
-docker compose run generator node examples/heatmap.js
-# Or run all: docker compose run generator
+make run-example EXAMPLE=heatmap.js
+# Or run all: make run
 ```
+
+## Available Make Commands
+
+| Command | Description |
+|---------|-------------|
+| `make help` | Show all available commands |
+| `make build` | Build the Docker image |
+| `make build-no-cache` | Full rebuild without cache |
+| `make run` | Generate all fixtures |
+| `make run-example EXAMPLE=<file>` | Run a specific example |
+| `make shell` | Open shell for debugging |
+| `make test-import` | Test @kbn module import |
+| `make clean` | Remove output files |
+| `make clean-image` | Remove Docker image |
 
 ## Summary
 
