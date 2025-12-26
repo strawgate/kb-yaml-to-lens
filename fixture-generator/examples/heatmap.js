@@ -7,7 +7,7 @@
  */
 
 import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createMockDataViewsAPI } from '../mock-dataviews.js';
+import { createDataViewsMock } from '../dataviews-mock.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,8 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function generateHeatmap() {
-  // Initialize the builder
-  const mockDataViews = createMockDataViewsAPI();
+  // Initialize the builder with Kibana's official mock
+  const mockDataViews = createDataViewsMock();
   const builder = new LensConfigBuilder(mockDataViews);
 
   // Define heatmap configuration
