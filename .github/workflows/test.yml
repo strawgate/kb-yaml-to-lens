@@ -63,12 +63,4 @@ jobs:
 
     - name: Check markdown linting
       run: |
-        # Run markdownlint with --fix to auto-fix issues (ignore exit code)
-        markdownlint --fix -c .markdownlint.jsonc . || true
-        
-        # Check if any files were modified
-        if [ -n "$(git status --porcelain)" ]; then
-          echo "Error: Markdown linter made changes. Please run 'make lint' and commit the changes."
-          git diff
-          exit 1
-        fi
+        markdownlint -c .markdownlint.jsonc .
