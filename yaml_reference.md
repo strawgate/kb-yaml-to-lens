@@ -1802,7 +1802,7 @@ dashboard:
 ## Full Configuration Options
 
 | YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
+| -------------- | ------------------- | -------------------------------------------------- | ---------- |
 | `type`       | `Literal['metric']`| Specifies the panel type.                        | Yes      |
 | `title`      | `string`          | Title of the panel.                              | No       |
 | `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
@@ -1837,7 +1837,7 @@ dashboard:
 ## Full Configuration Options
 
 | YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
+| -------------- | ------------------- | -------------------------------------------------- | ---------- |
 | `type`       | `Literal['pie']`  | Specifies the panel type.                        | Yes      |
 | `title`      | `string`          | Title of the panel.                              | No       |
 | `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |

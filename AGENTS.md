@@ -10,7 +10,7 @@
 ### Essential Commands
 
 | Command | Purpose |
-|---------|---------|
+| ------- | ------- |
 | `make install` | Install all dependencies |
 | `make check` | **Run before committing** (lint + typecheck + test) |
 | `make test` | Run pytest suite |
@@ -36,14 +36,14 @@ make check
 
 ### Data Flow
 
-```
+```text
 YAML File → PyYAML Parser → Config Models (Pydantic) → Compile Functions → View Models → Kibana JSON
 ```
 
 ### Directory Structure
 
 | Directory | Purpose |
-|-----------|---------|
+| --------- | ------- |
 | `src/dashboard_compiler/` | Core compilation logic |
 | `src/dashboard_compiler/dashboard/` | Top-level dashboard config and compilation |
 | `src/dashboard_compiler/panels/` | Panel types (markdown, links, images, search, charts) |
@@ -141,7 +141,7 @@ When updating YAML configuration docs:
 #### Triage First
 
 | Priority | Examples |
-|----------|----------|
+| -------- | -------- |
 | **Critical** | Security issues, data corruption, type safety violations, test failures |
 | **Important** | Error handling, performance, missing tests, type annotations |
 | **Optional** | Style preferences, minor refactors |
@@ -298,7 +298,7 @@ Run `make check` locally before pushing.
 ## Additional Resources
 
 | Resource | Location |
-|----------|----------|
+| -------- | -------- |
 | Architecture details | `docs/architecture.md` |
 | YAML schema reference | `yaml_reference.md` |
 | Quickstart guide | `docs/quickstart.md` |

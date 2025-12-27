@@ -31,7 +31,7 @@ that generates Kibana dashboards programmatically.
 ### Timeline Overview
 
 | Version | Key Changes | Impact on Compilers |
-|---------|-------------|---------------------|
+| ------- | ----------- | ------------------- |
 | **7.x** | Introduced modern `gridData` format, Lens visualizations | Foundation for current architecture |
 | **8.0** | Globally unique IDs across spaces, removed legacy import API | Must use Saved Objects API |
 | **8.8+** | Index splitting (`.kibana` → multiple indices) | Transparent to API users |
@@ -51,7 +51,7 @@ The core dashboard JSON structure remains backward compatible between 8.x and
 The new API layer destringifies JSON for easier programmatic access:
 
 | Storage Field | v3 API Field | Compiler Target |
-|--------------|--------------|-----------------|
+| ------------ | ------------ | --------------- |
 | `panelsJSON` (string) | `panels` (array) | Use stringified format |
 | `optionsJSON` (string) | `options` (object) | Use stringified format |
 | `searchSourceJSON` (string) | `searchSource` (object) | Use stringified format |
@@ -69,7 +69,7 @@ Kibana release versions.
 Version field changes:
 
 | Field | Status | Usage |
-|-------|--------|-------|
+| ----- | ------ | ----- |
 | `migrationVersion` (map) | Being phased out | Legacy version tracking |
 | `typeMigrationVersion` | Current standard | Primary version field |
 | `coreMigrationVersion` | Active | Tracks core Kibana version |
@@ -77,7 +77,7 @@ Version field changes:
 #### Legacy Visualization Deprecations
 
 | Visualization Type | 9.x Status | Full Removal |
-|-------------------|------------|--------------|
+| ----------------- | ---------- | ------------ |
 | **TSVB** | Creation disabled, existing work | 10.0 |
 | **Aggregation-based** | Creation disabled, existing work | 10.0 |
 | **Timelion (viz)** | Creation disabled, existing work | 10.0 |
@@ -115,7 +115,7 @@ Every dashboard saved object follows this structure:
 The `attributes` object contains all dashboard-specific configuration:
 
 | Field | Type | Description | Required |
-|-------|------|-------------|----------|
+| ----- | ---- | ----------- | -------- |
 | `title` | string | Dashboard display name | Yes |
 | `description` | string | Optional dashboard description | No |
 | `version` | number | Internal schema version (typically `1`) | Yes |
@@ -187,7 +187,7 @@ The `references` array extracts object relationships from panel configurations:
 **Reference Naming Conventions**:
 
 | Pattern | Usage | Example |
-|---------|-------|---------|
+| ------- | ----- | ------- |
 | `panel_N` | By-reference panel linking to saved visualization | `panel_5` |
 | `kibanaSavedObjectMeta.searchSourceJSON.index` | Dashboard's default data view | Main index pattern |
 | `kibanaSavedObjectMeta.searchSourceJSON.filter[N].meta.index` | Filter data view references | Per-filter index |
@@ -262,7 +262,7 @@ interface PanelState {
 **Common Layout Patterns**:
 
 | Layout | Grid Configuration |
-|--------|-------------------|
+| ------ | ----------------- |
 | Full width | `{"x":0,"y":0,"w":48,"h":8}` |
 | Half width (left) | `{"x":0,"y":0,"w":24,"h":15}` |
 | Half width (right) | `{"x":24,"y":0,"w":24,"h":15}` |
@@ -332,7 +332,7 @@ control and deploy.
 ### Panel Type Compatibility
 
 | Panel Type | `type` Value | 8.x | 9.x | Recommended |
-|-----------|--------------|-----|-----|-------------|
+| ---------- | ------------ | --- | --- | ----------- |
 | Lens | `lens` | ✓ | ✓ | **Yes** |
 | Legacy Viz | `visualization` | ✓ | Existing only | No |
 | TSVB | `visualization` | ✓ | Existing only | No |
@@ -413,7 +413,7 @@ dashboards. Its state object is complex but follows a consistent schema.
 ### Lens Visualization Types
 
 | visualizationType | Description | Common Use Cases |
-|-------------------|-------------|------------------|
+| ----------------- | ----------- | ---------------- |
 | `lnsXY` | Line, area, bar charts | Time series, comparisons |
 | `lnsPie` | Pie and donut charts | Proportions, distributions |
 | `lnsMetric` | Single metric display | KPIs, counts |
@@ -483,7 +483,7 @@ elements:
 Kibana 9.x introduces multiple datasource types:
 
 | Datasource | State Key | Usage |
-|------------|-----------|-------|
+| ---------- | --------- | ----- |
 | Form-based | `formBased` | Standard aggregation-based queries |
 | Text-based | `textBased` | ES\|QL queries (9.x+) |
 
@@ -528,7 +528,7 @@ Kibana 9.x introduces multiple datasource types:
 New control types enable dynamic dashboard filtering through ES|QL queries:
 
 | Version | Naming |
-|---------|--------|
+| ------- | ------ |
 | 9.0-9.1 | "ES\|QL controls" |
 | 9.2+ | "Variable controls" |
 
@@ -596,7 +596,7 @@ Panel drilldowns enable interactive navigation:
 The primary API for dashboard management:
 
 | Method | Endpoint | Purpose |
-|--------|----------|---------|
+| ------ | -------- | ------- |
 | `POST` | `/api/saved_objects/_export` | Export dashboards (NDJSON) |
 | `POST` | `/api/saved_objects/_import` | Import dashboards |
 | `GET` | `/api/saved_objects/dashboard/{id}` | Retrieve single dashboard |
@@ -610,7 +610,7 @@ The primary API for dashboard management:
 Kibana exports use Newline Delimited JSON, where each line is a complete saved
 object:
 
-```
+```json
 {"id":"index-pattern-id","type":"index-pattern","attributes":{...}}
 {"id":"dashboard-id","type":"dashboard","attributes":{...},"references":[...]}
 ```
@@ -635,7 +635,7 @@ Compilers should use only publicly documented APIs listed above.
 
 Required headers for all API calls:
 
-```
+```text
 kbn-xsrf: true
 Content-Type: application/json
 ```
@@ -643,7 +643,7 @@ Content-Type: application/json
 ### Deprecated/Removed APIs
 
 | Removed API | Replacement |
-|-------------|-------------|
+| ----------- | ----------- |
 | `GET /api/kibana/dashboards/export` | `POST /api/saved_objects/_export` |
 | `POST /api/kibana/dashboards/import` | `POST /api/saved_objects/_import` |
 
@@ -736,7 +736,7 @@ For deeper implementation details, these Kibana repository paths contain
 authoritative type definitions:
 
 | Path | Contents |
-|------|----------|
+| ---- | -------- |
 | `src/plugins/dashboard/common/types.ts` | Core dashboard TypeScript types |
 | `src/plugins/dashboard/common/bwc/types.ts` | Backward compatibility types |
 | `src/plugins/dashboard/common/saved_dashboard_references.ts` | Reference extraction/injection logic |
