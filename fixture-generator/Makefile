@@ -27,6 +27,9 @@ run: ## Generate all fixtures
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
+		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
+		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(IMAGE_NAME):$(KIBANA_VERSION)
 
@@ -35,6 +38,8 @@ run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-bas
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
+		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(IMAGE_NAME):$(KIBANA_VERSION) \
 		tsx examples/$(EXAMPLE)
@@ -43,6 +48,9 @@ shell: ## Open a shell in the container for debugging
 	docker run --rm -it \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
+		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
+		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(IMAGE_NAME):$(KIBANA_VERSION) \
 		/bin/bash
