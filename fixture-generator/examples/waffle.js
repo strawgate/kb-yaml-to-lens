@@ -9,13 +9,13 @@ import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateWaffle() {
   const config = {
-    chartType: 'waffle',
+    chartType: 'mosaic',
     title: 'HTTP Methods Distribution',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY request.method'
     },
-    breakdown: 'request.method',
-    metric: 'count',
+    breakdown: ['request.method'],
+    value: 'count',
     legend: {
       show: true,
       position: 'right'

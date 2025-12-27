@@ -14,8 +14,8 @@ export async function generatePieChartDonut() {
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY response.keyword'
     },
-    breakdown: 'response.keyword',
-    metric: 'count',
+    value: 'count',
+    breakdown: ['response.keyword'],
     shape: 'donut',
     labels: {
       show: true,

@@ -16,8 +16,7 @@ export async function generateMetricGridDataview() {
     },
     metrics: [
       { label: 'Total Events', value: 'count()' },
-      { label: 'Avg Bytes', value: 'average(bytes)' },
-      { label: 'Max Price', value: 'max(price)' }
+      { label: 'Avg Bytes', value: 'average(bytes)' }
     ],
     maxCols: 3
   };

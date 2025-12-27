@@ -9,11 +9,12 @@ import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableAdvancedDataview() {
   const config = {
-    chartType: 'datatable',
+    chartType: 'table',
     title: 'Top Agents by System Load (Data View)',
     dataset: {
       index: 'metrics-*'
     },
+    breakdown: ['agent.name', 'agent.id'],
     columns: [
       {
         columnId: 'agent.name',

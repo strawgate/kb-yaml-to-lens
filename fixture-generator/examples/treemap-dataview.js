@@ -14,9 +14,10 @@ export async function generateTreemapDataview() {
     dataset: {
       index: 'logs-*'
     },
+    breakdown: ['geo.src', 'geo.dest'],
     primaryGroup: 'geo.src',
     secondaryGroup: 'geo.dest',
-    metric: 'sum(bytes)',
+    value: 'sum(bytes)',
     legend: {
       show: true,
       position: 'right'

@@ -12,10 +12,12 @@ export async function generateMetricGrid() {
     chartType: 'metric',
     title: 'System Metrics Overview',
     dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT(), avg_bytes = AVG(bytes), max_bytes = MAX(bytes)'
+      esql: 'FROM logs-* | STATS count = COUNT(), avg_bytes = AVG(bytes)'
     },
-    primaryMetric: 'count',
-    secondaryMetric: 'avg_bytes',
+    metrics: [
+      { label: 'Total Events', value: 'count' },
+      { label: 'Avg Bytes', value: 'avg_bytes' }
+    ],
     maxCols: 3
   };
 

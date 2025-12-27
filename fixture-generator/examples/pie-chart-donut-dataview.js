@@ -14,8 +14,8 @@ export async function generatePieChartDonutDataview() {
     dataset: {
       index: 'logs-*'
     },
-    breakdown: 'log.level',
-    metric: 'count()',
+    value: 'count()',
+    breakdown: ['log.level'],
     shape: 'donut',
     labels: {
       show: true,

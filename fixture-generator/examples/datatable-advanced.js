@@ -9,10 +9,10 @@ import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableAdvanced() {
   const config = {
-    chartType: 'datatable',
+    chartType: 'table',
     title: 'Top Agents by System Load',
     dataset: {
-      esql: 'FROM metrics-* | STATS median_load = MEDIAN(beat.stats.system.load.1) BY agent.name, agent.id | SORT median_load DESC | LIMIT 100'
+      esql: 'FROM metrics-* | STATS median_load = MEDIAN(beat.stats.system.load.1) BY agent.name, agent.id | LIMIT 100'
     },
     columns: [
       {
