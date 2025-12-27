@@ -36,7 +36,7 @@ Running this tool produces:
 ## Prerequisites
 
 | Requirement | Minimum | Recommended | Notes |
-|-------------|---------|-------------|-------|
+| ----------- | ------- | ----------- | ----- |
 | **Docker** | Latest stable | Latest stable | Required for containerized build |
 | **Make** | GNU Make | GNU Make | For running build commands |
 | **Disk Space** | 25GB | 30GB+ | Kibana source + node_modules are large |
@@ -49,7 +49,7 @@ Running this tool produces:
 
 The fixture generator follows this workflow:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. Docker Build (one-time, 15-30 minutes)                  │
 │    ├── Install Node.js 22.x                                 │
@@ -212,7 +212,7 @@ make run
 
 **What You'll See:**
 
-```
+```text
 Generating all test fixtures...
 
 ✓ Generated: metric-basic.json
@@ -321,7 +321,7 @@ make run
 ### Build Issues
 
 | Problem | Solution |
-|---------|----------|
+| ------- | -------- |
 | **Node version mismatch**<br/>`Error: Expected version "22.21.1". Got "20.19.4"` | The Node.js version is auto-detected from Kibana's `.node-version` file during build. Rebuild with `make build-no-cache` to pick up any version changes |
 | **"Kibana should not be run as root"** | Add `--allow-root` flag to `yarn kbn bootstrap` in Dockerfile |
 | **Out of memory during bootstrap** | Increase Docker memory limit in Docker Desktop settings (recommend 10GB+) |
@@ -329,7 +329,7 @@ make run
 ### Generation Issues
 
 | Problem | Solution |
-|---------|----------|
+| ------- | -------- |
 | **LensConfigBuilder not found** | Ensure bootstrap completed successfully. Run `make test-import` to verify |
 | **Invalid configuration error**<br/>`missing required field 'breakdown'` | Review chart-specific Kibana docs, ensure all required fields present with correct types |
 | **ES\|QL query syntax error** | Use uppercase keywords (`BY`, `STATS`, `FROM`), test query in Kibana Dev Tools first |
@@ -412,7 +412,7 @@ make run-example EXAMPLE=heatmap.js
 ## Available Make Commands
 
 | Command | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `make help` | Show all available commands |
 | `make build` | Build the Docker image |
 | `make build-no-cache` | Full rebuild without cache |
