@@ -92,7 +92,6 @@ from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
 panel = MarkdownPanel(
-    type='markdown',
     grid=Grid(x=0, y=0, w=24, h=15),
     content="""
 # Dashboard Title

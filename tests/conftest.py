@@ -3,21 +3,12 @@ import json
 import pytest
 import yaml
 from freezegun.api import FrozenDateTimeFactory
-from syrupy.assertion import SnapshotAssertion
-from syrupy.extensions.json import JSONSnapshotExtension
 
 DEEP_DIFF_DEFAULTS: dict[str, bool | int] = {
     'ignore_order': True,
     'threshold_to_diff_deeper': 0,
     'verbose_level': 2,
 }
-
-
-@pytest.fixture
-def snapshot_json(snapshot: SnapshotAssertion):
-    """Fixture to use the JSONSnapshotExtension with default matchers."""
-    # Apply matchers globally for this fixture using with_defaults
-    return snapshot.use_extension(JSONSnapshotExtension)  # .with_defaults(exclude=props("id", "i", "panelIndex", "gridData.i"))
 
 
 @pytest.fixture(autouse=True)
