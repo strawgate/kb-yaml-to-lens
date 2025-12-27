@@ -44,13 +44,11 @@ from dashboard_compiler.panels.config import Grid
 
 # Simple count metric
 count_chart = LensMetricChart(
-    type='metric',
     data_view='logs-*',
     primary=LensCountAggregatedMetric(aggregation='count'),
 )
 
 panel = LensPanel(
-    type='charts',
     title='Total Documents',
     grid=Grid(x=0, y=0, w=24, h=15),
     chart=count_chart,
@@ -69,13 +67,11 @@ from dashboard_compiler.panels.config import Grid
 
 # Average metric with field
 avg_chart = LensMetricChart(
-    type='metric',
     data_view='logs-*',
     primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
 )
 
 panel = LensPanel(
-    type='charts',
     title='Avg Response Time',
     grid=Grid(x=0, y=0, w=24, h=15),
     chart=avg_chart,

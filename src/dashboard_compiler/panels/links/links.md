@@ -144,7 +144,6 @@ from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
 
 panel = LinksPanel(
-    type='links',
     grid=Grid(x=0, y=0, w=24, h=10),
     links=[
         UrlLink(
@@ -166,7 +165,6 @@ from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
 
 panel = LinksPanel(
-    type='links',
     grid=Grid(x=0, y=0, w=24, h=10),
     links=[],
 )

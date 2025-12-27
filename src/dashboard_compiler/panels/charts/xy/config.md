@@ -48,7 +48,6 @@ from dashboard_compiler.panels.config import Grid
 
 # Time series line chart
 line_chart = LensLineChart(
-    type='line',
     data_view='logs-*',
     dimensions=[LensDateHistogramDimension(field='@timestamp')],
     breakdown=None,
@@ -56,7 +55,6 @@ line_chart = LensLineChart(
 )
 
 panel = LensPanel(
-    type='charts',
     title='Documents Over Time',
     grid=Grid(x=0, y=0, w=48, h=20),
     chart=line_chart,

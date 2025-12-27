@@ -48,14 +48,12 @@ from dashboard_compiler.panels.charts.pie.config import LensPieChart
 from dashboard_compiler.panels.config import Grid
 
 pie_chart = LensPieChart(
-    type='pie',
     data_view='logs-*',
     slice_by=[LensTopValuesDimension(field='status')],
     metric=LensCountAggregatedMetric(aggregation='count'),
 )
 
 panel = LensPanel(
-    type='charts',
     title='Status Distribution',
     grid=Grid(x=0, y=0, w=24, h=15),
     chart=pie_chart,
