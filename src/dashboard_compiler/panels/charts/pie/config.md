@@ -19,18 +19,18 @@ dashboard:
 
 ## Full Configuration Options
 
-| YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['pie']`  | Specifies the panel type.                        | Yes      |
-| `title`      | `string`          | Title of the panel.                              | No       |
-| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
-| `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `category`   | `string`          | Field for pie slices (categories).               | Yes      |
-| `value`      | `string`          | Field for values (size of slices).               | Yes      |
-| `donut`      | `boolean`         | Display as donut chart.                          | No       |
-| `color`      | `string/list`     | Color(s) for slices.                             | No       |
-| `legend`     | `object`          | Legend display options.                          | No       |
-| `description`| `string`          | Panel description.                               | No       |
+| YAML Key      | Data Type        | Description                        | Default | Required |
+| ------------- | ---------------- | ---------------------------------- | ------- | -------- |
+| `type`        | `Literal['pie']` | Specifies the panel type.          | N/A     | Yes      |
+| `title`       | `string`         | Title of the panel.                | `""`    | No       |
+| `grid`        | `Grid` object    | Position and size of the panel.    | N/A     | Yes      |
+| `data`        | `object`         | Data source and field mapping.     | N/A     | Yes      |
+| `category`    | `string`         | Field for pie slices (categories). | N/A     | Yes      |
+| `value`       | `string`         | Field for values (size of slices). | N/A     | Yes      |
+| `donut`       | `boolean`        | Display as donut chart.            | `false` | No       |
+| `color`       | `string/list`    | Color(s) for slices.               | `null`  | No       |
+| `legend`      | `object`         | Legend display options.            | `null`  | No       |
+| `description` | `string`         | Panel description.                 | `""`    | No       |
 
 ## Programmatic Usage (Python)
 

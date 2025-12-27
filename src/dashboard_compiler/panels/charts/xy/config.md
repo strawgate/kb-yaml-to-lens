@@ -19,17 +19,17 @@ dashboard:
 
 ## Full Configuration Options
 
-| YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['xy']`   | Specifies the panel type.                        | Yes      |
-| `title`      | `string`          | Title of the panel.                              | No       |
-| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
-| `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `x_axis`     | `string`          | Field for X-axis (typically timestamp).          | Yes      |
-| `metrics`    | `list`            | List of metrics to display.                      | Yes      |
-| `chart_type` | `string`          | Chart type: 'line', 'bar', or 'area'.            | No       |
-| `legend`     | `object`          | Legend display options.                          | No       |
-| `description`| `string`          | Panel description.                               | No       |
+| YAML Key      | Data Type       | Description                               | Default  | Required |
+| ------------- | --------------- | ----------------------------------------- | -------- | -------- |
+| `type`        | `Literal['xy']` | Specifies the panel type.                 | N/A      | Yes      |
+| `title`       | `string`        | Title of the panel.                       | `""`     | No       |
+| `grid`        | `Grid` object   | Position and size of the panel.           | N/A      | Yes      |
+| `data`        | `object`        | Data source and field mapping.            | N/A      | Yes      |
+| `x_axis`      | `string`        | Field for X-axis (typically timestamp).   | N/A      | Yes      |
+| `metrics`     | `list`          | List of metrics to display.               | N/A      | Yes      |
+| `chart_type`  | `string`        | Chart type: 'line', 'bar', or 'area'.     | `'line'` | No       |
+| `legend`      | `object`        | Legend display options.                   | `null`   | No       |
+| `description` | `string`        | Panel description.                        | `""`     | No       |
 
 ## Programmatic Usage (Python)
 

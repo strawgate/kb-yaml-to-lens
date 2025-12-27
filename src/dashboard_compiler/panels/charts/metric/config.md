@@ -18,15 +18,15 @@ dashboard:
 
 ## Full Configuration Options
 
-| YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['metric']`| Specifies the panel type.                        | Yes      |
-| `title`      | `string`          | Title of the panel.                              | No       |
-| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
-| `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `value`      | `string`          | Field for the metric value.                      | Yes      |
-| `color`      | `string`          | Color for the metric display.                    | No       |
-| `description`| `string`          | Panel description.                               | No       |
+| YAML Key      | Data Type            | Description                         | Default | Required |
+| ------------- | -------------------- | ----------------------------------- | ------- | -------- |
+| `type`        | `Literal['metric']`  | Specifies the panel type.           | N/A     | Yes      |
+| `title`       | `string`             | Title of the panel.                 | `""`    | No       |
+| `grid`        | `Grid` object        | Position and size of the panel.     | N/A     | Yes      |
+| `data`        | `object`             | Data source and field mapping.      | N/A     | Yes      |
+| `value`       | `string`             | Field for the metric value.         | N/A     | Yes      |
+| `color`       | `string`             | Color for the metric display.       | `null`  | No       |
+| `description` | `string`             | Panel description.                  | `""`    | No       |
 
 ## Programmatic Usage (Python)
 
