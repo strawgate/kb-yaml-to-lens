@@ -43,6 +43,24 @@ export async function generateFixture(outputFilename, config, options = {}, call
 }
 
 /**
+ * Generate both ES|QL and Data View variants of a fixture
+ *
+ * @param {string} baseName - Base name for output files (e.g., 'gauge')
+ * @param {Object} esqlConfig - ES|QL configuration object
+ * @param {Object} dataviewConfig - Data View configuration object
+ * @param {Object} options - Builder options (timeRange, etc.)
+ * @param {string} callerFilePath - The __filename of the calling module (import.meta.url)
+ * @returns {Promise<void>}
+ */
+export async function generateDualFixture(baseName, esqlConfig, dataviewConfig, options = {}, callerFilePath) {
+  // Generate ES|QL variant
+  await generateFixture(`${baseName}.json`, esqlConfig, options, callerFilePath);
+
+  // Generate Data View variant
+  await generateFixture(`${baseName}-dataview.json`, dataviewConfig, options, callerFilePath);
+}
+
+/**
  * Wrapper to run a generator function if the script is executed directly
  *
  * @param {Function} generatorFn - Async function to execute

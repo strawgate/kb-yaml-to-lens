@@ -1,21 +1,16 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a donut chart with labels
+ * Example: Generate donut chart visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a pie chart in donut mode with various label configurations
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generatePieChartDonut() {
-  const config = {
+  // Shared configuration
+  const sharedConfig = {
     chartType: 'pie',
-    title: 'Response Codes Distribution (Donut)',
-    dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT() BY response.keyword'
-    },
-    value: 'count',
-    breakdown: ['response.keyword'],
     shape: 'donut',
     labels: {
       show: true,
@@ -28,9 +23,32 @@ export async function generatePieChartDonut() {
     }
   };
 
-  await generateFixture(
-    'pie-chart-donut.json',
-    config,
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
+    title: 'Response Codes Distribution (Donut)',
+    dataset: {
+      esql: 'FROM logs-* | STATS count = COUNT() BY response.keyword'
+    },
+    value: 'count',
+    breakdown: ['response.keyword']
+  };
+
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'Log Level Distribution (Donut - Data View)',
+    dataset: {
+      index: 'logs-*'
+    },
+    value: 'count()',
+    breakdown: ['log.level']
+  };
+
+  await generateDualFixture(
+    'pie-chart-donut',
+    esqlConfig,
+    dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
     import.meta.url
   );

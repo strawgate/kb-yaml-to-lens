@@ -1,20 +1,16 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a gauge chart visualization
+ * Example: Generate gauge chart visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a gauge showing a single metric value with min/max ranges
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateGauge() {
-  const config = {
+  // Shared configuration between both variants
+  const sharedConfig = {
     chartType: 'gauge',
-    title: 'CPU Usage Gauge',
-    dataset: {
-      esql: 'FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)'
-    },
-    metric: 'avg_cpu',
     min: 0,
     max: 1,
     goal: 0.8,
@@ -22,9 +18,30 @@ export async function generateGauge() {
     colorMode: 'palette'
   };
 
-  await generateFixture(
-    'gauge.json',
-    config,
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
+    title: 'CPU Usage Gauge',
+    dataset: {
+      esql: 'FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)'
+    },
+    metric: 'avg_cpu'
+  };
+
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'CPU Usage Gauge (Data View)',
+    dataset: {
+      index: 'metrics-*'
+    },
+    metric: 'average(system.cpu.total.pct)'
+  };
+
+  await generateDualFixture(
+    'gauge',
+    esqlConfig,
+    dataviewConfig,
     { timeRange: { from: 'now-15m', to: 'now', type: 'relative' } },
     import.meta.url
   );

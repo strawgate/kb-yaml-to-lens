@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * Example: Generate stacked bar chart visualizations (both ES|QL and Data View)
+ * Example: Generate XY chart with advanced legend configuration (both ES|QL and Data View)
  *
- * Demonstrates creating a vertical stacked bar chart with multiple series
+ * Demonstrates various legend options: positioning, sizing, scrolling, and labels
  */
 
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateXYChartStackedBar() {
+export async function generateXYChartAdvancedLegend() {
   // ES|QL variant
   const esqlConfig = {
     chartType: 'xy',
-    title: 'Stacked Events by Response Code',
+    title: 'Events by Response Code (Advanced Legend)',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp, response.keyword'
     },
@@ -34,14 +34,18 @@ export async function generateXYChartStackedBar() {
     ],
     legend: {
       show: true,
-      position: 'right'
+      position: 'top',
+      maxLines: 3,
+      shouldTruncate: true,
+      legendSize: 'large',
+      showSingleSeries: false
     }
   };
 
   // Data View variant
   const dataviewConfig = {
     chartType: 'xy',
-    title: 'Stacked Events by Response Code (Data View)',
+    title: 'Events by Response Code (Advanced Legend - Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -68,12 +72,16 @@ export async function generateXYChartStackedBar() {
     ],
     legend: {
       show: true,
-      position: 'right'
+      position: 'top',
+      maxLines: 3,
+      shouldTruncate: true,
+      legendSize: 'large',
+      showSingleSeries: false
     }
   };
 
   await generateDualFixture(
-    'xy-chart-stacked-bar',
+    'xy-chart-advanced-legend',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
@@ -81,4 +89,4 @@ export async function generateXYChartStackedBar() {
   );
 }
 
-runIfMain(generateXYChartStackedBar, import.meta.url);
+runIfMain(generateXYChartAdvancedLegend, import.meta.url);

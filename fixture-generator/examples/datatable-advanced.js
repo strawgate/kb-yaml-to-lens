@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Example: Generate an advanced datatable visualization
+ * Example: Generate advanced datatable visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a table with multiple rows, sorting, and formatting
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableAdvanced() {
-  const config = {
+  // ES|QL variant
+  const esqlConfig = {
     chartType: 'table',
     title: 'Top Agents by System Load',
     dataset: {
@@ -32,9 +33,37 @@ export async function generateDatatableAdvanced() {
     sortingDirection: 'desc'
   };
 
-  await generateFixture(
-    'datatable-advanced.json',
-    config,
+  // Data View variant
+  const dataviewConfig = {
+    chartType: 'table',
+    title: 'Top Agents by System Load (Data View)',
+    dataset: {
+      index: 'metrics-*'
+    },
+    breakdown: ['agent.name', 'agent.id'],
+    columns: [
+      {
+        columnId: 'agent.name',
+        width: 200
+      },
+      {
+        columnId: 'agent.id',
+        width: 150
+      },
+      {
+        columnId: 'median_load',
+        width: 120,
+        value: 'median(beat.stats.system.load.1)'
+      }
+    ],
+    sortingColumnId: 'median_load',
+    sortingDirection: 'desc'
+  };
+
+  await generateDualFixture(
+    'datatable-advanced',
+    esqlConfig,
+    dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
     import.meta.url
   );

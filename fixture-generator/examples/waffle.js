@@ -1,30 +1,47 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a waffle chart visualization
+ * Example: Generate waffle/mosaic chart visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a waffle/mosaic chart showing proportional data
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateWaffle() {
-  const config = {
+  // Shared configuration
+  const sharedConfig = {
     chartType: 'mosaic',
-    title: 'HTTP Methods Distribution',
-    dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT() BY request.method'
-    },
     breakdown: ['request.method'],
-    value: 'count',
     legend: {
       show: true,
       position: 'right'
     }
   };
 
-  await generateFixture(
-    'waffle.json',
-    config,
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
+    title: 'HTTP Methods Distribution',
+    dataset: {
+      esql: 'FROM logs-* | STATS count = COUNT() BY request.method'
+    },
+    value: 'count'
+  };
+
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'HTTP Methods Distribution (Data View)',
+    dataset: {
+      index: 'logs-*'
+    },
+    value: 'count()'
+  };
+
+  await generateDualFixture(
+    'waffle',
+    esqlConfig,
+    dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
     import.meta.url
   );

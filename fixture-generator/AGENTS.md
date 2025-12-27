@@ -62,15 +62,18 @@ To test a specific generator file:
 
 ```bash
 cd fixture-generator
-make run-example EXAMPLE=gauge-dataview.js
-cat output/gauge-dataview.json | head -20
+make run-example EXAMPLE=gauge.js
+cat output/gauge.json | head -20
+cat output/gauge-dataview.json | head -20  # Dual generators create both files
 ```
 
 This verifies:
 
 - The generator script runs without errors
-- Output JSON is created
+- Output JSON files are created (dual generators create 2 files)
 - JSON structure looks valid
+
+**Note**: Most generators now use the dual-generation pattern, creating both ES|QL and Data View variants from a single script.
 
 ## Development Workflow
 
@@ -159,6 +162,59 @@ node examples/your-generator.js
 **Cause**: LensConfigBuilder received invalid configuration
 
 **Solution**: Check the generator's config against [Kibana's Lens Config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx).
+
+## Creating New Dual Generators
+
+Most new generators should use the dual-generation pattern to create both ES|QL and Data View variants:
+
+```javascript
+#!/usr/bin/env node
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
+
+export async function generateMyChart() {
+  // Shared configuration
+  const sharedConfig = {
+    chartType: 'xy',
+    // ... shared properties
+  };
+
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
+    title: 'My Chart',
+    dataset: {
+      esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
+    },
+    // ... ES|QL-specific properties (use column names from query)
+  };
+
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'My Chart (Data View)',
+    dataset: {
+      index: 'logs-*',
+      timeFieldName: '@timestamp'  // for time-series
+    },
+    // ... Data View-specific properties (use aggregation functions)
+  };
+
+  await generateDualFixture(
+    'my-chart',  // base filename (creates my-chart.json + my-chart-dataview.json)
+    esqlConfig,
+    dataviewConfig,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+}
+
+runIfMain(generateMyChart, import.meta.url);
+```
+
+**Key differences between ES|QL and Data View:**
+- **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
+- **Metrics**: Column names from query vs aggregation functions (e.g., `count()`, `average(field)`)
+- **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`
 
 ## File Locations
 

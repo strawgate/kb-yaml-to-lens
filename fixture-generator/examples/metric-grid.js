@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 /**
- * Example: Generate multiple metrics in a grid layout
+ * Example: Generate metric grid visualizations (both ES|QL and Data View)
  *
- * Demonstrates creating a metric visualization with multiple values
+ * Demonstrates creating multiple metrics in a grid layout
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricGrid() {
-  const config = {
+  // Shared configuration
+  const sharedConfig = {
     chartType: 'metric',
+    maxCols: 3
+  };
+
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
     title: 'System Metrics Overview',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT(), avg_bytes = AVG(bytes)'
@@ -17,13 +24,26 @@ export async function generateMetricGrid() {
     metrics: [
       { label: 'Total Events', value: 'count' },
       { label: 'Avg Bytes', value: 'avg_bytes' }
-    ],
-    maxCols: 3
+    ]
   };
 
-  await generateFixture(
-    'metric-grid.json',
-    config,
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'System Metrics Grid (Data View)',
+    dataset: {
+      index: 'metrics-*'
+    },
+    metrics: [
+      { label: 'Total Events', value: 'count()' },
+      { label: 'Avg Bytes', value: 'average(bytes)' }
+    ]
+  };
+
+  await generateDualFixture(
+    'metric-grid',
+    esqlConfig,
+    dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
     import.meta.url
   );

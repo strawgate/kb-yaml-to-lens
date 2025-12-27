@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Example: Generate an XY chart with multiple layers
+ * Example: Generate multi-layer XY chart visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a chart with bar and line layers combined
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateXYChartMultiLayer() {
-  const config = {
+  // ES|QL variant
+  const esqlConfig = {
     chartType: 'xy',
     title: 'Events with Success Rate Overlay',
     dataset: {
@@ -44,9 +45,54 @@ export async function generateXYChartMultiLayer() {
     }
   };
 
-  await generateFixture(
-    'xy-chart-multi-layer.json',
-    config,
+  // Data View variant
+  const dataviewConfig = {
+    chartType: 'xy',
+    title: 'Events with Avg Bytes Overlay (Data View)',
+    dataset: {
+      index: 'logs-*',
+      timeFieldName: '@timestamp'
+    },
+    layers: [
+      {
+        type: 'series',
+        seriesType: 'bar',
+        xAxis: {
+          type: 'dateHistogram',
+          field: '@timestamp'
+        },
+        yAxis: [
+          {
+            label: 'Total Events',
+            value: 'count()'
+          }
+        ]
+      },
+      {
+        type: 'series',
+        seriesType: 'line',
+        xAxis: {
+          type: 'dateHistogram',
+          field: '@timestamp'
+        },
+        yAxis: [
+          {
+            label: 'Avg Bytes',
+            value: 'average(bytes)'
+          }
+        ]
+      }
+    ],
+    legend: {
+      show: true,
+      position: 'right'
+    }
+  };
+
+  await generateDualFixture(
+    'xy-chart-multi-layer',
+    esqlConfig,
+    dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
     import.meta.url
   );
