@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import {
     VSBrowser,
     WebDriver,
@@ -67,80 +66,38 @@ describe('Extension Smoke Tests', function() {
         }
     });
 
-    /**
-     * Helper to check if a notification with specific text exists
-     */
-    async function hasNotificationWithText(text: string): Promise<boolean> {
-        try {
-            const notifications = await workbench.getNotifications();
-            for (const notif of notifications) {
-                const message = await notif.getMessage();
-                if (message.toLowerCase().includes(text.toLowerCase())) {
-                    return true;
-                }
-            }
-        } catch {
-            // Ignore errors reading notifications
-        }
-        return false;
-    }
-
     it('should have extension commands registered', async function() {
         this.timeout(10000);
 
-        // Execute compile command (will error since no file is open, but proves command exists)
+        // Execute compile command
+        // If command doesn't exist, this will throw and test will fail
+        // If command executes without crashing VSCode, test passes
         await workbench.executeCommand('YAML Dashboard: Compile Dashboard');
-        await driver.sleep(2000);
 
-        // Should get error notification about no active file
-        const hasNotification = await hasNotificationWithText('');
-        // Just verify we got ANY notification response (command executed)
-        expect(hasNotification || true, 'Command should execute and respond').to.be.true;
-    });
+        // Give command time to complete
+        await driver.sleep(1000);
 
-    it('should execute compile command without crashing', async function() {
-        this.timeout(10000);
-
-        // Execute compile command - extension should respond gracefully even with no file
-        await workbench.executeCommand('YAML Dashboard: Compile Dashboard');
-        await driver.sleep(2000);
-
-        // Command executed successfully (didn't crash VSCode)
-        // We expect an error notification since no file is open
-        const hasNotification = await hasNotificationWithText('');
-        expect(hasNotification || true, 'Extension should not crash').to.be.true;
+        // If we get here, command executed successfully
     });
 
     it('should execute export command without crashing', async function() {
         this.timeout(10000);
 
-        // Execute export command - extension should respond gracefully even with no file
         await workbench.executeCommand('YAML Dashboard: Export Dashboard to NDJSON');
-        await driver.sleep(2000);
-
-        // Command executed successfully (didn't crash VSCode)
-        expect(true, 'Extension should not crash').to.be.true;
+        await driver.sleep(1000);
     });
 
     it('should execute preview command without crashing', async function() {
         this.timeout(10000);
 
-        // Execute preview command - extension should respond gracefully even with no file
         await workbench.executeCommand('YAML Dashboard: Preview Dashboard');
-        await driver.sleep(2000);
-
-        // Command executed successfully (didn't crash VSCode)
-        expect(true, 'Extension should not crash').to.be.true;
+        await driver.sleep(1000);
     });
 
     it('should execute grid editor command without crashing', async function() {
         this.timeout(10000);
 
-        // Execute grid editor command - extension should respond gracefully even with no file
         await workbench.executeCommand('YAML Dashboard: Edit Dashboard Layout');
-        await driver.sleep(2000);
-
-        // Command executed successfully (didn't crash VSCode)
-        expect(true, 'Extension should not crash').to.be.true;
+        await driver.sleep(1000);
     });
 });
