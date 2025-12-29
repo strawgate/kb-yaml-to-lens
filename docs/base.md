@@ -1,1 +1,0 @@
-../src/dashboard_compiler/panels/base.md
