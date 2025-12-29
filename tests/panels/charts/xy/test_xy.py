@@ -338,35 +338,31 @@ async def test_area_percentage_chart() -> None:
 async def test_dual_axis_chart() -> None:
     """Test dual Y-axis chart with per-series configuration.
 
-    Note: Visual properties (axis, color, line_width, line_style, etc.) are only
-    supported for Lens charts. ESQL charts don't support per-series styling.
+    Uses the new series-based configuration structure where visual properties
+    are defined in the series section, separate from metric definitions.
     """
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [
-            {
-                'aggregation': 'count',
-                'id': 'metric1',
-                'axis': 'left',
-                'color': '#2196F3',
-                'line_width': 2,
-            },
-            {
-                'aggregation': 'average',
-                'field': 'error_rate',
-                'id': 'metric2',
-                'axis': 'right',
-                'color': '#FF5252',
-                'line_width': 3,
-                'line_style': 'dashed',
-            },
+            {'aggregation': 'count', 'id': 'metric1'},
+            {'aggregation': 'average', 'field': 'error_rate', 'id': 'metric2'},
+        ],
+        'appearance': {
+            'y_left_axis': {'title': 'Count', 'scale': 'linear'},
+            'y_right_axis': {'title': 'Error Rate (%)', 'scale': 'linear'},
+        },
+        'series': [
+            {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3', 'line_width': 2},
+            {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252', 'line_width': 3, 'line_style': 'dashed'},
         ],
     }
     lens_chart = LensLineChart.model_validate(lens_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
+
+    # Test layer configuration
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
         {
@@ -390,33 +386,30 @@ async def test_dual_axis_chart() -> None:
         }
     )
 
+    # Test axis configuration
+    assert kbn_state_visualization.yLeftTitle == 'Count'
+    assert kbn_state_visualization.yRightTitle == 'Error Rate (%)'
+    assert kbn_state_visualization.yLeftScale == 'linear'
+    assert kbn_state_visualization.yRightScale == 'linear'
+
 
 async def test_styled_series_chart() -> None:
-    """Test chart with styled series (no axis assignment).
+    """Test chart with styled series using the new series configuration.
 
-    Note: Visual properties (color, fill, line_style, etc.) are only supported
-    for Lens charts. ESQL charts don't support per-series styling.
+    Uses the series-based configuration where visual properties like color,
+    fill, and line_style are defined in the series section.
     """
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [
-            {
-                'aggregation': 'sum',
-                'field': 'bytes_in',
-                'id': 'metric1',
-                'color': '#4CAF50',
-                'fill': 'below',
-            },
-            {
-                'aggregation': 'sum',
-                'field': 'bytes_out',
-                'id': 'metric2',
-                'color': '#FF9800',
-                'fill': 'below',
-                'line_style': 'dotted',
-            },
+            {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1'},
+            {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2'},
+        ],
+        'series': [
+            {'metric_id': 'metric1', 'color': '#4CAF50', 'fill': 'below'},
+            {'metric_id': 'metric2', 'color': '#FF9800', 'fill': 'below', 'line_style': 'dotted'},
         ],
     }
 

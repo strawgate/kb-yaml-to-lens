@@ -28,19 +28,33 @@ class LabelsOrientationConfig(BaseVwModel):
     """Rotation angle in degrees for right Y-axis labels."""
 
 
-class AxisConfig(BaseVwModel):
-    """View model for axis configuration in XY charts.
+class AxisExtentConfig(BaseVwModel):
+    """View model for axis extent (bounds) configuration in XY charts.
 
-    Provides configuration options for XY chart axes, such as extent and other axis properties.
-    This is a placeholder model that can be extended with specific axis configuration fields
-    as needed.
+    Defines the range/bounds of values displayed on an axis. Supports different modes:
+    - 'full': Use the full extent of the data range
+    - 'custom': Specify custom numeric bounds
+    - 'dataBounds': Fit to actual data bounds
 
     See Also:
-        Kibana type definition: `AxisConfig` in
-        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
+        Kibana type definition: `AxisExtentConfig` in
+        https://github.com/elastic/kibana/blob/main/src/platform/plugins/shared/chart_expressions/expression_xy/common/types/expression_functions.ts
     """
 
-    # Define fields based on actual Kibana structure if needed, using object for now
+    mode: Literal['full', 'custom', 'dataBounds']
+    """The extent mode for the axis."""
+
+    lowerBound: Annotated[float | None, OmitIfNone()] = None
+    """Minimum value for the axis (only used when mode is 'custom')."""
+
+    upperBound: Annotated[float | None, OmitIfNone()] = None
+    """Maximum value for the axis (only used when mode is 'custom')."""
+
+    enforce: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to enforce the bounds strictly."""
+
+    niceValues: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to use nice rounded values for bounds."""
 
 
 class YConfig(BaseVwModel):
@@ -325,14 +339,17 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     yTitle: Annotated[str | None, OmitIfNone()] = None
     """Custom title for the left Y-axis (deprecated, use yLeftTitle)."""
 
+    yLeftTitle: Annotated[str | None, OmitIfNone()] = None
+    """Custom title for the left Y-axis."""
+
     yRightTitle: Annotated[str | None, OmitIfNone()] = None
     """Custom title for the right Y-axis."""
 
-    yLeftScale: Annotated[Any | None, OmitIfNone()] = None
-    """Scale type for the left Y-axis (linear, log, sqrt, etc.)."""
+    yLeftScale: Annotated[Literal['linear', 'log', 'sqrt', 'time'] | None, OmitIfNone()] = None
+    """Scale type for the left Y-axis (linear, log, sqrt, time)."""
 
-    yRightScale: Annotated[Any | None, OmitIfNone()] = None
-    """Scale type for the right Y-axis."""
+    yRightScale: Annotated[Literal['linear', 'log', 'sqrt', 'time'] | None, OmitIfNone()] = None
+    """Scale type for the right Y-axis (linear, log, sqrt, time)."""
 
     axisTitlesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
     """Control visibility of axis titles."""

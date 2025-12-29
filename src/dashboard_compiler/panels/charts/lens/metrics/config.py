@@ -60,28 +60,6 @@ class BaseLensMetric(BaseMetric):
     filter: LegacyQueryTypes | None = Field(default=None)
     """A KQL filter applied before determining the metric value."""
 
-    # Visual and axis properties for XY charts
-    axis: Literal['left', 'right'] | None = Field(default=None)
-    """Which Y-axis to use for this metric in XY charts. Defaults to 'left' if not specified."""
-
-    color: str | None = Field(default=None)
-    """Custom color for this metric series (hex color code, e.g., '#2196F3')."""
-
-    line_width: int | None = Field(default=None, ge=1, le=10)
-    """Line width for line/area charts (1-10)."""
-
-    line_style: Literal['solid', 'dashed', 'dotted'] | None = Field(default=None)
-    """Line style for line/area charts."""
-
-    fill: Literal['none', 'below', 'above'] | None = Field(default=None)
-    """Fill configuration for area charts."""
-
-    icon: str | None = Field(default=None)
-    """Icon to display for this series."""
-
-    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(default=None)
-    """Position of the icon relative to the data point."""
-
 
 type LensAggregatedMetricTypes = (
     LensOtherAggregatedMetric

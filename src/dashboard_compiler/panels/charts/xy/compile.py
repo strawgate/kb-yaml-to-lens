@@ -1,14 +1,11 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
-from collections.abc import Sequence
-
 from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.panels.charts.lens.metrics.config import BaseLensMetric
 from dashboard_compiler.panels.charts.xy.config import (
     ESQLAreaChart,
     ESQLBarChart,
@@ -20,6 +17,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensXYChartTypes,
 )
 from dashboard_compiler.panels.charts.xy.view import (
+    AxisExtentConfig,
     KbnXYVisualizationState,
     XYDataLayerConfig,
     YConfig,
@@ -68,14 +66,13 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     return series_type
 
 
-def compile_xy_chart_visualization_state(  # noqa: PLR0913
+def compile_xy_chart_visualization_state(
     *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],
     metric_ids: list[str],
     breakdown_id: str | None = None,
-    metrics: Sequence[BaseLensMetric] | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -85,7 +82,6 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
         dimension_ids (list[str]): The IDs of the dimensions.
         metric_ids (list[str]): The IDs of the metrics.
         breakdown_id (str | None): The ID of the breakdown dimension if any.
-        metrics (Sequence[BaseLensMetric] | None): The metric configurations for building yConfig.
 
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
@@ -94,27 +90,83 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
 
     kbn_color_mapping = create_default_color_mapping()
 
-    # Build yConfig from metrics if any have visual/axis properties configured
+    # Build yConfig from series configuration if provided
     y_config: list[YConfig] | None = None
-    if metrics:
-        y_config_list: list[YConfig] = []
-        for metric_id, metric in zip(metric_ids, metrics, strict=True):
+    if chart.series is not None and len(chart.series) > 0:
+        y_config = []
+        for series_cfg in chart.series:
             # Only create YConfig if at least one property is set
-            if any([metric.axis, metric.color, metric.line_width, metric.line_style, metric.fill, metric.icon, metric.icon_position]):
-                y_config_list.append(
+            if any(
+                [
+                    series_cfg.axis,
+                    series_cfg.color,
+                    series_cfg.line_width,
+                    series_cfg.line_style,
+                    series_cfg.fill,
+                    series_cfg.icon,
+                    series_cfg.icon_position,
+                ]
+            ):
+                y_config.append(
                     YConfig(
-                        forAccessor=metric_id,
-                        axisMode=metric.axis,
-                        color=metric.color,
-                        lineWidth=metric.line_width,
-                        lineStyle=metric.line_style,
-                        fill=metric.fill,
-                        icon=metric.icon,
-                        iconPosition=metric.icon_position,
+                        forAccessor=series_cfg.metric_id,
+                        axisMode=series_cfg.axis,
+                        color=series_cfg.color,
+                        lineWidth=series_cfg.line_width,
+                        lineStyle=series_cfg.line_style,
+                        fill=series_cfg.fill,
+                        icon=series_cfg.icon,
+                        iconPosition=series_cfg.icon_position,
                     )
                 )
-        if y_config_list:
-            y_config = y_config_list
+
+    # Build axis configuration from appearance settings
+    x_title = None
+    y_left_title = None
+    y_right_title = None
+    y_left_scale = None
+    y_right_scale = None
+    y_left_extent = None
+    y_right_extent = None
+    x_extent = None
+
+    if chart.appearance is not None:
+        if chart.appearance.x_axis is not None:
+            x_title = chart.appearance.x_axis.title
+            if chart.appearance.x_axis.extent is not None:
+                x_extent = AxisExtentConfig(
+                    mode='dataBounds' if chart.appearance.x_axis.extent.mode == 'data_bounds' else chart.appearance.x_axis.extent.mode,
+                    lowerBound=chart.appearance.x_axis.extent.min,
+                    upperBound=chart.appearance.x_axis.extent.max,
+                    enforce=chart.appearance.x_axis.extent.enforce,
+                    niceValues=chart.appearance.x_axis.extent.nice_values,
+                )
+
+        if chart.appearance.y_left_axis is not None:
+            y_left_title = chart.appearance.y_left_axis.title
+            y_left_scale = chart.appearance.y_left_axis.scale
+            if chart.appearance.y_left_axis.extent is not None:
+                extent_mode = chart.appearance.y_left_axis.extent.mode
+                y_left_extent = AxisExtentConfig(
+                    mode='dataBounds' if extent_mode == 'data_bounds' else extent_mode,
+                    lowerBound=chart.appearance.y_left_axis.extent.min,
+                    upperBound=chart.appearance.y_left_axis.extent.max,
+                    enforce=chart.appearance.y_left_axis.extent.enforce,
+                    niceValues=chart.appearance.y_left_axis.extent.nice_values,
+                )
+
+        if chart.appearance.y_right_axis is not None:
+            y_right_title = chart.appearance.y_right_axis.title
+            y_right_scale = chart.appearance.y_right_axis.scale
+            if chart.appearance.y_right_axis.extent is not None:
+                extent_mode = chart.appearance.y_right_axis.extent.mode
+                y_right_extent = AxisExtentConfig(
+                    mode='dataBounds' if extent_mode == 'data_bounds' else extent_mode,
+                    lowerBound=chart.appearance.y_right_axis.extent.min,
+                    upperBound=chart.appearance.y_right_axis.extent.max,
+                    enforce=chart.appearance.y_right_axis.extent.enforce,
+                    niceValues=chart.appearance.y_right_axis.extent.nice_values,
+                )
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
@@ -126,7 +178,7 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
-        yConfig=y_config,
+        yConfig=y_config if y_config else None,
     )
 
     return KbnXYVisualizationState(
@@ -134,6 +186,14 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
         layers=[kbn_layer_visualization],
         legend={'isVisible': True, 'position': 'right'},
         valueLabels='hide',
+        xTitle=x_title,
+        yLeftTitle=y_left_title,
+        yRightTitle=y_right_title,
+        yLeftScale=y_left_scale,
+        yRightScale=y_right_scale,
+        xExtent=x_extent,
+        yLeftExtent=y_left_extent,
+        yRightExtent=y_right_extent,
     )
 
 
@@ -183,7 +243,6 @@ def compile_lens_xy_chart(
             dimension_ids=dimension_ids,
             metric_ids=metric_ids,
             breakdown_id=breakdown_id,
-            metrics=lens_xy_chart.metrics,
         ),
     )
 
