@@ -34,7 +34,7 @@ describe('Grid Editor E2E Tests', function() {
         // Open the test fixture file
         const fixturesPath = path.resolve(__dirname, '../../../test/fixtures/simple-dashboard.yaml');
 
-        await workbench.executeCommand('workbench.action.files.openFile');
+        await workbench.executeCommand('workbench.action.quickOpen');
         const inputBox = await InputBox.create();
         await inputBox.setText(fixturesPath);
         await inputBox.confirm();
@@ -75,7 +75,7 @@ describe('Grid Editor E2E Tests', function() {
         // Open the multi-dashboard fixture
         const fixturesPath = path.resolve(__dirname, '../../../test/fixtures/multi-dashboard.yaml');
 
-        await workbench.executeCommand('workbench.action.files.openFile');
+        await workbench.executeCommand('workbench.action.quickOpen');
         let inputBox = await InputBox.create();
         await inputBox.setText(fixturesPath);
         await inputBox.confirm();
