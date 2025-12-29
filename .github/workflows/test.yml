@@ -18,12 +18,10 @@ jobs:
       uses: ./.github/actions/setup-python-env
 
     - name: Run pytest
-      run: |
-        uv run pytest -v
+      run: make test
 
     - name: Run smoke tests
-      run: |
-        uv run kb-dashboard --help
+      run: make test-smoke
 
   lint:
     runs-on: ubuntu-latest
@@ -35,9 +33,10 @@ jobs:
       uses: ./.github/actions/setup-python-env
 
     - name: Run linting
-      run: |
-        uv run ruff check .
-        uv run ruff format . --check
+      run: make lint-check
+
+    - name: Check formatting
+      run: make format-check
 
   typecheck:
     runs-on: ubuntu-latest
@@ -49,5 +48,4 @@ jobs:
       uses: ./.github/actions/setup-python-env
 
     - name: Run type checking
-      run: |
-        uv run basedpyright
+      run: make typecheck
