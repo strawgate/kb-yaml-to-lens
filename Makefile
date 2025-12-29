@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps check check-fix test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps check check-fix test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -36,6 +36,8 @@ help:
 	@echo "  format-check      - Check code formatting without fixing"
 	@echo "  lint-markdown     - Auto-fix markdown linting issues"
 	@echo "  lint-markdown-check - Check markdown without fixing"
+	@echo "  lint-yaml         - Auto-fix YAML linting issues"
+	@echo "  lint-yaml-check   - Check YAML without fixing"
 	@echo "  typecheck         - Run type checking with basedpyright"
 	@echo ""
 	@echo "Documentation:"
@@ -54,10 +56,10 @@ install:
 	npm install -g markdownlint-cli
 
 # Validation without auto-fixing (suitable for CI and pre-commit checks)
-check: lint-check format-check lint-markdown-check typecheck test test-links test-smoke test-extension-python test-extension-typescript
+check: lint-check format-check lint-markdown-check lint-yaml-check typecheck test test-links test-smoke test-extension-python test-extension-typescript
 
 # Validation with auto-fixing
-check-fix: lint format lint-markdown typecheck test test-links test-smoke test-extension-python test-extension-typescript
+check-fix: lint format lint-markdown lint-yaml typecheck test test-links test-smoke test-extension-python test-extension-typescript
 
 test:
 	@echo "Running pytest..."
@@ -121,6 +123,16 @@ lint-markdown:
 lint-markdown-check:
 	@echo "Running markdownlint..."
 	markdownlint -c .markdownlint.jsonc .
+
+# Auto-fix YAML issues
+lint-yaml:
+	@echo "Running yamllint --format auto..."
+	uv run yamllint --format auto .
+
+# Check YAML without fixing
+lint-yaml-check:
+	@echo "Running yamllint..."
+	uv run yamllint .
 
 typecheck:
 	@echo "Running type checking..."

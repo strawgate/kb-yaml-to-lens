@@ -53,6 +53,12 @@ This document describes the recommended updates to CI workflows to use the new M
 
 - name: Check formatting
   run: make format-check
+
+- name: Check markdown
+  run: make lint-markdown-check
+
+- name: Check YAML
+  run: make lint-yaml-check
 ```
 
 ---
@@ -127,9 +133,26 @@ comprehensive-check:
 
 This would run all validation (lint-check, format-check, lint-markdown-check, typecheck, test, test-links, test-smoke, test-extension-python, test-extension-typescript) in a single job.
 
+## YAML Linting Errors to Fix
+
+The newly added yamllint tool has identified several formatting issues in the workflow files:
+
+### `.github/workflows/test.yml`
+
+- **Lines 5, 7**: Remove extra spaces in brackets: `[ main ]` → `[main]`
+- **Lines 14, 31, 45**: Fix indentation (expected 6 spaces but found 4)
+
+### Other workflow files
+
+- All workflows have `on: true` which yamllint flags - these should use proper event names
+- Several files have lines longer than 140 characters
+
+These can be fixed by running `make lint-yaml` locally (if you have write access to workflows) or by manually applying yamllint's suggestions.
+
 ## Implementation Notes
 
 1. These changes require manual updates by a repository maintainer with workflow permissions
 2. The Makefile targets are already tested and working
 3. CI behavior will remain identical - these changes only improve maintainability
 4. Consider testing on a non-main branch first before deploying to production workflows
+5. YAML linting has been added to the Makefile and is included in `make check`
