@@ -92,8 +92,10 @@ The extension provides these commands (accessible via Command Palette):
 
 Extension settings (VS Code settings.json):
 
-- `yamlDashboard.pythonPath` - Path to Python interpreter (default: `"python"`)
-- `yamlDashboard.compileOnSave` - Auto-compile on save (default: `true`)
+| Setting | Type | Description | Default | Required |
+| ------- | ---- | ----------- | ------- | -------- |
+| `yamlDashboard.pythonPath` | string | Path to Python interpreter (must have dashboard_compiler package installed) | `"python"` | No |
+| `yamlDashboard.compileOnSave` | boolean | Automatically compile dashboard when YAML file is saved | `true` | No |
 
 ---
 
