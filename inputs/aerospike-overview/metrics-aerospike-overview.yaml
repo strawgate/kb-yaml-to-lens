@@ -1,7 +1,7 @@
 dashboards:
 -
   id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
-  title: "[Metrics Aerospike] Overview"
+  name: "[Metrics Aerospike] Overview"
   description: ""
   panels:
   - type: links

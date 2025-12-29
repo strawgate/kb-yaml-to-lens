@@ -1,9 +1,9 @@
 dashboards:
 -
-  title: "[Metrics Aerospike] Overview Yaml"
+  name: "[Metrics Aerospike] Overview Yaml"
   description: A dashboard for Aerospike Metrics
   controls:
-    - type: optionsList
+    - type: options
       label: Aerospike Namespace
       data_view: "metrics-*"
       field: aerospike.namespace

@@ -1,10 +1,10 @@
 dashboards:
 -
   id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-  title: "[Metrics Aerospike] Namespace Metrics"
+  name: "[Metrics Aerospike] Namespace Metrics"
   description: ""
   controls:
-    - type: optionsList
+    - type: options
       label: Aerospike Node
       width: medium
       data_view: metrics-*
@@ -13,7 +13,7 @@ dashboards:
       sort:
         by: _count
         direction: desc
-    - type: optionsList
+    - type: options
       label: Aerospike Namespace
       width: medium
       data_view: metrics-*
