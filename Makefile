@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps check test test-coverage test-links test-smoke clean clean-full lint autocorrect format lint-markdown inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps check test test-coverage test-links test-smoke clean clean-full lint autocorrect format lint-markdown lint-markdown-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -33,7 +33,8 @@ help:
 	@echo "  typecheck           - Run type checking with basedpyright"
 	@echo "  - lint-autocorrect  - Run ruff check --fix"
 	@echo "  - lint-format       - Run ruff format"
-	@echo "  - lint-markdown     - Run markdownlint"
+	@echo "  - lint-markdown     - Run markdownlint (with auto-fix)"
+	@echo "  - lint-markdown-check - Run markdownlint (no auto-fix)"
 
 	@echo "Documentation:"
 	@echo "  compile-docs  - Regenerate YAML reference from source"
@@ -98,6 +99,10 @@ format:
 lint-markdown:
 	@echo "Running markdownlint..."
 	markdownlint --fix -c .markdownlint.jsonc .
+
+lint-markdown-check:
+	@echo "Running markdownlint (no auto-fix)..."
+	markdownlint -c .markdownlint.jsonc .
 
 typecheck:
 	@echo "Running type checking..."

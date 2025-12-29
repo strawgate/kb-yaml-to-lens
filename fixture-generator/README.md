@@ -73,7 +73,7 @@ Run `make help` to see all commands:
 
 ## Project Structure
 
-```
+```text
 fixture-generator/
 ├── examples/                    # Example generator scripts
 │   ├── metric-basic.js         # Basic metric (ES|QL only)
