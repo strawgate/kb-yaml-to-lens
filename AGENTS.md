@@ -190,6 +190,36 @@ If feedback isn't implemented, explain why:
 
 **Never claim work is complete with unresolved critical or important issues.**
 
+### Modifying Workflows
+
+**Claude CANNOT modify workflow files** in `.github/workflows/` due to GitHub App permissions. When attempting to push changes to workflow files, GitHub rejects the push with:
+
+```text
+refusing to allow a GitHub App to create or update workflow `.github/workflows/*` without `workflows` permission
+```
+
+**To request workflow changes:**
+
+1. **Use @copilot** - Copilot (copilot-swe-agent[bot]) has full filesystem access and can modify workflows
+2. **Provide exact specifications** - Since Copilot requires very specific instructions, provide:
+   - Exact file path (e.g., `.github/workflows/claude-on-mention.yml`)
+   - Exact line numbers or context to modify
+   - Exact text to add/change/remove
+   - Clear explanation of the desired behavior
+
+**Example request to Copilot:**
+
+```text
+@copilot please update .github/workflows/claude-on-mention.yml
+line 50: change allowed-tools to include Read,Write,Edit tools
+```
+
+**Workflow modification capabilities by agent:**
+
+- **Claude** - ❌ Cannot push workflow changes (GitHub App limitation)
+- **Copilot** - ✅ Can create/modify workflows directly
+- **CodeRabbit** - ❌ Review-only, cannot make commits
+
 ### Resolving PR Review Threads
 
 You can resolve review threads via GitHub GraphQL API. **Only resolve after making code changes that address the feedback.**
