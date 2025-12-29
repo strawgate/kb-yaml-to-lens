@@ -6,7 +6,6 @@ dashboards:
   - title: "Number of Aerospike Namespaces" 
     id: 6e77d8cd-e2b7-4be7-93c8-bee6c39979dd # Fixed ID for testing
     type: lens
-    index_pattern: metrics-*
     grid: { x: 0, y: 0, w: 24, h: 15 }
     chart: 
       type: metric

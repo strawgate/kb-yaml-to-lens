@@ -1,0 +1,31 @@
+dashboards:
+-
+  name: one-metric-min-max
+  description: "A dashboard with min and max metrics"
+  panels:
+  - title: "Min Temperature"
+    id: adbbhch-i6fb-7fg1-d7gc-fiibjd7dddhh # Fixed ID for testing
+    type: charts
+    grid: { x: 0, y: 0, w: 12, h: 15 }
+    chart:
+      type: metric
+      id: h8fa94ah-j6h3-8gfg-chhhf-c7iae04fcd1a # Fixed ID for testing
+      data_view: metrics-*
+      primary:
+        aggregation: min
+        id: ec57g9j-ii7j-8cbi-fahf-ff8di17icd66 # Fixed ID for testing
+        label: "Min Temp"
+        field: sensor.temperature
+  - title: "Max Temperature"
+    id: becci-j7gc-8gh2-e8hd-gjjckeceeei # Fixed ID for testing
+    type: charts
+    grid: { x: 12, y: 0, w: 12, h: 15 }
+    chart:
+      type: metric
+      id: igb05bi-k7i4-9hgh-diiiig-d8jbf15gde2b # Fixed ID for testing
+      data_view: metrics-*
+      primary:
+        aggregation: max
+        id: fd68hak-jj8k-9dck-gbig-gg9ej28jde77 # Fixed ID for testing
+        label: "Max Temp"
+        field: sensor.temperature
