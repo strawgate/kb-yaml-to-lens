@@ -96,7 +96,7 @@ Allows users to select one or more values from a list to filter data.
 | `data_view`        | `string`                                   | The ID or title of the data view (index pattern) the control operates on.                                  | N/A              | Yes      |
 | `field`            | `string`                                   | The name of the field within the data view that the control is associated with.                            | N/A              | Yes      |
 | `fill_width`       | `boolean`                                  | If true, the control will automatically adjust its width to fill available space.                          | `false`          | No       |
-| `match_technique`  | `Literal['prefix', 'contains', 'exact']`   | The search technique used for filtering options. See [Match Technique Enum](#match-technique-enum).        | `prefix`         | No       |
+| `match_technique`  | `Literal['prefix', 'contains', 'exact']`   | The search technique used for filtering options. See [Match Technique Enum](#match-technique-enum-match_technique).        | `prefix`         | No       |
 | `wait_for_results` | `boolean`                                  | If set to true, delay the display of the list of values until the results are fully loaded.                | `false`          | No       |
 | `preselected`      | `list of strings`                          | A list of options that are preselected when the control is initialized.                                    | `[]` (empty list)| No       |
 | `singular`         | `boolean`                                  | If true, the control allows only a single selection from the options list.                                 | `false`          | No       |

@@ -99,6 +99,10 @@ lint-markdown:
 	@echo "Running markdownlint..."
 	markdownlint --fix -c .markdownlint.jsonc .
 
+lint-markdown-check:
+	@echo "Running markdownlint (no fix)..."
+	markdownlint -c .markdownlint.jsonc .
+
 typecheck:
 	@echo "Running type checking..."
 	uv run basedpyright

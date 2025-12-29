@@ -610,7 +610,7 @@ The primary API for dashboard management:
 Kibana exports use Newline Delimited JSON, where each line is a complete saved
 object:
 
-```
+```json
 {"id":"index-pattern-id","type":"index-pattern","attributes":{...}}
 {"id":"dashboard-id","type":"dashboard","attributes":{...},"references":[...]}
 ```
@@ -635,7 +635,7 @@ Compilers should use only publicly documented APIs listed above.
 
 Required headers for all API calls:
 
-```
+```text
 kbn-xsrf: true
 Content-Type: application/json
 ```

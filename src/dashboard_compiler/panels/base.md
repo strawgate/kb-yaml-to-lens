@@ -48,7 +48,7 @@ These fields are available for all panel types and are inherited from the `BaseP
 | `title`      | `string`  | The title displayed on the panel header. Can be an empty string if you wish for no visible title.          | `""` (empty string)             | No       |
 | `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden.                                               | `false` (title is shown)        | No       |
 | `description`| `string`  | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`)  | No       |
-| `grid`       | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration). | N/A                             | Yes      |
+| `grid`       | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration-grid). | N/A                             | Yes      |
 
 **Note on `type`**: The `type` field (e.g., `type: markdown`, `type: lens_metric`) is **required** for every panel definition in your YAML. However, it is not part of the `BasePanel` model itself but is a discriminator field defined in each specific panel type's configuration (e.g., `MarkdownPanel`, `LensPanel`). It tells the compiler which specific panel configuration to use.
 

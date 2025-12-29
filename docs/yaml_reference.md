@@ -1,22 +1,23 @@
-\n---\n\n<!-- Source: dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
+\n---\n\n<!-- Source: src/dashboard_compiler/dashboard/dashboard.md -->\n\n# Dashboard Configuration
 
-The `dashboard` object is the root element in your YAML configuration file. It defines the overall structure, content, and global settings for a Kibana dashboard.
+The `dashboards` array is the root element in your YAML configuration file. Each dashboard defines the overall structure, content, and global settings for a Kibana dashboard.
 
 ## Minimal Configuration Example
 
 A minimal dashboard requires a `name` and at least one panel.
 
 ```yaml
-dashboard:
-  name: "Simple Log Dashboard"
-  panels:
-    - type: markdown # Assuming a markdown panel type exists
-      content: "Welcome to the dashboard!"
-      grid:
-        x: 0
-        y: 0
-        w: 6
-        h: 3
+dashboards:
+  -
+    name: "Simple Log Dashboard"
+    panels:
+      - type: markdown
+        content: "Welcome to the dashboard!"
+        grid:
+          x: 0
+          y: 0
+          w: 6
+          h: 3
 ```
 
 ## Complex Configuration Example
@@ -24,53 +25,57 @@ dashboard:
 This example showcases a dashboard with various settings, a default data view, a global query, filters, controls, and multiple panels.
 
 ```yaml
-dashboard:
-  name: "Comprehensive Application Overview"
-  id: "app-overview-001"
-  description: "An overview of application performance and logs, with interactive filtering."
-  data_view: "production-logs-*" # Default data view for all items unless overridden
-  settings:
-    margins: true
-    titles: true
-    sync:
-      cursor: true
-      tooltips: true
-      colors: false # Use distinct color palettes per panel
+dashboards:
+  -
+    name: "Comprehensive Application Overview"
+    id: "app-overview-001"
+    description: "An overview of application performance and logs, with interactive filtering."
+    data_view: "production-logs-*" # Default data view for all items unless overridden
+    settings:
+      margins: true
+      titles: true
+      sync:
+        cursor: true
+        tooltips: true
+        colors: false # Use distinct color palettes per panel
+      controls:
+        label_position: "above"
+        chain_controls: true
+    query:
+      kql: "NOT response_code:500" # Global KQL query
+    filters:
+      - field: "geo.country_iso_code"
+        equals: "US"
+      - field: "service.environment"
+        in_list: ["production", "staging"]
     controls:
-      label_position: "above"
-      chain_controls: true
-  query:
-    kql: "NOT response_code:500" # Global KQL query
-  filters:
-    - field: "geo.country_iso_code"
-      equals: "US"
-    - field: "service.environment"
-      is_one_of: ["production", "staging"]
-  controls:
-    - type: options
-      label: "Filter by Region"
-      data_view: "user-sessions-*"
-      field: "user.geo.region_name"
-      width: "medium"
-  panels:
-    - type: markdown
-      content: "### Key Performance Indicators"
-      grid: { x: 0, y: 0, w: 12, h: 2 }
-    - type: lens_metric # Assuming a lens metric panel type
-      title: "Total Requests"
-      data_view: "apm-traces-*"
-      metrics:
-        - type: count
-      grid: { x: 0, y: 2, w: 4, h: 4 }
-    - type: lens_bar_chart # Assuming a lens bar chart panel type
-      title: "Requests by Response Code"
-      data_view: "apm-traces-*"
-      series_type: "bar"
-      x_axis:
-        field: "http.response.status_code"
-      metrics:
-        - type: count
-      grid: { x: 4, y: 2, w: 8, h: 4 }
+      - type: options
+        label: "Filter by Region"
+        data_view: "user-sessions-*"
+        field: "user.geo.region_name"
+        width: "medium"
+    panels:
+      - type: markdown
+        content: "### Key Performance Indicators"
+        grid: { x: 0, y: 0, w: 12, h: 2 }
+      - type: lens
+        title: "Total Requests"
+        data_view: "apm-traces-*"
+        chart:
+          type: metric
+          metrics:
+            - type: count
+        grid: { x: 0, y: 2, w: 4, h: 4 }
+      - type: lens
+        title: "Requests by Response Code"
+        data_view: "apm-traces-*"
+        chart:
+          type: bar
+          x_axis:
+            field: "http.response.status_code"
+          metrics:
+            - type: count
+        grid: { x: 4, y: 2, w: 8, h: 4 }
 ```
 
 ## Full Configuration Options
@@ -84,7 +89,7 @@ The main object defining the dashboard.
 | `name`        | `string`                                   | The title of the dashboard displayed in Kibana.                                                            | N/A              | Yes      |
 | `id`          | `string`                                   | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID     | No       |
 | `description` | `string`                                   | A brief description of the dashboard's purpose or content.                                                 | `""` (empty string) | No       |
-| `settings`    | `DashboardSettings` object                 | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings).                          | See defaults below | No       |
+| `settings`    | `DashboardSettings` object                 | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings-settings).                          | See defaults below | No       |
 | `data_view`   | `string`                                   | The default data view (index pattern) ID or title used by items in this dashboard unless overridden.       | `None`           | No       |
 | `query`       | `Query` object                             | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None`           | No       |
 | `filters`     | `list of Filter objects`                   | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md).      | `[]` (empty list)| No       |
@@ -98,7 +103,7 @@ Global settings for the dashboard, configured under the `dashboard.settings` pat
 | YAML Key   | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `margins`  | `boolean`                                  | Whether to put space (margins) between panels in the dashboard.                                            | `true`           | No       |
-| `sync`     | `DashboardSyncSettings` object             | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings). | See defaults below | No       |
+| `sync`     | `DashboardSyncSettings` object             | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings-settingssync). | See defaults below | No       |
 | `controls` | `ControlSettings` object                   | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No       |
 | `titles`   | `boolean`                                  | Whether to display the titles in the panel headers.                                                        | `true`           | No       |
 
@@ -125,34 +130,35 @@ While primarily declarative, the underlying Pydantic models for `Dashboard` supp
 * [Controls Configuration](../controls/config.md)
 * [Filters Configuration](../filters/config.md)
 * [Queries Configuration](../queries/config.md)
-* [Panels Overview](../panels/base.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
+* [Panels Overview](../panels/base.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/controls/config.md -->\n\n# Controls Configuration
 
-Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within the `controls` field of the main `dashboard` configuration. Global behavior of controls can be managed via the `settings.controls` object.
+Controls are interactive elements that can be added to a dashboard, allowing users to filter data or adjust visualization settings dynamically. They are defined as a list of control objects within each dashboard's `controls` field in the `dashboards:` array. Global behavior of controls can be managed via the `settings.controls` object.
 
 ## Minimal Configuration Examples
 
 Here's a minimal example of an `options` list control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: options
-      label: "Filter by Status"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "status.keyword"      # Replace with the field to filter on
+dashboards:
+  -
+    controls:
+      - type: options
+        label: "Filter by Status"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "status.keyword"      # Replace with the field to filter on
 ```
 
 Here's a minimal example of a `range` slider control:
 
 ```yaml
-dashboard:
-  # ... other dashboard configurations
-  controls:
-    - type: range
-      label: "Response Time (ms)"
-      data_view: "your-data-view-id" # Replace with your data view ID or title
-      field: "response.time"       # Replace with the numeric field
+dashboards:
+  -
+    controls:
+      - type: range
+        label: "Response Time (ms)"
+        data_view: "your-data-view-id" # Replace with your data view ID or title
+        field: "response.time"       # Replace with the numeric field
 ```
 
 ## Complex Configuration Example
@@ -160,38 +166,39 @@ dashboard:
 This example demonstrates multiple controls with custom widths and global control settings:
 
 ```yaml
-dashboard:
-  name: "Application Monitoring Dashboard"
-  description: "Dashboard with interactive controls."
-  data_view: "logs-*" # Default data view for panels
-  settings:
+dashboards:
+  -
+    name: "Application Monitoring Dashboard"
+    description: "Dashboard with interactive controls."
+    data_view: "logs-*" # Default data view for panels
+    settings:
+      controls:
+        label_position: "above"
+        chain_controls: true
+        click_to_apply: false
     controls:
-      label_position: "above"
-      chain_controls: true
-      click_to_apply: false
-  controls:
-    - type: options
-      label: "Service Name"
-      id: "service_filter"
-      width: "medium"
-      data_view: "apm-*"
-      field: "service.name"
-      singular: false
-      match_technique: "contains"
-      preselected: ["checkout-service"]
-    - type: range
-      label: "CPU Usage (%)"
-      id: "cpu_range_filter"
-      width: "large"
-      data_view: "metrics-*"
-      field: "system.cpu.user.pct"
-      step: 0.05
-    - type: time
-      label: "Custom Time Slice"
-      id: "time_slice_control"
-      width: "small"
-      start_offset: 0.1  # 10% from the start of the global time range
-      end_offset: 0.9    # 90% from the start of the global time range
+      - type: options
+        label: "Service Name"
+        id: "service_filter"
+        width: "medium"
+        data_view: "apm-*"
+        field: "service.name"
+        singular: false
+        match_technique: "contains"
+        preselected: ["checkout-service"]
+      - type: range
+        label: "CPU Usage (%)"
+        id: "cpu_range_filter"
+        width: "large"
+        data_view: "metrics-*"
+        field: "system.cpu.user.pct"
+        step: 0.05
+      - type: time
+        label: "Custom Time Slice"
+        id: "time_slice_control"
+        width: "small"
+        start_offset: 0.1  # 10% from the start of the global time range
+        end_offset: 0.9    # 90% from the start of the global time range
 ```
 
 ## Full Configuration Options
@@ -222,7 +229,7 @@ Allows users to select one or more values from a list to filter data.
 | `data_view`        | `string`                                   | The ID or title of the data view (index pattern) the control operates on.                                  | N/A              | Yes      |
 | `field`            | `string`                                   | The name of the field within the data view that the control is associated with.                            | N/A              | Yes      |
 | `fill_width`       | `boolean`                                  | If true, the control will automatically adjust its width to fill available space.                          | `false`          | No       |
-| `match_technique`  | `Literal['prefix', 'contains', 'exact']`   | The search technique used for filtering options. See [Match Technique Enum](#match-technique-enum).        | `prefix`         | No       |
+| `match_technique`  | `Literal['prefix', 'contains', 'exact']`   | The search technique used for filtering options. See [Match Technique Enum](#match-technique-enum-match_technique).        | `prefix`         | No       |
 | `wait_for_results` | `boolean`                                  | If set to true, delay the display of the list of values until the results are fully loaded.                | `false`          | No       |
 | `preselected`      | `list of strings`                          | A list of options that are preselected when the control is initialized.                                    | `[]` (empty list)| No       |
 | `singular`         | `boolean`                                  | If true, the control allows only a single selection from the options list.                                 | `false`          | No       |
@@ -267,7 +274,8 @@ This enum defines the possible search techniques used for filtering options in a
 
 ## Related Documentation
 
-* [Dashboard Configuration](./../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/filters/config.md -->\n\n# Filters Configuration
+* [Dashboard Configuration](./../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/filters/config.md -->\n\n# Filters Configuration
 
 Filters are used to narrow down the data displayed on a dashboard or within individual panels. They are defined as a list of filter objects, typically under the `filters` key of a `dashboard` object or a panel that supports filtering.
 
@@ -429,7 +437,8 @@ Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 ## Related Documentation
 
 * [Dashboard Configuration](../dashboard/dashboard.md)
-* [Queries Configuration](../queries/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/base.md -->\n\n# Base Panel Configuration
+* [Queries Configuration](../queries/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/base.md -->\n\n# Base Panel Configuration
 
 All panel types used within a dashboard (e.g., Markdown, Lens charts, Search panels) share a common set of base configuration fields. These fields define fundamental properties like the panel's title, its position and size on the dashboard grid, and an optional description.
 
@@ -479,7 +488,7 @@ These fields are available for all panel types and are inherited from the `BaseP
 | `title`      | `string`  | The title displayed on the panel header. Can be an empty string if you wish for no visible title.          | `""` (empty string)             | No       |
 | `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden.                                               | `false` (title is shown)        | No       |
 | `description`| `string`  | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`)  | No       |
-| `grid`       | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration). | N/A                             | Yes      |
+| `grid`       | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration-grid). | N/A                             | Yes      |
 
 **Note on `type`**: The `type` field (e.g., `type: markdown`, `type: lens_metric`) is **required** for every panel definition in your YAML. However, it is not part of the `BasePanel` model itself but is a discriminator field defined in each specific panel type's configuration (e.g., `MarkdownPanel`, `LensPanel`). It tells the compiler which specific panel configuration to use.
 
@@ -531,7 +540,8 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 
 ## Related Documentation
 
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/esql.md -->\n\n# ESQL Panel
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/esql.md -->\n\n# ESQL Panel
 
 The `esql` panel is used to display data visualizations based on an ESQL query.
 
@@ -602,7 +612,8 @@ chart:
 * [Dimension Objects](../dimensions/dimension.md)
 * [Pie Chart Appearance](../lens.md#pie-chart-appearance)
 * [Pie Chart Titles and Text](../lens.md#pie-chart-titles-and-text)
-* [Pie Chart Legend](../lens.md#pie-chart-legend)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/esql/esql.md -->\n\n# ESQL Panel Configuration
+* [Pie Chart Legend](../lens.md#pie-chart-legend)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/esql/esql.md -->\n\n# ESQL Panel Configuration
 
 ESQL panels leverage the power of Elasticsearch Query Language (ESQL) to create visualizations. This allows for more complex data transformations and aggregations directly within the query that feeds the chart.
 
@@ -695,7 +706,7 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `description`| `string`                               | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)  | No       |
 | `grid`   | `Grid` object                              | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
 | `esql`   | `string` or `ESQLQuery` object             | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query).                    | N/A                             | Yes      |
-| `chart`  | `ESQLChartTypes` object                    | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart) or [ESQL Pie Chart](#esql-pie-chart). | N/A                             | Yes      |
+| `chart`  | `ESQLChartTypes` object                    | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart-charttype-metric) or [ESQL Pie Chart](#esql-pie-chart-charttype-pie). | N/A                             | Yes      |
 
 ---
 
@@ -737,10 +748,10 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `id`              | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
 | `metric`          | `ESQLMetric` object                        | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A              | Yes      |
 | `slice_by`        | `list of ESQLDimension` objects            | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A              | Yes      |
-| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting) (shared with Lens). | `None`           | No       |
-| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting) (shared with Lens). | `None`           | No       |
-| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting) (shared with Lens).        | `None`           | No       |
-| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None`           | No       |
+| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None`           | No       |
+| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None`           | No       |
+| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens).        | `None`           | No       |
+| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None`           | No       |
 
 **Example (ESQL Pie Chart):**
 
@@ -818,7 +829,8 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 * [Base Panel Configuration](../base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
 * [Queries Configuration](../../queries/config.md#esql-query)
-* Elasticsearch ESQL Reference (external)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens.md -->\n\n# Lens Panel
+* Elasticsearch ESQL Reference (external)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens.md -->\n\n# Lens Panel
 
 The `lens` panel is used to display data visualizations created with Kibana Lens.
 
@@ -925,7 +937,8 @@ legend:
 
 * [Base Panel Object](../base.md)
 * [Metric Objects](../metrics/metric.md)
-* [Dimension Objects](../dimensions/dimension.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/dimensions/dimension.md -->\n\n# Dimension Objects
+* [Dimension Objects](../dimensions/dimension.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/dimensions/dimension.md -->\n\n# Dimension Objects
 
 Dimension objects are used within chart panels (Lens and ESQL) to define how data is grouped or categorized, often corresponding to an axis or a breakdown.
 
@@ -1116,7 +1129,8 @@ This enum defines the possible aggregation types to use when collapsing interval
 ## Related Structures
 
 * [Sort Object](../shared/config.md#sort-object)
-* [Queries Documentation](../queries/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/lens.md -->\n\n# Lens Panel Configuration
+* [Queries Documentation](../queries/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/lens.md -->\n\n# Lens Panel Configuration
 
 Lens panels in Kibana provide a flexible and user-friendly way to create various types of visualizations, such as metric displays, pie charts, bar charts, line charts, and more. This document covers the YAML configuration for Lens panels using this compiler.
 
@@ -1206,7 +1220,7 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `grid`   | `Grid` object                              | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
 | `query`  | `LegacyQueryTypes` object (KQL or Lucene)  | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../../queries/config.md). | `None` (uses dashboard query)   | No       |
 | `filters`| `list of FilterTypes`                      | A list of panel-specific filters. See [Filters Documentation](../../filters/config.md).                    | `[]` (empty list)               | No       |
-| `chart`  | `LensChartTypes` object                    | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart) or [Lens Pie Chart](#lens-pie-chart). | N/A                             | Yes      |
+| `chart`  | `LensChartTypes` object                    | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A                             | Yes      |
 | `layers` | `list of MultiLayerChartTypes`             | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None`                          | No       |
 
 **Note on `layers` vs `chart`**:
@@ -1224,10 +1238,10 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type`      | `Literal['metric']`                        | Specifies the chart type as a Lens Metric visualization.                                                   | `metric`         | Yes      |
 | `id`        | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `primary`   | `LensMetricTypes` object                   | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics).            | N/A              | Yes      |
-| `secondary` | `LensMetricTypes` object                   | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics).          | `None`           | No       |
-| `maximum`   | `LensMetricTypes` object                   | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics). | `None`           | No       |
-| `breakdown` | `LensDimensionTypes` object                | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions). | `None`           | No       |
+| `primary`   | `LensMetricTypes` object                   | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie).            | N/A              | Yes      |
+| `secondary` | `LensMetricTypes` object                   | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie).          | `None`           | No       |
+| `maximum`   | `LensMetricTypes` object                   | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | `None`           | No       |
+| `breakdown` | `LensDimensionTypes` object                | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | `None`           | No       |
 
 **Example (Lens Metric Chart):**
 
@@ -1262,12 +1276,12 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `type`            | `Literal['pie']`                           | Specifies the chart type as a Lens Pie visualization.                                                      | `pie`            | Yes      |
 | `id`              | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
 | `data_view`       | `string`                                   | The ID or title of the data view (index pattern) for this pie chart.                                       | N/A              | Yes      |
-| `metric`          | `LensMetricTypes` object                   | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics).                     | N/A              | Yes      |
-| `slice_by`        | `list of LensDimensionTypes` objects       | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions).        | N/A              | Yes      |
-| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance).            | `None`           | No       |
-| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text).           | `None`           | No       |
-| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend).                                    | `None`           | No       |
-| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping).                       | `None`           | No       |
+| `metric`          | `LensMetricTypes` object                   | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie).                     | N/A              | Yes      |
+| `slice_by`        | `list of LensDimensionTypes` objects       | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie).        | N/A              | Yes      |
+| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field).            | `None`           | No       |
+| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles-field).           | `None`           | No       |
+| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field).                                    | `None`           | No       |
+| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-color_mapping-field).                       | `None`           | No       |
 
 **Example (Lens Pie Chart):**
 
@@ -1389,7 +1403,7 @@ All specific metric types below can include:
 | -------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id`     | `string`                  | An optional unique identifier for the metric.                                                              | Generated ID     | No       |
 | `label`  | `string`                  | A custom display label for the metric. If not provided, a label is inferred.                               | Inferred         | No       |
-| `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting). | Default for type | No       |
+| `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting-format-field-within-a-metric). | Default for type | No       |
 | `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data *before* this metric is calculated.                                   | `None`           | No       |
 
 ### Aggregated Metric Types
@@ -1520,7 +1534,8 @@ These objects are used within the `LensPieChart` configuration.
 * [Base Panel Configuration](../base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
 * [Queries Configuration](../../queries/config.md)
-* [Filters Configuration](../../filters/config.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/charts/lens/metrics/metric.md -->\n\n# Metric Objects
+* [Filters Configuration](../../filters/config.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/lens/metrics/metric.md -->\n\n# Metric Objects
 
 Metric objects are used within chart panels (Lens and ESQL) to define the values being visualized, typically corresponding to the y-axis or the size of elements.
 
@@ -1764,7 +1779,312 @@ A metric that is defined in the ESQL query.
 
     ```yaml
     - field: total_requests
-      label: Total Requests from ESQL\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
+      label: Total Requests from ESQL
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/metric/config.md -->\n\n# Metric Chart Panel Configuration
+
+The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "KPI Dashboard"
+  panels:
+    - type: metric
+      title: "Total Revenue"
+      grid: { x: 0, y: 0, w: 3, h: 2 }
+      data:
+        index: "sales-data"
+        value: "revenue"
+```
+
+## Full Configuration Options
+
+### Lens Metric Chart
+
+| YAML Key    | Data Type                        | Description                                                   | Default    | Required |
+| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
+| `type`      | `Literal['metric']`              | Specifies the chart type as metric.                           | `'metric'` | No       |
+| `data_view` | `string`                         | The data view that determines the data for the metric chart.  | N/A        | Yes      |
+| `primary`   | `LensMetricTypes`                | The primary metric to display (main value).                   | N/A        | Yes      |
+| `secondary` | `LensMetricTypes` \| `None`      | Optional secondary metric to display alongside the primary.   | `None`     | No       |
+| `maximum`   | `LensMetricTypes` \| `None`      | Optional maximum metric for comparison or thresholds.         | `None`     | No       |
+| `breakdown` | `LensDimensionTypes` \| `None`   | Optional breakdown dimension for splitting the metric.        | `None`     | No       |
+
+### ESQL Metric Chart
+
+| YAML Key    | Data Type                        | Description                                                   | Default    | Required |
+| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
+| `type`      | `Literal['metric']`              | Specifies the chart type as metric.                           | `'metric'` | No       |
+| `primary`   | `ESQLMetricTypes`                | The primary metric to display (main value).                   | N/A        | Yes      |
+| `secondary` | `ESQLMetricTypes` \| `None`      | Optional secondary metric to display alongside the primary.   | `None`     | No       |
+| `maximum`   | `ESQLMetricTypes` \| `None`      | Optional maximum metric for comparison or thresholds.         | `None`     | No       |
+| `breakdown` | `ESQLDimensionTypes` \| `None`   | Optional breakdown dimension for splitting the metric.        | `None`     | No       |
+
+## Programmatic Usage (Python)
+
+You can create Metric chart panels programmatically using Python:
+
+### Count Metric Example
+
+```python
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensCountAggregatedMetric,
+)
+from dashboard_compiler.panels.charts.metric.config import LensMetricChart
+from dashboard_compiler.panels.config import Grid
+
+# Simple count metric
+count_chart = LensMetricChart(
+    data_view='logs-*',
+    primary=LensCountAggregatedMetric(aggregation='count'),
+)
+
+panel = LensPanel(
+    title='Total Documents',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=count_chart,
+)
+```
+
+### Average Metric Example
+
+```python
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensOtherAggregatedMetric,
+)
+from dashboard_compiler.panels.charts.metric.config import LensMetricChart
+from dashboard_compiler.panels.config import Grid
+
+# Average metric with field
+avg_chart = LensMetricChart(
+    data_view='logs-*',
+    primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
+)
+
+panel = LensPanel(
+    title='Avg Response Time',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=avg_chart,
+)
+```
+
+## Related
+
+- [Base Panel Configuration](../../base.md)
+- [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/pie/config.md -->\n\n# Pie Chart Panel Configuration
+
+The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "Traffic Sources"
+  panels:
+    - type: pie
+      title: "Website Traffic Sources"
+      grid: { x: 0, y: 0, w: 6, h: 6 }
+      data:
+        index: "traffic-data"
+        category: "source"
+        value: "visits"
+```
+
+## Full Configuration Options
+
+### Lens Pie Chart
+
+| YAML Key          | Data Type                          | Description                                                                  | Default | Required |
+| ----------------- | ---------------------------------- | ---------------------------------------------------------------------------- | ------- | -------- |
+| `type`            | `Literal['pie']`                   | Specifies the chart type as pie.                                             | `'pie'` | No       |
+| `data_view`       | `string`                           | The data view that determines the data for the pie chart.                    | N/A     | Yes      |
+| `metric`          | `LensMetricTypes` \| `None`        | A metric for single metric charts (size of slices).                          | `None`  | No       |
+| `metrics`         | `list[LensMetricTypes]` \| `None`  | Multiple metrics for multi-metric charts.                                    | `None`  | No       |
+| `slice_by`        | `list[LensDimensionTypes]`         | Dimensions that determine the slices (first is primary, rest are secondary). | N/A     | Yes      |
+| `appearance`      | `PieChartAppearance` \| `None`     | Chart appearance options (e.g., donut size).                                 | `None`  | No       |
+| `titles_and_text` | `PieTitlesAndText` \| `None`       | Formatting options for titles and text.                                      | `None`  | No       |
+| `legend`          | `PieLegend` \| `None`              | Legend formatting options.                                                   | `None`  | No       |
+| `color`           | `ColorMapping` \| `None`           | Color palette mapping for the chart.                                         | `None`  | No       |
+
+#### PieChartAppearance Options
+
+| YAML Key | Data Type                                       | Description                                                        | Default | Required |
+| -------- | ----------------------------------------------- | ------------------------------------------------------------------ | ------- | -------- |
+| `donut`  | `Literal['small', 'medium', 'large']` \| `None` | Controls the size of the donut hole (Kibana defaults to 'medium'). | `None`  | No       |
+
+#### PieTitlesAndText Options
+
+| YAML Key               | Data Type                                         | Description                                                       | Default | Required |
+| ---------------------- | ------------------------------------------------- | ----------------------------------------------------------------- | ------- | -------- |
+| `slice_labels`         | `Literal['hide', 'inside', 'auto']` \| `None`     | Controls slice label visibility (Kibana defaults to 'auto').      | `None`  | No       |
+| `slice_values`         | `Literal['hide', 'integer', 'percent']` \| `None` | Controls slice value display (Kibana defaults to 'percent').      | `None`  | No       |
+| `value_decimal_places` | `int` \| `None`                                   | Number of decimal places for values (0-10, Kibana defaults to 2). | `None`  | No       |
+
+#### PieLegend Options
+
+| YAML Key          | Data Type                                                      | Description                                                         | Default | Required |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- | ------- | -------- |
+| `visible`         | `Literal['show', 'hide', 'auto']` \| `None`                    | Legend visibility (Kibana defaults to 'auto').                      | `None`  | No       |
+| `width`           | `Literal['small', 'medium', 'large', 'extra_large']` \| `None` | Legend width (Kibana defaults to 'medium').                         | `None`  | No       |
+| `truncate_labels` | `int` \| `None`                                                | Lines to truncate labels to (0-5, Kibana defaults to 1, 0=disable). | `None`  | No       |
+
+### ESQL Pie Chart
+
+| YAML Key          | Data Type                           | Description                                                                  | Default | Required |
+| ----------------- | ----------------------------------- | ---------------------------------------------------------------------------- | ------- | -------- |
+| `type`            | `Literal['pie']`                    | Specifies the chart type as pie.                                             | `'pie'` | No       |
+| `metric`          | `ESQLMetricTypes` \| `None`         | A metric for single metric charts (size of slices).                          | `None`  | No       |
+| `metrics`         | `list[ESQLMetricTypes]` \| `None`   | Multiple metrics for multi-metric charts.                                    | `None`  | No       |
+| `slice_by`        | `list[ESQLDimensionTypes]`          | Dimensions that determine the slices (first is primary, rest are secondary). | N/A     | Yes      |
+| `esql`            | `string`                            | The ES\|QL query that determines the data for the pie chart.                 | N/A     | Yes      |
+| `appearance`      | `PieChartAppearance` \| `None`      | Chart appearance options (e.g., donut size).                                 | `None`  | No       |
+| `titles_and_text` | `PieTitlesAndText` \| `None`        | Formatting options for titles and text.                                      | `None`  | No       |
+| `legend`          | `PieLegend` \| `None`               | Legend formatting options.                                                   | `None`  | No       |
+| `color`           | `ColorMapping` \| `None`            | Color palette mapping for the chart.                                         | `None`  | No       |
+
+## Programmatic Usage (Python)
+
+You can create Pie chart panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.dimensions.config import (
+    LensTopValuesDimension,
+)
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensCountAggregatedMetric,
+)
+from dashboard_compiler.panels.charts.pie.config import LensPieChart
+from dashboard_compiler.panels.config import Grid
+
+pie_chart = LensPieChart(
+    data_view='logs-*',
+    slice_by=[LensTopValuesDimension(field='status')],
+    metric=LensCountAggregatedMetric(aggregation='count'),
+)
+
+panel = LensPanel(
+    title='Status Distribution',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    chart=pie_chart,
+)
+```
+
+## Related
+
+- [Base Panel Configuration](../../base.md)
+- [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/charts/xy/config.md -->\n\n# XY Chart Panel Configuration
+
+The XY chart panel creates line, bar, and area charts for time series and other data visualizations.
+
+## Minimal Configuration Example
+
+```yaml
+dashboard:
+  name: "Time Series Dashboard"
+  panels:
+    - type: xy
+      title: "Events Over Time"
+      grid: { x: 0, y: 0, w: 12, h: 6 }
+      data:
+        index: "logs-*"
+        x_axis: "@timestamp"
+        metric: "count"
+```
+
+## Full Configuration Options
+
+### Lens Bar Chart
+
+| YAML Key          | Data Type                                       | Description                                                          | Default     | Required |
+| ----------------- | ----------------------------------------------- | -------------------------------------------------------------------- | ----------- | -------- |
+| `type`            | `Literal['bar']`                                | Specifies the chart type as bar.                                     | `'bar'`     | No       |
+| `mode`            | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for bar charts.                                        | `'stacked'` | No       |
+| `data_view`       | `string`                                        | The data view to use for the chart.                                  | N/A         | Yes      |
+| `dimensions`      | `list[LensDimensionTypes]`                      | Defines the dimensions (e.g., X-axis) for the chart.                 | `[]`        | No       |
+| `metrics`         | `list[LensMetricTypes]`                         | Defines the metrics (e.g., Y-axis values) for the chart.             | `[]`        | No       |
+| `breakdown`       | `LensDimensionTypes` \| `None`                  | Optional dimension to split the series by (creates multiple series). | `None`      | No       |
+| `appearance`      | `XYAppearance` \| `None`                        | Chart appearance formatting options.                                 | `None`      | No       |
+| `titles_and_text` | `XYTitlesAndText` \| `None`                     | Titles and text formatting options.                                  | `None`      | No       |
+| `legend`          | `XYLegend` \| `None`                            | Legend formatting options.                                           | `None`      | No       |
+
+### Lens Line Chart
+
+| YAML Key          | Data Type                       | Description                                                          | Default  | Required |
+| ----------------- | ------------------------------- | -------------------------------------------------------------------- | -------- | -------- |
+| `type`            | `Literal['line']`               | Specifies the chart type as line.                                    | `'line'` | No       |
+| `data_view`       | `string`                        | The data view to use for the chart.                                  | N/A      | Yes      |
+| `dimensions`      | `list[LensDimensionTypes]`      | Defines the dimensions (e.g., X-axis) for the chart.                 | `[]`     | No       |
+| `metrics`         | `list[LensMetricTypes]`         | Defines the metrics (e.g., Y-axis values) for the chart.             | `[]`     | No       |
+| `breakdown`       | `LensDimensionTypes` \| `None`  | Optional dimension to split the series by (creates multiple series). | `None`   | No       |
+| `appearance`      | `XYAppearance` \| `None`        | Chart appearance formatting options.                                 | `None`   | No       |
+| `titles_and_text` | `XYTitlesAndText` \| `None`     | Titles and text formatting options.                                  | `None`   | No       |
+| `legend`          | `XYLegend` \| `None`            | Legend formatting options.                                           | `None`   | No       |
+
+### Lens Area Chart
+
+| YAML Key          | Data Type                                       | Description                                                          | Default     | Required |
+| ----------------- | ----------------------------------------------- | -------------------------------------------------------------------- | ----------- | -------- |
+| `type`            | `Literal['area']`                               | Specifies the chart type as area.                                    | `'area'`    | No       |
+| `mode`            | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for area charts.                                       | `'stacked'` | No       |
+| `data_view`       | `string`                                        | The data view to use for the chart.                                  | N/A         | Yes      |
+| `dimensions`      | `list[LensDimensionTypes]`                      | Defines the dimensions (e.g., X-axis) for the chart.                 | `[]`        | No       |
+| `metrics`         | `list[LensMetricTypes]`                         | Defines the metrics (e.g., Y-axis values) for the chart.             | `[]`        | No       |
+| `breakdown`       | `LensDimensionTypes` \| `None`                  | Optional dimension to split the series by (creates multiple series). | `None`      | No       |
+| `appearance`      | `XYAppearance` \| `None`                        | Chart appearance formatting options.                                 | `None`      | No       |
+| `titles_and_text` | `XYTitlesAndText` \| `None`                     | Titles and text formatting options.                                  | `None`      | No       |
+| `legend`          | `XYLegend` \| `None`                            | Legend formatting options.                                           | `None`      | No       |
+
+#### XYLegend Options
+
+| YAML Key  | Data Type         | Description                    | Default | Required |
+| --------- | ----------------- | ------------------------------ | ------- | -------- |
+| `visible` | `bool` \| `None`  | Whether the legend is visible. | `None`  | No       |
+
+### ESQL Bar/Line/Area Charts
+
+ESQL chart configuration is similar to Lens charts, but uses `ESQLDimensionTypes` and `ESQLMetricTypes` instead, and does not require a `data_view` field.
+
+## Programmatic Usage (Python)
+
+You can create XY chart panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.lens.dimensions.config import (
+    LensDateHistogramDimension,
+)
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensCountAggregatedMetric,
+)
+from dashboard_compiler.panels.charts.xy.config import LensLineChart
+from dashboard_compiler.panels.config import Grid
+
+# Time series line chart
+line_chart = LensLineChart(
+    data_view='logs-*',
+    dimensions=[LensDateHistogramDimension(field='@timestamp')],
+    breakdown=None,
+    metrics=[LensCountAggregatedMetric(aggregation='count')],
+)
+
+panel = LensPanel(
+    title='Documents Over Time',
+    grid=Grid(x=0, y=0, w=48, h=20),
+    chart=line_chart,
+)
+```
+
+## Related
+
+- [Base Panel Configuration](../../base.md)
+- [Dashboard Configuration](../../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/images/image.md -->\n\n# Image Panel Configuration
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
 
@@ -1841,10 +2161,25 @@ Image panels inherit from the [Base Panel Configuration](../base.md) and have th
 * `fill`: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
 * `none`: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
 
+## Programmatic Usage (Python)
+
+You can create Image panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.images.config import ImagePanel
+
+panel = ImagePanel(
+    grid=Grid(x=0, y=0, w=24, h=20),
+    from_url='https://example.com/logo.png',
+)
+```
+
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/links/links.md -->\n\n# Links Panel Configuration
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/links/links.md -->\n\n# Links Panel Configuration
 
 The `links` panel type is used to display a collection of hyperlinks on your dashboard. These links can point to other Kibana dashboards or external web URLs. This panel is useful for creating navigation hubs or providing quick access to related resources.
 
@@ -1981,14 +2316,49 @@ Represents a link to an external web URL.
 | `encode`  | `boolean` | If `true`, the URL will be URL-encoded before navigation.                                                  | `true`         | No       |
 | `new_tab` | `boolean` | If `true`, the link will open in a new browser tab.                                                        | `false`        | No       |
 
-## Methods (for programmatic generation)
+## Programmatic Usage (Python)
 
-The `LinksPanel` Pydantic model includes an `add_link(link: LinkTypes)` method, which can be used if you are generating dashboard configurations programmatically in Python (not directly used in YAML).
+You can create Links panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
+panel = LinksPanel(
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[
+        UrlLink(
+            label='Documentation',
+            url='https://example.com/docs',
+        ),
+        UrlLink(
+            label='API Reference',
+            url='https://example.com/api',
+        ),
+    ],
+)
+```
+
+The `LinksPanel` model includes an `add_link(link: LinkTypes)` method for adding links dynamically:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
+panel = LinksPanel(
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[],
+)
+
+panel.add_link(UrlLink(label='Docs', url='https://example.com/docs'))
+panel.add_link(UrlLink(label='API', url='https://example.com/api'))
+```
 
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/markdown/markdown.md -->\n\n# Markdown Panel Configuration
+* [Dashboard Configuration](../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/markdown/markdown.md -->\n\n# Markdown Panel Configuration
 
 The `markdown` panel type is used to display rich text content, formatted using Markdown syntax, directly on your dashboard. This is equivalent to the "Text" visualization in Kibana.
 
@@ -2069,14 +2439,36 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 | `hide_title`       | `boolean`        | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                                      | No       |
 | `description`      | `string`         | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)               | No       |
 | `grid`             | `Grid` object    | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                                          | Yes      |
-| `content`          | `string`         | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `|` or `>`) for readability. | N/A                                          | Yes      |
+| `content`          | `string`         | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `\|` or `>`) for readability. | N/A                                          | Yes      |
 | `font_size`        | `integer`        | The font size for the Markdown content, in pixels.                                                         | `12`                                         | No       |
 | `links_in_new_tab` | `boolean`        | If `true`, links in the Markdown content will open in a new tab.                                           | `true`                                       | No       |
+
+## Programmatic Usage (Python)
+
+You can also create Markdown panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.markdown.config import MarkdownPanel
+
+panel = MarkdownPanel(
+    grid=Grid(x=0, y=0, w=24, h=15),
+    content="""
+# Dashboard Title
+
+This is a **markdown** panel with:
+- Lists
+- **Bold** and *italic* text
+- [Links](https://example.com)
+    """,
+)
+```
 
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)\n\n\n---\n\n<!-- Source: dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
+* [Dashboard Configuration](../../dashboard/dashboard.md)
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/panels/search/search.md -->\n\n# Search Panel Configuration
 
 The `search` panel type is used to embed the results of a pre-existing, saved Kibana search directly onto your dashboard. This allows you to display dynamic log views, event lists, or any other data set defined by a saved search in Discover.
 
@@ -2145,11 +2537,26 @@ Search panels inherit from the [Base Panel Configuration](../base.md) and have o
 
 **Note on Behavior:** The appearance, columns displayed, sort order, and underlying query of the Search panel are primarily controlled by the configuration of the saved search itself within Kibana's Discover application. The dashboard panel configuration mainly serves to embed that saved search.
 
+## Programmatic Usage (Python)
+
+You can create Search panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.search.config import SearchPanel
+
+panel = SearchPanel(
+    grid=Grid(x=0, y=0, w=48, h=20),
+    saved_search_id='my-saved-search',
+)
+```
+
 ## Related Documentation
 
 * [Base Panel Configuration](../base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
-* Kibana Discover and Saved Searches documentation (external to this project).\n\n\n---\n\n<!-- Source: dashboard_compiler/queries/config.md -->\n\n# Queries Configuration
+* Kibana Discover and Saved Searches documentation (external to this project).
+\n\n\n---\n\n<!-- Source: src/dashboard_compiler/queries/config.md -->\n\n# Queries Configuration
 
 Queries are used to define the search criteria for retrieving data. They can be applied globally at the dashboard level or specifically to individual panels that support them. This compiler supports KQL (Kibana Query Language), Lucene, and ESQL (Elasticsearch Query Language).
 
