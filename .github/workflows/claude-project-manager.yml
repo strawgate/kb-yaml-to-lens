@@ -93,7 +93,7 @@ jobs:
 
   close-previous-pm-issue:
     needs: check-activity
-    if: needs.check-activity.outputs.has_activity == 'true' && needs.check-activity.outputs.last_pm_issue != ''
+    if: needs.check-activity.outputs.last_pm_issue != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -104,8 +104,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LAST_ISSUE="${{ needs.check-activity.outputs.last_pm_issue }}"
+          HAS_ACTIVITY="${{ needs.check-activity.outputs.has_activity }}"
+
           echo "Closing previous PM issue #$LAST_ISSUE"
-          gh issue close "$LAST_ISSUE" --comment "Closing this PM report. New daily report has been generated."
+
+          if [ "$HAS_ACTIVITY" == "true" ]; then
+            gh issue close "$LAST_ISSUE" --comment "Closing this PM report. New daily report has been generated."
+          else
+            gh issue close "$LAST_ISSUE" --comment "Closing this PM report. Insufficient activity since last report to generate a new one."
+          fi
 
   project-manager-review:
     needs: [check-activity, close-previous-pm-issue]
