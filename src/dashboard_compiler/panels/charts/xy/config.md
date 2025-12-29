@@ -5,7 +5,8 @@ The XY chart panel creates line, bar, and area charts for time series and other 
 ## Minimal Configuration Example
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Time Series Dashboard"
   panels:
     - type: xy
