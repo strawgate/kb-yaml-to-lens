@@ -1,0 +1,3014 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Convert human-friendly YAML dashboard definitions into Kibana NDJSON format">
+      
+      
+      
+        <link rel="canonical" href="https://strawgate.github.io/kb-yaml-to-lens/kibana-architecture/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Kibana Dashboard Architecture Reference - Dashboard Compiler Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kibana-dashboard-architecture-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Dashboard Compiler Documentation" class="md-header__button md-logo" aria-label="Dashboard Compiler Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Dashboard Compiler Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kibana Dashboard Architecture Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/strawgate/kb-yaml-to-lens" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    strawgate/kb-yaml-to-lens
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../quickstart/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../programmatic-usage/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Programmatic Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../yaml_reference/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  YAML Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CLI/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  CLI Guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../CONTRIBUTING.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kibana-fixture-generator-guide/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../panels/markdown/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Panel Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Dashboard Compiler Documentation" class="md-nav__button md-logo" aria-label="Dashboard Compiler Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Dashboard Compiler Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/strawgate/kb-yaml-to-lens" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    strawgate/kb-yaml-to-lens
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../programmatic-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programmatic Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../yaml_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YAML Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CLI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kibana-fixture-generator-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kibana Fixture Generator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/panels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panel Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Panel Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/markdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Markdown Panel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Panel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/links/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Links Panel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Search Panel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/metric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metric Chart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/pie/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pie Chart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../panels/xy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XY Chart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-architectural-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Architectural Principles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Evolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version Evolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timeline-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeline Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-from-8x-to-9x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration from 8.x to 9.x
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration from 8.x to 9.x">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#content-management-v3-api-9x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Content Management v3 API (9.x)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-versions-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Versions System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-visualization-deprecations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy Visualization Deprecations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saved-object-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saved Object Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Saved Object Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-level-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-source-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Source JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References Array
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#panel-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panel Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Panel Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#panel-object-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panel Object Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grid-positioning-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grid Positioning Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-reference-vs-by-value-panels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By-Reference vs By-Value Panels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="By-Reference vs By-Value Panels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-reference-panels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By-Reference Panels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-value-panels-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By-Value Panels (Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#panel-type-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panel Type Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collapsible-sections-819-9x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collapsible Sections (8.19+, 9.x)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lens-visualization-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lens Visualization Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lens Visualization Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lens-attributes-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lens Attributes Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lens-visualization-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lens Visualization Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lens-column-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lens Column Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lens-xy-visualization-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lens XY Visualization State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lens-datasources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lens Datasources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#esql-variable-controls-9x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ES|QL Variable Controls (9.x+)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drilldown-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drilldown Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saved-objects-api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saved Objects API Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ndjson-export-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NDJSON Export Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-apis-blocked-in-90" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal APIs Blocked in 9.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deprecatedremoved-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecated/Removed APIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example-by-value-lens-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example: By-Value Lens Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiler-implementation-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiler Implementation Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Compiler Implementation Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#version-detection-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Detection Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-generation-for-dual-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Generation for Dual Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical Implementation Details
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#future-proofing-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future-Proofing Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-code-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Code References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openapi-specifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenAPI Specifications
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-key-takeaways-for-ai-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary: Key Takeaways for AI Agents
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/strawgate/kb-yaml-to-lens/edit/main/kibana-architecture.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/strawgate/kb-yaml-to-lens/raw/main/kibana-architecture.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="kibana-dashboard-architecture-reference">Kibana Dashboard Architecture Reference<a class="headerlink" href="#kibana-dashboard-architecture-reference" title="Permanent link">&para;</a></h1>
+<p>This document provides a comprehensive technical reference for Kibana's
+dashboard and panel architecture, specifically designed to support the
+development and understanding of YAML-to-Kibana compilation tools.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Kibana dashboards are stored as <strong>saved objects</strong> in Elasticsearch using a
+specific schema. The most critical architectural pattern is that complex
+configuration data is stored as <strong>stringified JSON</strong> within the <code>attributes</code>
+field of saved objects. Understanding this pattern is essential for any tool
+that generates Kibana dashboards programmatically.</p>
+<h3 id="key-architectural-principles">Key Architectural Principles<a class="headerlink" href="#key-architectural-principles" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Saved Objects Model</strong>: Dashboards are persisted as saved objects with
+   type <code>"dashboard"</code> in Elasticsearch</li>
+<li><strong>Stringified JSON</strong>: Fields like <code>panelsJSON</code>, <code>optionsJSON</code>, and
+   <code>searchSourceJSON</code> contain JSON serialized as strings</li>
+<li><strong>Reference System</strong>: External dependencies (data views, saved
+   visualizations) are normalized into a <code>references</code> array</li>
+<li><strong>By-Value vs By-Reference</strong>: Panels can either embed full visualization
+   configurations inline (by-value) or link to separately saved visualizations
+   (by-reference)</li>
+<li><strong>Lens as Primary Target</strong>: Legacy visualization types are deprecated;
+   modern dashboards should exclusively use Lens</li>
+</ol>
+<h2 id="version-evolution">Version Evolution<a class="headerlink" href="#version-evolution" title="Permanent link">&para;</a></h2>
+<h3 id="timeline-overview">Timeline Overview<a class="headerlink" href="#timeline-overview" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Key Changes</th>
+<th>Impact on Compilers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>7.x</strong></td>
+<td>Introduced modern <code>gridData</code> format, Lens visualizations</td>
+<td>Foundation for current architecture</td>
+</tr>
+<tr>
+<td><strong>8.0</strong></td>
+<td>Globally unique IDs across spaces, removed legacy import API</td>
+<td>Must use Saved Objects API</td>
+</tr>
+<tr>
+<td><strong>8.8+</strong></td>
+<td>Index splitting (<code>.kibana</code> → multiple indices)</td>
+<td>Transparent to API users</td>
+</tr>
+<tr>
+<td><strong>8.10+</strong></td>
+<td>Model versions replace legacy migrations</td>
+<td>New version tracking system</td>
+</tr>
+<tr>
+<td><strong>8.19+</strong></td>
+<td>Collapsible sections, custom grid layout</td>
+<td>New panel grouping mechanism</td>
+</tr>
+<tr>
+<td><strong>9.0</strong></td>
+<td>Disabled creation of legacy viz types, internal API restrictions</td>
+<td>Must target Lens exclusively</td>
+</tr>
+<tr>
+<td><strong>9.0+</strong></td>
+<td>ES|QL variable controls, Content Management v3 API</td>
+<td>New filter/query capabilities</td>
+</tr>
+<tr>
+<td><strong>10.0</strong></td>
+<td>Full removal of TSVB, aggregation-based, Timelion</td>
+<td>Complete deprecation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="migration-from-8x-to-9x">Migration from 8.x to 9.x<a class="headerlink" href="#migration-from-8x-to-9x" title="Permanent link">&para;</a></h3>
+<p>The core dashboard JSON structure remains backward compatible between 8.x and
+9.x. Key differences:</p>
+<h4 id="content-management-v3-api-9x">Content Management v3 API (9.x)<a class="headerlink" href="#content-management-v3-api-9x" title="Permanent link">&para;</a></h4>
+<p>The new API layer destringifies JSON for easier programmatic access:</p>
+<table>
+<thead>
+<tr>
+<th>Storage Field</th>
+<th>v3 API Field</th>
+<th>Compiler Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>panelsJSON</code> (string)</td>
+<td><code>panels</code> (array)</td>
+<td>Use stringified format</td>
+</tr>
+<tr>
+<td><code>optionsJSON</code> (string)</td>
+<td><code>options</code> (object)</td>
+<td>Use stringified format</td>
+</tr>
+<tr>
+<td><code>searchSourceJSON</code> (string)</td>
+<td><code>searchSource</code> (object)</td>
+<td>Use stringified format</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation</strong>: Compilers should output the stringified format for maximum
+compatibility with both direct saved object operations and older Kibana
+versions.</p>
+<h4 id="model-versions-system">Model Versions System<a class="headerlink" href="#model-versions-system" title="Permanent link">&para;</a></h4>
+<p>After Kibana 8.10.0, the legacy <code>migrations</code> property is deprecated. The new
+<code>modelVersions</code> system uses consecutive integers (1, 2, 3...) decoupled from
+Kibana release versions.</p>
+<p>Version field changes:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Status</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>migrationVersion</code> (map)</td>
+<td>Being phased out</td>
+<td>Legacy version tracking</td>
+</tr>
+<tr>
+<td><code>typeMigrationVersion</code></td>
+<td>Current standard</td>
+<td>Primary version field</td>
+</tr>
+<tr>
+<td><code>coreMigrationVersion</code></td>
+<td>Active</td>
+<td>Tracks core Kibana version</td>
+</tr>
+</tbody>
+</table>
+<h4 id="legacy-visualization-deprecations">Legacy Visualization Deprecations<a class="headerlink" href="#legacy-visualization-deprecations" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Visualization Type</th>
+<th>9.x Status</th>
+<th>Full Removal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TSVB</strong></td>
+<td>Creation disabled, existing work</td>
+<td>10.0</td>
+</tr>
+<tr>
+<td><strong>Aggregation-based</strong></td>
+<td>Creation disabled, existing work</td>
+<td>10.0</td>
+</tr>
+<tr>
+<td><strong>Timelion (viz)</strong></td>
+<td>Creation disabled, existing work</td>
+<td>10.0</td>
+</tr>
+<tr>
+<td><strong>Vega</strong></td>
+<td>Fully supported</td>
+<td>No removal planned</td>
+</tr>
+<tr>
+<td><strong>Logs Stream panel</strong></td>
+<td><strong>REMOVED</strong></td>
+<td>9.0</td>
+</tr>
+<tr>
+<td><strong>Legacy Input Controls</strong></td>
+<td>Hidden by default</td>
+<td>TBD</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical for compilers</strong>: Target Lens (<code>lns*</code> visualization types) as the
+primary output format since legacy visualization creation is disabled in 9.0
+and scheduled for full removal in 10.0.</p>
+<h2 id="saved-object-structure">Saved Object Structure<a class="headerlink" href="#saved-object-structure" title="Permanent link">&para;</a></h2>
+<h3 id="top-level-schema">Top-Level Schema<a class="headerlink" href="#top-level-schema" title="Permanent link">&para;</a></h3>
+<p>Every dashboard saved object follows this structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;730ea5e4-dc12-4b1c-aee4-a6af849be9be&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;namespaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-08T22:30:30.879Z&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-08T22:30:30.879Z&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Wzg1LDdd&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">&quot;typeMigrationVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8.7.0&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">&quot;managed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Dashboard-specific data */</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">&quot;references&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="cm">/* External object references */</span><span class="w"> </span><span class="p">]</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="dashboard-attributes">Dashboard Attributes<a class="headerlink" href="#dashboard-attributes" title="Permanent link">&para;</a></h3>
+<p>The <code>attributes</code> object contains all dashboard-specific configuration:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>Dashboard display name</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Optional dashboard description</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>number</td>
+<td>Internal schema version (typically <code>1</code>)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>timeRestore</code></td>
+<td>boolean</td>
+<td>Whether to restore saved time range on load</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>timeFrom</code></td>
+<td>string</td>
+<td>Saved time range start (e.g., <code>"now-15m"</code>)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>timeTo</code></td>
+<td>string</td>
+<td>Saved time range end (e.g., <code>"now"</code>)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>refreshInterval</code></td>
+<td>object</td>
+<td>Auto-refresh: <code>{pause: boolean, value: number}</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>kibanaSavedObjectMeta</code></td>
+<td>object</td>
+<td>Contains <code>searchSourceJSON</code> (stringified)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>optionsJSON</code></td>
+<td>string</td>
+<td><strong>Stringified dashboard display options</strong></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>panelsJSON</code></td>
+<td>string</td>
+<td><strong>Stringified array of panel configurations</strong></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>controlGroupInput</code></td>
+<td>object</td>
+<td>Filter controls configuration</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical</strong>: The <code>panelsJSON</code>, <code>optionsJSON</code>, and <code>searchSourceJSON</code> fields
+are <strong>stringified JSON strings</strong>, not native objects. Compilers must serialize
+these fields as escaped JSON strings within the final output.</p>
+<h3 id="search-source-json">Search Source JSON<a class="headerlink" href="#search-source-json" title="Permanent link">&para;</a></h3>
+<p>Controls dashboard-level queries and filters:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">&quot;language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kuery&quot;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;filter&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="nt">&quot;$state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;store&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;appState&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="nt">&quot;alias&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">        </span><span class="nt">&quot;disabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">        </span><span class="nt">&quot;negate&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;phrase&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_name&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="nt">&quot;indexRefName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index&quot;</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">      </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">        </span><span class="nt">&quot;match_phrase&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>language</code> field accepts <code>"kuery"</code> (KQL) or <code>"lucene"</code>. Filter index
+references use the <code>indexRefName</code> convention, which must match entries in the
+top-level <code>references</code> array.</p>
+<h3 id="dashboard-options">Dashboard Options<a class="headerlink" href="#dashboard-options" title="Permanent link">&para;</a></h3>
+<p>The <code>optionsJSON</code> field contains display preferences:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;useMargins&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;syncColors&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;syncCursor&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;syncTooltips&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">&quot;hidePanelTitles&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="references-array">References Array<a class="headerlink" href="#references-array" title="Permanent link">&para;</a></h3>
+<p>The <code>references</code> array extracts object relationships from panel configurations:</p>
+<p><strong>Reference Naming Conventions</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Usage</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>panel_N</code></td>
+<td>By-reference panel linking to saved visualization</td>
+<td><code>panel_5</code></td>
+</tr>
+<tr>
+<td><code>kibanaSavedObjectMeta.searchSourceJSON.index</code></td>
+<td>Dashboard's default data view</td>
+<td>Main index pattern</td>
+</tr>
+<tr>
+<td><code>kibanaSavedObjectMeta.searchSourceJSON.filter[N].meta.index</code></td>
+<td>Filter data view references</td>
+<td>Per-filter index</td>
+</tr>
+<tr>
+<td><code>{panelIndex}:indexpattern-datasource-layer-{layerId}</code></td>
+<td>Lens layer data view reference</td>
+<td><code>panel-uuid:indexpattern-datasource-layer-layer1</code></td>
+</tr>
+<tr>
+<td><code>controlGroup_N:optionsListDataView</code></td>
+<td>Control group data views</td>
+<td>Control filter index</td>
+</tr>
+</tbody>
+</table>
+<p>Example references:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;references&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;index-pattern&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;logs-*&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kibanaSavedObjectMeta.searchSourceJSON.index&quot;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;index-pattern&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;01d64a72-a702-4a41-8ba3-b87d45c40814&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;panel-uuid:indexpattern-datasource-layer-layer1&quot;</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;visualization&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;50643b60-3dd3-11e8-b2b9-5d5dc1715159&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;panel_5&quot;</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="panel-configuration">Panel Configuration<a class="headerlink" href="#panel-configuration" title="Permanent link">&para;</a></h2>
+<p>Panels represent individual visualizations within a dashboard. The grid system
+uses a <strong>48-column layout</strong> where panels are positioned using <code>gridData</code>
+coordinates.</p>
+<h3 id="panel-object-structure">Panel Object Structure<a class="headerlink" href="#panel-object-structure" title="Permanent link">&para;</a></h3>
+<p>Each panel in the <code>panelsJSON</code> array follows this structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">PanelState</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">          </span><span class="c1">// Kibana version (e.g., &quot;8.6.0&quot;)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">             </span><span class="c1">// &#39;lens&#39;, &#39;visualization&#39;, &#39;map&#39;, &#39;search&#39;, &#39;links&#39;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">panelIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">       </span><span class="c1">// UUID matching gridData.i</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nx">panelRefName?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">    </span><span class="c1">// For by-reference: &#39;panel_{panelIndex}&#39;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nx">title?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">           </span><span class="c1">// Custom panel title</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nx">gridData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">              </span><span class="c1">// 0-47 (48-column grid)</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nx">y</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">              </span><span class="c1">// 0+ (infinite rows)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nx">w</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">              </span><span class="c1">// Width 1-48</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nx">h</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">              </span><span class="c1">// Height in row units</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="nx">i</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">              </span><span class="c1">// Panel ID (must match panelIndex)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="nx">row?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">           </span><span class="c1">// NEW in 9.x: parent section ID</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="nx">embeddableConfig</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="nx">attributes?</span><span class="o">:</span><span class="w"> </span><span class="kt">object</span><span class="p">;</span><span class="w">    </span><span class="c1">// By-value: full visualization state</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nx">enhancements?</span><span class="o">:</span><span class="w"> </span><span class="kt">object</span><span class="p">;</span><span class="w">  </span><span class="c1">// Drilldowns, actions</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="nx">hidePanelTitles?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="grid-positioning-rules">Grid Positioning Rules<a class="headerlink" href="#grid-positioning-rules" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>x</strong>: Horizontal position (0-47, max 48 columns total)</li>
+<li><strong>y</strong>: Vertical position (rows from top, no maximum)</li>
+<li><strong>w</strong>: Width in grid columns (1-48)</li>
+<li><strong>h</strong>: Height in grid units (minimum varies by panel type)</li>
+<li><strong>i</strong>: Unique identifier string (must match <code>panelIndex</code>)</li>
+</ul>
+<p><strong>Common Layout Patterns</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Layout</th>
+<th>Grid Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full width</td>
+<td><code>{"x":0,"y":0,"w":48,"h":8}</code></td>
+</tr>
+<tr>
+<td>Half width (left)</td>
+<td><code>{"x":0,"y":0,"w":24,"h":15}</code></td>
+</tr>
+<tr>
+<td>Half width (right)</td>
+<td><code>{"x":24,"y":0,"w":24,"h":15}</code></td>
+</tr>
+<tr>
+<td>Three columns</td>
+<td><code>w:16</code> at <code>x:0</code>, <code>x:16</code>, <code>x:32</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="by-reference-vs-by-value-panels">By-Reference vs By-Value Panels<a class="headerlink" href="#by-reference-vs-by-value-panels" title="Permanent link">&para;</a></h3>
+<p>This is the <strong>most critical distinction</strong> for compiler implementations.</p>
+<h4 id="by-reference-panels">By-Reference Panels<a class="headerlink" href="#by-reference-panels" title="Permanent link">&para;</a></h4>
+<p>Link to separately saved visualization objects:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;visualization&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;gridData&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="mi">21</span><span class="p">,</span><span class="nt">&quot;w&quot;</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="nt">&quot;h&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="nt">&quot;i&quot;</span><span class="p">:</span><span class="s2">&quot;5&quot;</span><span class="p">},</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;panelIndex&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&quot;embeddableConfig&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;enhancements&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;panelRefName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;panel_5&quot;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>panelRefName</code> must match an entry in the dashboard's <code>references</code> array:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;visualization&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;50643b60-3dd3-11e8-b2b9-5d5dc1715159&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;panel_5&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="by-value-panels-recommended">By-Value Panels (Recommended)<a class="headerlink" href="#by-value-panels-recommended" title="Permanent link">&para;</a></h4>
+<p>Embed the complete visualization inline:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lens&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&quot;gridData&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="nt">&quot;w&quot;</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="nt">&quot;h&quot;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span><span class="nt">&quot;i&quot;</span><span class="p">:</span><span class="s2">&quot;uuid-here&quot;</span><span class="p">},</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">&quot;panelIndex&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid-here&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">&quot;embeddableConfig&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">&quot;hidePanelTitles&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="nt">&quot;visualizationType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lnsXY&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lens&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="nt">&quot;references&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;index-pattern&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;logs-*&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;indexpattern-datasource-layer-layer1&quot;</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">      </span><span class="p">],</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">      </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Full Lens state */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">    </span><span class="nt">&quot;enhancements&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>For YAML compilers targeting Lens, by-value panels are the recommended
+approach</strong> as they create self-contained dashboards that are easier to version
+control and deploy.</p>
+<h3 id="panel-type-compatibility">Panel Type Compatibility<a class="headerlink" href="#panel-type-compatibility" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Panel Type</th>
+<th><code>type</code> Value</th>
+<th>8.x</th>
+<th>9.x</th>
+<th>Recommended</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lens</td>
+<td><code>lens</code></td>
+<td>✓</td>
+<td>✓</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Legacy Viz</td>
+<td><code>visualization</code></td>
+<td>✓</td>
+<td>Existing only</td>
+<td>No</td>
+</tr>
+<tr>
+<td>TSVB</td>
+<td><code>visualization</code></td>
+<td>✓</td>
+<td>Existing only</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Maps</td>
+<td><code>map</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Saved Search</td>
+<td><code>search</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Links</td>
+<td><code>links</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Collapsible Section</td>
+<td><code>section</code></td>
+<td>—</td>
+<td>✓</td>
+<td>Yes (9.x+)</td>
+</tr>
+<tr>
+<td>Vega</td>
+<td><code>visualization</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="collapsible-sections-819-9x">Collapsible Sections (8.19+, 9.x)<a class="headerlink" href="#collapsible-sections-819-9x" title="Permanent link">&para;</a></h3>
+<p>Collapsible sections allow panels to be grouped into expandable/collapsible
+rows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;rows&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;section-1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;section-1&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Section Title&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">      </span><span class="nt">&quot;collapsed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">      </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="nt">&quot;panel-1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lens&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gridData&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="nt">&quot;ungrouped-panel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lens&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;gridData&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>Key implications:</p>
+<ul>
+<li>Collapsed sections <strong>lazy-load content</strong>, improving performance</li>
+<li>The <code>gridData.row</code> property links panels to their parent section</li>
+<li>Uses custom CSS grid layout engine (<code>kbn-grid-layout</code>) replacing
+  <code>react-grid-layout</code></li>
+</ul>
+<h2 id="lens-visualization-architecture">Lens Visualization Architecture<a class="headerlink" href="#lens-visualization-architecture" title="Permanent link">&para;</a></h2>
+<p>Lens is Kibana's modern visualization editor and the primary target for new
+dashboards. Its state object is complex but follows a consistent schema.</p>
+<h3 id="lens-attributes-structure">Lens Attributes Structure<a class="headerlink" href="#lens-attributes-structure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Chart&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;visualizationType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lnsXY&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lens&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="nt">&quot;references&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;index-pattern&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;01d64a72-a702-4a41-8ba3-b87d45c40814&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;indexpattern-datasource-layer-layer1&quot;</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="nt">&quot;datasourceStates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">      </span><span class="nt">&quot;formBased&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">        </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">          </span><span class="nt">&quot;layer1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">            </span><span class="nt">&quot;columns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Column definitions */</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">            </span><span class="nt">&quot;columnOrder&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;col2&quot;</span><span class="p">],</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">            </span><span class="nt">&quot;indexPatternId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;01d64a72-a702-4a41-8ba3-b87d45c40814&quot;</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">          </span><span class="p">}</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="w">    </span><span class="nt">&quot;visualization&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Visualization-specific config */</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="w">    </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kuery&quot;</span><span class="p">},</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="w">    </span><span class="nt">&quot;filters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="lens-visualization-types">Lens Visualization Types<a class="headerlink" href="#lens-visualization-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>visualizationType</th>
+<th>Description</th>
+<th>Common Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lnsXY</code></td>
+<td>Line, area, bar charts</td>
+<td>Time series, comparisons</td>
+</tr>
+<tr>
+<td><code>lnsPie</code></td>
+<td>Pie and donut charts</td>
+<td>Proportions, distributions</td>
+</tr>
+<tr>
+<td><code>lnsMetric</code></td>
+<td>Single metric display</td>
+<td>KPIs, counts</td>
+</tr>
+<tr>
+<td><code>lnsDatatable</code></td>
+<td>Data tables</td>
+<td>Raw data, breakdowns</td>
+</tr>
+<tr>
+<td><code>lnsGauge</code></td>
+<td>Gauge visualizations</td>
+<td>Progress, thresholds</td>
+</tr>
+<tr>
+<td><code>lnsHeatmap</code></td>
+<td>Heatmaps</td>
+<td>Density, correlations</td>
+</tr>
+<tr>
+<td><code>lnsTagcloud</code></td>
+<td>Tag clouds</td>
+<td>Word frequency</td>
+</tr>
+<tr>
+<td><code>lnsMosaic</code></td>
+<td>Mosaic charts</td>
+<td>Multi-dimensional proportions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lens-column-configuration">Lens Column Configuration<a class="headerlink" href="#lens-column-configuration" title="Permanent link">&para;</a></h3>
+<p>Columns define the data transformations (metrics and buckets):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;col1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">&quot;dataType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">&quot;isBucketed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@timestamp&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">&quot;operationType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date_histogram&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;auto&quot;</span><span class="p">},</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">&quot;sourceField&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@timestamp&quot;</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="nt">&quot;col2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nt">&quot;dataType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nt">&quot;isBucketed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Count&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="nt">&quot;operationType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;count&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="nt">&quot;sourceField&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Records&quot;</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Operation types include</strong>:</p>
+<ul>
+<li><strong>Metrics</strong>: <code>count</code>, <code>sum</code>, <code>avg</code>, <code>max</code>, <code>min</code>, <code>cardinality</code>, <code>percentile</code>,
+  <code>median</code>, <code>last_value</code>, <code>unique_count</code></li>
+<li><strong>Buckets</strong>: <code>date_histogram</code>, <code>terms</code>, <code>filters</code>, <code>range</code></li>
+<li><strong>Advanced</strong>: Formula-based operations</li>
+</ul>
+<h3 id="lens-xy-visualization-state">Lens XY Visualization State<a class="headerlink" href="#lens-xy-visualization-state" title="Permanent link">&para;</a></h3>
+<p>For <code>lnsXY</code> charts, the visualization state specifies how columns map to visual
+elements:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;visualization&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nt">&quot;layerId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;layer1&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">      </span><span class="nt">&quot;accessors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;col2&quot;</span><span class="p">],</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">      </span><span class="nt">&quot;xAccessor&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;col1&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="nt">&quot;seriesType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bar&quot;</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="p">}],</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="nt">&quot;preferredSeriesType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="nt">&quot;legend&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;isVisible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;position&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;right&quot;</span><span class="p">},</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="nt">&quot;valueLabels&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hide&quot;</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Series types</strong>: <code>bar</code>, <code>line</code>, <code>area</code>, <code>bar_stacked</code>, <code>bar_horizontal</code>,
+<code>bar_horizontal_stacked</code>, <code>area_stacked</code>.</p>
+<h3 id="lens-datasources">Lens Datasources<a class="headerlink" href="#lens-datasources" title="Permanent link">&para;</a></h3>
+<p>Kibana 9.x introduces multiple datasource types:</p>
+<table>
+<thead>
+<tr>
+<th>Datasource</th>
+<th>State Key</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Form-based</td>
+<td><code>formBased</code></td>
+<td>Standard aggregation-based queries</td>
+</tr>
+<tr>
+<td>Text-based</td>
+<td><code>textBased</code></td>
+<td>ES|QL queries (9.x+)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Form-based datasource</strong> (most common):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;formBased&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">      </span><span class="nt">&quot;layer1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="nt">&quot;columns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* column configurations */</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">        </span><span class="nt">&quot;columnOrder&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;col2&quot;</span><span class="p">],</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">        </span><span class="nt">&quot;indexPatternId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data-view-id&quot;</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Text-based datasource</strong> (ES|QL):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;textBased&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">      </span><span class="nt">&quot;layer1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">        </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">          </span><span class="nt">&quot;esql&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FROM logs* | STATS count() BY @timestamp&quot;</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">        </span><span class="nt">&quot;columns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">        </span><span class="nt">&quot;timeField&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@timestamp&quot;</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="advanced-features">Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h2>
+<h3 id="esql-variable-controls-9x">ES|QL Variable Controls (9.x+)<a class="headerlink" href="#esql-variable-controls-9x" title="Permanent link">&para;</a></h3>
+<p>New control types enable dynamic dashboard filtering through ES|QL queries:</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Naming</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9.0-9.1</td>
+<td>"ES|QL controls"</td>
+</tr>
+<tr>
+<td>9.2+</td>
+<td>"Variable controls"</td>
+</tr>
+</tbody>
+</table>
+<p>Variable prefixes in ES|QL queries:</p>
+<ul>
+<li><code>?variableName</code> — value variables (filter values)</li>
+<li><code>??variableName</code> — field/function variables</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&quot;controlGroupInput&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nt">&quot;controls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;esql-control-1&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;esqlControl&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">        </span><span class="nt">&quot;variableName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;myVariable&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">        </span><span class="nt">&quot;variableType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">        </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;query&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">          </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FROM logs* | STATS count() BY field | LIMIT 100&quot;</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="nt">&quot;chainingSystem&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HIERARCHICAL&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="nt">&quot;labelPosition&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oneLine&quot;</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="drilldown-configuration">Drilldown Configuration<a class="headerlink" href="#drilldown-configuration" title="Permanent link">&para;</a></h3>
+<p>Panel drilldowns enable interactive navigation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&quot;embeddableConfig&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="nt">&quot;enhancements&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">      </span><span class="nt">&quot;dynamicActions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">        </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">          </span><span class="nt">&quot;eventId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drilldown-1&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">          </span><span class="nt">&quot;triggers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;VALUE_CLICK_TRIGGER&quot;</span><span class="p">],</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">          </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">            </span><span class="nt">&quot;factoryId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DASHBOARD_TO_DASHBOARD_DRILLDOWN&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;View Details&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">            </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">              </span><span class="nt">&quot;dashboardId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;target-dashboard-id&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">              </span><span class="nt">&quot;useCurrentFilters&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">              </span><span class="nt">&quot;useCurrentDateRange&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">          </span><span class="p">}</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">        </span><span class="p">}]</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Trigger types</strong>: <code>VALUE_CLICK_TRIGGER</code>, <code>RANGE_SELECT_TRIGGER</code>,
+<code>ROW_CLICK_TRIGGER</code>.</p>
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="saved-objects-api-endpoints">Saved Objects API Endpoints<a class="headerlink" href="#saved-objects-api-endpoints" title="Permanent link">&para;</a></h3>
+<p>The primary API for dashboard management:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/saved_objects/_export</code></td>
+<td>Export dashboards (NDJSON)</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/saved_objects/_import</code></td>
+<td>Import dashboards</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/saved_objects/dashboard/{id}</code></td>
+<td>Retrieve single dashboard</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/saved_objects/dashboard</code></td>
+<td>Create dashboard</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/saved_objects/dashboard/{id}</code></td>
+<td>Update dashboard</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Space-aware endpoints</strong> use the format: <code>/s/{space_id}/api/saved_objects/...</code></p>
+<h3 id="ndjson-export-format">NDJSON Export Format<a class="headerlink" href="#ndjson-export-format" title="Permanent link">&para;</a></h3>
+<p>Kibana exports use Newline Delimited JSON, where each line is a complete saved
+object:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;index-pattern-id&quot;</span><span class="p">,</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;index-pattern&quot;</span><span class="p">,</span><span class="nt">&quot;attributes&quot;</span><span class="p">:{</span><span class="err">...</span><span class="p">}}</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;dashboard-id&quot;</span><span class="p">,</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span><span class="nt">&quot;attributes&quot;</span><span class="p">:{</span><span class="err">...</span><span class="p">},</span><span class="nt">&quot;references&quot;</span><span class="p">:[</span><span class="err">...</span><span class="p">]}</span>
+</code></pre></div>
+<p><strong>Export request body</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&quot;objects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dashboard-id&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dashboard&quot;</span><span class="p">}],</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nt">&quot;includeReferencesDeep&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="nt">&quot;excludeExportDetails&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="internal-apis-blocked-in-90">Internal APIs Blocked in 9.0<a class="headerlink" href="#internal-apis-blocked-in-90" title="Permanent link">&para;</a></h3>
+<p><strong>Critical 9.0 change</strong>: Internal Kibana HTTP APIs now return <code>400 Bad Request</code>
+when accessed without proper internal headers. This restriction is <strong>enabled by
+default</strong> and affects undocumented <code>/api/*</code> and <code>/internal/*</code> routes.</p>
+<p>Compilers should use only publicly documented APIs listed above.</p>
+<p>Required headers for all API calls:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>kbn-xsrf: true
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Content-Type: application/json
+</code></pre></div>
+<h3 id="deprecatedremoved-apis">Deprecated/Removed APIs<a class="headerlink" href="#deprecatedremoved-apis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Removed API</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/kibana/dashboards/export</code></td>
+<td><code>POST /api/saved_objects/_export</code></td>
+</tr>
+<tr>
+<td><code>POST /api/kibana/dashboards/import</code></td>
+<td><code>POST /api/saved_objects/_import</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="complete-example-by-value-lens-dashboard">Complete Example: By-Value Lens Dashboard<a class="headerlink" href="#complete-example-by-value-lens-dashboard" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my-dashboard&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span><span class="nt">&quot;typeMigrationVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8.9.0&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">  </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Application Metrics&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">    </span><span class="nt">&quot;timeRestore&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">    </span><span class="nt">&quot;timeFrom&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;now-24h&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">    </span><span class="nt">&quot;timeTo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;now&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="nt">&quot;refreshInterval&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;pause&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30000</span><span class="p">},</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">    </span><span class="nt">&quot;kibanaSavedObjectMeta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">      </span><span class="nt">&quot;searchSourceJSON&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;query\&quot;:{\&quot;query\&quot;:\&quot;\&quot;,\&quot;language\&quot;:\&quot;kuery\&quot;},\&quot;filter\&quot;:[]}&quot;</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="w">    </span><span class="nt">&quot;optionsJSON&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;useMargins\&quot;:true,\&quot;syncColors\&quot;:false,\&quot;syncCursor\&quot;:true,\&quot;syncTooltips\&quot;:false,\&quot;hidePanelTitles\&quot;:false}&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="w">    </span><span class="nt">&quot;panelsJSON&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[{\&quot;type\&quot;:\&quot;lens\&quot;,\&quot;gridData\&quot;:{\&quot;x\&quot;:0,\&quot;y\&quot;:0,\&quot;w\&quot;:24,\&quot;h\&quot;:15,\&quot;i\&quot;:\&quot;panel1\&quot;},\&quot;panelIndex\&quot;:\&quot;panel1\&quot;,\&quot;embeddableConfig\&quot;:{\&quot;attributes\&quot;:{\&quot;title\&quot;:\&quot;Request Count Over Time\&quot;,\&quot;visualizationType\&quot;:\&quot;lnsXY\&quot;,\&quot;type\&quot;:\&quot;lens\&quot;,\&quot;references\&quot;:[{\&quot;type\&quot;:\&quot;index-pattern\&quot;,\&quot;id\&quot;:\&quot;logs-*\&quot;,\&quot;name\&quot;:\&quot;indexpattern-datasource-layer-layer1\&quot;}],\&quot;state\&quot;:{\&quot;datasourceStates\&quot;:{\&quot;formBased\&quot;:{\&quot;layers\&quot;:{\&quot;layer1\&quot;:{\&quot;columns\&quot;:{\&quot;col1\&quot;:{\&quot;dataType\&quot;:\&quot;date\&quot;,\&quot;isBucketed\&quot;:true,\&quot;label\&quot;:\&quot;@timestamp\&quot;,\&quot;operationType\&quot;:\&quot;date_histogram\&quot;,\&quot;params\&quot;:{\&quot;interval\&quot;:\&quot;auto\&quot;},\&quot;sourceField\&quot;:\&quot;@timestamp\&quot;},\&quot;col2\&quot;:{\&quot;dataType\&quot;:\&quot;number\&quot;,\&quot;isBucketed\&quot;:false,\&quot;label\&quot;:\&quot;Count\&quot;,\&quot;operationType\&quot;:\&quot;count\&quot;,\&quot;sourceField\&quot;:\&quot;Records\&quot;}},\&quot;columnOrder\&quot;:[\&quot;col1\&quot;,\&quot;col2\&quot;]}}}},\&quot;visualization\&quot;:{\&quot;layers\&quot;:[{\&quot;layerId\&quot;:\&quot;layer1\&quot;,\&quot;accessors\&quot;:[\&quot;col2\&quot;],\&quot;xAccessor\&quot;:\&quot;col1\&quot;,\&quot;seriesType\&quot;:\&quot;bar\&quot;}],\&quot;preferredSeriesType\&quot;:\&quot;bar\&quot;,\&quot;legend\&quot;:{\&quot;isVisible\&quot;:true,\&quot;position\&quot;:\&quot;right\&quot;}},\&quot;query\&quot;:{\&quot;query\&quot;:\&quot;\&quot;,\&quot;language\&quot;:\&quot;kuery\&quot;},\&quot;filters\&quot;:[]}},\&quot;enhancements\&quot;:{}}}]&quot;</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="w">  </span><span class="nt">&quot;references&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;index-pattern&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;logs-*&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;panel1:indexpattern-datasource-layer-layer1&quot;</span>
+<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="compiler-implementation-guidelines">Compiler Implementation Guidelines<a class="headerlink" href="#compiler-implementation-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="version-detection-strategy">Version Detection Strategy<a class="headerlink" href="#version-detection-strategy" title="Permanent link">&para;</a></h3>
+<p>Check <code>typeMigrationVersion</code> or response headers to determine target version:</p>
+<ul>
+<li><strong>8.x</strong>: Use stringified JSON format with SavedObjects API</li>
+<li><strong>9.x</strong>: Same stringified format works; new Dashboard API (when available)
+  accepts destringified</li>
+</ul>
+<h3 id="output-generation-for-dual-compatibility">Output Generation for Dual Compatibility<a class="headerlink" href="#output-generation-for-dual-compatibility" title="Permanent link">&para;</a></h3>
+<p>For a YAML-to-Kibana compiler, the output generation process should:</p>
+<ol>
+<li><strong>Stringify</strong> <code>options</code> → <code>optionsJSON</code></li>
+<li><strong>Stringify</strong> <code>panels</code> → <code>panelsJSON</code></li>
+<li><strong>Stringify</strong> <code>searchSource</code> → <code>searchSourceJSON</code></li>
+<li><strong>Extract</strong> panel references → <code>references</code> array</li>
+<li><strong>Generate</strong> unique UUIDs for <code>panelIndex</code> and <code>gridData.i</code> (must match)</li>
+<li><strong>Include</strong> <code>typeMigrationVersion</code> appropriate to target version</li>
+<li><strong>Flatten</strong> embedded Lens references to dashboard's top-level <code>references</code>
+   array with proper naming</li>
+</ol>
+<h3 id="critical-implementation-details">Critical Implementation Details<a class="headerlink" href="#critical-implementation-details" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>JSON Stringification</strong>: The <code>panelsJSON</code>, <code>optionsJSON</code>, and
+   <code>searchSourceJSON</code> fields must be properly escaped JSON strings within the
+   final output.</p>
+</li>
+<li>
+<p><strong>UUID Generation</strong>: Each panel needs a unique identifier that appears in
+   both <code>panelIndex</code> and <code>gridData.i</code>.</p>
+</li>
+<li>
+<p><strong>Reference Extraction</strong>: When generating by-value Lens panels, extract
+   index pattern references from the embedded <code>attributes.references</code> and add
+   them to the dashboard's top-level <code>references</code> array with the naming
+   convention <code>{panelIndex}:indexpattern-datasource-layer-{layerId}</code>.</p>
+</li>
+<li>
+<p><strong>Reference Naming</strong>: Follow established naming patterns for different
+   reference types (see "Reference Naming Conventions" section above).</p>
+</li>
+<li>
+<p><strong>Target Lens Exclusively</strong>: For future-proof compilation, generate only
+   Lens visualizations (<code>lns*</code> types) as legacy visualization creation is
+   disabled in 9.0 and scheduled for removal in 10.0.</p>
+</li>
+</ol>
+<h3 id="future-proofing-considerations">Future-Proofing Considerations<a class="headerlink" href="#future-proofing-considerations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Prefer by-value panels</strong> for self-contained, version-controllable dashboards</li>
+<li><strong>Target Lens exclusively</strong> for long-term compatibility</li>
+<li><strong>Use formBased datasource</strong> for standard aggregations</li>
+<li><strong>Consider textBased datasource</strong> for ES|QL queries (9.x+)</li>
+<li><strong>Support collapsible sections</strong> for improved organization (8.19+, 9.x)</li>
+<li><strong>Implement variable controls</strong> for dynamic filtering (9.x+)</li>
+</ul>
+<h2 id="source-code-references">Source Code References<a class="headerlink" href="#source-code-references" title="Permanent link">&para;</a></h2>
+<p>For deeper implementation details, these Kibana repository paths contain
+authoritative type definitions:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/plugins/dashboard/common/types.ts</code></td>
+<td>Core dashboard TypeScript types</td>
+</tr>
+<tr>
+<td><code>src/plugins/dashboard/common/bwc/types.ts</code></td>
+<td>Backward compatibility types</td>
+</tr>
+<tr>
+<td><code>src/plugins/dashboard/common/saved_dashboard_references.ts</code></td>
+<td>Reference extraction/injection logic</td>
+</tr>
+<tr>
+<td><code>x-pack/platform/plugins/shared/lens/</code></td>
+<td>Lens plugin implementation</td>
+</tr>
+<tr>
+<td><code>src/plugins/embeddable/README.md</code></td>
+<td>Embeddable system documentation</td>
+</tr>
+<tr>
+<td><code>packages/core/saved-objects/</code></td>
+<td>Core saved object schemas</td>
+</tr>
+</tbody>
+</table>
+<h2 id="openapi-specifications">OpenAPI Specifications<a class="headerlink" href="#openapi-specifications" title="Permanent link">&para;</a></h2>
+<p>Official Kibana API schemas are available at:</p>
+<ul>
+<li><strong>JSON</strong>: <code>https://www.elastic.co/docs/api/doc/kibana.json</code></li>
+<li><strong>YAML</strong>: <code>https://www.elastic.co/docs/api/doc/kibana.yaml</code></li>
+</ul>
+<h2 id="summary-key-takeaways-for-ai-agents">Summary: Key Takeaways for AI Agents<a class="headerlink" href="#summary-key-takeaways-for-ai-agents" title="Permanent link">&para;</a></h2>
+<p>When working with Kibana dashboard compilation:</p>
+<ol>
+<li><strong>Understand the stringified JSON pattern</strong> - Most complex data in
+   <code>attributes</code> is stringified JSON</li>
+<li><strong>Use by-value panels</strong> - Embed full Lens configurations inline for
+   self-contained dashboards</li>
+<li><strong>Target Lens exclusively</strong> - Legacy visualization types are deprecated and
+   will be removed in Kibana 10.0</li>
+<li><strong>Follow reference naming conventions</strong> - Proper naming is critical for
+   linking panels to data views</li>
+<li><strong>Generate matching UUIDs</strong> - <code>panelIndex</code> and <code>gridData.i</code> must match</li>
+<li><strong>Respect the 48-column grid</strong> - Use standard layout patterns for consistent
+   positioning</li>
+<li><strong>Use the Saved Objects API</strong> - This is the primary interface for dashboard
+   management</li>
+<li><strong>Support version evolution</strong> - Use <code>typeMigrationVersion</code> for compatibility
+   tracking</li>
+<li><strong>Consider collapsible sections</strong> - Modern dashboards benefit from
+   organizational features (8.19+, 9.x)</li>
+<li><strong>Leverage ES|QL controls</strong> - Variable controls enable dynamic filtering
+    (9.x+)</li>
+</ol>
+<p>This architecture reference provides the foundation for building robust
+YAML-to-Kibana compilation tools that generate compatible, future-proof
+dashboard configurations.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.tracking", "navigation.instant", "navigation.path", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
