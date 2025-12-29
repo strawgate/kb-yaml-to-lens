@@ -79,26 +79,45 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: quickstart.md
-  - Programmatic Usage: programmatic-usage.md
-  - Architecture: architecture.md
-  - YAML Reference: yaml_reference.md
-  - CLI Guide: CLI.md
-  - Contributing: ../CONTRIBUTING.md
-  - Guides:
-      - Kibana Fixture Generator: kibana-fixture-generator-guide.md
-  - API Reference:
-      - api/index.md
-      - Dashboard: api/dashboard.md
-      - Panels: api/panels.md
-      - Controls: api/controls.md
-      - Filters: api/filters.md
-      - Queries: api/queries.md
-  - Panel Configuration:
-      - Markdown Panel: panels/markdown.md
-      - Image Panel: panels/image.md
-      - Links Panel: panels/links.md
-      - Search Panel: panels/search.md
-      - Metric Chart: panels/metric.md
-      - Pie Chart: panels/pie.md
-      - XY Chart: panels/xy.md
+
+  # TIER 1: Getting Started (New Users)
+  - Getting Started:
+      - Quickstart: quickstart.md
+      - CLI Reference: CLI.md
+
+  # TIER 2: User Guide (Building Dashboards)
+  - User Guide:
+      - YAML Reference: yaml_reference.md
+      - Dashboard Configuration: dashboard/dashboard.md
+      - Panel Types:
+          - Overview: panels/base.md
+          - Markdown Panels: panels/markdown.md
+          - Chart Panels:
+              - Metric Charts: panels/metric.md
+              - Pie Charts: panels/pie.md
+              - XY Charts: panels/xy.md
+          - Special Panels:
+              - Image Panels: panels/image.md
+              - Links Panels: panels/links.md
+              - Search Panels: panels/search.md
+      - Dashboard Controls: controls/config.md
+      - Filters & Queries:
+          - Filters: filters/config.md
+          - Queries: queries/config.md
+      - Complete Examples: examples/index.md
+
+  # TIER 3: Developer Resources (Advanced/Contributors)
+  - Developer Guide:
+      - Architecture Overview: architecture.md
+      - Programmatic Usage: programmatic-usage.md
+      - API Reference:
+          - api/index.md
+          - Dashboard API: api/dashboard.md
+          - Panels API: api/panels.md
+          - Controls API: api/controls.md
+          - Filters API: api/filters.md
+          - Queries API: api/queries.md
+      - Contributing: ../CONTRIBUTING.md
+      - Advanced Topics:
+          - Kibana Architecture Reference: kibana-architecture.md
+          - Fixture Generator Guide: kibana-fixture-generator-guide.md
