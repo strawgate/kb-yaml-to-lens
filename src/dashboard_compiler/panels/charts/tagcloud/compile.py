@@ -1,6 +1,6 @@
 """Compile Lens tagcloud visualizations into their Kibana view models."""
 
-from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
+from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
@@ -51,7 +51,7 @@ def compile_tagcloud_chart_visualization_state(
     # Color mapping
     palette_id = chart.color.palette if chart.color and chart.color.palette else 'default'
     kbn_color_mapping_id = 'eui_amsterdam_color_blind' if palette_id == 'default' else palette_id
-    kbn_color_mapping = KbnLayerColorMapping(paletteId=kbn_color_mapping_id)
+    kbn_color_mapping = create_default_color_mapping(palette_id=kbn_color_mapping_id)
     palette = {'name': palette_id, 'type': 'palette'}
 
     layer = KbnTagcloudStateVisualizationLayer(
