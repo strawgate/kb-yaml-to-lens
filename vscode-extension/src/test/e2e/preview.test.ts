@@ -54,6 +54,22 @@ describe('Preview Panel E2E Tests', function() {
         await driver.sleep(1000);
     });
 
+    afterEach(async () => {
+        // Clean up after each test to prevent lingering UI elements
+        // Force close any open input boxes/command palette by pressing ESC multiple times
+        for (let i = 0; i < 5; i++) {
+            try {
+                const actions = driver.actions();
+                await actions.sendKeys('\uE00C').perform();
+                await driver.sleep(200);
+            } catch {
+                // Ignore if ESC doesn't work
+            }
+        }
+
+        await driver.sleep(500);
+    });
+
     it('should open preview panel for a dashboard', async function() {
         this.timeout(45000);
 
