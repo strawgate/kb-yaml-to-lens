@@ -1,6 +1,5 @@
 dashboards:
-  - id: multi-panel-showcase-001
-    name: "[Example] Multi-Panel Showcase"
+  - name: "[Example] Multi-Panel Showcase"
     description: "Comprehensive example demonstrating all available panel types and chart variations"
     panels:
       # Panel 1: Markdown Panel (Introduction)
@@ -48,7 +47,6 @@ dashboards:
           data_view: "logs-*"
           primary:
             aggregation: count
-            id: "metric-count-001"
 
       # Panel 4: Pie Chart
       - type: charts
@@ -62,10 +60,8 @@ dashboards:
             - field: "log.level"
               type: values
               size: 10
-              id: "pie-slice-001"
           metric:
             aggregation: count
-            id: "pie-metric-001"
 
       # Panel 5: Line Chart (Time Series)
       - type: charts
@@ -77,10 +73,8 @@ dashboards:
           data_view: "logs-*"
           dimensions:
             - field: "@timestamp"
-              id: "line-dimension-001"
           metrics:
             - aggregation: count
-              id: "line-metric-001"
 
       # Panel 6: Bar Chart (Horizontal)
       - type: charts
@@ -93,10 +87,8 @@ dashboards:
           data_view: "logs-*"
           dimensions:
             - field: "host.name"
-              id: "bar-dimension-001"
           metrics:
             - aggregation: count
-              id: "bar-metric-001"
 
       # Panel 7: Area Chart
       - type: charts
@@ -109,13 +101,10 @@ dashboards:
           data_view: "logs-*"
           dimensions:
             - field: "@timestamp"
-              id: "area-dimension-001"
           metrics:
             - aggregation: count
-              id: "area-metric-001"
           breakdown:
             field: "log.level"
-            id: "area-breakdown-001"
 
       # Panel 8: Tagcloud Chart
       - type: charts
@@ -127,7 +116,5 @@ dashboards:
           data_view: "logs-*"
           tags:
             field: "tags"
-            id: "tagcloud-tags-001"
           metric:
             aggregation: count
-            id: "tagcloud-metric-001"

@@ -1,12 +1,10 @@
 dashboards:
-  - id: controls-example-001
-    name: "[Example] Interactive Controls"
+  - name: "[Example] Interactive Controls"
     description: "Demonstrates dashboard controls for dynamic filtering"
 
     # Dashboard-level controls
     controls:
       - type: options
-        id: host-selector
         label: "Select Host"
         width: medium
         data_view: "logs-*"
@@ -14,7 +12,6 @@ dashboards:
         match_technique: contains
 
       - type: options
-        id: loglevel-selector
         label: "Log Level"
         width: small
         data_view: "logs-*"
