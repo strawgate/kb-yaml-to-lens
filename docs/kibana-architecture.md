@@ -38,7 +38,7 @@ that generates Kibana dashboards programmatically.
 | **8.10+** | Model versions replace legacy migrations | New version tracking system |
 | **8.19+** | Collapsible sections, custom grid layout | New panel grouping mechanism |
 | **9.0** | Disabled creation of legacy viz types, internal API restrictions | Must target Lens exclusively |
-| **9.0+** | ES\ | QL variable controls, Content Management v3 API | New filter/query capabilities |
+| **9.0+** | ES\|QL variable controls, Content Management v3 API | New filter/query capabilities |
 | **10.0** | Full removal of TSVB, aggregation-based, Timelion | Complete deprecation |
 
 ### Migration from 8.x to 9.x
@@ -485,7 +485,7 @@ Kibana 9.x introduces multiple datasource types:
 | Datasource | State Key | Usage |
 | ------------ | ----------- | ------- |
 | Form-based | `formBased` | Standard aggregation-based queries |
-| Text-based | `textBased` | ES\ | QL queries (9.x+) |
+| Text-based | `textBased` | ES\|QL queries (9.x+) |
 
 **Form-based datasource** (most common):
 
@@ -529,7 +529,7 @@ New control types enable dynamic dashboard filtering through ES|QL queries:
 
 | Version | Naming |
 | --------- | -------- |
-| 9.0-9.1 | "ES\ | QL controls" |
+| 9.0-9.1 | "ES\|QL controls" |
 | 9.2+ | "Variable controls" |
 
 Variable prefixes in ES|QL queries:
@@ -610,7 +610,7 @@ The primary API for dashboard management:
 Kibana exports use Newline Delimited JSON, where each line is a complete saved
 object:
 
-```
+```json
 {"id":"index-pattern-id","type":"index-pattern","attributes":{...}}
 {"id":"dashboard-id","type":"dashboard","attributes":{...},"references":[...]}
 ```
@@ -635,7 +635,7 @@ Compilers should use only publicly documented APIs listed above.
 
 Required headers for all API calls:
 
-```
+```text
 kbn-xsrf: true
 Content-Type: application/json
 ```

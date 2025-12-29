@@ -91,7 +91,7 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
 | `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query). | N/A | Yes |
-| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart) or [ESQL Pie Chart](#esql-pie-chart). | N/A | Yes |
+| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart-charttype-metric) or [ESQL Pie Chart](#esql-pie-chart-charttype-pie). | N/A | Yes |
 
 ---
 
@@ -133,10 +133,10 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `metric` | `ESQLMetric` object | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `slice_by` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
-| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting) (shared with Lens). | `None` | No |
-| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting) (shared with Lens). | `None` | No |
-| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting) (shared with Lens). | `None` | No |
-| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None` | No |
+| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None` | No |
+| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None` | No |
 
 **Example (ESQL Pie Chart):**
 
