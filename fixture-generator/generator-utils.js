@@ -38,8 +38,10 @@ export async function generateFixture(outputFilename, config, options = {}, call
     const lensAttributes = await builder.build(config, options);
 
     // Determine output directory relative to caller
+    // Use version-specific subdirectory if KIBANA_VERSION is set
     const callerDir = path.dirname(fileURLToPath(callerFilePath));
-    const outputDir = path.join(callerDir, '..', 'output');
+    const kibanaVersion = process.env.KIBANA_VERSION || 'v9.2.0';
+    const outputDir = path.join(callerDir, '..', 'output', kibanaVersion);
 
     // Ensure output directory exists
     fs.mkdirSync(outputDir, { recursive: true });
