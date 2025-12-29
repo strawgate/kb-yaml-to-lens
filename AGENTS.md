@@ -36,7 +36,7 @@ make check
 
 ### Data Flow
 
-```
+```text
 YAML File → PyYAML Parser → Config Models (Pydantic) → Compile Functions → View Models → Kibana JSON
 ```
 
