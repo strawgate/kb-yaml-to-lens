@@ -79,6 +79,7 @@ Each component follows this structure:
 - **Line length**: 140 characters (Ruff enforced)
 - **Dependency manager**: `uv` (not Poetry)
 - **Docstring coverage**: 80% threshold
+- **YAML linting**: `yamllint` validates YAML files for syntax and formatting
 
 ### Pydantic Models
 

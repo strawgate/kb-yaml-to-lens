@@ -1,0 +1,28 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 140  # Match Python line length from ruff config
+    level: warning
+  indentation: disable  # Disable indentation checks for now - can be enabled later
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: disable  # Allow flexible comment indentation
+  document-start: disable  # Many files don't use ---
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+  braces:
+    min-spaces-inside: 1  # Allow { x: 0 } style
+    max-spaces-inside: 1
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+  trailing-spaces: {}
+  empty-lines:
+    max: 2
+
+ignore: |
+  .venv/
+  output/
+  .git/

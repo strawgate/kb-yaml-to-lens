@@ -29,11 +29,12 @@ help:
 	@echo "  - clean       - Clean up cache and temporary files"
 
 	@echo "Linting:"
-	@echo "  lint                - Run format, autocorrect, and markdown linting"
+	@echo "  lint                - Run format, autocorrect, markdown, and YAML linting"
 	@echo "  typecheck           - Run type checking with basedpyright"
 	@echo "  - lint-autocorrect  - Run ruff check --fix"
 	@echo "  - lint-format       - Run ruff format"
 	@echo "  - lint-markdown     - Run markdownlint"
+	@echo "  - lint-yaml         - Run yamllint"
 
 	@echo "Documentation:"
 	@echo "  compile-docs  - Regenerate YAML reference from source"
@@ -85,7 +86,7 @@ inspector:
 test-smoke:
 	uv run kb-dashboard --help
 
-lint: autocorrect format lint-markdown
+lint: autocorrect format lint-markdown lint-yaml
 
 autocorrect:
 	@echo "Running ruff check --fix..."
@@ -98,6 +99,10 @@ format:
 lint-markdown:
 	@echo "Running markdownlint..."
 	markdownlint --fix -c .markdownlint.jsonc .
+
+lint-yaml:
+	@echo "Running yamllint..."
+	uv run yamllint inputs/ tests/
 
 typecheck:
 	@echo "Running type checking..."

@@ -14,7 +14,7 @@ dashboards:
         dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
       - label: Namespace Metrics
         dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-  
+
   - type: charts
     grid: { x: 0, y: 2, w: 10, h: 3 }
     filters:
@@ -27,7 +27,7 @@ dashboards:
         aggregation: unique_count
         field: aerospike.node.name
         label: Aerospike Nodes
-  
+
   - type: charts
     grid: { x: 10, y: 2, w: 38, h: 9 }
     filters:
@@ -51,10 +51,10 @@ dashboards:
           missing_bucket: false
       primary:
       - aggregation: min
-          label: Free Memory
-          field: aerospike.node.memory.free
-          # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
-  
+        label: Free Memory
+        field: aerospike.node.memory.free
+        # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
+
   - type: charts
     grid: { x: 0, y: 5, w: 10, h: 3 }
     filters:
@@ -67,7 +67,7 @@ dashboards:
         aggregation: unique_count
         field: aerospike.namespace
         label: Unique Namespaces
-  
+
   # - type: lens
   #   grid: { x: 0, y: 8, w: 10, h: 12 }
   #   index_pattern: metrics-*
@@ -98,7 +98,7 @@ dashboards:
   #       - type: unique_count
   #         field: aerospike.namespace
   #         label: Aerospike Namespaces
-  
+
   # - type: lens
   #   grid: { x: 10, y: 9, w: 17, h: 14 }
   #   index_pattern: metrics-*
@@ -126,7 +126,7 @@ dashboards:
   #         field: aerospike.node.memory.used
           # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
       # Reference lines are not directly supported in the YAML schema
-  
+
   - type: charts
     grid: { x: 27, y: 9, w: 38, h: 9 }
     filters:
@@ -150,6 +150,6 @@ dashboards:
           missing_bucket: false
       primary:
       - aggregation: max
-          exists: aerospike.node.connection.open
-          label: Open Connections
-          # format: {id: "number", params: {decimals: 0}} # Not directly supported in YAML schema
+        exists: aerospike.node.connection.open
+        label: Open Connections
+        # format: {id: "number", params: {decimals: 0}} # Not directly supported in YAML schema

@@ -12,7 +12,7 @@ dashboards:
       field: aerospike.node.name
       match_technique: contains
   panels:
-    
+
   - type: links
     grid: { x: 0, y: 0, w: 48, h: 2 }
     layout: horizontal

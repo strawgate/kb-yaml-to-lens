@@ -10,7 +10,7 @@ dashboards:
   panels:
   - type: markdown
     title: On-dashboard description of Aerospike Metrics
-    hide_title: True
+    hide_title: true
     content: |
       This dashboard provides an overview of Aerospike metrics, including node and namespace metrics.
       It includes links to the Aerospike documentation and community resources. See the integration page for setup instructions.
@@ -72,4 +72,3 @@ dashboards:
       metrics:
         - aggregation: max
           field: aerospike.node.connection.open
-

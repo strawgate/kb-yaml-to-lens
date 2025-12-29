@@ -43,7 +43,8 @@ This repository contains three main components:
 | `make install` | Install all dependencies |
 | `make check` | **Run before committing** (lint + typecheck + test) |
 | `make test` | Run pytest suite |
-| `make lint` | Format and lint code |
+| `make lint` | Format and lint code (Python, Markdown, YAML) |
+| `make lint-yaml` | Run yamllint on YAML files |
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
