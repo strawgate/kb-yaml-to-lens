@@ -1,16 +1,17 @@
 import { expect } from 'chai';
+import * as path from 'path';
 import {
     VSBrowser,
     WebDriver,
-    Workbench
+    Workbench,
+    EditorView
 } from 'vscode-extension-tester';
 
 /**
  * Smoke Tests - Basic verification that the extension loads and commands execute
  *
- * These are minimal tests that verify the extension activates and commands execute
- * without crashing. They don't test full functionality - just that the extension
- * installs and responds to commands.
+ * These tests verify the extension activates, can open files, and commands execute
+ * successfully. They test basic functionality to ensure the extension works after installation.
  */
 describe('Extension Smoke Tests', function() {
     this.timeout(60000);
@@ -18,6 +19,10 @@ describe('Extension Smoke Tests', function() {
     let driver: WebDriver;
     let browser: VSBrowser;
     let workbench: Workbench;
+
+    // Path to test fixtures
+    const fixturesPath = path.join(__dirname, '..', '..', '..', 'test', 'fixtures');
+    const simpleDashboardPath = path.join(fixturesPath, 'simple-dashboard.yaml');
 
     before(async function() {
         this.timeout(60000);
@@ -86,51 +91,77 @@ describe('Extension Smoke Tests', function() {
         return false;
     }
 
-    it('should execute compile command', async function() {
-        this.timeout(15000);
+    /**
+     * Helper to open a file in the editor using VSCode's open command
+     */
+    async function openFile(filePath: string): Promise<void> {
+        // Use VSCode's built-in open command - this works reliably in tests
+        await workbench.executeCommand(`vscode.open ${filePath}`);
+        await driver.sleep(2000); // Wait for file to open and extension to activate
 
-        // Execute compile command - should respond with error since no file is open
+        // Verify an editor is now active
+        const editorView = new EditorView();
+        const activeEditor = await editorView.getActiveTab();
+        expect(activeEditor, 'File should be open in editor').to.not.be.undefined;
+    }
+
+    it('should compile dashboard successfully', async function() {
+        this.timeout(20000);
+
+        // Open the test fixture file
+        await openFile(simpleDashboardPath);
+
+        // Execute compile command
         await workbench.executeCommand('YAML Dashboard: Compile Dashboard');
-        await driver.sleep(1500);
+        await driver.sleep(2000);
 
-        // Should get an error notification (no active editor)
-        const hasError = await hasNotificationWithText('error');
-        expect(hasError, 'Expected error notification when no file is open').to.be.true;
+        // Should get success notification
+        const hasSuccess = await hasNotificationWithText('compiled successfully');
+        expect(hasSuccess, 'Expected success notification after compilation').to.be.true;
     });
 
-    it('should execute export command', async function() {
-        this.timeout(15000);
+    it('should export dashboard to NDJSON', async function() {
+        this.timeout(20000);
 
-        // Execute export command - should respond with error since no file is open
+        // Open the test fixture file
+        await openFile(simpleDashboardPath);
+
+        // Execute export command
         await workbench.executeCommand('YAML Dashboard: Export Dashboard to NDJSON');
-        await driver.sleep(1500);
+        await driver.sleep(2000);
 
-        // Should get an error notification (no active editor)
-        const hasError = await hasNotificationWithText('error');
-        expect(hasError, 'Expected error notification when no file is open').to.be.true;
+        // Should get success notification about clipboard
+        const hasSuccess = await hasNotificationWithText('copied to clipboard');
+        expect(hasSuccess, 'Expected success notification after export').to.be.true;
     });
 
-    it('should execute preview command', async function() {
-        this.timeout(15000);
+    it('should open preview panel', async function() {
+        this.timeout(20000);
 
-        // Execute preview command - should respond with error since no file is open
+        // Open the test fixture file
+        await openFile(simpleDashboardPath);
+
+        // Execute preview command
         await workbench.executeCommand('YAML Dashboard: Preview Dashboard');
-        await driver.sleep(1500);
+        await driver.sleep(2000);
 
-        // Should get an error notification (no active editor)
+        // Verify preview panel opened (no error notification)
         const hasError = await hasNotificationWithText('error');
-        expect(hasError, 'Expected error notification when no file is open').to.be.true;
+        expect(hasError, 'Preview should open without errors').to.be.false;
     });
 
-    it('should execute grid editor command', async function() {
-        this.timeout(15000);
+    it('should open grid editor panel', async function() {
+        this.timeout(20000);
 
-        // Execute grid editor command - should respond with error since no file is open
+        // Open the test fixture file
+        await openFile(simpleDashboardPath);
+
+        // Execute grid editor command
         await workbench.executeCommand('YAML Dashboard: Edit Dashboard Layout');
-        await driver.sleep(1500);
+        await driver.sleep(2000);
 
-        // Should get an error notification (no active editor)
+        // Verify grid editor opened (no error notification)
         const hasError = await hasNotificationWithText('error');
-        expect(hasError, 'Expected error notification when no file is open').to.be.true;
+        expect(hasError, 'Grid editor should open without errors').to.be.false;
     });
 });
