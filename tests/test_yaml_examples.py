@@ -98,7 +98,7 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
     from dashboard_compiler.dashboard_compiler import load
 
     # Skip files that contain deprecated/incomplete chart examples
-    # These are API docs showing old formats and aren't meant to be complete examples
+    # These are internal API docs showing schema structures and aren't meant to be complete examples
     deprecated_api_docs = [
         'src/dashboard_compiler/panels/charts/metric/config.md',
         'src/dashboard_compiler/panels/charts/pie/config.md',
@@ -106,9 +106,6 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
         'src/dashboard_compiler/panels/charts/tagcloud/config.md',
         'src/dashboard_compiler/panels/charts/esql/esql.md',
         'src/dashboard_compiler/panels/charts/lens/lens.md',
-        'docs/panels/metric.md',
-        'docs/panels/pie.md',
-        'docs/panels/xy.md',
     ]
     if file_path in deprecated_api_docs:
         pytest.skip(f'Skipping deprecated API doc: {file_path}')
