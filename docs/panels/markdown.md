@@ -18,7 +18,8 @@ To add a simple Markdown panel, you need to specify its `type`, `grid` position,
 #   content: "## Welcome to the Dashboard!\nThis panel provides an overview."
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Dashboard with Markdown"
   panels:
     - type: markdown
@@ -41,7 +42,8 @@ dashboard:
 This example demonstrates a Markdown panel with a custom font size and a setting for how links are opened.
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Informational Dashboard"
   panels:
     - type: markdown
