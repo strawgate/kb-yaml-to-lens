@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -13,27 +12,22 @@ from dashboard_compiler.panels.charts.metric.compile import (
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 
 
-@pytest.fixture
-def compile_metric_chart_snapshot():
-    """Fixture that returns a function to compile metric charts and return dict for snapshot."""
+def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
+    """Compile metric chart config and return dict for snapshot testing."""
+    if chart_type == 'lens':
+        lens_chart = LensMetricChart.model_validate(config)
+        layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+    else:  # esql
+        esql_chart = ESQLMetricChart.model_validate(config)
+        layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
 
-    def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
-        if chart_type == 'lens':
-            lens_chart = LensMetricChart.model_validate(config)
-            layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
-        else:  # esql
-            esql_chart = ESQLMetricChart.model_validate(config)
-            layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
-
-        assert kbn_state_visualization is not None
-        assert len(kbn_state_visualization.layers) > 0
-        kbn_state_visualization_layer = kbn_state_visualization.layers[0]
-        return kbn_state_visualization_layer.model_dump()
-
-    return _compile
+    assert kbn_state_visualization is not None
+    assert len(kbn_state_visualization.layers) > 0
+    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+    return kbn_state_visualization_layer.model_dump()
 
 
-def test_compile_metric_chart_primary_only_lens(compile_metric_chart_snapshot):
+def test_compile_metric_chart_primary_only_lens():
     """Test the compilation of a metric chart with only a primary metric (Lens)."""
     config = {
         'type': 'metric',
@@ -57,7 +51,7 @@ def test_compile_metric_chart_primary_only_lens(compile_metric_chart_snapshot):
     )
 
 
-def test_compile_metric_chart_primary_only_esql(compile_metric_chart_snapshot):
+def test_compile_metric_chart_primary_only_esql():
     """Test the compilation of a metric chart with only a primary metric (ESQL)."""
     config = {
         'type': 'metric',
@@ -79,7 +73,7 @@ def test_compile_metric_chart_primary_only_esql(compile_metric_chart_snapshot):
     )
 
 
-def test_compile_metric_chart_primary_and_secondary_lens(compile_metric_chart_snapshot):
+def test_compile_metric_chart_primary_and_secondary_lens():
     """Test the compilation of a metric chart with primary and secondary metrics (Lens)."""
     config = {
         'type': 'metric',
@@ -109,7 +103,7 @@ def test_compile_metric_chart_primary_and_secondary_lens(compile_metric_chart_sn
     )
 
 
-def test_compile_metric_chart_primary_and_secondary_esql(compile_metric_chart_snapshot):
+def test_compile_metric_chart_primary_and_secondary_esql():
     """Test the compilation of a metric chart with primary and secondary metrics (ESQL)."""
     config = {
         'type': 'metric',
@@ -136,7 +130,7 @@ def test_compile_metric_chart_primary_and_secondary_esql(compile_metric_chart_sn
     )
 
 
-def test_compile_metric_chart_primary_secondary_breakdown_lens(compile_metric_chart_snapshot):
+def test_compile_metric_chart_primary_secondary_breakdown_lens():
     """Test the compilation of a metric chart with primary, secondary metrics and breakdown (Lens)."""
     config = {
         'type': 'metric',
@@ -172,7 +166,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens(compile_metric_ch
     )
 
 
-def test_compile_metric_chart_primary_secondary_breakdown_esql(compile_metric_chart_snapshot):
+def test_compile_metric_chart_primary_secondary_breakdown_esql():
     """Test the compilation of a metric chart with primary, secondary metrics and breakdown (ESQL)."""
     config = {
         'type': 'metric',

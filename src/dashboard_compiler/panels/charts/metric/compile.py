@@ -21,6 +21,7 @@ from dashboard_compiler.shared.config import random_id_generator
 
 
 def compile_metric_chart_visualization_state(
+    *,
     layer_id: str,
     primary_metric_id: str,
     secondary_metric_id: str | None,
@@ -89,7 +90,12 @@ def compile_lens_metric_chart(
     return (
         layer_id,
         kbn_columns_by_id,
-        compile_metric_chart_visualization_state(layer_id, primary_metric_id, secondary_metric_id, breakdown_dimension_id),
+        compile_metric_chart_visualization_state(
+            layer_id=layer_id,
+            primary_metric_id=primary_metric_id,
+            secondary_metric_id=secondary_metric_id,
+            breakdown_dimension_id=breakdown_dimension_id,
+        ),
     )
 
 

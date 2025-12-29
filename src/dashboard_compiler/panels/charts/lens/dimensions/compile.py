@@ -30,19 +30,25 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
 from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
 from dashboard_compiler.shared.config import stable_id_generator
 
+# Maps user-friendly granularity levels (1=finest to 7=coarsest) to Kibana's
+# maxBars parameter. These values control histogram bucketing precision:
+# - Lower granularity (1-3): More buckets, finer detail, slower queries
+# - Higher granularity (5-7): Fewer buckets, coarser detail, faster queries
+# Values are calibrated to match Kibana's native granularity slider behavior
 GRANULARITY_TO_BARS = {
-    1: 1,
+    1: 1,  # Finest: Maximum detail
     2: 167.5,
     3: 334,
-    4: 499.5,
+    4: 499.5,  # Medium: Balanced
     5: 666,
     6: 833.5,
-    7: 1000,
+    7: 1000,  # Coarsest: Minimum buckets
 }
 
 
 def compile_lens_dimension(
     dimension: LensDimensionTypes,
+    *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> tuple[str, KbnLensDimensionColumnTypes]:
     """Compile a single LensDimensionTypes object into its Kibana view model.
@@ -129,7 +135,7 @@ def compile_lens_dimension(
 
     # This check is necessary even though it appears redundant to type checkers
     # because dimension could be a more specific subclass at runtime
-    if isinstance(dimension, LensIntervalsDimension):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(dimension, LensIntervalsDimension):  # pyright: ignore[reportUnnecessaryIsInstance]
         dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
 
         if dimension.intervals is None:
@@ -171,12 +177,13 @@ def compile_lens_dimension(
 
     # All LensDimensionTypes have been handled above, this is unreachable
     # but kept for type safety in case new types are added
-    msg = f'Unsupported dimension type: {type(dimension)}'  # type: ignore[reportUnreachable]
-    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+    msg = f'Unsupported dimension type: {type(dimension)}'  # pyright: ignore[reportUnreachable]
+    raise NotImplementedError(msg)
 
 
 def compile_lens_dimensions(
     dimensions: Sequence[LensDimensionTypes],
+    *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> dict[str, KbnLensDimensionColumnTypes]:
     """Compile a sequence of LensDimensionTypes objects into their Kibana view model representation.
@@ -189,4 +196,4 @@ def compile_lens_dimensions(
         dict[str, KbnLensDimensionColumnTypes]: A dictionary of compiled KbnLensDimensionColumnTypes objects.
 
     """
-    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id) for dimension in dimensions)
+    return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id=kbn_metric_column_by_id) for dimension in dimensions)

@@ -23,45 +23,30 @@ Generate **known-good** Kibana dashboard JSON by:
 | Requirement | Value |
 |-------------|-------|
 | **Docker** | Latest stable |
+| **Make** | GNU Make |
 | **Disk** | 25GB+ (Kibana source + node_modules) |
 | **RAM** | 8GB+ recommended |
 
 ## Quick Start
 
-### Option A: Use Pre-Built GHCR Image (Recommended)
-
-**Fast path** - Uses pre-built images from GitHub Container Registry, no build required:
+### 1. Build the Docker Image
 
 ```bash
 cd fixture-generator
-docker-compose -f docker-compose.ghcr.yml run generator
-
-# Generate specific fixture
-docker-compose -f docker-compose.ghcr.yml run generator node examples/metric-basic.js
+make build
 ```
 
-See [GHCR.md](GHCR.md) for complete GHCR documentation.
-
-### Option B: Build Locally
-
-**Build from source** - Takes 15-30 minutes but works offline:
-
-```bash
-cd fixture-generator
-docker-compose build
-```
-
-**Note**: First build takes 15-30 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
+**Note**: First build takes ~6 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
 
 ### 2. Generate Fixtures
 
 ```bash
 # Generate all fixtures
-docker-compose run generator
+make run
 
 # Generate specific fixture
-docker-compose run generator node examples/metric-basic.js
-docker-compose run generator node examples/xy-chart.js
+make run-example EXAMPLE=metric-basic.js
+make run-example EXAMPLE=xy-chart.js
 ```
 
 ### 3. Copy to Python Tests
@@ -71,21 +56,53 @@ docker-compose run generator node examples/xy-chart.js
 cp output/metric-basic.json ../tests/fixtures/
 ```
 
+## Available Commands
+
+Run `make help` to see all commands:
+
+| Command | Description |
+|---------|-------------|
+| `make build` | Build the Docker image |
+| `make build-no-cache` | Full rebuild without cache |
+| `make run` | Generate all fixtures |
+| `make run-example EXAMPLE=<file>` | Run a specific example script |
+| `make shell` | Open a shell in the container for debugging |
+| `make test-import` | Test that @kbn/lens-embeddable-utils can be imported |
+| `make clean` | Remove generated output files |
+| `make clean-image` | Remove the Docker image |
+
 ## Project Structure
 
 ```
 fixture-generator/
 ├── examples/                    # Example generator scripts
-│   ├── metric-basic.js         # Basic metric visualization
-│   ├── metric-with-breakdown.js # Metric with breakdown
-│   ├── xy-chart.js             # Line/area/bar charts
-│   └── pie-chart.js            # Pie/donut charts
+│   ├── metric-basic.js         # Basic metric (ES|QL only)
+│   ├── metric-with-breakdown.js # Metric with breakdown (ES|QL only)
+│   ├── metric-with-trend.js    # Metric with trend (dual: ES|QL + Data View)
+│   ├── metric-grid.js          # Metric grid (dual: ES|QL + Data View)
+│   ├── xy-chart.js             # XY chart (ES|QL only)
+│   ├── xy-chart-stacked-bar.js # Stacked bar (dual: ES|QL + Data View)
+│   ├── xy-chart-dual-axis.js   # Dual-axis (dual: ES|QL + Data View)
+│   ├── xy-chart-multi-layer.js # Multi-layer (dual: ES|QL + Data View)
+│   ├── xy-chart-advanced-legend.js # Advanced legend config (dual)
+│   ├── xy-chart-custom-colors.js # Custom color palette (dual)
+│   ├── pie-chart.js            # Pie chart (ES|QL only)
+│   ├── pie-chart-donut.js      # Donut chart (dual: ES|QL + Data View)
+│   ├── pie-chart-advanced-colors.js # Advanced colors (dual)
+│   ├── datatable-advanced.js   # Advanced datatable (dual: ES|QL + Data View)
+│   ├── gauge.js                # Gauge chart (dual: ES|QL + Data View)
+│   ├── treemap.js              # Treemap (dual: ES|QL + Data View)
+│   ├── waffle.js               # Waffle chart (dual: ES|QL + Data View)
+│   └── heatmap.js              # Heatmap (ES|QL only)
+├── generator-utils.js          # Shared utility functions
 ├── generate-all.js             # Runs all examples
 ├── output/                     # Generated JSON files
 ├── Dockerfile
-├── docker-compose.yml
+├── Makefile
 └── package.json
 ```
+
+**Note**: Most examples now generate **both ES|QL and Data View variants** from a single file, reducing duplication and ensuring consistency.
 
 ## How It Works
 
@@ -95,6 +112,29 @@ Each example script:
 2. Creates a config object defining the visualization
 3. Calls `builder.build(config, options)` to generate the Lens attributes
 4. Writes the result as JSON to the output directory
+
+### ES|QL vs Data View Examples
+
+The fixture generator includes two types of examples:
+
+**ES|QL Examples** - Use Elasticsearch Query Language for data retrieval:
+
+```javascript
+dataset: {
+  esql: 'FROM logs-* | STATS count = COUNT()'
+}
+```
+
+**Data View Examples** - Use standard Kibana data views with index patterns:
+
+```javascript
+dataset: {
+  index: 'logs-*',
+  timeFieldName: '@timestamp'  // optional
+}
+```
+
+Both approaches generate valid Kibana Lens visualizations, providing test coverage for different data source configurations in the Python compiler.
 
 ### Example Script
 
@@ -137,7 +177,7 @@ generateMetricBasic();
 
 1. **Create a new script** in `examples/` directory
 2. **Use LensConfigBuilder** to define your visualization
-3. **Run the script** via Docker
+3. **Run the script** via Make
 4. **Copy the JSON** to your test suite
 
 ### Example Workflow
@@ -170,7 +210,7 @@ generateCustomMetric();
 EOF
 
 # 2. Run the generator
-docker-compose run generator node examples/my-custom-metric.js
+make run-example EXAMPLE=my-custom-metric.js
 
 # 3. Copy to Python tests
 cp output/my-custom-metric.json ../tests/fixtures/
@@ -199,10 +239,16 @@ To generate fixtures for different Kibana versions:
 
 ```bash
 # Build for specific Kibana version
-docker build --build-arg KIBANA_VERSION=v8.15.0 -t fixture-gen:8.15 .
+make build KIBANA_VERSION=v8.15.0
+
+# Or directly with docker
+docker build --build-arg KIBANA_VERSION=v8.15.0 -t kibana-fixture-generator:v8.15.0 .
 
 # Generate with specific version
-docker run -v $(pwd)/output:/tool/output fixture-gen:8.15 node examples/metric-basic.js
+docker run --rm \
+  -v $(pwd)/output:/kibana/output \
+  kibana-fixture-generator:v8.15.0 \
+  node examples/metric-basic.js
 ```
 
 ## Docker Setup
@@ -220,20 +266,18 @@ The Dockerfile:
 
 **Problem**: Out of memory during Kibana bootstrap
 
-**Solution**: Increase Docker memory limit
-
-```yaml
-# docker-compose.yml
-services:
-  generator:
-    mem_limit: 10g
-```
+**Solution**: Increase Docker memory limit in Docker Desktop settings (recommend 10GB+)
 
 ### LensConfigBuilder Not Found
 
 **Problem**: Cannot find `@kbn/lens-embeddable-utils`
 
-**Solution**: Ensure Kibana bootstrap completed successfully. Check build logs for errors during the `yarn kbn bootstrap` step.
+**Solution**:
+
+1. Ensure Kibana bootstrap completed successfully
+2. Check build logs for errors during `yarn kbn bootstrap`
+3. Try `make test-import` to verify the module is available
+4. Use `make shell` to debug interactively
 
 ### Invalid Configuration
 
@@ -259,12 +303,12 @@ jobs:
       - name: Build fixture generator
         run: |
           cd fixture-generator
-          docker-compose build
+          make build
 
       - name: Generate all fixtures
         run: |
           cd fixture-generator
-          docker-compose run generator
+          make run
 
       - name: Create PR with updated fixtures
         uses: peter-evans/create-pull-request@v5

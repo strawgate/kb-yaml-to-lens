@@ -70,6 +70,7 @@ class KibanaClient:
     def __init__(
         self,
         url: str,
+        *,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
@@ -136,7 +137,7 @@ class KibanaClient:
 
                 async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                     response.raise_for_status()
-                    json_response: dict[str, Any] = await response.json()  # type: ignore[reportAny]
+                    json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
                     return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
@@ -149,9 +150,9 @@ class KibanaClient:
             Full URL to the dashboard in Kibana
 
         """
-        return f'{self.url}/app/dashboards#{dashboard_id}'  # type: ignore[reportAny]
+        return f'{self.url}/app/dashboards#{dashboard_id}'
 
-    async def generate_screenshot(
+    async def generate_screenshot(  # noqa: PLR0913
         self,
         dashboard_id: str,
         time_from: str | None = None,
@@ -209,7 +210,7 @@ class KibanaClient:
         }
 
         # Rison-encode the job parameters using prison library
-        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        rison_params: str = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
@@ -219,9 +220,9 @@ class KibanaClient:
 
         async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
             response.raise_for_status()
-            result: dict[str, Any] = await response.json()  # type: ignore[reportAny]
-            job_path: str | None = result.get('path')  # type: ignore[reportAny]
-            if not job_path:
+            result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            job_path: str | None = result.get('path')
+            if job_path is None:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
                 raise ValueError(msg)
             return job_path
@@ -282,7 +283,7 @@ class KibanaClient:
                 # Wait before next poll
                 await asyncio.sleep(poll_interval)
 
-    async def download_screenshot(
+    async def download_screenshot(  # noqa: PLR0913
         self,
         dashboard_id: str,
         output_path: Path,

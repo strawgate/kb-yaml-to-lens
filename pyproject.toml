@@ -41,7 +41,6 @@ format-command = "ruff format"
 dev = [
     "pytest>=9.0",
     "pytest-cov>=6.0",
-    "syrupy>=5.0",
     "pytest-freezer>=0.4.9",
     "deepdiff>=8.4.2",
     "ruff>=0.14",
@@ -50,12 +49,14 @@ dev = [
     "inline-snapshot>=0.31.1",
     "pytest-check-links>=0.9.0",
     "dirty-equals>=0.8.0",
+    "pytest-examples>=0.0.18",
 ]
 docs = [
     "mkdocs>=1.6.0",
     "mkdocs-material>=9.5.0",
     "mkdocstrings[python]>=0.30.0",
     "mkdocstrings-python>=1.10.0",
+    "pymdown-extensions>=10.0",
 ]
 
 [build-system]
@@ -145,7 +146,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["metering"]
+known-first-party = ["dashboard_compiler"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -155,13 +156,9 @@ inline-quotes = "single"
 [tool.ruff.lint.pep8-naming]
 classmethod-decorators = ["classmethod", "pydantic.validator"]
 
-[tool.ruff.lint.pylint]
-max-args = 8
-max-statements = 50
-
 [tool.basedpyright]
 pythonVersion = "3.12"
-typeCheckingMode = "recommended"  # Bumped from standard to recommended
+typeCheckingMode = "recommended"
 reportExplicitAny = false
 reportMissingTypeStubs = false
 reportImportCycles = "error"  # Enable circular import detection

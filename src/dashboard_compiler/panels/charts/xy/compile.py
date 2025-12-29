@@ -1,6 +1,6 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
-from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
+from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
@@ -26,6 +26,13 @@ from dashboard_compiler.shared.config import random_id_generator
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     """Determine the Kibana series type based on the chart configuration.
 
+    Maps chart config types and modes to Kibana's specific seriesType strings.
+    Kibana distinguishes between:
+    - Basic types: 'line', 'bar_stacked', 'area' (default/stacked mode)
+    - Unstacked variants: 'bar_unstacked', 'area_unstacked'
+    - Percentage variants: 'bar_percentage_stacked', 'area_percentage_stacked'
+    The exact string values must match Kibana's XY visualization registry.
+
     Args:
         chart: The XY chart configuration (Lens or ESQL).
 
@@ -44,7 +51,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
         else:  # default to stacked
             series_type = 'bar_stacked'
     # This check is necessary even though it appears redundant to type checkers
-    elif isinstance(chart, (LensAreaChart, ESQLAreaChart)):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(chart, (LensAreaChart, ESQLAreaChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
         if chart.mode == 'unstacked':
             series_type = 'area_unstacked'
         elif chart.mode == 'stacked':
@@ -58,6 +65,7 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
 
 
 def compile_xy_chart_visualization_state(
+    *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],
@@ -78,7 +86,7 @@ def compile_xy_chart_visualization_state(
     """
     series_type: str = compile_series_type(chart=chart)
 
-    kbn_color_mapping = KbnLayerColorMapping()
+    kbn_color_mapping = create_default_color_mapping()
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,

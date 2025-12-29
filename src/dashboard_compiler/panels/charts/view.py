@@ -191,7 +191,7 @@ class KbnLensPanelAttributes(BaseVwModel):
     state: KbnLensPanelState
 
 
-class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):  # type: ignore[misc,valid-type]
+class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     attributes: KbnLensPanelAttributes
 
     syncTooltips: bool = Field(
@@ -220,6 +220,6 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):  # type: ignor
     )
 
 
-class KbnLensPanel(KbnBasePanel):  # type: ignore[misc,valid-type]
+class KbnLensPanel(KbnBasePanel):
     type: Literal['lens'] = 'lens'
     embeddableConfig: KbnLensPanelEmbeddableConfig
