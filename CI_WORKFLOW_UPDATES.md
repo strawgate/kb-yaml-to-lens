@@ -4,7 +4,7 @@ This document describes the recommended updates to CI workflows to use the new M
 
 ## Benefits
 
-- **Consistency**: CI runs the exact same commands developers run locally
+- **Consistency**: CI runs the same commands developers run locally
 - **Maintainability**: Changes to linting/testing commands only need to be made in the Makefile
 - **Simplicity**: Single source of truth for all build/test/lint commands
 
