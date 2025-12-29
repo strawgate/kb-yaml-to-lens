@@ -126,8 +126,8 @@ lint-markdown-check:
 
 # Auto-fix YAML issues
 lint-yaml:
-	@echo "Running yamllint --format auto..."
-	uv run yamllint --format auto .
+	@echo "Running yamlfix..."
+	uv run yamlfix .
 
 # Check YAML without fixing
 lint-yaml-check:

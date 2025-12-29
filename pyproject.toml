@@ -51,6 +51,7 @@ dev = [
     "dirty-equals>=0.8.0",
     "pytest-examples>=0.0.18",
     "yamllint>=1.35",
+    "yamlfix>=1.17.0",
 ]
 docs = [
     "mkdocs>=1.6.0",
