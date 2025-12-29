@@ -13,6 +13,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ### 1. `.github/workflows/test.yml`
 
 **Current:**
+
 ```yaml
 - name: Run pytest
   run: |
@@ -24,6 +25,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ```
 
 **Recommended:**
+
 ```yaml
 - name: Run pytest
   run: make test
@@ -35,6 +37,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ---
 
 **Current:**
+
 ```yaml
 - name: Run linting
   run: |
@@ -43,6 +46,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ```
 
 **Recommended:**
+
 ```yaml
 - name: Run linting
   run: make lint-check
@@ -54,6 +58,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ---
 
 **Current:**
+
 ```yaml
 - name: Run type checking
   run: |
@@ -61,6 +66,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ```
 
 **Recommended:**
+
 ```yaml
 - name: Run type checking
   run: make typecheck
@@ -69,6 +75,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ### 2. `.github/workflows/test-vscode-extension.yml`
 
 **Current:**
+
 ```yaml
 - name: Run Python tests for extension
   run: |
@@ -76,6 +83,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ```
 
 **Recommended:**
+
 ```yaml
 - name: Run Python tests for extension
   run: make test-extension-python
@@ -84,6 +92,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ### 3. `.github/workflows/docs.yml`
 
 **Current:**
+
 ```yaml
 - name: Build and deploy documentation
   run: |
@@ -92,6 +101,7 @@ This document describes the recommended updates to CI workflows to use the new M
 ```
 
 **Recommended:**
+
 ```yaml
 - name: Build and deploy documentation
   run: make docs-deploy
