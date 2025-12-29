@@ -9,9 +9,11 @@ rules:
     spaces: 2
   comments:
     min-spaces-from-content: 1
-  document-start: disable
+  document-start:
+    present: true
   truthy:
     allowed-values: ['true', 'false', 'yes', 'no']
+    check-keys: false
 
 ignore: |
   .venv/
