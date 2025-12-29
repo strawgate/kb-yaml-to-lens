@@ -4,9 +4,6 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from dashboard_compiler.filters.view import KbnFilter
-from dashboard_compiler.panels.charts.base import (
-    KbnBaseStateVisualization,
-)
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
@@ -175,7 +172,7 @@ class KbnVisualizationTypeEnum(StrEnum):
 class KbnLensPanelState(BaseVwModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
-    visualization: KbnBaseStateVisualization
+    visualization: Any  # KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnTagcloudVisualizationState
     query: KbnQuery | KbnESQLQuery = Field(...)
     filters: list[KbnFilter] = Field(...)
     datasourceStates: KbnDataSourceState = Field(...)

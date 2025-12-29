@@ -1,16 +1,12 @@
 """Compile Lens tagcloud visualizations into their Kibana view models."""
 
-from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
-from dashboard_compiler.panels.charts.tagcloud.view import (
-    KbnTagcloudStateVisualizationLayer,
-    KbnTagcloudVisualizationState,
-)
+from dashboard_compiler.panels.charts.tagcloud.view import KbnTagcloudVisualizationState
 from dashboard_compiler.shared.config import random_id_generator
 
 
@@ -32,8 +28,8 @@ def compile_tagcloud_chart_visualization_state(
         KbnTagcloudVisualizationState: The compiled visualization state.
 
     """
-    # Extract appearance settings
-    min_font_size = 18
+    # Extract appearance settings with Kibana defaults
+    min_font_size = 12
     max_font_size = 72
     orientation = 'single'
     show_label = True
@@ -48,13 +44,7 @@ def compile_tagcloud_chart_visualization_state(
         if chart.appearance.show_label is not None:
             show_label = chart.appearance.show_label
 
-    # Color mapping
-    palette_id = chart.color.palette if chart.color and chart.color.palette else 'default'
-    kbn_color_mapping_id = 'eui_amsterdam_color_blind' if palette_id == 'default' else palette_id
-    kbn_color_mapping = create_default_color_mapping(palette_id=kbn_color_mapping_id)
-    palette = {'name': palette_id, 'type': 'palette'}
-
-    layer = KbnTagcloudStateVisualizationLayer(
+    return KbnTagcloudVisualizationState(
         layerId=layer_id,
         tagAccessor=tag_accessor_id,
         valueAccessor=value_accessor_id,
@@ -62,12 +52,7 @@ def compile_tagcloud_chart_visualization_state(
         minFontSize=min_font_size,
         orientation=orientation,
         showLabel=show_label,
-        colorMapping=kbn_color_mapping,
-        palette=palette,
-        layerType='data',
     )
-
-    return KbnTagcloudVisualizationState(layers=[layer])
 
 
 def compile_lens_tagcloud_chart(
