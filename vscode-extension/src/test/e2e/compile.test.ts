@@ -106,28 +106,39 @@ describe('Compile Command E2E Tests', function() {
 
         // Should see a quick pick for dashboard selection
         inputBox = await InputBox.create();
-        const picks = await inputBox.getQuickPicks();
 
-        // Should have 2 dashboards to choose from
-        expect(picks.length).to.be.at.least(1);
+        try {
+            const picks = await inputBox.getQuickPicks();
 
-        // Select the first dashboard
-        if (picks.length > 0) {
-            await picks[0].select();
-            await driver.sleep(3000);
+            // Should have 2 dashboards to choose from
+            expect(picks.length).to.be.at.least(1);
 
-            // Check for result notification
-            const notifications = await workbench.getNotifications();
-            expect(notifications.length).to.be.greaterThan(0);
+            // Select the first dashboard
+            if (picks.length > 0) {
+                await picks[0].select();
+                await driver.sleep(3000);
 
-            // Clear notifications
-            for (const notif of notifications) {
-                try {
-                    await notif.dismiss();
-                } catch {
-                    // Ignore
+                // Check for result notification
+                const notifications = await workbench.getNotifications();
+                expect(notifications.length).to.be.greaterThan(0);
+
+                // Clear notifications
+                for (const notif of notifications) {
+                    try {
+                        await notif.dismiss();
+                    } catch {
+                        // Ignore
+                    }
                 }
             }
+        } catch (error) {
+            // If anything fails, try to cancel the input box
+            try {
+                await inputBox.cancel();
+            } catch {
+                // Ignore
+            }
+            throw error;
         }
     });
 

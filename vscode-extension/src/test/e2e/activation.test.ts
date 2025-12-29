@@ -33,8 +33,8 @@ describe('Extension Activation E2E Tests', function() {
         await inputBox.setText(fixturesPath);
         await inputBox.confirm();
 
-        // Wait a bit for the file to open
-        await driver.sleep(2000);
+        // Wait a bit for the file to open and extension to activate
+        await driver.sleep(3000);
 
         // Verify the editor is open
         const editorView = new EditorView();
@@ -47,24 +47,34 @@ describe('Extension Activation E2E Tests', function() {
 
         const workbench = new Workbench();
 
+        // Wait a bit to ensure extension is fully activated
+        await driver.sleep(1000);
+
         // Open command palette to search for our commands
         await workbench.executeCommand('workbench.action.showCommands');
 
         const inputBox = await InputBox.create();
-        await inputBox.setText('YAML Dashboard');
-        await driver.sleep(1000);
 
-        const picks = await inputBox.getQuickPicks();
-        const pickTexts = await Promise.all(picks.map(p => p.getText()));
+        try {
+            await inputBox.setText('YAML Dashboard');
+            await driver.sleep(2000);
 
-        // Verify our commands are registered
-        expect(pickTexts.some(text => text.includes('Compile Dashboard'))).to.be.true;
-        expect(pickTexts.some(text => text.includes('Preview Dashboard'))).to.be.true;
-        expect(pickTexts.some(text => text.includes('Export Dashboard'))).to.be.true;
-        expect(pickTexts.some(text => text.includes('Edit Dashboard Layout'))).to.be.true;
+            const picks = await inputBox.getQuickPicks();
+            const pickTexts = await Promise.all(picks.map(p => p.getText()));
 
-        // Cancel the command palette
-        await inputBox.cancel();
+            // Verify our commands are registered
+            expect(pickTexts.some(text => text.includes('Compile Dashboard'))).to.be.true;
+            expect(pickTexts.some(text => text.includes('Preview Dashboard'))).to.be.true;
+            expect(pickTexts.some(text => text.includes('Export Dashboard'))).to.be.true;
+            expect(pickTexts.some(text => text.includes('Edit Dashboard Layout'))).to.be.true;
+        } finally {
+            // Always cancel the command palette, even if assertions fail
+            try {
+                await inputBox.cancel();
+            } catch {
+                // Ignore errors during cleanup
+            }
+        }
     });
 
     after(async () => {

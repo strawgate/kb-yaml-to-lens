@@ -103,8 +103,13 @@ describe('Preview Panel E2E Tests', function() {
                 await driver.sleep(2000);
             }
         } catch (error) {
-            // Quick pick might not appear if there's an error
-            console.log('Quick pick not available:', error);
+            // If anything fails, try to cancel the input box
+            try {
+                await inputBox.cancel();
+            } catch {
+                // Ignore
+            }
+            throw error;
         }
 
         // Check for any result (preview or error notification)
