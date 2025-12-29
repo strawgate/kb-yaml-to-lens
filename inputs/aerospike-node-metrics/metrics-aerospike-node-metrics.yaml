@@ -160,7 +160,7 @@ dashboards:
           metrics:
             - aggregation: min
               label: Used Memory
-              field: aerospike.node.memory.free
+              field: aerospike.node.memory.used
           # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
       # Reference lines are not directly supported in the YAML schema
       - type: charts
