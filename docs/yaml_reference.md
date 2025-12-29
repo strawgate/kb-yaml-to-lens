@@ -79,38 +79,38 @@ dashboard:
 
 The main object defining the dashboard.
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `name`        | `string`                                   | The title of the dashboard displayed in Kibana.                                                            | N/A              | Yes      |
-| `id`          | `string`                                   | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID     | No       |
-| `description` | `string`                                   | A brief description of the dashboard's purpose or content.                                                 | `""` (empty string) | No       |
-| `settings`    | `DashboardSettings` object                 | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings).                          | See defaults below | No       |
-| `data_view`   | `string`                                   | The default data view (index pattern) ID or title used by items in this dashboard unless overridden.       | `None`           | No       |
-| `query`       | `Query` object                             | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None`           | No       |
-| `filters`     | `list of Filter objects`                   | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md).      | `[]` (empty list)| No       |
-| `controls`    | `list of Control objects`                  | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md).           | `[]` (empty list)| No       |
-| `panels`      | `list of Panel objects`                    | A list of panels defining the content and layout. See [Panels Documentation](../panels/base.md).           | `[]` (empty list)| Yes      |
+| `name` | `string` | The title of the dashboard displayed in Kibana. | N/A | Yes |
+| `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
+| `description` | `string` | A brief description of the dashboard's purpose or content. | `""` (empty string) | No |
+| `settings` | `DashboardSettings` object | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings). | See defaults below | No |
+| `data_view` | `string` | The default data view (index pattern) ID or title used by items in this dashboard unless overridden. | `None` | No |
+| `query` | `Query` object | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None` | No |
+| `filters` | `list of Filter objects` | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
+| `controls` | `list of Control objects` | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md). | `[]` (empty list) | No |
+| `panels` | `list of Panel objects` | A list of panels defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
 
 ### Dashboard Settings (`settings`)
 
 Global settings for the dashboard, configured under the `dashboard.settings` path.
 
-| YAML Key   | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `margins`  | `boolean`                                  | Whether to put space (margins) between panels in the dashboard.                                            | `true`           | No       |
-| `sync`     | `DashboardSyncSettings` object             | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings). | See defaults below | No       |
-| `controls` | `ControlSettings` object                   | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No       |
-| `titles`   | `boolean`                                  | Whether to display the titles in the panel headers.                                                        | `true`           | No       |
+| `margins` | `boolean` | Whether to put space (margins) between panels in the dashboard. | `true` | No |
+| `sync` | `DashboardSyncSettings` object | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings). | See defaults below | No |
+| `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No |
+| `titles` | `boolean` | Whether to display the titles in the panel headers. | `true` | No |
 
 ### Dashboard Sync Settings (`settings.sync`)
 
 Configure whether cursor, tooltips, and colors should synchronize across panels.
 
-| YAML Key   | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `cursor`   | `boolean` | Whether to synchronize the cursor across related panels.                                                   | `true`           | No       |
-| `tooltips` | `boolean` | Whether to synchronize tooltips across related panels.                                                     | `true`           | No       |
-| `colors`   | `boolean` | Whether to apply the same color palette to all panels on the dashboard.                                    | `true`           | No       |
+| `cursor` | `boolean` | Whether to synchronize the cursor across related panels. | `true` | No |
+| `tooltips` | `boolean` | Whether to synchronize tooltips across related panels. | `true` | No |
+| `colors` | `boolean` | Whether to apply the same color palette to all panels on the dashboard. | `true` | No |
 
 ## Methods (for programmatic generation)
 
@@ -200,60 +200,60 @@ dashboard:
 
 Global settings for all controls on the dashboard. These are configured under the `settings.controls` path in your main dashboard YAML.
 
-| YAML Key                 | Data Type                      | Description                                                                                                | Kibana Default                                       | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | -------- |
-| `label_position`         | `Literal['inline', 'above']`   | The position of the control label.                                                                         | `inline`                                             | No       |
-| `apply_global_filters`   | `boolean`                      | Whether to apply global filters to the control.                                                            | `true`                                               | No       |
-| `apply_global_timerange` | `boolean`                      | Whether to apply the global time range to the control.                                                     | `true`                                               | No       |
-| `ignore_zero_results`    | `boolean`                      | Whether to ignore controls that return zero results. If `true`, controls with no results will be hidden.    | `false` (controls with zero results are shown)       | No       |
-| `chain_controls`         | `boolean`                      | Whether to chain controls together, allowing one control's selection to filter the options in the next.    | `true` (hierarchical chaining)                       | No       |
-| `click_to_apply`         | `boolean`                      | Whether to require users to click an apply button before applying changes.                                 | `false` (changes apply immediately)                  | No       |
+| `label_position` | `Literal['inline', 'above']` | The position of the control label. | `inline` | No |
+| `apply_global_filters` | `boolean` | Whether to apply global filters to the control. | `true` | No |
+| `apply_global_timerange` | `boolean` | Whether to apply the global time range to the control. | `true` | No |
+| `ignore_zero_results` | `boolean` | Whether to ignore controls that return zero results. If `true`, controls with no results will be hidden. | `false` (controls with zero results are shown) | No |
+| `chain_controls` | `boolean` | Whether to chain controls together, allowing one control's selection to filter the options in the next. | `true` (hierarchical chaining) | No |
+| `click_to_apply` | `boolean` | Whether to require users to click an apply button before applying changes. | `false` (changes apply immediately) | No |
 
 ### Options List Control
 
 Allows users to select one or more values from a list to filter data.
 
-| YAML Key           | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`             | `Literal['options']`                       | Specifies the control type.                                                                                | `options`        | Yes      |
-| `id`               | `string`                                   | A unique identifier for the control. If not provided, one will be generated.                               | Generated UUID   | No       |
-| `width`            | `Literal['small', 'medium', 'large']`      | The width of the control in the dashboard layout.                                                          | `medium`         | No       |
-| `label`            | `string`                                   | The display label for the control. If not provided, a label may be inferred.                               | `None`           | No       |
-| `data_view`        | `string`                                   | The ID or title of the data view (index pattern) the control operates on.                                  | N/A              | Yes      |
-| `field`            | `string`                                   | The name of the field within the data view that the control is associated with.                            | N/A              | Yes      |
-| `fill_width`       | `boolean`                                  | If true, the control will automatically adjust its width to fill available space.                          | `false`          | No       |
-| `match_technique`  | `Literal['prefix', 'contains', 'exact']`   | The search technique used for filtering options. See [Match Technique Enum](#match-technique-enum).        | `prefix`         | No       |
-| `wait_for_results` | `boolean`                                  | If set to true, delay the display of the list of values until the results are fully loaded.                | `false`          | No       |
-| `preselected`      | `list of strings`                          | A list of options that are preselected when the control is initialized.                                    | `[]` (empty list)| No       |
-| `singular`         | `boolean`                                  | If true, the control allows only a single selection from the options list.                                 | `false`          | No       |
+| `type` | `Literal['options']` | Specifies the control type. | `options` | Yes |
+| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
+| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
+| `label` | `string` | The display label for the control. If not provided, a label may be inferred. | `None` | No |
+| `data_view` | `string` | The ID or title of the data view (index pattern) the control operates on. | N/A | Yes |
+| `field` | `string` | The name of the field within the data view that the control is associated with. | N/A | Yes |
+| `fill_width` | `boolean` | If true, the control will automatically adjust its width to fill available space. | `false` | No |
+| `match_technique` | `Literal['prefix', 'contains', 'exact']` | The search technique used for filtering options. See [Match Technique Enum](#match-technique-enum). | `prefix` | No |
+| `wait_for_results` | `boolean` | If set to true, delay the display of the list of values until the results are fully loaded. | `false` | No |
+| `preselected` | `list of strings` | A list of options that are preselected when the control is initialized. | `[]` (empty list) | No |
+| `singular` | `boolean` | If true, the control allows only a single selection from the options list. | `false` | No |
 
 ### Range Slider Control
 
 Allows users to select a range of numeric values to filter data.
 
-| YAML Key     | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`       | `Literal['range']`                         | Specifies the control type.                                                                                | `range`          | Yes      |
-| `id`         | `string`                                   | A unique identifier for the control. If not provided, one will be generated.                               | Generated UUID   | No       |
-| `width`      | `Literal['small', 'medium', 'large']`      | The width of the control in the dashboard layout.                                                          | `medium`         | No       |
-| `label`      | `string`                                   | The display label for the control. If not provided, a label may be inferred.                               | `None`           | No       |
-| `data_view`  | `string`                                   | The ID or title of the data view (index pattern) the control operates on.                                  | N/A              | Yes      |
-| `field`      | `string`                                   | The name of the field within the data view that the control is associated with.                            | N/A              | Yes      |
-| `fill_width` | `boolean`                                  | If true, the control will automatically adjust its width to fill available space.                          | `false`          | No       |
-| `step`       | `integer` or `float`                       | The step value for the range, defining the granularity of selections.                                      | `1`              | No       |
+| `type` | `Literal['range']` | Specifies the control type. | `range` | Yes |
+| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
+| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
+| `label` | `string` | The display label for the control. If not provided, a label may be inferred. | `None` | No |
+| `data_view` | `string` | The ID or title of the data view (index pattern) the control operates on. | N/A | Yes |
+| `field` | `string` | The name of the field within the data view that the control is associated with. | N/A | Yes |
+| `fill_width` | `boolean` | If true, the control will automatically adjust its width to fill available space. | `false` | No |
+| `step` | `integer` or `float` | The step value for the range, defining the granularity of selections. | `1` | No |
 
 ### Time Slider Control
 
 Allows users to select a sub-section of the dashboard's current time range. This control does not use a `data_view` or `field` as it operates on the global time context.
 
-| YAML Key       | Data Type                                  | Description                                                                                                                                  | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`         | `Literal['time']`                          | Specifies the control type.                                                                                                                  | `time`           | Yes      |
-| `id`           | `string`                                   | A unique identifier for the control. If not provided, one will be generated.                                                                 | Generated UUID   | No       |
-| `width`        | `Literal['small', 'medium', 'large']`      | The width of the control in the dashboard layout.                                                                                            | `medium`         | No       |
-| `label`        | `string`                                   | The display label for the control. If not provided, a label may be inferred.                                                                 | `None`           | No       |
-| `start_offset` | `float` (between 0.0 and 1.0)              | The start offset for the time range as a percentage of the global time range (e.g., `0.25` for 25%). Must be less than `end_offset`.         | `0.0` (0%)       | No       |
-| `end_offset`   | `float` (between 0.0 and 1.0)              | The end offset for the time range as a percentage of the global time range (e.g., `0.75` for 75%). Must be greater than `start_offset`.       | `1.0` (100%)     | No       |
+| `type` | `Literal['time']` | Specifies the control type. | `time` | Yes |
+| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
+| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
+| `label` | `string` | The display label for the control. If not provided, a label may be inferred. | `None` | No |
+| `start_offset` | `float` (between 0.0 and 1.0) | The start offset for the time range as a percentage of the global time range (e.g., `0.25` for 25%). Must be less than `end_offset`. | `0.0` (0%) | No |
+| `end_offset` | `float` (between 0.0 and 1.0) | The end offset for the time range as a percentage of the global time range (e.g., `0.75` for 75%). Must be greater than `start_offset`. | `1.0` (100%) | No |
 
 **Note on Time Slider Offsets:** The YAML configuration expects `start_offset` and `end_offset` as float values between 0.0 (0%) and 1.0 (100%). Kibana internally represents these as percentages from 0.0 to 100.0. If not provided, Kibana defaults to `0.0` for start and `100.0` for end.
 
@@ -337,94 +337,94 @@ filters:
 
 All filter types can include the following base fields:
 
-| YAML Key   | Data Type | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `alias`    | `string`  | An optional alias for the filter, used for display purposes in Kibana.           | `None`         | No       |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied.                                | `false`        | No       |
+| `alias` | `string` | An optional alias for the filter, used for display purposes in Kibana. | `None` | No |
+| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
 
 ### Exists Filter
 
 Checks for the existence of a specific field.
 
-| YAML Key   | Data Type | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `exists`   | `string`  | The field name to check for existence.                                           | N/A            | Yes      |
-| `alias`    | `string`  | An optional alias for the filter.                                                | `None`         | No       |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied.                                | `false`        | No       |
+| `exists` | `string` | The field name to check for existence. | N/A | Yes |
+| `alias` | `string` | An optional alias for the filter. | `None` | No |
+| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
 
 ### Phrase Filter
 
 Matches documents where a specific field contains an exact phrase.
 
-| YAML Key   | Data Type | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `field`    | `string`  | The field name to apply the filter to.                                           | N/A            | Yes      |
-| `equals`   | `string`  | The exact phrase value that the field must match.                                | N/A            | Yes      |
-| `alias`    | `string`  | An optional alias for the filter.                                                | `None`         | No       |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied.                                | `false`        | No       |
+| `field` | `string` | The field name to apply the filter to. | N/A | Yes |
+| `equals` | `string` | The exact phrase value that the field must match. | N/A | Yes |
+| `alias` | `string` | An optional alias for the filter. | `None` | No |
+| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
 
 ### Phrases Filter
 
 Matches documents where a specific field contains one or more of the specified phrases.
 
-| YAML Key   | Data Type         | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | ----------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `field`    | `string`          | The field name to apply the filter to.                                           | N/A            | Yes      |
-| `in`       | `list of strings` | A list of phrases. Documents must match at least one of these phrases.           | N/A            | Yes      |
-| `alias`    | `string`          | An optional alias for the filter.                                                | `None`         | No       |
-| `disabled` | `boolean`         | If `true`, the filter is defined but not applied.                                | `false`        | No       |
+| `field` | `string` | The field name to apply the filter to. | N/A | Yes |
+| `in` | `list of strings` | A list of phrases. Documents must match at least one of these phrases. | N/A | Yes |
+| `alias` | `string` | An optional alias for the filter. | `None` | No |
+| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
 
 ### Range Filter
 
 Matches documents where a numeric or date field falls within a specified range. At least one of `gte`, `lte`, `gt`, or `lt` must be provided.
 
-| YAML Key   | Data Type | Description                                                                      | Kibana Default | Required                |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | ----------------------- |
-| `field`    | `string`  | The field name to apply the filter to.                                           | N/A            | Yes                     |
-| `gte`      | `string`  | Greater than or equal to value.                                                  | `None`         | No (but one must exist) |
-| `lte`      | `string`  | Less than or equal to value.                                                     | `None`         | No (but one must exist) |
-| `gt`       | `string`  | Greater than value.                                                              | `None`         | No (but one must exist) |
-| `lt`       | `string`  | Less than value.                                                                 | `None`         | No (but one must exist) |
-| `alias`    | `string`  | An optional alias for the filter.                                                | `None`         | No                      |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied.                                | `false`        | No                      |
+| `field` | `string` | The field name to apply the filter to. | N/A | Yes |
+| `gte` | `string` | Greater than or equal to value. | `None` | No (but one must exist) |
+| `lte` | `string` | Less than or equal to value. | `None` | No (but one must exist) |
+| `gt` | `string` | Greater than value. | `None` | No (but one must exist) |
+| `lt` | `string` | Less than value. | `None` | No (but one must exist) |
+| `alias` | `string` | An optional alias for the filter. | `None` | No |
+| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
 
 ### Custom Filter
 
 Allows for defining a custom Elasticsearch Query DSL filter.
 
-| YAML Key   | Data Type        | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | ---------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `dsl`      | `object (dict)`  | The custom Elasticsearch query definition.                                       | N/A            | Yes      |
-| `alias`    | `string`         | An optional alias for the filter.                                                | `None`         | No       |
-| `disabled` | `boolean`        | If `true`, the filter is defined but not applied.                                | `false`        | No       |
+| `dsl` | `object (dict)` | The custom Elasticsearch query definition. | N/A | Yes |
+| `alias` | `string` | An optional alias for the filter. | `None` | No |
+| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
 
 ### Negate Filter (`not`)
 
 Excludes documents that match the nested filter. This filter itself does not have `alias` or `disabled` directly; those would apply to the filter it contains or a parent filter.
 
-| YAML Key | Data Type      | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | -------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `not`    | `FilterTypes`  | The filter object to negate. Can be any of the other filter types or junctions.  | N/A            | Yes      |
+| `not` | `FilterTypes` | The filter object to negate. Can be any of the other filter types or junctions. | N/A | Yes |
 
 ### And Filter (`and`)
 
 Matches documents that satisfy ALL of the specified nested filters.
 
-| YAML Key   | Data Type               | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | ----------------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `and`      | `list of FilterTypes`   | A list of filter objects. All filters must match for a document to be included.  | N/A            | Yes      |
-| `alias`    | `string`                | An optional alias for the AND group.                                             | `None`         | No       |
-| `disabled` | `boolean`               | If `true`, the entire AND group is defined but not applied.                      | `false`        | No       |
+| `and` | `list of FilterTypes` | A list of filter objects. All filters must match for a document to be included. | N/A | Yes |
+| `alias` | `string` | An optional alias for the AND group. | `None` | No |
+| `disabled` | `boolean` | If `true`, the entire AND group is defined but not applied. | `false` | No |
 
 ### Or Filter (`or`)
 
 Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 
-| YAML Key   | Data Type               | Description                                                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | ----------------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `or`       | `list of FilterTypes`   | A list of filter objects. At least one filter must match.                        | N/A            | Yes      |
-| `alias`    | `string`                | An optional alias for the OR group.                                              | `None`         | No       |
-| `disabled` | `boolean`               | If `true`, the entire OR group is defined but not applied.                       | `false`        | No       |
+| `or` | `list of FilterTypes` | A list of filter objects. At least one filter must match. | N/A | Yes |
+| `alias` | `string` | An optional alias for the OR group. | `None` | No |
+| `disabled` | `boolean` | If `true`, the entire OR group is defined but not applied. | `false` | No |
 
 ## Related Documentation
 
@@ -473,13 +473,13 @@ dashboard:
 
 These fields are available for all panel types and are inherited from the `BasePanel` configuration.
 
-| YAML Key     | Data Type | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------ | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `id`         | `string`  | A unique identifier for the panel. If not provided, one will be generated during compilation.              | Generated ID                    | No       |
-| `title`      | `string`  | The title displayed on the panel header. Can be an empty string if you wish for no visible title.          | `""` (empty string)             | No       |
-| `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden.                                               | `false` (title is shown)        | No       |
-| `description`| `string`  | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`)  | No       |
-| `grid`       | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration). | N/A                             | Yes      |
+| `id` | `string` | A unique identifier for the panel. If not provided, one will be generated during compilation. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Can be an empty string if you wish for no visible title. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden. | `false` (title is shown) | No |
+| `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration). | N/A | Yes |
 
 **Note on `type`**: The `type` field (e.g., `type: markdown`, `type: lens_metric`) is **required** for every panel definition in your YAML. However, it is not part of the `BasePanel` model itself but is a discriminator field defined in each specific panel type's configuration (e.g., `MarkdownPanel`, `LensPanel`). It tells the compiler which specific panel configuration to use.
 
@@ -487,12 +487,12 @@ These fields are available for all panel types and are inherited from the `BaseP
 
 The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard is typically a 12-column grid, but `w` and `h` are unitless and relative to this grid system.
 
-| YAML Key | Data Type | Description                                                              | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------------------------------ | -------------- | -------- |
-| `x`      | `integer` | The horizontal starting position of the panel on the grid (0-based index). | N/A            | Yes      |
-| `y`      | `integer` | The vertical starting position of the panel on the grid (0-based index).   | N/A            | Yes      |
-| `w`      | `integer` | The width of the panel in grid units.                                    | N/A            | Yes      |
-| `h`      | `integer` | The height of the panel in grid units.                                   | N/A            | Yes      |
+| `x` | `integer` | The horizontal starting position of the panel on the grid (0-based index). | N/A | Yes |
+| `y` | `integer` | The vertical starting position of the panel on the grid (0-based index). | N/A | Yes |
+| `w` | `integer` | The width of the panel in grid units. | N/A | Yes |
+| `h` | `integer` | The height of the panel in grid units. | N/A | Yes |
 
 **Example of `grid` usage:**
 
@@ -686,16 +686,16 @@ dashboard:
 
 This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](../base.md). The presence of the `esql` field distinguishes it from a Lens panel.
 
-| YAML Key | Data Type                                  | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`   | `Literal['charts']`                        | Specifies the panel type. For ESQL panels, this is `charts`.                                               | `charts`                        | Yes      |
-| `id`     | `string`                                   | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`  | `string`                                   | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string)             | No       |
-| `hide_title` | `boolean`                              | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`| `string`                               | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)  | No       |
-| `grid`   | `Grid` object                              | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `esql`   | `string` or `ESQLQuery` object             | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query).                    | N/A                             | Yes      |
-| `chart`  | `ESQLChartTypes` object                    | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart) or [ESQL Pie Chart](#esql-pie-chart). | N/A                             | Yes      |
+| `type` | `Literal['charts']` | Specifies the panel type. For ESQL panels, this is `charts`. | `charts` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query). | N/A | Yes |
+| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart) or [ESQL Pie Chart](#esql-pie-chart). | N/A | Yes |
 
 ---
 
@@ -703,14 +703,14 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 
 Displays a single primary metric derived from an ESQL query, optionally with a secondary metric, a maximum value, and a breakdown dimension. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
-| YAML Key    | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`      | `Literal['metric']`                        | Specifies the chart type as an ESQL Metric visualization.                                                  | `metric`         | Yes      |
-| `id`        | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `primary`   | `ESQLMetric` object                        | The primary metric to display. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A              | Yes      |
-| `secondary` | `ESQLMetric` object                        | An optional secondary metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None`           | No       |
-| `maximum`   | `ESQLMetric` object                        | An optional maximum metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None`           | No       |
-| `breakdown` | `ESQLDimension` object                     | An optional dimension to break down the metric by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None`           | No       |
+| `type` | `Literal['metric']` | Specifies the chart type as an ESQL Metric visualization. | `metric` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `primary` | `ESQLMetric` object | The primary metric to display. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `secondary` | `ESQLMetric` object | An optional secondary metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None` | No |
+| `maximum` | `ESQLMetric` object | An optional maximum metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None` | No |
+| `breakdown` | `ESQLDimension` object | An optional dimension to break down the metric by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 
 **Example (ESQL Metric Chart):**
 
@@ -731,16 +731,16 @@ Displays a single primary metric derived from an ESQL query, optionally with a s
 
 Visualizes proportions of categories using slices of a pie or a donut chart, with data sourced from an ESQL query. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
-| YAML Key          | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`            | `Literal['pie']`                           | Specifies the chart type as an ESQL Pie visualization.                                                     | `pie`            | Yes      |
-| `id`              | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `metric`          | `ESQLMetric` object                        | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A              | Yes      |
-| `slice_by`        | `list of ESQLDimension` objects            | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A              | Yes      |
-| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting) (shared with Lens). | `None`           | No       |
-| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting) (shared with Lens). | `None`           | No       |
-| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting) (shared with Lens).        | `None`           | No       |
-| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None`           | No       |
+| `type` | `Literal['pie']` | Specifies the chart type as an ESQL Pie visualization. | `pie` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `metric` | `ESQLMetric` object | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `slice_by` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting) (shared with Lens). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting) (shared with Lens). | `None` | No |
+| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting) (shared with Lens). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None` | No |
 
 **Example (ESQL Pie Chart):**
 
@@ -765,19 +765,19 @@ For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `m
 
 Used to specify a metric column from your ESQL query result.
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for this metric column definition.                                           | Generated ID     | No       |
-| `field`  | `string`  | The name of the column in your ESQL query result that represents the metric value.                         | N/A              | Yes      |
+| `id` | `string` | An optional unique identifier for this metric column definition. | Generated ID | No |
+| `field` | `string` | The name of the column in your ESQL query result that represents the metric value. | N/A | Yes |
 
 ### ESQL Dimension Column
 
 Used to specify a dimension/grouping column from your ESQL query result.
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for this dimension column definition.                                          | Generated ID     | No       |
-| `field`  | `string`  | The name of the column in your ESQL query result that represents the dimension.                            | N/A              | Yes      |
+| `id` | `string` | An optional unique identifier for this dimension column definition. | Generated ID | No |
+| `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
 
 ---
 
@@ -787,31 +787,31 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 ### Pie Chart Appearance Formatting (`appearance` field)
 
-| YAML Key | Data Type                             | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `donut`  | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie)     | No       |
+| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
 
 ### Pie Titles and Text Formatting (`titles_and_text` field)
 
-| YAML Key               | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels`         | `Literal['hide', 'inside', 'auto']`        | How to display labels for each slice.                                                                      | `auto`           | No       |
-| `slice_values`         | `Literal['hide', 'integer', 'percent']`    | How to display the value for each slice.                                                                   | `percent`        | No       |
-| `value_decimal_places` | `integer` (0-10)                           | Number of decimal places for slice values.                                                                 | `2`              | No       |
+| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
+| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
+| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
 
 ### Pie Legend Formatting (`legend` field)
 
-| YAML Key            | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `visible`           | `Literal['show', 'hide', 'auto']`          | Controls legend visibility.                                                                                | `auto`           | No       |
-| `width`             | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area.                                                                                  | `medium`         | No       |
-| `truncate_labels`   | `integer` (0-5)                            | Max number of lines for legend labels before truncating. `0` disables truncation.                          | `1`              | No       |
+| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `auto` | No |
+| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `medium` | No |
+| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `1` | No |
 
 ### Color Mapping Formatting (`color` field)
 
-| YAML Key  | Data Type | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
+| `palette` | `string` | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default` | Yes |
 
 ## Related Documentation
 
@@ -1196,18 +1196,18 @@ dashboard:
 
 This is the main object for a Lens-based visualization. It inherits from the [Base Panel Configuration](../base.md).
 
-| YAML Key | Data Type                                  | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`   | `Literal['charts']`                        | Specifies the panel type as a Lens panel.                                                                  | `charts`                        | Yes      |
-| `id`     | `string`                                   | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`  | `string`                                   | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string)             | No       |
-| `hide_title` | `boolean`                              | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`| `string`                               | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)  | No       |
-| `grid`   | `Grid` object                              | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `query`  | `LegacyQueryTypes` object (KQL or Lucene)  | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../../queries/config.md). | `None` (uses dashboard query)   | No       |
-| `filters`| `list of FilterTypes`                      | A list of panel-specific filters. See [Filters Documentation](../../filters/config.md).                    | `[]` (empty list)               | No       |
-| `chart`  | `LensChartTypes` object                    | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart) or [Lens Pie Chart](#lens-pie-chart). | N/A                             | Yes      |
-| `layers` | `list of MultiLayerChartTypes`             | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None`                          | No       |
+| `type` | `Literal['charts']` | Specifies the panel type as a Lens panel. | `charts` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../../queries/config.md). | `None` (uses dashboard query) | No |
+| `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../../filters/config.md). | `[]` (empty list) | No |
+| `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart) or [Lens Pie Chart](#lens-pie-chart). | N/A | Yes |
+| `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None` | No |
 
 **Note on `layers` vs `chart`**:
 
@@ -1220,14 +1220,14 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 
 Displays a single primary metric, optionally with a secondary metric, a maximum value, and a breakdown dimension.
 
-| YAML Key    | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`      | `Literal['metric']`                        | Specifies the chart type as a Lens Metric visualization.                                                   | `metric`         | Yes      |
-| `id`        | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `primary`   | `LensMetricTypes` object                   | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics).            | N/A              | Yes      |
-| `secondary` | `LensMetricTypes` object                   | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics).          | `None`           | No       |
-| `maximum`   | `LensMetricTypes` object                   | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics). | `None`           | No       |
-| `breakdown` | `LensDimensionTypes` object                | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions). | `None`           | No       |
+| `type` | `Literal['metric']` | Specifies the chart type as a Lens Metric visualization. | `metric` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics). | N/A | Yes |
+| `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics). | `None` | No |
+| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics). | `None` | No |
+| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions). | `None` | No |
 
 **Example (Lens Metric Chart):**
 
@@ -1257,17 +1257,17 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 
 Visualizes proportions of categories using slices of a pie or a donut chart.
 
-| YAML Key          | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`            | `Literal['pie']`                           | Specifies the chart type as a Lens Pie visualization.                                                      | `pie`            | Yes      |
-| `id`              | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `data_view`       | `string`                                   | The ID or title of the data view (index pattern) for this pie chart.                                       | N/A              | Yes      |
-| `metric`          | `LensMetricTypes` object                   | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics).                     | N/A              | Yes      |
-| `slice_by`        | `list of LensDimensionTypes` objects       | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions).        | N/A              | Yes      |
-| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance).            | `None`           | No       |
-| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text).           | `None`           | No       |
-| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend).                                    | `None`           | No       |
-| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping).                       | `None`           | No       |
+| `type` | `Literal['pie']` | Specifies the chart type as a Lens Pie visualization. | `pie` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `data_view` | `string` | The ID or title of the data view (index pattern) for this pie chart. | N/A | Yes |
+| `metric` | `LensMetricTypes` object | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics). | N/A | Yes |
+| `slice_by` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions). | N/A | Yes |
+| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text). | `None` | No |
+| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping). | `None` | No |
 
 **Example (Lens Pie Chart):**
 
@@ -1304,76 +1304,76 @@ Dimensions define how data is grouped or bucketed in Lens visualizations.
 
 All specific dimension types below can include:
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for the dimension.                                                           | Generated ID     | No       |
-| `label`  | `string`  | A custom display label for the dimension. If not provided, a label is inferred.                            | Inferred         | No       |
+| `id` | `string` | An optional unique identifier for the dimension. | Generated ID | No |
+| `label` | `string` | A custom display label for the dimension. If not provided, a label is inferred. | Inferred | No |
 
 ### Top Values Dimension (`type: values`)
 
 Groups data by the most frequent unique values of a field.
 
-| YAML Key           | Data Type         | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`             | `Literal['values']`| Specifies the dimension type.                                                                              | `values`         | Yes      |
-| `field`            | `string`          | The field to get top values from.                                                                          | N/A              | Yes      |
-| `size`             | `integer`         | The number of top values to display.                                                                       | `3`              | No       |
-| `sort`             | `Sort` object     | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No       |
-| `other_bucket`     | `boolean`         | If `true`, groups remaining values into an "Other" bucket.                                                 | `true`           | No       |
-| `missing_bucket`   | `boolean`         | If `true`, creates a bucket for documents where the field is missing.                                      | `false`          | No       |
-| `include`          | `list of strings` | A list of specific terms to include.                                                                       | `None`           | No       |
-| `exclude`          | `list of strings` | A list of specific terms to exclude.                                                                       | `None`           | No       |
-| `include_is_regex` | `boolean`         | If `true`, treats `include` values as regex patterns.                                                      | `false`          | No       |
-| `exclude_is_regex` | `boolean`         | If `true`, treats `exclude` values as regex patterns.                                                      | `false`          | No       |
+| `type` | `Literal['values']` | Specifies the dimension type. | `values` | Yes |
+| `field` | `string` | The field to get top values from. | N/A | Yes |
+| `size` | `integer` | The number of top values to display. | `3` | No |
+| `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
+| `other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
+| `missing_bucket` | `boolean` | If `true`, creates a bucket for documents where the field is missing. | `false` | No |
+| `include` | `list of strings` | A list of specific terms to include. | `None` | No |
+| `exclude` | `list of strings` | A list of specific terms to exclude. | `None` | No |
+| `include_is_regex` | `boolean` | If `true`, treats `include` values as regex patterns. | `false` | No |
+| `exclude_is_regex` | `boolean` | If `true`, treats `exclude` values as regex patterns. | `false` | No |
 
 ### Date Histogram Dimension (`type: date_histogram`)
 
 Groups data into time-based buckets (e.g., per hour, day).
 
-| YAML Key            | Data Type                       | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`              | `Literal['date_histogram']`     | Specifies the dimension type.                                                                              | `date_histogram` | Yes      |
-| `field`             | `string`                        | The date field to use for the histogram.                                                                   | N/A              | Yes      |
-| `minimum_interval`  | `string`                        | The time interval (e.g., `auto`, `1h`, `1d`, `1w`).                                                        | `auto`           | No       |
-| `partial_intervals` | `boolean`                       | If `true`, includes buckets for time periods that are only partially covered by the data.                  | `true`           | No       |
-| `collapse`          | `CollapseAggregationEnum`       | For stacked charts, how to aggregate values within the same time bucket if multiple series exist. (`sum`, `min`, `max`, `avg`) | `None`           | No       |
+| `type` | `Literal['date_histogram']` | Specifies the dimension type. | `date_histogram` | Yes |
+| `field` | `string` | The date field to use for the histogram. | N/A | Yes |
+| `minimum_interval` | `string` | The time interval (e.g., `auto`, `1h`, `1d`, `1w`). | `auto` | No |
+| `partial_intervals` | `boolean` | If `true`, includes buckets for time periods that are only partially covered by the data. | `true` | No |
+| `collapse` | `CollapseAggregationEnum` | For stacked charts, how to aggregate values within the same time bucket if multiple series exist. (`sum`, `min`, `max`, `avg`) | `None` | No |
 
 ### Filters Dimension (`type: filters`)
 
 Creates buckets based on a list of custom KQL/Lucene queries.
 
-| YAML Key  | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`    | `Literal['filters']`                       | Specifies the dimension type.                                                                              | `filters`        | Yes      |
-| `filters` | `list of LensFiltersDimensionFilter` objects | A list of filter definitions. Each filter object has `query` (KQL/Lucene) and an optional `label`.         | N/A              | Yes      |
+| `type` | `Literal['filters']` | Specifies the dimension type. | `filters` | Yes |
+| `filters` | `list of LensFiltersDimensionFilter` objects | A list of filter definitions. Each filter object has `query` (KQL/Lucene) and an optional `label`. | N/A | Yes |
 
 **`LensFiltersDimensionFilter` Object:**
 
-| YAML Key | Data Type                 | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `query`  | `LegacyQueryTypes` object | The KQL or Lucene query for this filter bucket.  | N/A              | Yes      |
-| `label`  | `string`                  | A display label for this filter bucket.          | Query string     | No       |
+| `query` | `LegacyQueryTypes` object | The KQL or Lucene query for this filter bucket. | N/A | Yes |
+| `label` | `string` | A display label for this filter bucket. | Query string | No |
 
 ### Intervals Dimension (`type: intervals`)
 
 Groups data into numeric ranges (buckets).
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`        | `Literal['intervals']`                     | Specifies the dimension type.                                                                              | `intervals`      | Yes      |
-| `field`       | `string`                                   | The numeric field to create intervals from.                                                                | N/A              | Yes      |
-| `intervals`   | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used.                                | `None`           | No       |
-| `granularity` | `integer` (1-7)                            | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest.                                | `4`              | No       |
-| `collapse`    | `CollapseAggregationEnum`                  | For stacked charts, how to aggregate values within the same interval if multiple series exist. (`sum`, `min`, `max`, `avg`) | `None`           | No       |
-| `empty_bucket`| `boolean`                                  | If `true`, shows a bucket for documents with missing values for the field.                                 | `false`          | No       |
+| `type` | `Literal['intervals']` | Specifies the dimension type. | `intervals` | Yes |
+| `field` | `string` | The numeric field to create intervals from. | N/A | Yes |
+| `intervals` | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used. | `None` | No |
+| `granularity` | `integer` (1-7) | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest. | `4` | No |
+| `collapse` | `CollapseAggregationEnum` | For stacked charts, how to aggregate values within the same interval if multiple series exist. (`sum`, `min`, `max`, `avg`) | `None` | No |
+| `empty_bucket` | `boolean` | If `true`, shows a bucket for documents with missing values for the field. | `false` | No |
 
 **`LensIntervalsDimensionInterval` Object:**
 
-| YAML Key | Data Type | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `from`   | `integer` | The start of the interval (inclusive).           | `None`           | No       |
-| `to`     | `integer` | The end of the interval (exclusive).             | `None`           | No       |
-| `label`  | `string`  | A display label for this interval bucket.        | Auto-generated   | No       |
+| `from` | `integer` | The start of the interval (inclusive). | `None` | No |
+| `to` | `integer` | The end of the interval (exclusive). | `None` | No |
+| `label` | `string` | A display label for this interval bucket. | Auto-generated | No |
 
 ---
 
@@ -1385,12 +1385,12 @@ Metrics define the calculations performed on your data (e.g., count, sum, averag
 
 All specific metric types below can include:
 
-| YAML Key | Data Type                 | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `id`     | `string`                  | An optional unique identifier for the metric.                                                              | Generated ID     | No       |
-| `label`  | `string`                  | A custom display label for the metric. If not provided, a label is inferred.                               | Inferred         | No       |
-| `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting). | Default for type | No       |
-| `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data *before* this metric is calculated.                                   | `None`           | No       |
+| `id` | `string` | An optional unique identifier for the metric. | Generated ID | No |
+| `label` | `string` | A custom display label for the metric. If not provided, a label is inferred. | Inferred | No |
+| `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting). | Default for type | No |
+| `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data *before* this metric is calculated. | `None` | No |
 
 ### Aggregated Metric Types
 
@@ -1398,58 +1398,58 @@ These metrics perform an aggregation on a field.
 
 **Count / Unique Count (`aggregation: count` or `aggregation: unique_count`)**
 
-| YAML Key        | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `aggregation`   | `Literal['count', 'unique_count']`         | Type of count.                                                                                             | N/A              | Yes      |
-| `field`         | `string`                                   | For `unique_count`, the field whose unique values are counted. For `count`, optional (counts all documents if `None`). | `None` for `count` | No (Yes for `unique_count`) |
-| `exclude_zeros` | `boolean`                                  | If `true`, zero values are excluded from the aggregation.                                                  | `true`           | No       |
+| `aggregation` | `Literal['count', 'unique_count']` | Type of count. | N/A | Yes |
+| `field` | `string` | For `unique_count`, the field whose unique values are counted. For `count`, optional (counts all documents if `None`). | `None` for `count` | No (Yes for `unique_count`) |
+| `exclude_zeros` | `boolean` | If `true`, zero values are excluded from the aggregation. | `true` | No |
 
 **Sum (`aggregation: sum`)**
 
-| YAML Key        | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `aggregation`   | `Literal['sum']`                           | Specifies sum aggregation.                                                                                 | `sum`            | Yes      |
-| `field`         | `string`                                   | The numeric field to sum.                                                                                  | N/A              | Yes      |
-| `exclude_zeros` | `boolean`                                  | If `true`, zero values are excluded from the sum.                                                          | `true`           | No       |
+| `aggregation` | `Literal['sum']` | Specifies sum aggregation. | `sum` | Yes |
+| `field` | `string` | The numeric field to sum. | N/A | Yes |
+| `exclude_zeros` | `boolean` | If `true`, zero values are excluded from the sum. | `true` | No |
 
 **Min, Max, Average, Median (`aggregation: min` / `max` / `average` / `median`)**
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `aggregation` | `Literal['min', 'max', 'average', 'median']` | The aggregation type.                                                                                      | N/A              | Yes      |
-| `field`       | `string`                                   | The numeric field for the aggregation.                                                                     | N/A              | Yes      |
+| `aggregation` | `Literal['min', 'max', 'average', 'median']` | The aggregation type. | N/A | Yes |
+| `field` | `string` | The numeric field for the aggregation. | N/A | Yes |
 
 **Last Value (`aggregation: last_value`)**
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `aggregation` | `Literal['last_value']`                    | Retrieves the most recent value of a field.                                                                | `last_value`     | Yes      |
-| `field`       | `string`                                   | The field whose last value is retrieved.                                                                   | N/A              | Yes      |
-| `date_field`  | `string`                                   | The date field used to determine the "last" value.                                                         | `@timestamp`     | No       |
+| `aggregation` | `Literal['last_value']` | Retrieves the most recent value of a field. | `last_value` | Yes |
+| `field` | `string` | The field whose last value is retrieved. | N/A | Yes |
+| `date_field` | `string` | The date field used to determine the "last" value. | `@timestamp` | No |
 
 **Percentile (`aggregation: percentile`)**
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `aggregation` | `Literal['percentile']`                    | Calculates the value at a specific percentile.                                                             | `percentile`     | Yes      |
-| `field`       | `string`                                   | The numeric field for percentile calculation.                                                              | N/A              | Yes      |
-| `percentile`  | `integer`                                  | The percentile to calculate (e.g., `95` for 95th percentile).                                              | N/A              | Yes      |
+| `aggregation` | `Literal['percentile']` | Calculates the value at a specific percentile. | `percentile` | Yes |
+| `field` | `string` | The numeric field for percentile calculation. | N/A | Yes |
+| `percentile` | `integer` | The percentile to calculate (e.g., `95` for 95th percentile). | N/A | Yes |
 
 **Percentile Rank (`aggregation: percentile_rank`)**
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `aggregation` | `Literal['percentile_rank']`               | Determines the rank of a specific value within the dataset.                                                | `percentile_rank`| Yes      |
-| `field`       | `string`                                   | The numeric field for percentile rank calculation.                                                         | N/A              | Yes      |
-| `rank`        | `integer`                                  | The value for which to find the percentile rank.                                                           | N/A              | Yes      |
+| `aggregation` | `Literal['percentile_rank']` | Determines the rank of a specific value within the dataset. | `percentile_rank` | Yes |
+| `field` | `string` | The numeric field for percentile rank calculation. | N/A | Yes |
+| `rank` | `integer` | The value for which to find the percentile rank. | N/A | Yes |
 
 ### Formula Metric
 
 Allows custom calculations using a formula string. *Note: Formula structure is complex and detailed parsing/compilation for its internal operations is not fully covered here but is handled by the compiler.*
 
-| YAML Key  | Data Type | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `formula` | `string`  | The formula string (e.g., `count() / unique_count(user.id)`).  | N/A              | Yes      |
+| `formula` | `string` | The formula string (e.g., `count() / unique_count(user.id)`). | N/A | Yes |
 
 ---
 
@@ -1459,12 +1459,12 @@ Defines how metric values are displayed.
 
 ### Standard Format (`format.type: number` / `bytes` / `bits` / `percent` / `duration`)
 
-| YAML Key  | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`    | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The general type of formatting.                                                                          | N/A              | Yes      |
-| `suffix`  | `string`                                   | A suffix to append to the value (e.g., "ms", " GB").                                                       | `None`           | No       |
-| `compact` | `boolean`                                  | If `true`, uses compact notation (e.g., "1K" instead of "1000").                                           | `None` (false)   | No       |
-| `pattern` | `string`                                   | A Numeral.js format pattern (used if `type` is `number` or `percent`).                                     | Default for type | No       |
+| `type` | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The general type of formatting. | N/A | Yes |
+| `suffix` | `string` | A suffix to append to the value (e.g., "ms", " GB"). | `None` | No |
+| `compact` | `boolean` | If `true`, uses compact notation (e.g., "1K" instead of "1000"). | `None` (false) | No |
+| `pattern` | `string` | A Numeral.js format pattern (used if `type` is `number` or `percent`). | Default for type | No |
 
 **Default Decimal Places (Kibana):**
 
@@ -1476,10 +1476,10 @@ Defines how metric values are displayed.
 
 ### Custom Format (`format.type: custom`)
 
-| YAML Key  | Data Type             | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `type`    | `Literal['custom']`   | Specifies custom formatting.                     | `custom`         | Yes      |
-| `pattern` | `string`              | A Numeral.js format pattern.                     | N/A              | Yes      |
+| `type` | `Literal['custom']` | Specifies custom formatting. | `custom` | Yes |
+| `pattern` | `string` | A Numeral.js format pattern. | N/A | Yes |
 
 ---
 
@@ -1489,31 +1489,31 @@ These objects are used within the `LensPieChart` configuration.
 
 ### Pie Chart Appearance (`appearance` field)
 
-| YAML Key | Data Type                             | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `donut`  | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie)     | No       |
+| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
 
 ### Pie Titles and Text (`titles_and_text` field)
 
-| YAML Key               | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels`         | `Literal['hide', 'inside', 'auto']`        | How to display labels for each slice.                                                                      | `auto`           | No       |
-| `slice_values`         | `Literal['hide', 'integer', 'percent']`    | How to display the value for each slice.                                                                   | `percent`        | No       |
-| `value_decimal_places` | `integer` (0-10)                           | Number of decimal places for slice values.                                                                 | `2`              | No       |
+| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
+| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
+| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
 
 ### Pie Legend (`legend` field)
 
-| YAML Key            | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `visible`           | `Literal['show', 'hide', 'auto']`          | Controls legend visibility.                                                                                | `auto`           | No       |
-| `width`             | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area.                                                                                  | `medium`         | No       |
-| `truncate_labels`   | `integer` (0-5)                            | Max number of lines for legend labels before truncating. `0` disables truncation.                          | `1`              | No       |
+| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `auto` | No |
+| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `medium` | No |
+| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `1` | No |
 
 ### Color Mapping (`color` field)
 
-| YAML Key  | Data Type | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
+| `palette` | `string` | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default` | Yes |
 
 ## Related Documentation
 
@@ -1822,17 +1822,17 @@ dashboard:
 
 Image panels inherit from the [Base Panel Configuration](../base.md) and have the following specific fields:
 
-| YAML Key           | Data Type                                   | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`             | `Literal['image']`                          | Specifies the panel type.                                                                                | `image`                         | Yes      |
-| `id`               | `string`                                    | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`            | `string`                                    | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string)             | No       |
-| `hide_title`       | `boolean`                                   | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`      | `string`                                    | Alternative text for the image, used for accessibility. This overrides the BasePanel `description` if you want specific alt text for the image itself. | `""` (empty string, if `None`)  | No       |
-| `grid`             | `Grid` object                               | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `from_url`         | `string`                                    | The URL of the image to be displayed in the panel.                                                         | N/A                             | Yes      |
-| `fit`              | `Literal['contain', 'cover', 'fill', 'none']` | The sizing of the image within the panel boundaries.                                                       | `contain`                       | No       |
-| `background_color` | `string`                                    | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`).   | `""` (empty string, likely transparent in Kibana) | No       |
+| `type` | `Literal['image']` | Specifies the panel type. | `image` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | Alternative text for the image, used for accessibility. This overrides the BasePanel `description` if you want specific alt text for the image itself. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `from_url` | `string` | The URL of the image to be displayed in the panel. | N/A | Yes |
+| `fit` | `Literal['contain', 'cover', 'fill', 'none']` | The sizing of the image within the panel boundaries. | `contain` | No |
+| `background_color` | `string` | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`). | `""` (empty string, likely transparent in Kibana) | No |
 
 **Details for `fit` options:**
 
@@ -1934,16 +1934,16 @@ dashboard:
 
 Defines the main container for a list of links. It inherits from the [Base Panel Configuration](../base.md).
 
-| YAML Key    | Data Type                               | Description                                                                                                | Kibana Default      | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
-| `type`      | `Literal['links']`                      | Specifies the panel type.                                                                                | `links`             | Yes      |
-| `id`        | `string`                                | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID        | No       |
-| `title`     | `string`                                | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string) | No       |
-| `hide_title`| `boolean`                               | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`             | No       |
-| `description`| `string`                               | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`) | No       |
-| `grid`      | `Grid` object                           | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                 | Yes      |
-| `layout`    | `Literal['horizontal', 'vertical']`     | The layout of the links in the panel.                                                                      | `horizontal`        | No       |
-| `links`     | `list of LinkTypes`                     | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list)   | Yes      |
+| `type` | `Literal['links']` | Specifies the panel type. | `links` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `layout` | `Literal['horizontal', 'vertical']` | The layout of the links in the panel. | `horizontal` | No |
+| `links` | `list of LinkTypes` | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list) | Yes |
 
 ### Link Types
 
@@ -1951,35 +1951,35 @@ Each item in the `links` list will be one of the following types. They share com
 
 #### Base Link Fields (Common to DashboardLink and UrlLink)
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default      | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for the individual link item. Not typically needed.                          | Generated ID        | No       |
-| `label`  | `string`  | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No       |
+| `id` | `string` | An optional unique identifier for the individual link item. Not typically needed. | Generated ID | No |
+| `label` | `string` | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No |
 
 #### Dashboard Link
 
 Represents a link to another Kibana dashboard.
 
-| YAML Key       | Data Type | Description                                                                                                | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------------- | --------- | ---------------------------------------------------------------------------------------------------------- | -------------- | -------- |
-| `dashboard`    | `string`  | The ID of the target Kibana dashboard.                                                                     | N/A            | Yes      |
-| `id`           | `string`  | An optional unique identifier for this link item.                                                          | Generated ID   | No       |
-| `label`        | `string`  | The display text for the link.                                                                             | `None`         | No       |
-| `new_tab`      | `boolean` | If `true`, the linked dashboard will open in a new browser tab.                                            | `false`        | No       |
-| `with_time`    | `boolean` | If `true`, the linked dashboard will inherit the current time range from the source dashboard.             | `true`         | No       |
-| `with_filters` | `boolean` | If `true`, the linked dashboard will inherit the current filters from the source dashboard.                | `true`         | No       |
+| `dashboard` | `string` | The ID of the target Kibana dashboard. | N/A | Yes |
+| `id` | `string` | An optional unique identifier for this link item. | Generated ID | No |
+| `label` | `string` | The display text for the link. | `None` | No |
+| `new_tab` | `boolean` | If `true`, the linked dashboard will open in a new browser tab. | `false` | No |
+| `with_time` | `boolean` | If `true`, the linked dashboard will inherit the current time range from the source dashboard. | `true` | No |
+| `with_filters` | `boolean` | If `true`, the linked dashboard will inherit the current filters from the source dashboard. | `true` | No |
 
 #### URL Link
 
 Represents a link to an external web URL.
 
-| YAML Key  | Data Type | Description                                                                                                | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ---------------------------------------------------------------------------------------------------------- | -------------- | -------- |
-| `url`     | `string`  | The full web URL that the link points to (e.g., `https://www.example.com`).                                | N/A            | Yes      |
-| `id`      | `string`  | An optional unique identifier for this link item.                                                          | Generated ID   | No       |
-| `label`   | `string`  | The display text for the link. If not set, Kibana defaults to showing the URL.                             | `""` (empty string) or URL | No       |
-| `encode`  | `boolean` | If `true`, the URL will be URL-encoded before navigation.                                                  | `true`         | No       |
-| `new_tab` | `boolean` | If `true`, the link will open in a new browser tab.                                                        | `false`        | No       |
+| `url` | `string` | The full web URL that the link points to (e.g., `https://www.example.com`). | N/A | Yes |
+| `id` | `string` | An optional unique identifier for this link item. | Generated ID | No |
+| `label` | `string` | The display text for the link. If not set, Kibana defaults to showing the URL. | `""` (empty string) or URL | No |
+| `encode` | `boolean` | If `true`, the URL will be URL-encoded before navigation. | `true` | No |
+| `new_tab` | `boolean` | If `true`, the link will open in a new browser tab. | `false` | No |
 
 ## Methods (for programmatic generation)
 
@@ -2061,17 +2061,17 @@ dashboard:
 
 Markdown panels inherit from the [Base Panel Configuration](../base.md) and have the following specific fields:
 
-| YAML Key           | Data Type        | Description                                                                                                | Kibana Default                               | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------- |
-| `type`             | `Literal['markdown']` | Specifies the panel type.                                                                                | `markdown`                                   | Yes      |
-| `id`               | `string`         | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                                 | No       |
-| `title`            | `string`         | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string)                          | No       |
-| `hide_title`       | `boolean`        | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                                      | No       |
-| `description`      | `string`         | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)               | No       |
-| `grid`             | `Grid` object    | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                                          | Yes      |
-| `content`          | `string`         | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `|` or `>`) for readability. | N/A                                          | Yes      |
-| `font_size`        | `integer`        | The font size for the Markdown content, in pixels.                                                         | `12`                                         | No       |
-| `links_in_new_tab` | `boolean`        | If `true`, links in the Markdown content will open in a new tab.                                           | `true`                                       | No       |
+| `type` | `Literal['markdown']` | Specifies the panel type. | `markdown` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `content` | `string` | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., ` | ` or `>`) for readability. | N/A | Yes |
+| `font_size` | `integer` | The font size for the Markdown content, in pixels. | `12` | No |
+| `links_in_new_tab` | `boolean` | If `true`, links in the Markdown content will open in a new tab. | `true` | No |
 
 ## Related Documentation
 
@@ -2133,15 +2133,15 @@ dashboard:
 
 Search panels inherit from the [Base Panel Configuration](../base.md) and have one specific required field:
 
-| YAML Key          | Data Type        | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`            | `Literal['search']`| Specifies the panel type.                                                                                | `search`                        | Yes      |
-| `id`              | `string`         | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`           | `string`         | The title displayed on the panel header. This can override the title of the saved search if desired. Inherited from BasePanel. | `""` (empty string)             | No       |
-| `hide_title`      | `boolean`        | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`     | `string`         | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)  | No       |
-| `grid`            | `Grid` object    | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `saved_search_id` | `string`         | The ID of the saved Kibana search object (from Discover app) to display in the panel.                      | N/A                             | Yes      |
+| `type` | `Literal['search']` | Specifies the panel type. | `search` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. This can override the title of the saved search if desired. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `saved_search_id` | `string` | The ID of the saved Kibana search object (from Discover app) to display in the panel. | N/A | Yes |
 
 **Note on Behavior:** The appearance, columns displayed, sort order, and underlying query of the Search panel are primarily controlled by the configuration of the saved search itself within Kibana's Discover application. The dashboard panel configuration mainly serves to embed that saved search.
 
@@ -2195,10 +2195,10 @@ Queries are typically defined under a `query` key, either at the root of the `da
 
 Filters documents using the Kibana Query Language (KQL). This is often the default query language in Kibana.
 
-| YAML Key | Data Type | Description                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------ | -------------- | -------- |
-| `kql`    | `string`  | The KQL query string to apply.                   | N/A            | Yes      |
-| `query`  | `object`  | The parent object containing the `kql` key.      | N/A            | Yes      |
+| `kql` | `string` | The KQL query string to apply. | N/A | Yes |
+| `query` | `object` | The parent object containing the `kql` key. | N/A | Yes |
 
 **Usage Example (Dashboard Level):**
 
@@ -2213,10 +2213,10 @@ dashboard:
 
 Filters documents using the more expressive, but complex, Lucene query syntax.
 
-| YAML Key | Data Type | Description                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------ | -------------- | -------- |
-| `lucene` | `string`  | The Lucene query string to apply.                | N/A            | Yes      |
-| `query`  | `object`  | The parent object containing the `lucene` key.   | N/A            | Yes      |
+| `lucene` | `string` | The Lucene query string to apply. | N/A | Yes |
+| `query` | `object` | The parent object containing the `lucene` key. | N/A | Yes |
 
 **Usage Example (Dashboard Level):**
 
@@ -2231,9 +2231,9 @@ dashboard:
 
 Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQL queries are typically used by specific panel types that are designed to work with ESQL's tabular results (e.g., ESQL-driven charts or tables). The configuration is a direct string under the `query` key for such panels.
 
-| YAML Key | Data Type | Description                                                                 | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | --------------------------------------------------------------------------- | -------------- | -------- |
-| `query`  | `string`  | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A            | Yes      |
+| `query` | `string` | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A | Yes |
 
 **Usage Example (Panel Level - for a hypothetical ESQL panel):**
 

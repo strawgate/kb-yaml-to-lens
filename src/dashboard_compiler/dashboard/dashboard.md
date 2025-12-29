@@ -84,38 +84,38 @@ dashboards:
 
 The main object defining the dashboard.
 
-| YAML Key      | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `name`        | `string`                                   | The title of the dashboard displayed in Kibana.                                                            | N/A              | Yes      |
-| `id`          | `string`                                   | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID     | No       |
-| `description` | `string`                                   | A brief description of the dashboard's purpose or content.                                                 | `""` (empty string) | No       |
-| `settings`    | `DashboardSettings` object                 | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings).                          | See defaults below | No       |
-| `data_view`   | `string`                                   | The default data view (index pattern) ID or title used by items in this dashboard unless overridden.       | `None`           | No       |
-| `query`       | `Query` object                             | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None`           | No       |
-| `filters`     | `list of Filter objects`                   | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md).      | `[]` (empty list)| No       |
-| `controls`    | `list of Control objects`                  | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md).           | `[]` (empty list)| No       |
-| `panels`      | `list of Panel objects`                    | A list of panels defining the content and layout. See [Panels Documentation](../panels/base.md).           | `[]` (empty list)| Yes      |
+| `name` | `string` | The title of the dashboard displayed in Kibana. | N/A | Yes |
+| `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
+| `description` | `string` | A brief description of the dashboard's purpose or content. | `""` (empty string) | No |
+| `settings` | `DashboardSettings` object | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings). | See defaults below | No |
+| `data_view` | `string` | The default data view (index pattern) ID or title used by items in this dashboard unless overridden. | `None` | No |
+| `query` | `Query` object | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None` | No |
+| `filters` | `list of Filter objects` | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
+| `controls` | `list of Control objects` | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md). | `[]` (empty list) | No |
+| `panels` | `list of Panel objects` | A list of panels defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
 
 ### Dashboard Settings (`settings`)
 
 Global settings for the dashboard, configured under the `dashboard.settings` path.
 
-| YAML Key   | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `margins`  | `boolean`                                  | Whether to put space (margins) between panels in the dashboard.                                            | `true`           | No       |
-| `sync`     | `DashboardSyncSettings` object             | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings). | See defaults below | No       |
-| `controls` | `ControlSettings` object                   | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No       |
-| `titles`   | `boolean`                                  | Whether to display the titles in the panel headers.                                                        | `true`           | No       |
+| `margins` | `boolean` | Whether to put space (margins) between panels in the dashboard. | `true` | No |
+| `sync` | `DashboardSyncSettings` object | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings). | See defaults below | No |
+| `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No |
+| `titles` | `boolean` | Whether to display the titles in the panel headers. | `true` | No |
 
 ### Dashboard Sync Settings (`settings.sync`)
 
 Configure whether cursor, tooltips, and colors should synchronize across panels.
 
-| YAML Key   | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `cursor`   | `boolean` | Whether to synchronize the cursor across related panels.                                                   | `true`           | No       |
-| `tooltips` | `boolean` | Whether to synchronize tooltips across related panels.                                                     | `true`           | No       |
-| `colors`   | `boolean` | Whether to apply the same color palette to all panels on the dashboard.                                    | `true`           | No       |
+| `cursor` | `boolean` | Whether to synchronize the cursor across related panels. | `true` | No |
+| `tooltips` | `boolean` | Whether to synchronize tooltips across related panels. | `true` | No |
+| `colors` | `boolean` | Whether to apply the same color palette to all panels on the dashboard. | `true` | No |
 
 ## Methods (for programmatic generation)
 

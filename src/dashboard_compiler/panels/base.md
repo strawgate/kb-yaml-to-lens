@@ -42,13 +42,13 @@ dashboard:
 
 These fields are available for all panel types and are inherited from the `BasePanel` configuration.
 
-| YAML Key     | Data Type | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------ | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `id`         | `string`  | A unique identifier for the panel. If not provided, one will be generated during compilation.              | Generated ID                    | No       |
-| `title`      | `string`  | The title displayed on the panel header. Can be an empty string if you wish for no visible title.          | `""` (empty string)             | No       |
-| `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden.                                               | `false` (title is shown)        | No       |
-| `description`| `string`  | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`)  | No       |
-| `grid`       | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration). | N/A                             | Yes      |
+| `id` | `string` | A unique identifier for the panel. If not provided, one will be generated during compilation. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Can be an empty string if you wish for no visible title. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden. | `false` (title is shown) | No |
+| `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration). | N/A | Yes |
 
 **Note on `type`**: The `type` field (e.g., `type: markdown`, `type: lens_metric`) is **required** for every panel definition in your YAML. However, it is not part of the `BasePanel` model itself but is a discriminator field defined in each specific panel type's configuration (e.g., `MarkdownPanel`, `LensPanel`). It tells the compiler which specific panel configuration to use.
 
@@ -56,12 +56,12 @@ These fields are available for all panel types and are inherited from the `BaseP
 
 The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard is typically a 12-column grid, but `w` and `h` are unitless and relative to this grid system.
 
-| YAML Key | Data Type | Description                                                              | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------------------------------ | -------------- | -------- |
-| `x`      | `integer` | The horizontal starting position of the panel on the grid (0-based index). | N/A            | Yes      |
-| `y`      | `integer` | The vertical starting position of the panel on the grid (0-based index).   | N/A            | Yes      |
-| `w`      | `integer` | The width of the panel in grid units.                                    | N/A            | Yes      |
-| `h`      | `integer` | The height of the panel in grid units.                                   | N/A            | Yes      |
+| `x` | `integer` | The horizontal starting position of the panel on the grid (0-based index). | N/A | Yes |
+| `y` | `integer` | The vertical starting position of the panel on the grid (0-based index). | N/A | Yes |
+| `w` | `integer` | The width of the panel in grid units. | N/A | Yes |
+| `h` | `integer` | The height of the panel in grid units. | N/A | Yes |
 
 **Example of `grid` usage:**
 
