@@ -40,33 +40,6 @@ When creating or modifying fixture generators, you MUST complete this checklist:
 
 **Copy this checklist into your response and check off each item as you complete it.**
 
-## Commit Message Requirements
-
-All commits that add or modify fixture generators MUST include:
-
-```
-<type>: <description>
-
-Fixture generator tested and verified:
-- Docker build: <success/skipped with reason>
-- Output file: <filename>
-- File size: <bytes>
-- Structure verified: <yes/no>
-- Tests pass: <yes/no>
-```
-
-Example:
-
-```
-feat: add tagcloud fixture generator
-
-Fixture generator tested and verified:
-- Docker build: success (6m 23s, cached layers reused)
-- Output files: tagcloud.json (15.2KB), tagcloud-dataview.json (14.8KB)
-- Structure verified: yes (valid JSON, contains visualizationState)
-- Tests pass: yes (264/264)
-```
-
 ## How to Run Fixture Generation
 
 ### Prerequisites Check
