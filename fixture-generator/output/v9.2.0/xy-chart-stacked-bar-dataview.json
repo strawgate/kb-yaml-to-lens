@@ -1,0 +1,135 @@
+{
+  "title": "Stacked Events by Response Code (Data View)",
+  "visualizationType": "lnsXY",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessor0_breakdown",
+              "x_metric_formula_accessor0",
+              "metric_formula_accessor0_0"
+            ],
+            "columns": {
+              "metric_formula_accessor0_0": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "Count",
+                "params": {
+                  "formula": "count()"
+                },
+                "customLabel": true
+              },
+              "x_metric_formula_accessor0": {
+                "dataType": "date",
+                "isBucketed": true,
+                "label": "@timestamp",
+                "operationType": "date_histogram",
+                "scale": "interval",
+                "sourceField": "@timestamp",
+                "params": {
+                  "interval": "auto"
+                }
+              },
+              "metric_formula_accessor0_breakdown": {
+                "label": "Top 5 values of response.keyword",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "response.keyword",
+                "isBucketed": true,
+                "params": {
+                  "size": 5,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "axisTitlesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "legend": {
+        "isVisible": true,
+        "position": "right"
+      },
+      "hideEndzones": true,
+      "preferredSeriesType": "line",
+      "valueLabels": "hide",
+      "emphasizeFitting": true,
+      "fittingFunction": "Linear",
+      "yLeftExtent": {
+        "mode": "full"
+      },
+      "tickLabelsVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "labelsOrientation": {
+        "x": 0,
+        "yLeft": 0,
+        "yRight": 0
+      },
+      "gridlinesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "layers": [
+        {
+          "layerId": "layer_0",
+          "layerType": "data",
+          "xAccessor": "x_metric_formula_accessor0",
+          "splitAccessor": "metric_formula_accessor0_breakdown",
+          "accessors": [
+            "metric_formula_accessor0_0"
+          ],
+          "seriesType": "bar",
+          "yConfig": [
+            {
+              "forAccessor": "metric_formula_accessor0_0"
+            }
+          ]
+        }
+      ]
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}

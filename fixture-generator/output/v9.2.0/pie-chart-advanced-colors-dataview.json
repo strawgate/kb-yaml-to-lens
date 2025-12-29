@@ -1,0 +1,92 @@
+{
+  "title": "Request Methods with Custom Palette (Data View)",
+  "visualizationType": "lnsPie",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessor_breakdown_0",
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "count()",
+                "params": {
+                  "formula": "count()"
+                },
+                "customLabel": true
+              },
+              "metric_formula_accessor_breakdown_0": {
+                "label": "Top 5 values of request.method",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "request.method",
+                "isBucketed": true,
+                "params": {
+                  "size": 5,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "shape": "pie",
+      "layers": [
+        {
+          "layerId": "layer_0",
+          "layerType": "data",
+          "metrics": [
+            "metric_formula_accessor"
+          ],
+          "allowMultipleMetrics": false,
+          "numberDisplay": "percent",
+          "categoryDisplay": "default",
+          "legendDisplay": "show",
+          "legendPosition": "bottom",
+          "primaryGroups": [
+            "metric_formula_accessor_breakdown_0"
+          ]
+        }
+      ]
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}

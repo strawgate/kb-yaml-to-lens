@@ -48,17 +48,17 @@ For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 1. Create a YAML dashboard file in `inputs/` directory:
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
-    - panel:
-        type: markdown
-        grid: { x: 0, y: 0, w: 24, h: 15 }
-        content: |
-          # Welcome to Kibana!
+    - type: markdown
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      content: |
+        # Welcome to Kibana!
 
-          This is my first dashboard compiled from YAML.
+        This is my first dashboard compiled from YAML.
 ```
 
 1. Compile to NDJSON:
@@ -89,7 +89,7 @@ successful upload.
 - **[Architecture](architecture.md)** – Technical design and data flow overview
 - **[YAML Reference](yaml_reference.md)** – Complete schema documentation for
   all dashboard elements
-- **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new
+- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new
   capabilities
 
 ## Requirements

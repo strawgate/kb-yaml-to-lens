@@ -5,7 +5,8 @@ The Metric chart panel displays a single value or a small set of key metrics, of
 ## Minimal Configuration Example
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "KPI Dashboard"
   panels:
     - type: metric
