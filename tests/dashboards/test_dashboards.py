@@ -586,7 +586,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                 'panelsJSON': [
                     {
                         'panelIndex': 'panel_0',
-                        'gridData': {'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'de393fc9-0eb7-d07e-257b-091e1a19995c'},
+                        'gridData': {'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': '8193b150-e8fe-02a4-f3e9-d6191c8c0929'},
                         'type': 'lens',
                         'embeddableConfig': {
                             'enhancements': {'dynamicActions': {'events': []}},
@@ -599,7 +599,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                                     'visualization': {
                                         'layers': [
                                             {
-                                                'layerId': IsUUID,
+                                                'layerId': '00000000-0000-0000-0000-000000000000',
                                                 'layerType': 'data',
                                                 'colorMapping': {
                                                     'assignments': [],
@@ -609,7 +609,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                                                     'paletteId': 'default',
                                                     'colorMode': {'type': 'categorical'},
                                                 },
-                                                'primaryGroups': ['5260d8f2-7d7b-67f5-6c8c-e7e126beaba9'],
+                                                'primaryGroups': ['83dfab2d-ca4c-b3bd-c9cc-7296daa0c230'],
                                                 'metrics': ['832d8d25-9f56-ce76-c599-dcd60beeb50e'],
                                                 'numberDisplay': 'percent',
                                                 'categoryDisplay': 'default',
@@ -626,7 +626,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                                             'layers': {
                                                 '00000000-0000-0000-0000-000000000000': {
                                                     'columns': {
-                                                        '5260d8f2-7d7b-67f5-6c8c-e7e126beaba9': {
+                                                        '83dfab2d-ca4c-b3bd-c9cc-7296daa0c230': {
                                                             'label': 'Top 5 values of aerospike.namespace',
                                                             'dataType': 'string',
                                                             'operationType': 'terms',
@@ -660,7 +660,7 @@ async def test_dashboard_with_one_yaml_ref() -> None:
                                                         },
                                                     },
                                                     'columnOrder': [
-                                                        '5260d8f2-7d7b-67f5-6c8c-e7e126beaba9',
+                                                        '83dfab2d-ca4c-b3bd-c9cc-7296daa0c230',
                                                         '832d8d25-9f56-ce76-c599-dcd60beeb50e',
                                                     ],
                                                     'incompleteColumns': {},
