@@ -1,16 +1,18 @@
 import { expect } from 'chai';
+import * as path from 'path';
 import {
     VSBrowser,
     WebDriver,
-    Workbench
+    Workbench,
+    EditorView
 } from 'vscode-extension-tester';
 
 /**
- * Smoke Tests - Basic verification that the extension loads and commands are registered
+ * Smoke Tests - Basic verification that the extension loads and commands work
  *
  * These tests verify the extension doesn't crash on installation and that basic
- * commands are available. They don't test full functionality - just that the
- * extension is working at a basic level.
+ * commands actually succeed (not just that they're registered). We use test fixtures
+ * to verify compilation works end-to-end.
  */
 describe('Extension Smoke Tests', function() {
     this.timeout(60000);
@@ -18,6 +20,10 @@ describe('Extension Smoke Tests', function() {
     let driver: WebDriver;
     let browser: VSBrowser;
     let workbench: Workbench;
+
+    // Path to test fixtures
+    const fixturesPath = path.join(__dirname, '..', '..', '..', 'test', 'fixtures');
+    const simpleDashboardPath = path.join(fixturesPath, 'simple-dashboard.yaml');
 
     before(async () => {
         browser = VSBrowser.instance;
@@ -47,48 +53,53 @@ describe('Extension Smoke Tests', function() {
         await driver.sleep(500);
     });
 
+    /**
+     * Helper to open a YAML file without using InputBox (avoids blocking issues)
+     */
+    async function openFile(filePath: string): Promise<void> {
+        // Use vscode.open command to open file directly
+        await workbench.executeCommand(`workbench.action.quickOpen`);
+        await driver.sleep(500);
+
+        // Type the file path
+        await driver.actions().sendKeys(filePath).perform();
+        await driver.sleep(500);
+
+        // Press Enter to open
+        await driver.actions().sendKeys('\n').perform();
+        await driver.sleep(2000); // Wait for file to open
+    }
+
+    /**
+     * Helper to check if a notification with specific text exists
+     */
+    async function hasNotificationWithText(text: string): Promise<boolean> {
+        const notifications = await workbench.getNotifications();
+        for (const notif of notifications) {
+            const message = await notif.getMessage();
+            if (message.includes(text)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     it('should have extension commands registered', async function() {
         this.timeout(30000);
 
-        // Try to execute a command - if it doesn't exist, this will throw
-        // We don't need a file open, we just need to verify the command exists
-        try {
-            await workbench.executeCommand('YAML Dashboard: Compile Dashboard');
-            await driver.sleep(1000);
+        // Open a test file first
+        await openFile(simpleDashboardPath);
 
-            // Command executed - verify we got some notification (even if it's an error)
-            const notifications = await workbench.getNotifications();
-
-            // We expect at least one notification (could be error about no file, which is fine)
-            expect(notifications.length).to.be.greaterThan(0);
-
-            // Clear notifications
-            for (const notif of notifications) {
-                try {
-                    await notif.dismiss();
-                } catch {
-                    // Ignore
-                }
-            }
-        } catch (error) {
-            // If command doesn't exist, test fails
-            throw new Error(`Extension command not found: ${error}`);
-        }
-    });
-
-    it('should execute compile command without crashing', async function() {
-        this.timeout(30000);
-
+        // Execute compile command
         await workbench.executeCommand('YAML Dashboard: Compile Dashboard');
         await driver.sleep(2000);
 
-        // Should get a notification (likely error about no active file, which is expected)
-        const notifications = await workbench.getNotifications();
-
-        // As long as we got some response, the command didn't crash
-        expect(notifications.length).to.be.greaterThan(0);
+        // Should get success notification
+        const hasSuccess = await hasNotificationWithText('Dashboard compiled successfully');
+        expect(hasSuccess, 'Expected compilation success notification').to.be.true;
 
         // Clear notifications
+        const notifications = await workbench.getNotifications();
         for (const notif of notifications) {
             try {
                 await notif.dismiss();
@@ -98,17 +109,47 @@ describe('Extension Smoke Tests', function() {
         }
     });
 
-    it('should execute export command without crashing', async function() {
+    it('should compile dashboard successfully', async function() {
         this.timeout(30000);
 
+        // Open test file
+        await openFile(simpleDashboardPath);
+
+        // Execute compile command
+        await workbench.executeCommand('YAML Dashboard: Compile Dashboard');
+        await driver.sleep(2000);
+
+        // Verify success
+        const hasSuccess = await hasNotificationWithText('Dashboard compiled successfully');
+        expect(hasSuccess, 'Expected compilation success notification').to.be.true;
+
+        // Clear notifications
+        const notifications = await workbench.getNotifications();
+        for (const notif of notifications) {
+            try {
+                await notif.dismiss();
+            } catch {
+                // Ignore
+            }
+        }
+    });
+
+    it('should export dashboard to NDJSON successfully', async function() {
+        this.timeout(30000);
+
+        // Open test file
+        await openFile(simpleDashboardPath);
+
+        // Execute export command
         await workbench.executeCommand('YAML Dashboard: Export Dashboard to NDJSON');
         await driver.sleep(2000);
 
-        // Should get a notification (likely error, which is expected without a file)
-        const notifications = await workbench.getNotifications();
-        expect(notifications.length).to.be.greaterThan(0);
+        // Verify success (checks for clipboard copy message)
+        const hasSuccess = await hasNotificationWithText('NDJSON copied to clipboard');
+        expect(hasSuccess, 'Expected export success notification').to.be.true;
 
         // Clear notifications
+        const notifications = await workbench.getNotifications();
         for (const notif of notifications) {
             try {
                 await notif.dismiss();
@@ -118,17 +159,26 @@ describe('Extension Smoke Tests', function() {
         }
     });
 
-    it('should execute preview command without crashing', async function() {
+    it('should open preview panel successfully', async function() {
         this.timeout(30000);
 
+        // Open test file
+        await openFile(simpleDashboardPath);
+
+        // Execute preview command
         await workbench.executeCommand('YAML Dashboard: Preview Dashboard');
-        await driver.sleep(2000);
+        await driver.sleep(3000); // Give time for preview panel to open
 
-        // Should get a notification (likely error, which is expected without a file)
+        // Verify preview panel opened by checking for webview
+        const editorView = new EditorView();
+        const openEditors = await editorView.getOpenEditorTitles();
+
+        // Preview panel should be open (title contains "Dashboard Preview")
+        const hasPreview = openEditors.some(title => title.includes('Dashboard Preview') || title.includes('Preview'));
+        expect(hasPreview, 'Expected preview panel to open').to.be.true;
+
+        // Clear notifications if any
         const notifications = await workbench.getNotifications();
-        expect(notifications.length).to.be.greaterThan(0);
-
-        // Clear notifications
         for (const notif of notifications) {
             try {
                 await notif.dismiss();
@@ -138,17 +188,26 @@ describe('Extension Smoke Tests', function() {
         }
     });
 
-    it('should execute grid editor command without crashing', async function() {
+    it('should open grid editor panel successfully', async function() {
         this.timeout(30000);
 
+        // Open test file
+        await openFile(simpleDashboardPath);
+
+        // Execute grid editor command
         await workbench.executeCommand('YAML Dashboard: Edit Dashboard Layout');
-        await driver.sleep(2000);
+        await driver.sleep(3000); // Give time for grid editor to open
 
-        // Should get a notification (likely error, which is expected without a file)
+        // Verify grid editor panel opened
+        const editorView = new EditorView();
+        const openEditors = await editorView.getOpenEditorTitles();
+
+        // Grid editor should be open (title contains "Grid Editor" or similar)
+        const hasGridEditor = openEditors.some(title => title.includes('Grid Editor') || title.includes('Layout'));
+        expect(hasGridEditor, 'Expected grid editor panel to open').to.be.true;
+
+        // Clear notifications if any
         const notifications = await workbench.getNotifications();
-        expect(notifications.length).to.be.greaterThan(0);
-
-        // Clear notifications
         for (const notif of notifications) {
             try {
                 await notif.dismiss();
