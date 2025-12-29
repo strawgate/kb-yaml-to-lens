@@ -76,16 +76,33 @@ Run `make help` to see all commands:
 ```
 fixture-generator/
 ├── examples/                    # Example generator scripts
-│   ├── metric-basic.js         # Basic metric visualization
-│   ├── metric-with-breakdown.js # Metric with breakdown
-│   ├── xy-chart.js             # Line/area/bar charts
-│   └── pie-chart.js            # Pie/donut charts
+│   ├── metric-basic.js         # Basic metric (ES|QL only)
+│   ├── metric-with-breakdown.js # Metric with breakdown (ES|QL only)
+│   ├── metric-with-trend.js    # Metric with trend (dual: ES|QL + Data View)
+│   ├── metric-grid.js          # Metric grid (dual: ES|QL + Data View)
+│   ├── xy-chart.js             # XY chart (ES|QL only)
+│   ├── xy-chart-stacked-bar.js # Stacked bar (dual: ES|QL + Data View)
+│   ├── xy-chart-dual-axis.js   # Dual-axis (dual: ES|QL + Data View)
+│   ├── xy-chart-multi-layer.js # Multi-layer (dual: ES|QL + Data View)
+│   ├── xy-chart-advanced-legend.js # Advanced legend config (dual)
+│   ├── xy-chart-custom-colors.js # Custom color palette (dual)
+│   ├── pie-chart.js            # Pie chart (ES|QL only)
+│   ├── pie-chart-donut.js      # Donut chart (dual: ES|QL + Data View)
+│   ├── pie-chart-advanced-colors.js # Advanced colors (dual)
+│   ├── datatable-advanced.js   # Advanced datatable (dual: ES|QL + Data View)
+│   ├── gauge.js                # Gauge chart (dual: ES|QL + Data View)
+│   ├── treemap.js              # Treemap (dual: ES|QL + Data View)
+│   ├── waffle.js               # Waffle chart (dual: ES|QL + Data View)
+│   └── heatmap.js              # Heatmap (ES|QL only)
+├── generator-utils.js          # Shared utility functions
 ├── generate-all.js             # Runs all examples
 ├── output/                     # Generated JSON files
 ├── Dockerfile
 ├── Makefile
 └── package.json
 ```
+
+**Note**: Most examples now generate **both ES|QL and Data View variants** from a single file, reducing duplication and ensuring consistency.
 
 ## How It Works
 
@@ -95,6 +112,29 @@ Each example script:
 2. Creates a config object defining the visualization
 3. Calls `builder.build(config, options)` to generate the Lens attributes
 4. Writes the result as JSON to the output directory
+
+### ES|QL vs Data View Examples
+
+The fixture generator includes two types of examples:
+
+**ES|QL Examples** - Use Elasticsearch Query Language for data retrieval:
+
+```javascript
+dataset: {
+  esql: 'FROM logs-* | STATS count = COUNT()'
+}
+```
+
+**Data View Examples** - Use standard Kibana data views with index patterns:
+
+```javascript
+dataset: {
+  index: 'logs-*',
+  timeFieldName: '@timestamp'  // optional
+}
+```
+
+Both approaches generate valid Kibana Lens visualizations, providing test coverage for different data source configurations in the Python compiler.
 
 ### Example Script
 
