@@ -51,8 +51,8 @@ def test_compile_datatable_chart_basic_lens():
     )
 
 
-def test_compile_datatable_chart_with_breakdowns_lens():
-    """Test the compilation of a datatable chart with metrics and breakdowns (Lens)."""
+def test_compile_datatable_chart_with_rows_lens():
+    """Test the compilation of a datatable chart with metrics and rows (Lens)."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -63,7 +63,7 @@ def test_compile_datatable_chart_with_breakdowns_lens():
                 'aggregation': 'count',
             }
         ],
-        'breakdowns': [
+        'rows': [
             {
                 'type': 'values',
                 'field': 'agent.name',
@@ -87,8 +87,8 @@ def test_compile_datatable_chart_with_breakdowns_lens():
     )
 
 
-def test_compile_datatable_chart_with_column_config_lens():
-    """Test the compilation of a datatable chart with custom column configurations (Lens)."""
+def test_compile_datatable_chart_with_metric_column_config_lens():
+    """Test the compilation of a datatable chart with custom metric column configurations (Lens)."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -99,7 +99,7 @@ def test_compile_datatable_chart_with_column_config_lens():
                 'aggregation': 'count',
             }
         ],
-        'columns': [
+        'metric_columns': [
             {
                 'column_id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
                 'width': 200,
@@ -160,8 +160,8 @@ def test_compile_datatable_chart_with_sorting_and_paging_lens():
     )
 
 
-def test_compile_datatable_chart_with_row_height_and_density_lens():
-    """Test the compilation of a datatable chart with custom row height and density (Lens)."""
+def test_compile_datatable_chart_with_appearance_lens():
+    """Test the compilation of a datatable chart with appearance settings (Lens)."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -172,9 +172,11 @@ def test_compile_datatable_chart_with_row_height_and_density_lens():
                 'aggregation': 'count',
             }
         ],
-        'row_height': 'custom',
-        'row_height_lines': 3,
-        'density': 'compact',
+        'appearance': {
+            'row_height': 'custom',
+            'row_height_lines': 3,
+            'density': 'compact',
+        },
     }
 
     result = compile_datatable_chart_snapshot(config, 'lens')
@@ -216,8 +218,8 @@ def test_compile_datatable_chart_basic_esql():
     )
 
 
-def test_compile_datatable_chart_with_breakdowns_esql():
-    """Test the compilation of a datatable chart with metrics and breakdowns (ESQL)."""
+def test_compile_datatable_chart_with_rows_esql():
+    """Test the compilation of a datatable chart with metrics and rows (ESQL)."""
     config = {
         'type': 'datatable',
         'metrics': [
@@ -226,7 +228,7 @@ def test_compile_datatable_chart_with_breakdowns_esql():
                 'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             }
         ],
-        'breakdowns': [
+        'rows': [
             {
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',

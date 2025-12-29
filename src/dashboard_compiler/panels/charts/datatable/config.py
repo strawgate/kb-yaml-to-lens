@@ -56,11 +56,11 @@ class DatatableSummaryRowEnum(StrEnum):
 class DatatableColumnConfig(BaseCfgModel):
     """Configuration for a single datatable column.
 
-    The column_id must reference the ID of a metric or dimension column.
+    The column_id must reference the ID of a metric or row column.
     """
 
     column_id: str = Field(...)
-    """The ID of the column (must match a metric or dimension ID)."""
+    """The ID of the column (must match a metric or row ID)."""
 
     width: int | None = Field(default=None)
     """Column width in pixels."""
@@ -73,6 +73,13 @@ class DatatableColumnConfig(BaseCfgModel):
 
     color_mode: DatatableColorModeEnum | None = Field(default=None, strict=False)
     """How to apply colors to the column."""
+
+
+class DatatableMetricColumnConfig(DatatableColumnConfig):
+    """Configuration for a metric column in a datatable.
+
+    Extends DatatableColumnConfig with metric-specific options like summary rows.
+    """
 
     summary_row: DatatableSummaryRowEnum | None = Field(default=None, strict=False)
     """Summary function to display at the bottom of the column (only for metrics)."""
@@ -101,6 +108,25 @@ class DatatablePagingConfig(BaseCfgModel):
     """Number of rows per page."""
 
 
+class DatatableAppearance(BaseCfgModel):
+    """Appearance settings for datatable visualization."""
+
+    row_height: DatatableRowHeightEnum = Field(default=DatatableRowHeightEnum.AUTO, strict=False)
+    """Row height mode."""
+
+    row_height_lines: int | None = Field(default=None)
+    """Number of lines for custom row height (only used with row_height='custom')."""
+
+    header_row_height: DatatableRowHeightEnum = Field(default=DatatableRowHeightEnum.AUTO, strict=False)
+    """Header row height mode."""
+
+    header_row_height_lines: int | None = Field(default=None)
+    """Number of lines for custom header row height (only used with header_row_height='custom')."""
+
+    density: DatatableDensityEnum = Field(default=DatatableDensityEnum.NORMAL, strict=False)
+    """Grid density setting."""
+
+
 class LensDatatableChart(BaseChart):
     """Represents a Datatable chart configuration within a Lens panel.
 
@@ -117,26 +143,20 @@ class LensDatatableChart(BaseChart):
     metrics: list[LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    breakdowns: list[LensDimensionTypes] = Field(default_factory=list)
-    """List of dimensions to use as breakdown columns."""
+    rows: list[LensDimensionTypes] = Field(default_factory=list)
+    """List of dimensions to use as row groupings."""
+
+    rows_by: list[LensDimensionTypes] | None = Field(default=None)
+    """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
 
     columns: list[DatatableColumnConfig] | None = Field(default=None)
-    """Optional column configurations for customizing individual columns."""
+    """Optional column configurations for customizing individual columns (for rows)."""
 
-    row_height: DatatableRowHeightEnum = Field(default=DatatableRowHeightEnum.AUTO, strict=False)
-    """Row height mode."""
+    metric_columns: list[DatatableMetricColumnConfig] | None = Field(default=None)
+    """Optional column configurations for customizing metric columns."""
 
-    row_height_lines: int | None = Field(default=None)
-    """Number of lines for custom row height (only used with row_height='custom')."""
-
-    header_row_height: DatatableRowHeightEnum = Field(default=DatatableRowHeightEnum.AUTO, strict=False)
-    """Header row height mode."""
-
-    header_row_height_lines: int | None = Field(default=None)
-    """Number of lines for custom header row height (only used with header_row_height='custom')."""
-
-    density: DatatableDensityEnum = Field(default=DatatableDensityEnum.NORMAL, strict=False)
-    """Grid density setting."""
+    appearance: DatatableAppearance | None = Field(default=None)
+    """Appearance settings for the datatable."""
 
     sorting: DatatableSortingConfig | None = Field(default=None)
     """Optional sorting configuration."""
@@ -154,26 +174,20 @@ class ESQLDatatableChart(BaseChart):
     metrics: list[ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    breakdowns: list[ESQLDimensionTypes] = Field(default_factory=list)
-    """List of ESQL dimensions to use as breakdown columns."""
+    rows: list[ESQLDimensionTypes] = Field(default_factory=list)
+    """List of ESQL dimensions to use as row groupings."""
+
+    rows_by: list[ESQLDimensionTypes] | None = Field(default=None)
+    """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
 
     columns: list[DatatableColumnConfig] | None = Field(default=None)
-    """Optional column configurations for customizing individual columns."""
+    """Optional column configurations for customizing individual columns (for rows)."""
 
-    row_height: DatatableRowHeightEnum = Field(default=DatatableRowHeightEnum.AUTO, strict=False)
-    """Row height mode."""
+    metric_columns: list[DatatableMetricColumnConfig] | None = Field(default=None)
+    """Optional column configurations for customizing metric columns."""
 
-    row_height_lines: int | None = Field(default=None)
-    """Number of lines for custom row height (only used with row_height='custom')."""
-
-    header_row_height: DatatableRowHeightEnum = Field(default=DatatableRowHeightEnum.AUTO, strict=False)
-    """Header row height mode."""
-
-    header_row_height_lines: int | None = Field(default=None)
-    """Number of lines for custom header row height (only used with header_row_height='custom')."""
-
-    density: DatatableDensityEnum = Field(default=DatatableDensityEnum.NORMAL, strict=False)
-    """Grid density setting."""
+    appearance: DatatableAppearance | None = Field(default=None)
+    """Appearance settings for the datatable."""
 
     sorting: DatatableSortingConfig | None = Field(default=None)
     """Optional sorting configuration."""
