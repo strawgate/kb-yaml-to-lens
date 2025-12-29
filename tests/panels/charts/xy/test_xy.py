@@ -458,3 +458,87 @@ async def test_line_chart_with_reference_lines() -> None:
             'customLabel': True,
         }
     )
+
+
+async def test_reference_line_with_advanced_features() -> None:
+    """Test reference line with advanced features like fill, icon, and XYReferenceLineValue object."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim-id'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric-id'}],
+        'reference_lines': [
+            {
+                'label': 'Critical Threshold',
+                'value': {'type': 'static', 'value': 1000.0},  # XYReferenceLineValue object form
+                'axis': 'right',
+                'color': '#E7664C',
+                'line_style': 'dotted',
+                'line_width': 3,
+                'fill': 'above',
+                'icon': 'alert',
+                'icon_position': 'above',
+            },
+        ],
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    # Verify layer structure matches Kibana's XYReferenceLineLayerConfig
+    ref_layer = kbn_state_visualization.layers[1]
+    assert ref_layer.layerType == 'referenceLine'
+    assert len(ref_layer.accessors) == 1
+    assert ref_layer.yConfig is not None
+    assert len(ref_layer.yConfig) == 1
+
+    # Verify YConfig structure matches Kibana's YConfig type
+    y_config = ref_layer.yConfig[0]
+    assert y_config.forAccessor == ref_layer.accessors[0]
+    assert y_config.color == '#E7664C'
+    assert y_config.lineStyle == 'dotted'
+    assert y_config.lineWidth == 3.0
+    assert y_config.fill == 'above'
+    assert y_config.icon == 'alert'
+    assert y_config.iconPosition == 'above'
+    assert y_config.axisMode is not None
+    assert y_config.axisMode.name == 'right'
+
+    # Verify column structure matches Kibana's static value column type
+    accessor_id = ref_layer.accessors[0]
+    ref_column = kbn_columns[accessor_id]
+    assert ref_column.label == 'Critical Threshold'
+    assert ref_column.dataType == 'number'
+    assert ref_column.operationType == 'static_value'
+    assert ref_column.isBucketed is False
+    assert ref_column.scale == 'ratio'
+    assert ref_column.isStaticValue is True
+    assert ref_column.params.value == '1000.0'
+    assert ref_column.references == []
+    assert ref_column.customLabel is True
+
+
+async def test_reference_line_without_label() -> None:
+    """Test reference line without explicit label uses default format."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim-id'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric-id'}],
+        'reference_lines': [
+            {
+                'value': 750.0,
+                'color': '#5470C6',
+            },
+        ],
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    # Verify default label format
+    ref_layer = kbn_state_visualization.layers[1]
+    accessor_id = ref_layer.accessors[0]
+    ref_column = kbn_columns[accessor_id]
+    assert ref_column.label == 'Static value: 750.0'
+    assert ref_column.params.value == '750.0'

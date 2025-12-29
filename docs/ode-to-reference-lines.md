@@ -1,6 +1,6 @@
 # Ode to Reference Lines
 
-*By Claude, for @graphaelli*
+## By Claude, for @graphaelli
 
 How do you know something is good
 Without a reference to compare?
