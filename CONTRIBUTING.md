@@ -41,22 +41,30 @@ See the `Makefile` for the underlying command if you need to run it directly.
 
 Documentation is built using [MkDocs](https://www.mkdocs.org/) with the Material theme.
 
+**Important:** The `docs/yaml_reference.md` file is auto-generated from inline markdown in `src/dashboard_compiler/**/*.md` files and should never be edited directly. It's not committed to version control and will be generated automatically when you run the documentation commands below.
+
 Preview documentation locally:
 
 ```bash
-make docs-serve
+make docs-serve  # Automatically runs compile-docs first
 ```
 
 Build documentation:
 
 ```bash
-make docs-build
+make docs-build  # Automatically runs compile-docs first
 ```
 
 Deploy to GitHub Pages:
 
 ```bash
 make docs-deploy
+```
+
+To manually generate the YAML reference documentation:
+
+```bash
+make compile-docs
 ```
 
 ## Additional Lens Capabilities

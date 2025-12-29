@@ -79,14 +79,11 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: quickstart.md
-  - Programmatic Usage: programmatic-usage.md
-  - Architecture: architecture.md
-  - YAML Reference: yaml_reference.md
-  - CLI Guide: CLI.md
-  - Contributing: ../CONTRIBUTING.md
-  - Guides:
-      - Kibana Fixture Generator: kibana-fixture-generator-guide.md
+  - User Guide:
+      - Getting Started: quickstart.md
+      - CLI Guide: CLI.md
+      - Programmatic Usage: programmatic-usage.md
+      - YAML Reference: yaml_reference.md
   - API Reference:
       - api/index.md
       - Dashboard: api/dashboard.md
@@ -102,3 +99,7 @@ nav:
       - Metric Chart: ../src/dashboard_compiler/panels/charts/metric/config.md
       - Pie Chart: ../src/dashboard_compiler/panels/charts/pie/config.md
       - XY Chart: ../src/dashboard_compiler/panels/charts/xy/config.md
+  - Developer Guide:
+      - Architecture: architecture.md
+      - Kibana Architecture: kibana-architecture.md
+      - Kibana Fixture Generator: kibana-fixture-generator-guide.md

@@ -62,7 +62,7 @@ test-coverage:
 
 test-links:
 	@echo "Checking documentation links..."
-	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
+	uv run pytest --check-links docs/ README.md CONTRIBUTING.md --ignore=docs/yaml_reference.md
 
 test-extension:
 	@echo "Running VSCode extension tests..."
@@ -137,11 +137,11 @@ compile-docs:
 	@echo "Compiling documentation reference..."
 	uv run python scripts/compile_docs.py
 
-docs-serve:
+docs-serve: compile-docs
 	@echo "Starting documentation server..."
 	uv run --extra docs mkdocs serve
 
-docs-build:
+docs-build: compile-docs
 	@echo "Building documentation..."
 	uv run --extra docs mkdocs build
 
