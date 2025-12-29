@@ -12,6 +12,6 @@ dashboards:
       id: omh6bho-qdo0-fnnn-jooooom-je4ph71mk8h # Fixed ID for testing
       data_view: metrics-*
       primary:
-        formula: "max(field='response.time') - min(field='response.time') / average(field='response.time')"
+        formula: "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
         id: ljcenog-pp4q-fjpq-mhpl-mmfkl84pkjd3 # Fixed ID for testing
         label: "Variance"
