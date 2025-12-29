@@ -1,5 +1,6 @@
 """Tests for VSCode extension fixture files."""
 
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 
@@ -20,7 +21,20 @@ def deterministic_id_generator():
         i += 1
 
 
-async def test_simple_dashboard_fixture_is_valid() -> None:
+@contextmanager
+def patch_random_id_generators():
+    """Patch all random_id_generator calls with deterministic values."""
+    gen = deterministic_id_generator()
+    with (
+        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+    ):
+        yield
+
+
+def test_simple_dashboard_fixture_is_valid() -> None:
     """Ensure simple-dashboard.yaml fixture is actually valid and compiles successfully."""
     fixture_path = fixture_basedir / 'simple-dashboard.yaml'
     dashboards = load(str(fixture_path))
@@ -33,20 +47,14 @@ async def test_simple_dashboard_fixture_is_valid() -> None:
     assert len(dashboard.panels) == 2
 
     # Verify it compiles without errors
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
-    ):
+    with patch_random_id_generators():
         kbn_dashboard = render(dashboard)
 
     assert kbn_dashboard is not None
     assert kbn_dashboard.attributes.title == 'Simple Test Dashboard'
 
 
-async def test_multi_dashboard_fixture_is_valid() -> None:
+def test_multi_dashboard_fixture_is_valid() -> None:
     """Ensure multi-dashboard.yaml fixture is actually valid and compiles successfully."""
     fixture_path = fixture_basedir / 'multi-dashboard.yaml'
     dashboards = load(str(fixture_path))
@@ -60,13 +68,7 @@ async def test_multi_dashboard_fixture_is_valid() -> None:
     assert len(dashboard1.panels) == 1
 
     # Verify it compiles without errors
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
-    ):
+    with patch_random_id_generators():
         kbn_dashboard1 = render(dashboard1)
 
     assert kbn_dashboard1 is not None
@@ -79,20 +81,14 @@ async def test_multi_dashboard_fixture_is_valid() -> None:
     assert len(dashboard2.panels) == 1
 
     # Verify it compiles without errors
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
-    ):
+    with patch_random_id_generators():
         kbn_dashboard2 = render(dashboard2)
 
     assert kbn_dashboard2 is not None
     assert kbn_dashboard2.attributes.title == 'Second Dashboard'
 
 
-async def test_invalid_dashboard_fixture_is_invalid() -> None:
+def test_invalid_dashboard_fixture_is_invalid() -> None:
     """Ensure invalid-dashboard.yaml fixture is actually invalid and fails validation."""
     fixture_path = fixture_basedir / 'invalid-dashboard.yaml'
 

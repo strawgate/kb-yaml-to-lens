@@ -4,8 +4,7 @@ import {
     WebDriver,
     Workbench,
     EditorView,
-    InputBox,
-    WebView
+    InputBox
 } from 'vscode-extension-tester';
 import * as path from 'path';
 

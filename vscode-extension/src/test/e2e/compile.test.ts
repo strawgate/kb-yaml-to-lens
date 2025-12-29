@@ -3,9 +3,7 @@ import {
     VSBrowser,
     WebDriver,
     Workbench,
-    EditorView,
-    InputBox,
-    NotificationType
+    InputBox
 } from 'vscode-extension-tester';
 import * as path from 'path';
 
