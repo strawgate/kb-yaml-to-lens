@@ -10,7 +10,7 @@
 ### Essential Commands
 
 | Command | Purpose |
-|---------|---------|
+| --------- | --------- |
 | `make install` | Install all dependencies |
 | `make check` | **Run before committing** (lint + typecheck + test) |
 | `make test` | Run pytest suite |
@@ -43,7 +43,7 @@ YAML File → PyYAML Parser → Config Models (Pydantic) → Compile Functions �
 ### Directory Structure
 
 | Directory | Purpose |
-|-----------|---------|
+| ----------- | --------- |
 | `src/dashboard_compiler/` | Core compilation logic |
 | `src/dashboard_compiler/dashboard/` | Top-level dashboard config and compilation |
 | `src/dashboard_compiler/panels/` | Panel types (markdown, links, images, search, charts) |
@@ -141,7 +141,7 @@ When updating YAML configuration docs:
 #### Triage First
 
 | Priority | Examples |
-|----------|----------|
+| ---------- | ---------- |
 | **Critical** | Security issues, data corruption, type safety violations, test failures |
 | **Important** | Error handling, performance, missing tests, type annotations |
 | **Optional** | Style preferences, minor refactors |
@@ -189,6 +189,36 @@ If feedback isn't implemented, explain why:
 - **Admit limitations** — Be clear if unable to verify fixes work correctly
 
 **Never claim work is complete with unresolved critical or important issues.**
+
+### Modifying Workflows
+
+**Claude CANNOT modify workflow files** in `.github/workflows/` due to GitHub App permissions. When attempting to push changes to workflow files, GitHub rejects the push with:
+
+```text
+refusing to allow a GitHub App to create or update workflow `.github/workflows/*` without `workflows` permission
+```
+
+**To request workflow changes:**
+
+1. **Use @copilot** - Copilot (copilot-swe-agent[bot]) has full filesystem access and can modify workflows
+2. **Provide exact specifications** - Since Copilot requires very specific instructions, provide:
+   - Exact file path (e.g., `.github/workflows/claude-on-mention.yml`)
+   - Exact line numbers or context to modify
+   - Exact text to add/change/remove
+   - Clear explanation of the desired behavior
+
+**Example request to Copilot:**
+
+```text
+@copilot please update .github/workflows/claude-on-mention.yml
+line 50: change allowed-tools to include Read,Write,Edit tools
+```
+
+**Workflow modification capabilities by agent:**
+
+- **Claude** - ❌ Cannot push workflow changes (GitHub App limitation)
+- **Copilot** - ✅ Can create/modify workflows directly
+- **CodeRabbit** - ❌ Review-only, cannot make commits
 
 ### Resolving PR Review Threads
 
@@ -298,7 +328,7 @@ Run `make check` locally before pushing.
 ## Additional Resources
 
 | Resource | Location |
-|----------|----------|
+| ---------- | ---------- |
 | Architecture details | `docs/architecture.md` |
 | YAML schema reference | `yaml_reference.md` |
 | Quickstart guide | `docs/quickstart.md` |
