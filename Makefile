@@ -1,47 +1,51 @@
 
 
-.PHONY: help install update-deps check test test-coverage test-links test-smoke clean clean-full lint autocorrect format lint-markdown inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps check check-fix test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
 	@echo "  setup         - Set up the environment"
 	@echo "  install       - Install dependencies using uv"
 	@echo "  update-deps   - Update dependencies"
-
+	@echo ""
 	@echo "Build and Check:"
-	@echo "  check         - Run linting, type checking, and tests"
-
+	@echo "  check         - Validate code without making changes (lint, typecheck, tests)"
+	@echo "  check-fix     - Validate and auto-fix issues where possible"
+	@echo ""
 	@echo "Testing:"
-	@echo "  test                  - Run unit tests"
-	@echo "  test-coverage         - Run tests with coverage report"
-	@echo "  test-links            - Check documentation links"
-	@echo "  test-smoke            - Run smoke tests"
-	@echo "  test-extension        - Run all VSCode extension tests"
-	@echo "  test-extension-python - Run Python tests for extension"
+	@echo "  test                     - Run unit tests"
+	@echo "  test-coverage            - Run tests with coverage report"
+	@echo "  test-links               - Check documentation links"
+	@echo "  test-smoke               - Run smoke tests"
+	@echo "  test-extension           - Run all VSCode extension tests"
+	@echo "  test-extension-python    - Run Python tests for extension"
 	@echo "  test-extension-typescript - Run TypeScript tests for extension"
-
+	@echo ""
 	@echo "Dashboard Compilation:"
-	@echo "  compile       - Compile YAML dashboards to NDJSON"
-	@echo "  upload        - Compile and upload dashboards to Kibana"
-
+	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
+	@echo "  upload        - Compile and upload dashboards to Kibana (requires input-dir)"
+	@echo ""
 	@echo "Cleaning:"
+	@echo "  clean         - Clean up cache and temporary files"
 	@echo "  clean-full    - Clean up all including virtual environment"
-	@echo "  - clean       - Clean up cache and temporary files"
-
-	@echo "Linting:"
-	@echo "  lint                - Run format, autocorrect, markdown, and YAML linting"
-	@echo "  typecheck           - Run type checking with basedpyright"
-	@echo "  - lint-autocorrect  - Run ruff check --fix"
-	@echo "  - lint-format       - Run ruff format"
-	@echo "  - lint-markdown     - Run markdownlint"
-	@echo "  - lint-yaml         - Run yamllint"
-
+	@echo ""
+	@echo "Linting and Formatting:"
+	@echo "  lint              - Auto-fix linting and formatting issues"
+	@echo "  lint-check        - Check for linting issues without fixing"
+	@echo "  format            - Auto-format code with ruff"
+	@echo "  format-check      - Check code formatting without fixing"
+	@echo "  lint-markdown     - Auto-fix markdown linting issues"
+	@echo "  lint-markdown-check - Check markdown without fixing"
+	@echo "  lint-yaml         - Run yamllint on YAML files"
+	@echo "  lint-yaml-check   - Run yamllint on YAML files (alias)"
+	@echo "  typecheck         - Run type checking with basedpyright"
+	@echo ""
 	@echo "Documentation:"
 	@echo "  compile-docs  - Regenerate YAML reference from source"
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
-
+	@echo ""
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
 
@@ -51,7 +55,11 @@ install:
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
 
-check: lint typecheck test test-links test-smoke test-extension-python test-extension-typescript
+# Validation without auto-fixing (suitable for CI and pre-commit checks)
+check: lint-check format-check lint-markdown-check lint-yaml-check typecheck test test-links test-smoke test-extension-python test-extension-typescript
+
+# Validation with auto-fixing
+check-fix: lint format lint-markdown typecheck test test-links test-smoke test-extension-python test-extension-typescript
 
 test:
 	@echo "Running pytest..."
@@ -86,21 +94,43 @@ inspector:
 test-smoke:
 	uv run kb-dashboard --help
 
-lint: autocorrect format lint-markdown lint-yaml
-
-autocorrect:
+# Auto-fix linting issues
+lint:
 	@echo "Running ruff check --fix..."
 	uv run ruff check . --fix
 
+# Check for linting issues without fixing
+lint-check:
+	@echo "Running ruff check..."
+	uv run ruff check .
+
+# Auto-format code
 format:
 	@echo "Running ruff format..."
 	uv run ruff format .
 
+# Check formatting without fixing
+format-check:
+	@echo "Running ruff format --check..."
+	uv run ruff format . --check
+
+# Auto-fix markdown issues
 lint-markdown:
-	@echo "Running markdownlint..."
+	@echo "Running markdownlint --fix..."
 	markdownlint --fix -c .markdownlint.jsonc .
 
+# Check markdown without fixing
+lint-markdown-check:
+	@echo "Running markdownlint..."
+	markdownlint -c .markdownlint.jsonc .
+
+# Run yamllint on YAML files
 lint-yaml:
+	@echo "Running yamllint..."
+	uv run yamllint inputs/ tests/
+
+# Check YAML files (yamllint doesn't have a fix mode, so this is the same as lint-yaml)
+lint-yaml-check:
 	@echo "Running yamllint..."
 	uv run yamllint inputs/ tests/
 
