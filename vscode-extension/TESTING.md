@@ -33,11 +33,7 @@ uv run python -m pytest vscode-extension/python/test_*.py -v
 
 Located in `src/test/e2e/*.test.ts`, these test the extension running in VSCode:
 
-- `activation.test.ts` - Tests extension activation and command registration
-- `compile.test.ts` - Tests the compile dashboard command
-- `preview.test.ts` - Tests the preview dashboard command
-- `gridEditor.test.ts` - Tests the grid editor command
-- `export.test.ts` - Tests the export to NDJSON command
+- `smoke.test.ts` - Smoke tests that verify the extension loads and core commands work (compile, export, preview, grid editor)
 
 **Running E2E tests:**
 

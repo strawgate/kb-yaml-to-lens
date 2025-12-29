@@ -25,10 +25,34 @@ describe('Extension Smoke Tests', function() {
     const fixturesPath = path.join(__dirname, '..', '..', '..', 'test', 'fixtures');
     const simpleDashboardPath = path.join(fixturesPath, 'simple-dashboard.yaml');
 
-    before(async () => {
+    before(async function() {
+        this.timeout(30000);
         browser = VSBrowser.instance;
         driver = browser.driver;
         workbench = new Workbench();
+
+        // Wait for VSCode to be fully ready
+        await driver.sleep(2000);
+
+        // Wait for workbench to be available by trying to access it
+        let retries = 10;
+        while (retries > 0) {
+            try {
+                await workbench.executeCommand('workbench.action.showCommands');
+                await driver.sleep(500);
+                // If we get here, workbench is ready
+                // Press Escape to close the command palette
+                await driver.actions().sendKeys('\u001b').perform();
+                await driver.sleep(500);
+                break;
+            } catch (error) {
+                retries--;
+                if (retries === 0) {
+                    throw new Error(`Workbench not ready after retries: ${error}`);
+                }
+                await driver.sleep(1000);
+            }
+        }
     });
 
     beforeEach(async () => {
