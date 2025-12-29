@@ -4,9 +4,6 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from dashboard_compiler.filters.view import KbnFilter
-from dashboard_compiler.panels.charts.base import (
-    KbnBaseStateVisualization,
-)
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
@@ -16,9 +13,12 @@ from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 if TYPE_CHECKING:
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
+    from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
 
-    KbnVisualizationStateTypes = KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState
+    KbnVisualizationStateTypes = (
+        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnTagcloudVisualizationState
+    )
 
 # region Form Data Source
 ## Form Based
@@ -166,12 +166,13 @@ class KbnVisualizationTypeEnum(StrEnum):
     PIE = 'lnsPie'
     METRIC = 'lnsMetric'
     DATATABLE = 'lnsDatatable'
+    TAGCLOUD = 'lnsTagcloud'
 
 
 class KbnLensPanelState(BaseVwModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
-    visualization: KbnBaseStateVisualization
+    visualization: Any  # KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnTagcloudVisualizationState
     query: KbnQuery | KbnESQLQuery = Field(...)
     filters: list[KbnFilter] = Field(...)
     datasourceStates: KbnDataSourceState = Field(...)
