@@ -362,7 +362,7 @@ async def test_line_chart_with_reference_lines() -> None:
     }
 
     lens_chart = LensLineChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
 
     # Verify the visualization state layers
@@ -483,7 +483,7 @@ async def test_line_chart_with_reference_line_advanced_features() -> None:
     }
 
     lens_chart = LensLineChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
 
     # Verify reference line layer
@@ -542,7 +542,7 @@ async def test_line_chart_with_reference_line_default_label() -> None:
     }
 
     lens_chart = LensLineChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
 
     # Verify default label format (customLabel=False when no label provided)

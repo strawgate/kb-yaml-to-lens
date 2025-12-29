@@ -80,7 +80,7 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tu
         fill=ref_line.fill,
         icon=ref_line.icon,
         iconPosition=ref_line.icon_position,
-        axisMode=YAxisMode(name=ref_line.axis) if ref_line.axis else None,
+        axisMode=YAxisMode(name=ref_line.axis) if ref_line.axis is not None else None,
     )
 
     return (
@@ -228,7 +228,7 @@ def compile_lens_xy_chart(
     # Compile reference lines if configured
     reference_line_layers: list[XYReferenceLineLayerConfig] = []
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
-    if lens_xy_chart.reference_lines:
+    if lens_xy_chart.reference_lines is not None and len(lens_xy_chart.reference_lines) > 0:
         for ref_line in lens_xy_chart.reference_lines:
             ref_layer_id = random_id_generator()
             ref_layer, ref_column = compile_reference_line_layer(ref_line, ref_layer_id)
