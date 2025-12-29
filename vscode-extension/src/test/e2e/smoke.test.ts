@@ -26,16 +26,35 @@ describe('Extension Smoke Tests', function() {
     const simpleDashboardPath = path.join(fixturesPath, 'simple-dashboard.yaml');
 
     before(async function() {
-        this.timeout(30000);
+        this.timeout(60000); // Increased timeout for slower CI environments
         browser = VSBrowser.instance;
         driver = browser.driver;
+
+        // First, verify the WebDriver connection is active
+        let connectionRetries = 20;
+        while (connectionRetries > 0) {
+            try {
+                // Try a simple WebDriver operation to verify connection
+                await driver.getTitle();
+                break;
+            } catch (error) {
+                connectionRetries--;
+                if (connectionRetries === 0) {
+                    throw new Error(`WebDriver connection failed after retries: ${error}`);
+                }
+                console.log(`WebDriver not ready, retrying... (${connectionRetries} attempts remaining)`);
+                await driver.sleep(1000);
+            }
+        }
+
+        console.log('WebDriver connection established');
         workbench = new Workbench();
 
         // Wait for VSCode to be fully ready
-        await driver.sleep(2000);
+        await driver.sleep(3000);
 
         // Wait for workbench to be available by trying to access it
-        let retries = 10;
+        let retries = 15;
         while (retries > 0) {
             try {
                 await workbench.executeCommand('workbench.action.showCommands');
@@ -44,13 +63,15 @@ describe('Extension Smoke Tests', function() {
                 // Press Escape to close the command palette
                 await driver.actions().sendKeys('\u001b').perform();
                 await driver.sleep(500);
+                console.log('Workbench ready');
                 break;
             } catch (error) {
                 retries--;
                 if (retries === 0) {
                     throw new Error(`Workbench not ready after retries: ${error}`);
                 }
-                await driver.sleep(1000);
+                console.log(`Workbench not ready, retrying... (${retries} attempts remaining)`);
+                await driver.sleep(1500);
             }
         }
     });
