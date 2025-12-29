@@ -30,7 +30,7 @@ type ESQLChartTypes = ESQLMetricChart | ESQLPieChart | ESQLBarChart | ESQLAreaCh
 class LensPanel(BasePanel):
     """Represents a Lens chart panel configuration."""
 
-    type: Literal['charts'] = 'charts'
+    type: Literal['lens'] = 'lens'
 
     filters: list['FilterTypes'] | None = Field(default=None)
     """A list of filters to apply to the panel."""
@@ -44,7 +44,7 @@ class LensPanel(BasePanel):
 class LensMultiLayerPanel(BasePanel):
     """Represents a multi-layer Lens chart panel configuration."""
 
-    type: Literal['charts'] = 'charts'
+    type: Literal['lens'] = 'lens'
 
     layers: list['MultiLayerChartTypes'] = Field(default=...)
 
@@ -52,7 +52,7 @@ class LensMultiLayerPanel(BasePanel):
 class ESQLPanel(BasePanel):
     """Represents an ESQL chart panel configuration."""
 
-    type: Literal['charts'] = 'charts'
+    type: Literal['esql'] = 'esql'
 
     esql: 'ESQLQueryTypes' = Field(...)
 

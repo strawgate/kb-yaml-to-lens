@@ -212,6 +212,7 @@ runIfMain(generateMyChart, import.meta.url);
 ```
 
 **Key differences between ES|QL and Data View:**
+
 - **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
 - **Metrics**: Column names from query vs aggregation functions (e.g., `count()`, `average(field)`)
 - **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`

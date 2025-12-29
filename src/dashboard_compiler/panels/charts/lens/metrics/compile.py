@@ -159,7 +159,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
 
     metric_column_params: KbnLensMetricColumnParams
     metric_filter: KbnQuery | None = None
-    metric_id = metric.id or stable_id_generator([metric.aggregation, metric.field])
+    metric_id = metric.id or stable_id_generator([metric.type, metric.field])
 
     # Generate Kibana-style default labels that match the native Lens editor UX.
     # Strategy varies by aggregation type to provide user-friendly descriptions:
@@ -167,10 +167,10 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     # - Percentiles: "{nth} percentile of {field}" (e.g., "95th percentile of latency")
     # - Percentile rank: "Percentile rank (value) of {field}"
     # - Count: "Count of records" (field optional)
-    default_label: str = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field}'
+    default_label: str = f'{AGG_TO_FRIENDLY_TITLE[metric.type]} of {metric.field}'
 
     if isinstance(metric, LensCountAggregatedMetric):
-        default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field or "records"}'
+        default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.type]} of {metric.field or "records"}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
@@ -183,14 +183,14 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         )
 
     elif isinstance(metric, LensPercentileRankAggregatedMetric):
-        default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} ({metric.rank}) of {metric.field}'
+        default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.type]} ({metric.rank}) of {metric.field}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             value=metric.rank,
         )
 
     elif isinstance(metric, LensPercentileAggregatedMetric):
-        default_label = f'{ordinal(metric.percentile)} {AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field}'
+        default_label = f'{ordinal(metric.percentile)} {AGG_TO_FRIENDLY_TITLE[metric.type]} of {metric.field}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             percentile=metric.percentile,
@@ -213,7 +213,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     elif isinstance(metric, LensOtherAggregatedMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
-            emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation, None),
+            emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.type, None),
         )
     else:
         # All LensMetricTypes have been handled above, this is unreachable
@@ -225,7 +225,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         label=metric.label or default_label,
         customLabel=custom_label,
         dataType='number',
-        operationType=metric.aggregation,
+        operationType=metric.type,
         scale='ratio',
         sourceField=metric.field or '___records___',
         params=metric_column_params,
