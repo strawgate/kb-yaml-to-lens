@@ -1,0 +1,205 @@
+dashboards:
+  - id: nav-overview-001
+    name: "[Example] Navigation - Overview Dashboard"
+    description: "Demonstrates navigation patterns with links panel and basic metric charts"
+    panels:
+      # Navigation Links Panel - Standard pattern at top
+      - type: links
+        title: "Dashboard Navigation"
+        description: "Navigate between related dashboards"
+        grid: { x: 0, y: 0, w: 48, h: 2 }
+        layout: horizontal
+        links:
+          - label: "Overview"
+            dashboard: nav-overview-001
+          - label: "Details"
+            dashboard: nav-details-001
+          - label: "Analytics"
+            dashboard: nav-analytics-001
+
+      # Informational Markdown Panel
+      - type: markdown
+        title: "Overview Dashboard Guide"
+        hide_title: false
+        grid: { x: 0, y: 2, w: 48, h: 3 }
+        content: |
+          # Overview Dashboard
+
+          This dashboard provides high-level metrics across your log data. Use the navigation links above to drill into more detailed views.
+
+          **Key Metrics:**
+          - Total log volume
+          - Unique hosts reporting
+          - Log level distribution
+        font_size: 12
+
+      # KPI Metric Cards
+      - type: charts
+        title: "Total Events"
+        description: "Total log events in the selected time range"
+        grid: { x: 0, y: 5, w: 12, h: 6 }
+        chart:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Events"
+
+      - type: charts
+        title: "Unique Hosts"
+        description: "Number of unique hosts reporting"
+        grid: { x: 12, y: 5, w: 12, h: 6 }
+        chart:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: unique_count
+            field: "host.name"
+            label: "Hosts"
+
+      - type: charts
+        title: "Error Rate"
+        description: "Percentage of error-level logs"
+        grid: { x: 24, y: 5, w: 12, h: 6 }
+        filters:
+          - field: "log.level"
+            equals: "error"
+        chart:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Errors"
+
+      - type: charts
+        title: "Warning Rate"
+        description: "Percentage of warning-level logs"
+        grid: { x: 36, y: 5, w: 12, h: 6 }
+        filters:
+          - field: "log.level"
+            equals: "warning"
+        chart:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Warnings"
+
+      # Main Trend Chart
+      - type: charts
+        title: "Event Trends Over Time"
+        description: "Time series view of log events"
+        grid: { x: 0, y: 11, w: 48, h: 12 }
+        chart:
+          type: line
+          data_view: "logs-*"
+          dimensions:
+            - field: "@timestamp"
+              type: date_histogram
+              label: "Time"
+          metrics:
+            - aggregation: count
+              label: "Events per interval"
+          breakdown:
+            field: "log.level"
+            type: values
+            size: 5
+
+  - id: nav-details-001
+    name: "[Example] Navigation - Details Dashboard"
+    description: "Detailed view with host-level breakdowns"
+    panels:
+      # Consistent Navigation
+      - type: links
+        title: "Dashboard Navigation"
+        grid: { x: 0, y: 0, w: 48, h: 2 }
+        layout: horizontal
+        links:
+          - label: "Overview"
+            dashboard: nav-overview-001
+          - label: "Details"
+            dashboard: nav-details-001
+          - label: "Analytics"
+            dashboard: nav-analytics-001
+
+      # Host Breakdown Bar Chart
+      - type: charts
+        title: "Events by Host"
+        description: "Top hosts by event count"
+        grid: { x: 0, y: 2, w: 24, h: 15 }
+        chart:
+          type: bar
+          mode: stacked
+          data_view: "logs-*"
+          dimensions:
+            - field: "host.name"
+              type: values
+              size: 10
+              sort:
+                by: "Event Count"
+                direction: desc
+          metrics:
+            - aggregation: count
+              label: "Event Count"
+
+      # Log Level Distribution
+      - type: charts
+        title: "Log Level Distribution"
+        description: "Distribution of log severity levels"
+        grid: { x: 24, y: 2, w: 24, h: 15 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          slice_by:
+            - field: "log.level"
+              type: values
+              size: 10
+          metric:
+            aggregation: count
+
+  - id: nav-analytics-001
+    name: "[Example] Navigation - Analytics Dashboard"
+    description: "Advanced analytics with multiple visualizations"
+    panels:
+      # Consistent Navigation
+      - type: links
+        title: "Dashboard Navigation"
+        grid: { x: 0, y: 0, w: 48, h: 2 }
+        layout: horizontal
+        links:
+          - label: "Overview"
+            dashboard: nav-overview-001
+          - label: "Details"
+            dashboard: nav-details-001
+          - label: "Analytics"
+            dashboard: nav-analytics-001
+
+      # Cumulative Trends
+      - type: charts
+        title: "Cumulative Event Volume"
+        description: "Stacked area chart showing cumulative trends"
+        grid: { x: 0, y: 2, w: 24, h: 15 }
+        chart:
+          type: area
+          mode: stacked
+          data_view: "logs-*"
+          dimensions:
+            - field: "@timestamp"
+              type: date_histogram
+          metrics:
+            - aggregation: count
+          breakdown:
+            field: "log.level"
+
+      # Tag Cloud
+      - type: charts
+        title: "Common Tags"
+        description: "Most frequent tags in log data"
+        grid: { x: 24, y: 2, w: 24, h: 15 }
+        chart:
+          type: tagcloud
+          data_view: "logs-*"
+          tags:
+            field: "tags"
+          metric:
+            aggregation: count
