@@ -79,7 +79,7 @@ Markdown panels inherit from the [Base Panel Configuration](../base.md) and have
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
-| `content` | `string` | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., ` | ` or `>`) for readability. | N/A | Yes |
+| `content` | `string` | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `\|` or `>`) for readability. | N/A | Yes |
 | `font_size` | `integer` | The font size for the Markdown content, in pixels. | `12` | No |
 | `links_in_new_tab` | `boolean` | If `true`, links in the Markdown content will open in a new tab. | `true` | No |
 

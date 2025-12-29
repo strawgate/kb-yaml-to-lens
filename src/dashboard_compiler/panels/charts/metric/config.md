@@ -25,9 +25,9 @@ dashboard:
 | `type` | `Literal['metric']` | Specifies the chart type as metric. | `'metric'` | No |
 | `data_view` | `string` | The data view that determines the data for the metric chart. | N/A | Yes |
 | `primary` | `LensMetricTypes` | The primary metric to display (main value). | N/A | Yes |
-| `secondary` | `LensMetricTypes` \ | `None` | Optional secondary metric to display alongside the primary. | `None` | No |
-| `maximum` | `LensMetricTypes` \ | `None` | Optional maximum metric for comparison or thresholds. | `None` | No |
-| `breakdown` | `LensDimensionTypes` \ | `None` | Optional breakdown dimension for splitting the metric. | `None` | No |
+| `secondary` | `LensMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
+| `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
+| `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 
 ### ESQL Metric Chart
 
@@ -35,9 +35,9 @@ dashboard:
 | ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
 | `type` | `Literal['metric']` | Specifies the chart type as metric. | `'metric'` | No |
 | `primary` | `ESQLMetricTypes` | The primary metric to display (main value). | N/A | Yes |
-| `secondary` | `ESQLMetricTypes` \ | `None` | Optional secondary metric to display alongside the primary. | `None` | No |
-| `maximum` | `ESQLMetricTypes` \ | `None` | Optional maximum metric for comparison or thresholds. | `None` | No |
-| `breakdown` | `ESQLDimensionTypes` \ | `None` | Optional breakdown dimension for splitting the metric. | `None` | No |
+| `secondary` | `ESQLMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
+| `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
+| `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 
 ## Programmatic Usage (Python)
 
@@ -91,5 +91,5 @@ panel = LensPanel(
 
 ## Related
 
-- [Base Panel Configuration](../../base.md)
-- [Dashboard Configuration](../../../dashboard/dashboard.md)
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
