@@ -53,11 +53,7 @@ Build documentation:
 make docs-build
 ```
 
-Deploy to GitHub Pages:
-
-```bash
-make docs-deploy
-```
+Documentation is automatically deployed to GitHub Pages when changes are pushed to the `main` branch via GitHub Actions.
 
 ## Additional Lens Capabilities
 

@@ -39,7 +39,6 @@ help:
 	@echo "  compile-docs  - Regenerate YAML reference from source"
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
-	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
 
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
@@ -144,7 +143,3 @@ docs-serve:
 docs-build:
 	@echo "Building documentation..."
 	uv run --extra docs mkdocs build
-
-docs-deploy:
-	@echo "Deploying documentation to GitHub Pages..."
-	uv run --extra docs mkdocs gh-deploy --force

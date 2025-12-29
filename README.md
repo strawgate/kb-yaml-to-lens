@@ -201,10 +201,9 @@ make docs-serve
 
 # Build static documentation site
 make docs-build
-
-# Deploy to GitHub Pages
-make docs-deploy
 ```
+
+Documentation is automatically deployed to GitHub Pages when changes are pushed to the `main` branch.
 
 See the `Makefile` for the underlying commands if you need to run them directly.
 
