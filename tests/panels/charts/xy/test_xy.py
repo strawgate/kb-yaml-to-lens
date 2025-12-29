@@ -359,7 +359,7 @@ async def test_dual_axis_chart() -> None:
         ],
     }
     lens_chart = LensLineChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
 
     # Test layer configuration
@@ -414,7 +414,7 @@ async def test_styled_series_chart() -> None:
     }
 
     lens_chart = LensAreaChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(

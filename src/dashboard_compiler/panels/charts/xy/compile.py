@@ -97,7 +97,7 @@ def compile_xy_chart_visualization_state(
         for series_cfg in chart.series:
             # Only create YConfig if at least one property is set
             if any(
-                [
+                (
                     series_cfg.axis,
                     series_cfg.color,
                     series_cfg.line_width,
@@ -105,7 +105,7 @@ def compile_xy_chart_visualization_state(
                     series_cfg.fill,
                     series_cfg.icon,
                     series_cfg.icon_position,
-                ]
+                )
             ):
                 y_config.append(
                     YConfig(
