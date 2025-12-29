@@ -1,10 +1,10 @@
+---
 site_name: Dashboard Compiler Documentation
 site_description: Convert human-friendly YAML dashboard definitions into Kibana NDJSON format
 site_url: https://strawgate.github.io/kb-yaml-to-lens/
 repo_url: https://github.com/strawgate/kb-yaml-to-lens
 repo_name: strawgate/kb-yaml-to-lens
 edit_uri: edit/main/
-
 theme:
   name: material
   palette:
@@ -41,13 +41,13 @@ theme:
     - content.code.annotate
     - content.action.edit
     - content.action.view
-
 plugins:
   - search
   - mkdocstrings:
       handlers:
         python:
-          paths: [src]
+          paths:
+            - src
           options:
             show_source: true
             docstring_style: google
@@ -58,7 +58,6 @@ plugins:
             signature_crossrefs: true
             separate_signature: true
             line_length: 80
-
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -76,7 +75,6 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
-
 nav:
   - Home: index.md
   - Getting Started: quickstart.md
