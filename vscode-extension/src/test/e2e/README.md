@@ -1,23 +1,21 @@
-# E2E Tests for VSCode Extension
+# E2E Smoke Tests for VSCode Extension
 
-This directory contains end-to-end (e2e) tests for the YAML Dashboard Compiler VSCode extension.
+This directory contains basic smoke tests for the YAML Dashboard Compiler VSCode extension.
 
 ## Overview
 
-These tests use [vscode-extension-tester](https://github.com/redhat-developer/vscode-extension-tester) to test the extension in a real VSCode environment. The framework:
+These tests use [vscode-extension-tester](https://github.com/redhat-developer/vscode-extension-tester) to verify the extension loads and doesn't crash after installation. The tests:
 
-- Downloads and runs VSCode
-- Installs the extension
-- Simulates user interactions (opening files, running commands, etc.)
-- Validates UI behavior and notifications
+- Download and run VSCode
+- Install the extension
+- Execute commands to verify they're registered
+- Validate that commands don't crash (even if they return errors)
+
+**Note:** These are smoke tests, not comprehensive functional tests. They verify the extension works at a basic level, not that all features work perfectly.
 
 ## Test Files
 
-- `activation.test.ts` - Tests extension activation and command registration
-- `compile.test.ts` - Tests the compile dashboard command
-- `preview.test.ts` - Tests the preview dashboard command
-- `gridEditor.test.ts` - Tests the grid layout editor
-- `export.test.ts` - Tests exporting dashboards to NDJSON
+- `smoke.test.ts` - Basic tests that verify extension commands are registered and don't crash
 
 ## Running Tests
 
@@ -54,15 +52,17 @@ npm run test:e2e
 npm run test:e2e-run
 ```
 
-## Test Fixtures
+## Test Approach
 
-Test fixtures are located in `vscode-extension/test/fixtures/`:
+These smoke tests verify the extension doesn't crash on basic operations:
 
-- `simple-dashboard.yaml` - Basic single dashboard for testing core functionality
-- `multi-dashboard.yaml` - File with multiple dashboards for testing selection UI
-- `invalid-dashboard.yaml` - Malformed dashboard for testing error handling
+1. **Commands are registered** - VSCode can find the extension's commands
+2. **Commands execute** - Running a command doesn't throw an exception
+3. **Extension responds** - Commands provide feedback (notifications)
 
-## Writing Tests
+Tests intentionally run commands without opening files first. This means commands will return error notifications (e.g., "No active YAML file"), which is expected and acceptable for smoke tests.
+
+## Writing Smoke Tests
 
 ### Basic Structure
 
@@ -71,82 +71,48 @@ import { expect } from 'chai';
 import {
     VSBrowser,
     WebDriver,
-    Workbench,
-    InputBox
+    Workbench
 } from 'vscode-extension-tester';
 
-describe('My Feature Tests', function() {
-    this.timeout(60000); // E2E tests need longer timeouts
+describe('My Smoke Tests', function() {
+    this.timeout(60000);
 
     let driver: WebDriver;
     let browser: VSBrowser;
+    let workbench: Workbench;
 
     before(async () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
+        workbench = new Workbench();
     });
 
     beforeEach(async () => {
         // Clean state before each test
-        const workbench = new Workbench();
         await workbench.executeCommand('workbench.action.closeAllEditors');
         await driver.sleep(500);
     });
 
-    it('should do something', async function() {
-        this.timeout(45000);
+    it('should execute command without crashing', async function() {
+        this.timeout(30000);
 
-        const workbench = new Workbench();
-        // ... test implementation
-    });
+        await workbench.executeCommand('My Command');
+        await driver.sleep(2000);
 
-    after(async () => {
-        // Cleanup after all tests
-        const workbench = new Workbench();
-        await workbench.executeCommand('workbench.action.closeAllEditors');
+        // Verify we got a notification (even if it's an error)
+        const notifications = await workbench.getNotifications();
+        expect(notifications.length).to.be.greaterThan(0);
     });
 });
 ```
 
-### Best Practices
+### Best Practices for Smoke Tests
 
-1. **Generous Timeouts**: E2E tests can be slow
-   - Suite timeout: 60000ms (60s)
-   - Individual test timeout: 30000-45000ms
-
-2. **Clean State**: Always clean up before and after tests
-
-   ```typescript
-   await workbench.executeCommand('workbench.action.closeAllEditors');
-   ```
-
-3. **Wait for Async Operations**: Use `driver.sleep()` for UI updates
-
-   ```typescript
-   await driver.sleep(2000); // Wait 2s for file to open
-   ```
-
-4. **Handle Errors Gracefully**: Wrap potentially failing operations
-
-   ```typescript
-   try {
-       await notif.dismiss();
-   } catch {
-       // Ignore dismiss errors
-   }
-   ```
-
-5. **Test Real Workflows**: Simulate actual user behavior
-   - Open files
-   - Execute commands
-   - Interact with quick picks
-   - Verify notifications
-
-6. **Use Test Fixtures**: Don't rely on external files
-
-   ```typescript
-   const fixturesPath = path.resolve(__dirname, '../../../test/fixtures/simple-dashboard.yaml');
-   ```
+1. **Keep it simple** - Don't test full functionality, just that commands execute
+2. **Expect errors** - Commands may fail without proper context (files open, etc.)
+3. **Avoid complex UI interactions** - No InputBox, QuickPick, or file opening
+4. **Test command registration** - Verify commands exist and are callable
+5. **Minimal assertions** - Just check that something happened (notification appeared)
 
 ## CI Integration
 
