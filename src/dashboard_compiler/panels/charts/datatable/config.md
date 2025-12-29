@@ -6,7 +6,7 @@ The Datatable chart panel displays tabular data with customizable columns, sorti
 
 _For @graphaelli and the team who keep the lights on:_
 
-```
+```text
 In rows and columns, data flows,
 Where metrics dance and insight grows.
 From pods that crash at 3 AM,
@@ -56,48 +56,48 @@ dashboard:
 
 ### Lens Datatable Chart
 
-| YAML Key                  | Data Type                    | Description                                                  | Default  | Required |
-|---------------------------|------------------------------|--------------------------------------------------------------|----------|----------|
-| `type`                    | `Literal['datatable']`       | Specifies the chart type.                                    | N/A      | Yes      |
-| `data_view`               | `string`                     | The data view (index pattern) to query.                      | N/A      | Yes      |
-| `metrics`                 | `list[LensMetricTypes]`      | List of metrics to display as columns.                       | `[]`     | No       |
-| `breakdowns`              | `list[LensDimensionTypes]`   | List of dimensions to use as breakdown columns.              | `[]`     | No       |
-| `columns`                 | `list[DatatableColumnConfig]`| Optional column configurations for customization.            | `None`   | No       |
-| `row_height`              | `DatatableRowHeightEnum`     | Row height mode: `auto`, `single`, or `custom`.              | `auto`   | No       |
-| `row_height_lines`        | `int`                        | Number of lines for custom row height.                       | `None`   | No       |
-| `header_row_height`       | `DatatableRowHeightEnum`     | Header row height mode: `auto`, `single`, or `custom`.       | `auto`   | No       |
-| `header_row_height_lines` | `int`                        | Number of lines for custom header row height.                | `None`   | No       |
-| `density`                 | `DatatableDensityEnum`       | Grid density: `compact`, `normal`, or `expanded`.            | `normal` | No       |
-| `sorting`                 | `DatatableSortingConfig`     | Optional sorting configuration.                              | `None`   | No       |
-| `paging`                  | `DatatablePagingConfig`      | Optional pagination configuration.                           | `None`   | No       |
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | ---------------------------- | ---------------------------------------------------- | -------- | -------- |
+| `type` | `Literal['datatable']` | Specifies the chart type. | N/A | Yes |
+| `data_view` | `string` | The data view (index pattern) to query. | N/A | Yes |
+| `metrics` | `list[LensMetricTypes]` | List of metrics to display as columns. | `[]` | No |
+| `breakdowns` | `list[LensDimensionTypes]` | List of dimensions to use as breakdown columns. | `[]` | No |
+| `columns` | `list[DatatableColumnConfig]` | Optional column configurations for customization. | `None` | No |
+| `row_height` | `DatatableRowHeightEnum` | Row height mode: `auto`, `single`, or `custom`. | `auto` | No |
+| `row_height_lines` | `int` | Number of lines for custom row height. | `None` | No |
+| `header_row_height` | `DatatableRowHeightEnum` | Header row height mode: `auto`, `single`, or `custom`. | `auto` | No |
+| `header_row_height_lines` | `int` | Number of lines for custom header row height. | `None` | No |
+| `density` | `DatatableDensityEnum` | Grid density: `compact`, `normal`, or `expanded`. | `normal` | No |
+| `sorting` | `DatatableSortingConfig` | Optional sorting configuration. | `None` | No |
+| `paging` | `DatatablePagingConfig` | Optional pagination configuration. | `None` | No |
 
 ### Column Configuration (`DatatableColumnConfig`)
 
 Customize individual columns with these options:
 
-| YAML Key        | Data Type                   | Description                                      | Default  | Required |
-|-----------------|-----------------------------|--------------------------------------------------|----------|----------|
-| `column_id`     | `string`                    | The ID of the column (must match a metric/dimension ID). | N/A | Yes |
-| `width`         | `int`                       | Column width in pixels.                          | `None`   | No       |
-| `hidden`        | `bool`                      | Whether to hide this column.                     | `False`  | No       |
-| `alignment`     | `left|right|center`         | Text alignment for the column.                   | `None`   | No       |
-| `color_mode`    | `none|cell|text`            | How to apply colors to the column.               | `None`   | No       |
-| `summary_row`   | `none|sum|avg|count|min|max`| Summary function (only for metrics).             | `None`   | No       |
-| `summary_label` | `string`                    | Custom label for the summary row.                | `None`   | No       |
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | ---------------------------------------------------- | ------------------------------------------------ | -------- | -------- |
+| `column_id` | `string` | The ID of the column (must match a metric/dimension ID). | N/A | Yes |
+| `width` | `int` | Column width in pixels. | `None` | No |
+| `hidden` | `bool` | Whether to hide this column. | `False` | No |
+| `alignment` | `left` \| `right` \| `center` | Text alignment for the column. | `None` | No |
+| `color_mode` | `none` \| `cell` \| `text` | How to apply colors to the column. | `None` | No |
+| `summary_row` | `none` \| `sum` \| `avg` \| `count` \| `min` \| `max` | Summary function (only for metrics). | `None` | No |
+| `summary_label` | `string` | Custom label for the summary row. | `None` | No |
 
 ### Sorting Configuration (`DatatableSortingConfig`)
 
-| YAML Key    | Data Type       | Description                          | Default | Required |
-|-------------|-----------------|--------------------------------------|---------|----------|
-| `column_id` | `string`        | The ID of the column to sort by.     | N/A     | Yes      |
-| `direction` | `asc|desc`      | Sort direction.                      | `asc`   | No       |
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | ---------------- | -------------------------------- | ------- | -------- |
+| `column_id` | `string` | The ID of the column to sort by. | N/A | Yes |
+| `direction` | `asc` \| `desc` | Sort direction. | `asc` | No |
 
 ### Pagination Configuration (`DatatablePagingConfig`)
 
-| YAML Key   | Data Type | Description                        | Default | Required |
-|------------|-----------|------------------------------------|---------|----------|
-| `enabled`  | `bool`    | Whether pagination is enabled.     | `True`  | No       |
-| `page_size`| `int`     | Number of rows per page.           | `10`    | No       |
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | --------- | -------------------------------- | ------- | -------- |
+| `enabled` | `bool` | Whether pagination is enabled. | `True` | No |
+| `page_size` | `int` | Number of rows per page. | `10` | No |
 
 ## Complex Configuration Example
 

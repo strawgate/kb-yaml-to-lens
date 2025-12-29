@@ -18,7 +18,11 @@ if TYPE_CHECKING:
     from .xy.view import KbnXYVisualizationState
 
     KbnVisualizationStateTypes = (
-        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnDatatableVisualizationState | KbnTagcloudVisualizationState
+        KbnPieVisualizationState
+        | KbnMetricVisualizationState
+        | KbnXYVisualizationState
+        | KbnDatatableVisualizationState
+        | KbnTagcloudVisualizationState
     )
 
 # region Form Data Source
