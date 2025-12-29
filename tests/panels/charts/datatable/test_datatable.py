@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -13,25 +12,20 @@ from dashboard_compiler.panels.charts.datatable.compile import (
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
 
 
-@pytest.fixture
-def compile_datatable_chart_snapshot():
-    """Fixture that returns a function to compile datatable charts and return dict for snapshot."""
+def compile_datatable_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
+    """Compile datatable chart config and return dict for snapshot testing."""
+    if chart_type == 'lens':
+        lens_chart = LensDatatableChart.model_validate(config)
+        layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
+    else:  # esql
+        esql_chart = ESQLDatatableChart.model_validate(config)
+        layer_id, kbn_columns, kbn_state_visualization = compile_esql_datatable_chart(esql_datatable_chart=esql_chart)
 
-    def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
-        if chart_type == 'lens':
-            lens_chart = LensDatatableChart.model_validate(config)
-            layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
-        else:  # esql
-            esql_chart = ESQLDatatableChart.model_validate(config)
-            layer_id, kbn_columns, kbn_state_visualization = compile_esql_datatable_chart(esql_datatable_chart=esql_chart)
-
-        assert kbn_state_visualization is not None
-        return kbn_state_visualization.model_dump()
-
-    return _compile
+    assert kbn_state_visualization is not None
+    return kbn_state_visualization.model_dump()
 
 
-def test_compile_datatable_chart_basic_lens(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_basic_lens():
     """Test the compilation of a basic datatable chart with metrics only (Lens)."""
     config = {
         'type': 'datatable',
@@ -57,7 +51,7 @@ def test_compile_datatable_chart_basic_lens(compile_datatable_chart_snapshot):
     )
 
 
-def test_compile_datatable_chart_with_breakdowns_lens(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_with_breakdowns_lens():
     """Test the compilation of a datatable chart with metrics and breakdowns (Lens)."""
     config = {
         'type': 'datatable',
@@ -93,7 +87,7 @@ def test_compile_datatable_chart_with_breakdowns_lens(compile_datatable_chart_sn
     )
 
 
-def test_compile_datatable_chart_with_column_config_lens(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_with_column_config_lens():
     """Test the compilation of a datatable chart with custom column configurations (Lens)."""
     config = {
         'type': 'datatable',
@@ -136,7 +130,7 @@ def test_compile_datatable_chart_with_column_config_lens(compile_datatable_chart
     )
 
 
-def test_compile_datatable_chart_with_sorting_and_paging_lens(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_with_sorting_and_paging_lens():
     """Test the compilation of a datatable chart with sorting and pagination (Lens)."""
     config = {
         'type': 'datatable',
@@ -166,7 +160,7 @@ def test_compile_datatable_chart_with_sorting_and_paging_lens(compile_datatable_
     )
 
 
-def test_compile_datatable_chart_with_row_height_and_density_lens(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_with_row_height_and_density_lens():
     """Test the compilation of a datatable chart with custom row height and density (Lens)."""
     config = {
         'type': 'datatable',
@@ -198,7 +192,7 @@ def test_compile_datatable_chart_with_row_height_and_density_lens(compile_datata
     )
 
 
-def test_compile_datatable_chart_basic_esql(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_basic_esql():
     """Test the compilation of a basic datatable chart with metrics only (ESQL)."""
     config = {
         'type': 'datatable',
@@ -222,7 +216,7 @@ def test_compile_datatable_chart_basic_esql(compile_datatable_chart_snapshot):
     )
 
 
-def test_compile_datatable_chart_with_breakdowns_esql(compile_datatable_chart_snapshot):
+def test_compile_datatable_chart_with_breakdowns_esql():
     """Test the compilation of a datatable chart with metrics and breakdowns (ESQL)."""
     config = {
         'type': 'datatable',
