@@ -12,6 +12,8 @@ from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
 from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieChart
+from dashboard_compiler.panels.charts.tagcloud.compile import compile_esql_tagcloud_chart, compile_lens_tagcloud_chart
+from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 from dashboard_compiler.panels.charts.view import (
     KbnDataSourceState,
     KbnFormBasedDataSourceState,
@@ -52,6 +54,8 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
         return KbnVisualizationTypeEnum.XY
     if isinstance(chart, LensMetricChart):
         return KbnVisualizationTypeEnum.METRIC
+    if isinstance(chart, LensTagcloudChart):
+        return KbnVisualizationTypeEnum.TAGCLOUD
     # if isinstance(chart, LensDatatableChart):
     #     return KbnVisualizationTypeEnum.DATATABLE
 
@@ -82,10 +86,12 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
         elif isinstance(chart, LensPieChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
-        elif isinstance(chart, LensMetricChart):  # pyright: ignore[reportUnnecessaryIsInstance]
+        elif isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
+        elif isinstance(chart, LensTagcloudChart):  # pyright: ignore[reportUnnecessaryIsInstance]
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
         else:
-            msg = f'Unsupported chart type: {type(chart)}'
+            msg = f'Unsupported Lens chart type: {type(chart)}'
             raise NotImplementedError(msg)
 
         kbn_references.append(
@@ -137,11 +143,12 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
-    if isinstance(panel.chart, (ESQLMetricChart, ESQLPieChart)):
-        if isinstance(panel.chart, ESQLMetricChart):
-            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
-        else:
-            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
+    if isinstance(panel.chart, ESQLMetricChart):
+        layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
+    elif isinstance(panel.chart, ESQLPieChart):
+        layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
+    elif isinstance(panel.chart, ESQLTagcloudChart):
+        layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(panel.chart)
     else:
         msg = f'Unsupported ESQL chart type: {type(panel.chart)}'
         raise NotImplementedError(msg)

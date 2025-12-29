@@ -152,7 +152,7 @@ def cli() -> None:
 @click.option(
     '--input-dir',
     type=click.Path(exists=True, file_okay=False, path_type=Path),
-    default=DEFAULT_SCENARIO_DIR,
+    default=DEFAULT_INPUT_DIR,
     help='Directory containing YAML dashboard files to compile.',
 )
 @click.option(
@@ -374,7 +374,7 @@ async def upload_to_kibana(  # noqa: PLR0913
         if result.success:
             console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
-            dashboard_ids = [obj.id for obj in result.success_results if obj.type == 'dashboard']
+            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
             if dashboard_ids and open_browser:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
