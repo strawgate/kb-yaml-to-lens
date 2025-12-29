@@ -27,8 +27,7 @@ jobs:
       uses: ./.github/actions/setup-python-env
 
     - name: Run Python tests for extension
-      run: |
-        uv run python -m pytest vscode-extension/python/test_*.py -v
+      run: make test-extension-python
 
   test-typescript:
     runs-on: ubuntu-latest
