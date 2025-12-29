@@ -66,8 +66,8 @@ Each component follows this structure:
 ### Test Standards
 
 - **Use inline snapshots** via `inline-snapshot` library (not external snapshot files)
-- **Avoid scenario-based tests** in separate JSON files
-- **Write pytest tests directly** in Python
+- **Prefer inline tests** in Python test files over separate scenario files
+- **Note:** Scenario-based tests in `tests/scenarios/` are being phased out in favor of inline snapshot tests
 - See existing tests for patterns (e.g., `tests/panels/charts/lens/metrics/test_metrics.py`)
 
 ---
@@ -121,7 +121,7 @@ When updating YAML configuration docs:
 2. Each component's markdown should include: overview, minimal example, complex example, full options table
 3. Table columns: `YAML Key`, `Data Type`, `Description`, `Default`, `Required`
 4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config models)
-5. Run `uv run python scripts/compile_docs.py` to regenerate `yaml_reference.md`
+5. Run `make compile-docs` to regenerate `docs/yaml_reference.md`
 
 ---
 
@@ -180,7 +180,7 @@ Run `make check` locally before pushing.
 | Resource | Location |
 | -------- | -------- |
 | Architecture details | `docs/architecture.md` |
-| YAML schema reference | `yaml_reference.md` |
+| YAML schema reference | `docs/yaml_reference.md` (generated via `make compile-docs`) |
 | Quickstart guide | `docs/quickstart.md` |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |

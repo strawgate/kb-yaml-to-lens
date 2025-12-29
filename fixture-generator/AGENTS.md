@@ -246,7 +246,7 @@ node examples/your-generator.js
 - **Generator scripts**: `fixture-generator/examples/*.js`
 - **Shared utilities**: `fixture-generator/generator-utils.js`
 - **Output files**: `fixture-generator/output/*.json`
-- **Test fixtures**: `tests/fixtures/*.json` (Python test suite)
+- **Test fixtures**: Generated fixtures are compared against Python compiler output in test scenarios
 
 ---
 
