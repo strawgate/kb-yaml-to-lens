@@ -88,7 +88,7 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
 | `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../../queries/config.md). | `None` (uses dashboard query) | No |
 | `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../../filters/config.md). | `[]` (empty list) | No |
-| `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart) or [Lens Pie Chart](#lens-pie-chart). | N/A | Yes |
+| `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A | Yes |
 | `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None` | No |
 
 **Note on `layers` vs `chart`**:
@@ -106,10 +106,10 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['metric']` | Specifies the chart type as a Lens Metric visualization. | `metric` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
-| `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics). | N/A | Yes |
-| `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics). | `None` | No |
-| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics). | `None` | No |
-| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions). | `None` | No |
+| `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | N/A | Yes |
+| `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | `None` | No |
+| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | `None` | No |
+| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | `None` | No |
 
 **Example (Lens Metric Chart):**
 
@@ -144,12 +144,12 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `type` | `Literal['pie']` | Specifies the chart type as a Lens Pie visualization. | `pie` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `data_view` | `string` | The ID or title of the data view (index pattern) for this pie chart. | N/A | Yes |
-| `metric` | `LensMetricTypes` object | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics). | N/A | Yes |
-| `slice_by` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions). | N/A | Yes |
-| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance). | `None` | No |
-| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text). | `None` | No |
-| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend). | `None` | No |
-| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping). | `None` | No |
+| `metric` | `LensMetricTypes` object | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | N/A | Yes |
+| `slice_by` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | N/A | Yes |
+| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
+| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-color-field). | `None` | No |
 
 **Example (Lens Pie Chart):**
 
@@ -271,7 +271,7 @@ All specific metric types below can include:
 | -------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id` | `string` | An optional unique identifier for the metric. | Generated ID | No |
 | `label` | `string` | A custom display label for the metric. If not provided, a label is inferred. | Inferred | No |
-| `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting). | Default for type | No |
+| `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting-format-field-within-a-metric). | Default for type | No |
 | `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data *before* this metric is calculated. | `None` | No |
 
 ### Aggregated Metric Types

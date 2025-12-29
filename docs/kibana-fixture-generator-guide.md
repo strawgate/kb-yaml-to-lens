@@ -112,7 +112,7 @@ Before writing a generator, understand how the panel works in Kibana's API.
    - Location: `x-pack/plugins/lens/` in Kibana source
    - Use case: When docs are unclear about exact field names or types
 
-**Example: Researching Heatmaps**
+### Example: Researching Heatmaps
 
 For heatmaps, you'd find:
 
@@ -322,7 +322,7 @@ make run
 
 | Problem | Solution |
 | --------- | ---------- |
-| **Node version mismatch**<br/>`Error: Expected version "22.21.1". Got "20.19.4"` | The Node.js version is auto-detected from Kibana's `.node-version` file during build. Rebuild with `make build-no-cache` to pick up any version changes |
+| **Node version mismatch** - `Error: Expected version "22.21.1". Got "20.19.4"` | The Node.js version is auto-detected from Kibana's `.node-version` file during build. Rebuild with `make build-no-cache` to pick up any version changes |
 | **"Kibana should not be run as root"** | Add `--allow-root` flag to `yarn kbn bootstrap` in Dockerfile |
 | **Out of memory during bootstrap** | Increase Docker memory limit in Docker Desktop settings (recommend 10GB+) |
 
@@ -331,8 +331,8 @@ make run
 | Problem | Solution |
 | --------- | ---------- |
 | **LensConfigBuilder not found** | Ensure bootstrap completed successfully. Run `make test-import` to verify |
-| **Invalid configuration error**<br/>`missing required field 'breakdown'` | Review chart-specific Kibana docs, ensure all required fields present with correct types |
-| **ES\ | QL query syntax error** | Use uppercase keywords (`BY`, `STATS`, `FROM`), test query in Kibana Dev Tools first |
+| **Invalid configuration error** - `missing required field 'breakdown'` | Review chart-specific Kibana docs, ensure all required fields present with correct types |
+| **ES\|QL query syntax error** | Use uppercase keywords (`BY`, `STATS`, `FROM`), test query in Kibana Dev Tools first |
 | **Permission denied writing to output** | Create output directory: `mkdir -p fixture-generator/output && chmod 777 fixture-generator/output` |
 
 ### Debugging
