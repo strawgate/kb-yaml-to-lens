@@ -1,7 +1,7 @@
 dashboards:
 -
   id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
-  title: "[Metrics Aerospike] Overview"
+  name: "[Metrics Aerospike] Overview"
   description: ""
   panels:
   - type: links
@@ -15,38 +15,33 @@ dashboards:
       - label: Namespace Metrics
         dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
   
-  - type: lens
+  - type: charts
     grid: { x: 0, y: 2, w: 10, h: 3 }
-    index_pattern: metrics-*
     filters:
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: metric
-      metrics:
-        - type: unique_count
-          field: aerospike.node.name
-          label: Aerospike Nodes
+      data_view: metrics-*
+      primary:
+        aggregation: unique_count
+        field: aerospike.node.name
+        label: Aerospike Nodes
   
-  - type: lens
+  - type: charts
     grid: { x: 10, y: 2, w: 38, h: 9 }
-    index_pattern: metrics-*
     filters:
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: line
+      data_view: metrics-*
       dimensions:
         - field: "@timestamp"
           type: date_histogram
           label: "@timestamp"
-          interval: auto
         - field: aerospike.node.name
-          type: terms
+          type: values
           label: Top 15 values of aerospike.node.name
           size: 15
           sort:
@@ -54,35 +49,31 @@ dashboards:
             direction: asc
           other_bucket: true
           missing_bucket: false
-      metrics:
-        - type: min
+      primary:
+      - aggregation: min
           label: Free Memory
           field: aerospike.node.memory.free
           # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
   
-  - type: lens
+  - type: charts
     grid: { x: 0, y: 5, w: 10, h: 3 }
-    index_pattern: metrics-*
     filters:
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: metric
-      metrics:
-        - type: unique_count
-          field: aerospike.namespace
-          label: Unique Namespaces
+      data_view: metrics-*
+      primary:
+        aggregation: unique_count
+        field: aerospike.namespace
+        label: Unique Namespaces
   
   # - type: lens
   #   grid: { x: 0, y: 8, w: 10, h: 12 }
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
-  #       type: phrase
-  #       value: aerospikereceiver.otel
-  #       operator: equals
+  #       equals: aerospikereceiver.otel
   #   chart:
   #     type: table
   #     columns:
@@ -113,16 +104,13 @@ dashboards:
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
-  #       type: phrase
-  #       value: aerospikereceiver.otel
-  #       operator: equals
+  #       equals: aerospikereceiver.otel
   #   chart:
   #     type: line
   #     dimensions:
   #       - field: "@timestamp"
   #         type: date_histogram
   #         label: "@timestamp"
-  #         interval: auto
   #       - field: aerospike.node.name
   #         type: terms
   #         label: Top 15 values of aerospike.node.name
@@ -132,43 +120,36 @@ dashboards:
   #           direction: desc
   #         other_bucket: true
   #         missing_bucket: false
-  #     metrics:
+  #     primary:
   #       - type: min
   #         label: Used Memory
   #         field: aerospike.node.memory.used
           # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
       # Reference lines are not directly supported in the YAML schema
   
-  - type: lens
+  - type: charts
     grid: { x: 27, y: 9, w: 38, h: 9 }
-    index_pattern: metrics-*
     filters:
-      - field: aerospike.node.connection.open
-        exists: true # Assuming equals operator for exists filter in panel
+      - exists: aerospike.node.connection.open
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: line
+      data_view: metrics-*
       dimensions:
         - field: "@timestamp"
           type: date_histogram
           label: "@timestamp"
-          interval: auto
         - field: aerospike.node.name
-          type: terms
+          type: values
           size: 15
           sort:
             by: Open Connections
             direction: desc
           other_bucket: true
           missing_bucket: false
-      metrics:
-        - type: max
-          field: aerospike.node.connection.open
+      primary:
+      - aggregation: max
+          exists: aerospike.node.connection.open
           label: Open Connections
           # format: {id: "number", params: {decimals: 0}} # Not directly supported in YAML schema
-      axis:
-        left:
-          title: Connections # Assuming yTitle maps to left axis title
