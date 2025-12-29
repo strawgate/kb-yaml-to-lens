@@ -196,7 +196,7 @@ def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot)
             'tagAccessor': 'tag-id-123',
             'valueAccessor': 'metric-id-456',
             'maxFontSize': 72,
-            'minFontSize': 18,
+            'minFontSize': 12,
             'orientation': 'right angled',
             'showLabel': True,
         }
@@ -264,7 +264,7 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot):
             'tagAccessor': 'host-dimension',
             'valueAccessor': 'bytes-metric',
             'maxFontSize': 72,
-            'minFontSize': 18,
+            'minFontSize': 12,
             'orientation': 'single',
             'showLabel': False,
         }
@@ -297,7 +297,7 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
             'tagAccessor': 'user-id',
             'valueAccessor': 'count-id',
             'maxFontSize': 120,
-            'minFontSize': 18,  # Default value
+            'minFontSize': 12,  # Default value
             'orientation': 'single',  # Default value
             'showLabel': True,  # Default value
         }

@@ -28,8 +28,8 @@ class TagcloudOrientationEnum(StrEnum):
 class TagcloudAppearance(BaseCfgModel):
     """Appearance settings for tagcloud."""
 
-    min_font_size: int | None = Field(default=18, ge=1, le=100)
-    """Minimum font size for tags. Defaults to 18."""
+    min_font_size: int | None = Field(default=12, ge=1, le=100)
+    """Minimum font size for tags. Defaults to 12."""
 
     max_font_size: int | None = Field(default=72, ge=1, le=200)
     """Maximum font size for tags. Defaults to 72."""

@@ -34,7 +34,7 @@ def compile_tagcloud_chart_visualization_state(
     orientation = 'single'
     show_label = True
 
-    if chart.appearance:
+    if chart.appearance is not None:
         if chart.appearance.min_font_size is not None:
             min_font_size = chart.appearance.min_font_size
         if chart.appearance.max_font_size is not None:
