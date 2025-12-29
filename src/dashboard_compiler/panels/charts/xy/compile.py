@@ -1,5 +1,7 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
+from collections.abc import Sequence
+
 from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -66,14 +68,14 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     return series_type
 
 
-def compile_xy_chart_visualization_state(
+def compile_xy_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_ids: list[str],
     metric_ids: list[str],
     breakdown_id: str | None = None,
-    metrics: list[BaseLensMetric] | None = None,
+    metrics: Sequence[BaseLensMetric] | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -83,7 +85,7 @@ def compile_xy_chart_visualization_state(
         dimension_ids (list[str]): The IDs of the dimensions.
         metric_ids (list[str]): The IDs of the metrics.
         breakdown_id (str | None): The ID of the breakdown dimension if any.
-        metrics (list[BaseLensMetric] | None): The metric configurations for building yConfig.
+        metrics (Sequence[BaseLensMetric] | None): The metric configurations for building yConfig.
 
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
@@ -95,7 +97,7 @@ def compile_xy_chart_visualization_state(
     # Build yConfig from metrics if any have visual/axis properties configured
     y_config: list[YConfig] | None = None
     if metrics:
-        y_config_list = []
+        y_config_list: list[YConfig] = []
         for metric_id, metric in zip(metric_ids, metrics, strict=True):
             # Only create YConfig if at least one property is set
             if any([metric.axis, metric.color, metric.line_width, metric.line_style, metric.fill, metric.icon, metric.icon_position]):
