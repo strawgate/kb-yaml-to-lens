@@ -123,7 +123,7 @@ metrics_config = [
 for i, metric in enumerate(metrics_config):
     chart = LensMetricChart(
         data_view='metrics-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field=metric['field']),
+        primary=LensOtherAggregatedMetric(type='average', field=metric['field']),
     )
 
     panel = LensPanel(
@@ -147,7 +147,7 @@ def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
     """Helper function to create a standard metric panel."""
     chart = LensMetricChart(
         data_view='logs-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field=field),
+        primary=LensOtherAggregatedMetric(type='average', field=field),
     )
 
     return LensPanel(

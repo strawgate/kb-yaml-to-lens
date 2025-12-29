@@ -4,7 +4,7 @@ dashboards:
   panels:
   - title: "Pie Chart of Aerospike Namespace" 
     id: c7a35c4f-e82d-4f16-b1a6-12229363244e
-    type: charts
+    type: lens
     grid: { x: 0, y: 0, w: 24, h: 15 }
     chart: 
       type: pie
@@ -14,9 +14,9 @@ dashboards:
         palette: default
       slice_by: 
         - field: aerospike.namespace
-          type: values
+          type: terms
           size: 5
           id: 439aa452-8525-4644-8d5b-42d66f8b41fd
       metric:
-        aggregation: count
+        type: count
         id: fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33

@@ -6,15 +6,15 @@ dashboards:
   name: Pie Chart Only on Aerospike Namespace with yaml ref
   panels:
   - title: "Pie Chart of Aerospike Namespace" 
-    type: charts
+    type: lens
     grid: { x: 0, y: 0, w: 24, h: 15 }
     chart: 
       type: pie
       <<: *chart_defaults
       slice_by: 
       - field: aerospike.namespace
-        type: values
+        type: terms
         size: 5
       metric:
-        aggregation: count
+        type: count
         field: ___records___

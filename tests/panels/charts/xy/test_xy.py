@@ -21,7 +21,7 @@ async def test_bar_stacked_chart() -> None:
         'mode': 'stacked',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
-        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'metrics': [{'type': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
@@ -86,7 +86,7 @@ async def test_bar_unstacked_chart() -> None:
         'mode': 'unstacked',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
-        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'metrics': [{'type': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
@@ -150,7 +150,7 @@ async def test_line_chart() -> None:
         'type': 'line',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
-        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'metrics': [{'type': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
@@ -213,7 +213,7 @@ async def test_area_chart() -> None:
         'type': 'area',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
-        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'metrics': [{'type': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
@@ -277,7 +277,7 @@ async def test_area_percentage_chart() -> None:
         'mode': 'percentage',
         'data_view': 'metrics-*',
         'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
-        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'metrics': [{'type': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {

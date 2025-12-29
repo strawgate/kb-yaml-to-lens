@@ -12,7 +12,7 @@ from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 
 async def test_date_histogram_dimension() -> None:
     """Test date histogram dimension."""
-    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    metric_config = {'type': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
     dimension_config = {'type': 'date_histogram', 'field': '@timestamp'}
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
@@ -53,9 +53,9 @@ async def test_date_histogram_dimension() -> None:
 
 async def test_terms_dimension_with_sorting() -> None:
     """Test terms dimension with sorting."""
-    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    metric_config = {'type': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
     dimension_config = {
-        'type': 'values',
+        'type': 'terms',
         'field': 'agent.type',
         'sort': {'by': 'Count of records', 'direction': 'desc'},
     }
@@ -108,7 +108,7 @@ async def test_terms_dimension_with_sorting() -> None:
 
 async def test_filters_dimension() -> None:
     """Test filters dimension."""
-    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    metric_config = {'type': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
     dimension_config = {
         'type': 'filters',
         'filters': [
@@ -159,7 +159,7 @@ async def test_filters_dimension() -> None:
 
 async def test_intervals_dimension() -> None:
     """Test intervals dimension."""
-    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    metric_config = {'type': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
     dimension_config = {
         'type': 'intervals',
         'field': 'apache.uptime',
@@ -203,7 +203,7 @@ async def test_intervals_dimension() -> None:
 
 async def test_intervals_dimension_with_custom_granularity() -> None:
     """Test intervals dimension with custom granularity."""
-    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    metric_config = {'type': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
     dimension_config = {
         'type': 'intervals',
         'field': 'apache.uptime',
@@ -248,7 +248,7 @@ async def test_intervals_dimension_with_custom_granularity() -> None:
 
 async def test_intervals_dimension_with_custom_intervals() -> None:
     """Test intervals dimension with custom intervals."""
-    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    metric_config = {'type': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
     dimension_config = {
         'type': 'intervals',
         'field': 'apache.uptime',

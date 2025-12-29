@@ -90,7 +90,7 @@ line_chart = LensLineChart(
     data_view='logs-*',
     dimensions=[LensDateHistogramDimension(field='@timestamp')],
     breakdown=None,
-    metrics=[LensCountAggregatedMetric(aggregation='count')],
+    metrics=[LensCountAggregatedMetric(type='count')],
 )
 
 panel = LensPanel(
