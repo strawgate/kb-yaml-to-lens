@@ -96,11 +96,6 @@ class BaseXYChart(BaseChart):
         description='Formatting options for the chart legend.',
     )
 
-    reference_lines: list[XYReferenceLine] | None = Field(
-        None,
-        description='Reference lines to display on the chart for threshold visualization.',
-    )
-
 
 class LensXYChartMixin(BaseCfgModel):
     """Shared fields for Lens-based XY charts."""
@@ -205,3 +200,24 @@ class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
 
 class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
     """Represents an Area chart configuration within a ESQL panel."""
+
+
+class LensReferenceLineLayer(BaseChart):
+    """Represents a reference line layer configuration for multi-layer panels.
+
+    Reference lines display static threshold values, SLA targets, or baseline values
+    on XY charts. They appear as horizontal or vertical lines with optional styling,
+    labels, and icons.
+
+    Unlike data layers, reference lines don't query data - they display static values
+    for visual context and comparison.
+    """
+
+    type: Literal['reference_line'] = Field('reference_line', description="The type of layer. Always 'reference_line'.")
+
+    data_view: str = Field(default=..., description='The data view to use for the layer (required for Kibana compatibility).')
+
+    reference_lines: list[XYReferenceLine] = Field(
+        default_factory=list,
+        description='List of reference lines to display in this layer.',
+    )

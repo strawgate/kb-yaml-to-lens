@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import LensMultiLayerPanel, LensPanel
 from dashboard_compiler.panels.images import ImagePanel
 from dashboard_compiler.panels.links import LinksPanel
 from dashboard_compiler.panels.markdown import MarkdownPanel
@@ -12,6 +12,6 @@ __all__ = ['PanelTypes']
 
 
 type PanelTypes = Annotated[
-    MarkdownPanel | SearchPanel | LinksPanel | ImagePanel | LensPanel,
+    MarkdownPanel | SearchPanel | LinksPanel | ImagePanel | LensPanel | LensMultiLayerPanel,
     Field(discriminator='type'),
 ]

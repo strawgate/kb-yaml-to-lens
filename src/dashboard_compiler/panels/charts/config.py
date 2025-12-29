@@ -14,6 +14,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensAreaChart,
     LensBarChart,
     LensLineChart,
+    LensReferenceLineLayer,
 )
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 
@@ -21,7 +22,7 @@ type AllChartTypes = LensChartTypes | ESQLChartTypes
 
 type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
-type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart
+type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
 type SingleLayerChartTypes = LensMetricChart
 
@@ -45,7 +46,7 @@ class LensPanel(BasePanel):
 class LensMultiLayerPanel(BasePanel):
     """Represents a multi-layer Lens chart panel configuration."""
 
-    type: Literal['charts'] = 'charts'
+    type: Literal['multi_layer_charts'] = 'multi_layer_charts'
 
     layers: list['MultiLayerChartTypes'] = Field(default=...)
 
