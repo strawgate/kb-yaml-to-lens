@@ -11,6 +11,24 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Compile Dashboards",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "dashboard_compiler.cli",
+            "args": ["compile"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Compile Dashboards and Upload",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "dashboard_compiler.cli",
+            "args": ["compile", "--upload"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
