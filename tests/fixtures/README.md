@@ -46,7 +46,7 @@ make test ARGS="tests/test_fixture_validation.py -k metric-basic"
 ## Fixture Generator Mapping
 
 | YAML File | Fixture Generator | JSON Fixtures Generated |
-|-----------|-------------------|-------------------------|
+| --------- | ----------------- | ----------------------- |
 | `metric-basic.yaml` | `metric-basic.js` | `metric-basic-esql.json`, `metric-basic-dataview.json` |
 | `pie-chart.yaml` | `pie-chart.js` | `pie-chart-esql.json`, `pie-chart-dataview.json` |
 | ... | ... | ... |

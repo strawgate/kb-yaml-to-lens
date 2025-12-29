@@ -1,7 +1,7 @@
 """Integration tests validating YAML fixtures compile and match Kibana fixture structure.
 
 This test suite:
-1. Auto-discovers YAML files in inputs/test-fixtures/
+1. Auto-discovers YAML files in tests/fixtures/yaml/
 2. Compiles them using the dashboard compiler
 3. Validates structure against Kibana-generated fixtures
 4. Uses smart field normalization to handle dynamic IDs, UUIDs, timestamps
@@ -17,7 +17,7 @@ from dashboard_compiler.dashboard_compiler import load
 
 # Paths
 FIXTURE_DIR = Path(__file__).parent.parent / 'fixture-generator' / 'output' / 'v9.2.0'
-YAML_DIR = Path(__file__).parent.parent / 'inputs' / 'test-fixtures'
+YAML_DIR = Path(__file__).parent / 'fixtures' / 'yaml'
 
 
 def discover_yaml_fixtures() -> list[tuple[str, Path]]:
@@ -63,11 +63,10 @@ def normalize_for_comparison(data: Any, path: str = '') -> Any:
 
         return normalized
 
-    elif isinstance(data, list):
+    if isinstance(data, list):
         return [normalize_for_comparison(item, f'{path}[]') for item in data]
 
-    else:
-        return data
+    return data
 
 
 def get_visualization_type(panel: dict) -> str | None:
@@ -75,12 +74,11 @@ def get_visualization_type(panel: dict) -> str | None:
     return panel.get('type') or panel.get('embeddableConfig', {}).get('attributes', {}).get('visualizationType')
 
 
-def find_matching_fixture(fixture_name: str, viz_type: str, is_esql: bool) -> Path | None:
+def find_matching_fixture(fixture_name: str, is_esql: bool) -> Path | None:
     """Find the matching Kibana fixture JSON file.
 
     Args:
         fixture_name: Base name of the YAML fixture (e.g., 'pie-chart')
-        viz_type: Visualization type (e.g., 'lnsPie', 'lnsMetric')
         is_esql: Whether this is an ES|QL variant
 
     Returns:
@@ -112,8 +110,8 @@ def has_esql_query(panel: dict) -> bool:
     return False
 
 
-@pytest.mark.parametrize('fixture_name,yaml_path', discover_yaml_fixtures())
-def test_yaml_fixture_compiles(fixture_name: str, yaml_path: Path) -> None:
+@pytest.mark.parametrize(('fixture_name', 'yaml_path'), discover_yaml_fixtures())
+def test_yaml_fixture_compiles(fixture_name: str, yaml_path: Path) -> None:  # noqa: ARG001
     """Test that YAML fixture compiles without errors."""
     dashboards = load(str(yaml_path))
 
@@ -121,7 +119,7 @@ def test_yaml_fixture_compiles(fixture_name: str, yaml_path: Path) -> None:
     assert len(dashboards[0]['attributes']['panelsJSON']) > 0, f'No panels in dashboard from {yaml_path}'
 
 
-@pytest.mark.parametrize('fixture_name,yaml_path', discover_yaml_fixtures())
+@pytest.mark.parametrize(('fixture_name', 'yaml_path'), discover_yaml_fixtures())
 def test_yaml_fixture_structure_matches_kibana(fixture_name: str, yaml_path: Path) -> None:
     """Test that compiled YAML structure matches Kibana-generated fixture.
 
@@ -145,24 +143,24 @@ def test_yaml_fixture_structure_matches_kibana(fixture_name: str, yaml_path: Pat
     # We expect each YAML file to have 2 panels (ES|QL and Data View variants)
     # But some might have only one, so we validate what we have
     for panel in panels:
-        viz_type = get_visualization_type(panel)
         is_esql = has_esql_query(panel)
 
         # Find matching Kibana fixture
-        fixture_path = find_matching_fixture(fixture_name, viz_type, is_esql)
+        fixture_path = find_matching_fixture(fixture_name, is_esql)
 
         if fixture_path is None:
             # Not all YAML fixtures may have corresponding Kibana fixtures yet
             continue
 
         # Load Kibana fixture
-        with open(fixture_path) as f:
+        with fixture_path.open() as f:
             kibana_fixture = json.load(f)
 
         # Validate visualization type matches
         panel_attrs = panel.get('embeddableConfig', {}).get('attributes', {})
-        assert panel_attrs.get('visualizationType') == kibana_fixture.get('visualizationType'), \
-            f"Visualization type mismatch for {fixture_name} ({'esql' if is_esql else 'dataview'})"
+        assert panel_attrs.get('visualizationType') == kibana_fixture.get('visualizationType'), (
+            f'Visualization type mismatch for {fixture_name} ({"esql" if is_esql else "dataview"})'
+        )
 
         # Validate state structure exists and has expected keys
         panel_state = panel_attrs.get('state', {})
@@ -182,7 +180,7 @@ def test_yaml_fixture_structure_matches_kibana(fixture_name: str, yaml_path: Pat
         assert normalized_kibana.get('datasourceStates') is not None
 
 
-@pytest.mark.parametrize('fixture_name,yaml_path', discover_yaml_fixtures())
+@pytest.mark.parametrize(('fixture_name', 'yaml_path'), discover_yaml_fixtures())
 def test_yaml_fixture_has_both_variants(fixture_name: str, yaml_path: Path) -> None:
     """Test that each YAML fixture has both ES|QL and Data View variants.
 
@@ -207,4 +205,4 @@ def test_all_yaml_fixtures_discovered() -> None:
     fixtures = discover_yaml_fixtures()
 
     # We should have created 20 fixtures
-    assert len(fixtures) >= 15, f'Expected at least 15 YAML fixtures, found {len(fixtures)}'
+    assert len(fixtures) >= 20, f'Expected at least 20 YAML fixtures, found {len(fixtures)}'
