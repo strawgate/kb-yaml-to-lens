@@ -59,3 +59,46 @@ jobs:
     - name: Run unit tests
       working-directory: vscode-extension
       run: npm run test:unit
+
+  test-e2e:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: vscode-extension/package-lock.json
+
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
+
+    - name: Install dependencies
+      working-directory: vscode-extension
+      run: npm ci
+
+    - name: Compile extension
+      working-directory: vscode-extension
+      run: npm run compile
+
+    - name: Setup display (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        export DISPLAY=':99.0'
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+
+    - name: Run E2E tests
+      working-directory: vscode-extension
+      run: npm run test:e2e
+      env:
+        DISPLAY: ':99.0'
