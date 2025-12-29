@@ -1,0 +1,119 @@
+{
+  "title": "Traffic Heatmap by Geographic Location (Data View)",
+  "visualizationType": "lnsHeatmap",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "kibana_sample_data_logs",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "y_metric_formula_accessor",
+              "x_metric_formula_accessor",
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "sum(bytes)",
+                "params": {
+                  "formula": "sum(bytes)"
+                },
+                "customLabel": true
+              },
+              "x_metric_formula_accessor": {
+                "label": "Top 5 values of geo.src",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "geo.src",
+                "isBucketed": true,
+                "params": {
+                  "size": 5,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              },
+              "y_metric_formula_accessor": {
+                "label": "Top 5 values of geo.dest",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "geo.dest",
+                "isBucketed": true,
+                "params": {
+                  "size": 5,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "shape": "heatmap",
+      "valueAccessor": "metric_formula_accessor",
+      "xAccessor": "x_metric_formula_accessor",
+      "yAccessor": "y_metric_formula_accessor",
+      "gridConfig": {
+        "type": "heatmap_grid",
+        "isCellLabelVisible": false,
+        "isXAxisLabelVisible": false,
+        "isXAxisTitleVisible": false,
+        "isYAxisLabelVisible": false,
+        "isYAxisTitleVisible": false
+      },
+      "legend": {
+        "isVisible": true,
+        "position": "right",
+        "type": "heatmap_legend"
+      }
+    },
+    "adHocDataViews": {
+      "kibana_sample_data_logs": {}
+    }
+  }
+}

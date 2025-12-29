@@ -71,7 +71,7 @@ export async function generateDualFixture(baseName, esqlConfig, dataviewConfig, 
 
   // Generate ES|QL variant
   try {
-    await generateFixture(`${baseName}.json`, esqlConfig, options, callerFilePath);
+    await generateFixture(`${baseName}-esql.json`, esqlConfig, options, callerFilePath);
   } catch (err) {
     errors.push(`ES|QL variant: ${err.message}`);
   }
