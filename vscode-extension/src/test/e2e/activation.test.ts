@@ -20,18 +20,22 @@ describe('Extension Activation E2E Tests', function() {
     });
 
     beforeEach(async () => {
-        // Clean up before each test - close all editors and dismiss notifications
+        // Clean up before each test
         const workbench = new Workbench();
-        await workbench.executeCommand('workbench.action.closeAllEditors');
 
-        // Force close any open input boxes/command palette by pressing ESC
-        try {
-            const actions = driver.actions();
-            await actions.sendKeys('\uE00C').perform(); // ESC key
-            await driver.sleep(500);
-        } catch {
-            // Ignore if ESC doesn't work
+        // Force close any open input boxes/command palette by pressing ESC multiple times
+        for (let i = 0; i < 3; i++) {
+            try {
+                const actions = driver.actions();
+                await actions.sendKeys('\uE00C').perform();
+                await driver.sleep(300);
+            } catch {
+                // Ignore if ESC doesn't work
+            }
         }
+
+        await workbench.executeCommand('workbench.action.closeAllEditors');
+        await driver.sleep(1000);
 
         // Clear any notifications
         try {
@@ -46,6 +50,8 @@ describe('Extension Activation E2E Tests', function() {
         } catch {
             // Ignore if no notifications
         }
+
+        await driver.sleep(1000);
     });
 
     it('should activate when opening a YAML file', async function() {
