@@ -49,7 +49,7 @@ Running this tool produces:
 
 The fixture generator follows this workflow:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. Docker Build (one-time, 15-30 minutes)                  │
 │    ├── Install Node.js 22.x                                 │
@@ -212,7 +212,7 @@ make run
 
 **What You'll See:**
 
-```
+```text
 Generating all test fixtures...
 
 ✓ Generated: metric-basic.json

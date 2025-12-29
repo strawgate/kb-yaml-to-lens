@@ -537,7 +537,7 @@ def screenshot_dashboard(  # noqa: PLR0913
             width=width,
             height=height,
             browser_timezone=browser_timezone,
-            timeout=timeout,
+            timeout_seconds=timeout,
             kibana_url=kibana_url,
             kibana_username=kibana_username,
             kibana_password=kibana_password,
@@ -554,7 +554,7 @@ async def generate_screenshot(  # noqa: PLR0913
     width: int,
     height: int,
     browser_timezone: str,
-    timeout: int,
+    timeout_seconds: int,
     kibana_url: str,
     kibana_username: str | None,
     kibana_password: str | None,
@@ -570,7 +570,7 @@ async def generate_screenshot(  # noqa: PLR0913
         width: Screenshot width in pixels
         height: Screenshot height in pixels
         browser_timezone: Timezone for the screenshot
-        timeout: Maximum seconds to wait for screenshot generation
+        timeout_seconds: Maximum seconds to wait for screenshot generation
         kibana_url: Kibana base URL
         kibana_username: Basic auth username
         kibana_password: Basic auth password
@@ -603,7 +603,7 @@ async def generate_screenshot(  # noqa: PLR0913
                 width=width,
                 height=height,
                 browser_timezone=browser_timezone,
-                timeout=timeout,
+                timeout_seconds=timeout_seconds,
             )
 
             progress.update(task, description='Screenshot generated successfully')
