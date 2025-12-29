@@ -20,7 +20,8 @@ The `LensPanel` is the primary container. Its `chart` field will define the spec
 #       field: "user.id" # Field for unique count
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Key Metrics Dashboard"
   panels:
     - type: charts
@@ -53,7 +54,8 @@ dashboard:
 #         field: "source.medium" # Field to create slices from
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Traffic Analysis"
   panels:
     - type: charts
