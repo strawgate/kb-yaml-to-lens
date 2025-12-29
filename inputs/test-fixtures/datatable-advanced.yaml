@@ -1,0 +1,46 @@
+dashboards:
+  - name: "[Test] Datatable - Advanced"
+    description: "Test fixture for datatable visualization with sorting and formatting"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Top Agents by System Load"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: table
+          esql: "FROM metrics-* | STATS median_load = MEDIAN(beat.stats.system.load.1) BY agent.name, agent.id | LIMIT 100"
+          columns:
+            - field: "agent.name"
+              width: 200
+            - field: "agent.id"
+              width: 150
+            - field: "median_load"
+              width: 120
+          sort:
+            field: "median_load"
+            direction: desc
+
+      # Data View variant
+      - type: charts
+        title: "Top Agents by System Load (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: table
+          data_view: "metrics-*"
+          dimensions:
+            - field: "agent.name"
+            - field: "agent.id"
+          metrics:
+            - aggregation: median
+              field: "beat.stats.system.load.1"
+              label: "median_load"
+          columns:
+            - field: "agent.name"
+              width: 200
+            - field: "agent.id"
+              width: 150
+            - field: "median_load"
+              width: 120
+          sort:
+            field: "median_load"
+            direction: desc

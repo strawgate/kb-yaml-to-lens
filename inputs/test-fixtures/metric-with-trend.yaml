@@ -1,0 +1,29 @@
+dashboards:
+  - name: "[Test] Metric - With Trend"
+    description: "Test fixture for metric with trendline visualization"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Event Count with Trend"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: metric
+          esql: "FROM logs-* | STATS count = COUNT()"
+          metric:
+            field: "count"
+            label: "Total Events"
+          trendline: true
+          progress_direction: vertical
+
+      # Data View variant
+      - type: charts
+        title: "Event Count with Trend (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: metric
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+            label: "Total Events"
+          trendline: true
+          progress_direction: vertical

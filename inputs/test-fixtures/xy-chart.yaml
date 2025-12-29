@@ -1,0 +1,36 @@
+dashboards:
+  - name: "[Test] XY - Line Chart"
+    description: "Test fixture for basic XY line chart"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Events Over Time"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: line
+          esql: "FROM logs-* | STATS count = COUNT() BY @timestamp"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: "count"
+              label: "Count"
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Events Over Time (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: line
+          data_view: "logs-*"
+          dimensions:
+            - field: "@timestamp"
+              type: date_histogram
+          metrics:
+            - aggregation: count
+              label: "Count"
+          legend:
+            show: true
+            position: right

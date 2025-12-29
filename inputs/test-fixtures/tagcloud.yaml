@@ -1,0 +1,30 @@
+dashboards:
+  - name: "[Test] Tagcloud - Top Log Levels"
+    description: "Test fixture for tagcloud visualization"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Top Log Levels"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: tagcloud
+          esql: "FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20"
+          metric:
+            field: "count"
+          breakdown_by:
+            field: "log.level"
+
+      # Data View variant
+      - type: charts
+        title: "Top Log Levels (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: tagcloud
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+            label: "Count"
+          breakdown_by:
+            field: "log.level"
+            type: values
+            size: 20

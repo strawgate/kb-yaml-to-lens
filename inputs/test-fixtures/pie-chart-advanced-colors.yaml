@@ -1,0 +1,60 @@
+dashboards:
+  - name: "[Test] Pie - Advanced Colors"
+    description: "Test fixture for pie chart with custom color palette"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Request Methods with Custom Palette"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: pie
+          esql: "FROM logs-* | STATS count = COUNT() BY request.method"
+          metric:
+            field: "count"
+          slice_by:
+            - field: "request.method"
+          shape: donut
+          colors:
+            - "#E7664C"
+            - "#57C17B"
+            - "#6F87D8"
+            - "#F9D66A"
+            - "#DA8B45"
+            - "#AA6556"
+          labels:
+            show: true
+            position: inside
+            values: true
+            percentDecimals: 2
+          legend:
+            show: true
+            position: bottom
+
+      # Data View variant
+      - type: charts
+        title: "Request Methods with Custom Palette (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+          slice_by:
+            - field: "request.method"
+              type: values
+          shape: donut
+          colors:
+            - "#E7664C"
+            - "#57C17B"
+            - "#6F87D8"
+            - "#F9D66A"
+            - "#DA8B45"
+            - "#AA6556"
+          labels:
+            show: true
+            position: inside
+            values: true
+            percentDecimals: 2
+          legend:
+            show: true
+            position: bottom

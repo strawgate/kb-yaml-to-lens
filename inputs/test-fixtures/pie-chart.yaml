@@ -1,0 +1,34 @@
+dashboards:
+  - name: "[Test] Pie - Events by Status"
+    description: "Test fixture for pie chart visualization with both ES|QL and Data View variants"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Events by Status"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: pie
+          esql: "FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10"
+          metric:
+            field: "count"
+          slice_by:
+            - field: "log.level"
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Events by Status (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+          slice_by:
+            - field: "log.level"
+              type: values
+          legend:
+            show: true
+            position: right

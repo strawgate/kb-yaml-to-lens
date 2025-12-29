@@ -1,0 +1,38 @@
+dashboards:
+  - name: "[Test] Tagcloud - Advanced Settings"
+    description: "Test fixture for tagcloud with custom settings"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Tag Cloud - All Custom Settings"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: tagcloud
+          esql: "FROM logs-* | STATS total = COUNT() BY user.name | SORT total DESC | LIMIT 50"
+          metric:
+            field: "total"
+          breakdown_by:
+            field: "user.name"
+          min_font_size: 18
+          max_font_size: 120
+          orientation: right_angled
+          show_label: true
+
+      # Data View variant
+      - type: charts
+        title: "Tag Cloud - Data View"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: tagcloud
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+            label: "Document Count"
+          breakdown_by:
+            field: "log.level"
+            type: values
+            size: 20
+          min_font_size: 16
+          max_font_size: 80
+          orientation: single
+          show_label: true

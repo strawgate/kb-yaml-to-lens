@@ -1,0 +1,43 @@
+dashboards:
+  - name: "[Test] XY - Stacked Bar"
+    description: "Test fixture for stacked bar chart"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Stacked Events by Response Code"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: bar
+          esql: "FROM logs-* | STATS count = COUNT() BY @timestamp, response.keyword"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: "count"
+              label: "Count"
+          breakdown_by:
+            field: "response.keyword"
+          stacked: normal
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Stacked Events by Response Code (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: bar
+          data_view: "logs-*"
+          dimensions:
+            - field: "@timestamp"
+              type: date_histogram
+          metrics:
+            - aggregation: count
+              label: "Count"
+          breakdown_by:
+            field: "response.keyword"
+            type: values
+          stacked: normal
+          legend:
+            show: true
+            position: right

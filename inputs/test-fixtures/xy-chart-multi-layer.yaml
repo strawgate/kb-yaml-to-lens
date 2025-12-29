@@ -1,0 +1,45 @@
+dashboards:
+  - name: "[Test] XY - Multi-Layer"
+    description: "Test fixture for multi-layer XY chart with bar and line"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Events with Success Rate Overlay"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: line
+          esql: "FROM logs-* | STATS total = COUNT(), successes = COUNT(CASE WHEN response.keyword == \"200\" THEN 1 END) BY @timestamp"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: "total"
+              label: "Total Events"
+              chart_type: bar
+            - field: "successes"
+              label: "Successful Events"
+              chart_type: line
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Events with Avg Bytes Overlay (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: line
+          data_view: "logs-*"
+          dimensions:
+            - field: "@timestamp"
+              type: date_histogram
+          metrics:
+            - aggregation: count
+              label: "Total Events"
+              chart_type: bar
+            - aggregation: average
+              field: "bytes"
+              label: "Avg Bytes"
+              chart_type: line
+          legend:
+            show: true
+            position: right

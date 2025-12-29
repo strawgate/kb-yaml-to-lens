@@ -1,0 +1,38 @@
+dashboards:
+  - name: "[Test] Treemap - Traffic by Source and Destination"
+    description: "Test fixture for treemap visualization"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Traffic by Source and Destination"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: treemap
+          esql: "FROM logs-* | STATS bytes = SUM(bytes) BY geo.src, geo.dest"
+          slice_by:
+            - field: "geo.src"
+            - field: "geo.dest"
+          metric:
+            field: "bytes"
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Traffic by Source and Destination (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: treemap
+          data_view: "logs-*"
+          slice_by:
+            - field: "geo.src"
+              type: values
+            - field: "geo.dest"
+              type: values
+          metric:
+            aggregation: sum
+            field: "bytes"
+          legend:
+            show: true
+            position: right

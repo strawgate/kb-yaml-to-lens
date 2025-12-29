@@ -1,0 +1,55 @@
+dashboards:
+  - name: "[Test] XY - Custom Colors"
+    description: "Test fixture for XY chart with custom color palette"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Traffic by Log Level (Custom Colors)"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: area
+          esql: "FROM logs-* | STATS count = COUNT() BY @timestamp, log.level"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: "count"
+              label: "Count"
+          breakdown_by:
+            field: "log.level"
+          stacked: normal
+          colors:
+            - "#68BC00"
+            - "#009CE0"
+            - "#F04E98"
+            - "#FEC514"
+            - "#FF6600"
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Traffic by Log Level (Custom Colors - Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: area
+          data_view: "logs-*"
+          dimensions:
+            - field: "@timestamp"
+              type: date_histogram
+          metrics:
+            - aggregation: count
+              label: "Count"
+          breakdown_by:
+            field: "log.level"
+            type: values
+          stacked: normal
+          colors:
+            - "#68BC00"
+            - "#009CE0"
+            - "#F04E98"
+            - "#FEC514"
+            - "#FF6600"
+          legend:
+            show: true
+            position: right

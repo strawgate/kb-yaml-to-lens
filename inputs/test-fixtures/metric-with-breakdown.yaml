@@ -1,0 +1,30 @@
+dashboards:
+  - name: "[Test] Metric - With Breakdown"
+    description: "Test fixture for metric with breakdown visualization"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Count by Agent"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: metric
+          esql: "FROM logs-* | STATS count = COUNT() BY agent.name | SORT count DESC | LIMIT 5"
+          metric:
+            field: "count"
+            label: "Events per Agent"
+          breakdown_by:
+            field: "agent.name"
+
+      # Data View variant
+      - type: charts
+        title: "Count by Agent (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: metric
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+            label: "Events per Agent"
+          breakdown_by:
+            field: "agent.name"
+            type: values

@@ -1,0 +1,36 @@
+dashboards:
+  - name: "[Test] Pie - Donut Chart"
+    description: "Test fixture for donut chart visualization"
+    panels:
+      # ES|QL variant
+      - type: charts
+        title: "Status Distribution (Donut)"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        chart:
+          type: pie
+          esql: "FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10"
+          metric:
+            field: "count"
+          slice_by:
+            - field: "log.level"
+          shape: donut
+          legend:
+            show: true
+            position: right
+
+      # Data View variant
+      - type: charts
+        title: "Status Distribution (Donut) (Data View)"
+        grid: { x: 24, y: 0, w: 24, h: 15 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          metric:
+            aggregation: count
+          slice_by:
+            - field: "log.level"
+              type: values
+          shape: donut
+          legend:
+            show: true
+            position: right
