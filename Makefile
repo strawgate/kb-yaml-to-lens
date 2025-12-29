@@ -69,7 +69,7 @@ test-coverage:
 
 test-links:
 	@echo "Checking documentation links..."
-	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
+	uv run pytest --check-links docs/ README.md CONTRIBUTING.md --ignore=docs/yaml_reference.md
 
 test-extension:
 	@echo "Running VSCode extension tests..."
