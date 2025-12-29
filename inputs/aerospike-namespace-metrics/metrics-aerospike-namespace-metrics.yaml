@@ -1,3 +1,4 @@
+---
 dashboards:
 -
   id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
@@ -19,7 +20,7 @@ dashboards:
   panels:
 
   - type: links
-    grid: { x: 0, y: 0, w: 48, h: 2 }
+    grid: {x: 0, y: 0, w: 48, h: 2}
     layout: horizontal
     links:
       - label: Overview
@@ -30,12 +31,13 @@ dashboards:
         dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
 
   - type: markdown
-    grid: { x: 0, y: 2, w: 48, h: 2 }
+    grid: {x: 0, y: 2, w: 48, h: 2}
     content: |
-      This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace. Filter to a specific node and namespace before using this dashboard.
+      This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.
+      Filter to a specific node and namespace before using this dashboard.
 
   - type: charts
-    grid: { x: 0, y: 4, w: 9, h: 4 }
+    grid: {x: 0, y: 4, w: 9, h: 4}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -48,7 +50,7 @@ dashboards:
         label: Selected Namespaces
 
   # - type: lens
-  #   grid: { x: 9, y: 4, w: 39, h: 4 }
+  #   grid: {x: 9, y: 4, w: 39, h: 4}
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
@@ -77,12 +79,12 @@ dashboards:
   #         filter: "@timestamp: *"
 
   - type: markdown
-    grid: { x: 0, y: 8, w: 48, h: 3 }
+    grid: {x: 0, y: 8, w: 48, h: 3}
     content: |
       ## Query Information
 
   - type: charts
-    grid: { x: 0, y: 11, w: 24, h: 12 }
+    grid: {x: 0, y: 11, w: 24, h: 12}
     filters:
       - field: attributes.index
         equals: primary
@@ -103,7 +105,7 @@ dashboards:
           label: Top values of attributes.type + 1 other
           size: 50
           sort:
-            by: "Queries per Second" # Assuming alphabetical sort maps to _key
+            by: "Queries per Second"  # Assuming alphabetical sort maps to _key
             direction: asc
           other_bucket: false
           missing_bucket: true
@@ -115,7 +117,7 @@ dashboards:
           # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
 
   - type: charts
-    grid: { x: 24, y: 11, w: 24, h: 12 }
+    grid: {x: 24, y: 11, w: 24, h: 12}
     filters:
       - field: metrics.aerospike.namespace.query.count
         gte: "1"
@@ -135,7 +137,7 @@ dashboards:
           label: Top values of attributes.type + 1 other
           size: 50
           sort:
-            by: "Queries per Second" # Assuming alphabetical sort maps to _key
+            by: "Queries per Second"  # Assuming alphabetical sort maps to _key
             direction: desc
           other_bucket: false
           missing_bucket: true
@@ -147,12 +149,12 @@ dashboards:
           # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
 
   - type: markdown
-    grid: { x: 0, y: 23, w: 48, h: 3 }
+    grid: {x: 0, y: 23, w: 48, h: 3}
     content: |
       ## Transaction Information
 
   - type: charts
-    grid: { x: 0, y: 26, w: 48, h: 10 }
+    grid: {x: 0, y: 26, w: 48, h: 10}
     filters:
       - field: aerospike.namespace.transaction.count
         gte: "1"
@@ -170,7 +172,7 @@ dashboards:
           label: Top values of attributes.type + 1 other
           size: 50
           sort:
-            by: "Transactions per Second" # Assuming alphabetical sort maps to _key
+            by: "Transactions per Second"  # Assuming alphabetical sort maps to _key
             direction: desc
           other_bucket: false
           missing_bucket: true

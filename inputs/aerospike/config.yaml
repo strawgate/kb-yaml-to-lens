@@ -1,3 +1,4 @@
+---
 dashboards:
 -
   name: "[Metrics Aerospike] Overview Yaml"
@@ -13,11 +14,12 @@ dashboards:
     hide_title: true
     content: |
       This dashboard provides an overview of Aerospike metrics, including node and namespace metrics.
-      It includes links to the Aerospike documentation and community resources. See the integration page for setup instructions.
-    grid: { x: 0, y: 0, w: 48, h: 3 }
+      It includes links to the Aerospike documentation and community resources.
+      See the integration page for setup instructions.
+    grid: {x: 0, y: 0, w: 48, h: 3}
   - type: links
     title: Links
-    grid: { x: 0, y: 3, w: 48, h: 3 }
+    grid: {x: 0, y: 3, w: 48, h: 3}
     description: Links to Aerospike documentation and other resources
     layout: horizontal
     links:
@@ -35,7 +37,7 @@ dashboards:
   - type: charts
     title: "Nodes by Namespace"
     description: A chart showing the number of nodes by namespace
-    grid: { x: 0, y: 6, w: 16, h: 16 }
+    grid: {x: 0, y: 6, w: 16, h: 16}
     chart:
       type: pie
       data_view: metrics-*
@@ -48,7 +50,7 @@ dashboards:
   - type: charts
     title: Free Memory by Node
     description: A chart showing the minimum free memory by node
-    grid: { x: 16, y: 6, w: 32, h: 16 }
+    grid: {x: 16, y: 6, w: 32, h: 16}
     chart:
       type: line
       data_view: metrics-*
@@ -62,7 +64,7 @@ dashboards:
   - title: Open Connections by Node
     type: charts
     description: A chart showing the number of open connections by node
-    grid: { x: 16, y: 22, w: 32, h: 16 }
+    grid: {x: 16, y: 22, w: 32, h: 16}
     chart:
       type: line
       data_view: metrics-*

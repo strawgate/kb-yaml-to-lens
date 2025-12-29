@@ -1,3 +1,4 @@
+---
 dashboards:
 -
   id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
@@ -5,7 +6,7 @@ dashboards:
   description: ""
   panels:
   - type: links
-    grid: { x: 0, y: 0, w: 48, h: 2 }
+    grid: {x: 0, y: 0, w: 48, h: 2}
     layout: horizontal
     links:
       - label: Overview
@@ -16,7 +17,7 @@ dashboards:
         dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
 
   - type: charts
-    grid: { x: 0, y: 2, w: 10, h: 3 }
+    grid: {x: 0, y: 2, w: 10, h: 3}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -29,7 +30,7 @@ dashboards:
         label: Aerospike Nodes
 
   - type: charts
-    grid: { x: 10, y: 2, w: 38, h: 9 }
+    grid: {x: 10, y: 2, w: 38, h: 9}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -45,7 +46,7 @@ dashboards:
           label: Top 15 values of aerospike.node.name
           size: 15
           sort:
-            by: "Free Memory" # Assuming alphabetical sort maps to _key
+            by: "Free Memory"  # Assuming alphabetical sort maps to _key
             direction: asc
           other_bucket: true
           missing_bucket: false
@@ -56,7 +57,7 @@ dashboards:
         # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
 
   - type: charts
-    grid: { x: 0, y: 5, w: 10, h: 3 }
+    grid: {x: 0, y: 5, w: 10, h: 3}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -69,7 +70,7 @@ dashboards:
         label: Unique Namespaces
 
   # - type: lens
-  #   grid: { x: 0, y: 8, w: 10, h: 12 }
+  #   grid: {x: 0, y: 8, w: 10, h: 12}
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
@@ -100,7 +101,7 @@ dashboards:
   #         label: Aerospike Namespaces
 
   # - type: lens
-  #   grid: { x: 10, y: 9, w: 17, h: 14 }
+  #   grid: {x: 10, y: 9, w: 17, h: 14}
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
@@ -124,11 +125,11 @@ dashboards:
   #       - type: min
   #         label: Used Memory
   #         field: aerospike.node.memory.used
-          # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
-      # Reference lines are not directly supported in the YAML schema
+  #         format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
+  #     Reference lines are not directly supported in the YAML schema
 
   - type: charts
-    grid: { x: 27, y: 9, w: 38, h: 9 }
+    grid: {x: 27, y: 9, w: 38, h: 9}
     filters:
       - exists: aerospike.node.connection.open
       - field: data_stream.dataset

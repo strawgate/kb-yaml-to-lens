@@ -1,3 +1,4 @@
+---
 dashboards:
 -
   id: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
@@ -14,7 +15,7 @@ dashboards:
   panels:
 
   - type: links
-    grid: { x: 0, y: 0, w: 48, h: 2 }
+    grid: {x: 0, y: 0, w: 48, h: 2}
     layout: horizontal
     links:
       - label: Overview
@@ -25,12 +26,13 @@ dashboards:
         dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
 
   - type: markdown
-    grid: { x: 0, y: 2, w: 48, h: 2 }
+    grid: {x: 0, y: 2, w: 48, h: 2}
     content: |
-      This dashboard is intended to be used with a single Aerospike node. Filter to a specific node before using this dashboard.
+      This dashboard is intended to be used with a single Aerospike node.
+      Filter to a specific node before using this dashboard.
 
   - type: charts
-    grid: { x: 0, y: 4, w: 7, h: 5 }
+    grid: {x: 0, y: 4, w: 7, h: 5}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -43,7 +45,7 @@ dashboards:
         label: Selected Nodes
 
   # - type: lens
-  #   grid: { x: 7, y: 4, w: 41, h: 5 }
+  #   grid: {x: 7, y: 4, w: 41, h: 5}
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
@@ -72,7 +74,7 @@ dashboards:
   #         filter: "@timestamp: *"
 
   - type: charts
-    grid: { x: 0, y: 9, w: 10, h: 5 }
+    grid: {x: 0, y: 9, w: 10, h: 5}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -85,7 +87,7 @@ dashboards:
         label: Aerospike Namespaces
 
   - type: charts
-    grid: { x: 10, y: 2, w: 38, h: 9 }
+    grid: {x: 10, y: 2, w: 38, h: 9}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -101,7 +103,7 @@ dashboards:
           label: Top 15 values of aerospike.node.name
           size: 15
           sort:
-            by: "Free Memory" # Assuming alphabetical sort maps to _key
+            by: "Free Memory"  # Assuming alphabetical sort maps to _key
             direction: asc
           other_bucket: true
           missing_bucket: false
@@ -112,7 +114,7 @@ dashboards:
           # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
 
   # - type: lens
-  #   grid: { x: 0, y: 8, w: 10, h: 12 }
+  #   grid: {x: 0, y: 8, w: 10, h: 12}
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
@@ -143,7 +145,7 @@ dashboards:
   #         label: Aerospike Namespaces
 
   - type: charts
-    grid: { x: 10, y: 9, w: 17, h: 14 }
+    grid: {x: 10, y: 9, w: 17, h: 14}
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -159,7 +161,7 @@ dashboards:
           label: Top 15 values of aerospike.node.name
           size: 15
           sort:
-            by: "Used Memory" # Assuming alphabetical sort maps to _key
+            by: "Used Memory"  # Assuming alphabetical sort maps to _key
             direction: desc
           other_bucket: true
           missing_bucket: false
@@ -168,10 +170,10 @@ dashboards:
           label: Used Memory
           field: aerospike.node.memory.free
           # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
-      # Reference lines are not directly supported in the YAML schema
+          # Reference lines are not directly supported in the YAML schema
 
   - type: charts
-    grid: { x: 27, y: 9, w: 21, h: 14 }
+    grid: {x: 27, y: 9, w: 21, h: 14}
     filters:
       - exists: aerospike.node.connection.open
       - field: data_stream.dataset
@@ -188,7 +190,7 @@ dashboards:
           label: Top 15 values of attributes.type
           size: 15
           sort:
-            by: Open Connections # Assuming this maps to the column label
+            by: Open Connections  # Assuming this maps to the column label
             direction: desc
           other_bucket: true
           missing_bucket: false
