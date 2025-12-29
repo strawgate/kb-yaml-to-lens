@@ -37,12 +37,12 @@ export async function generatePieChartDonut() {
   // Data View variant
   const dataviewConfig = {
     ...sharedConfig,
-    title: 'Log Level Distribution (Donut - Data View)',
+    title: 'Response Codes Distribution (Donut - Data View)',
     dataset: {
       index: 'logs-*'
     },
     value: 'count()',
-    breakdown: ['log.level']
+    breakdown: ['response.keyword']
   };
 
   await generateDualFixture(

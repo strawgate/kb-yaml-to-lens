@@ -21,25 +21,37 @@ import { fileURLToPath } from 'url';
  * @returns {Promise<void>}
  */
 export async function generateFixture(outputFilename, config, options = {}, callerFilePath) {
+  // Validate outputFilename
+  if (!outputFilename || typeof outputFilename !== 'string') {
+    throw new Error('outputFilename must be a non-empty string');
+  }
+  if (outputFilename.includes('..') || outputFilename.includes('\0') || path.isAbsolute(outputFilename)) {
+    throw new Error(`Invalid outputFilename: ${outputFilename}`);
+  }
+
   // Initialize the builder with mock DataViews service
   const mockDataViews = createDataViewsMock();
   const builder = new LensConfigBuilder(mockDataViews);
 
-  // Build the Lens attributes
-  const lensAttributes = await builder.build(config, options);
+  try {
+    // Build the Lens attributes
+    const lensAttributes = await builder.build(config, options);
 
-  // Determine output directory relative to caller
-  const callerDir = path.dirname(fileURLToPath(callerFilePath));
-  const outputDir = path.join(callerDir, '..', 'output');
+    // Determine output directory relative to caller
+    const callerDir = path.dirname(fileURLToPath(callerFilePath));
+    const outputDir = path.join(callerDir, '..', 'output');
 
-  // Ensure output directory exists
-  fs.mkdirSync(outputDir, { recursive: true });
+    // Ensure output directory exists
+    fs.mkdirSync(outputDir, { recursive: true });
 
-  // Write the fixture
-  const outputPath = path.join(outputDir, outputFilename);
-  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
+    // Write the fixture
+    const outputPath = path.join(outputDir, outputFilename);
+    fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
 
-  console.log(`✓ Generated: ${outputFilename}`);
+    console.log(`✓ Generated: ${outputFilename}`);
+  } catch (error) {
+    throw new Error(`Failed to generate ${outputFilename}: ${error.message}`);
+  }
 }
 
 /**
@@ -53,11 +65,25 @@ export async function generateFixture(outputFilename, config, options = {}, call
  * @returns {Promise<void>}
  */
 export async function generateDualFixture(baseName, esqlConfig, dataviewConfig, options = {}, callerFilePath) {
+  const errors = [];
+
   // Generate ES|QL variant
-  await generateFixture(`${baseName}.json`, esqlConfig, options, callerFilePath);
+  try {
+    await generateFixture(`${baseName}.json`, esqlConfig, options, callerFilePath);
+  } catch (err) {
+    errors.push(`ES|QL variant: ${err.message}`);
+  }
 
   // Generate Data View variant
-  await generateFixture(`${baseName}-dataview.json`, dataviewConfig, options, callerFilePath);
+  try {
+    await generateFixture(`${baseName}-dataview.json`, dataviewConfig, options, callerFilePath);
+  } catch (err) {
+    errors.push(`Data View variant: ${err.message}`);
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`Failed to generate ${baseName}: ${errors.join('; ')}`);
+  }
 }
 
 /**
@@ -68,9 +94,10 @@ export async function generateDualFixture(baseName, esqlConfig, dataviewConfig, 
  */
 export function runIfMain(generatorFn, callerFilePath) {
   if (fileURLToPath(callerFilePath) === process.argv[1]) {
+    const scriptName = path.basename(fileURLToPath(callerFilePath));
     generatorFn()
       .catch((err) => {
-        console.error('Failed to generate fixture:', err);
+        console.error(`Failed to generate fixture in ${scriptName}:`, err);
         process.exit(1);
       });
   }

@@ -8,6 +8,22 @@
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateXYChartCustomColors() {
+  // Shared custom palette configuration
+  const customPalette = {
+    type: 'palette',
+    name: 'custom',
+    params: {
+      colors: ['#68BC00', '#009CE0', '#F04E98', '#FEC514', '#FF6600'],
+      gradient: false,
+      stops: [],
+      rangeType: 'number',
+      rangeMin: 0,
+      rangeMax: null,
+      continuity: 'above',
+      reverse: false
+    }
+  };
+
   // ES|QL variant
   const esqlConfig = {
     chartType: 'xy',
@@ -32,20 +48,7 @@ export async function generateXYChartCustomColors() {
         }
       }
     ],
-    palette: {
-      type: 'palette',
-      name: 'custom',
-      params: {
-        colors: ['#68BC00', '#009CE0', '#F04E98', '#FEC514', '#FF6600'],
-        gradient: false,
-        stops: [],
-        rangeType: 'number',
-        rangeMin: 0,
-        rangeMax: null,
-        continuity: 'above',
-        reverse: false
-      }
-    },
+    palette: customPalette,
     legend: {
       show: true,
       position: 'right'
@@ -80,20 +83,7 @@ export async function generateXYChartCustomColors() {
         }
       }
     ],
-    palette: {
-      type: 'palette',
-      name: 'custom',
-      params: {
-        colors: ['#68BC00', '#009CE0', '#F04E98', '#FEC514', '#FF6600'],
-        gradient: false,
-        stops: [],
-        rangeType: 'number',
-        rangeMin: 0,
-        rangeMax: null,
-        continuity: 'above',
-        reverse: false
-      }
-    },
+    palette: customPalette,
     legend: {
       show: true,
       position: 'right'
