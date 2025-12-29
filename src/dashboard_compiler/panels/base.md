@@ -20,7 +20,8 @@ This example shows how base panel fields are used within a `markdown` panel:
 #   # ... other markdown-specific fields ...
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Example Dashboard"
   panels:
     - type: markdown # This 'type' field is part of the MarkdownPanel model, not BasePanel

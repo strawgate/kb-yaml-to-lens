@@ -18,7 +18,8 @@ To add an Image panel, you need to specify its `type`, `grid` position, and the 
 #   from_url: "https://example.com/path/to/your/logo.png"
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Branded Dashboard"
   panels:
     - type: image
@@ -36,7 +37,8 @@ dashboard:
 This example demonstrates an Image panel with specific `fit` behavior, alternative text for accessibility, and a background color.
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Dashboard with Informative Image"
   panels:
     - type: image
