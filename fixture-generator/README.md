@@ -21,7 +21,7 @@ Generate **known-good** Kibana dashboard JSON by:
 ## System Requirements
 
 | Requirement | Value |
-|-------------|-------|
+| ------------- | ------- |
 | **Docker** | Latest stable |
 | **Make** | GNU Make |
 | **Disk** | 25GB+ (Kibana source + node_modules) |
@@ -61,7 +61,7 @@ cp output/metric-basic.json ../tests/fixtures/
 Run `make help` to see all commands:
 
 | Command | Description |
-|---------|-------------|
+| --------- | ------------- |
 | `make build` | Build the Docker image |
 | `make build-no-cache` | Full rebuild without cache |
 | `make run` | Generate all fixtures |
@@ -73,7 +73,7 @@ Run `make help` to see all commands:
 
 ## Project Structure
 
-```
+```text
 fixture-generator/
 ├── examples/                    # Example generator scripts
 │   ├── metric-basic.js         # Basic metric (ES|QL only)

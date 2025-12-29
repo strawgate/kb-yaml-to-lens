@@ -44,10 +44,10 @@ Queries are typically defined under a `query` key, either at the root of the `da
 
 Filters documents using the Kibana Query Language (KQL). This is often the default query language in Kibana.
 
-| YAML Key | Data Type | Description                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------ | -------------- | -------- |
-| `kql`    | `string`  | The KQL query string to apply.                   | N/A            | Yes      |
-| `query`  | `object`  | The parent object containing the `kql` key.      | N/A            | Yes      |
+| `kql` | `string` | The KQL query string to apply. | N/A | Yes |
+| `query` | `object` | The parent object containing the `kql` key. | N/A | Yes |
 
 **Usage Example (Dashboard Level):**
 
@@ -62,10 +62,10 @@ dashboard:
 
 Filters documents using the more expressive, but complex, Lucene query syntax.
 
-| YAML Key | Data Type | Description                                      | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------ | -------------- | -------- |
-| `lucene` | `string`  | The Lucene query string to apply.                | N/A            | Yes      |
-| `query`  | `object`  | The parent object containing the `lucene` key.   | N/A            | Yes      |
+| `lucene` | `string` | The Lucene query string to apply. | N/A | Yes |
+| `query` | `object` | The parent object containing the `lucene` key. | N/A | Yes |
 
 **Usage Example (Dashboard Level):**
 
@@ -80,9 +80,9 @@ dashboard:
 
 Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQL queries are typically used by specific panel types that are designed to work with ESQL's tabular results (e.g., ESQL-driven charts or tables). The configuration is a direct string under the `query` key for such panels.
 
-| YAML Key | Data Type | Description                                                                 | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | --------------------------------------------------------------------------- | -------------- | -------- |
-| `query`  | `string`  | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A            | Yes      |
+| `query` | `string` | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A | Yes |
 
 **Usage Example (Panel Level - for a hypothetical ESQL panel):**
 
