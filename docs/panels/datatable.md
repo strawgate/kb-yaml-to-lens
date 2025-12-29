@@ -46,7 +46,7 @@ dashboard:
           - id: "service-count"
             field: "service.name"
             aggregation: count
-        breakdowns:
+        rows:
           - id: "service-breakdown"
             type: values
             field: "service.name"
@@ -61,29 +61,51 @@ dashboard:
 | `type` | `Literal['datatable']` | Specifies the chart type. | N/A | Yes |
 | `data_view` | `string` | The data view (index pattern) to query. | N/A | Yes |
 | `metrics` | `list[LensMetricTypes]` | List of metrics to display as columns. | `[]` | No |
-| `breakdowns` | `list[LensDimensionTypes]` | List of dimensions to use as breakdown columns. | `[]` | No |
-| `columns` | `list[DatatableColumnConfig]` | Optional column configurations for customization. | `None` | No |
-| `row_height` | `DatatableRowHeightEnum` | Row height mode: `auto`, `single`, or `custom`. | `auto` | No |
-| `row_height_lines` | `int` | Number of lines for custom row height. | `None` | No |
-| `header_row_height` | `DatatableRowHeightEnum` | Header row height mode: `auto`, `single`, or `custom`. | `auto` | No |
-| `header_row_height_lines` | `int` | Number of lines for custom header row height. | `None` | No |
-| `density` | `DatatableDensityEnum` | Grid density: `compact`, `normal`, or `expanded`. | `normal` | No |
+| `rows` | `list[LensDimensionTypes]` | List of dimensions to use as row groupings. | `[]` | No |
+| `rows_by` | `list[LensDimensionTypes]` | Optional "split metrics by" dimensions (creates separate metric columns). | `None` | No |
+| `columns` | `list[DatatableColumnConfig]` | Optional column configurations for row columns. | `None` | No |
+| `metric_columns` | `list[DatatableMetricColumnConfig]` | Optional column configurations for metric columns. | `None` | No |
+| `appearance` | `DatatableAppearance` | Optional appearance settings (row height, density). | `None` | No |
 | `sorting` | `DatatableSortingConfig` | Optional sorting configuration. | `None` | No |
 | `paging` | `DatatablePagingConfig` | Optional pagination configuration. | `None` | No |
 
-### Column Configuration (`DatatableColumnConfig`)
+### Row Column Configuration (`DatatableColumnConfig`)
 
-Customize individual columns with these options:
+Customize row columns (non-metric columns) with these options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ----------- | ---------------------------------------------------- | ------------------------------------------------ | -------- | -------- |
-| `column_id` | `string` | The ID of the column (must match a metric/dimension ID). | N/A | Yes |
+| `column_id` | `string` | The ID of the column (must match a row dimension ID). | N/A | Yes |
+| `width` | `int` | Column width in pixels. | `None` | No |
+| `hidden` | `bool` | Whether to hide this column. | `False` | No |
+| `alignment` | `left` \| `right` \| `center` | Text alignment for the column. | `None` | No |
+| `color_mode` | `none` \| `cell` \| `text` | How to apply colors to the column. | `None` | No |
+
+### Metric Column Configuration (`DatatableMetricColumnConfig`)
+
+Customize metric columns with these options (includes all base options plus summary row fields):
+
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | ---------------------------------------------------- | ------------------------------------------------ | -------- | -------- |
+| `column_id` | `string` | The ID of the column (must match a metric ID). | N/A | Yes |
 | `width` | `int` | Column width in pixels. | `None` | No |
 | `hidden` | `bool` | Whether to hide this column. | `False` | No |
 | `alignment` | `left` \| `right` \| `center` | Text alignment for the column. | `None` | No |
 | `color_mode` | `none` \| `cell` \| `text` | How to apply colors to the column. | `None` | No |
 | `summary_row` | `none` \| `sum` \| `avg` \| `count` \| `min` \| `max` | Summary function (only for metrics). | `None` | No |
 | `summary_label` | `string` | Custom label for the summary row. | `None` | No |
+
+### Appearance Configuration (`DatatableAppearance`)
+
+Control the visual appearance of the datatable:
+
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | ---------------------------------------------------- | ------------------------------------------------ | -------- | -------- |
+| `row_height` | `auto` \| `single` \| `custom` | Row height mode. | `auto` | No |
+| `row_height_lines` | `int` | Number of lines for custom row height. | `None` | No |
+| `header_row_height` | `auto` \| `single` \| `custom` | Header row height mode. | `auto` | No |
+| `header_row_height_lines` | `int` | Number of lines for custom header row height. | `None` | No |
+| `density` | `compact` \| `normal` \| `expanded` | Grid density setting. | `normal` | No |
 
 ### Sorting Configuration (`DatatableSortingConfig`)
 
@@ -120,7 +142,7 @@ dashboard:
           - id: "avg-duration"
             field: "transaction.duration.us"
             aggregation: average
-        breakdowns:
+        rows:
           - id: "service-name"
             type: values
             field: "service.name"
@@ -129,6 +151,7 @@ dashboard:
           - column_id: "service-name"
             width: 250
             alignment: left
+        metric_columns:
           - column_id: "request-count"
             width: 150
             alignment: right
@@ -145,8 +168,9 @@ dashboard:
         paging:
           enabled: true
           page_size: 25
-        row_height: single
-        density: compact
+        appearance:
+          row_height: single
+          density: compact
 ```
 
 ## ESQL Datatable Chart
@@ -171,7 +195,7 @@ dashboard:
             field: "count"
           - id: "avg-cpu"
             field: "avg_cpu"
-        breakdowns:
+        rows:
           - id: "service"
             field: "service.name"
         sorting:
@@ -181,11 +205,11 @@ dashboard:
 
 ## Tips and Best Practices
 
-1. **Column Order**: Columns appear in the order: metrics first, then breakdowns. Plan your metric and breakdown order accordingly.
+1. **Column Order**: Columns appear in the order: metrics first, then rows. Plan your metric and row dimension order accordingly.
 
-2. **Summary Rows**: Only use summary rows with metric columns. They don't make sense for dimension columns.
+2. **Summary Rows**: Only use summary rows with metric columns (via `metric_columns`). They don't make sense for row dimension columns.
 
-3. **Performance**: For large datasets, enable pagination and limit the number of breakdowns to improve performance.
+3. **Performance**: For large datasets, enable pagination and limit the number of row dimensions to improve performance.
 
 4. **Readability**: Use column width and alignment to make data easier to scan. Right-align numeric values, left-align text.
 
@@ -193,7 +217,5 @@ dashboard:
 
 ## Related Documentation
 
-- [Base Panel Configuration](../../base.md)
-- [Lens Metrics](../lens/metrics/metric.md)
-- [Lens Dimensions](../lens/dimensions/dimension.md)
-- [Dashboard Configuration](../../../dashboard/dashboard.md)
+- [Base Panel Configuration](./base.md)
+- [Dashboard Configuration](../dashboard/dashboard.md)
