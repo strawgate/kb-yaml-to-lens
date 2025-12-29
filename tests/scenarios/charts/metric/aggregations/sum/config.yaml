@@ -1,0 +1,18 @@
+dashboards:
+-
+  name: one-metric-sum
+  description: "A dashboard with a single sum metric"
+  panels:
+  - title: "Total Bytes Transferred"
+    id: 7a88e9de-f3c8-4cd8-a4d9-cff7d4aa8aee # Fixed ID for testing
+    type: charts
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart:
+      type: metric
+      id: e5c7617e-g3e0-5dcd-9ec2-94f7b71c9a87 # Fixed ID for testing
+      data_view: metrics-*
+      primary:
+        aggregation: sum
+        id: b9d24d6g-ff4g-598f-c7ec-cc5af94f8a33 # Fixed ID for testing
+        label: "Total Bytes"
+        field: network.bytes
