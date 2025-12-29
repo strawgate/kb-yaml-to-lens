@@ -46,12 +46,6 @@ async def test_bar_stacked_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -69,12 +63,6 @@ async def test_bar_stacked_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -111,12 +99,6 @@ async def test_bar_unstacked_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -134,12 +116,6 @@ async def test_bar_unstacked_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -174,12 +150,6 @@ async def test_line_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -197,12 +167,6 @@ async def test_line_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -237,12 +201,6 @@ async def test_area_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -260,12 +218,6 @@ async def test_area_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -302,12 +254,6 @@ async def test_area_percentage_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
 
@@ -325,11 +271,5 @@ async def test_area_percentage_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
         }
     )
