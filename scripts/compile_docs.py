@@ -40,16 +40,18 @@ def compile_markdown_references() -> None:
                 continue
 
             print(f'Processing: {rel_file_path}')
-            _ = outfile.write('\\n---\\n\\n')
-            _ = outfile.write(f'<!-- Source: {str(rel_file_path).replace(os.sep, "/")} -->\\n\\n')  # HTML comment for source
-            # outfile.write(f"## Source: {str(rel_file_path).replace(os.sep, '/')}\\n\\n") # Alternative: Markdown header
+            if i > 0:
+                # Add separator before subsequent files (not before first file)
+                _ = outfile.write('\n---\n\n')
+            _ = outfile.write(f'<!-- Source: {str(rel_file_path).replace(os.sep, "/")} -->\n\n')  # HTML comment for source
+            # outfile.write(f"## Source: {str(rel_file_path).replace(os.sep, '/')}\n\n") # Alternative: Markdown header
 
             with abs_file_path.open(encoding='utf-8') as infile:
                 content = infile.read()
                 _ = outfile.write(content)
 
             if i < len(ordered_files_to_compile) - 1:
-                _ = outfile.write('\\n\\n')  # Add some space before the next HR
+                _ = outfile.write('\n')  # Add single newline before the next separator
 
     print(f'Successfully compiled documentation to: {output_file_path}')
 

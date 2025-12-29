@@ -7,5 +7,7 @@
   },
   "MD060": {
     "style": "compact"
-  }
+  },
+  "MD012": false,  // Allow multiple blank lines (common in generated docs)
+  "MD025": false   // Allow multiple H1 headings (necessary for combined reference docs)
 }

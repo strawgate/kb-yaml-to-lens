@@ -150,7 +150,7 @@ kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 
 ## Project Structure
 
-```
+```text
 src/dashboard_compiler/
 ├── cli.py                 # Command-line interface
 ├── dashboard_compiler.py  # Main compilation logic

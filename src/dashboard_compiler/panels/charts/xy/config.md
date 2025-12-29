@@ -28,10 +28,10 @@ dashboard:
 | `data_view` | `string` | The data view to use for the chart. | N/A | Yes |
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
-| `breakdown` | `LensDimensionTypes` \ | `None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance` \ | `None` | Chart appearance formatting options. | `None` | No |
-| `titles_and_text` | `XYTitlesAndText` \ | `None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend` \ | `None` | Legend formatting options. | `None` | No |
+| `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
+| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 
 ### Lens Line Chart
 
@@ -41,10 +41,10 @@ dashboard:
 | `data_view` | `string` | The data view to use for the chart. | N/A | Yes |
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
-| `breakdown` | `LensDimensionTypes` \ | `None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance` \ | `None` | Chart appearance formatting options. | `None` | No |
-| `titles_and_text` | `XYTitlesAndText` \ | `None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend` \ | `None` | Legend formatting options. | `None` | No |
+| `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
+| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 
 ### Lens Area Chart
 
@@ -55,16 +55,16 @@ dashboard:
 | `data_view` | `string` | The data view to use for the chart. | N/A | Yes |
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
-| `breakdown` | `LensDimensionTypes` \ | `None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance` \ | `None` | Chart appearance formatting options. | `None` | No |
-| `titles_and_text` | `XYTitlesAndText` \ | `None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend` \ | `None` | Legend formatting options. | `None` | No |
+| `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
+| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 
 #### XYLegend Options
 
 | YAML Key | Data Type | Description | Default | Required |
 | --------- | ----------------- | ------------------------------ | ------- | -------- |
-| `visible` | `bool` \ | `None` | Whether the legend is visible. | `None` | No |
+| `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
 
 ### ESQL Bar/Line/Area Charts
 
@@ -102,5 +102,5 @@ panel = LensPanel(
 
 ## Related
 
-- [Base Panel Configuration](../../base.md)
-- [Dashboard Configuration](../../../dashboard/dashboard.md)
+* [Base Panel Configuration](../../base.md)
+* [Dashboard Configuration](../../../dashboard/dashboard.md)
