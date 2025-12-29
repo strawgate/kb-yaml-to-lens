@@ -152,7 +152,7 @@ describe('Export Command E2E Tests', function() {
         await driver.sleep(2000);
 
         // Execute export command
-        await workbench.executeCommand('YAML Dashboard: Export to Clipboard');
+        await workbench.executeCommand('YAML Dashboard: Export Dashboard to NDJSON');
 
         // Wait for the command to execute
         await driver.sleep(3000);
