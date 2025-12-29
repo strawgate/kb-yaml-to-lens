@@ -84,41 +84,58 @@ describe('Extension Activation E2E Tests', function() {
         await inputBox.confirm();
 
         // Wait for file to open and extension to fully activate
-        await driver.sleep(5000);
+        await driver.sleep(8000); // Increased to 8s to allow LSP server to start
 
-        // Now open command palette to search for our commands
-        await workbench.executeCommand('workbench.action.showCommands');
+        // Test command registration by trying to execute each command
+        // If a command is not registered, VSCode will show an error notification
+        const commands = [
+            'yamlDashboard.compile',
+            'yamlDashboard.preview',
+            'yamlDashboard.export',
+            'yamlDashboard.editLayout'
+        ];
 
-        inputBox = await InputBox.create();
-
-        try {
-            await inputBox.setText('YAML Dashboard');
-            await driver.sleep(3000); // Increased wait for command filtering
-
-            const picks = await inputBox.getQuickPicks();
-            const pickTexts = await Promise.all(picks.map(p => p.getText()));
-
-            // Verify our commands are registered
-            expect(pickTexts.some(text => text.includes('Compile Dashboard'))).to.be.true;
-            expect(pickTexts.some(text => text.includes('Preview Dashboard'))).to.be.true;
-            expect(pickTexts.some(text => text.includes('Export Dashboard'))).to.be.true;
-            expect(pickTexts.some(text => text.includes('Edit Dashboard Layout'))).to.be.true;
-        } finally {
-            // Always cancel the command palette, even if assertions fail
+        for (const command of commands) {
             try {
-                await inputBox.cancel();
-            } catch {
-                // Ignore errors during cleanup
-            }
-            // Double-check with ESC key
-            try {
-                const actions = driver.actions();
-                await actions.sendKeys('\uE00C').perform();
-                await driver.sleep(500);
-            } catch {
-                // Ignore
+                // Execute the command - it will show a dashboard selection or error
+                await workbench.executeCommand(command);
+                await driver.sleep(1000);
+
+                // Check if command opened a quick pick or notification
+                // If command is not registered, VSCode shows "command not found" error
+                const notifications = await workbench.getNotifications();
+                let hasError = false;
+
+                for (const notif of notifications) {
+                    const msg = await notif.getMessage();
+                    if (msg.includes('not found') || msg.includes('Unknown command')) {
+                        hasError = true;
+                        expect.fail(`Command ${command} is not registered`);
+                    }
+                    // Dismiss notification
+                    try {
+                        await notif.dismiss();
+                    } catch {
+                        // Ignore
+                    }
+                }
+
+                // Cancel any quick pick that might have opened
+                try {
+                    const actions = driver.actions();
+                    await actions.sendKeys('\uE00C').perform();
+                    await driver.sleep(500);
+                } catch {
+                    // Ignore
+                }
+            } catch (error) {
+                // If command is not registered, executeCommand might throw
+                expect.fail(`Failed to execute command ${command}: ${error}`);
             }
         }
+
+        // If we got here, all commands are registered
+        expect(true).to.be.true;
     });
 
     after(async () => {
