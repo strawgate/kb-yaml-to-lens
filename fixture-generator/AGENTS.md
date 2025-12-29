@@ -8,6 +8,64 @@ This document provides instructions for AI agents working with the Kibana fixtur
 2. **NEVER commit untested generator changes**
 3. **Use Docker for all fixture generation** (required for Kibana packages)
 4. **Verify output files are created** before claiming success
+5. **NEVER skip fixture generation due to build time concerns** - The 6-minute Docker build is a one-time cost and is cached for subsequent runs. This is NOT excessive and does NOT exceed any CI limits (GitHub Actions allows 360 minutes).
+6. **NEVER defer to "manual validation"** - All fixture generators MUST be run and validated before committing. Period.
+
+## Consequences of Skipping Fixture Generation
+
+❌ **UNACCEPTABLE**: Creating a fixture generator script without running it
+❌ **UNACCEPTABLE**: Claiming "build time exceeds CI limits" without verification
+❌ **UNACCEPTABLE**: Suggesting "manual validation when needed"
+✅ **REQUIRED**: Generate fixtures, verify output, compare to compiler output, commit
+
+If you cannot run Docker due to environment limitations, you MUST:
+
+1. Clearly state this in your response
+2. Request that the user run the fixture generator
+3. DO NOT commit the generator script until it has been tested
+
+## Fixture Generation Verification Checklist
+
+When creating or modifying fixture generators, you MUST complete this checklist:
+
+- [ ] Created/modified generator script in `examples/`
+- [ ] Ran `make build` (if Docker image doesn't exist)
+- [ ] Ran `make run-example EXAMPLE=<your-file>.js`
+- [ ] Verified `output/<your-file>.json` exists
+- [ ] Verified `output/<your-file>-dataview.json` exists (for dual generators)
+- [ ] Inspected JSON structure with `cat output/<your-file>.json | python -m json.tool | head -100`
+- [ ] Compared fixture to compiler output (if applicable)
+- [ ] Ran `make check` from project root - all tests pass
+- [ ] Committed changes
+
+**Copy this checklist into your response and check off each item as you complete it.**
+
+## Commit Message Requirements
+
+All commits that add or modify fixture generators MUST include:
+
+```
+<type>: <description>
+
+Fixture generator tested and verified:
+- Docker build: <success/skipped with reason>
+- Output file: <filename>
+- File size: <bytes>
+- Structure verified: <yes/no>
+- Tests pass: <yes/no>
+```
+
+Example:
+
+```
+feat: add tagcloud fixture generator
+
+Fixture generator tested and verified:
+- Docker build: success (6m 23s, cached layers reused)
+- Output files: tagcloud.json (15.2KB), tagcloud-dataview.json (14.8KB)
+- Structure verified: yes (valid JSON, contains visualizationState)
+- Tests pass: yes (264/264)
+```
 
 ## How to Run Fixture Generation
 
@@ -212,6 +270,7 @@ runIfMain(generateMyChart, import.meta.url);
 ```
 
 **Key differences between ES|QL and Data View:**
+
 - **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
 - **Metrics**: Column names from query vs aggregation functions (e.g., `count()`, `average(field)`)
 - **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`
