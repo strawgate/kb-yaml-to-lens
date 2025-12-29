@@ -93,7 +93,7 @@ async def test_terms_dimension_with_sorting() -> None:
             'params': {
                 'orderBy': {'type': 'column', 'columnId': IsUUID},
                 'orderDirection': 'desc',
-                'otherBucket': True,
+                'otherBucket': False,
                 'missingBucket': False,
                 'parentFormat': {'id': 'terms'},
                 'include': [],
