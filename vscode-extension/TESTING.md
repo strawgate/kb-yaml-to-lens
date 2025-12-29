@@ -51,6 +51,7 @@ npm run test:e2e-run    # Runs the tests
 ```
 
 **Test fixtures** are located in `test/fixtures/`:
+
 - `simple-dashboard.yaml` - Basic single dashboard
 - `multi-dashboard.yaml` - Multiple dashboards for testing selection
 - `invalid-dashboard.yaml` - Malformed dashboard for error testing
@@ -159,6 +160,7 @@ describe('My Feature E2E Tests', function() {
 Current test coverage:
 
 **Python Tests:**
+
 - ✅ Grid extraction from YAML files
 - ✅ Grid coordinate updates
 - ✅ YAML formatting preservation
@@ -168,6 +170,7 @@ Current test coverage:
 - ✅ Path traversal prevention
 
 **E2E Tests:**
+
 - ✅ Extension activation when opening YAML files
 - ✅ Command registration (compile, preview, export, grid editor)
 - ✅ Compile command execution
@@ -181,12 +184,14 @@ Current test coverage:
 Focus on **business logic**, **security**, and **user workflows**:
 
 **Python:**
+
 - Core functionality (parsing, updating YAML)
 - Edge cases (missing fields, invalid data)
 - Security (input validation, path checks)
 - Error handling (file not found, parse errors)
 
 **E2E:**
+
 - Extension activation and lifecycle
 - Command execution and user interactions
 - Multi-step workflows (dashboard selection, compilation)
@@ -236,6 +241,7 @@ npm run test:e2e-setup
 If tests hang:
 
 1. **Linux**: Ensure Xvfb is running for headless testing
+
    ```bash
    Xvfb :99 -screen 0 1024x768x24 &
    export DISPLAY=':99.0'

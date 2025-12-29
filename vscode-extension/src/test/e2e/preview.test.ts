@@ -121,6 +121,64 @@ describe('Preview Panel E2E Tests', function() {
         }
     });
 
+    it('should handle invalid dashboards gracefully in preview', async function() {
+        this.timeout(45000);
+
+        const workbench = new Workbench();
+
+        // Open the invalid dashboard fixture
+        const fixturesPath = path.resolve(__dirname, '../../../test/fixtures/invalid-dashboard.yaml');
+
+        await workbench.executeCommand('workbench.action.files.openFile');
+        const inputBox = await InputBox.create();
+        await inputBox.setText(fixturesPath);
+        await inputBox.confirm();
+
+        // Wait for file to open
+        await driver.sleep(2000);
+
+        // Execute preview command
+        await workbench.executeCommand('YAML Dashboard: Preview Dashboard');
+
+        // Wait for the command to execute
+        await driver.sleep(3000);
+
+        // Should have error notification, not a preview
+        const notifications = await workbench.getNotifications();
+
+        // Expect at least one notification about the error
+        expect(notifications.length).to.be.greaterThan(0);
+
+        // Get all notification messages
+        const messages = await Promise.all(
+            notifications.map(async n => {
+                try {
+                    return await n.getMessage();
+                } catch {
+                    return '';
+                }
+            })
+        );
+
+        // Should have an error message
+        const hasErrorMessage = messages.some(msg =>
+            msg.toLowerCase().includes('error') ||
+            msg.toLowerCase().includes('failed') ||
+            msg.toLowerCase().includes('invalid')
+        );
+
+        expect(hasErrorMessage).to.be.true;
+
+        // Clear notifications
+        for (const notif of notifications) {
+            try {
+                await notif.dismiss();
+            } catch {
+                // Ignore
+            }
+        }
+    });
+
     after(async () => {
         const workbench = new Workbench();
         await workbench.executeCommand('workbench.action.closeAllEditors');

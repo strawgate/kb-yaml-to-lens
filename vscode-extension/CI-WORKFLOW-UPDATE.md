@@ -2,7 +2,7 @@
 
 Due to GitHub App permissions, the CI workflow file couldn't be updated automatically. Please add the following job to `.github/workflows/test-vscode-extension.yml`:
 
-## Add this job after the `test-typescript` job:
+## Add this job after the `test-typescript` job
 
 ```yaml
   test-e2e:
