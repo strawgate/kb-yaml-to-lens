@@ -56,6 +56,7 @@ docs = [
     "mkdocs-material>=9.5.0",
     "mkdocstrings[python]>=0.30.0",
     "mkdocstrings-python>=1.10.0",
+    "pymdown-extensions>=10.0",
 ]
 
 [build-system]

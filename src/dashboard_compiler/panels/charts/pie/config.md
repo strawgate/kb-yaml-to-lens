@@ -19,18 +19,55 @@ dashboard:
 
 ## Full Configuration Options
 
-| YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['pie']`  | Specifies the panel type.                        | Yes      |
-| `title`      | `string`          | Title of the panel.                              | No       |
-| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
-| `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `category`   | `string`          | Field for pie slices (categories).               | Yes      |
-| `value`      | `string`          | Field for values (size of slices).               | Yes      |
-| `donut`      | `boolean`         | Display as donut chart.                          | No       |
-| `color`      | `string/list`     | Color(s) for slices.                             | No       |
-| `legend`     | `object`          | Legend display options.                          | No       |
-| `description`| `string`          | Panel description.                               | No       |
+### Lens Pie Chart
+
+| YAML Key          | Data Type                          | Description                                                                  | Default | Required |
+| ----------------- | ---------------------------------- | ---------------------------------------------------------------------------- | ------- | -------- |
+| `type`            | `Literal['pie']`                   | Specifies the chart type as pie.                                             | `'pie'` | No       |
+| `data_view`       | `string`                           | The data view that determines the data for the pie chart.                    | N/A     | Yes      |
+| `metric`          | `LensMetricTypes` \| `None`        | A metric for single metric charts (size of slices).                          | `None`  | No       |
+| `metrics`         | `list[LensMetricTypes]` \| `None`  | Multiple metrics for multi-metric charts.                                    | `None`  | No       |
+| `slice_by`        | `list[LensDimensionTypes]`         | Dimensions that determine the slices (first is primary, rest are secondary). | N/A     | Yes      |
+| `appearance`      | `PieChartAppearance` \| `None`     | Chart appearance options (e.g., donut size).                                 | `None`  | No       |
+| `titles_and_text` | `PieTitlesAndText` \| `None`       | Formatting options for titles and text.                                      | `None`  | No       |
+| `legend`          | `PieLegend` \| `None`              | Legend formatting options.                                                   | `None`  | No       |
+| `color`           | `ColorMapping` \| `None`           | Color palette mapping for the chart.                                         | `None`  | No       |
+
+#### PieChartAppearance Options
+
+| YAML Key | Data Type                                       | Description                                                        | Default | Required |
+| -------- | ----------------------------------------------- | ------------------------------------------------------------------ | ------- | -------- |
+| `donut`  | `Literal['small', 'medium', 'large']` \| `None` | Controls the size of the donut hole (Kibana defaults to 'medium'). | `None`  | No       |
+
+#### PieTitlesAndText Options
+
+| YAML Key               | Data Type                                         | Description                                                       | Default | Required |
+| ---------------------- | ------------------------------------------------- | ----------------------------------------------------------------- | ------- | -------- |
+| `slice_labels`         | `Literal['hide', 'inside', 'auto']` \| `None`     | Controls slice label visibility (Kibana defaults to 'auto').      | `None`  | No       |
+| `slice_values`         | `Literal['hide', 'integer', 'percent']` \| `None` | Controls slice value display (Kibana defaults to 'percent').      | `None`  | No       |
+| `value_decimal_places` | `int` \| `None`                                   | Number of decimal places for values (0-10, Kibana defaults to 2). | `None`  | No       |
+
+#### PieLegend Options
+
+| YAML Key          | Data Type                                                      | Description                                                         | Default | Required |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- | ------- | -------- |
+| `visible`         | `Literal['show', 'hide', 'auto']` \| `None`                    | Legend visibility (Kibana defaults to 'auto').                      | `None`  | No       |
+| `width`           | `Literal['small', 'medium', 'large', 'extra_large']` \| `None` | Legend width (Kibana defaults to 'medium').                         | `None`  | No       |
+| `truncate_labels` | `int` \| `None`                                                | Lines to truncate labels to (0-5, Kibana defaults to 1, 0=disable). | `None`  | No       |
+
+### ESQL Pie Chart
+
+| YAML Key          | Data Type                           | Description                                                                  | Default | Required |
+| ----------------- | ----------------------------------- | ---------------------------------------------------------------------------- | ------- | -------- |
+| `type`            | `Literal['pie']`                    | Specifies the chart type as pie.                                             | `'pie'` | No       |
+| `metric`          | `ESQLMetricTypes` \| `None`         | A metric for single metric charts (size of slices).                          | `None`  | No       |
+| `metrics`         | `list[ESQLMetricTypes]` \| `None`   | Multiple metrics for multi-metric charts.                                    | `None`  | No       |
+| `slice_by`        | `list[ESQLDimensionTypes]`          | Dimensions that determine the slices (first is primary, rest are secondary). | N/A     | Yes      |
+| `esql`            | `string`                            | The ES\|QL query that determines the data for the pie chart.                 | N/A     | Yes      |
+| `appearance`      | `PieChartAppearance` \| `None`      | Chart appearance options (e.g., donut size).                                 | `None`  | No       |
+| `titles_and_text` | `PieTitlesAndText` \| `None`        | Formatting options for titles and text.                                      | `None`  | No       |
+| `legend`          | `PieLegend` \| `None`               | Legend formatting options.                                                   | `None`  | No       |
+| `color`           | `ColorMapping` \| `None`            | Color palette mapping for the chart.                                         | `None`  | No       |
 
 ## Programmatic Usage (Python)
 
