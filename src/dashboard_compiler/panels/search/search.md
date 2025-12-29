@@ -55,17 +55,31 @@ dashboard:
 
 Search panels inherit from the [Base Panel Configuration](../base.md) and have one specific required field:
 
-| YAML Key          | Data Type        | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`            | `Literal['search']`| Specifies the panel type.                                                                                | `search`                        | Yes      |
-| `id`              | `string`         | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`           | `string`         | The title displayed on the panel header. This can override the title of the saved search if desired. Inherited from BasePanel. | `""` (empty string)             | No       |
-| `hide_title`      | `boolean`        | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`     | `string`         | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)  | No       |
-| `grid`            | `Grid` object    | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `saved_search_id` | `string`         | The ID of the saved Kibana search object (from Discover app) to display in the panel.                      | N/A                             | Yes      |
+| `type` | `Literal['search']` | Specifies the panel type. | `search` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. This can override the title of the saved search if desired. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `saved_search_id` | `string` | The ID of the saved Kibana search object (from Discover app) to display in the panel. | N/A | Yes |
 
 **Note on Behavior:** The appearance, columns displayed, sort order, and underlying query of the Search panel are primarily controlled by the configuration of the saved search itself within Kibana's Discover application. The dashboard panel configuration mainly serves to embed that saved search.
+
+## Programmatic Usage (Python)
+
+You can create Search panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.search.config import SearchPanel
+
+panel = SearchPanel(
+    grid=Grid(x=0, y=0, w=48, h=20),
+    saved_search_id='my-saved-search',
+)
+```
 
 ## Related Documentation
 

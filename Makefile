@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps uv-sync activate build check test test-smoke clean clean-full lint autocorrect format lint-markdown inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript
+.PHONY: help install update-deps check test test-coverage test-links test-smoke clean clean-full lint autocorrect format lint-markdown inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -9,8 +9,7 @@ help:
 	@echo "  update-deps   - Update dependencies"
 
 	@echo "Build and Check:"
-	@echo "  build         - Build the project"
-	@echo "  check         - Run linting and tests"
+	@echo "  check         - Run linting, type checking, and tests"
 
 	@echo "Testing:"
 	@echo "  test                  - Run unit tests"
@@ -31,11 +30,13 @@ help:
 
 	@echo "Linting:"
 	@echo "  lint                - Run format, autocorrect, and markdown linting"
+	@echo "  typecheck           - Run type checking with basedpyright"
 	@echo "  - lint-autocorrect  - Run ruff check --fix"
 	@echo "  - lint-format       - Run ruff format"
 	@echo "  - lint-markdown     - Run markdownlint"
 
 	@echo "Documentation:"
+	@echo "  compile-docs  - Regenerate YAML reference from source"
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
@@ -49,7 +50,7 @@ install:
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
 
-check: lint test test-links test-smoke test-extension-python test-extension-typescript
+check: lint typecheck test test-links test-smoke test-extension-python test-extension-typescript
 
 test:
 	@echo "Running pytest..."
@@ -98,6 +99,10 @@ lint-markdown:
 	@echo "Running markdownlint..."
 	markdownlint --fix -c .markdownlint.jsonc .
 
+typecheck:
+	@echo "Running type checking..."
+	uv run basedpyright
+
 clean:
 	@echo "Cleaning up..."
 	rm -rf __pycache__ **/__pycache__
@@ -127,6 +132,10 @@ compile:
 upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
 	uv run kb-dashboard compile --upload
+
+compile-docs:
+	@echo "Compiling documentation reference..."
+	uv run python scripts/compile_docs.py
 
 docs-serve:
 	@echo "Starting documentation server..."

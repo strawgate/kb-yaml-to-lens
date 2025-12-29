@@ -56,17 +56,17 @@ dashboard:
 
 Image panels inherit from the [Base Panel Configuration](../base.md) and have the following specific fields:
 
-| YAML Key           | Data Type                                   | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`             | `Literal['image']`                          | Specifies the panel type.                                                                                | `image`                         | Yes      |
-| `id`               | `string`                                    | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`            | `string`                                    | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string)             | No       |
-| `hide_title`       | `boolean`                                   | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`      | `string`                                    | Alternative text for the image, used for accessibility. This overrides the BasePanel `description` if you want specific alt text for the image itself. | `""` (empty string, if `None`)  | No       |
-| `grid`             | `Grid` object                               | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `from_url`         | `string`                                    | The URL of the image to be displayed in the panel.                                                         | N/A                             | Yes      |
-| `fit`              | `Literal['contain', 'cover', 'fill', 'none']` | The sizing of the image within the panel boundaries.                                                       | `contain`                       | No       |
-| `background_color` | `string`                                    | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`).   | `""` (empty string, likely transparent in Kibana) | No       |
+| `type` | `Literal['image']` | Specifies the panel type. | `image` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | Alternative text for the image, used for accessibility. This overrides the BasePanel `description` if you want specific alt text for the image itself. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `from_url` | `string` | The URL of the image to be displayed in the panel. | N/A | Yes |
+| `fit` | `Literal['contain', 'cover', 'fill', 'none']` | The sizing of the image within the panel boundaries. | `contain` | No |
+| `background_color` | `string` | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`). | `""` (empty string, likely transparent in Kibana) | No |
 
 **Details for `fit` options:**
 
@@ -74,6 +74,20 @@ Image panels inherit from the [Base Panel Configuration](../base.md) and have th
 * `cover`: Scales the image to fill the panel while maintaining its aspect ratio. Some parts of the image may be cropped to achieve this.
 * `fill`: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
 * `none`: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
+
+## Programmatic Usage (Python)
+
+You can create Image panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.images.config import ImagePanel
+
+panel = ImagePanel(
+    grid=Grid(x=0, y=0, w=24, h=20),
+    from_url='https://example.com/logo.png',
+)
+```
 
 ## Related Documentation
 

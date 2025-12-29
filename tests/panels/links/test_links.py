@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -11,22 +10,17 @@ from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.config import LinksPanel
 
 
-@pytest.fixture
-def compile_links_panel_snapshot():
-    """Fixture that returns a function to compile links panels and return dict for snapshot."""
-
-    def _compile(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-        panel_grid = Grid(x=0, y=0, w=24, h=10)
-        links_panel = LinksPanel(grid=panel_grid, **config)
-        kbn_references, kbn_panel_config = compile_links_panel_config(links_panel=links_panel)
-        kbn_panel_as_dict = kbn_panel_config.model_dump(by_alias=True)
-        kbn_references_as_dicts = [ref.model_dump(by_alias=True) for ref in kbn_references]
-        return kbn_references_as_dicts, kbn_panel_as_dict
-
-    return _compile
+def compile_links_panel_snapshot(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Compile links panel config and return dict for snapshot testing."""
+    panel_grid = Grid(x=0, y=0, w=24, h=10)
+    links_panel = LinksPanel(grid=panel_grid, **config)
+    kbn_references, kbn_panel_config = compile_links_panel_config(links_panel=links_panel)
+    kbn_panel_as_dict = kbn_panel_config.model_dump(by_alias=True)
+    kbn_references_as_dicts = [ref.model_dump(by_alias=True) for ref in kbn_references]
+    return kbn_references_as_dicts, kbn_panel_as_dict
 
 
-def test_compile_links_panel_basic_url(compile_links_panel_snapshot) -> None:
+def test_compile_links_panel_basic_url() -> None:
     """Test the compilation of a basic URL link with no label."""
     references, result = compile_links_panel_snapshot(
         {
@@ -48,7 +42,7 @@ def test_compile_links_panel_basic_url(compile_links_panel_snapshot) -> None:
     )
 
 
-def test_compile_links_panel_custom_id(compile_links_panel_snapshot) -> None:
+def test_compile_links_panel_custom_id() -> None:
     """Test the compilation of a custom ID (note: URL links currently ignore provided IDs)."""
     references, result = compile_links_panel_snapshot(
         {
@@ -73,7 +67,7 @@ def test_compile_links_panel_custom_id(compile_links_panel_snapshot) -> None:
     )
 
 
-def test_compile_links_panel_with_label(compile_links_panel_snapshot) -> None:
+def test_compile_links_panel_with_label() -> None:
     """Test the compilation of a basic URL link with a label."""
     references, result = compile_links_panel_snapshot(
         {
@@ -95,7 +89,7 @@ def test_compile_links_panel_with_label(compile_links_panel_snapshot) -> None:
     )
 
 
-def test_compile_links_panel_inverted_options(compile_links_panel_snapshot) -> None:
+def test_compile_links_panel_inverted_options() -> None:
     """Test the compilation of a basic URL link with all options inverted."""
     references, result = compile_links_panel_snapshot(
         {
@@ -126,7 +120,7 @@ def test_compile_links_panel_inverted_options(compile_links_panel_snapshot) -> N
     )
 
 
-def test_compile_links_panel_dashboard_link(compile_links_panel_snapshot) -> None:
+def test_compile_links_panel_dashboard_link() -> None:
     """Test the compilation of a basic Dashboard link."""
     references, result = compile_links_panel_snapshot(
         {
@@ -164,7 +158,7 @@ def test_compile_links_panel_dashboard_link(compile_links_panel_snapshot) -> Non
     )
 
 
-def test_compile_links_panel_dashboard_link_inverted_options(compile_links_panel_snapshot) -> None:
+def test_compile_links_panel_dashboard_link_inverted_options() -> None:
     """Test the compilation of a basic Dashboard link with all options inverted."""
     references, result = compile_links_panel_snapshot(
         {
