@@ -1,13 +1,42 @@
-# Agent Guidelines: Dashboard Compiler
+# Agent Guidelines: kb-yaml-to-lens Project
 
-> **Dashboard Compiler** converts human-readable YAML into Kibana dashboard JSON.
-> Python 3.12+ · Pydantic · PyYAML · uv package manager
+> Multi-language project for compiling Kibana dashboards from YAML to Lens format
+> Python compiler · TypeScript VS Code extension · JavaScript fixture generator
+
+---
+
+## Project Overview
+
+This repository contains three main components:
+
+1. **Dashboard Compiler** (Python) - Core YAML → JSON compilation engine
+2. **VS Code Extension** (TypeScript) - Live preview and visual editing
+3. **Fixture Generator** (JavaScript/Docker) - Kibana API-based test fixture generation
+
+**Important:** Each component has its own `AGENTS.md` file with component-specific guidelines. When working on a specific component, refer to the relevant AGENTS.md:
+
+- Python compiler: `src/dashboard_compiler/AGENTS.md`
+- VS Code extension: `vscode-extension/AGENTS.md`
+- Fixture generator: `fixture-generator/AGENTS.md`
 
 ---
 
 ## Quick Reference
 
-### Essential Commands
+### Repository Structure
+
+| Directory | Technology | Purpose | AGENTS.md |
+| --------- | ---------- | ------- | --------- |
+| `src/dashboard_compiler/` | Python 3.12+ | Core compilation logic | `src/dashboard_compiler/AGENTS.md` |
+| `vscode-extension/` | TypeScript/Node.js | VS Code extension | `vscode-extension/AGENTS.md` |
+| `fixture-generator/` | JavaScript/Docker | Kibana fixture generation | `fixture-generator/AGENTS.md` |
+| `tests/` | Python pytest | Unit tests for compiler | `src/dashboard_compiler/AGENTS.md` |
+| `inputs/` | YAML | Example dashboards | - |
+| `docs/` | Markdown | Documentation | - |
+
+### Common Commands
+
+**From repository root:**
 
 | Command | Purpose |
 | --------- | --------- |
@@ -18,7 +47,11 @@
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
-### Common Workflows
+**Component-specific commands:**
+
+See component-specific AGENTS.md files for detailed commands.
+
+**Workflow example:**
 
 ```bash
 # First time setup
@@ -32,113 +65,46 @@ make check
 
 ---
 
-## Project Architecture
-
-### Data Flow
-
-```
-YAML File → PyYAML Parser → Config Models (Pydantic) → Compile Functions → View Models → Kibana JSON
-```
-
-### Directory Structure
-
-| Directory | Purpose |
-| ----------- | --------- |
-| `src/dashboard_compiler/` | Core compilation logic |
-| `src/dashboard_compiler/dashboard/` | Top-level dashboard config and compilation |
-| `src/dashboard_compiler/panels/` | Panel types (markdown, links, images, search, charts) |
-| `src/dashboard_compiler/panels/charts/` | Lens/ESQL chart types (metric, pie, xy) |
-| `src/dashboard_compiler/controls/` | Dashboard control groups |
-| `src/dashboard_compiler/filters/` | Filter compilation |
-| `src/dashboard_compiler/queries/` | KQL, Lucene, ESQL query support |
-| `src/dashboard_compiler/shared/` | Base models and utilities |
-| `tests/` | Unit tests with snapshot testing (inline snapshots via `inline-snapshot` library) |
-| `inputs/` | Example YAML dashboards |
-
-### Three-Layer Pattern
-
-Each component follows this structure:
-
-1. **`config.py`** — Pydantic models defining YAML schema (source of truth)
-2. **`view.py`** — Pydantic models defining Kibana JSON output
-3. **`compile.py`** — Functions transforming config → view models
-
-### Test Standards
-
-- **Use inline snapshots** via `inline-snapshot` library (not external snapshot files)
-- **Avoid scenario-based tests** in separate JSON files
-- **Write pytest tests directly** in Python
-- See existing tests for patterns (e.g., `tests/panels/charts/lens/metrics/test_metrics.py`)
-
----
-
-## Code Conventions
-
-### Style
-
-- **Line length**: 140 characters (Ruff enforced)
-- **Dependency manager**: `uv` (not Poetry)
-- **Docstring coverage**: 80% threshold
-
-### Pydantic Models
-
-**Configuration Models** (`BaseCfgModel`):
-
-- Settings: `strict=True`, `extra='forbid'`, `frozen=True`, `validate_default=True`
-- Use attribute docstrings for field descriptions
-- Location: `**/config.py` files
-
-**View Models** (`BaseVwModel`):
-
-- Custom serializer omits fields with `OmitIfNone` metadata when value is `None`
-- May narrow types in subclasses (e.g., `str` → `Literal['value']`)
-- `reportIncompatibleVariableOverride = false` in basedpyright allows this
-
-### Explicit Boolean Checks
-
-Always use explicit comparisons instead of implicit truthiness:
-
-**✅ Correct:**
-
-- `if my_var is not None:` (for optional types)
-- `if my_var is None:` (for None checks)
-- `if len(my_list) > 0:` (for non-empty lists)
-- `if len(my_str) > 0:` (for non-empty strings)
-- `if my_bool is True:` or `if my_bool:` (for actual booleans)
-
-**❌ Incorrect:**
-
-- `if my_var:` (ambiguous: could be None, empty, False, 0, etc.)
-- `if not my_var:` (ambiguous truthiness check)
-
-**Exception:** `if TYPE_CHECKING:` is standard Python and acceptable.
-
-### Documentation Updates
-
-When updating YAML configuration docs:
-
-1. `config.py` files are the source of truth for all configuration options
-2. Each component's markdown should include: overview, minimal example, complex example, full options table
-3. Table columns: `YAML Key`, `Data Type`, `Description`, `Default`, `Required`
-4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config models)
-5. Run `uv run python scripts/compile_docs.py` to regenerate `yaml_reference.md`
-
----
-
 ## AI Agent Guidelines
 
-### Before Making Changes
+### Before Starting Work
 
-1. **Read relevant files first** — Never speculate about code you haven't inspected
-2. **Search for existing patterns** — Check how similar components handle the same problem
-3. **Understand the architecture** — Config models → compile functions → view models
-4. **Use explicit Boolean comparisons** — Never rely on implicit truthiness
-   - `if x is not None:` instead of `if x:`
-   - `if len(items) > 0:` instead of `if items:`
+1. **Identify the component** you're working on (Python compiler, VS Code extension, fixture generator)
+2. **Read the component-specific AGENTS.md** for detailed guidelines
+3. **Read relevant files** before making changes
+4. **Search for patterns** in the codebase to maintain consistency
 
-### Working with Code Review Feedback
+### General Principles
 
-#### Triage First
+**Read Before Modify:**
+
+- Never speculate about code you haven't read
+- Always inspect existing implementations before suggesting changes
+- Search for similar patterns across the codebase
+
+**Maintain Consistency:**
+
+- Follow existing code patterns within each component
+- Match the style and conventions of surrounding code
+- Don't introduce new patterns without strong justification
+
+**Verify Your Work:**
+
+- Run component-specific tests before committing
+- Ensure all checks pass (lint, typecheck, tests)
+- Test the actual functionality, not just that it compiles
+
+**Be Honest:**
+
+- Document unresolved items
+- Acknowledge when you're uncertain
+- Never claim work is complete with critical issues unresolved
+
+---
+
+## Working with Code Review Feedback
+
+### Triage First
 
 | Priority | Examples |
 | ---------- | ---------- |
@@ -146,49 +112,59 @@ When updating YAML configuration docs:
 | **Important** | Error handling, performance, missing tests, type annotations |
 | **Optional** | Style preferences, minor refactors |
 
-#### Evaluate Against Codebase
+### Evaluate Against Codebase
 
 - Search for similar patterns before accepting suggestions
-- If a pattern exists across multiple panels/charts, it's likely intentional
+- If a pattern exists across multiple files, it's likely intentional
 - Preserve consistency over isolated best practices
 
-#### Verification Requirements
+### Verification Requirements
 
-Before claiming feedback is addressed:
+- [ ] All critical issues addressed
+- [ ] All important issues addressed or deferred with rationale
+- [ ] Component-specific checks pass (see component AGENTS.md)
+- [ ] Manual testing completed where applicable
 
-- [ ] **For schema changes:** Cross-reference with official documentation (Kibana repo, API docs, etc.)
-- [ ] **For test changes:** Explain WHY test data changed, not just WHAT changed
-- [ ] **For type errors:** Verify the fix compiles AND is semantically correct
-- [ ] **For Boolean checks:** All conditional statements use explicit comparisons
-- [ ] **For type checking:** Run `make typecheck` to verify type correctness
-- [ ] Run `make check` after EACH fix, not just at the end
-- [ ] Test that the compiled output is valid (not just that it compiles)
+---
 
-#### Before Claiming Complete
+## CI/CD
 
-- [ ] All critical issues addressed or documented as out-of-scope
-- [ ] All important issues addressed or explicitly deferred with rationale
-- [ ] `make check` passes
-- [ ] Type checking passes (basedpyright in CI)
-- [ ] Tests pass with updated snapshots if needed
+### Automated Workflows
 
-#### Documenting Deferrals
+The repository uses GitHub Actions for:
 
-If feedback isn't implemented, explain why:
+- **Testing & Quality Checks** — Automated linting, type checking, tests on every push/PR
+- **Documentation** — Automatic deployment of docs to GitHub Pages
+- **Claude AI Assistants** — Automated code assistance, issue triage, merge conflict resolution
+- **Build Automation** — Docker image building for fixture generators
 
-- Conflicts with established pattern (cite similar code)
-- Out of scope for component purpose
-- Trade-off not worth the complexity
+Each workflow has self-contained instructions. Claude receives both the workflow prompt and relevant AGENTS.md files.
 
-### Radical Honesty
+### GitHub Actions Workflow Patterns
 
-- **Document unresolved items** — Explain why they weren't addressed
-- **Acknowledge uncertainty** — Ask if unclear about patterns or requirements
-- **Report problems** — Share issues encountered during implementation
-- **Share reasoning** — Explain why you rejected or deferred feedback
-- **Admit limitations** — Be clear if unable to verify fixes work correctly
+When creating new Claude-powered workflows:
 
-**Never claim work is complete with unresolved critical or important issues.**
+1. **Use the shared workflow:** `.github/workflows/run-claude.yml`
+2. **Standard MCP configuration** (automatically set up in shared workflow):
+   - `repository-summary` - For generating AGENTS.md summaries
+   - `code-search` - For searching code across repo
+   - `github-research` - For issue/PR analysis
+3. **Don't manually configure MCP servers** - use the shared workflow's built-in setup
+
+**Example:**
+
+```yaml
+jobs:
+  my-claude-job:
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      checkout-ref: ${{ github.event.pull_request.head.ref }}
+      prompt: |
+        Your task here...
+      allowed-tools: mcp__github-research,Bash
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+```
 
 ### Modifying Workflows
 
@@ -220,7 +196,9 @@ line 50: change allowed-tools to include Read,Write,Edit tools
 - **Copilot** - ✅ Can create/modify workflows directly
 - **CodeRabbit** - ❌ Review-only, cannot make commits
 
-### Resolving PR Review Threads
+---
+
+## Resolving PR Review Threads
 
 You can resolve review threads via GitHub GraphQL API. **Only resolve after making code changes that address the feedback.**
 
@@ -252,67 +230,13 @@ gh api graphql -f query='
 
 ---
 
-## CI/CD
-
-### Automated Workflows
-
-The repository uses GitHub Actions for:
-
-- **Testing & Quality Checks** — Automated linting, type checking, tests on every push/PR
-- **Documentation** — Automatic deployment of docs to GitHub Pages
-- **Claude AI Assistants** — Automated code assistance, issue triage, merge conflict resolution, and project management
-- **Build Automation** — Docker image building for fixture generators
-
-Each workflow has self-contained instructions. Claude receives both the workflow prompt and this AGENTS.md file.
-
-### GitHub Actions Workflow Patterns
-
-When creating new Claude-powered workflows:
-
-1. **Use the shared workflow:** `.github/workflows/run-claude.yml`
-2. **Standard MCP configuration** (automatically set up in shared workflow):
-   - `repository-summary` - For generating AGENTS.md summaries
-   - `code-search` - For searching code across repo
-   - `github-research` - For issue/PR analysis
-3. **Don't manually configure MCP servers** - use the shared workflow's built-in setup
-
-**Example:**
-
-```yaml
-jobs:
-  my-claude-job:
-    uses: ./.github/workflows/run-claude.yml
-    with:
-      checkout-ref: ${{ github.event.pull_request.head.ref }}
-      prompt: |
-        Your task here...
-      allowed-tools: mcp__github-research,Bash
-    secrets:
-      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-```
-
-**Note:** The `repository-summary` tool (formerly `agents_md_generator`) is automatically available but rarely needed.
-
-### Pre-commit Requirements
-
-CI will fail if:
-
-- Ruff linting fails
-- Tests fail
-- Type checking fails (basedpyright standard mode)
-- Docstring coverage below 80%
-
-Run `make check` locally before pushing.
-
----
-
 ## Pull Request Standards
 
 ### Requirements
 
 - No merge conflicts with main
 - No unrelated changes or plan files
-- All static checks pass
+- All static checks pass (component-specific)
 - Self-review completed
 
 ### Self Code Review Checklist
@@ -322,6 +246,7 @@ Run `make check` locally before pushing.
 - [ ] Follows existing patterns in codebase
 - [ ] Tests added/updated as needed
 - [ ] Documentation updated if API changed
+- [ ] Component-specific checks pass
 
 ---
 
@@ -329,8 +254,9 @@ Run `make check` locally before pushing.
 
 | Resource | Location |
 | ---------- | ---------- |
+| Component AGENTS.md files | `src/dashboard_compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
 | Architecture details | `docs/architecture.md` |
-| YAML schema reference | `yaml_reference.md` |
+| YAML schema reference | `docs/yaml_reference.md` (generated via `make compile-docs`) |
 | Quickstart guide | `docs/quickstart.md` |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |

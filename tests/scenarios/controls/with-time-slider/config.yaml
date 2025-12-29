@@ -1,0 +1,23 @@
+dashboards:
+-
+  name: Controls with Time Slider
+  description: "A dashboard with all control types including timeSlider"
+  controls:
+    - type: optionsList
+      id: 1197c3aa-dbfa-5e53-b685-42ffd3337b59 # Fixed ID for testing
+      label: Select Host
+      data_view: "metrics-*"
+      search_technique: prefix
+      field: host.name
+      sort:
+        by: _count
+        direction: desc
+    - type: rangeSlider
+      id: 5gg4g220-5ge5-ag31-e4ef-177g538450ba # Fixed ID for testing
+      label: Severity Range
+      data_view: "metrics-*"
+      field: severity_number
+      step: 1
+    - type: timeSlider
+      id: 6hh5h331-6hf6-bh42-f5fg-288h649561cb # Fixed ID for testing
+      label: Time Range
