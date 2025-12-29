@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.config import Grid
@@ -10,20 +9,15 @@ from dashboard_compiler.panels.images.compile import compile_image_panel_config
 from dashboard_compiler.panels.images.config import ImagePanel
 
 
-@pytest.fixture
-def compile_image_panel_snapshot():
-    """Fixture that returns a function to compile image panels and return dict for snapshot."""
-
-    def _compile(config: dict[str, Any]) -> dict[str, Any]:
-        panel_grid = Grid(x=0, y=0, w=24, h=10)
-        image_panel = ImagePanel(grid=panel_grid, **config)
-        _, kbn_panel_config = compile_image_panel_config(image_panel=image_panel)
-        return kbn_panel_config.model_dump(by_alias=True)
-
-    return _compile
+def compile_image_panel_snapshot(config: dict[str, Any]) -> dict[str, Any]:
+    """Compile image panel config and return dict for snapshot testing."""
+    panel_grid = Grid(x=0, y=0, w=24, h=10)
+    image_panel = ImagePanel(grid=panel_grid, **config)
+    _, kbn_panel_config = compile_image_panel_config(image_panel=image_panel)
+    return kbn_panel_config.model_dump(by_alias=True)
 
 
-def test_compile_image_panel_url(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url() -> None:
     """Test the compilation of a basic image panel with URL."""
     result = compile_image_panel_snapshot({'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg'})
     assert result == snapshot(
@@ -39,7 +33,7 @@ def test_compile_image_panel_url(compile_image_panel_snapshot) -> None:
     )
 
 
-def test_compile_image_panel_url_sizing_cover(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_sizing_cover() -> None:
     """Test the compilation of an image panel with URL and cover sizing."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'cover'}
@@ -57,7 +51,7 @@ def test_compile_image_panel_url_sizing_cover(compile_image_panel_snapshot) -> N
     )
 
 
-def test_compile_image_panel_url_fill(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_fill() -> None:
     """Test the compilation of an image panel with URL and fill sizing."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'fill'}
@@ -75,7 +69,7 @@ def test_compile_image_panel_url_fill(compile_image_panel_snapshot) -> None:
     )
 
 
-def test_compile_image_panel_url_sizing_none(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_sizing_none() -> None:
     """Test the compilation of an image panel with URL and none sizing."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'none'}
@@ -93,7 +87,7 @@ def test_compile_image_panel_url_sizing_none(compile_image_panel_snapshot) -> No
     )
 
 
-def test_compile_image_panel_url_alt_text(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_alt_text() -> None:
     """Test the compilation of an image panel with URL and alt text."""
     result = compile_image_panel_snapshot(
         {
@@ -114,7 +108,7 @@ def test_compile_image_panel_url_alt_text(compile_image_panel_snapshot) -> None:
     )
 
 
-def test_compile_image_panel_url_background_color(compile_image_panel_snapshot) -> None:
+def test_compile_image_panel_url_background_color() -> None:
     """Test the compilation of an image panel with URL and background color."""
     result = compile_image_panel_snapshot(
         {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'background_color': '#a53c3c'}

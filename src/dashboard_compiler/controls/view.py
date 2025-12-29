@@ -180,10 +180,10 @@ class KbnTimeSliderControl(KbnBaseControl):
 class KbnIgnoreParentSettingsJson(BaseVwModel):
     """Settings that control whether to ignore inherited values from the dashboard."""
 
-    ignoreFilters: bool = False
-    ignoreQuery: bool = False
-    ignoreTimerange: bool = False
-    ignoreValidations: bool = False
+    ignoreFilters: bool = Field(...)
+    ignoreQuery: bool = Field(...)
+    ignoreTimerange: bool = Field(...)
+    ignoreValidations: bool = Field(...)
 
     # @model_serializer(when_used='always')
     # def stringify(self) -> str:
