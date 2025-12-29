@@ -24,7 +24,8 @@ For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 A basic dashboard YAML file has the following structure:
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: Your Dashboard Title
   description: An optional description
   panels:
@@ -36,17 +37,17 @@ dashboard:
 Here's an example of a dashboard with a single markdown panel:
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: My First Dashboard
   description: A simple dashboard with a markdown panel
   panels:
-    - panel:
-        type: markdown
-        grid: { x: 0, y: 0, w: 24, h: 15 }
-        content: |
-          # Hello, Kibana!
+    - type: markdown
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      content: |
+        # Hello, Kibana!
 
-          This is my first markdown panel.
+        This is my first markdown panel.
 ```
 
 ## Creating a Simple Lens Metric Panel
@@ -54,19 +55,19 @@ dashboard:
 Here's an example of a dashboard with a single Lens metric panel displaying a count:
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: Metric Dashboard
   description: A dashboard with a single metric panel
   panels:
-    - panel:
-        type: lens
-        grid: { x: 0, y: 0, w: 24, h: 15 }
-        index_pattern: your-index-pattern-*
-        chart:
-          type: metric
-          metrics:
-            - type: count
-              label: Total Documents
+    - type: lens
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      index_pattern: your-index-pattern-*
+      chart:
+        type: metric
+        metrics:
+          - type: count
+            label: Total Documents
 ```
 
 ## Programmatic Alternative

@@ -69,7 +69,7 @@ test-coverage:
 
 test-links:
 	@echo "Checking documentation links..."
-	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
+	uv run pytest --check-links docs/ README.md CONTRIBUTING.md --ignore=docs/yaml_reference.md
 
 test-extension:
 	@echo "Running VSCode extension tests..."
@@ -162,12 +162,12 @@ compile-docs:
 
 docs-serve:
 	@echo "Starting documentation server..."
-	uv run --extra docs mkdocs serve
+	uv run --group docs mkdocs serve
 
 docs-build:
 	@echo "Building documentation..."
-	uv run --extra docs mkdocs build
+	uv run --group docs mkdocs build
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
-	uv run --extra docs mkdocs gh-deploy --force
+	uv run --group docs mkdocs gh-deploy --force

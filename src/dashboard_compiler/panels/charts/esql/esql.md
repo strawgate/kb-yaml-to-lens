@@ -22,7 +22,8 @@ The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query,
 #       field: "total_events" # Must match a column name from ESQL query
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "ESQL Metrics Dashboard"
   panels:
     - type: charts
@@ -57,7 +58,8 @@ dashboard:
 #       - field: "event_type"  # Must match a dimension column from ESQL
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "ESQL Event Analysis"
   panels:
     - type: charts

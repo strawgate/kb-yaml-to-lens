@@ -76,8 +76,9 @@ async function generateAll() {
     }
   }
 
+  const kibanaVersion = process.env.KIBANA_VERSION || 'v9.2.0';
   console.log('\n✓ All fixtures generated successfully');
-  console.log('  Output directory: ./output/');
+  console.log(`  Output directory: ./output/${kibanaVersion}/`);
 }
 
 if (fileURLToPath(import.meta.url) === process.argv[1]) {

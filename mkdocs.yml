@@ -95,10 +95,10 @@ nav:
       - Filters: api/filters.md
       - Queries: api/queries.md
   - Panel Configuration:
-      - Markdown Panel: ../src/dashboard_compiler/panels/markdown/markdown.md
-      - Image Panel: ../src/dashboard_compiler/panels/images/image.md
-      - Links Panel: ../src/dashboard_compiler/panels/links/links.md
-      - Search Panel: ../src/dashboard_compiler/panels/search/search.md
-      - Metric Chart: ../src/dashboard_compiler/panels/charts/metric/config.md
-      - Pie Chart: ../src/dashboard_compiler/panels/charts/pie/config.md
-      - XY Chart: ../src/dashboard_compiler/panels/charts/xy/config.md
+      - Markdown Panel: panels/markdown.md
+      - Image Panel: panels/image.md
+      - Links Panel: panels/links.md
+      - Search Panel: panels/search.md
+      - Metric Chart: panels/metric.md
+      - Pie Chart: panels/pie.md
+      - XY Chart: panels/xy.md
