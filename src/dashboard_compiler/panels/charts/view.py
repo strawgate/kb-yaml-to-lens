@@ -4,9 +4,6 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from dashboard_compiler.filters.view import KbnFilter
-from dashboard_compiler.panels.charts.base import (
-    KbnBaseStateVisualization,
-)
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
@@ -17,10 +14,11 @@ if TYPE_CHECKING:
     from .datatable.view import KbnDatatableVisualizationState
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
+    from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
 
     KbnVisualizationStateTypes = (
-        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnDatatableVisualizationState
+        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnDatatableVisualizationState | KbnTagcloudVisualizationState
     )
 
 # region Form Data Source
@@ -169,12 +167,13 @@ class KbnVisualizationTypeEnum(StrEnum):
     PIE = 'lnsPie'
     METRIC = 'lnsMetric'
     DATATABLE = 'lnsDatatable'
+    TAGCLOUD = 'lnsTagcloud'
 
 
 class KbnLensPanelState(BaseVwModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
-    visualization: KbnBaseStateVisualization
+    visualization: Any  # KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnTagcloudVisualizationState
     query: KbnQuery | KbnESQLQuery = Field(...)
     filters: list[KbnFilter] = Field(...)
     datasourceStates: KbnDataSourceState = Field(...)
@@ -190,7 +189,7 @@ class KbnLensPanelAttributes(BaseVwModel):
     state: KbnLensPanelState
 
 
-class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):  # type: ignore[misc,valid-type]
+class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     attributes: KbnLensPanelAttributes
 
     syncTooltips: bool = Field(
@@ -219,6 +218,6 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):  # type: ignor
     )
 
 
-class KbnLensPanel(KbnBasePanel):  # type: ignore[misc,valid-type]
+class KbnLensPanel(KbnBasePanel):
     type: Literal['lens'] = 'lens'
     embeddableConfig: KbnLensPanelEmbeddableConfig

@@ -7,6 +7,7 @@ from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.charts.datatable import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
+from dashboard_compiler.panels.charts.tagcloud import ESQLTagcloudChart, LensTagcloudChart
 from dashboard_compiler.panels.charts.xy.config import (
     ESQLAreaChart,
     ESQLBarChart,
@@ -21,11 +22,11 @@ type AllChartTypes = LensChartTypes | ESQLChartTypes
 
 type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
-type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart
+type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart
 
 type SingleLayerChartTypes = LensMetricChart | LensDatatableChart
 
-type ESQLChartTypes = ESQLMetricChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLDatatableChart
+type ESQLChartTypes = ESQLMetricChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLDatatableChart | ESQLTagcloudChart
 
 
 class LensPanel(BasePanel):

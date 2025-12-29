@@ -33,6 +33,7 @@ class SavedObjectResult(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     id: str
+    destination_id: str | None = Field(default=None, validation_alias='destinationId')
     type: str
 
 
@@ -70,6 +71,7 @@ class KibanaClient:
     def __init__(
         self,
         url: str,
+        *,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
@@ -136,7 +138,7 @@ class KibanaClient:
 
                 async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                     response.raise_for_status()
-                    json_response: dict[str, Any] = await response.json()  # type: ignore[reportAny]
+                    json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
                     return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
@@ -149,9 +151,9 @@ class KibanaClient:
             Full URL to the dashboard in Kibana
 
         """
-        return f'{self.url}/app/dashboards#{dashboard_id}'  # type: ignore[reportAny]
+        return f'{self.url}/app/dashboards#/view/{dashboard_id}'
 
-    async def generate_screenshot(
+    async def generate_screenshot(  # noqa: PLR0913
         self,
         dashboard_id: str,
         time_from: str | None = None,
@@ -209,7 +211,7 @@ class KibanaClient:
         }
 
         # Rison-encode the job parameters using prison library
-        rison_params: str = prison.dumps(job_params)  # type: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        rison_params: str = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
         # POST to Kibana Reporting API
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
@@ -219,9 +221,9 @@ class KibanaClient:
 
         async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
             response.raise_for_status()
-            result: dict[str, Any] = await response.json()  # type: ignore[reportAny]
-            job_path: str | None = result.get('path')  # type: ignore[reportAny]
-            if not job_path:
+            result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            job_path: str | None = result.get('path')
+            if job_path is None:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
                 raise ValueError(msg)
             return job_path
@@ -229,14 +231,14 @@ class KibanaClient:
     async def wait_for_job_completion(
         self,
         job_path: str,
-        timeout: int = 300,
+        timeout_seconds: int = 300,
         poll_interval: int = 2,
     ) -> bytes:
         """Poll a reporting job until completion and download the result.
 
         Args:
             job_path: The reporting job path returned from generate_screenshot
-            timeout: Maximum seconds to wait (default: 300)
+            timeout_seconds: Maximum seconds to wait (default: 300)
             poll_interval: Seconds between polls (default: 2)
 
         Returns:
@@ -251,38 +253,37 @@ class KibanaClient:
 
         headers, auth = self._get_auth_headers_and_auth()
 
-        start_time = asyncio.get_running_loop().time()
+        try:
+            async with asyncio.timeout(timeout_seconds):
+                async with aiohttp.ClientSession() as session:
+                    while True:
+                        async with session.get(endpoint, headers=headers, auth=auth) as response:
+                            # Check if job is complete (200 OK with content)
+                            if response.status == HTTP_OK:
+                                content_type = response.headers.get('Content-Type', '')
+                                if 'image/png' in content_type:
+                                    return await response.read()
+                                # Unexpected content type on success - likely an error response
+                                body = await response.text()
+                                msg = (
+                                    f'Unexpected response from Kibana (status {response.status}, content-type {content_type}): {body[:200]}'
+                                )
+                                raise ValueError(msg)
 
-        async with aiohttp.ClientSession() as session:
-            while True:
-                async with session.get(endpoint, headers=headers, auth=auth) as response:
-                    # Check if job is complete (200 OK with content)
-                    if response.status == HTTP_OK:
-                        content_type = response.headers.get('Content-Type', '')
-                        if 'image/png' in content_type:
-                            return await response.read()
-                        # Unexpected content type on success - likely an error response
-                        body = await response.text()
-                        msg = f'Unexpected response from Kibana (status {response.status}, content-type {content_type}): {body[:200]}'
-                        raise ValueError(msg)
+                            # Check if job is still processing (503 or other status)
+                            if response.status == HTTP_SERVICE_UNAVAILABLE:
+                                # Job still processing, continue polling
+                                pass
+                            else:
+                                response.raise_for_status()
 
-                    # Check if job is still processing (503 or other status)
-                    if response.status == HTTP_SERVICE_UNAVAILABLE:
-                        # Job still processing, continue polling
-                        pass
-                    else:
-                        response.raise_for_status()
+                        # Wait before next poll
+                        await asyncio.sleep(poll_interval)
+        except TimeoutError as e:
+            msg = f'Screenshot generation timed out after {timeout_seconds} seconds'
+            raise TimeoutError(msg) from e
 
-                # Check timeout
-                elapsed = asyncio.get_running_loop().time() - start_time
-                if elapsed > timeout:
-                    msg = f'Screenshot generation timed out after {timeout} seconds'
-                    raise TimeoutError(msg)
-
-                # Wait before next poll
-                await asyncio.sleep(poll_interval)
-
-    async def download_screenshot(
+    async def download_screenshot(  # noqa: PLR0913
         self,
         dashboard_id: str,
         output_path: Path,
@@ -291,7 +292,7 @@ class KibanaClient:
         width: int = 1920,
         height: int = 1080,
         browser_timezone: str = 'UTC',
-        timeout: int = 300,
+        timeout_seconds: int = 300,
     ) -> None:
         """Generate and download a screenshot of a dashboard to a file.
 
@@ -305,7 +306,7 @@ class KibanaClient:
             width: Screenshot width in pixels (default: 1920)
             height: Screenshot height in pixels (default: 1080)
             browser_timezone: Timezone for the screenshot (default: UTC)
-            timeout: Maximum seconds to wait for screenshot generation (default: 300)
+            timeout_seconds: Maximum seconds to wait for screenshot generation (default: 300)
 
         Raises:
             aiohttp.ClientError: If the request fails
@@ -323,7 +324,7 @@ class KibanaClient:
         )
 
         # Wait for completion and download
-        screenshot_data = await self.wait_for_job_completion(job_path, timeout=timeout)
+        screenshot_data = await self.wait_for_job_completion(job_path, timeout_seconds=timeout_seconds)
 
         # Save to file
         output_path.parent.mkdir(parents=True, exist_ok=True)

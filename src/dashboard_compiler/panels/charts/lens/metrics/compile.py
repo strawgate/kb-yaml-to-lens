@@ -107,7 +107,7 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
 
     # This check is necessary even though it appears redundant to type checkers
     # because metric_format could be a more specific subclass at runtime
-    if isinstance(metric_format, LensMetricFormat):  # type: ignore[reportUnnecessaryIsInstance]
+    if isinstance(metric_format, LensMetricFormat):  # pyright: ignore[reportUnnecessaryIsInstance]
         return KbnLensMetricFormat(
             id=metric_format.type,
             params=KbnLensMetricFormatParams(
@@ -119,8 +119,8 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
 
     # All LensMetricFormatTypes have been handled above, this is unreachable
     # but kept for type safety in case new types are added
-    msg = f'Unsupported metric format type: {type(metric_format)}'  # type: ignore[reportUnreachable]
-    raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+    msg = f'Unsupported metric format type: {type(metric_format)}'  # pyright: ignore[reportUnreachable]
+    raise NotImplementedError(msg)
 
 
 # def compile_lens_formula(metric: LensFormulaMetric) -> tuple[str, KbnLensFormulaMetricColumnTypes]:
@@ -161,6 +161,12 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     metric_filter: KbnQuery | None = None
     metric_id = metric.id or stable_id_generator([metric.aggregation, metric.field])
 
+    # Generate Kibana-style default labels that match the native Lens editor UX.
+    # Strategy varies by aggregation type to provide user-friendly descriptions:
+    # - Standard aggs: "{Aggregation} of {field}" (e.g., "Average of response_time")
+    # - Percentiles: "{nth} percentile of {field}" (e.g., "95th percentile of latency")
+    # - Percentile rank: "Percentile rank (value) of {field}"
+    # - Count: "Count of records" (field optional)
     default_label: str = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field}'
 
     if isinstance(metric, LensCountAggregatedMetric):
@@ -191,6 +197,11 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         )
 
     elif isinstance(metric, LensLastValueAggregatedMetric):
+        # last_value aggregation requires special handling: Kibana needs an implicit
+        # filter to ensure the field exists, otherwise it returns incorrect results.
+        # We inject a Kuery filter "{field}": * which matches any document where the
+        # field is present (not null/missing). This filter is automatically added to
+        # the metric column and isn't visible in the user's config.
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             sortField=metric.date_field or '@timestamp',
@@ -199,7 +210,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
 
     # This check is necessary even though it appears redundant to type checkers
     # because metric could be a more specific subclass at runtime
-    elif isinstance(metric, LensOtherAggregatedMetric):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(metric, LensOtherAggregatedMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
             emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation, None),
@@ -207,8 +218,8 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     else:
         # All LensMetricTypes have been handled above, this is unreachable
         # but kept for type safety in case new types are added
-        msg = f'Unsupported metric type: {type(metric)}'  # type: ignore[reportUnreachable]
-        raise NotImplementedError(msg)  # type: ignore[reportUnreachable]
+        msg = f'Unsupported metric type: {type(metric)}'  # pyright: ignore[reportUnreachable]
+        raise NotImplementedError(msg)
 
     return metric_id, KbnLensFieldMetricColumn(
         label=metric.label or default_label,

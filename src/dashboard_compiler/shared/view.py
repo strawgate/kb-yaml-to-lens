@@ -22,11 +22,17 @@ class BaseVwModel(BaseModel):
     def _serialize(self):
         model_class = self.__class__
 
-        omit_if_none_fields = {k for k, v in model_class.model_fields.items() if any(isinstance(m, OmitIfNone) for m in v.metadata)}
+        omit_if_none_fields: set[str] = {
+            k
+            for k, v in model_class.model_fields.items()
+            if any(isinstance(m, OmitIfNone) for m in v.metadata)  # pyright: ignore[reportAny]
+        }
 
-        serialization_aliases = {k: v.serialization_alias for k, v in model_class.model_fields.items() if v.serialization_alias is not None}
+        serialization_aliases: dict[str, str] = {
+            k: v.serialization_alias for k, v in model_class.model_fields.items() if v.serialization_alias is not None
+        }
 
-        return {serialization_aliases.get(k, k): v for k, v in self if k not in omit_if_none_fields or v is not None}  # type: ignore[reportAny]
+        return {serialization_aliases.get(k, k): v for k, v in self if k not in omit_if_none_fields or v is not None}  # pyright: ignore[reportAny]
 
 
 class KbnReference(BaseVwModel):

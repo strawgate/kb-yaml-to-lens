@@ -70,12 +70,12 @@ class BaseXYChart(BaseChart):
     )
 
 
-class LensXYChartMixin:
+class LensXYChartMixin(BaseCfgModel):
     """Shared fields for Lens-based XY charts."""
 
-    data_view: str = Field(default=..., description='The data view to use for the chart.')  # type: ignore[reportAny]
-    dimensions: list[LensDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')  # type: ignore[reportAny]
-    metrics: list[LensMetricTypes] = Field(..., description='Defines the metrics for the chart.')  # type: ignore[reportAny]
+    data_view: str = Field(default=..., description='The data view to use for the chart.')
+    dimensions: list[LensDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
+    metrics: list[LensMetricTypes] = Field(default_factory=list, description='Defines the metrics for the chart.')
     breakdown: LensDimensionTypes | None = Field(
         None,
         description=(
@@ -96,12 +96,12 @@ class LensXYChartMixin:
         return self
 
 
-class ESQLXYChartMixin:
+class ESQLXYChartMixin(BaseCfgModel):
     """Shared fields for ESQL-based XY charts."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(..., description='Defines the dimensions for the chart.')  # type: ignore[reportAny]
+    dimensions: list[ESQLDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
 
-    metrics: list[ESQLMetricTypes] = Field(..., description='Defines the metrics for the chart.')  # type: ignore[reportAny]
+    metrics: list[ESQLMetricTypes] = Field(default_factory=list, description='Defines the metrics for the chart.')
 
     breakdown: ESQLDimensionTypes | None = Field(
         None,
