@@ -1,0 +1,19 @@
+dashboards:
+-
+  name: one-metric-percentile
+  description: "A dashboard with a single percentile metric"
+  panels:
+  - title: "95th Percentile Latency"
+    id: dgeelel-l9ie-aij4-gajf-illmegggfkk # Fixed ID for testing
+    type: charts
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart:
+      type: metric
+      id: kid27dk-m9k6-bjji-fkkkkki-fa0ldh37ig4d # Fixed ID for testing
+      data_view: metrics-*
+      primary:
+        aggregation: percentile
+        id: hf8ajcm-ll0m-bflm-idkh-iibgm40lfg99 # Fixed ID for testing
+        label: "P95 Latency"
+        field: request.latency_ms
+        percentile: 95
