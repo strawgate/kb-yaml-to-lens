@@ -1,6 +1,8 @@
-# Agent Instructions for Fixture Generator
+# Agent Guidelines: Fixture Generator
 
-This document provides instructions for AI agents working with the Kibana fixture generator.
+> Docker-based JavaScript fixture generator using Kibana's official LensConfigBuilder API
+
+---
 
 ## Critical Rules
 
@@ -8,8 +10,8 @@ This document provides instructions for AI agents working with the Kibana fixtur
 2. **NEVER commit untested generator changes**
 3. **Use Docker for all fixture generation** (required for Kibana packages)
 4. **Verify output files are created** before claiming success
-5. **NEVER skip fixture generation due to build time concerns** - The 6-minute Docker build is a one-time cost and is cached for subsequent runs. This is NOT excessive and does NOT exceed any CI limits (GitHub Actions allows 360 minutes).
-6. **NEVER defer to "manual validation"** - All fixture generators MUST be run and validated before committing. Period.
+5. **NEVER skip fixture generation** - The 6-minute Docker build is cached for subsequent runs
+6. **NEVER defer to "manual validation"** - All fixture generators MUST be run and validated before committing
 
 ## Consequences of Skipping Fixture Generation
 
@@ -23,6 +25,40 @@ If you cannot run Docker due to environment limitations, you MUST:
 1. Clearly state this in your response
 2. Request that the user run the fixture generator
 3. DO NOT commit the generator script until it has been tested
+
+---
+
+## Quick Reference
+
+### Essential Commands
+
+| Command | Purpose |
+| ------- | ------- |
+| `make build` | Build Docker image (first time only, ~6 minutes) |
+| `make run` | Generate all fixtures |
+| `make run-example EXAMPLE=file.js` | Generate single fixture |
+| `make shell` | Debug in Docker container |
+| `make clean` | Clean output directory |
+
+### Common Workflow
+
+```bash
+# First time setup
+cd fixture-generator
+make build
+
+# Generate all fixtures
+make run
+
+# Generate one fixture
+make run-example EXAMPLE=metric-basic.js
+
+# Verify output
+ls -lh output/
+cat output/metric-basic.json | python -m json.tool | head -50
+```
+
+---
 
 ## Fixture Generation Verification Checklist
 
@@ -40,83 +76,51 @@ When creating or modifying fixture generators, you MUST complete this checklist:
 
 **Copy this checklist into your response and check off each item as you complete it.**
 
+---
+
 ## How to Run Fixture Generation
 
 ### Prerequisites Check
-
-Before running fixture generation, verify Docker is available:
 
 ```bash
 docker --version
 make --version
 ```
 
-### Running Fixture Generation
+### Running Generators
 
 The fixture generator **MUST** run inside Docker because it requires Kibana's `@kbn/lens-embeddable-utils` package.
 
-#### Generate All Fixtures
+**Generate all fixtures:**
 
 ```bash
 cd fixture-generator
 make run
 ```
 
-This will:
-
-1. Build the Docker image if needed (takes ~6 minutes on first run)
-2. Run all generator scripts in `examples/`
-3. Write JSON output to `fixture-generator/output/`
-
-#### Generate a Single Fixture
+**Generate single fixture:**
 
 ```bash
 cd fixture-generator
 make run-example EXAMPLE=metric-basic.js
 ```
 
-Replace `metric-basic.js` with any file from `examples/`.
-
-#### Verify Output
-
-After running generators, check that output files were created:
+**Verify output:**
 
 ```bash
 ls -lh fixture-generator/output/
+cat fixture-generator/output/metric-basic.json | head -20
 ```
 
-You should see JSON files corresponding to each generator that ran.
-
-### Testing Individual Generators
-
-To test a specific generator file:
-
-```bash
-cd fixture-generator
-make run-example EXAMPLE=gauge.js
-cat output/gauge.json | head -20
-cat output/gauge-dataview.json | head -20  # Dual generators create both files
-```
-
-This verifies:
-
-- The generator script runs without errors
-- Output JSON files are created (dual generators create 2 files)
-- JSON structure looks valid
-
-**Note**: Most generators now use the dual-generation pattern, creating both ES|QL and Data View variants from a single script.
+---
 
 ## Development Workflow
-
-When creating or modifying fixture generators:
 
 ### 1. Make Your Changes
 
 Edit generator files in `fixture-generator/examples/`.
 
-### 2. Test Your Changes
-
-**REQUIRED** - Run the generator to verify it works:
+### 2. Test Your Changes (REQUIRED)
 
 ```bash
 cd fixture-generator
@@ -125,27 +129,16 @@ make run-example EXAMPLE=your-new-generator.js
 
 ### 3. Verify Output
 
-Check that the JSON output is created and valid:
-
 ```bash
-cat output/your-new-generator.json | jq . | head -50
-```
-
-If `jq` is not available, use:
-
-```bash
-python -m json.tool output/your-new-generator.json | head -50
+cat output/your-new-generator.json | python -m json.tool | head -50
 ```
 
 ### 4. Run Full Test Suite
 
-Before committing, run the project's test suite:
-
 ```bash
+cd ..
 make check
 ```
-
-This runs linting and tests for the Python compiler.
 
 ### 5. Commit Only After Testing
 
@@ -156,43 +149,7 @@ Only commit after:
 - ✅ Output JSON is valid
 - ✅ `make check` passes
 
-## Common Issues
-
-### "Cannot find module '@kbn/lens-embeddable-utils'"
-
-**Cause**: Trying to run generators outside Docker
-
-**Solution**: Always use `make run` or `make run-example` - these run inside Docker where Kibana packages are available.
-
-### "Docker image not found"
-
-**Cause**: Docker image hasn't been built yet
-
-**Solution**: Build the image first:
-
-```bash
-cd fixture-generator
-make build
-```
-
-### "Generator runs but no output file"
-
-**Cause**: Generator script has an error or wrong output path
-
-**Solution**: Check the generator's console output for errors. Use `make shell` to debug:
-
-```bash
-cd fixture-generator
-make shell
-# Inside container:
-node examples/your-generator.js
-```
-
-### "Output JSON is invalid"
-
-**Cause**: LensConfigBuilder received invalid configuration
-
-**Solution**: Check the generator's config against [Kibana's Lens Config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx).
+---
 
 ## Creating New Dual Generators
 
@@ -203,7 +160,6 @@ Most new generators should use the dual-generation pattern to create both ES|QL 
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMyChart() {
-  // Shared configuration
   const sharedConfig = {
     chartType: 'xy',
     // ... shared properties
@@ -225,13 +181,13 @@ export async function generateMyChart() {
     title: 'My Chart (Data View)',
     dataset: {
       index: 'logs-*',
-      timeFieldName: '@timestamp'  // for time-series
+      timeFieldName: '@timestamp'
     },
     // ... Data View-specific properties (use aggregation functions)
   };
 
   await generateDualFixture(
-    'my-chart',  // base filename (creates my-chart.json + my-chart-dataview.json)
+    'my-chart',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
@@ -245,91 +201,54 @@ runIfMain(generateMyChart, import.meta.url);
 **Key differences between ES|QL and Data View:**
 
 - **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
-- **Metrics**: Column names from query vs aggregation functions (e.g., `count()`, `average(field)`)
+- **Metrics**: Column names from query vs aggregation functions
 - **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`
+
+---
+
+## Common Issues
+
+### "Cannot find module '@kbn/lens-embeddable-utils'"
+
+**Cause**: Trying to run generators outside Docker
+
+**Solution**: Always use `make run` or `make run-example`
+
+### "Docker image not found"
+
+**Cause**: Docker image hasn't been built yet
+
+**Solution**: Run `make build`
+
+### "Generator runs but no output file"
+
+**Cause**: Generator script has an error
+
+**Solution**: Check console output. Use `make shell` to debug:
+
+```bash
+cd fixture-generator
+make shell
+# Inside container:
+node examples/your-generator.js
+```
+
+### "Output JSON is invalid"
+
+**Cause**: LensConfigBuilder received invalid configuration
+
+**Solution**: Check against [Kibana's Lens Config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx)
+
+---
 
 ## File Locations
 
 - **Generator scripts**: `fixture-generator/examples/*.js`
 - **Shared utilities**: `fixture-generator/generator-utils.js`
 - **Output files**: `fixture-generator/output/*.json`
-- **Test fixtures**: `tests/fixtures/*.json` (Python test suite)
+- **Test fixtures**: Generated fixtures are compared against Python compiler output in test scenarios
 
-## Quick Reference
-
-```bash
-# Build Docker image
-cd fixture-generator && make build
-
-# Generate all fixtures
-cd fixture-generator && make run
-
-# Generate one fixture
-cd fixture-generator && make run-example EXAMPLE=gauge.js
-
-# Verify output exists
-ls -lh fixture-generator/output/
-
-# Validate JSON
-cat fixture-generator/output/gauge.json | python -m json.tool
-
-# Run Python tests
-make check
-
-# Debug in container
-cd fixture-generator && make shell
-```
-
-## Example: Adding a New Generator
-
-```bash
-# 1. Create new generator file
-cat > fixture-generator/examples/my-chart.js << 'EOF'
-#!/usr/bin/env node
-import { generateFixture, runIfMain } from '../generator-utils.js';
-
-export async function generateMyChart() {
-  const config = {
-    chartType: 'metric',
-    title: 'My Custom Chart',
-    dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT()'
-    },
-    value: 'count'
-  };
-
-  await generateFixture(
-    'my-chart.json',
-    config,
-    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
-    import.meta.url
-  );
-}
-
-runIfMain(generateMyChart, import.meta.url);
-EOF
-
-# 2. Test it runs
-cd fixture-generator
-make run-example EXAMPLE=my-chart.js
-
-# 3. Verify output
-cat output/my-chart.json | head -20
-
-# 4. Add to generate-all.js if needed
-# Edit generate-all.js to import and register your generator
-
-# 5. Test full generation
-make run
-
-# 6. Run project tests
-cd ..
-make check
-
-# 7. Only now commit
-git add fixture-generator/examples/my-chart.js
-git commit -m "feat: add my-chart fixture generator"
-```
+---
 
 ## Summary for Agents
 
