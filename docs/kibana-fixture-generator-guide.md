@@ -112,7 +112,7 @@ Before writing a generator, understand how the panel works in Kibana's API.
    - Location: `x-pack/plugins/lens/` in Kibana source
    - Use case: When docs are unclear about exact field names or types
 
-**Example: Researching Heatmaps**
+### Example: Researching Heatmaps
 
 For heatmaps, you'd find:
 
@@ -127,7 +127,7 @@ For heatmaps, you'd find:
 
 **Optional Parameters:**
 
-- `legend: { show: boolean, position: 'top'|'left'|'bottom'|'right' }` - Legend configuration
+- `legend: { show: boolean, position: 'top'| 'left' | 'bottom' |'right' }` - Legend configuration
 
 ### Step 2: Build the Docker Container
 
