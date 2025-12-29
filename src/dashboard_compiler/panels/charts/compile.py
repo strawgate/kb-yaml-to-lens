@@ -86,13 +86,10 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
         elif isinstance(chart, LensPieChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
-        elif isinstance(chart, LensMetricChart):  # pyright: ignore[reportUnnecessaryIsInstance]
+        elif isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
-        elif isinstance(chart, LensTagcloudChart):  # pyright: ignore[reportUnnecessaryIsInstance]
+        else:  # LensTagcloudChart
             layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
-        else:
-            msg = f'Unsupported chart type: {type(chart)}'
-            raise NotImplementedError(msg)
 
         kbn_references.append(
             KbnReference(
