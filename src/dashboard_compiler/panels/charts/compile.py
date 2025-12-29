@@ -88,8 +88,11 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
         elif isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
-        else:  # LensTagcloudChart
+        elif isinstance(chart, LensTagcloudChart):  # pyright: ignore[reportUnnecessaryIsInstance]
             layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
+        else:
+            msg = f'Unsupported Lens chart type: {type(chart)}'
+            raise NotImplementedError(msg)
 
         kbn_references.append(
             KbnReference(
@@ -140,13 +143,12 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
-    if isinstance(panel.chart, (ESQLMetricChart, ESQLPieChart, ESQLTagcloudChart)):
-        if isinstance(panel.chart, ESQLMetricChart):
-            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
-        elif isinstance(panel.chart, ESQLPieChart):
-            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
-        else:
-            layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(panel.chart)
+    if isinstance(panel.chart, ESQLMetricChart):
+        layer_id, esql_columns, visualization_state = compile_esql_metric_chart(panel.chart)
+    elif isinstance(panel.chart, ESQLPieChart):
+        layer_id, esql_columns, visualization_state = compile_esql_pie_chart(panel.chart)
+    elif isinstance(panel.chart, ESQLTagcloudChart):
+        layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(panel.chart)
     else:
         msg = f'Unsupported ESQL chart type: {type(panel.chart)}'
         raise NotImplementedError(msg)

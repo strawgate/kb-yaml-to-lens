@@ -168,3 +168,168 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot):
             'showLabel': False,
         }
     )
+
+
+def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot):
+    """Test tagcloud with right angled orientation (Lens)."""
+    config = {
+        'type': 'tagcloud',
+        'data_view': 'logs-*',
+        'tags': {
+            'field': 'tags',
+            'id': 'tag-id-123',
+        },
+        'metric': {
+            'aggregation': 'count',
+            'id': 'metric-id-456',
+        },
+        'appearance': {
+            'orientation': 'right angled',
+        },
+    }
+
+    result = compile_tagcloud_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': 'tag-id-123',
+            'valueAccessor': 'metric-id-456',
+            'maxFontSize': 72,
+            'minFontSize': 18,
+            'orientation': 'right angled',
+            'showLabel': True,
+        }
+    )
+
+
+def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot):
+    """Test tagcloud with extreme font size settings (Lens)."""
+    config = {
+        'type': 'tagcloud',
+        'data_view': 'logs-*',
+        'tags': {
+            'field': 'tags',
+            'id': 'tag-id-789',
+        },
+        'metric': {
+            'aggregation': 'sum',
+            'field': 'bytes',
+            'id': 'metric-id-abc',
+        },
+        'appearance': {
+            'min_font_size': 1,  # Minimum allowed
+            'max_font_size': 200,  # Maximum allowed
+        },
+    }
+
+    result = compile_tagcloud_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': 'tag-id-789',
+            'valueAccessor': 'metric-id-abc',
+            'maxFontSize': 200,
+            'minFontSize': 1,
+            'orientation': 'single',
+            'showLabel': True,
+        }
+    )
+
+
+def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot):
+    """Test tagcloud with labels hidden (ESQL)."""
+    config = {
+        'type': 'tagcloud',
+        'esql': 'FROM logs-* | STATS total = SUM(bytes) BY host.name',
+        'tags': {
+            'field': 'host.name',
+            'id': 'host-dimension',
+        },
+        'metric': {
+            'field': 'total',
+            'id': 'bytes-metric',
+        },
+        'appearance': {
+            'show_label': False,
+        },
+    }
+
+    result = compile_tagcloud_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': 'host-dimension',
+            'valueAccessor': 'bytes-metric',
+            'maxFontSize': 72,
+            'minFontSize': 18,
+            'orientation': 'single',
+            'showLabel': False,
+        }
+    )
+
+
+def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapshot):
+    """Test tagcloud with only some appearance settings provided (Lens)."""
+    config = {
+        'type': 'tagcloud',
+        'data_view': 'logs-*',
+        'tags': {
+            'field': 'user.name',
+            'id': 'user-id',
+        },
+        'metric': {
+            'aggregation': 'count',
+            'id': 'count-id',
+        },
+        'appearance': {
+            'max_font_size': 120,  # Only set max, min should use default
+        },
+    }
+
+    result = compile_tagcloud_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'tagAccessor': 'user-id',
+            'valueAccessor': 'count-id',
+            'maxFontSize': 120,
+            'minFontSize': 18,  # Default value
+            'orientation': 'single',  # Default value
+            'showLabel': True,  # Default value
+        }
+    )
+
+
+def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot):
+    """Test all three orientation options (ESQL)."""
+    configs = [
+        ('single', 'single'),
+        ('right angled', 'right angled'),
+        ('multiple', 'multiple'),
+    ]
+
+    for orientation_value, expected_orientation in configs:
+        config = {
+            'type': 'tagcloud',
+            'esql': 'FROM logs-* | STATS count(*) BY service.name',
+            'tags': {
+                'field': 'service.name',
+                'id': 'service-tag',
+            },
+            'metric': {
+                'field': 'count(*)',
+                'id': 'service-count',
+            },
+            'appearance': {
+                'orientation': orientation_value,
+            },
+        }
+
+        result = compile_tagcloud_chart_snapshot(config, 'esql')
+
+        # Verify orientation is correctly applied
+        assert result['orientation'] == expected_orientation
