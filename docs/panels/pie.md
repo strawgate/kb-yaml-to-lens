@@ -1,0 +1,1 @@
+../../src/dashboard_compiler/panels/charts/pie/config.md

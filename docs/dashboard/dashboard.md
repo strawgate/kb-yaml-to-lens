@@ -1,0 +1,1 @@
+../../src/dashboard_compiler/dashboard/dashboard.md

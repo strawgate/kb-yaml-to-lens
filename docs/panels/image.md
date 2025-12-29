@@ -1,0 +1,1 @@
+../../src/dashboard_compiler/panels/images/image.md
