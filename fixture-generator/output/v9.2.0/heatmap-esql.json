@@ -1,0 +1,83 @@
+{
+  "title": "Traffic Heatmap by Geographic Location",
+  "visualizationType": "lnsHeatmap",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "{\"index\":\"kibana_sample_data_logs\",\"timeFieldName\":\"@timestamp\"}",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"kibana_sample_data_logs\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM kibana_sample_data_logs | STATS bytes = SUM(bytes) BY geo.dest, geo.src"
+            },
+            "columns": [
+              {
+                "columnId": "y_metric_formula_accessor",
+                "fieldName": "geo.dest"
+              },
+              {
+                "columnId": "x_metric_formula_accessor",
+                "fieldName": "geo.src"
+              },
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "bytes"
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "y_metric_formula_accessor",
+                "fieldName": "geo.dest"
+              },
+              {
+                "columnId": "x_metric_formula_accessor",
+                "fieldName": "geo.src"
+              },
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "bytes"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "shape": "heatmap",
+      "valueAccessor": "metric_formula_accessor",
+      "xAccessor": "x_metric_formula_accessor",
+      "yAccessor": "y_metric_formula_accessor",
+      "gridConfig": {
+        "type": "heatmap_grid",
+        "isCellLabelVisible": false,
+        "isXAxisLabelVisible": false,
+        "isXAxisTitleVisible": false,
+        "isYAxisLabelVisible": false,
+        "isYAxisTitleVisible": false
+      },
+      "legend": {
+        "isVisible": true,
+        "position": "right",
+        "type": "heatmap_legend"
+      }
+    },
+    "adHocDataViews": {
+      "{\"index\":\"kibana_sample_data_logs\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

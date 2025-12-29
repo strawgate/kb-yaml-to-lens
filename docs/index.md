@@ -89,7 +89,7 @@ successful upload.
 - **[Architecture](architecture.md)** – Technical design and data flow overview
 - **[YAML Reference](yaml_reference.md)** – Complete schema documentation for
   all dashboard elements
-- **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new
+- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new
   capabilities
 
 ## Requirements
