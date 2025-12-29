@@ -5,16 +5,16 @@ The Pie chart panel visualizes data as a pie or donut chart, useful for showing 
 ## Minimal Configuration Example
 
 ```yaml
-dashboard:
-  name: "Traffic Sources"
-  panels:
-    - type: pie
-      title: "Website Traffic Sources"
-      grid: { x: 0, y: 0, w: 6, h: 6 }
-      data:
-        index: "traffic-data"
-        category: "source"
-        value: "visits"
+dashboards:
+  - name: "Traffic Sources"
+    panels:
+      - type: pie
+        title: "Website Traffic Sources"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        data:
+          index: "traffic-data"
+          category: "source"
+          value: "visits"
 ```
 
 ## Full Configuration Options

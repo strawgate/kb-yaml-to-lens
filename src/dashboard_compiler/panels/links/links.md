@@ -16,15 +16,15 @@ The `links` panel type is used to display a collection of hyperlinks on your das
 #       dashboard: "user-activity-dashboard-id" # ID of the target dashboard
 
 # For a complete dashboard structure:
-dashboard:
-  name: "Main Overview"
-  panels:
-    - type: links
-      title: "Navigate to User Details"
-      grid: { x: 0, y: 0, w: 6, h: 2 }
-      links:
-        - label: "View User Activity Dashboard"
-          dashboard: "user-activity-dashboard-id"
+dashboards:
+  - name: "Main Overview"
+    panels:
+      - type: links
+        title: "Navigate to User Details"
+        grid: { x: 0, y: 0, w: 6, h: 2 }
+        links:
+          - label: "View User Activity Dashboard"
+            dashboard: "user-activity-dashboard-id"
 ```
 
 **Linking to an External URL:**
@@ -39,16 +39,16 @@ dashboard:
 #       url: "https://docs.example.com/project-alpha"
 
 # For a complete dashboard structure:
-dashboard:
-  name: "Main Overview"
-  panels:
-    - type: links
-      title: "External Resources"
-      grid: { x: 6, y: 0, w: 6, h: 2 }
-      links:
-        - label: "Project Documentation"
-          url: "https://docs.example.com/project-alpha"
-          new_tab: true # Open this external link in a new tab
+dashboards:
+  - name: "Main Overview"
+    panels:
+      - type: links
+        title: "External Resources"
+        grid: { x: 6, y: 0, w: 6, h: 2 }
+        links:
+          - label: "Project Documentation"
+            url: "https://docs.example.com/project-alpha"
+            new_tab: true # Open this external link in a new tab
 ```
 
 ## Complex Configuration Example
@@ -56,30 +56,30 @@ dashboard:
 This example demonstrates a Links panel with multiple link types, a vertical layout, and specific options for how links behave.
 
 ```yaml
-dashboard:
-  name: "Operations Hub"
-  panels:
-    - type: links
-      title: "Quick Access"
-      description: "Links to key operational dashboards and tools."
-      grid: { x: 0, y: 0, w: 12, h: 3 }
-      layout: "vertical" # Display links one above the other
-      links:
-        - label: "Service Health Dashboard"
-          dashboard: "service-health-monitor-v2"
-          with_time: true      # Carry over current time range
-          with_filters: true   # Carry over current filters
-          new_tab: false       # Open in the same tab
-        - label: "System Logs (Last 1 Hour)"
-          dashboard: "system-logs-deep-dive"
-          # This link will use the target dashboard's default time/filters
-        - label: "Runbook Wiki"
-          url: "https://internal.wiki/ops/runbooks"
-          new_tab: true
-          encode: false # If the URL should not be encoded
-        - label: "Grafana Metrics"
-          url: "https://grafana.example.com/d/abcdef/service-metrics"
-          new_tab: true
+dashboards:
+  - name: "Operations Hub"
+    panels:
+      - type: links
+        title: "Quick Access"
+        description: "Links to key operational dashboards and tools."
+        grid: { x: 0, y: 0, w: 12, h: 3 }
+        layout: "vertical" # Display links one above the other
+        links:
+          - label: "Service Health Dashboard"
+            dashboard: "service-health-monitor-v2"
+            with_time: true      # Carry over current time range
+            with_filters: true   # Carry over current filters
+            new_tab: false       # Open in the same tab
+          - label: "System Logs (Last 1 Hour)"
+            dashboard: "system-logs-deep-dive"
+            # This link will use the target dashboard's default time/filters
+          - label: "Runbook Wiki"
+            url: "https://internal.wiki/ops/runbooks"
+            new_tab: true
+            encode: false # If the URL should not be encoded
+          - label: "Grafana Metrics"
+            url: "https://grafana.example.com/d/abcdef/service-metrics"
+            new_tab: true
 ```
 
 ## Full Configuration Options

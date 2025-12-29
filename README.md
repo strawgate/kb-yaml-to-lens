@@ -32,12 +32,11 @@ For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 1. Create a YAML dashboard file in `inputs/` directory:
 
 ```yaml
-dashboard:
-  name: My First Dashboard
-  description: A simple dashboard with markdown
-  panels:
-    - panel:
-        type: markdown
+dashboards:
+  - name: My First Dashboard
+    description: A simple dashboard with markdown
+    panels:
+      - type: markdown
         grid: { x: 0, y: 0, w: 24, h: 15 }
         content: |
           # Welcome to Kibana!

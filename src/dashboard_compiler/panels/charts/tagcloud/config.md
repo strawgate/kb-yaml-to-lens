@@ -5,37 +5,37 @@ The Tag Cloud chart panel visualizes term frequency as a word cloud, where the s
 ## Minimal Configuration Example (Lens)
 
 ```yaml
-dashboard:
-  name: "Log Analysis"
-  panels:
-    - type: charts
-      title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
-      chart:
-        type: tagcloud
-        data_view: "logs-*"
-        tags:
-          field: "error.message"
-        metric:
-          aggregation: count
+dashboards:
+  - name: "Log Analysis"
+    panels:
+      - type: charts
+        title: "Top Error Messages"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        chart:
+          type: tagcloud
+          data_view: "logs-*"
+          tags:
+            field: "error.message"
+          metric:
+            aggregation: count
 ```
 
 ## Minimal Configuration Example (ES|QL)
 
 ```yaml
-dashboard:
-  name: "Log Analysis"
-  panels:
-    - type: charts
-      title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
-      esql: "FROM logs-* | STATS count(*) BY error.message"
-      chart:
-        type: tagcloud
-        tags:
-          field: "error.message"
-        metric:
-          field: "count(*)"
+dashboards:
+  - name: "Log Analysis"
+    panels:
+      - type: charts
+        title: "Top Error Messages"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        esql: "FROM logs-* | STATS count(*) BY error.message"
+        chart:
+          type: tagcloud
+          tags:
+            field: "error.message"
+          metric:
+            field: "count(*)"
 ```
 
 ## Full Configuration Options
@@ -88,26 +88,26 @@ Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color
 ## Advanced Configuration Example
 
 ```yaml
-dashboard:
-  name: "Advanced Tag Cloud"
-  panels:
-    - type: charts
-      title: "Kubernetes Pod Labels"
-      grid: { x: 0, y: 0, w: 12, h: 8 }
-      chart:
-        type: tagcloud
-        data_view: "k8s-*"
-        tags:
-          field: "kubernetes.labels.app"
-        metric:
-          aggregation: count
-        appearance:
-          min_font_size: 12
-          max_font_size: 96
-          orientation: "multiple"
-          show_label: false
-        color:
-          palette: "kibana_palette"
+dashboards:
+  - name: "Advanced Tag Cloud"
+    panels:
+      - type: charts
+        title: "Kubernetes Pod Labels"
+        grid: { x: 0, y: 0, w: 12, h: 8 }
+        chart:
+          type: tagcloud
+          data_view: "k8s-*"
+          tags:
+            field: "kubernetes.labels.app"
+          metric:
+            aggregation: count
+          appearance:
+            min_font_size: 12
+            max_font_size: 96
+            orientation: "multiple"
+            show_label: false
+          color:
+            palette: "kibana_palette"
 ```
 
 ## Related

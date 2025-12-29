@@ -5,16 +5,16 @@ The XY chart panel creates line, bar, and area charts for time series and other 
 ## Minimal Configuration Example
 
 ```yaml
-dashboard:
-  name: "Time Series Dashboard"
-  panels:
-    - type: xy
-      title: "Events Over Time"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
-      data:
-        index: "logs-*"
-        x_axis: "@timestamp"
-        metric: "count"
+dashboards:
+  - name: "Time Series Dashboard"
+    panels:
+      - type: xy
+        title: "Events Over Time"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        data:
+          index: "logs-*"
+          x_axis: "@timestamp"
+          metric: "count"
 ```
 
 ## Full Configuration Options

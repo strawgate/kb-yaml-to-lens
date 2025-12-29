@@ -22,20 +22,20 @@ The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query,
 #       field: "total_events" # Must match a column name from ESQL query
 
 # For a complete dashboard structure:
-dashboard:
-  name: "ESQL Metrics Dashboard"
-  panels:
-    - type: charts
-      title: "Total Processed Events"
-      grid: { x: 0, y: 0, w: 4, h: 3 }
-      esql: |
-        FROM my_event_stream
-        | STATS total_events = COUNT(event_id)
-      chart:
-        type: metric # Specifies an ESQLMetricChart
-        primary:
-          field: "total_events"
-          # Label can be inferred from field if not provided
+dashboards:
+  - name: "ESQL Metrics Dashboard"
+    panels:
+      - type: charts
+        title: "Total Processed Events"
+        grid: { x: 0, y: 0, w: 4, h: 3 }
+        esql: |
+          FROM my_event_stream
+          | STATS total_events = COUNT(event_id)
+        chart:
+          type: metric # Specifies an ESQLMetricChart
+          primary:
+            field: "total_events"
+            # Label can be inferred from field if not provided
 ```
 
 **Minimal ESQL Pie Chart:**
@@ -57,23 +57,23 @@ dashboard:
 #       - field: "event_type"  # Must match a dimension column from ESQL
 
 # For a complete dashboard structure:
-dashboard:
-  name: "ESQL Event Analysis"
-  panels:
-    - type: charts
-      title: "Events by Type (ESQL)"
-      grid: { x: 4, y: 0, w: 8, h: 3 }
-      esql: |
-        FROM my_event_stream
-        | STATS event_count = COUNT(event_id) BY event_type
-        | ORDER event_count DESC
-        | LIMIT 5
-      chart:
-        type: pie # Specifies an ESQLPieChart
-        metric:
-          field: "event_count"
-        slice_by:
-          - field: "event_type"
+dashboards:
+  - name: "ESQL Event Analysis"
+    panels:
+      - type: charts
+        title: "Events by Type (ESQL)"
+        grid: { x: 4, y: 0, w: 8, h: 3 }
+        esql: |
+          FROM my_event_stream
+          | STATS event_count = COUNT(event_id) BY event_type
+          | ORDER event_count DESC
+          | LIMIT 5
+        chart:
+          type: pie # Specifies an ESQLPieChart
+          metric:
+            field: "event_count"
+          slice_by:
+            - field: "event_type"
 ```
 
 ## Full Configuration Options

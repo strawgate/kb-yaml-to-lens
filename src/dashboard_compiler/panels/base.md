@@ -20,20 +20,20 @@ This example shows how base panel fields are used within a `markdown` panel:
 #   # ... other markdown-specific fields ...
 
 # For a complete dashboard structure:
-dashboard:
-  name: "Example Dashboard"
-  panels:
-    - type: markdown # This 'type' field is part of the MarkdownPanel model, not BasePanel
-      title: "Status Overview"
-      description: "A quick look at system status." # BasePanel field
-      hide_title: false                             # BasePanel field
-      grid:                                         # BasePanel field
-        x: 0
-        y: 0
-        w: 6
-        h: 4
-      # --- MarkdownPanel specific fields would go here ---
-      content: "System is **operational**."
+dashboards:
+  - name: "Example Dashboard"
+    panels:
+      - type: markdown # This 'type' field is part of the MarkdownPanel model, not BasePanel
+        title: "Status Overview"
+        description: "A quick look at system status." # BasePanel field
+        hide_title: false                             # BasePanel field
+        grid:                                         # BasePanel field
+          x: 0
+          y: 0
+          w: 6
+          h: 4
+        # --- MarkdownPanel specific fields would go here ---
+        content: "System is **operational**."
 ```
 
 ## Full Configuration Options

@@ -5,15 +5,15 @@ The Metric chart panel displays a single value or a small set of key metrics, of
 ## Minimal Configuration Example
 
 ```yaml
-dashboard:
-  name: "KPI Dashboard"
-  panels:
-    - type: metric
-      title: "Total Revenue"
-      grid: { x: 0, y: 0, w: 3, h: 2 }
-      data:
-        index: "sales-data"
-        value: "revenue"
+dashboards:
+  - name: "KPI Dashboard"
+    panels:
+      - type: metric
+        title: "Total Revenue"
+        grid: { x: 0, y: 0, w: 3, h: 2 }
+        data:
+          index: "sales-data"
+          value: "revenue"
 ```
 
 ## Full Configuration Options
