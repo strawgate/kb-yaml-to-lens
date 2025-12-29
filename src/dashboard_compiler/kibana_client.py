@@ -33,6 +33,7 @@ class SavedObjectResult(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     id: str
+    destination_id: str | None = Field(default=None, validation_alias='destinationId')
     type: str
 
 
@@ -150,7 +151,7 @@ class KibanaClient:
             Full URL to the dashboard in Kibana
 
         """
-        return f'{self.url}/app/dashboards#{dashboard_id}'
+        return f'{self.url}/app/dashboards#/view/{dashboard_id}'
 
     async def generate_screenshot(  # noqa: PLR0913
         self,
