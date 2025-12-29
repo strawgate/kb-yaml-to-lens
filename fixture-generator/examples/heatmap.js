@@ -1,64 +1,54 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a heatmap visualization using Kibana's LensConfigBuilder
+ * Example: Generate heatmap visualizations (both ES|QL and Data View)
  *
- * This script demonstrates how to create a heatmap showing geographic traffic patterns
+ * Demonstrates creating a heatmap showing geographic traffic patterns
  * with data aggregated by source and destination countries.
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateHeatmap() {
-  // Initialize the builder with Kibana's official mock
-  const mockDataViews = createDataViewsMock();
-  const builder = new LensConfigBuilder(mockDataViews);
-
-  // Define heatmap configuration
-  // Based on: https://github.com/elastic/kibana/blob/main/dev_docs/lens/heatmap.mdx
-  const config = {
+  // Shared configuration between both variants
+  const sharedConfig = {
     chartType: 'heatmap',
-    title: 'Traffic Heatmap by Geographic Location',
-    dataset: {
-      esql: 'FROM kibana_sample_data_logs | STATS bytes = SUM(bytes) BY geo.dest, geo.src'
-    },
-    breakdown: 'geo.dest',  // Y-axis: destination country
-    xAxis: 'geo.src',       // X-axis: source country
-    value: 'bytes',         // Metric: total bytes transferred
     legend: {
       show: true,
       position: 'right'
     }
   };
 
-  // Build the Lens attributes
-  const lensAttributes = await builder.build(config, {
-    timeRange: { from: 'now-7d', to: 'now', type: 'relative' }
-  });
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
+    title: 'Traffic Heatmap by Geographic Location',
+    dataset: {
+      esql: 'FROM kibana_sample_data_logs | STATS bytes = SUM(bytes) BY geo.dest, geo.src'
+    },
+    breakdown: 'geo.dest',  // Y-axis: destination country
+    xAxis: 'geo.src',       // X-axis: source country
+    value: 'bytes'          // Metric: total bytes transferred
+  };
 
-  // Write to output directory
-  const outputDir = path.join(__dirname, '..', 'output');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'Traffic Heatmap by Geographic Location (Data View)',
+    dataset: {
+      index: 'kibana_sample_data_logs'
+    },
+    breakdown: 'geo.dest',
+    xAxis: 'geo.src',
+    value: 'sum(bytes)'
+  };
 
-  const outputPath = path.join(outputDir, 'heatmap.json');
-  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
-
-  console.log('✓ Generated: heatmap.json');
+  await generateDualFixture(
+    'heatmap',
+    esqlConfig,
+    dataviewConfig,
+    { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
 }
 
-// Run if executed directly
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  generateHeatmap()
-    .catch((err) => {
-      console.error('Failed to generate fixture:', err);
-      process.exit(1);
-    });
-}
+runIfMain(generateHeatmap, import.meta.url);

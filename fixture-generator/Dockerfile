@@ -68,8 +68,9 @@ RUN mkdir -p /kibana/output
 # Stay in Kibana root for module resolution
 WORKDIR /kibana
 
-# Set output directory
+# Set output directory and Kibana version for fixture generation
 ENV OUTPUT_DIR=/kibana/output
+ENV KIBANA_VERSION=${KIBANA_VERSION}
 
 # Default command: generate all fixtures using tsx for TypeScript support
 CMD ["tsx", "generate-all.js"]

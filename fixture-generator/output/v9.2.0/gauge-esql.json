@@ -1,0 +1,54 @@
+{
+  "title": "CPU Usage Gauge",
+  "visualizationType": "lnsGauge",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)"
+            },
+            "columns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "metric_formula_accessor"
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "metric_formula_accessor"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "ticksPosition": "auto",
+      "shape": "arc",
+      "labelMajorMode": "auto",
+      "metricAccessor": "metric_formula_accessor"
+    },
+    "adHocDataViews": {
+      "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

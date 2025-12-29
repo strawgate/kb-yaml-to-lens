@@ -1,53 +1,48 @@
 #!/usr/bin/env node
 /**
- * Example: Generate a metric with breakdown visualization
+ * Example: Generate metric with breakdown visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a metric that breaks down by a field
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricWithBreakdown() {
-  const mockDataViews = createDataViewsMock();
-  const builder = new LensConfigBuilder(mockDataViews);
-
-  const config = {
+  // Shared configuration between both variants
+  const sharedConfig = {
     chartType: 'metric',
+    label: 'Events per Agent'
+  };
+
+  // ES|QL variant
+  const esqlConfig = {
+    ...sharedConfig,
     title: 'Count by Agent',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY agent.name | SORT count DESC | LIMIT 5'
     },
     value: 'count',
-    breakdown: 'agent.name',
-    label: 'Events per Agent'
+    breakdown: 'agent.name'
   };
 
-  const lensAttributes = await builder.build(config, {
-    timeRange: { from: 'now-24h', to: 'now', type: 'relative' }
-  });
+  // Data View variant
+  const dataviewConfig = {
+    ...sharedConfig,
+    title: 'Count by Agent (Data View)',
+    dataset: {
+      index: 'logs-*'
+    },
+    value: 'count()',
+    breakdown: 'agent.name'
+  };
 
-  const outputDir = path.join(__dirname, '..', 'output');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  const outputPath = path.join(outputDir, 'metric-with-breakdown.json');
-  fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
-
-  console.log('✓ Generated: metric-with-breakdown.json');
+  await generateDualFixture(
+    'metric-with-breakdown',
+    esqlConfig,
+    dataviewConfig,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  generateMetricWithBreakdown()
-    .catch((err) => {
-      console.error('Failed to generate fixture:', err);
-      process.exit(1);
-    });
-}
+runIfMain(generateMetricWithBreakdown, import.meta.url);

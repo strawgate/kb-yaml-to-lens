@@ -1,0 +1,49 @@
+{
+  "title": "System Metrics Grid (Data View)",
+  "visualizationType": "lnsMetric",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "metrics-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "params": {},
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "metrics-*": {}
+    }
+  }
+}
