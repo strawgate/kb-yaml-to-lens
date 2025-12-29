@@ -23,6 +23,30 @@ describe('Preview Panel E2E Tests', function() {
         // Clean up before each test
         const workbench = new Workbench();
         await workbench.executeCommand('workbench.action.closeAllEditors');
+
+        // Force close any open input boxes/command palette by pressing ESC
+        try {
+            const actions = driver.actions();
+            await actions.sendKeys('\uE00C').perform();
+            await driver.sleep(500);
+        } catch {
+            // Ignore if ESC doesn't work
+        }
+
+        // Clear any notifications
+        try {
+            const notifications = await workbench.getNotifications();
+            for (const notif of notifications) {
+                try {
+                    await notif.dismiss();
+                } catch {
+                    // Ignore
+                }
+            }
+        } catch {
+            // Ignore if no notifications
+        }
+
         await driver.sleep(500);
     });
 

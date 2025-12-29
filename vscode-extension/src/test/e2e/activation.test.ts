@@ -19,6 +19,35 @@ describe('Extension Activation E2E Tests', function() {
         driver = browser.driver;
     });
 
+    beforeEach(async () => {
+        // Clean up before each test - close all editors and dismiss notifications
+        const workbench = new Workbench();
+        await workbench.executeCommand('workbench.action.closeAllEditors');
+
+        // Force close any open input boxes/command palette by pressing ESC
+        try {
+            const actions = driver.actions();
+            await actions.sendKeys('\uE00C').perform(); // ESC key
+            await driver.sleep(500);
+        } catch {
+            // Ignore if ESC doesn't work
+        }
+
+        // Clear any notifications
+        try {
+            const notifications = await workbench.getNotifications();
+            for (const notif of notifications) {
+                try {
+                    await notif.dismiss();
+                } catch {
+                    // Ignore
+                }
+            }
+        } catch {
+            // Ignore if no notifications
+        }
+    });
+
     it('should activate when opening a YAML file', async function() {
         this.timeout(30000);
 
@@ -43,21 +72,28 @@ describe('Extension Activation E2E Tests', function() {
     });
 
     it('should register all required commands', async function() {
-        this.timeout(30000);
+        this.timeout(45000);
 
         const workbench = new Workbench();
 
-        // Wait a bit to ensure extension is fully activated
-        await driver.sleep(1000);
+        // Ensure extension is activated by opening a YAML file first
+        const fixturesPath = path.resolve(__dirname, '../../../test/fixtures/simple-dashboard.yaml');
+        await workbench.executeCommand('workbench.action.quickOpen');
+        let inputBox = await InputBox.create();
+        await inputBox.setText(fixturesPath);
+        await inputBox.confirm();
 
-        // Open command palette to search for our commands
+        // Wait for file to open and extension to fully activate
+        await driver.sleep(5000);
+
+        // Now open command palette to search for our commands
         await workbench.executeCommand('workbench.action.showCommands');
 
-        const inputBox = await InputBox.create();
+        inputBox = await InputBox.create();
 
         try {
             await inputBox.setText('YAML Dashboard');
-            await driver.sleep(2000);
+            await driver.sleep(3000); // Increased wait for command filtering
 
             const picks = await inputBox.getQuickPicks();
             const pickTexts = await Promise.all(picks.map(p => p.getText()));
@@ -73,6 +109,14 @@ describe('Extension Activation E2E Tests', function() {
                 await inputBox.cancel();
             } catch {
                 // Ignore errors during cleanup
+            }
+            // Double-check with ESC key
+            try {
+                const actions = driver.actions();
+                await actions.sendKeys('\uE00C').perform();
+                await driver.sleep(500);
+            } catch {
+                // Ignore
             }
         }
     });
