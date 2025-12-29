@@ -133,6 +133,7 @@ ignore = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
+    "ERA001", # Allow commented JSON structure documentation
 ]
 "src/dashboard_compiler/**/config.py" = [
     "TC001", # Pydantic config models rely on runtime imports for type evaluation
