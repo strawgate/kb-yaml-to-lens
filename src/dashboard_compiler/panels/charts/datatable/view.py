@@ -23,13 +23,13 @@ class KbnDatatableColumnState(BaseVwModel):
     oneClickFilter: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Enable one-click filtering for this column."""
 
-    alignment: Annotated[Literal['left', 'right', 'center'] | None, OmitIfNone()] = Field(default=None)
+    alignment: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Text alignment for the column."""
 
-    colorMode: Annotated[Literal['none', 'cell', 'text'] | None, OmitIfNone()] = Field(default=None)
+    colorMode: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """How to apply colors to the column."""
 
-    summaryRow: Annotated[Literal['none', 'sum', 'avg', 'count', 'min', 'max'] | None, OmitIfNone()] = Field(default=None)
+    summaryRow: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Summary function to display at the bottom of the column."""
 
     summaryLabel: Annotated[str | None, OmitIfNone()] = Field(default=None)
@@ -81,10 +81,10 @@ class KbnDatatableVisualizationState(BaseVwModel):
     sorting: Annotated[KbnDatatableSortingState | None, OmitIfNone()] = Field(default=None)
     """Optional sorting configuration."""
 
-    rowHeight: Annotated[Literal['auto', 'single', 'custom'] | None, OmitIfNone()] = Field(default=None)
+    rowHeight: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Row height mode."""
 
-    headerRowHeight: Annotated[Literal['auto', 'single', 'custom'] | None, OmitIfNone()] = Field(default=None)
+    headerRowHeight: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Header row height mode."""
 
     rowHeightLines: Annotated[int | None, OmitIfNone()] = Field(default=None)
@@ -96,5 +96,5 @@ class KbnDatatableVisualizationState(BaseVwModel):
     paging: Annotated[KbnDatatablePagingState | None, OmitIfNone()] = Field(default=None)
     """Optional pagination configuration."""
 
-    density: Annotated[Literal['compact', 'normal', 'expanded'] | None, OmitIfNone()] = Field(default=None)
+    density: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Grid density setting."""

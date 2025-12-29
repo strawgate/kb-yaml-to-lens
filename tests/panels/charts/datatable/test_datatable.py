@@ -16,10 +16,10 @@ def compile_datatable_chart_snapshot(config: dict[str, Any], chart_type: str = '
     """Compile datatable chart config and return dict for snapshot testing."""
     if chart_type == 'lens':
         lens_chart = LensDatatableChart.model_validate(config)
-        layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
+        _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
     else:  # esql
         esql_chart = ESQLDatatableChart.model_validate(config)
-        layer_id, kbn_columns, kbn_state_visualization = compile_esql_datatable_chart(esql_datatable_chart=esql_chart)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_datatable_chart(esql_datatable_chart=esql_chart)
 
     assert kbn_state_visualization is not None
     return kbn_state_visualization.model_dump()

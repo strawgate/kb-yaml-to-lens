@@ -6,11 +6,8 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
 
 from dashboard_compiler.panels.charts.datatable.config import (
-    DatatableAlignmentEnum,
-    DatatableColorModeEnum,
     DatatableDensityEnum,
     DatatableRowHeightEnum,
-    DatatableSummaryRowEnum,
     ESQLDatatableChart,
     LensDatatableChart,
 )
@@ -72,38 +69,13 @@ def compile_lens_datatable_chart(
         if lens_datatable_chart.columns:
             user_config = next((c for c in lens_datatable_chart.columns if c.column_id == column_id), None)
 
-        # Handle enum fields which may be strings due to strict=False - always extract .value if enum
-        alignment_val = None
-        if user_config and user_config.alignment:
-            alignment_val = (
-                user_config.alignment.value
-                if isinstance(user_config.alignment, DatatableAlignmentEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-                else user_config.alignment
-            )
-
-        color_mode_val = None
-        if user_config and user_config.color_mode:
-            color_mode_val = (
-                user_config.color_mode.value
-                if isinstance(user_config.color_mode, DatatableColorModeEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-                else user_config.color_mode
-            )
-
-        summary_row_val = None
-        if user_config and user_config.summary_row:
-            summary_row_val = (
-                user_config.summary_row.value
-                if isinstance(user_config.summary_row, DatatableSummaryRowEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-                else user_config.summary_row
-            )
-
         column_state = KbnDatatableColumnState(
             columnId=column_id,
             width=user_config.width if user_config else None,
             hidden=user_config.hidden if user_config and user_config.hidden else None,
-            alignment=alignment_val,
-            colorMode=color_mode_val,
-            summaryRow=summary_row_val,
+            alignment=user_config.alignment if user_config else None,
+            colorMode=user_config.color_mode if user_config else None,
+            summaryRow=user_config.summary_row if user_config else None,
             summaryLabel=user_config.summary_label if user_config else None,
         )
         column_states.append(column_state)
@@ -125,27 +97,12 @@ def compile_lens_datatable_chart(
         )
 
     # Build visualization state
-    # Extract enum values, handling both enum and string types (pydantic may coerce with strict=False)
-    row_height_val = (
-        lens_datatable_chart.row_height.value
-        if isinstance(lens_datatable_chart.row_height, DatatableRowHeightEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-        else lens_datatable_chart.row_height
+    # Omit default values (auto for row heights, normal for density) to match Kibana defaults
+    row_height_value = None if lens_datatable_chart.row_height == DatatableRowHeightEnum.AUTO else lens_datatable_chart.row_height
+    header_row_height_value = (
+        None if lens_datatable_chart.header_row_height == DatatableRowHeightEnum.AUTO else lens_datatable_chart.header_row_height
     )
-    row_height_value = None if row_height_val == 'auto' else row_height_val
-
-    header_row_height_val = (
-        lens_datatable_chart.header_row_height.value
-        if isinstance(lens_datatable_chart.header_row_height, DatatableRowHeightEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-        else lens_datatable_chart.header_row_height
-    )
-    header_row_height_value = None if header_row_height_val == 'auto' else header_row_height_val
-
-    density_val = (
-        lens_datatable_chart.density.value
-        if isinstance(lens_datatable_chart.density, DatatableDensityEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-        else lens_datatable_chart.density
-    )
-    density_value = None if density_val == 'normal' else density_val
+    density_value = None if lens_datatable_chart.density == DatatableDensityEnum.NORMAL else lens_datatable_chart.density
 
     visualization_state = KbnDatatableVisualizationState(
         columns=column_states,
@@ -202,38 +159,13 @@ def compile_esql_datatable_chart(
         if esql_datatable_chart.columns:
             user_config = next((c for c in esql_datatable_chart.columns if c.column_id == column_id), None)
 
-        # Handle enum fields which may be strings due to strict=False - always extract .value if enum
-        alignment_val = None
-        if user_config and user_config.alignment:
-            alignment_val = (
-                user_config.alignment.value
-                if isinstance(user_config.alignment, DatatableAlignmentEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-                else user_config.alignment
-            )
-
-        color_mode_val = None
-        if user_config and user_config.color_mode:
-            color_mode_val = (
-                user_config.color_mode.value
-                if isinstance(user_config.color_mode, DatatableColorModeEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-                else user_config.color_mode
-            )
-
-        summary_row_val = None
-        if user_config and user_config.summary_row:
-            summary_row_val = (
-                user_config.summary_row.value
-                if isinstance(user_config.summary_row, DatatableSummaryRowEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-                else user_config.summary_row
-            )
-
         column_state = KbnDatatableColumnState(
             columnId=column_id,
             width=user_config.width if user_config else None,
             hidden=user_config.hidden if user_config and user_config.hidden else None,
-            alignment=alignment_val,
-            colorMode=color_mode_val,
-            summaryRow=summary_row_val,
+            alignment=user_config.alignment if user_config else None,
+            colorMode=user_config.color_mode if user_config else None,
+            summaryRow=user_config.summary_row if user_config else None,
             summaryLabel=user_config.summary_label if user_config else None,
         )
         column_states.append(column_state)
@@ -255,27 +187,12 @@ def compile_esql_datatable_chart(
         )
 
     # Build visualization state
-    # Extract enum values, handling both enum and string types (pydantic may coerce with strict=False)
-    row_height_val = (
-        esql_datatable_chart.row_height.value
-        if isinstance(esql_datatable_chart.row_height, DatatableRowHeightEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-        else esql_datatable_chart.row_height
+    # Omit default values (auto for row heights, normal for density) to match Kibana defaults
+    row_height_value = None if esql_datatable_chart.row_height == DatatableRowHeightEnum.AUTO else esql_datatable_chart.row_height
+    header_row_height_value = (
+        None if esql_datatable_chart.header_row_height == DatatableRowHeightEnum.AUTO else esql_datatable_chart.header_row_height
     )
-    row_height_value = None if row_height_val == 'auto' else row_height_val
-
-    header_row_height_val = (
-        esql_datatable_chart.header_row_height.value
-        if isinstance(esql_datatable_chart.header_row_height, DatatableRowHeightEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-        else esql_datatable_chart.header_row_height
-    )
-    header_row_height_value = None if header_row_height_val == 'auto' else header_row_height_val
-
-    density_val = (
-        esql_datatable_chart.density.value
-        if isinstance(esql_datatable_chart.density, DatatableDensityEnum)  # pyright: ignore[reportUnnecessaryIsInstance]
-        else esql_datatable_chart.density
-    )
-    density_value = None if density_val == 'normal' else density_val
+    density_value = None if esql_datatable_chart.density == DatatableDensityEnum.NORMAL else esql_datatable_chart.density
 
     visualization_state = KbnDatatableVisualizationState(
         columns=column_states,
