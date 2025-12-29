@@ -39,15 +39,29 @@ This repository contains three main components:
 **From repository root:**
 
 | Command | Purpose |
-| ------- | ------- |
-| `make install` | Install Python dependencies |
-| `make check` | Run Python lint + typecheck + tests |
-| `make test` | Run Python test suite |
-| `make compile` | Compile YAML dashboards |
+| --------- | --------- |
+| `make install` | Install all dependencies |
+| `make check` | **Run before committing** (lint + typecheck + test) |
+| `make test` | Run pytest suite |
+| `make lint` | Format and lint code |
+| `make typecheck` | Run type checking with basedpyright |
+| `make compile` | Compile YAML dashboards to NDJSON |
 
 **Component-specific commands:**
 
 See component-specific AGENTS.md files for detailed commands.
+
+**Workflow example:**
+
+```bash
+# First time setup
+make install
+
+# Development cycle
+# 1. Make changes
+# 2. Run checks
+make check
+```
 
 ---
 
@@ -93,9 +107,9 @@ See component-specific AGENTS.md files for detailed commands.
 ### Triage First
 
 | Priority | Examples |
-| -------- | -------- |
-| **Critical** | Security issues, data corruption, test failures |
-| **Important** | Error handling, performance, missing tests |
+| ---------- | ---------- |
+| **Critical** | Security issues, data corruption, type safety violations, test failures |
+| **Important** | Error handling, performance, missing tests, type annotations |
 | **Optional** | Style preferences, minor refactors |
 
 ### Evaluate Against Codebase
@@ -239,7 +253,7 @@ gh api graphql -f query='
 ## Additional Resources
 
 | Resource | Location |
-| -------- | -------- |
+| ---------- | ---------- |
 | Component AGENTS.md files | `src/dashboard_compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
 | Architecture details | `docs/architecture.md` |
 | YAML schema reference | `docs/yaml_reference.md` (generated via `make compile-docs`) |
