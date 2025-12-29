@@ -5,7 +5,8 @@ The Tag Cloud chart panel visualizes term frequency as a word cloud, where the s
 ## Minimal Configuration Example (Lens)
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Log Analysis"
   panels:
     - type: charts
@@ -23,7 +24,8 @@ dashboard:
 ## Minimal Configuration Example (ES|QL)
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Log Analysis"
   panels:
     - type: charts
@@ -88,7 +90,8 @@ Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color
 ## Advanced Configuration Example
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Advanced Tag Cloud"
   panels:
     - type: charts

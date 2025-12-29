@@ -16,7 +16,8 @@ The `links` panel type is used to display a collection of hyperlinks on your das
 #       dashboard: "user-activity-dashboard-id" # ID of the target dashboard
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Main Overview"
   panels:
     - type: links
@@ -39,7 +40,8 @@ dashboard:
 #       url: "https://docs.example.com/project-alpha"
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Main Overview"
   panels:
     - type: links
@@ -56,7 +58,8 @@ dashboard:
 This example demonstrates a Links panel with multiple link types, a vertical layout, and specific options for how links behave.
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Operations Hub"
   panels:
     - type: links

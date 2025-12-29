@@ -1,0 +1,58 @@
+{
+  "title": "System Metrics Overview",
+  "visualizationType": "lnsMetric",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM logs-* | STATS count = COUNT(), avg_bytes = AVG(bytes)"
+            },
+            "columns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "metric_formula_accessor",
+                "meta": {
+                  "type": "number"
+                }
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "metric_formula_accessor",
+                "meta": {
+                  "type": "number"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

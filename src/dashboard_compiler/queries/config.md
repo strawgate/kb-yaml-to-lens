@@ -8,7 +8,8 @@ Queries are used to define the search criteria for retrieving data. They can be 
 
 ```yaml
 # Applied at the dashboard level
-dashboard:
+dashboards:
+-
   # ...
   query:
     kql: 'response_code:200 AND "user.id": "test-user"'
@@ -18,7 +19,8 @@ dashboard:
 
 ```yaml
 # Applied at the dashboard level
-dashboard:
+dashboards:
+-
   # ...
   query:
     lucene: 'event.module:nginx AND event.dataset:nginx.access'
@@ -52,7 +54,8 @@ Filters documents using the Kibana Query Language (KQL). This is often the defau
 **Usage Example (Dashboard Level):**
 
 ```yaml
-dashboard:
+dashboards:
+-
   # ...
   query:
     kql: 'event.action:"user_login" AND event.outcome:success'
@@ -70,7 +73,8 @@ Filters documents using the more expressive, but complex, Lucene query syntax.
 **Usage Example (Dashboard Level):**
 
 ```yaml
-dashboard:
+dashboards:
+-
   # ...
   query:
     lucene: '(geo.src:"US" OR geo.src:"CA") AND tags:"production"'
