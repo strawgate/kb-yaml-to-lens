@@ -1,20 +1,18 @@
 dashboards:
-  - title: Simple Test Dashboard
+  - name: Simple Test Dashboard
     description: A basic dashboard for e2e testing
     panels:
-      - id: panel1
+      - type: markdown
         title: Test Panel 1
-        visualization:
-          type: metric
+        content: "# Test Panel 1"
         grid:
           x: 0
           y: 0
           w: 12
           h: 8
-      - id: panel2
+      - type: markdown
         title: Test Panel 2
-        visualization:
-          type: table
+        content: "# Test Panel 2"
         grid:
           x: 12
           y: 0

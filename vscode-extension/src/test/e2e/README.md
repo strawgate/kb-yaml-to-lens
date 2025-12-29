@@ -24,20 +24,24 @@ These tests use [vscode-extension-tester](https://github.com/redhat-developer/vs
 ### Prerequisites
 
 1. Install dependencies:
+
    ```bash
    cd vscode-extension
    npm install
    ```
 
 2. Compile the extension:
+
    ```bash
    npm run compile
    ```
 
 3. Setup test environment (first time only):
+
    ```bash
    npm run test:e2e-setup
    ```
+
    This downloads VSCode and ChromeDriver.
 
 ### Run Tests
@@ -111,16 +115,19 @@ describe('My Feature Tests', function() {
    - Individual test timeout: 30000-45000ms
 
 2. **Clean State**: Always clean up before and after tests
+
    ```typescript
    await workbench.executeCommand('workbench.action.closeAllEditors');
    ```
 
 3. **Wait for Async Operations**: Use `driver.sleep()` for UI updates
+
    ```typescript
    await driver.sleep(2000); // Wait 2s for file to open
    ```
 
 4. **Handle Errors Gracefully**: Wrap potentially failing operations
+
    ```typescript
    try {
        await notif.dismiss();
@@ -136,6 +143,7 @@ describe('My Feature Tests', function() {
    - Verify notifications
 
 6. **Use Test Fixtures**: Don't rely on external files
+
    ```typescript
    const fixturesPath = path.resolve(__dirname, '../../../test/fixtures/simple-dashboard.yaml');
    ```
@@ -143,6 +151,7 @@ describe('My Feature Tests', function() {
 ## CI Integration
 
 E2E tests run in GitHub Actions on:
+
 - Ubuntu (with Xvfb for headless display)
 - Windows
 - macOS
@@ -167,6 +176,7 @@ npm run test:e2e-setup
 ### Linux Headless Issues
 
 Ensure Xvfb is running:
+
 ```bash
 Xvfb :99 -screen 0 1024x768x24 &
 export DISPLAY=':99.0'

@@ -1,4 +1,12 @@
 dashboards:
-  - title: Invalid Dashboard
-    # Missing required fields like panels
+  - name: Invalid Dashboard
     description: This dashboard is intentionally malformed for error testing
+    panels:
+      - type: invalid_panel_type
+        # This panel type doesn't exist, should cause validation error
+        title: Invalid Panel
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8

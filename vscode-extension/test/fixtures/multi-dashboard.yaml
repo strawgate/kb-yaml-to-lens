@@ -1,24 +1,22 @@
 dashboards:
-  - title: First Dashboard
+  - name: First Dashboard
     description: First dashboard in multi-dashboard file
     panels:
-      - id: panel1
+      - type: markdown
         title: Dashboard 1 Panel 1
-        visualization:
-          type: metric
+        content: "# Dashboard 1 Panel 1"
         grid:
           x: 0
           y: 0
           w: 24
           h: 8
 
-  - title: Second Dashboard
+  - name: Second Dashboard
     description: Second dashboard in multi-dashboard file
     panels:
-      - id: panel1
+      - type: markdown
         title: Dashboard 2 Panel 1
-        visualization:
-          type: table
+        content: "# Dashboard 2 Panel 1"
         grid:
           x: 0
           y: 0
