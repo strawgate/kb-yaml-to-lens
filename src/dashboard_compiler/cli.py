@@ -152,7 +152,7 @@ def cli() -> None:
 @click.option(
     '--input-dir',
     type=click.Path(exists=True, file_okay=False, path_type=Path),
-    default=DEFAULT_SCENARIO_DIR,
+    default=DEFAULT_INPUT_DIR,
     help='Directory containing YAML dashboard files to compile.',
 )
 @click.option(
@@ -374,7 +374,7 @@ async def upload_to_kibana(  # noqa: PLR0913
         if result.success:
             console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
-            dashboard_ids = [obj.id for obj in result.success_results if obj.type == 'dashboard']
+            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
             if dashboard_ids and open_browser:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
@@ -537,7 +537,7 @@ def screenshot_dashboard(  # noqa: PLR0913
             width=width,
             height=height,
             browser_timezone=browser_timezone,
-            timeout=timeout,
+            timeout_seconds=timeout,
             kibana_url=kibana_url,
             kibana_username=kibana_username,
             kibana_password=kibana_password,
@@ -554,7 +554,7 @@ async def generate_screenshot(  # noqa: PLR0913
     width: int,
     height: int,
     browser_timezone: str,
-    timeout: int,
+    timeout_seconds: int,
     kibana_url: str,
     kibana_username: str | None,
     kibana_password: str | None,
@@ -570,7 +570,7 @@ async def generate_screenshot(  # noqa: PLR0913
         width: Screenshot width in pixels
         height: Screenshot height in pixels
         browser_timezone: Timezone for the screenshot
-        timeout: Maximum seconds to wait for screenshot generation
+        timeout_seconds: Maximum seconds to wait for screenshot generation
         kibana_url: Kibana base URL
         kibana_username: Basic auth username
         kibana_password: Basic auth password
@@ -603,7 +603,7 @@ async def generate_screenshot(  # noqa: PLR0913
                 width=width,
                 height=height,
                 browser_timezone=browser_timezone,
-                timeout=timeout,
+                timeout_seconds=timeout_seconds,
             )
 
             progress.update(task, description='Screenshot generated successfully')

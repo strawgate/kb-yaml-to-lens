@@ -1,27 +1,21 @@
 dashboards:
 -
   id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-  title: "[Metrics Aerospike] Namespace Metrics"
+  name: "[Metrics Aerospike] Namespace Metrics"
   description: ""
   controls:
-    - type: optionsList
+    - type: options
       label: Aerospike Node
       width: medium
       data_view: metrics-*
       field: aerospike.node.name
-      search_technique: wildcard
-      sort:
-        by: _count
-        direction: desc
-    - type: optionsList
+      match_technique: contains
+    - type: options
       label: Aerospike Namespace
       width: medium
       data_view: metrics-*
       field: aerospike.namespace
-      search_technique: prefix
-      sort:
-        by: _count
-        direction: desc
+      match_technique: prefix
   panels:
 
   - type: links
@@ -40,38 +34,25 @@ dashboards:
     content: |
       This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace. Filter to a specific node and namespace before using this dashboard.
 
-  - type: lens
+  - type: charts
     grid: { x: 0, y: 4, w: 9, h: 4 }
-    index_pattern: metrics-*
     filters:
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: metric
-      metrics:
-        - type: unique_count
-          field: aerospike.namespace
-          label: Selected Namespaces
-      palette:
-        type: custom
-        stops:
-          - color: "#20928000"
-            stop: null
-          - color: "#d6bf57"
-            stop: 1.01
-          - color: "#cc5642"
-            stop: 1.33
+      data_view: metrics-*
+      primary:
+        aggregation: unique_count
+        field: aerospike.namespace
+        label: Selected Namespaces
 
   # - type: lens
   #   grid: { x: 9, y: 4, w: 39, h: 4 }
   #   index_pattern: metrics-*
   #   filters:
   #     - field: data_stream.dataset
-  #       type: phrase
-  #       value: aerospikereceiver.otel
-  #       operator: equals
+  #       equals: aerospikereceiver.otel
   #   chart:
   #     type: table
   #     columns:
@@ -100,32 +81,25 @@ dashboards:
     content: |
       ## Query Information
 
-  - type: lens
+  - type: charts
     grid: { x: 0, y: 11, w: 24, h: 12 }
-    index_pattern: metrics-*
     filters:
       - field: attributes.index
-        type: phrase
-        value: primary
-        operator: equals
-      - field: aerospike.namespace.query.count
-        type: phrase
-        value: 0
-        operator: equals
-        negate: true
+        equals: primary
+      - not:
+          field: aerospike.namespace.query.count
+          equals: "0"
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: line
+      data_view: metrics-*
       dimensions:
         - field: "@timestamp"
           type: date_histogram
           label: "@timestamp"
-          interval: auto
         - field: attributes.type
-          type: terms
+          type: values
           label: Top values of attributes.type + 1 other
           size: 50
           sort:
@@ -135,36 +109,29 @@ dashboards:
           missing_bucket: true
           # secondaryFields: ["attributes.result"] # Not directly supported in YAML schema
       metrics:
-        - type: max
+        - aggregation: max
           label: Queries per Second
           field: metrics.aerospike.namespace.query.count
           # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
 
-  - type: lens
+  - type: charts
     grid: { x: 24, y: 11, w: 24, h: 12 }
-    index_pattern: metrics-*
     filters:
       - field: metrics.aerospike.namespace.query.count
-        type: range
-        value: { gte: 1 }
-        operator: equals # Assuming equals operator for range filter in panel
+        gte: "1"
       - field: attributes.index
-        type: phrase
-        value: secondary
-        operator: equals
+        equals: secondary
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: line
+      data_view: metrics-*
       dimensions:
         - field: "@timestamp"
           type: date_histogram
           label: "@timestamp"
-          interval: auto
         - field: attributes.type
-          type: terms
+          type: values
           label: Top values of attributes.type + 1 other
           size: 50
           sort:
@@ -174,7 +141,7 @@ dashboards:
           missing_bucket: true
           # secondaryFields: ["attributes.result"] # Not directly supported in YAML schema
       metrics:
-        - type: min
+        - aggregation: min
           label: Queries per Second
           field: aerospike.namespace.query.count
           # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
@@ -184,27 +151,22 @@ dashboards:
     content: |
       ## Transaction Information
 
-  - type: lens
+  - type: charts
     grid: { x: 0, y: 26, w: 48, h: 10 }
-    index_pattern: metrics-*
     filters:
       - field: aerospike.namespace.transaction.count
-        type: range
-        value: { gte: 1 }
-        operator: equals # Assuming equals operator for range filter in panel
+        gte: "1"
       - field: data_stream.dataset
-        type: phrase
-        value: aerospikereceiver.otel
-        operator: equals
+        equals: aerospikereceiver.otel
     chart:
       type: line
+      data_view: metrics-*
       dimensions:
         - field: "@timestamp"
           type: date_histogram
           label: "@timestamp"
-          interval: auto
         - field: attributes.type
-          type: terms
+          type: values
           label: Top values of attributes.type + 1 other
           size: 50
           sort:
@@ -214,7 +176,7 @@ dashboards:
           missing_bucket: true
           # secondaryFields: ["attributes.result"] # Not directly supported in YAML schema
       metrics:
-        - type: min
+        - aggregation: min
           label: Transactions per Second
           field: metrics.aerospike.namespace.transaction.count
           # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema

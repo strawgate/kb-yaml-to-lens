@@ -69,8 +69,9 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 
 - **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with API reference
 - **[Quickstart Guide](docs/quickstart.md)** – Step-by-step guide for creating your first dashboard
+- **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
 - **[Architecture](docs/architecture.md)** – Technical design and data flow overview
-- **[YAML Reference](yaml_reference.md)** – Complete schema documentation for all dashboard elements
+- **[YAML Reference](docs/yaml_reference.md)** – Complete schema documentation for all dashboard elements
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities
 
 ## CLI Commands
@@ -149,7 +150,7 @@ kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 
 ## Project Structure
 
-```
+```text
 src/dashboard_compiler/
 ├── cli.py                 # Command-line interface
 ├── dashboard_compiler.py  # Main compilation logic
@@ -167,35 +168,34 @@ src/dashboard_compiler/
 ### Running Tests
 
 ```bash
-uv run pytest
+# Run all tests
+make test
+
+# Run all checks (recommended before committing)
+make check
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Code Quality
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
+This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, [basedpyright](https://github.com/DetachHead/basedpyright) for type checking, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
 
 ```bash
 # Run all linters and formatters
 make lint
 
-# Check Python code quality
-uv run ruff check .
-
-# Format Python code
-uv run ruff format .
-
-# Lint markdown files
-markdownlint --fix -c .markdownlint.jsonc .
+# Run type checking
+make typecheck
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Documentation
 
 Build and preview the documentation locally:
 
 ```bash
-# Install documentation dependencies
-uv sync --extra docs
-
 # Serve documentation locally
 make docs-serve
 
@@ -205,6 +205,8 @@ make docs-build
 # Deploy to GitHub Pages
 make docs-deploy
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Adding New Features
 

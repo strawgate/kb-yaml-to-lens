@@ -4,20 +4,23 @@
 
 ### Python
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for Python code formatting and linting:
+This project uses [Ruff](https://github.com/astral-sh/ruff) for Python code formatting and linting, and [basedpyright](https://github.com/DetachHead/basedpyright) for type checking:
 
 - Line length: 140 characters
 - Python version: 3.12+
 - Quote style: Single quotes for inline code, double quotes for docstrings
 
-Run linting and formatting:
+Run linting, formatting, and type checking:
 
 ```bash
+# Run all linters and formatters
 make lint
-# or individually:
-uv run ruff check . --fix
-uv run ruff format .
+
+# Run type checking
+make typecheck
 ```
+
+See the `Makefile` for the underlying commands if you need to run them directly.
 
 ### Markdown
 
@@ -29,10 +32,10 @@ This project uses [markdownlint](https://github.com/DavidAnson/markdownlint) for
 Run markdown linting:
 
 ```bash
-markdownlint --fix -c .markdownlint.jsonc .
-# or via make:
 make lint-markdown
 ```
+
+See the `Makefile` for the underlying command if you need to run it directly.
 
 ### Documentation
 
@@ -66,6 +69,23 @@ The way we add capabilities in this project is by first creating new samples in 
 
 Once the sample is added, we decide on a config for that feature. Each sample has a corresponding config in configs.
 
-If the config requires new keys, we update yaml-reference.md at the root of the project to include the new sample.
+If the config requires new keys, we update the corresponding `.md` file in `src/dashboard_compiler/` that documents the configuration schema, then regenerate the YAML reference documentation using `scripts/compile_docs.py`.
 
 Otherwise, we use the config and the sample in our tests to ensure that ultimately we are always generating exactly the same json that Kibana / Lens would generate. For each test, we record the "diff" as a snapshot which is the difference between the generated model and the original model from kibana.
+
+## Updating YAML Reference Documentation
+
+The YAML reference documentation is auto-generated from inline markdown files in the source code:
+
+```bash
+# Regenerate docs/yaml_reference.md from source
+uv run python scripts/compile_docs.py
+```
+
+Or use the Makefile target:
+
+```bash
+make compile-docs
+```
+
+When adding or updating configuration options, update the corresponding `.md` file in `src/dashboard_compiler/` and regenerate the reference.

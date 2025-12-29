@@ -88,16 +88,16 @@ dashboard:
 
 Defines the main container for a list of links. It inherits from the [Base Panel Configuration](../base.md).
 
-| YAML Key    | Data Type                               | Description                                                                                                | Kibana Default      | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
-| `type`      | `Literal['links']`                      | Specifies the panel type.                                                                                | `links`             | Yes      |
-| `id`        | `string`                                | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID        | No       |
-| `title`     | `string`                                | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string) | No       |
-| `hide_title`| `boolean`                               | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`             | No       |
-| `description`| `string`                               | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`) | No       |
-| `grid`      | `Grid` object                           | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                 | Yes      |
-| `layout`    | `Literal['horizontal', 'vertical']`     | The layout of the links in the panel.                                                                      | `horizontal`        | No       |
-| `links`     | `list of LinkTypes`                     | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list)   | Yes      |
+| `type` | `Literal['links']` | Specifies the panel type. | `links` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `layout` | `Literal['horizontal', 'vertical']` | The layout of the links in the panel. | `horizontal` | No |
+| `links` | `list of LinkTypes` | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list) | Yes |
 
 ### Link Types
 
@@ -105,39 +105,73 @@ Each item in the `links` list will be one of the following types. They share com
 
 #### Base Link Fields (Common to DashboardLink and UrlLink)
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default      | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for the individual link item. Not typically needed.                          | Generated ID        | No       |
-| `label`  | `string`  | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No       |
+| `id` | `string` | An optional unique identifier for the individual link item. Not typically needed. | Generated ID | No |
+| `label` | `string` | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No |
 
 #### Dashboard Link
 
 Represents a link to another Kibana dashboard.
 
-| YAML Key       | Data Type | Description                                                                                                | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------------- | --------- | ---------------------------------------------------------------------------------------------------------- | -------------- | -------- |
-| `dashboard`    | `string`  | The ID of the target Kibana dashboard.                                                                     | N/A            | Yes      |
-| `id`           | `string`  | An optional unique identifier for this link item.                                                          | Generated ID   | No       |
-| `label`        | `string`  | The display text for the link.                                                                             | `None`         | No       |
-| `new_tab`      | `boolean` | If `true`, the linked dashboard will open in a new browser tab.                                            | `false`        | No       |
-| `with_time`    | `boolean` | If `true`, the linked dashboard will inherit the current time range from the source dashboard.             | `true`         | No       |
-| `with_filters` | `boolean` | If `true`, the linked dashboard will inherit the current filters from the source dashboard.                | `true`         | No       |
+| `dashboard` | `string` | The ID of the target Kibana dashboard. | N/A | Yes |
+| `id` | `string` | An optional unique identifier for this link item. | Generated ID | No |
+| `label` | `string` | The display text for the link. | `None` | No |
+| `new_tab` | `boolean` | If `true`, the linked dashboard will open in a new browser tab. | `false` | No |
+| `with_time` | `boolean` | If `true`, the linked dashboard will inherit the current time range from the source dashboard. | `true` | No |
+| `with_filters` | `boolean` | If `true`, the linked dashboard will inherit the current filters from the source dashboard. | `true` | No |
 
 #### URL Link
 
 Represents a link to an external web URL.
 
-| YAML Key  | Data Type | Description                                                                                                | Kibana Default | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ---------------------------------------------------------------------------------------------------------- | -------------- | -------- |
-| `url`     | `string`  | The full web URL that the link points to (e.g., `https://www.example.com`).                                | N/A            | Yes      |
-| `id`      | `string`  | An optional unique identifier for this link item.                                                          | Generated ID   | No       |
-| `label`   | `string`  | The display text for the link. If not set, Kibana defaults to showing the URL.                             | `""` (empty string) or URL | No       |
-| `encode`  | `boolean` | If `true`, the URL will be URL-encoded before navigation.                                                  | `true`         | No       |
-| `new_tab` | `boolean` | If `true`, the link will open in a new browser tab.                                                        | `false`        | No       |
+| `url` | `string` | The full web URL that the link points to (e.g., `https://www.example.com`). | N/A | Yes |
+| `id` | `string` | An optional unique identifier for this link item. | Generated ID | No |
+| `label` | `string` | The display text for the link. If not set, Kibana defaults to showing the URL. | `""` (empty string) or URL | No |
+| `encode` | `boolean` | If `true`, the URL will be URL-encoded before navigation. | `true` | No |
+| `new_tab` | `boolean` | If `true`, the link will open in a new browser tab. | `false` | No |
 
-## Methods (for programmatic generation)
+## Programmatic Usage (Python)
 
-The `LinksPanel` Pydantic model includes an `add_link(link: LinkTypes)` method, which can be used if you are generating dashboard configurations programmatically in Python (not directly used in YAML).
+You can create Links panels programmatically using Python:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
+panel = LinksPanel(
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[
+        UrlLink(
+            label='Documentation',
+            url='https://example.com/docs',
+        ),
+        UrlLink(
+            label='API Reference',
+            url='https://example.com/api',
+        ),
+    ],
+)
+```
+
+The `LinksPanel` model includes an `add_link(link: LinkTypes)` method for adding links dynamically:
+
+```python
+from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+
+panel = LinksPanel(
+    grid=Grid(x=0, y=0, w=24, h=10),
+    links=[],
+)
+
+panel.add_link(UrlLink(label='Docs', url='https://example.com/docs'))
+panel.add_link(UrlLink(label='API', url='https://example.com/api'))
+```
 
 ## Related Documentation
 

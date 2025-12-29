@@ -1,6 +1,6 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
-from dashboard_compiler.panels.charts.base import KbnLayerColorMapping
+from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
@@ -86,7 +86,7 @@ def compile_xy_chart_visualization_state(
     """
     series_type: str = compile_series_type(chart=chart)
 
-    kbn_color_mapping = KbnLayerColorMapping()
+    kbn_color_mapping = create_default_color_mapping()
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,

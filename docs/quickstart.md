@@ -7,7 +7,14 @@ This guide will help you get started with creating Kibana dashboards using the s
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
 ```bash
-uv sync --all-extras
+# For development (includes testing, linting, type checking)
+uv sync --group dev
+
+# For building documentation
+uv sync --group dev --group docs
+
+# For runtime usage only
+uv sync
 ```
 
 For more information, see the [uv documentation](https://docs.astral.sh/uv/).
@@ -62,9 +69,21 @@ dashboard:
               label: Total Documents
 ```
 
+## Programmatic Alternative
+
+While this guide focuses on YAML, you can also create dashboards entirely in Python code! This approach offers:
+
+- Dynamic dashboard generation based on runtime data
+- Type safety with Pydantic models
+- Reusable dashboard templates and components
+- Integration with existing Python workflows
+
+See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patterns.
+
 ## Next Steps
 
-* Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in the `src/dashboard_compiler/*/` directories.
-* Refer to the example YAML files in the `inputs/` and `tests/dashboards/scenarios/` directories for more complex examples.
-* See the [YAML Reference](yaml_reference.md) for complete schema documentation.
-* Check the [CLI Documentation](CLI.md) for compilation and upload instructions.
+- Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in the `src/dashboard_compiler/*/` directories.
+- Refer to the example YAML files in the `inputs/` and `tests/dashboards/scenarios/` directories for more complex examples.
+- See the [YAML Reference](yaml_reference.md) for complete schema documentation.
+- Check the [CLI Documentation](CLI.md) for compilation and upload instructions.
+- Try the [Programmatic Usage Guide](programmatic-usage.md) for creating dashboards in Python code.

@@ -20,6 +20,8 @@ hand-crafting complex JSON.
 - **Multiple Query Types** – KQL, Lucene, and ESQL query support
 - **Direct Upload** – Optional direct upload to Kibana with authentication
   support
+- **Screenshot Export** – Generate PNG screenshots of dashboards with custom
+  time ranges using Kibana's Reporting API
 
 ## Quick Start
 
@@ -29,7 +31,14 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable
 Python package management:
 
 ```bash
-uv sync --all-extras
+# For development (includes testing, linting, type checking)
+uv sync --group dev
+
+# For building documentation
+uv sync --group dev --group docs
+
+# For runtime usage only
+uv sync
 ```
 
 For more information, see the [uv documentation](https://docs.astral.sh/uv/).

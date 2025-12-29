@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -24,33 +23,23 @@ class ESQLMetricHolder(BaseModel):
     metric: ESQLMetricTypes
 
 
-@pytest.fixture
-def compile_metric_snapshot():
-    """Fixture that returns a function to compile Lens metrics and return dict for snapshot."""
-
-    def _compile(config: dict[str, Any]) -> dict[str, Any]:
-        metric_holder = LensMetricHolder.model_validate({'metric': config})
-        column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
-        assert kbn_column is not None
-        return kbn_column.model_dump()
-
-    return _compile
+def compile_metric_snapshot(config: dict[str, Any]) -> dict[str, Any]:
+    """Compile Lens metric config and return dict for snapshot testing."""
+    metric_holder = LensMetricHolder.model_validate({'metric': config})
+    column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
+    assert kbn_column is not None
+    return kbn_column.model_dump()
 
 
-@pytest.fixture
-def compile_esql_metric_snapshot():
-    """Fixture that returns a function to compile ESQL metrics and return dict for snapshot."""
-
-    def _compile(config: dict[str, Any]) -> dict[str, Any]:
-        metric_holder = ESQLMetricHolder.model_validate({'metric': config})
-        kbn_column = compile_esql_metric(metric=metric_holder.metric)
-        assert kbn_column is not None
-        return kbn_column.model_dump()
-
-    return _compile
+def compile_esql_metric_snapshot(config: dict[str, Any]) -> dict[str, Any]:
+    """Compile ESQL metric config and return dict for snapshot testing."""
+    metric_holder = ESQLMetricHolder.model_validate({'metric': config})
+    kbn_column = compile_esql_metric(metric=metric_holder.metric)
+    assert kbn_column is not None
+    return kbn_column.model_dump()
 
 
-async def test_compile_lens_metric_count(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_count() -> None:
     """Test the compilation of a count metric."""
     result = compile_metric_snapshot({'aggregation': 'count'})
     assert result == snapshot(
@@ -66,7 +55,7 @@ async def test_compile_lens_metric_count(compile_metric_snapshot) -> None:
     )
 
 
-async def test_compile_lens_metric_sum(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum() -> None:
     """Test the compilation of a sum metric."""
     result = compile_metric_snapshot({'aggregation': 'sum', 'field': 'aerospike.node.connection.open'})
     assert result == snapshot(
@@ -82,7 +71,7 @@ async def test_compile_lens_metric_sum(compile_metric_snapshot) -> None:
     )
 
 
-async def test_compile_lens_metric_sum_number_format(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_number_format() -> None:
     """Test the compilation of a sum metric with number format."""
     result = compile_metric_snapshot({'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number'}})
     assert result == snapshot(
@@ -98,7 +87,7 @@ async def test_compile_lens_metric_sum_number_format(compile_metric_snapshot) ->
     )
 
 
-async def test_compile_lens_metric_sum_percent_format(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_percent_format() -> None:
     """Test the compilation of a sum metric with percent format."""
     result = compile_metric_snapshot({'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'percent'}})
     assert result == snapshot(
@@ -114,7 +103,7 @@ async def test_compile_lens_metric_sum_percent_format(compile_metric_snapshot) -
     )
 
 
-async def test_compile_lens_metric_sum_bytes_format(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_bytes_format() -> None:
     """Test the compilation of a sum metric with bytes format."""
     result = compile_metric_snapshot({'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'bytes'}})
     assert result == snapshot(
@@ -130,7 +119,7 @@ async def test_compile_lens_metric_sum_bytes_format(compile_metric_snapshot) -> 
     )
 
 
-async def test_compile_lens_metric_sum_bits_format(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_bits_format() -> None:
     """Test the compilation of a sum metric with bits format."""
     result = compile_metric_snapshot({'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'bits'}})
     assert result == snapshot(
@@ -146,7 +135,7 @@ async def test_compile_lens_metric_sum_bits_format(compile_metric_snapshot) -> N
     )
 
 
-async def test_compile_lens_metric_sum_duration_format(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_duration_format() -> None:
     """Test the compilation of a sum metric with duration format."""
     result = compile_metric_snapshot({'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'duration'}})
     assert result == snapshot(
@@ -162,7 +151,7 @@ async def test_compile_lens_metric_sum_duration_format(compile_metric_snapshot) 
     )
 
 
-async def test_compile_lens_metric_sum_custom_format(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_custom_format() -> None:
     """Test the compilation of a sum metric with custom format."""
     result = compile_metric_snapshot(
         {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'custom', 'pattern': '0,0.[0000]'}}
@@ -180,7 +169,7 @@ async def test_compile_lens_metric_sum_custom_format(compile_metric_snapshot) ->
     )
 
 
-async def test_compile_lens_metric_sum_number_format_with_suffix(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_number_format_with_suffix() -> None:
     """Test the compilation of a sum metric with number format and suffix."""
     result = compile_metric_snapshot(
         {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number', 'suffix': 'KB'}}
@@ -198,7 +187,7 @@ async def test_compile_lens_metric_sum_number_format_with_suffix(compile_metric_
     )
 
 
-async def test_compile_lens_metric_sum_number_format_with_compact(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_sum_number_format_with_compact() -> None:
     """Test the compilation of a sum metric with number format and compact."""
     result = compile_metric_snapshot(
         {'aggregation': 'sum', 'field': 'aerospike.node.connection.open', 'format': {'type': 'number', 'compact': True}}
@@ -216,7 +205,7 @@ async def test_compile_lens_metric_sum_number_format_with_compact(compile_metric
     )
 
 
-async def test_compile_lens_metric_last_value(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_last_value() -> None:
     """Test the compilation of a last value metric."""
     result = compile_metric_snapshot({'aggregation': 'last_value', 'field': 'aerospike.namespace.query.count'})
     assert result == snapshot(
@@ -233,7 +222,7 @@ async def test_compile_lens_metric_last_value(compile_metric_snapshot) -> None:
     )
 
 
-async def test_compile_lens_metric_min(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_min() -> None:
     """Test the compilation of a min metric."""
     result = compile_metric_snapshot({'aggregation': 'min', 'field': 'aerospike.node.connection.open'})
     assert result == snapshot(
@@ -249,7 +238,7 @@ async def test_compile_lens_metric_min(compile_metric_snapshot) -> None:
     )
 
 
-async def test_compile_lens_metric_max(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_max() -> None:
     """Test the compilation of a max metric."""
     result = compile_metric_snapshot({'aggregation': 'max', 'field': 'aerospike.node.connection.open'})
     assert result == snapshot(
@@ -265,7 +254,7 @@ async def test_compile_lens_metric_max(compile_metric_snapshot) -> None:
     )
 
 
-async def test_compile_lens_metric_percentile_rank(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_percentile_rank() -> None:
     """Test the compilation of a percentile rank metric."""
     result = compile_metric_snapshot({'aggregation': 'percentile_rank', 'field': 'aerospike.node.connection.open', 'rank': 5})
     assert result == snapshot(
@@ -281,7 +270,7 @@ async def test_compile_lens_metric_percentile_rank(compile_metric_snapshot) -> N
     )
 
 
-async def test_compile_lens_metric_percentile_95(compile_metric_snapshot) -> None:
+async def test_compile_lens_metric_percentile_95() -> None:
     """Test the compilation of a 95th percentile metric."""
     result = compile_metric_snapshot({'aggregation': 'percentile', 'field': 'aerospike.node.connection.open', 'percentile': 95})
     assert result == snapshot(
@@ -297,7 +286,7 @@ async def test_compile_lens_metric_percentile_95(compile_metric_snapshot) -> Non
     )
 
 
-async def test_compile_esql_metric_count(compile_esql_metric_snapshot) -> None:
+async def test_compile_esql_metric_count() -> None:
     """Test the compilation of a count ESQL metric."""
     result = compile_esql_metric_snapshot({'id': 'ac345678-90ab-cdef-1234-567890abcdef', 'field': 'count(*)'})
     assert result == snapshot({'fieldName': 'count(*)', 'columnId': 'ac345678-90ab-cdef-1234-567890abcdef'})
