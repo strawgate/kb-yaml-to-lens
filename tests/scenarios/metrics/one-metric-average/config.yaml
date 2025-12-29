@@ -1,0 +1,18 @@
+dashboards:
+-
+  name: one-metric-average
+  description: "A dashboard with a single average metric"
+  panels:
+  - title: "Average Response Time"
+    id: 8b99faf-g4d9-5de9-b5ea-dgg8e5bb9bff # Fixed ID for testing
+    type: charts
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart:
+      type: metric
+      id: f6d8728f-h4f1-6ede-affd-a5g8c82dab98 # Fixed ID for testing
+      data_view: metrics-*
+      primary:
+        aggregation: average
+        id: ca35e7h-gg5h-6a9g-d8fd-dd6bg95gab44 # Fixed ID for testing
+        label: "Avg Response Time"
+        field: response.time_ms

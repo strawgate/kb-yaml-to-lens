@@ -1,0 +1,19 @@
+dashboards:
+-
+  name: one-metric-last-value
+  description: "A dashboard with a single last_value metric"
+  panels:
+  - title: "Current Status Code"
+    id: cfddkdk-k8hd-9hi3-f9ie-hkkldfeffejj # Fixed ID for testing
+    type: charts
+    grid: { x: 0, y: 0, w: 24, h: 15 }
+    chart:
+      type: metric
+      id: jhc16cj-l8j5-ahih-ejjjjh-e9kcg26hef3c # Fixed ID for testing
+      data_view: metrics-*
+      primary:
+        aggregation: last_value
+        id: ge79ibl-kk9l-aekl-hcjg-hhafl39kef88 # Fixed ID for testing
+        label: "Current Status"
+        field: http.status_code
+        date_field: "@timestamp"
