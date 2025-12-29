@@ -18,7 +18,8 @@ To add a Search panel, you need to specify its `type`, `grid` position, and the 
 #   saved_search_id: "your-saved-search-id" # Replace with the actual ID
 
 # For a complete dashboard structure:
-dashboard:
+dashboards:
+-
   name: "Log Monitoring Dashboard"
   panels:
     - type: search
@@ -36,7 +37,8 @@ dashboard:
 Search panels primarily rely on the configuration of the saved search itself (columns, sort order, query within the saved search). The panel configuration in the dashboard YAML is straightforward. This example shows it with a description and a hidden title.
 
 ```yaml
-dashboard:
+dashboards:
+-
   name: "Security Incidents Overview"
   panels:
     - type: search
