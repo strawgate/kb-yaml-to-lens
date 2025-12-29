@@ -1,0 +1,26 @@
+dashboards:
+  - title: First Dashboard
+    description: First dashboard in multi-dashboard file
+    panels:
+      - id: panel1
+        title: Dashboard 1 Panel 1
+        visualization:
+          type: metric
+        grid:
+          x: 0
+          y: 0
+          w: 24
+          h: 8
+
+  - title: Second Dashboard
+    description: Second dashboard in multi-dashboard file
+    panels:
+      - id: panel1
+        title: Dashboard 2 Panel 1
+        visualization:
+          type: table
+        grid:
+          x: 0
+          y: 0
+          w: 24
+          h: 8

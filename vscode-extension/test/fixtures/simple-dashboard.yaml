@@ -1,0 +1,22 @@
+dashboards:
+  - title: Simple Test Dashboard
+    description: A basic dashboard for e2e testing
+    panels:
+      - id: panel1
+        title: Test Panel 1
+        visualization:
+          type: metric
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8
+      - id: panel2
+        title: Test Panel 2
+        visualization:
+          type: table
+        grid:
+          x: 12
+          y: 0
+          w: 12
+          h: 8

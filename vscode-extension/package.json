@@ -95,6 +95,9 @@
     "pretest": "npm run compile",
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
+    "test:e2e": "extest setup-and-run out/test/e2e/**/*.test.js",
+    "test:e2e-setup": "extest setup-tests",
+    "test:e2e-run": "extest run-tests out/test/e2e/**/*.test.js",
     "lint": "eslint src --ext ts",
     "package": "vsce package"
   },
@@ -102,6 +105,7 @@
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.11",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^20.0.0",
@@ -110,11 +114,13 @@
     "@typescript-eslint/parser": "^6.0.0",
     "@vscode/test-electron": "^2.3.0",
     "@vscode/vsce": "^2.22.0",
+    "chai": "^4.3.10",
     "esbuild": "^0.27.2",
     "eslint": "^8.0.0",
     "glob": "^10.0.0",
     "mocha": "^10.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vscode-extension-tester": "^8.0.0"
   },
   "repository": {
     "type": "git",

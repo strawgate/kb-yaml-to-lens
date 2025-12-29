@@ -1,0 +1,4 @@
+dashboards:
+  - title: Invalid Dashboard
+    # Missing required fields like panels
+    description: This dashboard is intentionally malformed for error testing
