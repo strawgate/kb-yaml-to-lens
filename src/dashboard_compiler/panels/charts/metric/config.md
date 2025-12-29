@@ -18,15 +18,26 @@ dashboard:
 
 ## Full Configuration Options
 
-| YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['metric']`| Specifies the panel type.                        | Yes      |
-| `title`      | `string`          | Title of the panel.                              | No       |
-| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
-| `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `value`      | `string`          | Field for the metric value.                      | Yes      |
-| `color`      | `string`          | Color for the metric display.                    | No       |
-| `description`| `string`          | Panel description.                               | No       |
+### Lens Metric Chart
+
+| YAML Key    | Data Type                        | Description                                                   | Default    | Required |
+| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
+| `type`      | `Literal['metric']`              | Specifies the chart type as metric.                           | `'metric'` | No       |
+| `data_view` | `string`                         | The data view that determines the data for the metric chart.  | N/A        | Yes      |
+| `primary`   | `LensMetricTypes`                | The primary metric to display (main value).                   | N/A        | Yes      |
+| `secondary` | `LensMetricTypes` \| `None`      | Optional secondary metric to display alongside the primary.   | `None`     | No       |
+| `maximum`   | `LensMetricTypes` \| `None`      | Optional maximum metric for comparison or thresholds.         | `None`     | No       |
+| `breakdown` | `LensDimensionTypes` \| `None`   | Optional breakdown dimension for splitting the metric.        | `None`     | No       |
+
+### ESQL Metric Chart
+
+| YAML Key    | Data Type                        | Description                                                   | Default    | Required |
+| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
+| `type`      | `Literal['metric']`              | Specifies the chart type as metric.                           | `'metric'` | No       |
+| `primary`   | `ESQLMetricTypes`                | The primary metric to display (main value).                   | N/A        | Yes      |
+| `secondary` | `ESQLMetricTypes` \| `None`      | Optional secondary metric to display alongside the primary.   | `None`     | No       |
+| `maximum`   | `ESQLMetricTypes` \| `None`      | Optional maximum metric for comparison or thresholds.         | `None`     | No       |
+| `breakdown` | `ESQLDimensionTypes` \| `None`   | Optional breakdown dimension for splitting the metric.        | `None`     | No       |
 
 ## Programmatic Usage (Python)
 

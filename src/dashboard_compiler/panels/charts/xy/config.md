@@ -19,17 +19,56 @@ dashboard:
 
 ## Full Configuration Options
 
-| YAML Key      | Data Type         | Description                                      | Required |
-|--------------|-------------------|--------------------------------------------------|----------|
-| `type`       | `Literal['xy']`   | Specifies the panel type.                        | Yes      |
-| `title`      | `string`          | Title of the panel.                              | No       |
-| `grid`       | `Grid` object     | Position and size of the panel.                  | Yes      |
-| `data`       | `object`          | Data source and field mapping.                   | Yes      |
-| `x_axis`     | `string`          | Field for X-axis (typically timestamp).          | Yes      |
-| `metrics`    | `list`            | List of metrics to display.                      | Yes      |
-| `chart_type` | `string`          | Chart type: 'line', 'bar', or 'area'.            | No       |
-| `legend`     | `object`          | Legend display options.                          | No       |
-| `description`| `string`          | Panel description.                               | No       |
+### Lens Bar Chart
+
+| YAML Key          | Data Type                                       | Description                                                          | Default     | Required |
+| ----------------- | ----------------------------------------------- | -------------------------------------------------------------------- | ----------- | -------- |
+| `type`            | `Literal['bar']`                                | Specifies the chart type as bar.                                     | `'bar'`     | No       |
+| `mode`            | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for bar charts.                                        | `'stacked'` | No       |
+| `data_view`       | `string`                                        | The data view to use for the chart.                                  | N/A         | Yes      |
+| `dimensions`      | `list[LensDimensionTypes]`                      | Defines the dimensions (e.g., X-axis) for the chart.                 | `[]`        | No       |
+| `metrics`         | `list[LensMetricTypes]`                         | Defines the metrics (e.g., Y-axis values) for the chart.             | `[]`        | No       |
+| `breakdown`       | `LensDimensionTypes` \| `None`                  | Optional dimension to split the series by (creates multiple series). | `None`      | No       |
+| `appearance`      | `XYAppearance` \| `None`                        | Chart appearance formatting options.                                 | `None`      | No       |
+| `titles_and_text` | `XYTitlesAndText` \| `None`                     | Titles and text formatting options.                                  | `None`      | No       |
+| `legend`          | `XYLegend` \| `None`                            | Legend formatting options.                                           | `None`      | No       |
+
+### Lens Line Chart
+
+| YAML Key          | Data Type                       | Description                                                          | Default  | Required |
+| ----------------- | ------------------------------- | -------------------------------------------------------------------- | -------- | -------- |
+| `type`            | `Literal['line']`               | Specifies the chart type as line.                                    | `'line'` | No       |
+| `data_view`       | `string`                        | The data view to use for the chart.                                  | N/A      | Yes      |
+| `dimensions`      | `list[LensDimensionTypes]`      | Defines the dimensions (e.g., X-axis) for the chart.                 | `[]`     | No       |
+| `metrics`         | `list[LensMetricTypes]`         | Defines the metrics (e.g., Y-axis values) for the chart.             | `[]`     | No       |
+| `breakdown`       | `LensDimensionTypes` \| `None`  | Optional dimension to split the series by (creates multiple series). | `None`   | No       |
+| `appearance`      | `XYAppearance` \| `None`        | Chart appearance formatting options.                                 | `None`   | No       |
+| `titles_and_text` | `XYTitlesAndText` \| `None`     | Titles and text formatting options.                                  | `None`   | No       |
+| `legend`          | `XYLegend` \| `None`            | Legend formatting options.                                           | `None`   | No       |
+
+### Lens Area Chart
+
+| YAML Key          | Data Type                                       | Description                                                          | Default     | Required |
+| ----------------- | ----------------------------------------------- | -------------------------------------------------------------------- | ----------- | -------- |
+| `type`            | `Literal['area']`                               | Specifies the chart type as area.                                    | `'area'`    | No       |
+| `mode`            | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for area charts.                                       | `'stacked'` | No       |
+| `data_view`       | `string`                                        | The data view to use for the chart.                                  | N/A         | Yes      |
+| `dimensions`      | `list[LensDimensionTypes]`                      | Defines the dimensions (e.g., X-axis) for the chart.                 | `[]`        | No       |
+| `metrics`         | `list[LensMetricTypes]`                         | Defines the metrics (e.g., Y-axis values) for the chart.             | `[]`        | No       |
+| `breakdown`       | `LensDimensionTypes` \| `None`                  | Optional dimension to split the series by (creates multiple series). | `None`      | No       |
+| `appearance`      | `XYAppearance` \| `None`                        | Chart appearance formatting options.                                 | `None`      | No       |
+| `titles_and_text` | `XYTitlesAndText` \| `None`                     | Titles and text formatting options.                                  | `None`      | No       |
+| `legend`          | `XYLegend` \| `None`                            | Legend formatting options.                                           | `None`      | No       |
+
+#### XYLegend Options
+
+| YAML Key  | Data Type         | Description                    | Default | Required |
+| --------- | ----------------- | ------------------------------ | ------- | -------- |
+| `visible` | `bool` \| `None`  | Whether the legend is visible. | `None`  | No       |
+
+### ESQL Bar/Line/Area Charts
+
+ESQL chart configuration is similar to Lens charts, but uses `ESQLDimensionTypes` and `ESQLMetricTypes` instead, and does not require a `data_view` field.
 
 ## Programmatic Usage (Python)
 

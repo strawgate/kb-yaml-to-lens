@@ -62,7 +62,11 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
@@ -90,3 +94,11 @@ nav:
       - Controls: api/controls.md
       - Filters: api/filters.md
       - Queries: api/queries.md
+  - Panel Configuration:
+      - Markdown Panel: ../src/dashboard_compiler/panels/markdown/markdown.md
+      - Image Panel: ../src/dashboard_compiler/panels/images/image.md
+      - Links Panel: ../src/dashboard_compiler/panels/links/links.md
+      - Search Panel: ../src/dashboard_compiler/panels/search/search.md
+      - Metric Chart: ../src/dashboard_compiler/panels/charts/metric/config.md
+      - Pie Chart: ../src/dashboard_compiler/panels/charts/pie/config.md
+      - XY Chart: ../src/dashboard_compiler/panels/charts/xy/config.md
