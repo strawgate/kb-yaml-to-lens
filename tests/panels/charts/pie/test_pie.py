@@ -489,18 +489,17 @@ async def test_pie_chart_with_collapse_functions() -> None:
     )
 
 
-
 async def test_pie_chart_with_nested_legend() -> None:
     """Test pie chart with nested legend enabled."""
     lens_config = {
-        "type": "pie",
-        "data_view": "metrics-*",
-        "metric": {"aggregation": "count", "id": "8f020607-379e-4b54-bc9e-e5550e84f5d5"},
-        "slice_by": [
-            {"field": "aerospike.namespace.name", "id": "6e73286b-85cf-4343-9676-b7ee2ed0a3df"},
-            {"field": "host.name", "id": "7f456789-abcd-1234-5678-90abcdef1234"},
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'slice_by': [
+            {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+            {'field': 'host.name', 'id': '7f456789-abcd-1234-5678-90abcdef1234'},
         ],
-        "legend": {"nested": True},
+        'legend': {'nested': True},
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
@@ -508,4 +507,3 @@ async def test_pie_chart_with_nested_legend() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.nestedLegend is True
-
