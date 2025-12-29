@@ -3,12 +3,13 @@ import pathlib
 
 
 def compile_markdown_references() -> None:
-    """Compile markdown docs under `src/dashboard_compiler` into `yaml_reference.md`.
+    """Compile markdown docs under `src/dashboard_compiler` into `docs/yaml_reference.md`.
 
     The main `dashboard/dashboard.md` file is placed first (if present), followed by all other markdown files sorted by relative path.
     """
     repo_root = pathlib.Path(__file__).parent.parent
-    output_file_path = repo_root / 'yaml_reference.md'
+    output_file_path = repo_root / 'docs' / 'yaml_reference.md'
+    output_file_path.parent.mkdir(parents=True, exist_ok=True)
     docs_root_path = repo_root / 'src' / 'dashboard_compiler'
 
     main_dashboard_doc_rel_path = 'dashboard/dashboard.md'
