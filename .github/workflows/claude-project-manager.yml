@@ -1,18 +1,16 @@
+---
 name: Claude Project Manager
-
 on:
   schedule:
     # Run daily at 9 AM UTC (adjust as needed)
-    - cron: '0 9 * * *'
-  workflow_dispatch: # Allow manual triggering
-
+    - cron: 0 9 * * *
+  workflow_dispatch: null  # Allow manual triggering
 permissions:
   contents: read
   issues: write
   pull-requests: read
   id-token: write
   actions: read
-
 jobs:
   check-activity:
     runs-on: ubuntu-latest
@@ -22,7 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Check for recent activity
         id: check
         env:
@@ -35,7 +32,6 @@ jobs:
             --limit 1 \
             --json number \
             --jq '.[0].number // ""')
-
           echo "last_pm_issue=$LAST_PM_ISSUE" >> $GITHUB_OUTPUT
 
           # If there's an open PM issue, check if there's been activity since it was created
@@ -69,16 +65,13 @@ jobs:
               --limit 100 \
               --json number \
               --jq 'length')
-
             TOTAL_ACTIVITY=$((COMMIT_COUNT + NEW_ISSUES + NEW_PRS + MERGED_PRS))
-
             echo "Activity since last PM issue:"
             echo "  Commits: $COMMIT_COUNT"
             echo "  New Issues: $NEW_ISSUES"
             echo "  New PRs: $NEW_PRS"
             echo "  Merged PRs: $MERGED_PRS"
             echo "  Total: $TOTAL_ACTIVITY"
-
             if [ $TOTAL_ACTIVITY -lt 3 ]; then
               echo "Not enough activity to create new PM issue"
               echo "has_activity=false" >> $GITHUB_OUTPUT
@@ -90,7 +83,6 @@ jobs:
             echo "No open PM issue found, will create one"
             echo "has_activity=true" >> $GITHUB_OUTPUT
           fi
-
   close-previous-pm-issue:
     needs: check-activity
     if: needs.check-activity.outputs.has_activity == 'true' && needs.check-activity.outputs.last_pm_issue != ''
@@ -98,7 +90,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Close previous PM issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -106,9 +97,10 @@ jobs:
           LAST_ISSUE="${{ needs.check-activity.outputs.last_pm_issue }}"
           echo "Closing previous PM issue #$LAST_ISSUE"
           gh issue close "$LAST_ISSUE" --comment "Closing this PM report. New daily report has been generated."
-
   project-manager-review:
-    needs: [check-activity, close-previous-pm-issue]
+    needs:
+      - check-activity
+      - close-previous-pm-issue
     if: |
       always() &&
       needs.check-activity.outputs.has_activity == 'true' &&
@@ -119,11 +111,9 @@ jobs:
         You are a Project Manager for the kb-yaml-to-lens repository - a Python project that compiles Kibana dashboards from YAML to Lens format.
 
         # YOUR ROLE
-
         You are NOT a coder. You are a project manager who reviews the current state of the project and creates a prioritized list of actionable items that need maintainer attention.
 
         # IMPORTANT RULES
-
         1. **DO NOT** make code changes, create branches, or open pull requests
         2. **DO** analyze open issues, PRs, and recent activity
         3. **DO** identify blockers, stale items, and what needs maintainer decisions
@@ -136,9 +126,7 @@ jobs:
         10. **DETECT MISALIGNMENT** - Look for patterns where Claude, CodeRabbit, or the maintainer have conflicting expectations or repeated corrections
 
         # DETECTING MISALIGNMENT PATTERNS
-
         When reviewing recent activity, pay special attention to:
-
         **Signs of Agent Misalignment:**
         - Claude repeatedly making the same type of error across multiple PRs
         - CodeRabbit flagging issues that should have been prevented by existing guidelines
@@ -146,14 +134,12 @@ jobs:
         - PR comments like "this isn't the project convention" or "please review the guidelines"
         - Back-and-forth discussions about code style, architecture, or process
         - Claude misunderstanding the scope or approach for issues
-
         **What to Check:**
         - Review closed and merged PRs from the past week for correction patterns
         - Look at issue comments for confusion about project standards
         - Check if agents.md accurately reflects current project practices
         - Verify README.md has clear guidance on contribution process
         - Ensure workflow files have appropriate guardrails and instructions
-
         **When to Recommend Updates:**
         - 2+ instances of the same type of misunderstanding in recent activity
         - Maintainer explicitly mentions documentation needs updating
@@ -161,7 +147,6 @@ jobs:
         - Workflow changes that should be reflected in documentation
 
         # YOUR TASK
-
         Analyze the project and create a structured report with these sections:
 
         ## 🎯 Easy Pickings
@@ -189,31 +174,26 @@ jobs:
         - Comments indicating Claude or CodeRabbit misunderstood project conventions
         - Patterns where agents.md, README.md, or workflow instructions appear outdated or unclear
         - Discrepancies between documented practices and actual project expectations
-
         **If you detect misalignment patterns, provide specific recommendations:**
         - Which file needs updating (agents.md, README.md, specific workflow files)
         - What specific guidance should be added or clarified
         - Examples of the misalignment (reference specific issues/PRs)
         - Suggested text or changes to prevent future misalignment
-
         **If no significant misalignment is detected, state:** "No significant misalignment patterns detected in recent activity."
 
         ## 💡 Suggested Next Steps
         Based on the current project state, what should maintainers focus on?
 
         # OUTPUT FORMAT
-
         Create a GitHub issue with your findings using this command:
-
         ```bash
         gh issue create \
           --title "📊 Project Manager Report - $(date +%Y-%m-%d)" \
           --label "project-manager" \
           --body "YOUR_REPORT_HERE"
         ```
-
         Use clear markdown formatting in the issue body with:
-        - Issue/PR references using #number syntax
+        - Issue/PR references using  # number syntax
         - Bulleted lists for action items
         - Clear section headers
         - Checkboxes [ ] for actionable items
