@@ -6,29 +6,25 @@
  * to test per-series Y-axis configuration
  */
 
-const { LensConfigBuilder } = require('@kbn/lens-embeddable-utils/config_builder');
-const fs = require('fs');
-const path = require('path');
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-async function generateDualAxisChart() {
-  const builder = new LensConfigBuilder();
-
-  // Try to configure dual Y-axis with per-series configuration
-  const config = {
+export async function generateDualAxisChart() {
+  // ES|QL variant
+  const esqlConfig = {
     chartType: 'xy',
     title: 'Dual Y-Axis Chart',
     dataset: {
-      esql: `FROM logs-* 
-        | STATS 
-          count = COUNT(), 
-          avg_bytes = AVG(bytes) 
+      esql: `FROM logs-*
+        | STATS
+          count = COUNT(),
+          avg_bytes = AVG(bytes)
         BY @timestamp`
     },
     layers: [{
       seriesType: 'line',
       xAxis: '@timestamp',
       breakdown: null,
-      metrics: [
+      yAxis: [
         {
           value: 'count',
           label: 'Event Count',
@@ -49,33 +45,49 @@ async function generateDualAxisChart() {
     }
   };
 
-  try {
-    const lensAttributes = await builder.build(config, {
-      timeRange: { from: 'now-7d', to: 'now', type: 'relative' }
-    });
-
-    const outputDir = path.join(__dirname, '..', 'output');
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
+  // Data View variant
+  const dataviewConfig = {
+    chartType: 'xy',
+    title: 'Dual Y-Axis Chart (Data View)',
+    dataset: {
+      index: 'logs-*',
+      timeFieldName: '@timestamp'
+    },
+    layers: [{
+      seriesType: 'line',
+      xAxis: {
+        type: 'dateHistogram',
+        field: '@timestamp'
+      },
+      breakdown: null,
+      yAxis: [
+        {
+          value: 'count()',
+          label: 'Event Count',
+          color: '#2196F3',
+          axisMode: 'left'
+        },
+        {
+          value: 'average(bytes)',
+          label: 'Avg Bytes',
+          color: '#FF5252',
+          axisMode: 'right'
+        }
+      ]
+    }],
+    legend: {
+      show: true,
+      position: 'right'
     }
+  };
 
-    const outputPath = path.join(outputDir, 'xy-dual-axis.json');
-    fs.writeFileSync(outputPath, JSON.stringify(lensAttributes, null, 2));
-
-    console.log('✓ Generated: xy-dual-axis.json');
-  } catch (error) {
-    console.error('Error generating dual-axis chart:', error.message);
-    console.error('Note: This API might not support all dual-axis configuration yet');
-    throw error;
-  }
+  await generateDualFixture(
+    'xy-dual-axis',
+    esqlConfig,
+    dataviewConfig,
+    { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
 }
 
-if (require.main === module) {
-  generateDualAxisChart()
-    .catch((err) => {
-      console.error('Failed to generate fixture:', err);
-      process.exit(1);
-    });
-}
-
-module.exports = { generateDualAxisChart };
+runIfMain(generateDualAxisChart, import.meta.url);
