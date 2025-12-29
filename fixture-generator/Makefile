@@ -31,6 +31,7 @@ run: ## Generate all fixtures
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
+		-e KIBANA_VERSION=$(KIBANA_VERSION) \
 		$(IMAGE_NAME):$(KIBANA_VERSION)
 
 run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-basic.js)
@@ -41,6 +42,7 @@ run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-bas
 		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
+		-e KIBANA_VERSION=$(KIBANA_VERSION) \
 		$(IMAGE_NAME):$(KIBANA_VERSION) \
 		tsx examples/$(EXAMPLE)
 
