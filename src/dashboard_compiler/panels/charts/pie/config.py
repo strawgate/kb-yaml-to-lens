@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
+from dashboard_compiler.panels.charts.base.config import BaseChart
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
@@ -96,6 +96,13 @@ class PieChartAppearance(BaseCfgModel):
 
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
+
+
+class ColorMapping(BaseCfgModel):
+    """Formatting options for the chart color."""
+
+    palette: str = Field(...)
+    """The palette to use for the chart color."""
 
 
 class BasePieChart(BaseChart):
