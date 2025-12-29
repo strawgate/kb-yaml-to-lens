@@ -82,16 +82,16 @@ dashboard:
 
 This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](../base.md). The presence of the `esql` field distinguishes it from a Lens panel.
 
-| YAML Key | Data Type                                  | Description                                                                                                | Kibana Default                  | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type`   | `Literal['charts']`                        | Specifies the panel type. For ESQL panels, this is `charts`.                                               | `charts`                        | Yes      |
-| `id`     | `string`                                   | A unique identifier for the panel. Inherited from BasePanel.                                               | Generated ID                    | No       |
-| `title`  | `string`                                   | The title displayed on the panel header. Inherited from BasePanel.                                         | `""` (empty string)             | No       |
-| `hide_title` | `boolean`                              | If `true`, the panel title will be hidden. Inherited from BasePanel.                                       | `false`                         | No       |
-| `description`| `string`                               | A brief description of the panel. Inherited from BasePanel.                                                | `""` (empty string, if `None`)  | No       |
-| `grid`   | `Grid` object                              | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A                             | Yes      |
-| `esql`   | `string` or `ESQLQuery` object             | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query).                    | N/A                             | Yes      |
-| `chart`  | `ESQLChartTypes` object                    | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart) or [ESQL Pie Chart](#esql-pie-chart). | N/A                             | Yes      |
+| `type` | `Literal['charts']` | Specifies the panel type. For ESQL panels, this is `charts`. | `charts` | Yes |
+| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
+| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
+| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
+| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query). | N/A | Yes |
+| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart) or [ESQL Pie Chart](#esql-pie-chart). | N/A | Yes |
 
 ---
 
@@ -99,14 +99,14 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 
 Displays a single primary metric derived from an ESQL query, optionally with a secondary metric, a maximum value, and a breakdown dimension. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
-| YAML Key    | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`      | `Literal['metric']`                        | Specifies the chart type as an ESQL Metric visualization.                                                  | `metric`         | Yes      |
-| `id`        | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `primary`   | `ESQLMetric` object                        | The primary metric to display. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A              | Yes      |
-| `secondary` | `ESQLMetric` object                        | An optional secondary metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None`           | No       |
-| `maximum`   | `ESQLMetric` object                        | An optional maximum metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None`           | No       |
-| `breakdown` | `ESQLDimension` object                     | An optional dimension to break down the metric by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None`           | No       |
+| `type` | `Literal['metric']` | Specifies the chart type as an ESQL Metric visualization. | `metric` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `primary` | `ESQLMetric` object | The primary metric to display. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `secondary` | `ESQLMetric` object | An optional secondary metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None` | No |
+| `maximum` | `ESQLMetric` object | An optional maximum metric. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | `None` | No |
+| `breakdown` | `ESQLDimension` object | An optional dimension to break down the metric by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 
 **Example (ESQL Metric Chart):**
 
@@ -127,16 +127,16 @@ Displays a single primary metric derived from an ESQL query, optionally with a s
 
 Visualizes proportions of categories using slices of a pie or a donut chart, with data sourced from an ESQL query. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
-| YAML Key          | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type`            | `Literal['pie']`                           | Specifies the chart type as an ESQL Pie visualization.                                                     | `pie`            | Yes      |
-| `id`              | `string`                                   | An optional unique identifier for this specific chart layer.                                               | Generated ID     | No       |
-| `metric`          | `ESQLMetric` object                        | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A              | Yes      |
-| `slice_by`        | `list of ESQLDimension` objects            | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A              | Yes      |
-| `appearance`      | `PieChartAppearance` object                | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting) (shared with Lens). | `None`           | No       |
-| `titles_and_text` | `PieTitlesAndText` object                  | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting) (shared with Lens). | `None`           | No       |
-| `legend`          | `PieLegend` object                         | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting) (shared with Lens).        | `None`           | No       |
-| `color`           | `ColorMapping` object                      | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None`           | No       |
+| `type` | `Literal['pie']` | Specifies the chart type as an ESQL Pie visualization. | `pie` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `metric` | `ESQLMetric` object | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `slice_by` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting) (shared with Lens). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting) (shared with Lens). | `None` | No |
+| `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting) (shared with Lens). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting) (shared with Lens). | `None` | No |
 
 **Example (ESQL Pie Chart):**
 
@@ -161,19 +161,19 @@ For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `m
 
 Used to specify a metric column from your ESQL query result.
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for this metric column definition.                                           | Generated ID     | No       |
-| `field`  | `string`  | The name of the column in your ESQL query result that represents the metric value.                         | N/A              | Yes      |
+| `id` | `string` | An optional unique identifier for this metric column definition. | Generated ID | No |
+| `field` | `string` | The name of the column in your ESQL query result that represents the metric value. | N/A | Yes |
 
 ### ESQL Dimension Column
 
 Used to specify a dimension/grouping column from your ESQL query result.
 
-| YAML Key | Data Type | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `id`     | `string`  | An optional unique identifier for this dimension column definition.                                          | Generated ID     | No       |
-| `field`  | `string`  | The name of the column in your ESQL query result that represents the dimension.                            | N/A              | Yes      |
+| `id` | `string` | An optional unique identifier for this dimension column definition. | Generated ID | No |
+| `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
 
 ---
 
@@ -183,31 +183,31 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 ### Pie Chart Appearance Formatting (`appearance` field)
 
-| YAML Key | Data Type                             | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `donut`  | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie)     | No       |
+| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
 
 ### Pie Titles and Text Formatting (`titles_and_text` field)
 
-| YAML Key               | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels`         | `Literal['hide', 'inside', 'auto']`        | How to display labels for each slice.                                                                      | `auto`           | No       |
-| `slice_values`         | `Literal['hide', 'integer', 'percent']`    | How to display the value for each slice.                                                                   | `percent`        | No       |
-| `value_decimal_places` | `integer` (0-10)                           | Number of decimal places for slice values.                                                                 | `2`              | No       |
+| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
+| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
+| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
 
 ### Pie Legend Formatting (`legend` field)
 
-| YAML Key            | Data Type                                  | Description                                                                                                | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `visible`           | `Literal['show', 'hide', 'auto']`          | Controls legend visibility.                                                                                | `auto`           | No       |
-| `width`             | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area.                                                                                  | `medium`         | No       |
-| `truncate_labels`   | `integer` (0-5)                            | Max number of lines for legend labels before truncating. `0` disables truncation.                          | `1`              | No       |
+| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `auto` | No |
+| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `medium` | No |
+| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `1` | No |
 
 ### Color Mapping Formatting (`color` field)
 
-| YAML Key  | Data Type | Description                                      | Kibana Default   | Required |
+| YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `palette` | `string`  | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default`        | Yes      |
+| `palette` | `string` | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default` | Yes |
 
 ## Related Documentation
 
