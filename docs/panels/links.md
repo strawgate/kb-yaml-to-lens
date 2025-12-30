@@ -35,54 +35,30 @@ Just click to find what should come next!
 **Linking to another Dashboard:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - title: "Navigate to User Details"
-#   grid: { x: 0, y: 0, w: 6, h: 2 }
-#   links:
-#     layout: horizontal
-#     links:
-#       - label: "View User Activity Dashboard"
-#         dashboard: "user-activity-dashboard-id" # ID of the target dashboard
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Main Overview"
-  panels:
-    - title: "Navigate to User Details"
-      grid: { x: 0, y: 0, w: 6, h: 2 }
-      links:
-        layout: horizontal
+  - name: "Main Overview"
+    panels:
+      - title: "Navigate to User Details"
+        grid: { x: 0, y: 0, w: 6, h: 2 }
         links:
-          - label: "View User Activity Dashboard"
-            dashboard: "user-activity-dashboard-id"
+          links:
+            - label: "View User Activity Dashboard"
+              dashboard: "user-activity-dashboard-id"
 ```
 
 **Linking to an External URL:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - title: "External Resources"
-#   grid: { x: 6, y: 0, w: 6, h: 2 }
-#   links:
-#     layout: horizontal
-#     links:
-#       - label: "Project Documentation"
-#         url: "https://docs.example.com/project-alpha"
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Main Overview"
-  panels:
-    - title: "External Resources"
-      grid: { x: 6, y: 0, w: 6, h: 2 }
-      links:
-        layout: horizontal
+  - name: "Main Overview"
+    panels:
+      - title: "External Resources"
+        grid: { x: 6, y: 0, w: 6, h: 2 }
         links:
-          - label: "Project Documentation"
-            url: "https://docs.example.com/project-alpha"
-            new_tab: true # Open this external link in a new tab
+          links:
+            - label: "Project Documentation"
+              url: "https://docs.example.com/project-alpha"
+              new_tab: true # Open this external link in a new tab
 ```
 
 ## Complex Configuration Example
@@ -91,15 +67,14 @@ This example demonstrates a Links panel with multiple link types, a vertical lay
 
 ```yaml
 dashboards:
--
-  name: "Operations Hub"
-  panels:
-    - title: "Quick Access"
-      description: "Links to key operational dashboards and tools."
-      grid: { x: 0, y: 0, w: 12, h: 3 }
-      links:
-        layout: "vertical" # Display links one above the other
+  - name: "Operations Hub"
+    panels:
+      - title: "Quick Access"
+        description: "Links to key operational dashboards and tools."
+        grid: { x: 0, y: 0, w: 12, h: 3 }
         links:
+          layout: "vertical" # Display links one above the other
+          links:
           - label: "Service Health Dashboard"
             dashboard: "service-health-monitor-v2"
             with_time: true      # Carry over current time range

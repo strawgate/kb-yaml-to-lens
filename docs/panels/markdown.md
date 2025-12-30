@@ -35,34 +35,22 @@ With documentation well-designed!
 To add a simple Markdown panel, you need to specify its `type`, `grid` position, and the `content`.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - title: "Welcome Note"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 12 # Full width
-#     h: 3  # Height of 3 grid units
-#   markdown:
-#     content: "## Welcome to the Dashboard!\nThis panel provides an overview."
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Dashboard with Markdown"
-  panels:
-    - title: "Welcome Note"
-      grid:
-        x: 0
-        y: 0
-        w: 12
-        h: 3
-      markdown:
-        content: |
-          ## Welcome to the Dashboard!
-          This panel provides an overview of the key metrics and reports available.
+  - name: "Dashboard with Markdown"
+    panels:
+      - title: "Welcome Note"
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 3
+        markdown:
+          content: |
+            ## Welcome to the Dashboard!
+            This panel provides an overview of the key metrics and reports available.
 
-          - Item 1
-          - Item 2
+            - Item 1
+            - Item 2
 ```
 
 ## Complex Configuration Example
@@ -71,30 +59,29 @@ This example demonstrates a Markdown panel with a custom font size and a setting
 
 ```yaml
 dashboards:
--
-  name: "Informational Dashboard"
-  panels:
-    - title: "Important Instructions & Links"
-      description: "Follow these steps for system setup."
-      grid:
-        x: 0
-        y: 0
-        w: 8
-        h: 5
-      markdown:
-        content: |
-          # Setup Guide
+  - name: "Informational Dashboard"
+    panels:
+      - title: "Important Instructions & Links"
+        description: "Follow these steps for system setup."
+        grid:
+          x: 0
+          y: 0
+          w: 8
+          h: 5
+        markdown:
+          content: |
+            # Setup Guide
 
-          Please follow the [official documentation](https://example.com/docs) for detailed setup instructions.
+            Please follow the [official documentation](https://example.com/docs) for detailed setup instructions.
 
-          Key steps include:
-          1.  **Download** the installer.
-          2.  **Configure** the `config.yaml` file.
-          3.  **Run** the start script.
+            Key steps include:
+            1.  **Download** the installer.
+            2.  **Configure** the `config.yaml` file.
+            3.  **Run** the start script.
 
-          For issues, refer to the [Troubleshooting Page](https://example.com/troubleshooting).
-        font_size: 14
-        links_in_new_tab: false # Links will open in the same tab
+            For issues, refer to the [Troubleshooting Page](https://example.com/troubleshooting).
+          font_size: 14
+          links_in_new_tab: false # Links will open in the same tab
 ```
 
 ## Full Configuration Options

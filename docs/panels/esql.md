@@ -37,73 +37,42 @@ Your visualizations open every door!
 **Minimal ESQL Metric Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts  # This is the ESQLPanel type (distinguished by `esql` field)
-#   title: "Total Processed Events"
-#   grid: { x: 0, y: 0, w: 4, h: 3 }
-#   esql: |
-#     FROM my_event_stream
-#     | STATS total_events = COUNT(event_id)
-#   chart:
-#     type: metric
-#     primary:
-#       field: "total_events" # Must match a column name from ESQL query
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "ESQL Metrics Dashboard"
-  panels:
-    - type: charts
-      title: "Total Processed Events"
-      grid: { x: 0, y: 0, w: 4, h: 3 }
-      esql: |
-        FROM my_event_stream
-        | STATS total_events = COUNT(event_id)
-      chart:
-        type: metric # Specifies an ESQLMetricChart
-        primary:
-          field: "total_events"
-          # Label can be inferred from field if not provided
+  - name: "ESQL Metrics Dashboard"
+    panels:
+      - type: charts
+        title: "Total Processed Events"
+        grid: { x: 0, y: 0, w: 4, h: 3 }
+        esql: |
+          FROM my_event_stream
+          | STATS total_events = COUNT(event_id)
+        chart:
+          type: metric # Specifies an ESQLMetricChart
+          primary:
+            field: "total_events"
+            # Label can be inferred from field if not provided
 ```
 
 **Minimal ESQL Pie Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts
-#   title: "Events by Type (ESQL)"
-#   grid: { x: 4, y: 0, w: 8, h: 3 }
-#   esql: |
-#     FROM my_event_stream
-#     | STATS event_count = COUNT(event_id) BY event_type
-#     | LIMIT 5
-#   chart:
-#     type: pie
-#     metric:
-#       field: "event_count" # Must match a metric column from ESQL
-#     slice_by:
-#       - field: "event_type"  # Must match a dimension column from ESQL
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "ESQL Event Analysis"
-  panels:
-    - type: charts
-      title: "Events by Type (ESQL)"
-      grid: { x: 4, y: 0, w: 8, h: 3 }
-      esql: |
-        FROM my_event_stream
-        | STATS event_count = COUNT(event_id) BY event_type
-        | ORDER event_count DESC
-        | LIMIT 5
-      chart:
-        type: pie # Specifies an ESQLPieChart
-        metric:
-          field: "event_count"
-        slice_by:
-          - field: "event_type"
+  - name: "ESQL Event Analysis"
+    panels:
+      - type: charts
+        title: "Events by Type (ESQL)"
+        grid: { x: 4, y: 0, w: 8, h: 3 }
+        esql: |
+          FROM my_event_stream
+          | STATS event_count = COUNT(event_id) BY event_type
+          | ORDER event_count DESC
+          | LIMIT 5
+        chart:
+          type: pie # Specifies an ESQLPieChart
+          metric:
+            field: "event_count"
+          slice_by:
+            - field: "event_type"
 ```
 
 ## Full Configuration Options
