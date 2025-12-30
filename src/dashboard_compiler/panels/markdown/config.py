@@ -21,5 +21,5 @@ class MarkdownPanel(BasePanel):
     )
     links_in_new_tab: bool | None = Field(
         default=None,
-        description='If true, links in the Markdown content will open in a new tab. Defaults to true if not set.',
+        description='If true, links in the Markdown content will open in a new tab. Defaults to false if not set.',
     )

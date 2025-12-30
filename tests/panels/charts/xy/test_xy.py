@@ -32,7 +32,7 @@ async def test_bar_stacked_chart() -> None:
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
 
-    lens_chart = LensBarChart.model_validate(lens_config)
+    lens_chart = LensBarChart(**lens_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -55,7 +55,7 @@ async def test_bar_stacked_chart() -> None:
         }
     )
 
-    esql_chart = ESQLBarChart.model_validate(esql_config)
+    esql_chart = ESQLBarChart(**esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -97,7 +97,7 @@ async def test_bar_unstacked_chart() -> None:
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
 
-    lens_chart = LensBarChart.model_validate(lens_config)
+    lens_chart = LensBarChart(**lens_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -120,7 +120,7 @@ async def test_bar_unstacked_chart() -> None:
         }
     )
 
-    esql_chart = ESQLBarChart.model_validate(esql_config)
+    esql_chart = ESQLBarChart(**esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -160,7 +160,7 @@ async def test_line_chart() -> None:
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
 
-    lens_chart = LensLineChart.model_validate(lens_config)
+    lens_chart = LensLineChart(**lens_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -183,7 +183,7 @@ async def test_line_chart() -> None:
         }
     )
 
-    esql_chart = ESQLLineChart.model_validate(esql_config)
+    esql_chart = ESQLLineChart(**esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -223,7 +223,7 @@ async def test_area_chart() -> None:
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
 
-    lens_chart = LensAreaChart.model_validate(lens_config)
+    lens_chart = LensAreaChart(**lens_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -246,7 +246,7 @@ async def test_area_chart() -> None:
         }
     )
 
-    esql_chart = ESQLAreaChart.model_validate(esql_config)
+    esql_chart = ESQLAreaChart(**esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -288,7 +288,7 @@ async def test_area_percentage_chart() -> None:
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
 
-    lens_chart = LensAreaChart.model_validate(lens_config)
+    lens_chart = LensAreaChart(**lens_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -311,7 +311,7 @@ async def test_area_percentage_chart() -> None:
         }
     )
 
-    esql_chart = ESQLAreaChart.model_validate(esql_config)
+    esql_chart = ESQLAreaChart(**esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -333,6 +333,54 @@ async def test_area_percentage_chart() -> None:
             },
         }
     )
+
+
+async def test_xy_chart_with_legend_position() -> None:
+    """Test XY chart with custom legend position."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'position': 'top'},
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'top'})
+
+
+async def test_xy_chart_with_legend_hidden() -> None:
+    """Test XY chart with hidden legend."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'visible': False},
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot({'isVisible': False, 'position': 'right'})
+
+
+async def test_xy_chart_with_legend_bottom_position() -> None:
+    """Test XY chart with legend at bottom."""
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'visible': True, 'position': 'bottom'},
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'bottom'})
 
 
 async def test_dual_axis_chart() -> None:

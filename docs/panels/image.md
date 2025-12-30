@@ -43,7 +43,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 4
+          w: 16
           h: 3
         from_url: "https://example.com/path/to/your/logo.png"
 ```
@@ -61,7 +61,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 12 # Full width
+          w: 48 # Full width
           h: 6
         from_url: "https://example.com/path/to/architecture.svg"
         fit: "contain"  # Ensure the whole image is visible within the panel

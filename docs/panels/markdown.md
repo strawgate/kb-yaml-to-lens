@@ -43,7 +43,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 12
+          w: 48
           h: 3
         content: |
           ## Welcome to the Dashboard!
@@ -67,7 +67,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 8
+          w: 32
           h: 5
         content: |
           # Setup Guide
@@ -98,7 +98,7 @@ Markdown panels inherit from the [Base Panel Configuration](./base.md) and have 
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
 | `content` | `string` | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `\|` or `>`) for readability. | N/A | Yes |
 | `font_size` | `integer` | The font size for the Markdown content, in pixels. | `12` | No |
-| `links_in_new_tab` | `boolean` | If `true`, links in the Markdown content will open in a new tab. | `true` | No |
+| `links_in_new_tab` | `boolean` | If `true`, links in the Markdown content will open in a new tab. | `false` | No |
 
 ## Programmatic Usage (Python)
 
