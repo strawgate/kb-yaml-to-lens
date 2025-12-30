@@ -169,11 +169,11 @@ The `palette` field accepts the following palette IDs:
 dashboards:
   - name: "Sales Dashboard"
     panels:
-      -         title: "Revenue by Region"
+      - title: "Revenue by Region"
         grid: { x: 0, y: 0, w: 6, h: 6 }
         lens:
           type: pie
-          data_view: "sales-data"
+          data_view: "logs-*"
           slice_by:
             - field: "region"
               type: values
@@ -190,24 +190,24 @@ dashboards:
 dashboards:
   - name: "Status Monitoring"
     panels:
-      -         title: "Request Status Distribution"
+      - title: "Request Status Distribution"
         grid: { x: 0, y: 0, w: 6, h: 6 }
         lens:
           type: pie
           data_view: "logs-*"
           slice_by:
-            - field: "status"
+            - field: "http.response.status_code"
               type: values
           metric:
             aggregation: count
           color:
             palette: 'eui_amsterdam_color_blind'
             assignments:
-              - values: ['200', 'OK']
+              - values: ['200', '201', '204']
                 color: '#00BF6F'  # Green for success
-              - values: ['404', 'Not Found']
+              - values: ['404']
                 color: '#FFA500'  # Orange for not found
-              - values: ['500', 'Error']
+              - values: ['500', '502', '503']
                 color: '#BD271E'  # Red for errors
 ```
 

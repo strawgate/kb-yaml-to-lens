@@ -322,10 +322,9 @@ Create a chart with two metrics on different Y-axes:
 dashboards:
   - name: "Performance Dashboard"
     panels:
-      - type: charts
-        title: "Request Count vs Error Rate"
+      - title: "Request Count vs Error Rate"
         grid: { x: 0, y: 0, w: 48, h: 12 }
-        chart:
+        lens:
           type: line
           data_view: "logs-*"
           dimensions:
@@ -336,7 +335,7 @@ dashboards:
             - aggregation: count
               id: "request_count"
             - aggregation: average
-              field: "error_rate"
+              field: "error.rate"
               id: "avg_error_rate"
           appearance:
             y_left_axis:
@@ -362,10 +361,9 @@ Set explicit axis ranges:
 dashboards:
   - name: "SLA Dashboard"
     panels:
-      - type: charts
-        title: "Response Time (0-1000ms)"
+      - title: "Response Time (0-1000ms)"
         grid: { x: 0, y: 0, w: 48, h: 12 }
-        chart:
+        lens:
           type: line
           data_view: "logs-*"
           dimensions:
@@ -373,7 +371,7 @@ dashboards:
               field: "@timestamp"
           metrics:
             - aggregation: average
-              field: "response_time_ms"
+              field: "event.duration"
           appearance:
             y_left_axis:
               title: "Response Time (ms)"
@@ -393,10 +391,9 @@ Customize individual series appearance:
 dashboards:
   - name: "Network Dashboard"
     panels:
-      - type: charts
-        title: "Network Traffic"
+      - title: "Network Traffic"
         grid: { x: 0, y: 0, w: 48, h: 12 }
-        chart:
+        lens:
           type: area
           data_view: "metrics-*"
           dimensions:
@@ -404,11 +401,15 @@ dashboards:
               field: "@timestamp"
           metrics:
             - aggregation: sum
-              field: "bytes_in"
+              field: "network.bytes"
               id: "inbound"
+              filter:
+                kql: "network.direction:inbound"
             - aggregation: sum
-              field: "bytes_out"
+              field: "network.bytes"
               id: "outbound"
+              filter:
+                kql: "network.direction:outbound"
           appearance:
             series:
               - metric_id: "inbound"
