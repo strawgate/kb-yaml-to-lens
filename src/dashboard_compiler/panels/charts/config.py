@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from pydantic import Discriminator, Field, Tag
-from pydantic.functional_validators import field_validator
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
@@ -41,72 +40,40 @@ class LensPanelFieldsMixin(BaseCfgModel):
     query: 'LegacyQueryTypes | None' = Field(default=None)
     """The query to be executed."""
 
+
+class LensXYPanelFieldsMixin(LensPanelFieldsMixin):
+    """Panel-level fields for XY chart panels (line, bar, area)."""
+
     layers: list['MultiLayerChartTypes'] | None = Field(default=None)
-    """Optional additional layers for multi-layer charts."""
+    """Optional additional layers for multi-layer XY charts (including reference lines)."""
 
 
 class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
     """Configuration for a Lens metric panel."""
 
-    @field_validator('layers', mode='after')
-    @classmethod
-    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
-        """Validate that reference lines are not used with metric charts."""
-        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
-            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
-            raise ValueError(msg)
-        return layers
-
 
 class LensGaugePanelConfig(LensGaugeChart, LensPanelFieldsMixin):
     """Configuration for a Lens gauge panel."""
-
-    @field_validator('layers', mode='after')
-    @classmethod
-    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
-        """Validate that reference lines are not used with gauge charts."""
-        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
-            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
-            raise ValueError(msg)
-        return layers
 
 
 class LensPiePanelConfig(LensPieChart, LensPanelFieldsMixin):
     """Configuration for a Lens pie panel."""
 
-    @field_validator('layers', mode='after')
-    @classmethod
-    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
-        """Validate that reference lines are not used with pie charts."""
-        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
-            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
-            raise ValueError(msg)
-        return layers
 
-
-class LensLinePanelConfig(LensLineChart, LensPanelFieldsMixin):
+class LensLinePanelConfig(LensLineChart, LensXYPanelFieldsMixin):
     """Configuration for a Lens line panel."""
 
 
-class LensBarPanelConfig(LensBarChart, LensPanelFieldsMixin):
+class LensBarPanelConfig(LensBarChart, LensXYPanelFieldsMixin):
     """Configuration for a Lens bar panel."""
 
 
-class LensAreaPanelConfig(LensAreaChart, LensPanelFieldsMixin):
+class LensAreaPanelConfig(LensAreaChart, LensXYPanelFieldsMixin):
     """Configuration for a Lens area panel."""
 
 
 class LensTagcloudPanelConfig(LensTagcloudChart, LensPanelFieldsMixin):
     """Configuration for a Lens tagcloud panel."""
-
-    @field_validator('layers', mode='after')
-    @classmethod
-    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
-        """Validate that reference lines are not used with tagcloud charts."""
-        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
-            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
-            raise ValueError(msg)
-        return layers
 
 
 type LensPanelConfig = Annotated[

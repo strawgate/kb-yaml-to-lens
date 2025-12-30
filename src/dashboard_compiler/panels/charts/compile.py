@@ -6,7 +6,10 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.charts.config import (
     AllChartTypes,
     ESQLPanel,
+    LensAreaPanelConfig,
+    LensBarPanelConfig,
     LensChartTypes,
+    LensLinePanelConfig,
     LensPanel,
 )
 from dashboard_compiler.panels.charts.gauge.compile import compile_esql_gauge_chart, compile_lens_gauge_chart
@@ -224,7 +227,8 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
         base_chart = panel.lens
 
         all_charts: list[LensChartTypes] = [base_chart]
-        if base_chart.layers is not None:
+        # Only XY charts (line, bar, area) support additional layers
+        if isinstance(base_chart, (LensLinePanelConfig, LensBarPanelConfig, LensAreaPanelConfig)) and base_chart.layers is not None:
             all_charts.extend(base_chart.layers)
 
         chart_state, references = compile_lens_chart_state(
