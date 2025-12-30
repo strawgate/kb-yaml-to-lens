@@ -93,7 +93,7 @@ panel = LensPanel(
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
-        primary=LensCountAggregatedMetric(aggregation='count'),
+        primary=LensCountAggregatedMetric(),
     ),
 )
 ```
