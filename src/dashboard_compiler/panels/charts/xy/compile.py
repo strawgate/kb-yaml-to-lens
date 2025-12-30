@@ -244,11 +244,6 @@ def compile_xy_chart_visualization_state(
                 for v in (
                     series_cfg.axis,
                     series_cfg.color,
-                    series_cfg.line_width,
-                    series_cfg.line_style,
-                    series_cfg.fill,
-                    series_cfg.icon,
-                    series_cfg.icon_position,
                 )
             ):
                 y_config.append(
@@ -256,11 +251,6 @@ def compile_xy_chart_visualization_state(
                         forAccessor=series_cfg.metric_id,
                         axisMode=series_cfg.axis,
                         color=series_cfg.color,
-                        lineWidth=series_cfg.line_width,
-                        lineStyle=series_cfg.line_style,
-                        fill=series_cfg.fill,
-                        icon=series_cfg.icon,
-                        iconPosition=series_cfg.icon_position,
                     )
                 )
 

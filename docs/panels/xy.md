@@ -179,10 +179,6 @@ Configures per-series visual styling and axis assignment. Used to customize indi
 | `metric_id` | `str` | ID of the metric this series configuration applies to. | N/A | Yes |
 | `axis` | `Literal['left', 'right'] \| None` | Which Y-axis this series is assigned to (for dual-axis charts). | `None` | No |
 | `color` | `str \| None` | Hex color code for the series (e.g., '#2196F3'). | `None` | No |
-| `line_width` | `float \| None` | Line width (1-10). | `None` | No |
-| `line_style` | `Literal['solid', 'dashed', 'dotted'] \| None` | Line style for line/area charts. | `None` | No |
-| `fill` | `Literal['none', 'below', 'above'] \| None` | Fill style for area charts. | `None` | No |
-| `icon` | `str \| None` | Point marker icon for line charts. | `None` | No |
 
 #### Bar Chart Specific Appearance
 
@@ -228,7 +224,6 @@ chart:
     series:
       - metric_id: "response_time"
         color: "#2196F3"
-        line_width: 2
   # ... other fields
 ```
 
@@ -252,7 +247,6 @@ chart:
     series:
       - metric_id: "bytes_in"
         color: "#4CAF50"
-        fill: below
   # ... other fields
 ```
 
@@ -353,12 +347,9 @@ dashboards:
               - metric_id: "request_count"
                 axis: left
                 color: "#2196F3"
-                line_width: 2
               - metric_id: "avg_error_rate"
                 axis: right
                 color: "#FF5252"
-                line_width: 3
-                line_style: dashed
 ```
 
 ### Custom Axis Bounds
@@ -420,12 +411,8 @@ dashboards:
             series:
               - metric_id: "inbound"
                 color: "#4CAF50"
-                fill: below
-                line_style: solid
               - metric_id: "outbound"
                 color: "#FF9800"
-                fill: below
-                line_style: dotted
 ```
 
 ## Programmatic Usage (Python)

@@ -167,7 +167,7 @@ class XYSeries(BaseCfgModel):
     """Represents per-series visual configuration for XY charts.
 
     Defines how a specific metric should be displayed, including axis assignment
-    and visual styling properties like color, line width, and fill.
+    and color customization.
     """
 
     metric_id: str = Field(...)
@@ -178,21 +178,6 @@ class XYSeries(BaseCfgModel):
 
     color: str | None = Field(default=None)
     """Custom color for this series (hex color code, e.g., '#2196F3')."""
-
-    line_width: float | None = Field(default=None, ge=1, le=10)
-    """Line width for line/area charts (1-10)."""
-
-    line_style: Literal['solid', 'dashed', 'dotted'] | None = Field(default=None)
-    """Line style for line/area charts."""
-
-    fill: Literal['none', 'below', 'above'] | None = Field(default=None)
-    """Fill configuration for area charts."""
-
-    icon: str | None = Field(default=None)
-    """Icon to display for this series."""
-
-    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(default=None)
-    """Position of the icon relative to the data point."""
 
 
 class BaseXYChart(BaseChart):

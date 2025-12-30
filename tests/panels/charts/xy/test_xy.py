@@ -639,8 +639,8 @@ async def test_dual_axis_chart() -> None:
             'y_left_axis': {'title': 'Count', 'scale': 'linear'},
             'y_right_axis': {'title': 'Error Rate (%)', 'scale': 'linear'},
             'series': [
-                {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3', 'line_width': 2},
-                {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252', 'line_width': 3, 'line_style': 'dashed'},
+                {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3'},
+                {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252'},
             ],
         },
     }
@@ -660,8 +660,8 @@ async def test_dual_axis_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'yConfig': [
-                {'forAccessor': 'metric1', 'axisMode': 'left', 'color': '#2196F3', 'lineWidth': 2},
-                {'forAccessor': 'metric2', 'axisMode': 'right', 'color': '#FF5252', 'lineWidth': 3, 'lineStyle': 'dashed'},
+                {'forAccessor': 'metric1', 'axisMode': 'left', 'color': '#2196F3'},
+                {'forAccessor': 'metric2', 'axisMode': 'right', 'color': '#FF5252'},
             ],
             'colorMapping': {
                 'assignments': [],
@@ -682,8 +682,8 @@ async def test_dual_axis_chart() -> None:
 async def test_styled_series_chart() -> None:
     """Test chart with styled series using the new series configuration.
 
-    Uses the series-based configuration where visual properties like color,
-    fill, and line_style are defined in the appearance.series section.
+    Uses the series-based configuration where visual properties like color
+    are defined in the appearance.series section.
     """
     lens_config = {
         'type': 'area',
@@ -695,8 +695,8 @@ async def test_styled_series_chart() -> None:
         ],
         'appearance': {
             'series': [
-                {'metric_id': 'metric1', 'color': '#4CAF50', 'fill': 'below'},
-                {'metric_id': 'metric2', 'color': '#FF9800', 'fill': 'below', 'line_style': 'dotted'},
+                {'metric_id': 'metric1', 'color': '#4CAF50'},
+                {'metric_id': 'metric2', 'color': '#FF9800'},
             ],
         },
     }
@@ -715,8 +715,8 @@ async def test_styled_series_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'yConfig': [
-                {'forAccessor': 'metric1', 'color': '#4CAF50', 'fill': 'below'},
-                {'forAccessor': 'metric2', 'color': '#FF9800', 'fill': 'below', 'lineStyle': 'dotted'},
+                {'forAccessor': 'metric1', 'color': '#4CAF50'},
+                {'forAccessor': 'metric2', 'color': '#FF9800'},
             ],
             'colorMapping': {
                 'assignments': [],

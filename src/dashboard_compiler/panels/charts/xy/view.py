@@ -63,9 +63,8 @@ class AxisExtentConfig(BaseVwModel):
 class YConfig(BaseVwModel):
     """View model for Y-axis series configuration in XY charts.
 
-    Defines the appearance and behavior of individual Y-axis data series, including
-    color, line style, width, icons, and axis assignment. Used to customize how each
-    metric is displayed in the visualization.
+    Defines the appearance and behavior of individual Y-axis data series and reference lines.
+    For data series, only color and axisMode are used (other fields are for reference lines).
 
     See Also:
         Kibana type definition: `YConfig` in
@@ -78,26 +77,23 @@ class YConfig(BaseVwModel):
     color: Annotated[str | None, OmitIfNone()] = None
     """Hex color code for the series (e.g., '#FF0000')."""
 
-    icon: Annotated[str | None, OmitIfNone()] = None
-    """Icon identifier for the series marker."""
-
-    lineWidth: Annotated[float | None, OmitIfNone()] = None
-    """Width of the line in pixels for line/area charts."""
-
-    lineStyle: Annotated[Literal['solid', 'dashed', 'dotted'] | None, OmitIfNone()] = None
-    """Style of the line (e.g., solid, dashed, dotted)."""
-
-    fill: Annotated[Literal['none', 'below', 'above'] | None, OmitIfNone()] = None
-    """Fill configuration for area charts."""
-
-    iconPosition: Annotated[Literal['auto', 'left', 'right', 'above', 'below'] | None, OmitIfNone()] = None
-    """Position of icons relative to data points."""
-
-    textVisibility: Annotated[bool | None, OmitIfNone()] = None
-    """Whether to show text labels for this series."""
-
     axisMode: Annotated[Literal['left', 'right'] | None, OmitIfNone()] = None
     """Which Y-axis (left/right) to assign this series to."""
+
+    lineWidth: Annotated[float | None, OmitIfNone()] = None
+    """Width of the line in pixels (used by reference lines only)."""
+
+    lineStyle: Annotated[Literal['solid', 'dashed', 'dotted'] | None, OmitIfNone()] = None
+    """Style of the line (used by reference lines only)."""
+
+    fill: Annotated[Literal['none', 'below', 'above'] | None, OmitIfNone()] = None
+    """Fill configuration (used by reference lines only)."""
+
+    icon: Annotated[str | None, OmitIfNone()] = None
+    """Icon identifier (used by reference lines only)."""
+
+    iconPosition: Annotated[Literal['auto', 'left', 'right', 'above', 'below'] | None, OmitIfNone()] = None
+    """Position of icons (used by reference lines only)."""
 
 
 class XYDataLayerConfig(BaseVwModel):
