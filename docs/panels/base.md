@@ -127,6 +127,151 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 * [Metric Panel](./metric.md)
 * [Image Panel](./image.md)
 
+## Color Mapping Configuration
+
+Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. This allows you to control how colors are assigned to different data values or categories in your visualizations.
+
+### ColorMapping Object
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `palette` | `string` | The color palette ID to use for unassigned colors. | `'eui_amsterdam_color_blind'` | No |
+| `mode` | `Literal['categorical', 'gradient']` | Color mode: 'categorical' for discrete categories, 'gradient' for continuous data. | `'categorical'` | No |
+| `assignments` | `list[ColorAssignment]` | Manual color assignments to specific data values (categorical mode). | `[]` | No |
+| `range_assignments` | `list[RangeColorAssignment]` | Range-based color assignments for gradient mode. | `[]` | No |
+| `gradient` | `GradientConfig` | Gradient configuration for gradient mode. | `None` | No |
+
+#### Available Color Palettes
+
+The `palette` field accepts the following palette IDs:
+
+* `'eui_amsterdam_color_blind'` - Color-blind safe palette (default, recommended)
+* `'default'` - Standard EUI palette
+* `'kibana_palette'` or `'legacy'` - Legacy Kibana colors
+* `'elastic_brand'` - Elastic brand colors
+* `'gray'` - Grayscale palette
+
+#### ColorAssignment Object (Categorical Mode)
+
+| YAML Key | Data Type | Description | Required |
+| -------- | --------- | ----------- | -------- |
+| `values` | `list[str]` | List of data values to assign this color to. | Yes |
+| `color` | `string` | Hex color code (e.g., '#FF0000'). | Yes |
+
+#### RangeColorAssignment Object (Gradient Mode)
+
+| YAML Key | Data Type | Description | Required |
+| -------- | --------- | ----------- | -------- |
+| `min` | `float` | Minimum value for this color range. | Yes |
+| `max` | `float` | Maximum value for this color range. | Yes |
+| `color` | `string` | Hex color code for this range. | Yes |
+
+#### GradientConfig Object (Gradient Mode)
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `type` | `Literal['sequential', 'divergent']` | Gradient type. | `'sequential'` | No |
+| `colors` | `list[str]` | Hex color codes for the gradient. Use 2 colors for sequential, 3 for divergent. | N/A | Yes |
+
+### Color Mapping Examples
+
+#### Example 1: Using a Different Palette
+
+```yaml
+dashboards:
+  - name: "Sales Dashboard"
+    panels:
+      - type: charts
+        title: "Revenue by Region"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "sales-data"
+          slice_by:
+            - field: "region"
+              type: values
+          metric:
+            aggregation: sum
+            field: revenue
+          color:
+            palette: 'elastic_brand'  # Use Elastic brand colors
+```
+
+#### Example 2: Manual Color Assignments (Categorical)
+
+```yaml
+dashboards:
+  - name: "Status Monitoring"
+    panels:
+      - type: charts
+        title: "Request Status Distribution"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          slice_by:
+            - field: "status"
+              type: values
+          metric:
+            aggregation: count
+          color:
+            mode: 'categorical'
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['200', 'OK']
+                color: '#00BF6F'  # Green for success
+              - values: ['404', 'Not Found']
+                color: '#FFA500'  # Orange for not found
+              - values: ['500', 'Error']
+                color: '#BD271E'  # Red for errors
+```
+
+#### Example 3: Gradient Color Mode
+
+```yaml
+dashboards:
+  - name: "Temperature Monitoring"
+    panels:
+      - type: charts
+        title: "Temperature Distribution"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        chart:
+          type: metric
+          data_view: "sensor-data"
+          primary:
+            aggregation: average
+            field: temperature
+          color:
+            mode: 'gradient'
+            gradient:
+              type: 'sequential'
+              colors: ['#F5F7FA', '#BD271E']  # Light to dark red
+```
+
+#### Example 4: Divergent Gradient
+
+```yaml
+dashboards:
+  - name: "Performance Metrics"
+    panels:
+      - type: charts
+        title: "Response Time Trend"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        chart:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - aggregation: average
+              field: response_time
+          color:
+            mode: 'gradient'
+            gradient:
+              type: 'divergent'
+              colors: ['#00BF6F', '#FFA500', '#BD271E']  # Green -> Orange -> Red
+```
+
 ## Related Documentation
 
 * [Dashboard Configuration](../dashboard/dashboard.md)

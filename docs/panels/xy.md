@@ -48,6 +48,37 @@ dashboards:
             - aggregation: count
 ```
 
+## Example with Custom Colors
+
+```yaml
+dashboards:
+  - name: "Service Performance"
+    panels:
+      - type: charts
+        title: "Response Times by Service"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        chart:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - field: "@timestamp"
+          breakdown:
+            field: "service.name"
+            type: values
+          metrics:
+            - aggregation: average
+              field: response_time
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['web-frontend']
+                color: '#00BF6F'
+              - values: ['api-gateway']
+                color: '#0077CC'
+              - values: ['database']
+                color: '#FFA500'
+```
+
 ## Full Configuration Options
 
 ### Lens Bar Chart
