@@ -4,6 +4,7 @@ from pydantic import Field
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
+from dashboard_compiler.panels.charts.gauge import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
 from dashboard_compiler.panels.charts.tagcloud import ESQLTagcloudChart, LensTagcloudChart
@@ -23,9 +24,9 @@ type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
 type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart
 
-type SingleLayerChartTypes = LensMetricChart
+type SingleLayerChartTypes = LensMetricChart | LensGaugeChart
 
-type ESQLChartTypes = ESQLMetricChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
+type ESQLChartTypes = ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
 
 
 class LensPanel(BasePanel):
