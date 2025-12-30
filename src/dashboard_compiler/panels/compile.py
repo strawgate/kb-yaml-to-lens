@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from dashboard_compiler.panels import LinksPanel, MarkdownPanel
+from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensMultiLayerPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
@@ -39,17 +39,43 @@ def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) ->
     )
 
 
+def get_panel_type_name(panel: PanelTypes) -> str:
+    """Get the type name for a panel.
+
+    Args:
+        panel (PanelTypes): The panel object.
+
+    Returns:
+        str: The type name for the panel.
+
+    """
+    if isinstance(panel, MarkdownPanel):
+        return 'markdown'
+    if isinstance(panel, LinksPanel):
+        return 'links'
+    if isinstance(panel, ImagePanel):
+        return 'image'
+    if isinstance(panel, SearchPanel):
+        return 'search'
+    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
+        return 'charts'
+    # This should never be reached if PanelTypes is exhaustive, but provides a clear error
+    msg = f'Unknown panel type: {type(panel).__name__}'
+    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+
+
 def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
     """Compile shared properties of a panel into its Kibana view model representation.
 
     Args:
-        panel (LensPanel | ESQLPanel): The panel object to compile.
+        panel (PanelTypes): The panel object to compile.
 
     Returns:
         tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
 
     """
-    panel_index = panel.id or stable_id_generator(values=[panel.type, panel.title, str(panel.grid)])
+    panel_type = get_panel_type_name(panel)
+    panel_index = panel.id or stable_id_generator(values=[panel_type, panel.title, str(panel.grid)])
 
     grid_data = KbnGridData(x=panel.grid.x, y=panel.grid.y, w=panel.grid.w, h=panel.grid.h, i=panel_index)
 
@@ -76,15 +102,17 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnB
         references, embeddable_config = compile_links_panel_config(panel)
         return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
 
-    if isinstance(panel, LensPanel | LensMultiLayerPanel | ESQLPanel):
+    if isinstance(panel, (ImagePanel, SearchPanel)):
+        msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
+        raise NotImplementedError(msg)
+
+    if isinstance(panel, (LensPanel, LensMultiLayerPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
         references, kbn_panel = compile_charts_panel_config(panel)
         return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
 
-    # if isinstance(panel, ESQLPanel):
-    #     return compile_esql_panel(panel)
-
-    msg = f'Panel type {type(panel)} is not supported in the dashboard compilation.'
-    raise NotImplementedError(msg)
+    # This should never be reached if PanelTypes is exhaustive, but provides a clear error
+    msg = f'Unknown panel type: {type(panel).__name__}'
+    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
 def compile_dashboard_panels(panels: Sequence[PanelTypes]) -> tuple[list[KbnReference], list[KbnBasePanel]]:

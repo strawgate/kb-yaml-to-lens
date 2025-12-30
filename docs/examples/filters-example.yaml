@@ -5,21 +5,21 @@ dashboards:
     description: Demonstrates various panel-level filter types and combinations
     panels:
       # Introduction
-      - type: markdown
-        title: Filter Types Reference
+      - title: Filter Types Reference
         grid: {x: 0, y: 0, w: 48, h: 6}
-        content: |
-          # Advanced Filtering Techniques
-          This dashboard demonstrates various filter types available for panels:
+        markdown:
+          content: |
+            # Advanced Filtering Techniques
+            This dashboard demonstrates various filter types available for panels:
 
-          ## Filter Types
-          1. **Equals Filter** - Exact field value match
-          2. **Exists Filter** - Field existence check
-          3. **Comparison Filters** - Greater than/less than (gte, gt, lte, lt)
-          4. **Not Filter** - Negation of other filters
-          5. **Combined Filters** - Multiple filters on same panel
-          Each panel below demonstrates a different filtering pattern.
-        font_size: 12
+            ## Filter Types
+            1. **Equals Filter** - Exact field value match
+            2. **Exists Filter** - Field existence check
+            3. **Comparison Filters** - Greater than/less than (gte, gt, lte, lt)
+            4. **Not Filter** - Negation of other filters
+            5. **Combined Filters** - Multiple filters on same panel
+            Each panel below demonstrates a different filtering pattern.
+          font_size: 12
 
       # Example 1: Equals Filter
       - type: charts

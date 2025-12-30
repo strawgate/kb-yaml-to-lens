@@ -32,13 +32,13 @@ class TestGridExtractor(unittest.TestCase):
     description: A test dashboard
     panels:
       - title: Panel 1
-        type: markdown
         grid: { x: 0, y: 0, w: 24, h: 15 }
-        content: "Test content 1"
+        markdown:
+          content: "Test content 1"
       - title: Panel 2
-        type: markdown
         grid: { x: 24, y: 0, w: 24, h: 15 }
-        content: "Test content 2"
+        markdown:
+          content: "Test content 2"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -63,9 +63,9 @@ class TestGridExtractor(unittest.TestCase):
     panels:
       - id: my-panel-1
         title: Panel with ID
-        type: markdown
         grid: { x: 0, y: 0, w: 12, h: 8 }
-        content: "Test"
+        markdown:
+          content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -81,9 +81,9 @@ class TestGridExtractor(unittest.TestCase):
   - name: Test Dashboard
     panels:
       - title: No ID Panel
-        type: markdown
         grid: { x: 0, y: 0, w: 24, h: 15 }
-        content: "Test"
+        markdown:
+          content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -97,9 +97,9 @@ class TestGridExtractor(unittest.TestCase):
         yaml_content = """dashboards:
   - name: Test Dashboard
     panels:
-      - type: markdown
-        grid: { x: 0, y: 0, w: 24, h: 15 }
-        content: "Test"
+      - grid: { x: 0, y: 0, w: 24, h: 15 }
+        markdown:
+          content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 

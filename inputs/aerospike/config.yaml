@@ -8,29 +8,29 @@ dashboards:
         data_view: metrics-*
         field: aerospike.namespace
     panels:
-      - type: markdown
-        title: On-dashboard description of Aerospike Metrics
+      - title: On-dashboard description of Aerospike Metrics
         hide_title: true
-        content: |
-          This dashboard provides an overview of Aerospike metrics, including node and namespace metrics.
-          It includes links to the Aerospike documentation and community resources. See the integration page for setup instructions.
         grid: {x: 0, y: 0, w: 48, h: 3}
-      - type: links
-        title: Links
+        markdown:
+          content: |
+            This dashboard provides an overview of Aerospike metrics, including node and namespace metrics.
+            It includes links to the Aerospike documentation and community resources. See the integration page for setup instructions.
+      - title: Links
         grid: {x: 0, y: 3, w: 48, h: 3}
         description: Links to Aerospike documentation and other resources
-        layout: horizontal
         links:
-          - label: Overview
-            dashboard: 0aa67124-5f70-a811-7ec5-063c196c5e6e
-          - label: Node Metrics
-            dashboard: ec958c2b-aefe-43ad-8864-60d0fe767280
-          - label: Namespace Metrics
-            dashboard: 70cf3a9f-94b5-4663-989b-b290aa94f43a
-          - label: Vendor Documentation
-            url: https://www.aerospike.com/docs/
-          - label: Community Forum
-            url: https://discuss.aerospike.com/
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: 0aa67124-5f70-a811-7ec5-063c196c5e6e
+            - label: Node Metrics
+              dashboard: ec958c2b-aefe-43ad-8864-60d0fe767280
+            - label: Namespace Metrics
+              dashboard: 70cf3a9f-94b5-4663-989b-b290aa94f43a
+            - label: Vendor Documentation
+              url: https://www.aerospike.com/docs/
+            - label: Community Forum
+              url: https://discuss.aerospike.com/
       - type: charts
         title: Nodes by Namespace
         description: A chart showing the number of nodes by namespace

@@ -23,8 +23,9 @@ def test_compile_markdown_panel_basic() -> None:
     """Test the compilation of a basic markdown panel."""
     references, result = compile_markdown_panel_snapshot(
         {
-            'type': 'markdown',
-            'content': '# default',
+            'markdown': {
+                'content': '# default',
+            },
         }
     )
     assert references == snapshot([])
@@ -48,9 +49,10 @@ def test_compile_markdown_panel_with_description() -> None:
     """Test the compilation of a markdown panel with description."""
     references, result = compile_markdown_panel_snapshot(
         {
-            'type': 'markdown',
             'description': 'description',
-            'content': 'title and description',
+            'markdown': {
+                'content': 'title and description',
+            },
         }
     )
     assert references == snapshot([])
@@ -74,10 +76,11 @@ def test_compile_markdown_panel_custom_font_size() -> None:
     """Test the compilation of a markdown panel with custom font size."""
     references, result = compile_markdown_panel_snapshot(
         {
-            'type': 'markdown',
             'title': 'Important Note',
-            'content': '# large font',
-            'font_size': 18,
+            'markdown': {
+                'content': '# large font',
+                'font_size': 18,
+            },
         }
     )
     assert references == snapshot([])
@@ -101,9 +104,10 @@ def test_compile_markdown_panel_new_tab() -> None:
     """Test the compilation of a markdown panel which opens links in new tab."""
     references, result = compile_markdown_panel_snapshot(
         {
-            'type': 'markdown',
-            'content': '# new_tab',
-            'links_in_new_tab': True,
+            'markdown': {
+                'content': '# new_tab',
+                'links_in_new_tab': True,
+            },
         }
     )
     assert references == snapshot([])
