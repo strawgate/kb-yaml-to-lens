@@ -12,23 +12,17 @@ markdown_files = [
     'docs/index.md',
     'docs/quickstart.md',
     'docs/panels/base.md',
+    'docs/panels/esql.md',
     'docs/panels/image.md',
+    'docs/panels/lens.md',
     'docs/panels/links.md',
     'docs/panels/markdown.md',
     'docs/panels/metric.md',
     'docs/panels/pie.md',
     'docs/panels/search.md',
+    'docs/panels/tagcloud.md',
     'docs/panels/xy.md',
     'docs/queries/config.md',
-    'src/dashboard_compiler/panels/base.md',
-    'src/dashboard_compiler/panels/charts/esql/esql.md',
-    'src/dashboard_compiler/panels/charts/lens/lens.md',
-    'src/dashboard_compiler/panels/charts/tagcloud/config.md',
-    'src/dashboard_compiler/panels/images/image.md',
-    'src/dashboard_compiler/panels/links/links.md',
-    'src/dashboard_compiler/panels/markdown/markdown.md',
-    'src/dashboard_compiler/panels/search/search.md',
-    'src/dashboard_compiler/queries/config.md',
 ]
 
 
@@ -94,15 +88,15 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
     """Test that complete YAML examples can be loaded by the dashboard compiler."""
     from dashboard_compiler.dashboard_compiler import load
 
-    # Skip files that contain incomplete chart examples
-    # These are internal API docs showing schema structures and aren't meant to be complete examples
-    internal_api_docs = [
-        'src/dashboard_compiler/panels/charts/tagcloud/config.md',
-        'src/dashboard_compiler/panels/charts/esql/esql.md',
-        'src/dashboard_compiler/panels/charts/lens/lens.md',
+    # Skip files that contain examples with placeholder data sources
+    # These files show schema structures for different chart types
+    placeholder_docs = [
+        'docs/panels/esql.md',
+        'docs/panels/lens.md',
+        'docs/panels/tagcloud.md',
     ]
-    if file_path in internal_api_docs:
-        pytest.skip(f'Skipping internal API doc: {file_path}')
+    if file_path in placeholder_docs:
+        pytest.skip(f'Skipping doc with placeholder examples: {file_path}')
 
     examples = extract_yaml_examples(file_path)
 
