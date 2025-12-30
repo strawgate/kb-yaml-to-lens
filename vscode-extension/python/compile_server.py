@@ -34,35 +34,44 @@ server = LanguageServer('dashboard-compiler', 'v0.1')
 def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Convert pygls params object to dict.
 
-    In pygls v2, params are passed as cattrs-structured objects or raw dicts.
-    This helper converts them to dictionaries for easier handling.
+    In pygls v2, params can be passed as:
+    - Plain dicts (from internal requests)
+    - LSPObject instances (from external LSP clients like vscode-languageclient)
+    - cattrs-structured objects (from some LSP requests)
 
     Args:
-        params: The params object (dict, attrs-structured object, or object with __dict__)
+        params: The params object
 
     Returns:
         Dictionary representation of the params
     """
+    # Already a dict - fast path
     if isinstance(params, dict):
         if not all(isinstance(key, str) for key in params):  # pyright: ignore[reportUnknownVariableType]
             msg = 'Params dictionary keys must be strings'
             raise TypeError(msg)
         return params  # pyright: ignore[reportUnknownVariableType]
 
-    # Try cattrs.unstructure first (handles attrs classes)
+    # Try cattrs.unstructure first (handles attrs classes and some LSP types)
     unstructured = cattrs.unstructure(params)  # pyright: ignore[reportAny]
     if isinstance(unstructured, dict):
         return unstructured  # pyright: ignore[reportUnknownVariableType]
 
-    # If cattrs didn't help, try to access __dict__ (handles plain objects)
-    if hasattr(params, '__dict__'):
-        return params.__dict__  # pyright: ignore[reportAny]
+    # Try vars() to extract instance variables (works for LSPObject and plain objects)
+    # This is more reliable than __dict__ for some object types
+    try:
+        params_dict = vars(params)  # pyright: ignore[reportAny]
+        if isinstance(params_dict, dict):
+            return params_dict  # pyright: ignore[reportAny]
+    except TypeError:
+        # vars() failed, object doesn't have __dict__
+        pass
 
     # Last resort: try to convert to dict if it has dict-like methods
     if hasattr(params, 'keys') and hasattr(params, 'values'):
         return dict(params)  # pyright: ignore[reportAny]
 
-    # If all else fails, return an empty dict to avoid AttributeError
+    # If all else fails, raise an informative error
     msg = f'Unable to convert params of type {type(params).__name__} to dict'
     raise TypeError(msg)
 
