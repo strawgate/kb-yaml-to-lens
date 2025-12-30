@@ -151,12 +151,12 @@ def compile_links_panel_config(links_panel: LinksPanel) -> tuple[list[KbnReferen
         tuple: A tuple containing the compiled references and the Kibana embeddable configuration.
 
     """
-    kbn_references, kbn_links = compile_links(links_panel.links)
+    kbn_references, kbn_links = compile_links(links_panel.links_config.links)
 
     return kbn_references, KbnLinksPanelEmbeddableConfig(
         hidePanelTitles=links_panel.hide_title,
         attributes=KbnLinksPanelAttributes(
-            layout=links_panel.layout or 'horizontal',
+            layout=links_panel.links_config.layout or 'horizontal',
             links=kbn_links,
         ),
         enhancements={},

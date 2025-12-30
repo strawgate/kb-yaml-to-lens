@@ -18,7 +18,7 @@ While YAML is great for simple, static dashboards, creating dashboards programma
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.markdown.config import MarkdownPanel
+from dashboard_compiler.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
 
 # Create a dashboard
 dashboard = Dashboard(
@@ -29,7 +29,9 @@ dashboard = Dashboard(
 # Add a markdown panel
 panel = MarkdownPanel(
     grid=Grid(x=0, y=0, w=24, h=15),
-    content='# Hello from Python!',
+    markdown=MarkdownPanelConfig(
+        content='# Hello from Python!',
+    ),
 )
 dashboard.add_panel(panel)
 

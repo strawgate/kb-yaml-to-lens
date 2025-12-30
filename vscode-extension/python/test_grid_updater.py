@@ -31,13 +31,13 @@ class TestGridUpdater(unittest.TestCase):
   name: Test Dashboard
   panels:
     - title: Panel 1
-      type: markdown
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      content: "Test 1"
+      markdown:
+        content: "Test 1"
     - title: Panel 2
-      type: markdown
       grid: { x: 24, y: 0, w: 24, h: 15 }
-      content: "Test 2"
+      markdown:
+        content: "Test 2"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -58,9 +58,9 @@ class TestGridUpdater(unittest.TestCase):
   panels:
     - id: my-panel
       title: Panel with ID
-      type: markdown
       grid: { x: 0, y: 0, w: 12, h: 8 }
-      content: "Test"
+      markdown:
+        content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -79,12 +79,12 @@ class TestGridUpdater(unittest.TestCase):
   panels:
     - title: Panel 1
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      type: markdown
-      content: "Test 1"
+      markdown:
+        content: "Test 1"
     - title: Panel 2
       grid: { x: 24, y: 0, w: 24, h: 15 }
-      type: markdown
-      content: "Test 2"
+      markdown:
+        content: "Test 2"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -113,8 +113,8 @@ class TestGridUpdater(unittest.TestCase):
   panels:
     - title: Panel 1
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      type: markdown
-      content: "Test"
+      markdown:
+        content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -130,9 +130,9 @@ class TestGridUpdater(unittest.TestCase):
   # This is a comment
   panels:
     - title: Panel 1
-      type: markdown
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      markdown: "Test content"
+      markdown:
+        content: "Test content"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -142,7 +142,7 @@ class TestGridUpdater(unittest.TestCase):
         # Comment should be preserved
         self.assertIn('# This is a comment', updated_content)
         # Other content should be preserved
-        self.assertIn('markdown: "Test content"', updated_content)
+        self.assertIn('content: "Test content"', updated_content)
 
     def test_reject_invalid_panel_id(self):
         """Test that invalid panel IDs are rejected."""
@@ -151,8 +151,8 @@ class TestGridUpdater(unittest.TestCase):
   panels:
     - title: Panel 1
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      type: markdown
-      content: "Test"
+      markdown:
+        content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -176,8 +176,8 @@ class TestGridUpdater(unittest.TestCase):
   panels:
     - title: Panel 1
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      type: markdown
-      content: "Test"
+      markdown:
+        content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 

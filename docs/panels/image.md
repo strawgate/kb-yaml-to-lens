@@ -32,20 +32,20 @@ Making dashboards beautiful for you!
 
 ## Minimal Configuration Example
 
-To add an Image panel, you need to specify its `type`, `grid` position, and the `from_url` for the image source.
+To add an Image panel, you need to specify its `grid` position and the `image` configuration with `from_url` for the image source.
 
 ```yaml
 dashboards:
   - name: "Branded Dashboard"
     panels:
-      - type: image
-        title: "Company Logo"
+      - title: "Company Logo"
         grid:
           x: 0
           y: 0
           w: 16
           h: 3
-        from_url: "https://example.com/path/to/your/logo.png"
+        image:
+          from_url: "https://example.com/path/to/your/logo.png"
 ```
 
 ## Complex Configuration Example
@@ -56,17 +56,17 @@ This example demonstrates an Image panel with specific `fit` behavior, alternati
 dashboards:
   - name: "Dashboard with Informative Image"
     panels:
-      - type: image
-        title: "System Architecture Diagram"
+      - title: "System Architecture Diagram"
+        description: "Overview of the system components and their interactions." # Alt text
         grid:
           x: 0
           y: 0
           w: 48 # Full width
           h: 6
-        from_url: "https://example.com/path/to/architecture.svg"
-        fit: "contain"  # Ensure the whole image is visible within the panel
-        description: "Overview of the system components and their interactions." # Alt text
-        background_color: "#f0f0f0" # Light grey background
+        image:
+          from_url: "https://example.com/path/to/architecture.svg"
+          fit: "contain"  # Ensure the whole image is visible within the panel
+          background_color: "#f0f0f0" # Light grey background
 ```
 
 ## Full Configuration Options
@@ -75,12 +75,17 @@ Image panels inherit from the [Base Panel Configuration](./base.md) and have the
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type` | `Literal['image']` | Specifies the panel type. | `image` | Yes |
 | `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | Alternative text for the image, used for accessibility. This overrides the BasePanel `description` if you want specific alt text for the image itself. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
+| `image` | `Image` object | Configuration for the image panel. | N/A | Yes |
+
+**Image Object Configuration:**
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
 | `from_url` | `string` | The URL of the image to be displayed in the panel. | N/A | Yes |
 | `fit` | `Literal['contain', 'cover', 'fill', 'none']` | The sizing of the image within the panel boundaries. | `contain` | No |
 | `background_color` | `string` | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`). | `""` (empty string, likely transparent in Kibana) | No |
@@ -98,11 +103,13 @@ You can create Image panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.images.config import ImagePanel
+from dashboard_compiler.panels.images.config import ImagePanel, ImagePanelConfig
 
 panel = ImagePanel(
     grid=Grid(x=0, y=0, w=24, h=20),
-    from_url='https://example.com/logo.png',
+    image=ImagePanelConfig(
+        from_url='https://example.com/logo.png',
+    ),
 )
 ```
 

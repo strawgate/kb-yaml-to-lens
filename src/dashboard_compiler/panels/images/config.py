@@ -1,19 +1,15 @@
-"""Configuration for a Markdown Panel in a dashboard."""
+"""Configuration for an Image Panel in a dashboard."""
 
 from typing import Literal
 
 from pydantic import Field
 
 from dashboard_compiler.panels.base import BasePanel
+from dashboard_compiler.shared.config import BaseCfgModel
 
 
-class ImagePanel(BasePanel):
-    """Represents a Image panel configuration.
-
-    Image panels are used to display images.
-    """
-
-    type: Literal['image'] = 'image'
+class ImagePanelConfig(BaseCfgModel):
+    """Configuration specific to Image panels."""
 
     from_url: str = Field(default=...)
     """The URL of the image to be displayed in the panel. This is a required field."""
@@ -26,3 +22,13 @@ class ImagePanel(BasePanel):
 
     background_color: str | None = Field(default=None)
     """Background color for the image panel. Defaults to an empty string if not set."""
+
+
+class ImagePanel(BasePanel):
+    """Represents an Image panel configuration.
+
+    Image panels are used to display images.
+    """
+
+    image: ImagePanelConfig = Field(...)
+    """Image panel configuration."""
