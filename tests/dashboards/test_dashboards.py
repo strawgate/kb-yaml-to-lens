@@ -84,9 +84,8 @@ async def test_dashboard_with_one_pie_chart() -> None:
                     {
                         'title': 'Pie Chart of Aerospike Namespace',
                         'id': 'c7a35c4f-e82d-4f16-b1a6-12229363244e',
-                        'type': 'charts',
                         'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
-                        'chart': {
+                        'lens': {
                             'type': 'pie',
                             'id': '21cb2847-7b10-404e-9672-4ee2f2beca6e',
                             'data_view': 'metrics-*',
