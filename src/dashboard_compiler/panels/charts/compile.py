@@ -35,7 +35,15 @@ from dashboard_compiler.panels.charts.view import (
     KbnVisualizationTypeEnum,
 )
 from dashboard_compiler.panels.charts.xy.compile import compile_lens_reference_line_layer, compile_lens_xy_chart
-from dashboard_compiler.panels.charts.xy.config import LensAreaChart, LensBarChart, LensLineChart, LensReferenceLineLayer
+from dashboard_compiler.panels.charts.xy.config import (
+    ESQLAreaChart,
+    ESQLBarChart,
+    ESQLLineChart,
+    LensAreaChart,
+    LensBarChart,
+    LensLineChart,
+    LensReferenceLineLayer,
+)
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
 from dashboard_compiler.queries.types import LegacyQueryTypes
@@ -57,20 +65,20 @@ CHART_TYPE_TO_KBN_TYPE_MAP = {
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
-    if isinstance(chart, LensPieChart):
+    if isinstance(chart, (LensPieChart, ESQLPieChart)):
         return KbnVisualizationTypeEnum.PIE
-    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart, LensReferenceLineLayer)):
+    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart, LensReferenceLineLayer, ESQLAreaChart, ESQLBarChart, ESQLLineChart)):
         return KbnVisualizationTypeEnum.XY
-    if isinstance(chart, LensMetricChart):
+    if isinstance(chart, (LensMetricChart, ESQLMetricChart)):
         return KbnVisualizationTypeEnum.METRIC
-    if isinstance(chart, LensDatatableChart):
+    if isinstance(chart, (LensDatatableChart, ESQLDatatableChart)):
         return KbnVisualizationTypeEnum.DATATABLE
-    if isinstance(chart, LensGaugeChart):
+    if isinstance(chart, (LensGaugeChart, ESQLGaugeChart)):
         return KbnVisualizationTypeEnum.GAUGE
-    if isinstance(chart, LensTagcloudChart):
+    if isinstance(chart, (LensTagcloudChart, ESQLTagcloudChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return KbnVisualizationTypeEnum.TAGCLOUD
 
-    msg = f'Unsupported Lens chart type: {type(chart)}'
+    msg = f'Unsupported Lens chart type: {type(chart)}'  # pyright: ignore[reportUnreachable]
     raise NotImplementedError(msg)
 
 
