@@ -216,6 +216,11 @@ def cli() -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
+@click.option(
+    '--kibana-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
+)
 def compile_dashboards(  # noqa: PLR0913, PLR0912
     input_dir: Path,
     output_dir: Path,
@@ -227,6 +232,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
     kibana_api_key: str | None,
     no_browser: bool,
     overwrite: bool,
+    kibana_no_ssl_verify: bool,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -333,6 +339,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
                 kibana_api_key,
                 overwrite,
                 not no_browser,
+                ssl_verify=not kibana_no_ssl_verify,
             )
         )
 
@@ -345,6 +352,7 @@ async def upload_to_kibana(  # noqa: PLR0913
     api_key: str | None,
     overwrite: bool,
     open_browser: bool,
+    ssl_verify: bool = True,
 ) -> None:
     """Upload NDJSON file to Kibana.
 
@@ -356,6 +364,7 @@ async def upload_to_kibana(  # noqa: PLR0913
         api_key: API key for authentication
         overwrite: Whether to overwrite existing objects
         open_browser: Whether to open browser after successful upload
+        ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
         click.ClickException: If upload fails.
@@ -366,6 +375,7 @@ async def upload_to_kibana(  # noqa: PLR0913
         username=username,
         password=password,
         api_key=api_key,
+        ssl_verify=ssl_verify,
     )
 
     try:
@@ -482,6 +492,11 @@ async def upload_to_kibana(  # noqa: PLR0913
         'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
     ),
 )
+@click.option(
+    '--kibana-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
+)
 def screenshot_dashboard(  # noqa: PLR0913
     dashboard_id: str,
     output: Path,
@@ -495,6 +510,7 @@ def screenshot_dashboard(  # noqa: PLR0913
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    kibana_no_ssl_verify: bool,
 ) -> None:
     r"""Generate a PNG screenshot of a Kibana dashboard.
 
@@ -542,6 +558,7 @@ def screenshot_dashboard(  # noqa: PLR0913
             kibana_username=kibana_username,
             kibana_password=kibana_password,
             kibana_api_key=kibana_api_key,
+            ssl_verify=not kibana_no_ssl_verify,
         )
     )
 
@@ -559,6 +576,7 @@ async def generate_screenshot(  # noqa: PLR0913
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    ssl_verify: bool = True,
 ) -> None:
     """Generate a screenshot of a Kibana dashboard.
 
@@ -575,6 +593,7 @@ async def generate_screenshot(  # noqa: PLR0913
         kibana_username: Basic auth username
         kibana_password: Basic auth password
         kibana_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
         click.ClickException: If screenshot generation fails.
@@ -585,6 +604,7 @@ async def generate_screenshot(  # noqa: PLR0913
         username=kibana_username,
         password=kibana_password,
         api_key=kibana_api_key,
+        ssl_verify=ssl_verify,
     )
 
     try:
