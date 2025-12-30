@@ -184,6 +184,7 @@ dashboards:
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: log.level
 
       # Tag Cloud
@@ -195,6 +196,7 @@ dashboards:
           type: tagcloud
           data_view: logs-*
           tags:
+            type: values
             field: tags
           metric:
             aggregation: count

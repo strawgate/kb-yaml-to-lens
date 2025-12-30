@@ -42,6 +42,7 @@ def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot: CompileTagcl
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
@@ -102,6 +103,7 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: Co
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
@@ -180,6 +182,7 @@ def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot:
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': 'tag-id-123',
         },
@@ -213,6 +216,7 @@ def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot: Compi
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': 'tag-id-789',
         },
@@ -281,6 +285,7 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'user.name',
             'id': 'user-id',
         },
