@@ -200,7 +200,7 @@ Groups data by the most frequent unique values of a field.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['values']` | Specifies the dimension type. | `values` | Yes |
+| `type` | `Literal['values']` | Specifies the dimension type. | N/A | Yes |
 | `field` | `string` | The field to get top values from. | N/A | Yes |
 | `size` | `integer` | The number of top values to display. | `3` | No |
 | `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
@@ -217,7 +217,7 @@ Groups data into time-based buckets (e.g., per hour, day).
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['date_histogram']` | Specifies the dimension type. | `date_histogram` | Yes |
+| `type` | `Literal['date_histogram']` | Specifies the dimension type. | N/A | Yes |
 | `field` | `string` | The date field to use for the histogram. | N/A | Yes |
 | `minimum_interval` | `string` | The time interval (e.g., `auto`, `1h`, `1d`, `1w`). | `auto` | No |
 | `partial_intervals` | `boolean` | If `true`, includes buckets for time periods that are only partially covered by the data. | `true` | No |
@@ -229,7 +229,7 @@ Creates buckets based on a list of custom KQL/Lucene queries.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['filters']` | Specifies the dimension type. | `filters` | Yes |
+| `type` | `Literal['filters']` | Specifies the dimension type. | N/A | Yes |
 | `filters` | `list of LensFiltersDimensionFilter` objects | A list of filter definitions. Each filter object has `query` (KQL/Lucene) and an optional `label`. | N/A | Yes |
 
 **`LensFiltersDimensionFilter` Object:**
@@ -245,7 +245,7 @@ Groups data into numeric ranges (buckets).
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['intervals']` | Specifies the dimension type. | `intervals` | Yes |
+| `type` | `Literal['intervals']` | Specifies the dimension type. | N/A | Yes |
 | `field` | `string` | The numeric field to create intervals from. | N/A | Yes |
 | `intervals` | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used. | `None` | No |
 | `granularity` | `integer` (1-7) | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest. | `4` | No |

@@ -1,8 +1,9 @@
 """Test the compilation of Lens dimensions from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
@@ -304,3 +305,14 @@ async def test_intervals_dimension_with_custom_intervals() -> None:
             'sourceField': 'apache.uptime',
         }
     )
+
+
+async def test_dimension_requires_type_field() -> None:
+    """Test that dimension type field is required."""
+    dimension_config_missing_type = {'field': '@timestamp'}
+
+    with pytest.raises(ValidationError) as exc_info:
+        TypeAdapter(LensDimensionTypes).validate_python(dimension_config_missing_type)
+
+    # Verify that the error mentions the missing 'type' field
+    assert 'type' in str(exc_info.value).lower()
