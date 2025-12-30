@@ -44,7 +44,7 @@ def test_compile_datatable_chart_basic_lens() -> None:
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b'}],
+            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True}],
             'layerId': IsUUID,
             'layerType': 'data',
         }
@@ -78,8 +78,8 @@ def test_compile_datatable_chart_with_rows_lens() -> None:
     assert result == snapshot(
         {
             'columns': [
-                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b'},
-                {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172'},
+                {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172', 'isTransposed': False, 'isMetric': False},
+                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
             ],
             'layerId': IsUUID,
             'layerType': 'data',
@@ -119,6 +119,8 @@ def test_compile_datatable_chart_with_metric_column_config_lens() -> None:
                 {
                     'alignment': 'right',
                     'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+                    'isTransposed': False,
+                    'isMetric': True,
                     'summaryLabel': 'Total',
                     'summaryRow': 'sum',
                     'width': 200,
@@ -151,7 +153,7 @@ def test_compile_datatable_chart_with_sorting_and_paging_lens() -> None:
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b'}],
+            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True}],
             'layerId': IsUUID,
             'layerType': 'data',
             'paging': {'enabled': True, 'size': 25},
@@ -184,7 +186,7 @@ def test_compile_datatable_chart_with_appearance_lens() -> None:
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b'}],
+            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True}],
             'density': 'compact',
             'layerId': IsUUID,
             'layerType': 'data',
@@ -211,7 +213,7 @@ def test_compile_datatable_chart_basic_esql() -> None:
     # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
-            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b'}],
+            'columns': [{'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True}],
             'layerId': IsUUID,
             'layerType': 'data',
         }
@@ -242,8 +244,8 @@ def test_compile_datatable_chart_with_rows_esql() -> None:
     assert result == snapshot(
         {
             'columns': [
-                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b'},
-                {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172'},
+                {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172', 'isTransposed': False, 'isMetric': False},
+                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
             ],
             'layerId': IsUUID,
             'layerType': 'data',

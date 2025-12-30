@@ -182,11 +182,11 @@ async def test_dashboard_with_one_pie_chart() -> None:
                                                             'params': {
                                                                 'size': 5,
                                                                 'orderBy': {
-                                                                    'type': 'alphabetical',
-                                                                    'fallback': False,
+                                                                    'type': 'column',
+                                                                    'columnId': 'fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33',
                                                                 },
-                                                                'orderDirection': 'asc',
-                                                                'otherBucket': False,
+                                                                'orderDirection': 'desc',
+                                                                'otherBucket': True,
                                                                 'missingBucket': False,
                                                                 'parentFormat': {'id': 'terms'},
                                                                 'include': [],

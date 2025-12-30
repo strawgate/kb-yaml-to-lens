@@ -44,16 +44,14 @@ def compile_lens_datatable_chart(
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     column_order: list[str] = []
 
-    # Compile metrics
+    # Compile metrics first (for dimension compilation to reference)
+    kbn_metric_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     for metric in lens_datatable_chart.metrics:
         metric_id, compiled_metric = compile_lens_metric(metric)
         kbn_columns_by_id[metric_id] = compiled_metric
-        column_order.append(metric_id)
+        kbn_metric_columns_by_id[metric_id] = compiled_metric
 
-    # Store metric columns for dimension compilation
-    kbn_metric_columns_by_id = dict(kbn_columns_by_id)
-
-    # Compile row dimensions
+    # Compile row dimensions (these come FIRST in column order for datatables)
     for row in lens_datatable_chart.rows:
         row_id, compiled_row = compile_lens_dimension(
             dimension=row,
@@ -71,6 +69,9 @@ def compile_lens_datatable_chart(
             )
             kbn_columns_by_id[rows_by_id] = compiled_rows_by
             column_order.append(rows_by_id)
+
+    # Add metrics to column order AFTER dimensions
+    column_order.extend(kbn_metric_columns_by_id.keys())
 
     # Build column states
     column_states: list[KbnDatatableColumnState] = []
@@ -94,10 +95,12 @@ def compile_lens_datatable_chart(
 
         column_state = KbnDatatableColumnState(
             columnId=column_id,
-            width=user_config.width if user_config else None,
-            hidden=user_config.hidden if user_config and user_config.hidden else None,
-            alignment=user_config.alignment if user_config else None,
-            colorMode=user_config.color_mode if user_config else None,
+            width=user_config.width if user_config is not None else None,
+            hidden=user_config.hidden if user_config is not None and user_config.hidden is True else None,
+            isTransposed=False,
+            isMetric=is_metric,
+            alignment=user_config.alignment if user_config is not None else None,
+            colorMode=user_config.color_mode if user_config is not None else None,
             summaryRow=summary_row,
             summaryLabel=summary_label,
         )
@@ -170,14 +173,15 @@ def compile_esql_datatable_chart(
     layer_id = esql_datatable_chart.id or random_id_generator()
     kbn_columns: list[KbnESQLColumnTypes] = []
     column_order: list[str] = []
+    metric_column_ids: list[str] = []
 
-    # Compile metrics
+    # Compile metrics first (but don't add to column_order yet)
     for metric in esql_datatable_chart.metrics:
         compiled_metric = compile_esql_metric(metric)
         kbn_columns.append(compiled_metric)
-        column_order.append(compiled_metric.columnId)
+        metric_column_ids.append(compiled_metric.columnId)
 
-    # Compile row dimensions
+    # Compile row dimensions (these come FIRST in column order for datatables)
     for row in esql_datatable_chart.rows:
         compiled_row: KbnESQLFieldDimensionColumn = compile_esql_dimension(row)
         kbn_columns.append(compiled_row)
@@ -190,15 +194,17 @@ def compile_esql_datatable_chart(
             kbn_columns.append(compiled_rows_by)
             column_order.append(compiled_rows_by.columnId)
 
+    # Add metrics to column order AFTER dimensions
+    column_order.extend(metric_column_ids)
+
     # Build column states
-    # Track which columns are metrics - the first len(metrics) columns in order are metrics
-    metric_count = len(esql_datatable_chart.metrics)
-    metric_column_ids = set(column_order[:metric_count])
+    # Track which columns are metrics
+    metric_column_ids_set = set(metric_column_ids)
 
     column_states: list[KbnDatatableColumnState] = []
     for column_id in column_order:
         # Determine if this is a metric column or a row column
-        is_metric = column_id in metric_column_ids
+        is_metric = column_id in metric_column_ids_set
 
         # Find user config for this column
         user_config = None
@@ -216,10 +222,12 @@ def compile_esql_datatable_chart(
 
         column_state = KbnDatatableColumnState(
             columnId=column_id,
-            width=user_config.width if user_config else None,
-            hidden=user_config.hidden if user_config and user_config.hidden else None,
-            alignment=user_config.alignment if user_config else None,
-            colorMode=user_config.color_mode if user_config else None,
+            width=user_config.width if user_config is not None else None,
+            hidden=user_config.hidden if user_config is not None and user_config.hidden is True else None,
+            isTransposed=False,
+            isMetric=is_metric,
+            alignment=user_config.alignment if user_config is not None else None,
+            colorMode=user_config.color_mode if user_config is not None else None,
             summaryRow=summary_row,
             summaryLabel=summary_label,
         )

@@ -205,7 +205,7 @@ dashboard:
 
 ## Tips and Best Practices
 
-1. **Column Order**: Columns appear in the order: metrics first, then rows. Plan your metric and row dimension order accordingly.
+1. **Column Order**: Columns appear in the order: row dimensions first, then metrics. This matches Kibana's default behavior when creating datatables through the UI.
 
 2. **Summary Rows**: Only use summary rows with metric columns (via `metric_columns`). They don't make sense for row dimension columns.
 

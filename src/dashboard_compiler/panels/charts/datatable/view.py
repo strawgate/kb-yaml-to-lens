@@ -20,6 +20,12 @@ class KbnDatatableColumnState(BaseVwModel):
     hidden: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether the column is hidden."""
 
+    isTransposed: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    """Whether the column is transposed."""
+
+    isMetric: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    """Whether this column represents a metric (true) or dimension (false)."""
+
     oneClickFilter: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Enable one-click filtering for this column."""
 
