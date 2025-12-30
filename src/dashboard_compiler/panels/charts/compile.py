@@ -139,8 +139,9 @@ def compile_lens_chart_state(
     # Merge reference line layers into XY visualization state
     if len(all_reference_line_layers) > 0:
         # Reference line layers can only be added to XY visualizations
-        # TODO: Move this validation to the config model
+        # This validation is now handled in the config model
         if not isinstance(visualization_state, KbnXYVisualizationState):
+            # Should not happen due to validation in config model
             msg = 'Reference line layers can only be used with XY chart visualizations'
             raise ValueError(msg)
         # Add reference line layers to the existing visualization state

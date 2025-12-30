@@ -67,6 +67,17 @@ class LensMultiLayerPanel(BasePanel):
             msg = 'Multi-layer panel cannot start with a reference line layer'
             raise TypeError(msg)
 
+        # Check if reference lines are used with compatible charts
+        has_ref_line = any(isinstance(layer, LensReferenceLineLayer) for layer in layers)
+        if has_ref_line:
+            # The last non-reference-line layer determines the visualization type
+            # We know there is at least one non-reference-line layer because layers[0] is not a reference line layer
+            last_main_layer = next(layer for layer in reversed(layers) if not isinstance(layer, LensReferenceLineLayer))
+
+            if not isinstance(last_main_layer, (LensLineChart, LensBarChart, LensAreaChart)):
+                msg = 'Reference line layers can only be used with XY chart visualizations'
+                raise ValueError(msg)
+
         return layers
 
 
