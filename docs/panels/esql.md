@@ -9,19 +9,6 @@ The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query,
 **Minimal ESQL Metric Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts  # This is the ESQLPanel type (distinguished by `esql` field)
-#   title: "Total Processed Events"
-#   grid: { x: 0, y: 0, w: 4, h: 3 }
-#   esql: |
-#     FROM my_event_stream
-#     | STATS total_events = COUNT(event_id)
-#   chart:
-#     type: metric
-#     primary:
-#       field: "total_events" # Must match a column name from ESQL query
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "ESQL Metrics Dashboard"
@@ -42,22 +29,6 @@ dashboards:
 **Minimal ESQL Pie Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts
-#   title: "Events by Type (ESQL)"
-#   grid: { x: 4, y: 0, w: 8, h: 3 }
-#   esql: |
-#     FROM my_event_stream
-#     | STATS event_count = COUNT(event_id) BY event_type
-#     | LIMIT 5
-#   chart:
-#     type: pie
-#     metric:
-#       field: "event_count" # Must match a metric column from ESQL
-#     slice_by:
-#       - field: "event_type"  # Must match a dimension column from ESQL
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "ESQL Event Analysis"

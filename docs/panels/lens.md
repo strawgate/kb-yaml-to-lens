@@ -9,17 +9,6 @@ The `LensPanel` is the primary container. Its `chart` field will define the spec
 **Minimal Lens Metric Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts  # This is the LensPanel type
-#   title: "Total Users"
-#   grid: { x: 0, y: 0, w: 4, h: 3 }
-#   chart:
-#     type: metric
-#     primary:
-#       aggregation: "unique_count"
-#       field: "user.id" # Field for unique count
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Key Metrics Dashboard"
@@ -40,20 +29,6 @@ dashboards:
 **Minimal Lens Pie Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts
-#   title: "Traffic by Source"
-#   grid: { x: 4, y: 0, w: 8, h: 3 }
-#   chart:
-#     type: pie
-#     data_view: "your-data-view-id" # Required for pie chart
-#     metric:
-#       aggregation: "count" # Count of documents for slice size
-#     slice_by:
-#       - type: values
-#         field: "source.medium" # Field to create slices from
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Traffic Analysis"

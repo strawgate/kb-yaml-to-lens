@@ -7,17 +7,6 @@ The `markdown` panel type is used to display rich text content, formatted using 
 To add a simple Markdown panel, you need to specify its `type`, `grid` position, and the `content`.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: markdown
-#   title: "Welcome Note"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 12 # Full width
-#     h: 3  # Height of 3 grid units
-#   content: "## Welcome to the Dashboard!\nThis panel provides an overview."
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Dashboard with Markdown"

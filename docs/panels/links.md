@@ -7,15 +7,6 @@ The `links` panel type is used to display a collection of hyperlinks on your das
 **Linking to another Dashboard:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: links
-#   title: "Navigate to User Details"
-#   grid: { x: 0, y: 0, w: 6, h: 2 }
-#   links:
-#     - label: "View User Activity Dashboard"
-#       dashboard: "user-activity-dashboard-id" # ID of the target dashboard
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Main Overview"
@@ -31,15 +22,6 @@ dashboards:
 **Linking to an External URL:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: links
-#   title: "External Resources"
-#   grid: { x: 6, y: 0, w: 6, h: 2 }
-#   links:
-#     - label: "Project Documentation"
-#       url: "https://docs.example.com/project-alpha"
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Main Overview"

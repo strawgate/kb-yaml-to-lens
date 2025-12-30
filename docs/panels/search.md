@@ -7,17 +7,6 @@ The `search` panel type is used to embed the results of a pre-existing, saved Ki
 To add a Search panel, you need to specify its `type`, `grid` position, and the `saved_search_id`.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: search
-#   title: "All System Logs"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 12 # Full width
-#     h: 10 # Height of 10 grid units
-#   saved_search_id: "your-saved-search-id" # Replace with the actual ID
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Log Monitoring Dashboard"

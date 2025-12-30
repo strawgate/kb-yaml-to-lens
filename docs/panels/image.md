@@ -7,17 +7,6 @@ The `image` panel type is used to display an image directly on your dashboard. T
 To add an Image panel, you need to specify its `type`, `grid` position, and the `from_url` for the image source.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: image
-#   title: "Company Logo"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 4  # Width of 4 grid units
-#     h: 3  # Height of 3 grid units
-#   from_url: "https://example.com/path/to/your/logo.png"
-
-# For a complete dashboard structure:
 dashboards:
 -
   name: "Branded Dashboard"
