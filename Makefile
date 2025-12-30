@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -43,7 +43,6 @@ help:
 	@echo "  upload        - Compile and upload dashboards to Kibana (requires input-dir)"
 	@echo ""
 	@echo "Documentation:"
-	@echo "  compile-docs  - Regenerate YAML reference from source"
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
@@ -90,7 +89,7 @@ test-coverage:
 
 test-links:
 	@echo "Checking documentation links..."
-	uv run pytest --check-links docs/ README.md CONTRIBUTING.md --ignore=docs/yaml_reference.md
+	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
 
 test-extension:
 	@echo "Running VSCode extension tests..."
@@ -186,10 +185,6 @@ compile:
 upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
 	uv run kb-dashboard compile --upload
-
-compile-docs:
-	@echo "Compiling documentation reference..."
-	uv run python scripts/compile_docs.py
 
 docs-serve:
 	@echo "Starting documentation server..."

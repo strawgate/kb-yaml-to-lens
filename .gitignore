@@ -4,6 +4,7 @@
 *.log
 archive
 references
+*.ruff_cache
 **/*.DS_Store
 .roo
 reference
@@ -11,5 +12,4 @@ plan-*
 site/
 *.ndjson
 dashboards.ndjson
-docs/yaml_reference.md
 *.env

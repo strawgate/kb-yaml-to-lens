@@ -95,6 +95,14 @@ extend-select = [
     "LOG", "N", "PERF", "PIE", "PLR", "PLW", "PT", "PTH", "Q", "RET",
     "RSE", "RUF", "S", "SIM", "TC", "TID", "TRY", "UP", "W",
     "D",  # Add docstring checks since kb-yaml-to-lens uses them
+    # Additional quality and safety rules:
+    "ANN",  # flake8-annotations - Type annotations
+    "PLE",  # Pylint errors - Serious bug detection
+    "T10",  # flake8-debugger - Prevent debugger statements
+    "ISC",  # flake8-implicit-str-concat - Prevent string concat bugs
+    "FA",   # flake8-future-annotations - Modern type hints (PEP 563)
+    "PGH",  # pygrep-hooks - Additional code quality checks
+    "INP",  # flake8-no-pep420 - Explicit namespace packages
 ]
 ignore = [
     "COM812",  # Conflicts with formatter
@@ -102,6 +110,7 @@ ignore = [
     "D213",    # multi-line-summary-second-line
     "D413",    # multi-line-summary-second-line
     "D100",    # Ignore missing docstrings for modules
+    "ANN401",  # Allow typing.Any where needed (Pydantic compatibility)
 ]
 
 # Per-file rule ignores
@@ -110,19 +119,28 @@ ignore = [
 "tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
+    "ANN001", # Allow missing argument type annotations in tests
+    "ANN201", # Allow missing return type annotations in tests
 ]
 "vscode-extension/python/**/*.py" = [
-    "S101", # Allow assert usage in tests
-    "PT009", # Allow unittest-style assertions
-    "PT027", # Allow unittest-style assertRaises
-    "PLR2004", # Allow magic values in CLI argument checks
-    "PLR0911", # Allow more return statements in complex functions
+    "PT009", # Allow unittest-style assertions in test files
+    "S101", # Ignore use of assert
+    "INP001", # Extension scripts are standalone, not packages
+    "ANN201", # Ignore missing type annotations in python extension files
+    "E501", # Line too long
+    "PLR2004", # Ignore magic numbers in test files
     "B017", # Allow broad exception assertions in test files
+    "PT011", # Allow broad pytest.raises in test files
+    "PT027", # Allow unittest-style assertRaises in test files
+    "PLR0911", # Ignore too many return statements
+    "D400", # Ignore docstring formatting in test files
+    "D415", # Ignore docstring formatting in test files
 ]
 "src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
+    "ANN202", # Ignore missing return type for private serializer methods
     "ERA001", # Allow commented JSON structure documentation
 ]
 "src/dashboard_compiler/**/config.py" = [
