@@ -4,6 +4,7 @@
 *.log
 archive
 references
+*.ruff_cache
 **/*.DS_Store
 .roo
 reference

@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
+from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
@@ -231,7 +231,7 @@ def compile_xy_chart_visualization_state(
     """
     series_type: str = compile_series_type(chart=chart)
 
-    kbn_color_mapping = create_default_color_mapping()
+    kbn_color_mapping = compile_color_mapping(chart.color)
 
     # Build yConfig from series configuration if provided
     y_config: list[YConfig] | None = None
