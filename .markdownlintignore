@@ -7,4 +7,3 @@ __pycache__/
 .ruff_cache/
 output/
 reference/
-docs/yaml_reference.md

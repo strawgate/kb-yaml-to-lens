@@ -7,25 +7,25 @@ The `image` panel type is used to display an image directly on your dashboard. T
 _For those who know a picture is worth a thousand metrics:_
 
 ```text
-Contain, cover, fill, or none,
-Your images make dashboards fun!
+Contain, cover, fill, or none—
+Four ways to get the framing done.
 Company logos, architecture maps,
 System diagrams filling gaps.
 
-When words and numbers won't convey,
-The structure of your cloud array,
-An SVG or PNG file,
-Can make your dashboard worth the while.
+When words and numbers just won't do,
+A picture paints the broader view.
+An SVG or PNG file
+Can save a thousand words of toil.
 
-From branding at the dashboard top,
-To network diagrams that never stop,
-Your from_url pulls the view,
-Background colors, alt text too!
+From branding bold at dashboard's crown,
+To network maps when things break down,
+Your from_url pulls it through—
+Background colors, alt text too.
 
-So here's to images clear and bright,
-That help observers see the light.
-A visual element, tried and true,
-Making dashboards beautiful for you!
+So here's to images on the page,
+Worth more than data can engage.
+A visual anchor, tried and true,
+That shows what numbers never knew.
 ```
 
 ---

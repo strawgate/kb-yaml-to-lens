@@ -13,19 +13,19 @@ X-axis marching through the time,
 Y-axis tracking every climb.
 
 When incidents spike at 2 AM,
-Your XY charts help us understand them.
+The XY chart says: "Here I am."
 Stacked or unstacked, the choice is yours,
 Percentage mode for ratio scores.
 
-Dimensions define the horizontal way,
-Metrics show values throughout the day.
-Breakdown by service, host, or zone,
-Every pattern clearly shown.
+Dimensions set the horizontal stage,
+Metrics show what happens, page by page.
+Break it down by service, host, or zone—
+No pattern goes by, unknown.
 
 From request counts to error rates,
-Your time series never hesitates.
-So here's to charts both line and bar,
-That help us see how systems are!
+Your time series sits and waits.
+So here's to charts, both line and bar,
+That show exactly where things are.
 ```
 
 ---
@@ -133,9 +133,13 @@ dashboards:
 | `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
 | `position` | `Literal['top', 'bottom', 'left', 'right'] \| None` | Position of the legend (Kibana defaults to 'right'). | `None` | No |
 
-#### XYAppearance Options
+### Chart Appearance Options
 
-Configures the visual appearance of axes in XY charts. Allows customization of axis titles, scales, extent (bounds), and per-series styling.
+XY charts support appearance customization through the `appearance` field. The available options depend on the chart type and include both chart-type-specific options and common axis/series options.
+
+#### Common XYAppearance Options (All Chart Types)
+
+These options are available for all XY chart types (bar, line, area):
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------- | ------------------------ | -------------------------------------------------------- | ------- | -------- |
@@ -179,6 +183,78 @@ Configures per-series visual styling and axis assignment. Used to customize indi
 | `line_style` | `Literal['solid', 'dashed', 'dotted'] \| None` | Line style for line/area charts. | `None` | No |
 | `fill` | `Literal['none', 'below', 'above'] \| None` | Fill style for area charts. | `None` | No |
 | `icon` | `str \| None` | Point marker icon for line charts. | `None` | No |
+
+#### Bar Chart Specific Appearance
+
+For bar charts (`type: bar`), the following additional appearance options are available:
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------------- | --------------- | -------------------------------------------- | ------- | -------- |
+| `min_bar_height` | `float \| None` | The minimum height for bars in bar charts (in pixels). | `None` | No |
+
+**Example**:
+
+```yaml
+chart:
+  type: bar
+  data_view: "logs-*"
+  appearance:
+    min_bar_height: 5.0
+    y_left_axis:
+      title: "Count"
+  # ... other fields
+```
+
+#### Line Chart Specific Appearance
+
+For line charts (`type: line`), the following additional appearance options are available:
+
+| YAML Key | Data Type | Description | Default | Required |
+| ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
+| `fitting_function` | `Literal['Linear'] \| None` | The fitting function to apply to line charts for smoothing. | `None` | No |
+| `emphasize_fitting` | `bool \| None` | If `true`, emphasize the fitting function line. | `false` | No |
+| `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. | `None` | No |
+
+**Example**:
+
+```yaml
+chart:
+  type: line
+  data_view: "metrics-*"
+  appearance:
+    fitting_function: Linear
+    emphasize_fitting: true
+    curve_type: monotone-x
+    series:
+      - metric_id: "response_time"
+        color: "#2196F3"
+        line_width: 2
+  # ... other fields
+```
+
+#### Area Chart Specific Appearance
+
+For area charts (`type: area`), all line chart appearance options are available, plus:
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------------- | --------------- | ------------------------------------------------------ | ------- | -------- |
+| `fill_opacity` | `float \| None` | The fill opacity for area charts (0.0 to 1.0). | `None` | No |
+
+**Example**:
+
+```yaml
+chart:
+  type: area
+  data_view: "metrics-*"
+  appearance:
+    fill_opacity: 0.7
+    curve_type: cardinal
+    series:
+      - metric_id: "bytes_in"
+        color: "#4CAF50"
+        fill: below
+  # ... other fields
+```
 
 ## Reference Lines (Multi-Layer Panels)
 

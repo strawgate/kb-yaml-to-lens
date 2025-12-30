@@ -7,25 +7,25 @@ The Pie chart panel visualizes data as a pie or donut chart, useful for showing 
 _For those who love a good slice of data:_
 
 ```text
+They say you can't have it all—
+Pie charts beg to differ, y'all!
 Round and round the data goes,
 Each slice sized by what it shows.
-Pie or donut, take your pick,
-Small or large, or medium-thick!
 
-When you need to see the shares,
-How traffic splits between the pairs,
-Which service takes the biggest slice,
-Your pie chart makes it clear and nice.
+Who's got the biggest piece of pie?
+Just look—the answer's standing high.
+Donut hole? Small, medium, large?
+Pick your style; you're in charge.
 
 "Inside" or "auto" for the labels,
-"Percent" or "integer" on the tables,
+"Percent" shown right there on the table.
 Legend positioned left or right,
-Colors making categories bright.
+Colors keeping categories bright.
 
 From traffic sources to error types,
-Status codes and payment stripes,
-Every portion of the whole,
-Displayed to help you reach your goal!
+Status codes and payment stripes—
+Your data served up, fresh and whole:
+Every slice helps reach your goal!
 ```
 
 ---

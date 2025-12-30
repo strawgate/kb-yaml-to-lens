@@ -88,7 +88,7 @@ class PieTitlesAndText(BaseCfgModel):
     """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
 
     slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the display of slice values in the pie chart. Kibana defaults to 'percentage' if not specified."""
+    """Controls the display of slice values in the pie chart. Kibana defaults to PERCENT if not specified."""
 
     value_decimal_places: int | None = Field(default=None, ge=0, le=10)
     """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
