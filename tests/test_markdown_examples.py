@@ -7,13 +7,13 @@ from pytest_examples import CodeExample, EvalExample, find_examples
 markdown_files = [
     'docs/programmatic-usage.md',
     'docs/api/panels.md',
-    'src/dashboard_compiler/panels/charts/metric/config.md',
-    'src/dashboard_compiler/panels/charts/pie/config.md',
-    'src/dashboard_compiler/panels/charts/xy/config.md',
-    'src/dashboard_compiler/panels/images/image.md',
-    'src/dashboard_compiler/panels/links/links.md',
-    'src/dashboard_compiler/panels/markdown/markdown.md',
-    'src/dashboard_compiler/panels/search/search.md',
+    'docs/panels/image.md',
+    'docs/panels/links.md',
+    'docs/panels/markdown.md',
+    'docs/panels/metric.md',
+    'docs/panels/pie.md',
+    'docs/panels/search.md',
+    'docs/panels/xy.md',
 ]
 
 

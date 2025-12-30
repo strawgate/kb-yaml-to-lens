@@ -28,7 +28,6 @@ This example showcases a dashboard with various settings, a default data view, a
 dashboards:
   -
     name: "Comprehensive Application Overview"
-    id: "app-overview-001"
     description: "An overview of application performance and logs, with interactive filtering."
     data_view: "production-logs-*" # Default data view for all items unless overridden
     settings:
