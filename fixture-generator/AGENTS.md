@@ -4,27 +4,30 @@
 
 ---
 
-## Critical Rules
+## Critical Rules — READ THIS FIRST
 
-1. **ALWAYS test fixture generation before committing code**
-2. **NEVER commit untested generator changes**
-3. **Use Docker for all fixture generation** (required for Kibana packages)
-4. **Verify output files are created** before claiming success
-5. **NEVER skip fixture generation** - The 6-minute Docker build is cached for subsequent runs
-6. **NEVER defer to "manual validation"** - All fixture generators MUST be run and validated before committing
+### Fixture Generation is Required
 
-## Consequences of Skipping Fixture Generation
+We're building a compiler that targets Kibana's JSON format. The fixture generator reliably produces valid Kibana JSON by using Kibana's official APIs. This takes a couple of minutes to run, which is much faster than creating fixtures manually.
 
-❌ **UNACCEPTABLE**: Creating a fixture generator script without running it
-❌ **UNACCEPTABLE**: Claiming "build time exceeds CI limits" without verification
-❌ **UNACCEPTABLE**: Suggesting "manual validation when needed"
-✅ **REQUIRED**: Generate fixtures, verify output, compare to compiler output, commit
+**When creating or modifying fixture generator files:**
 
-If you cannot run Docker due to environment limitations, you MUST:
+1. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
+2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.js`
+3. Verify output file exists in `fixture-generator/output/`
+4. Inspect the output JSON to ensure it's valid
+5. Commit BOTH the generator script AND the output JSON files
 
-1. Clearly state this in your response
-2. Request that the user run the fixture generator
-3. DO NOT commit the generator script until it has been tested
+**Why this matters:**
+
+- Ensures the compiler produces JSON that actually works in Kibana
+- Provides accurate reference for what Kibana expects
+- Catches schema changes when Kibana updates
+- Faster than creating fixtures manually
+
+**If you can't run Docker:**
+
+State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.js` to verify the output before merging. Don't commit untested generator code.
 
 ---
 
@@ -62,7 +65,7 @@ cat output/metric-basic.json | python -m json.tool | head -50
 
 ## Fixture Generation Verification Checklist
 
-When creating or modifying fixture generators, you MUST complete this checklist:
+When creating or modifying fixture generators, complete this checklist:
 
 - [ ] Created/modified generator script in `examples/`
 - [ ] Ran `make build` (if Docker image doesn't exist)
@@ -74,7 +77,7 @@ When creating or modifying fixture generators, you MUST complete this checklist:
 - [ ] Ran `make check` from project root - all tests pass
 - [ ] Committed changes
 
-**Copy this checklist into your response and check off each item as you complete it.**
+Copy this checklist into your response and check off each item as you complete it.
 
 ---
 
@@ -89,7 +92,7 @@ make --version
 
 ### Running Generators
 
-The fixture generator **MUST** run inside Docker because it requires Kibana's `@kbn/lens-embeddable-utils` package.
+The fixture generator runs inside Docker because it requires Kibana's `@kbn/lens-embeddable-utils` package.
 
 **Generate all fixtures:**
 
@@ -120,7 +123,7 @@ cat fixture-generator/output/metric-basic.json | head -20
 
 Edit generator files in `fixture-generator/examples/`.
 
-### 2. Test Your Changes (REQUIRED)
+### 2. Test Your Changes
 
 ```bash
 cd fixture-generator
@@ -254,10 +257,10 @@ node examples/your-generator.js
 
 **Before you commit any generator code:**
 
-1. ✅ Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
-2. ✅ Verify `fixture-generator/output/your-file.json` exists
-3. ✅ Check JSON is valid with `python -m json.tool`
-4. ✅ Run `make check` from project root
-5. ✅ Only then git add/commit/push
+1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
+2. Verify `fixture-generator/output/your-file.json` exists
+3. Check JSON is valid with `python -m json.tool`
+4. Run `make check` from project root
+5. Only then git add/commit/push
 
 **If you cannot run Docker**, clearly state this in your response and ask the user to test before merging.
