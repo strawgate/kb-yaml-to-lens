@@ -1,0 +1,23 @@
+---
+dashboards:
+  - name: Geographic Analytics Dashboard
+    description: Example dashboard with a maps panel
+    panels:
+      - type: map
+        id: traffic_map
+        title: Traffic by Region
+        grid: {x: 0, y: 0, w: 24, h: 18}
+        saved_map_id: example-traffic-map-id-12345
+        is_layer_toc_open: false
+        hidden_layers: []
+        map_center:
+          lat: 37.7749
+          lon: -122.4194
+          zoom: 10
+        open_toc_details: []
+      - type: markdown
+        title: About This Dashboard
+        grid: {x: 0, y: 18, w: 24, h: 6}
+        content: |-
+          # Geographic Analytics
+          This dashboard displays traffic patterns using an interactive map visualization.

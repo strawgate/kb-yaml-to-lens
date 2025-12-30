@@ -2,12 +2,14 @@
 
 from collections.abc import Sequence
 
-from dashboard_compiler.panels import LinksPanel, MarkdownPanel
+from dashboard_compiler.panels import LinksPanel, MapPanel, MarkdownPanel
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.view import KbnLinksPanel
+from dashboard_compiler.panels.maps.compile import compile_map_panel_config
+from dashboard_compiler.panels.maps.view import KbnMapPanel
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
 from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
 from dashboard_compiler.panels.types import PanelTypes
@@ -75,6 +77,16 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnB
     if isinstance(panel, LinksPanel):
         references, embeddable_config = compile_links_panel_config(panel)
         return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+
+    if isinstance(panel, MapPanel):
+        references, embeddable_config = compile_map_panel_config(panel)
+        panel_ref_name = f'{panel_index}:panel_{panel.id or panel_index}'
+        return references, KbnMapPanel(
+            panelIndex=panel_index,
+            gridData=grid_data,
+            embeddableConfig=embeddable_config,
+            panelRefName=panel_ref_name,
+        )
 
     if isinstance(panel, LensPanel | ESQLPanel):
         references, kbn_panel = compile_charts_panel_config(panel)
