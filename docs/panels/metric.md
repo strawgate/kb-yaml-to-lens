@@ -2,6 +2,34 @@
 
 The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
 
+## A Poem for the Dashboard Architects
+
+_For those who distill chaos into a single number:_
+
+```text
+One number to rule them all,
+One metric standing proud and tall.
+From millions of logs, a truth extracted,
+A KPI perfectly compacted.
+
+When executives ask "How are we doing?"
+Your metric chart saves us from our undoing.
+No need for graphs or tables wide,
+Just one big number, full of pride.
+
+Primary, secondary, maximum too,
+These metrics tell the story true.
+COUNT the users, SUM the sales,
+AVERAGE the latency when the system fails.
+
+So here's to metrics, bold and bright,
+That make our dashboards such a sight!
+A single value, clear and clean,
+The most important number ever seen!
+```
+
+---
+
 ## Minimal Configuration Example
 
 ```yaml

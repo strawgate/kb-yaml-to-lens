@@ -4,6 +4,34 @@ Lens panels in Kibana provide a flexible and user-friendly way to create various
 
 The `LensPanel` is the primary container. Its `chart` field will define the specific type of visualization (e.g., `metric`, `pie`).
 
+## A Poem for the Lens Pioneers
+
+_For those who craft visualizations with elegant flexibility:_
+
+```text
+Lens is the lens through which we see,
+Data's patterns, wild and free.
+From metrics bold to pies that slice,
+Lens makes visualizations nice!
+
+Dimensions group and metrics measure,
+Aggregations are your treasure.
+count(), sum(), unique_count() too,
+Percentiles showing p95 for you.
+
+Date histograms march through time,
+Top values sorted, so sublime.
+Filters, intervals, formula power,
+Lens transforms data by the hour!
+
+So here's to Lens, both strong and smart,
+The beating visualization heart.
+With data views and layers deep,
+Your dashboard promises to keep!
+```
+
+---
+
 ## Minimal Configuration Examples
 
 **Minimal Lens Metric Chart:**
@@ -91,7 +119,7 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../queries/config.md). | `None` (uses dashboard query) | No |
 | `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A | Yes |
-| `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None` | No |
+| `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). _Currently, only `LensPieChart` is supported as a multi-layer type._ | `None` | No |
 
 **Note on `layers` vs `chart`**:
 
@@ -274,7 +302,7 @@ All specific metric types below can include:
 | `id` | `string` | An optional unique identifier for the metric. | Generated ID | No |
 | `label` | `string` | A custom display label for the metric. If not provided, a label is inferred. | Inferred | No |
 | `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting-format-field-within-a-metric). | Default for type | No |
-| `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data *before* this metric is calculated. | `None` | No |
+| `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data _before_ this metric is calculated. | `None` | No |
 
 ### Aggregated Metric Types
 
@@ -329,7 +357,7 @@ These metrics perform an aggregation on a field.
 
 ### Formula Metric
 
-Allows custom calculations using a formula string. *Note: Formula structure is complex and detailed parsing/compilation for its internal operations is not fully covered here but is handled by the compiler.*
+Allows custom calculations using a formula string. _Note: Formula structure is complex and detailed parsing/compilation for its internal operations is not fully covered here but is handled by the compiler._
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
