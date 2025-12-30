@@ -44,11 +44,11 @@ class KbnGaugeVisualizationState(BaseVwModel):
     goalAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for the goal/target metric (shown as reference line)."""
 
-    shape: Annotated[Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None, OmitIfNone()] = Field(default=None)
-    """The shape of the gauge visualization."""
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] = Field(default='arc')
+    """The shape of the gauge visualization. Defaults to 'arc'."""
 
-    ticksPosition: Annotated[Literal['auto', 'bands', 'hidden'] | None, OmitIfNone()] = Field(default=None)
-    """Position of tick marks on the gauge."""
+    ticksPosition: Literal['auto', 'bands', 'hidden'] = Field(default='auto')
+    """Position of tick marks on the gauge. Defaults to 'auto'."""
 
     labelMajor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Major label text to display on the gauge."""

@@ -44,6 +44,8 @@ def test_compile_gauge_chart_metric_only_lens():
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'metric_accessor',
+            'shape': 'arc',
+            'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
     )
@@ -66,6 +68,8 @@ def test_compile_gauge_chart_metric_only_esql():
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'metric_accessor',
+            'shape': 'arc',
+            'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
     )
@@ -92,6 +96,7 @@ def test_compile_gauge_chart_with_shape_lens():
             'layerType': 'data',
             'metricAccessor': 'metric_accessor',
             'shape': 'arc',
+            'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
     )
@@ -134,6 +139,8 @@ def test_compile_gauge_chart_with_min_max_goal_lens():
             'minAccessor': 'min_accessor',
             'maxAccessor': 'max_accessor',
             'goalAccessor': 'goal_accessor',
+            'shape': 'arc',
+            'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
     )
@@ -171,6 +178,8 @@ def test_compile_gauge_chart_with_min_max_goal_esql():
             'minAccessor': 'min_accessor',
             'maxAccessor': 'max_accessor',
             'goalAccessor': 'goal_accessor',
+            'shape': 'arc',
+            'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
     )
