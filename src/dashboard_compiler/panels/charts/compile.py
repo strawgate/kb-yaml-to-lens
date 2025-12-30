@@ -137,14 +137,8 @@ def compile_lens_chart_state(
         raise ValueError(msg)
 
     # Merge reference line layers into XY visualization state
-    if len(all_reference_line_layers) > 0:
-        # Reference line layers can only be added to XY visualizations
-        # This validation is now handled in the config model
-        if not isinstance(visualization_state, KbnXYVisualizationState):
-            # Should not happen due to validation in config model
-            msg = 'Reference line layers can only be used with XY chart visualizations'
-            raise ValueError(msg)
-        # Add reference line layers to the existing visualization state
+    # Reference line compatibility is validated in the config model
+    if len(all_reference_line_layers) > 0 and isinstance(visualization_state, KbnXYVisualizationState):
         visualization_state.layers.extend(all_reference_line_layers)
 
     datasource_states = KbnDataSourceState(
