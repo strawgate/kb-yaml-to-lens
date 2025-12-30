@@ -202,6 +202,49 @@ line 50: change allowed-tools to include Read,Write,Edit tools
 
 ---
 
+## Using CodeRabbit CLI for Code Review
+
+Claude has access to CodeRabbit CLI for AI-powered code review feedback during development.
+
+### Available Commands
+
+```bash
+# Review all changes in prompt-only mode (optimized for AI agents)
+coderabbit review --prompt-only
+
+# Review only uncommitted changes
+coderabbit review --prompt-only --type uncommitted
+
+# Review only committed changes
+coderabbit review --prompt-only --type committed
+
+# Review with plain text output (detailed feedback)
+coderabbit review --plain
+```
+
+### When to Use CodeRabbit CLI
+
+- **Before committing changes** - Get feedback on code quality, security, and best practices
+- **After making significant changes** - Catch potential issues early
+- **During complex implementations** - Verify approach and identify edge cases
+
+### Review Process
+
+1. Make code changes as requested
+2. Run `coderabbit review --prompt-only` to get AI feedback
+3. Address critical issues found (security, bugs, data corruption)
+4. Re-run review if significant changes were made
+5. Commit and push when review passes or only minor issues remain
+
+### Notes
+
+- Reviews take 7-30+ minutes depending on scope
+- Use `--prompt-only` flag for minimal output optimized for Claude
+- Focus on critical issues first (security, correctness, type safety)
+- Style suggestions are optional - prioritize consistency with existing code
+
+---
+
 ## Resolving PR Review Threads
 
 You can resolve review threads via GitHub GraphQL API. **Only resolve after making code changes that address the feedback.**
