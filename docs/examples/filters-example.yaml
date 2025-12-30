@@ -152,6 +152,7 @@ dashboards:
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: http.request.method
 
       # Example 8: Filtering by data stream

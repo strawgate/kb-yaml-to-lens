@@ -62,10 +62,11 @@ dashboards:
           type: line
           data_view: "metrics-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           breakdown:
-            field: "service.name"
             type: values
+            field: "service.name"
           metrics:
             - aggregation: average
               field: response_time
@@ -444,7 +445,9 @@ panel = LensMultiLayerPanel(
         # Data layer
         LensLineChart(
             data_view='logs-*',
-            dimensions=[LensDateHistogramDimension(field='@timestamp')],
+            dimensions=[
+                LensDateHistogramDimension(type='date_histogram', field='@timestamp')
+            ],
             metrics=[LensCountAggregatedMetric(aggregation='count')],
         ),
         # Reference line layer
