@@ -65,6 +65,16 @@ Demonstrates dashboard navigation features:
 
 **Use this when:** You're building a suite of interconnected dashboards.
 
+### [Aerospike Monitoring Examples](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/aerospike/)
+
+Real-world monitoring dashboards for Aerospike database:
+
+- **Overview Dashboard** - Cluster-level metrics and node health
+- **Node Metrics** - Detailed per-node performance monitoring
+- **Namespace Metrics** - Namespace-level storage and query statistics
+
+**Use this when:** Monitoring Aerospike NoSQL database deployments.
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:
