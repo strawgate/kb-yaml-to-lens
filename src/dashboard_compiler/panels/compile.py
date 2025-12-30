@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
-from dashboard_compiler.panels.charts.config import ESQLPanel, LensMultiLayerPanel, LensPanel
+from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
 from dashboard_compiler.panels.images.compile import compile_image_panel_config
 from dashboard_compiler.panels.images.view import KbnImagePanel
@@ -59,7 +59,7 @@ def get_panel_type_name(panel: PanelTypes) -> str:
         return 'image'
     if isinstance(panel, SearchPanel):
         return 'search'
-    if isinstance(panel, (LensPanel, LensMultiLayerPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return 'charts'
     # This should never be reached if PanelTypes is exhaustive, but provides a clear error
     msg = f'Unknown panel type: {type(panel).__name__}'  # pyright: ignore[reportUnreachable]
@@ -112,7 +112,7 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnB
         msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
         raise NotImplementedError(msg)
 
-    if isinstance(panel, (LensPanel, LensMultiLayerPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
         references, kbn_panel = compile_charts_panel_config(panel)
         return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
 

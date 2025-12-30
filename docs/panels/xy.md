@@ -36,10 +36,9 @@ That show exactly where things are.
 dashboards:
   - name: "Time Series Dashboard"
     panels:
-      - type: charts
-        title: "Events Over Time"
+      - title: "Events Over Time"
         grid: { x: 0, y: 0, w: 48, h: 6 }
-        chart:
+        lens:
           type: line
           data_view: "logs-*"
           dimensions:
@@ -55,10 +54,9 @@ dashboards:
 dashboards:
   - name: "Service Performance"
     panels:
-      - type: charts
-        title: "Response Times by Service"
+      - title: "Response Times by Service"
         grid: { x: 0, y: 0, w: 12, h: 6 }
-        chart:
+        lens:
           type: line
           data_view: "metrics-*"
           dimensions:
@@ -263,27 +261,28 @@ Reference lines are implemented as separate layers in multi-layer panels. This a
 dashboards:
   - name: "Service Level Dashboard"
     panels:
-    - type: multi_layer_charts
-      title: "Response Time with SLA"
+    - title: "Response Time with SLA"
       grid: { x: 0, y: 0, w: 24, h: 12 }
-      layers:
-        # Data layer
-        - type: line
-          data_view: "metrics-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
-          metrics:
-            - aggregation: "average"
-              field: "response_time"
-        # Reference line layer
-        - type: reference_line
-          data_view: "metrics-*"
-          reference_lines:
-            - label: "SLA Threshold"
-              value: 500.0
-              color: "#FF0000"
-              line_style: "dashed"
+      lens:
+        # Base data layer
+        type: line
+        data_view: "metrics-*"
+        dimensions:
+          - type: date_histogram
+            field: "@timestamp"
+        metrics:
+          - aggregation: "average"
+            field: "response_time"
+        # Additional layers
+        layers:
+          # Reference line layer
+          - type: reference_line
+            data_view: "metrics-*"
+            reference_lines:
+              - label: "SLA Threshold"
+                value: 500.0
+                color: "#FF0000"
+                line_style: "dashed"
 ```
 
 ### Reference Line Layer Configuration
@@ -423,7 +422,10 @@ dashboards:
 You can create XY chart panels with reference lines programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.charts.config import LensMultiLayerPanel
+from dashboard_compiler.panels.charts.config import (
+    LensLinePanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensDateHistogramDimension,
 )
@@ -431,45 +433,44 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
 from dashboard_compiler.panels.charts.xy.config import (
-    LensLineChart,
     LensReferenceLineLayer,
     XYReferenceLine,
 )
 from dashboard_compiler.panels.config import Grid
 
 # Create a multi-layer panel with data layer and reference line layer
-panel = LensMultiLayerPanel(
+panel = LensPanel(
     title='Documents Over Time with Thresholds',
     grid=Grid(x=0, y=0, w=48, h=20),
-    layers=[
-        # Data layer
-        LensLineChart(
-            data_view='logs-*',
-            dimensions=[
-                LensDateHistogramDimension(type='date_histogram', field='@timestamp')
-            ],
-            metrics=[LensCountAggregatedMetric(aggregation='count')],
-        ),
-        # Reference line layer
-        LensReferenceLineLayer(
-            data_view='logs-*',
-            reference_lines=[
-                XYReferenceLine(
-                    label='SLA Threshold',
-                    value=500.0,
-                    color='#FF0000',
-                    line_style='dashed',
-                    line_width=2,
-                ),
-                XYReferenceLine(
-                    label='Target',
-                    value=200.0,
-                    color='#00FF00',
-                    line_style='solid',
-                ),
-            ],
-        ),
-    ],
+    lens=LensLinePanelConfig(
+        type='line',
+        data_view='logs-*',
+        dimensions=[
+            LensDateHistogramDimension(type='date_histogram', field='@timestamp')
+        ],
+        metrics=[LensCountAggregatedMetric(aggregation='count')],
+        layers=[
+            # Additional reference line layer
+            LensReferenceLineLayer(
+                data_view='logs-*',
+                reference_lines=[
+                    XYReferenceLine(
+                        label='SLA Threshold',
+                        value=500.0,
+                        color='#FF0000',
+                        line_style='dashed',
+                        line_width=2,
+                    ),
+                    XYReferenceLine(
+                        label='Target',
+                        value=200.0,
+                        color='#00FF00',
+                        line_style='solid',
+                    ),
+                ],
+            ),
+        ],
+    ),
 )
 ```
 
