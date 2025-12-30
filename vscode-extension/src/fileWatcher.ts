@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
+import { ConfigService } from './configService';
 
 export function setupFileWatcher(compiler: DashboardCompilerLSP, previewPanel: PreviewPanel): vscode.Disposable[] {
     // Watch for saves on YAML files
@@ -9,8 +10,7 @@ export function setupFileWatcher(compiler: DashboardCompilerLSP, previewPanel: P
             return;
         }
 
-        const config = vscode.workspace.getConfiguration('yamlDashboard');
-        const compileOnSave = config.get<boolean>('compileOnSave', true);
+        const compileOnSave = ConfigService.getCompileOnSave();
 
         if (compileOnSave) {
             try {
@@ -35,8 +35,7 @@ export function setupFileWatcher(compiler: DashboardCompilerLSP, previewPanel: P
     const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.{yaml,yml}');
 
     fileWatcher.onDidChange(async (uri) => {
-        const config = vscode.workspace.getConfiguration('yamlDashboard');
-        const compileOnSave = config.get<boolean>('compileOnSave', true);
+        const compileOnSave = ConfigService.getCompileOnSave();
 
         if (compileOnSave) {
             // Update preview if it's open

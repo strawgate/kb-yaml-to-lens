@@ -136,11 +136,56 @@ dashboards:
 
 ### Chart Appearance Options
 
-XY charts support appearance customization through the `appearance` field. The available options depend on the chart type:
+XY charts support appearance customization through the `appearance` field. The available options depend on the chart type and include both chart-type-specific options and common axis/series options.
 
-#### Bar Chart Appearance
+#### Common XYAppearance Options (All Chart Types)
 
-For bar charts (`type: bar`), the following appearance options are available:
+These options are available for all XY chart types (bar, line, area):
+
+| YAML Key | Data Type | Description | Default | Required |
+| ------------- | ------------------------ | -------------------------------------------------------- | ------- | -------- |
+| `x_axis` | `AxisConfig \| None` | Configuration for the X-axis (horizontal axis). | `None` | No |
+| `y_left_axis` | `AxisConfig \| None` | Configuration for the left Y-axis (primary vertical axis). | `None` | No |
+| `y_right_axis` | `AxisConfig \| None` | Configuration for the right Y-axis (secondary vertical axis). | `None` | No |
+| `series` | `list[XYSeries] \| None` | Per-series visual configuration (axis assignment, colors, line styles, etc.). | `None` | No |
+
+#### AxisConfig Options
+
+Defines configuration for a single axis.
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | ------------------------------------------------ | ---------------------------------------------- | ------- | -------- |
+| `title` | `str \| None` | Custom title for the axis. | `None` | No |
+| `scale` | `Literal['linear', 'log', 'sqrt', 'time'] \| None` | Scale type for the axis. | `None` | No |
+| `extent` | `AxisExtent \| None` | Axis bounds/range configuration. | `None` | No |
+
+#### AxisExtent Options
+
+Configures the bounds (range) of an axis.
+
+| YAML Key | Data Type | Description | Default | Required |
+| ------------- | -------------------------------------------- | --------------------------------------------------------- | ------- | -------- |
+| `mode` | `Literal['full', 'data_bounds', 'custom']` | Extent mode: 'full' (entire range), 'data_bounds' (fit to data), 'custom' (manual bounds). | N/A | Yes |
+| `min` | `float \| None` | Minimum bound (required when mode is 'custom'). | `None` | Conditional* |
+| `max` | `float \| None` | Maximum bound (required when mode is 'custom'). | `None` | Conditional* |
+| `enforce` | `bool \| None` | Whether to enforce the bounds strictly. | `None` | No |
+| `nice_values` | `bool \| None` | Whether to round bounds to nice values. | `None` | No |
+
+**\*Note:** When `mode='custom'`, both `min` and `max` must be specified (Kibana requirement).
+
+#### XYSeries Options
+
+Configures per-series visual styling and axis assignment. Used to customize individual metrics within a chart.
+
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | ------------------------------------------------- | ------------------------------------------------------------ | ------- | -------- |
+| `metric_id` | `str` | ID of the metric this series configuration applies to. | N/A | Yes |
+| `axis` | `Literal['left', 'right'] \| None` | Which Y-axis this series is assigned to (for dual-axis charts). | `None` | No |
+| `color` | `str \| None` | Hex color code for the series (e.g., '#2196F3'). | `None` | No |
+
+#### Bar Chart Specific Appearance
+
+For bar charts (`type: bar`), the following additional appearance options are available:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | -------------------------------------------- | ------- | -------- |
@@ -154,12 +199,14 @@ chart:
   data_view: "logs-*"
   appearance:
     min_bar_height: 5.0
+    y_left_axis:
+      title: "Count"
   # ... other fields
 ```
 
-#### Line Chart Appearance
+#### Line Chart Specific Appearance
 
-For line charts (`type: line`), the following appearance options are available:
+For line charts (`type: line`), the following additional appearance options are available:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
@@ -177,10 +224,13 @@ chart:
     fitting_function: Linear
     emphasize_fitting: true
     curve_type: monotone-x
+    series:
+      - metric_id: "response_time"
+        color: "#2196F3"
   # ... other fields
 ```
 
-#### Area Chart Appearance
+#### Area Chart Specific Appearance
 
 For area charts (`type: area`), all line chart appearance options are available, plus:
 
@@ -197,6 +247,9 @@ chart:
   appearance:
     fill_opacity: 0.7
     curve_type: cardinal
+    series:
+      - metric_id: "bytes_in"
+        color: "#4CAF50"
   # ... other fields
 ```
 
@@ -259,6 +312,111 @@ dashboards:
 ### ESQL Bar/Line/Area Charts
 
 ESQL chart configuration is similar to Lens charts, but uses `ESQLDimensionTypes` and `ESQLMetricTypes` instead, and does not require a `data_view` field.
+
+## Usage Examples
+
+### Dual Y-Axis Chart
+
+Create a chart with two metrics on different Y-axes:
+
+```yaml
+dashboards:
+  - name: "Performance Dashboard"
+    panels:
+      - type: charts
+        title: "Request Count vs Error Rate"
+        grid: { x: 0, y: 0, w: 48, h: 12 }
+        chart:
+          type: line
+          data_view: "logs-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+              id: "time"
+          metrics:
+            - aggregation: count
+              id: "request_count"
+            - aggregation: average
+              field: "error_rate"
+              id: "avg_error_rate"
+          appearance:
+            y_left_axis:
+              title: "Request Count"
+              scale: linear
+            y_right_axis:
+              title: "Error Rate (%)"
+              scale: linear
+            series:
+              - metric_id: "request_count"
+                axis: left
+                color: "#2196F3"
+              - metric_id: "avg_error_rate"
+                axis: right
+                color: "#FF5252"
+```
+
+### Custom Axis Bounds
+
+Set explicit axis ranges:
+
+```yaml
+dashboards:
+  - name: "SLA Dashboard"
+    panels:
+      - type: charts
+        title: "Response Time (0-1000ms)"
+        grid: { x: 0, y: 0, w: 48, h: 12 }
+        chart:
+          type: line
+          data_view: "logs-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: average
+              field: "response_time_ms"
+          appearance:
+            y_left_axis:
+              title: "Response Time (ms)"
+              extent:
+                mode: custom
+                min: 0
+                max: 1000
+                enforce: true
+                nice_values: true
+```
+
+### Styled Series
+
+Customize individual series appearance:
+
+```yaml
+dashboards:
+  - name: "Network Dashboard"
+    panels:
+      - type: charts
+        title: "Network Traffic"
+        grid: { x: 0, y: 0, w: 48, h: 12 }
+        chart:
+          type: area
+          data_view: "metrics-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: sum
+              field: "bytes_in"
+              id: "inbound"
+            - aggregation: sum
+              field: "bytes_out"
+              id: "outbound"
+          appearance:
+            series:
+              - metric_id: "inbound"
+                color: "#4CAF50"
+              - metric_id: "outbound"
+                color: "#FF9800"
+```
 
 ## Programmatic Usage (Python)
 
