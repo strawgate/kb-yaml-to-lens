@@ -47,8 +47,6 @@ def compile_lens_reference_line_layer(
             - columns: Dictionary of accessor ID -> static value column
             - ref_layers: List of reference line layer configs (one per reference line)
     """
-    from dashboard_compiler.shared.config import random_id_generator
-
     # Generate a primary layer ID for the data view reference
     primary_layer_id = random_id_generator()
 
@@ -77,7 +75,7 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tu
         tuple[XYReferenceLineLayerConfig, KbnLensStaticValueColumn]: The compiled reference line layer and column.
     """
     # Generate accessor ID
-    accessor_id = ref_line.id or f'{layer_id}'
+    accessor_id = ref_line.id or random_id_generator()
 
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):

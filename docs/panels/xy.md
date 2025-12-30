@@ -106,9 +106,8 @@ Reference lines are implemented as separate layers in multi-layer panels. This a
 
 ```yaml
 dashboards:
--
-  name: "Service Level Dashboard"
-  panels:
+  - name: "Service Level Dashboard"
+    panels:
     - type: multi_layer_charts
       title: "Response Time with SLA"
       grid: { x: 0, y: 0, w: 24, h: 12 }

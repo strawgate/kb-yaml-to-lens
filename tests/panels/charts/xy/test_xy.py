@@ -407,7 +407,7 @@ async def test_reference_line_with_value_object() -> None:
     )
 
     layer_id = 'test-layer-id-2'
-    ref_layer, ref_column = compile_reference_line_layer(ref_line, layer_id)
+    _ref_layer, ref_column = compile_reference_line_layer(ref_line, layer_id)
 
     # Should compile to same static value column structure
     assert ref_column.params.value == '100.0'
