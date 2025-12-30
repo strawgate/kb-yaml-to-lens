@@ -10,43 +10,41 @@ The `LensPanel` is the primary container. Its `chart` field will define the spec
 
 ```yaml
 dashboards:
--
-  name: "Key Metrics Dashboard"
-  panels:
-    - type: charts
-      title: "Total Users"
-      grid: { x: 0, y: 0, w: 4, h: 3 }
-      query: # Optional panel-specific query
-        kql: "event.dataset:website.visits"
-      chart:
-        type: metric # Specifies a LensMetricChart
-        primary:
-          aggregation: "unique_count"
-          field: "user.id"
-          label: "Unique Visitors"
+  - name: "Key Metrics Dashboard"
+    panels:
+      - type: charts
+        title: "Total Users"
+        grid: { x: 0, y: 0, w: 4, h: 3 }
+        query: # Optional panel-specific query
+          kql: "event.dataset:website.visits"
+        chart:
+          type: metric # Specifies a LensMetricChart
+          primary:
+            aggregation: "unique_count"
+            field: "user.id"
+            label: "Unique Visitors"
 ```
 
 **Minimal Lens Pie Chart:**
 
 ```yaml
 dashboards:
--
-  name: "Traffic Analysis"
-  panels:
-    - type: charts
-      title: "Traffic by Source"
-      grid: { x: 4, y: 0, w: 8, h: 3 }
-      chart:
-        type: pie # Specifies a LensPieChart
-        data_view: "weblogs-*"
-        metric:
-          aggregation: "count"
-          label: "Sessions"
-        slice_by:
-          - type: values
-            field: "source.medium"
-            label: "Traffic Source"
-            size: 5 # Top 5 sources
+  - name: "Traffic Analysis"
+    panels:
+      - type: charts
+        title: "Traffic by Source"
+        grid: { x: 4, y: 0, w: 8, h: 3 }
+        chart:
+          type: pie # Specifies a LensPieChart
+          data_view: "weblogs-*"
+          metric:
+            aggregation: "count"
+            label: "Sessions"
+          slice_by:
+            - type: values
+              field: "source.medium"
+              label: "Traffic Source"
+              size: 5 # Top 5 sources
 ```
 
 ## Full Configuration Options

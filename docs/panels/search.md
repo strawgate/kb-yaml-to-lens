@@ -8,17 +8,16 @@ To add a Search panel, you need to specify its `type`, `grid` position, and the 
 
 ```yaml
 dashboards:
--
-  name: "Log Monitoring Dashboard"
-  panels:
-    - type: search
-      title: "All System Logs"
-      grid:
-        x: 0
-        y: 0
-        w: 12
-        h: 10
-      saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
+  - name: "Log Monitoring Dashboard"
+    panels:
+      - type: search
+        title: "All System Logs"
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 10
+        saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
 ```
 
 ## Complex Configuration Example (Illustrative)
@@ -27,19 +26,18 @@ Search panels primarily rely on the configuration of the saved search itself (co
 
 ```yaml
 dashboards:
--
-  name: "Security Incidents Overview"
-  panels:
-    - type: search
-      # Title is defined in the saved search, so we hide the panel's own title
-      hide_title: true
-      description: "Displays critical security alerts from the last 24 hours, as defined in the 'Critical Alerts' saved search."
-      grid:
-        x: 0
-        y: 0
-        w: 12
-        h: 8
-      saved_search_id: "critical-security-alerts-saved-search"
+  - name: "Security Incidents Overview"
+    panels:
+      - type: search
+        # Title is defined in the saved search, so we hide the panel's own title
+        hide_title: true
+        description: "Displays critical security alerts from the last 24 hours, as defined in the 'Critical Alerts' saved search."
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8
+        saved_search_id: "critical-security-alerts-saved-search"
 ```
 
 ## Full Configuration Options
