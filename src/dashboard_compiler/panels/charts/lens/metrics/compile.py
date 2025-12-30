@@ -11,6 +11,8 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensMetricFormat,
     KbnLensMetricFormatParams,
     KbnLensMetricFormatTypes,
+    KbnLensStaticValueColumn,
+    KbnLensStaticValueColumnParams,
 )
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
@@ -140,11 +142,6 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     """
     # Handle static values
     if isinstance(metric, LensStaticValue):
-        from dashboard_compiler.panels.charts.lens.columns.view import (
-            KbnLensStaticValueColumn,
-            KbnLensStaticValueColumnParams,
-        )
-
         metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
         label = metric.label if metric.label is not None else str(metric.value)
         custom_label = metric.label is not None

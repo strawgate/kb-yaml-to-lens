@@ -112,7 +112,7 @@ dashboards:
 The `shape` parameter determines the visual style of the gauge:
 
 - **`arc`**: Semicircular arc (180°) - default style, good for dashboards
-- **`circle`**: Full circular gauge (360°) - maximizes data ink ratio
+- **`circle`**: Full circular gauge (360°) - maximizes data-ink ratio
 - **`horizontalBullet`**: Linear horizontal bar - space-efficient
 - **`verticalBullet`**: Linear vertical bar - good for vertical layouts
 

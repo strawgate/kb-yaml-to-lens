@@ -100,7 +100,7 @@ class KbnLensFieldMetricColumn(KbnLensBaseColumn):
 class KbnLensStaticValueColumnParams(BaseVwModel):
     """Parameters for static value columns."""
 
-    value: Annotated[int | float | str | None, OmitIfNone()] = Field(default=None)
+    value: int | float
     """The static value to display."""
 
 

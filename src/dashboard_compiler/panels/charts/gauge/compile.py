@@ -12,7 +12,7 @@ from dashboard_compiler.panels.charts.lens.metrics.config import LensStaticValue
 from dashboard_compiler.shared.config import random_id_generator
 
 if TYPE_CHECKING:
-    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
 
 
 def compile_gauge_chart_visualization_state(  # noqa: PLR0913
@@ -82,11 +82,11 @@ def compile_lens_gauge_chart(
     max_id: str | None = None
     goal_id: str | None = None
 
-    kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
+    kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
 
     # Compile primary metric
     metric_id, metric_column = compile_lens_metric(lens_gauge_chart.metric)
-    kbn_metric_columns_by_id[metric_id] = metric_column
+    kbn_columns_by_id[metric_id] = metric_column
 
     # Compile optional min/max/goal - handle both static values and metrics
     if lens_gauge_chart.minimum is not None:
@@ -97,7 +97,7 @@ def compile_lens_gauge_chart(
             else lens_gauge_chart.minimum
         )
         min_id, min_column = compile_lens_metric(minimum_metric)
-        kbn_metric_columns_by_id[min_id] = min_column
+        kbn_columns_by_id[min_id] = min_column
 
     if lens_gauge_chart.maximum is not None:
         maximum_metric = (
@@ -106,16 +106,14 @@ def compile_lens_gauge_chart(
             else lens_gauge_chart.maximum
         )
         max_id, max_column = compile_lens_metric(maximum_metric)
-        kbn_metric_columns_by_id[max_id] = max_column
+        kbn_columns_by_id[max_id] = max_column
 
     if lens_gauge_chart.goal is not None:
         goal_metric = (
             LensStaticValue(value=lens_gauge_chart.goal) if isinstance(lens_gauge_chart.goal, (int, float)) else lens_gauge_chart.goal
         )
         goal_id, goal_column = compile_lens_metric(goal_metric)
-        kbn_metric_columns_by_id[goal_id] = goal_column
-
-    kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {**kbn_metric_columns_by_id}
+        kbn_columns_by_id[goal_id] = goal_column
 
     layer_id = lens_gauge_chart.id or random_id_generator()
 
@@ -142,9 +140,9 @@ def compile_esql_gauge_chart(
         esql_gauge_chart (ESQLGaugeChart): The ESQLGaugeChart object to compile.
 
     Returns:
-        tuple[str, list[KbnESQLFieldMetricColumn], KbnGaugeVisualizationState]: A tuple containing:
+        tuple[str, list[KbnESQLColumnTypes], KbnGaugeVisualizationState]: A tuple containing:
             - layer_id (str): The ID of the layer.
-            - kbn_columns (list[KbnESQLFieldMetricColumn]): A list of columns for the layer.
+            - kbn_columns (list[KbnESQLColumnTypes]): A list of columns for the layer.
             - kbn_state_visualization (KbnGaugeVisualizationState): The compiled visualization state.
 
     """
