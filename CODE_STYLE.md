@@ -213,6 +213,10 @@ See `fixture-generator/AGENTS.md` for JavaScript-specific conventions:
 - Always test fixtures in Docker before committing
 - Follow Kibana's LensConfigBuilder API patterns
 
+## Dashboard Style
+
+data_view and esql FROM statements should always target either `logs-*` or `metrics-*`. We can have examples that target other things but they wont be importable by users without modification as it will fail to render the dashboard if the data_view or datastream (in the case of esql) is not valid.
+
 ---
 
 ## Summary
