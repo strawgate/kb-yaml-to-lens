@@ -120,6 +120,3 @@ class ESQLPieChart(BasePieChart):
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
-
-    esql: str = Field(default=...)
-    """The ES|QL query that determines the data for the pie chart."""

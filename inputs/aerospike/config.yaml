@@ -31,11 +31,10 @@ dashboards:
               url: https://www.aerospike.com/docs/
             - label: Community Forum
               url: https://discuss.aerospike.com/
-      - type: charts
-        title: Nodes by Namespace
+      - title: Nodes by Namespace
         description: A chart showing the number of nodes by namespace
         grid: {x: 0, y: 6, w: 16, h: 16}
-        chart:
+        lens:
           type: pie
           data_view: metrics-*
           slice_by:
@@ -44,11 +43,10 @@ dashboards:
               size: 5
           metric:
             aggregation: count
-      - type: charts
-        title: Free Memory by Node
+      - title: Free Memory by Node
         description: A chart showing the minimum free memory by node
         grid: {x: 16, y: 6, w: 32, h: 16}
-        chart:
+        lens:
           type: line
           data_view: metrics-*
           dimensions:
@@ -58,10 +56,9 @@ dashboards:
             - aggregation: min
               field: aerospike.node.memory.free
       - title: Open Connections by Node
-        type: charts
         description: A chart showing the number of open connections by node
         grid: {x: 16, y: 22, w: 32, h: 16}
-        chart:
+        lens:
           type: line
           data_view: metrics-*
           dimensions:

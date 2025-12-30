@@ -36,10 +36,9 @@ The most important number ever seen!
 dashboards:
   - name: "KPI Dashboard"
     panels:
-      - type: charts
-        title: "Total Revenue"
+      - title: "Total Revenue"
         grid: { x: 0, y: 0, w: 12, h: 2 }
-        chart:
+        lens:
           type: metric
           data_view: "sales-data"
           primary:
@@ -79,46 +78,46 @@ You can create Metric chart panels programmatically using Python:
 ### Count Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
-
-# Simple count metric
-count_chart = LensMetricChart(
-    data_view='logs-*',
-    primary=LensCountAggregatedMetric(aggregation='count'),
-)
 
 panel = LensPanel(
     title='Total Documents',
     grid=Grid(x=0, y=0, w=24, h=15),
-    chart=count_chart,
+    lens=LensMetricPanelConfig(
+        type='metric',
+        data_view='logs-*',
+        primary=LensCountAggregatedMetric(aggregation='count'),
+    ),
 )
 ```
 
 ### Average Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
-
-# Average metric with field
-avg_chart = LensMetricChart(
-    data_view='logs-*',
-    primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
-)
 
 panel = LensPanel(
     title='Avg Response Time',
     grid=Grid(x=0, y=0, w=24, h=15),
-    chart=avg_chart,
+    lens=LensMetricPanelConfig(
+        type='metric',
+        data_view='logs-*',
+        primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
+    ),
 )
 ```
 

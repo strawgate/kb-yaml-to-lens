@@ -2,8 +2,6 @@
 dashboards:
   - name: '[Example] Interactive Controls'
     description: Demonstrates dashboard controls for dynamic filtering
-
-    # Dashboard-level controls
     controls:
       - type: options
         label: Select Host
@@ -18,62 +16,69 @@ dashboards:
         field: log.level
         match_technique: prefix
     panels:
-      # Informational Panel
       - title: Using Dashboard Controls
-        grid: {x: 0, y: 0, w: 48, h: 4}
+        grid:
+          x: 0
+          y: 0
+          w: 48
+          h: 4
         markdown:
-          content: |
-            # Interactive Dashboard Controls
-            This dashboard demonstrates the use of **controls** for interactive filtering.
-            Controls appear at the top of the dashboard and allow users to filter data dynamically.
-            **Available Controls:**
-            - **Host Selector** - Filter by specific host(s)
-            - **Log Level** - Filter by log severity level
-            Select values from the controls above to filter all panels on this dashboard.
+          content: "# Interactive Dashboard Controls\nThis dashboard demonstrates the use of **controls** for interactive filtering.\nControls\
+            \ appear at the top of the dashboard and allow users to filter data dynamically.\n**Available Controls:**\n- **Host Selector** - Filter\
+            \ by specific host(s)\n- **Log Level** - Filter by log severity level\nSelect values from the controls above to filter all panels\
+            \ on this dashboard.\n"
           font_size: 12
-
-      # Metrics that respond to controls
-      - type: charts
-        title: Selected Events Count
+      - title: Selected Events Count
         description: Total events matching control filters
-        grid: {x: 0, y: 4, w: 16, h: 6}
-        chart:
+        grid:
+          x: 0
+          y: 4
+          w: 16
+          h: 6
+        lens:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Filtered Events
-      - type: charts
-        title: Unique Hosts in Selection
+      - title: Unique Hosts in Selection
         description: Number of unique hosts in filtered data
-        grid: {x: 16, y: 4, w: 16, h: 6}
-        chart:
+        grid:
+          x: 16
+          y: 4
+          w: 16
+          h: 6
+        lens:
           type: metric
           data_view: logs-*
           primary:
             aggregation: unique_count
             field: host.name
             label: Hosts
-      - type: charts
-        title: Average Response Time
+      - title: Average Response Time
         description: Average response time for selected events
-        grid: {x: 32, y: 4, w: 16, h: 6}
-        filters:
-          - exists: http.response.time
-        chart:
+        grid:
+          x: 32
+          y: 4
+          w: 16
+          h: 6
+        lens:
           type: metric
           data_view: logs-*
           primary:
             aggregation: average
             field: http.response.time
             label: Avg Response (ms)
-
-      # Time series responding to controls
-      - type: charts
-        title: Events Over Time (Filtered)
+          filters:
+            - exists: http.response.time
+      - title: Events Over Time (Filtered)
         description: Time series view of filtered events
-        grid: {x: 0, y: 10, w: 48, h: 12}
-        chart:
+        grid:
+          x: 0
+          y: 10
+          w: 48
+          h: 12
+        lens:
           type: line
           data_view: logs-*
           dimensions:
@@ -83,13 +88,14 @@ dashboards:
           metrics:
             - aggregation: count
               label: Event Count
-
-      # Breakdown by another dimension
-      - type: charts
-        title: Service Distribution (Filtered)
+      - title: Service Distribution (Filtered)
         description: Distribution of events across services
-        grid: {x: 0, y: 22, w: 24, h: 12}
-        chart:
+        grid:
+          x: 0
+          y: 22
+          w: 24
+          h: 12
+        lens:
           type: pie
           data_view: logs-*
           slice_by:
@@ -98,13 +104,14 @@ dashboards:
               size: 8
           metric:
             aggregation: count
-      - type: charts
-        title: Top URLs (Filtered)
+      - title: Top URLs (Filtered)
         description: Most frequently accessed URLs
-        grid: {x: 24, y: 22, w: 24, h: 12}
-        filters:
-          - exists: url.path
-        chart:
+        grid:
+          x: 24
+          y: 22
+          w: 24
+          h: 12
+        lens:
           type: bar
           mode: stacked
           data_view: logs-*
@@ -118,3 +125,5 @@ dashboards:
           metrics:
             - aggregation: count
               label: Requests
+          filters:
+            - exists: url.path
