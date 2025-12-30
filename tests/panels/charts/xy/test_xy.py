@@ -7,7 +7,7 @@ from dashboard_compiler.panels.charts.xy.compile import (
     compile_esql_xy_chart,
     compile_lens_reference_line_layer,
     compile_lens_xy_chart,
-    compile_reference_line_layer,
+    compile_reference_line,
 )
 from dashboard_compiler.panels.charts.xy.config import (
     ESQLAreaChart,
@@ -358,28 +358,23 @@ async def test_reference_line_single() -> None:
         axis='left',
     )
 
-    layer_id = 'test-layer-id'
-    ref_layer, ref_column = compile_reference_line_layer(ref_line, layer_id)
+    accessor_id, ref_column, y_config = compile_reference_line(ref_line)
 
-    # Test the reference line layer structure
-    assert ref_layer.model_dump() == snapshot(
+    # Test the accessor ID
+    assert accessor_id == 'ref-line-1'
+
+    # Test the Y config structure
+    assert y_config.model_dump() == snapshot(
         {
-            'layerId': 'test-layer-id',
-            'accessors': ['ref-line-1'],
-            'yConfig': [
-                {
-                    'forAccessor': 'ref-line-1',
-                    'color': '#FF0000',
-                    'lineWidth': 2.0,
-                    'lineStyle': 'dashed',
-                    'fill': 'above',
-                    'icon': 'alert',
-                    'iconPosition': 'auto',
-                    'textVisibility': None,
-                    'axisMode': 'left',
-                }
-            ],
-            'layerType': 'referenceLine',
+            'forAccessor': 'ref-line-1',
+            'color': '#FF0000',
+            'lineWidth': 2.0,
+            'lineStyle': 'dashed',
+            'fill': 'above',
+            'icon': 'alert',
+            'iconPosition': 'auto',
+            'textVisibility': None,
+            'axisMode': 'left',
         }
     )
 
@@ -406,8 +401,7 @@ async def test_reference_line_with_value_object() -> None:
         value=XYReferenceLineValue(value=100.0),
     )
 
-    layer_id = 'test-layer-id-2'
-    _ref_layer, ref_column = compile_reference_line_layer(ref_line, layer_id)
+    _accessor_id, ref_column, _y_config = compile_reference_line(ref_line)
 
     # Should compile to same static value column structure
     assert ref_column.params.value == '100.0'
@@ -418,13 +412,12 @@ async def test_reference_line_minimal() -> None:
     """Test reference line with minimal configuration."""
     ref_line = XYReferenceLine(value=250.0)
 
-    layer_id = 'test-layer-id-3'
-    ref_layer, ref_column = compile_reference_line_layer(ref_line, layer_id)
+    _accessor_id, ref_column, y_config = compile_reference_line(ref_line)
 
     # Test defaults
     assert ref_column.label == 'Static value: 250.0'
     assert ref_column.customLabel is False
-    assert ref_layer.yConfig[0].axisMode == 'left'  # default axis
+    assert y_config.axisMode == 'left'  # default axis
 
 
 async def test_reference_line_layer_multiple_lines() -> None:
@@ -463,8 +456,8 @@ async def test_reference_line_layer_multiple_lines() -> None:
     assert isinstance(layer_id, str)
     assert len(layer_id) > 0
 
-    # Test that we have 3 reference line layers (one per reference line)
-    assert len(ref_layers) == 3
+    # Test that we have 1 reference line layer (containing all reference lines)
+    assert len(ref_layers) == 1
 
     # Test that we have 3 columns (one per reference line)
     assert len(columns) == 3
@@ -472,11 +465,11 @@ async def test_reference_line_layer_multiple_lines() -> None:
     assert 'threshold-high' in columns
     assert 'threshold-critical' in columns
 
-    # Test first reference line layer
+    # Test the single reference line layer with all 3 reference lines
     assert ref_layers[0].model_dump() == snapshot(
         {
             'layerId': IsUUID,
-            'accessors': ['threshold-low'],
+            'accessors': ['threshold-low', 'threshold-high', 'threshold-critical'],
             'yConfig': [
                 {
                     'forAccessor': 'threshold-low',
@@ -488,18 +481,7 @@ async def test_reference_line_layer_multiple_lines() -> None:
                     'iconPosition': None,
                     'textVisibility': None,
                     'axisMode': 'left',
-                }
-            ],
-            'layerType': 'referenceLine',
-        }
-    )
-
-    # Test second reference line layer
-    assert ref_layers[1].model_dump() == snapshot(
-        {
-            'layerId': IsUUID,
-            'accessors': ['threshold-high'],
-            'yConfig': [
+                },
                 {
                     'forAccessor': 'threshold-high',
                     'color': '#FF0000',
@@ -510,18 +492,7 @@ async def test_reference_line_layer_multiple_lines() -> None:
                     'iconPosition': None,
                     'textVisibility': None,
                     'axisMode': 'left',
-                }
-            ],
-            'layerType': 'referenceLine',
-        }
-    )
-
-    # Test third reference line layer
-    assert ref_layers[2].model_dump() == snapshot(
-        {
-            'layerId': IsUUID,
-            'accessors': ['threshold-critical'],
-            'yConfig': [
+                },
                 {
                     'forAccessor': 'threshold-critical',
                     'color': '#FF00FF',
@@ -532,7 +503,7 @@ async def test_reference_line_layer_multiple_lines() -> None:
                     'iconPosition': None,
                     'textVisibility': None,
                     'axisMode': 'left',
-                }
+                },
             ],
             'layerType': 'referenceLine',
         }
@@ -561,8 +532,8 @@ async def test_reference_line_layer_without_ids() -> None:
     assert isinstance(layer_id, str)
     assert len(layer_id) > 0
 
-    # Test that we have 3 reference line layers (one per reference line)
-    assert len(ref_layers) == 3
+    # Test that we have 1 reference line layer (containing all reference lines)
+    assert len(ref_layers) == 1
 
     # Test that we have 3 columns with unique accessor IDs
     assert len(columns) == 3
@@ -577,6 +548,10 @@ async def test_reference_line_layer_without_ids() -> None:
     column_values = sorted([col.params.value for col in columns.values()])
     assert column_values == ['100.0', '200.0', '300.0']
 
+    # Test that the single layer has all 3 accessors
+    assert len(ref_layers[0].accessors) == 3
+    assert len(ref_layers[0].yConfig) == 3
+
 
 async def test_reference_line_layer_empty() -> None:
     """Test compilation of a reference line layer with no lines."""
@@ -587,10 +562,12 @@ async def test_reference_line_layer_empty() -> None:
 
     layer_id, columns, ref_layers = compile_lens_reference_line_layer(layer_config)
 
-    # Should return empty collections
+    # Should return empty collections for columns but still have 1 layer (with no accessors)
     assert isinstance(layer_id, str)
     assert len(columns) == 0
-    assert len(ref_layers) == 0
+    assert len(ref_layers) == 1
+    assert len(ref_layers[0].accessors) == 0
+    assert len(ref_layers[0].yConfig) == 0
 
 
 async def test_xy_chart_with_legend_position() -> None:

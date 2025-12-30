@@ -36,43 +36,50 @@ from dashboard_compiler.shared.config import random_id_generator
 def compile_lens_reference_line_layer(
     layer: 'LensReferenceLineLayer',
 ) -> tuple[str, dict[str, KbnLensStaticValueColumn], list[XYReferenceLineLayerConfig]]:
-    """Compile a LensReferenceLineLayer into Kibana reference line layers and columns.
+    """Compile a LensReferenceLineLayer into a Kibana reference line layer and columns.
 
     Args:
         layer: The reference line layer configuration.
 
     Returns:
         tuple[str, dict[str, KbnLensStaticValueColumn], list[XYReferenceLineLayerConfig]]:
-            - layer_id: The primary layer ID (used for data view reference)
+            - layer_id: The primary layer ID (used for data view reference and visualization layer)
             - columns: Dictionary of accessor ID -> static value column
-            - ref_layers: List of reference line layer configs (one per reference line)
+            - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
-    # Generate a primary layer ID for the data view reference
+    # Generate a primary layer ID for the data view reference and visualization layer
     primary_layer_id = random_id_generator()
 
-    reference_line_layers: list[XYReferenceLineLayerConfig] = []
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
+    accessor_ids: list[str] = []
+    y_configs: list[YConfig] = []
 
     for ref_line in layer.reference_lines:
-        # All reference lines in this layer share the same datasource layer (primary_layer_id)
-        ref_layer, ref_column = compile_reference_line_layer(ref_line, primary_layer_id)
-        reference_line_layers.append(ref_layer)
-        # Use the accessor ID from the layer to key the column
-        accessor_id = ref_layer.accessors[0]
+        # Compile each reference line into an accessor and column
+        accessor_id, ref_column, y_config = compile_reference_line(ref_line)
         reference_line_columns[accessor_id] = ref_column
+        accessor_ids.append(accessor_id)
+        y_configs.append(y_config)
 
-    return primary_layer_id, reference_line_columns, reference_line_layers
+    # Create a single XYReferenceLineLayerConfig with all accessors
+    reference_line_layer = XYReferenceLineLayerConfig(
+        layerId=primary_layer_id,
+        accessors=accessor_ids,
+        yConfig=y_configs,
+        layerType='referenceLine',
+    )
+
+    return primary_layer_id, reference_line_columns, [reference_line_layer]
 
 
-def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tuple[XYReferenceLineLayerConfig, KbnLensStaticValueColumn]:
-    """Compile a reference line into a Kibana reference line layer and column.
+def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStaticValueColumn, YConfig]:
+    """Compile a reference line into an accessor ID, static value column, and Y config.
 
     Args:
         ref_line: The reference line configuration.
-        layer_id: The unique layer ID for this reference line layer.
 
     Returns:
-        tuple[XYReferenceLineLayerConfig, KbnLensStaticValueColumn]: The compiled reference line layer and column.
+        tuple[str, KbnLensStaticValueColumn, YConfig]: The accessor ID, static value column, and Y config.
     """
     # Generate accessor ID
     accessor_id = ref_line.id or random_id_generator()
@@ -112,15 +119,7 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tu
         axisMode=ref_line.axis,
     )
 
-    return (
-        XYReferenceLineLayerConfig(
-            layerId=layer_id,
-            accessors=[accessor_id],
-            yConfig=[y_config],
-            layerType='referenceLine',
-        ),
-        static_value_column,
-    )
+    return accessor_id, static_value_column, y_config
 
 
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
