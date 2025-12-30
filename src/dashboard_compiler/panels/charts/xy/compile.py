@@ -1,5 +1,7 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
+from typing import Literal
+
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -12,6 +14,8 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
+    AxisConfig,
+    AxisExtent,
     ESQLAreaChart,
     ESQLBarChart,
     ESQLLineChart,
@@ -25,12 +29,55 @@ from dashboard_compiler.panels.charts.xy.config import (
     XYReferenceLineValue,
 )
 from dashboard_compiler.panels.charts.xy.view import (
+    AxisExtentConfig,
+    AxisTitlesVisibilitySettings,
     KbnXYVisualizationState,
     XYDataLayerConfig,
     XYReferenceLineLayerConfig,
     YConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
+
+
+def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
+    """Convert config AxisExtent to view AxisExtentConfig.
+
+    Transforms snake_case 'data_bounds' to camelCase 'dataBounds' for Kibana.
+
+    Args:
+        extent: The axis extent configuration from the user config.
+
+    Returns:
+        AxisExtentConfig for Kibana visualization state.
+    """
+    return AxisExtentConfig(
+        mode='dataBounds' if extent.mode == 'data_bounds' else extent.mode,
+        lowerBound=extent.min,
+        upperBound=extent.max,
+        enforce=extent.enforce,
+        niceValues=extent.nice_values,
+    )
+
+
+def _extract_axis_config(
+    axis_config: AxisConfig | None,
+) -> tuple[str | None, Literal['linear', 'log', 'sqrt', 'time'] | None, AxisExtentConfig | None]:
+    """Extract axis configuration (title, scale, extent) from an AxisConfig.
+
+    Args:
+        axis_config: The axis configuration object (or None).
+
+    Returns:
+        Tuple of (title, scale, extent) where each can be None.
+    """
+    if axis_config is None:
+        return None, None, None
+
+    title = axis_config.title
+    scale = axis_config.scale
+    extent = _convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None
+
+    return title, scale, extent
 
 
 def compile_lens_reference_line_layer(
@@ -187,6 +234,52 @@ def compile_xy_chart_visualization_state(
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
+    # Build yConfig from series configuration if provided
+    y_config: list[YConfig] | None = None
+    if chart.appearance is not None and chart.appearance.series is not None:
+        y_config = []
+        for series_cfg in chart.appearance.series:
+            # Only create YConfig if at least one property is set
+            if any(
+                v is not None
+                for v in (
+                    series_cfg.axis,
+                    series_cfg.color,
+                )
+            ):
+                y_config.append(
+                    YConfig(
+                        forAccessor=series_cfg.metric_id,
+                        axisMode=series_cfg.axis,
+                        color=series_cfg.color,
+                    )
+                )
+
+    # Build axis configuration from appearance settings
+    x_title = None
+    x_scale = None
+    y_left_title = None
+    y_right_title = None
+    y_left_scale = None
+    y_right_scale = None
+    y_left_extent = None
+    y_right_extent = None
+    x_extent = None
+
+    if chart.appearance is not None:
+        x_title, x_scale, x_extent = _extract_axis_config(chart.appearance.x_axis)
+        y_left_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
+        y_right_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
+
+    # Build axisTitlesVisibilitySettings if any titles are set
+    axis_titles_visibility = None
+    if x_title is not None or y_left_title is not None or y_right_title is not None:
+        axis_titles_visibility = AxisTitlesVisibilitySettings(
+            x=x_title is not None,
+            yLeft=y_left_title is not None,
+            yRight=y_right_title is not None,
+        )
+
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
         accessors=metric_ids,
@@ -197,6 +290,8 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
+        yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
+        xScaleType=x_scale,
     )
 
     # Configure legend
@@ -214,6 +309,16 @@ def compile_xy_chart_visualization_state(
         layers=[kbn_layer_visualization],
         legend={'isVisible': legend_visible, 'position': legend_position},
         valueLabels='hide',
+        xTitle=x_title,
+        yTitle=y_left_title,  # Legacy field for backward compatibility - Kibana requires both yTitle and yLeftTitle
+        yLeftTitle=y_left_title,
+        yRightTitle=y_right_title,
+        yLeftScale=y_left_scale,
+        yRightScale=y_right_scale,
+        xExtent=x_extent,
+        yLeftExtent=y_left_extent,
+        yRightExtent=y_right_extent,
+        axisTitlesVisibilitySettings=axis_titles_visibility,
     )
 
 

@@ -373,7 +373,6 @@ async def test_reference_line_single() -> None:
             'fill': 'above',
             'icon': 'alert',
             'iconPosition': 'auto',
-            'textVisibility': None,
             'axisMode': 'left',
         }
     )
@@ -464,23 +463,13 @@ async def test_reference_line_layer_multiple_lines() -> None:
                     {
                         'forAccessor': 'threshold-low',
                         'color': '#00FF00',
-                        'lineWidth': None,
                         'lineStyle': 'solid',
-                        'fill': None,
-                        'icon': None,
-                        'iconPosition': None,
-                        'textVisibility': None,
                         'axisMode': 'left',
                     },
                     {
                         'forAccessor': 'threshold-high',
                         'color': '#FF0000',
-                        'lineWidth': None,
                         'lineStyle': 'dashed',
-                        'fill': None,
-                        'icon': None,
-                        'iconPosition': None,
-                        'textVisibility': None,
                         'axisMode': 'left',
                     },
                     {
@@ -488,10 +477,6 @@ async def test_reference_line_layer_multiple_lines() -> None:
                         'color': '#FF00FF',
                         'lineWidth': 3.0,
                         'lineStyle': 'dotted',
-                        'fill': None,
-                        'icon': None,
-                        'iconPosition': None,
-                        'textVisibility': None,
                         'axisMode': 'left',
                     },
                 ],
@@ -634,3 +619,154 @@ async def test_xy_chart_with_legend_bottom_position() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'bottom'})
+
+
+async def test_dual_axis_chart() -> None:
+    """Test dual Y-axis chart with per-series configuration.
+
+    Uses the new series-based configuration structure where visual properties
+    are defined in the appearance.series section, separate from metric definitions.
+    """
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [
+            {'aggregation': 'count', 'id': 'metric1'},
+            {'aggregation': 'average', 'field': 'error_rate', 'id': 'metric2'},
+        ],
+        'appearance': {
+            'y_left_axis': {'title': 'Count', 'scale': 'linear'},
+            'y_right_axis': {'title': 'Error Rate (%)', 'scale': 'linear'},
+            'series': [
+                {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3'},
+                {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252'},
+            ],
+        },
+    }
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Test layer configuration
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': ['metric1', 'metric2'],
+            'layerType': 'data',
+            'seriesType': 'line',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'yConfig': [
+                {'forAccessor': 'metric1', 'axisMode': 'left', 'color': '#2196F3'},
+                {'forAccessor': 'metric2', 'axisMode': 'right', 'color': '#FF5252'},
+            ],
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    # Test axis configuration
+    assert kbn_state_visualization.yTitle == 'Count'  # Legacy field for backward compatibility
+    assert kbn_state_visualization.yLeftTitle == 'Count'
+    assert kbn_state_visualization.yRightTitle == 'Error Rate (%)'
+    assert kbn_state_visualization.yLeftScale == 'linear'
+    assert kbn_state_visualization.yRightScale == 'linear'
+
+    # Test axis title visibility settings
+    assert kbn_state_visualization.axisTitlesVisibilitySettings is not None
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.x is False
+
+
+async def test_styled_series_chart() -> None:
+    """Test chart with styled series using the new series configuration.
+
+    Uses the series-based configuration where visual properties like color
+    are defined in the appearance.series section.
+    """
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'metrics': [
+            {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1'},
+            {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2'},
+        ],
+        'appearance': {
+            'series': [
+                {'metric_id': 'metric1', 'color': '#4CAF50'},
+                {'metric_id': 'metric2', 'color': '#FF9800'},
+            ],
+        },
+    }
+
+    lens_chart = LensAreaChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': ['metric1', 'metric2'],
+            'layerType': 'data',
+            'seriesType': 'area',
+            'xAccessor': '451e4374-f869-4ee9-8569-3092cd16ac18',
+            'position': 'top',
+            'showGridlines': False,
+            'yConfig': [
+                {'forAccessor': 'metric1', 'color': '#4CAF50'},
+                {'forAccessor': 'metric2', 'color': '#FF9800'},
+            ],
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+
+async def test_axis_extent_configuration() -> None:
+    """Test axis extent/bounds configuration for custom axis ranges."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'x_axis': {'title': 'Time', 'extent': {'mode': 'custom', 'min': 0, 'max': 100, 'enforce': True}},
+            'y_left_axis': {'title': 'Count', 'extent': {'mode': 'data_bounds'}},
+        },
+    }
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    # Verify extent compilation for x-axis (custom bounds)
+    assert kbn_state_visualization.xExtent is not None
+    assert kbn_state_visualization.xExtent.mode == 'custom'
+    assert kbn_state_visualization.xExtent.lowerBound == 0
+    assert kbn_state_visualization.xExtent.upperBound == 100
+    assert kbn_state_visualization.xExtent.enforce is True
+
+    # Verify extent compilation for y-axis (data bounds)
+    assert kbn_state_visualization.yLeftExtent is not None
+    assert kbn_state_visualization.yLeftExtent.mode == 'dataBounds'
+
+    # Verify axis titles (including legacy yTitle field)
+    assert kbn_state_visualization.yTitle == 'Count'  # Legacy field for backward compatibility
+    assert kbn_state_visualization.yLeftTitle == 'Count'
+
+    # Verify axis title visibility settings
+    assert kbn_state_visualization.axisTitlesVisibilitySettings is not None
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.x is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is False

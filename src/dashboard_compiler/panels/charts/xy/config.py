@@ -1,6 +1,6 @@
 from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -70,8 +70,73 @@ class XYLegend(BaseCfgModel):
     )
 
 
+class AxisExtent(BaseCfgModel):
+    """Represents axis extent (bounds) configuration for XY chart axes.
+
+    Controls the range of values displayed on an axis. Can be set to:
+    - 'full': Use the full extent of the data
+    - 'custom': Specify custom bounds with min/max values
+    - 'data_bounds': Fit to the actual data bounds
+    """
+
+    mode: Literal['full', 'custom', 'data_bounds'] = Field(default='full')
+    """The extent mode for the axis. Defaults to 'full'."""
+
+    min: float | None = Field(default=None)
+    """Minimum value for the axis (only used when mode is 'custom')."""
+
+    max: float | None = Field(default=None)
+    """Maximum value for the axis (only used when mode is 'custom')."""
+
+    enforce: bool | None = Field(default=None)
+    """Whether to enforce the bounds strictly. Defaults to false."""
+
+    nice_values: bool | None = Field(default=None)
+    """Whether to use nice rounded values for bounds. Defaults to true."""
+
+    @model_validator(mode='after')
+    def validate_custom_bounds(self) -> Self:
+        """Validate that custom mode has both min and max bounds specified.
+
+        Kibana requires both bounds to be set when using custom mode.
+        """
+        if self.mode == 'custom' and (self.min is None or self.max is None):
+            msg = "mode='custom' requires both 'min' and 'max' to be specified"
+            raise ValueError(msg)
+        return self
+
+
+class AxisConfig(BaseCfgModel):
+    """Represents configuration for a single axis in XY charts."""
+
+    title: str | None = Field(default=None)
+    """Custom title for the axis."""
+
+    scale: Literal['linear', 'log', 'sqrt', 'time'] | None = Field(default=None)
+    """Scale type for the axis. Defaults to 'linear'."""
+
+    extent: AxisExtent | None = Field(default=None)
+    """Extent/bounds configuration for the axis."""
+
+
 class XYAppearance(BaseCfgModel):
-    """Represents chart appearance formatting options for XY charts."""
+    """Represents chart appearance formatting options for XY charts.
+
+    Includes axis configuration for left Y-axis, right Y-axis, and X-axis,
+    as well as per-series visual styling.
+    """
+
+    x_axis: AxisConfig | None = Field(default=None)
+    """Configuration for the X-axis."""
+
+    y_left_axis: AxisConfig | None = Field(default=None)
+    """Configuration for the left Y-axis."""
+
+    y_right_axis: AxisConfig | None = Field(default=None)
+    """Configuration for the right Y-axis."""
+
+    series: list['XYSeries'] | None = Field(default=None)
+    """Per-series visual configuration (axis assignment, colors, line styles, etc.)."""
 
 
 class BarChartAppearance(BaseCfgModel):
@@ -99,6 +164,23 @@ class AreaChartAppearance(LineChartAppearance):
 
 class XYTitlesAndText(BaseCfgModel):
     """Represents titles and text formatting options for XY charts."""
+
+
+class XYSeries(BaseCfgModel):
+    """Represents per-series visual configuration for XY charts.
+
+    Defines how a specific metric should be displayed, including axis assignment
+    and color customization.
+    """
+
+    metric_id: str = Field(...)
+    """The ID of the metric this series configuration applies to."""
+
+    axis: Literal['left', 'right'] | None = Field(default=None)
+    """Which Y-axis to assign this series to ('left' or 'right')."""
+
+    color: str | None = Field(default=None)
+    """Custom color for this series (hex color code, e.g., '#2196F3')."""
 
 
 class BaseXYChart(BaseChart):

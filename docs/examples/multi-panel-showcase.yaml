@@ -3,27 +3,28 @@ dashboards:
   - name: '[Example] Multi-Panel Showcase'
     description: Comprehensive example demonstrating all available panel types and chart variations
     panels:
-      # Panel 1: Markdown Panel (Introduction)
       - title: Multi-Panel Dashboard Showcase
         hide_title: false
         description: Introduction panel showing markdown capabilities
-        grid: {x: 0, y: 0, w: 48, h: 6}
+        grid:
+          x: 0
+          y: 0
+          w: 48
+          h: 6
         markdown:
-          content: |
-            # Welcome to the Multi-Panel Showcase
-            This dashboard demonstrates all supported panel types in the kb-yaml-to-lens compiler:
-            - **Markdown panels** - Rich text content with formatting
-            - **Links panels** - Navigation to dashboards and external URLs
-            - **Chart panels** - Multiple visualization types (Metric, Pie, Line, Bar, Area, Tagcloud)
-            _Note: Image panels are defined in the schema but compilation is not yet implemented._
-            Use this as a reference for building your own dashboards!
+          content: "# Welcome to the Multi-Panel Showcase\nThis dashboard demonstrates all supported panel types in the kb-yaml-to-lens compiler:\n\
+            - **Markdown panels** - Rich text content with formatting\n- **Links panels** - Navigation to dashboards and external URLs\n- **Chart\
+            \ panels** - Multiple visualization types (Metric, Pie, Line, Bar, Area, Tagcloud)\n_Note: Image panels are defined in the schema\
+            \ but compilation is not yet implemented._\nUse this as a reference for building your own dashboards!\n"
           font_size: 12
           links_in_new_tab: true
-
-      # Panel 2: Links Panel
       - title: Quick Links
         description: Example links panel with horizontal layout
-        grid: {x: 0, y: 6, w: 48, h: 3}
+        grid:
+          x: 0
+          y: 6
+          w: 48
+          h: 3
         links:
           layout: horizontal
           links:
@@ -33,24 +34,26 @@ dashboards:
               url: https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
             - label: Project Repository
               url: https://github.com/strawgate/kb-yaml-to-lens
-
-      # Panel 3: Metric Chart
-      - type: charts
-        title: Total Document Count
+      - title: Total Document Count
         description: Simple metric chart showing total count
-        grid: {x: 0, y: 9, w: 24, h: 10}
-        chart:
+        grid:
+          x: 0
+          y: 9
+          w: 24
+          h: 10
+        lens:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
-
-      # Panel 4: Pie Chart
-      - type: charts
-        title: Distribution by Log Level
+      - title: Distribution by Log Level
         description: Pie chart showing categorical distribution
-        grid: {x: 24, y: 9, w: 24, h: 15}
-        chart:
+        grid:
+          x: 24
+          y: 9
+          w: 24
+          h: 15
+        lens:
           type: pie
           data_view: logs-*
           slice_by:
@@ -59,13 +62,14 @@ dashboards:
               size: 10
           metric:
             aggregation: count
-
-      # Panel 5: Line Chart (Time Series)
-      - type: charts
-        title: Events Over Time
+      - title: Events Over Time
         description: Line chart showing time series data
-        grid: {x: 0, y: 24, w: 24, h: 15}
-        chart:
+        grid:
+          x: 0
+          y: 24
+          w: 24
+          h: 15
+        lens:
           type: line
           data_view: logs-*
           dimensions:
@@ -73,13 +77,14 @@ dashboards:
               field: '@timestamp'
           metrics:
             - aggregation: count
-
-      # Panel 6: Bar Chart (Horizontal)
-      - type: charts
-        title: Top Hosts by Event Count
+      - title: Top Hosts by Event Count
         description: Horizontal bar chart with breakdown
-        grid: {x: 24, y: 24, w: 24, h: 15}
-        chart:
+        grid:
+          x: 24
+          y: 24
+          w: 24
+          h: 15
+        lens:
           type: bar
           mode: stacked
           data_view: logs-*
@@ -88,13 +93,14 @@ dashboards:
               field: host.name
           metrics:
             - aggregation: count
-
-      # Panel 7: Area Chart
-      - type: charts
-        title: Cumulative Events
+      - title: Cumulative Events
         description: Area chart showing cumulative trends over time
-        grid: {x: 0, y: 39, w: 24, h: 15}
-        chart:
+        grid:
+          x: 0
+          y: 39
+          w: 24
+          h: 15
+        lens:
           type: area
           mode: stacked
           data_view: logs-*
@@ -106,13 +112,14 @@ dashboards:
           breakdown:
             type: values
             field: log.level
-
-      # Panel 8: Tagcloud Chart
-      - type: charts
-        title: Common Tags Word Cloud
+      - title: Common Tags Word Cloud
         description: Tagcloud visualization showing weighted terms
-        grid: {x: 24, y: 39, w: 24, h: 15}
-        chart:
+        grid:
+          x: 24
+          y: 39
+          w: 24
+          h: 15
+        lens:
           type: tagcloud
           data_view: logs-*
           tags:
