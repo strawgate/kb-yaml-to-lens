@@ -83,7 +83,7 @@ These fields are available for all panel types and are inherited from the `BaseP
 
 ### Grid Object Configuration (`grid`)
 
-The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard is typically a 12-column grid, but `w` and `h` are unitless and relative to this grid system.
+The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard uses a 48-column grid, and `w` and `h` are unitless and relative to this grid system.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------------------------------ | -------------- | -------- |
@@ -102,15 +102,15 @@ The `grid` object is required for every panel and defines its placement and dime
 #     grid:
 #       x: 0  # Starts at the far left
 #       y: 0  # Starts at the very top
-#       w: 6  # Occupies 6 out of 12 columns (half width)
+#       w: 24 # Occupies 24 out of 48 columns (half width)
 #       h: 5  # Height of 5 grid units
 #     content: "..."
 #   - type: lens_metric
 #     title: "Top Right Panel"
 #     grid:
-#       x: 6  # Starts at the 7th column (0-indexed)
+#       x: 24 # Starts at the 25th column (0-indexed)
 #       y: 0  # Starts at the very top
-#       w: 6  # Occupies the remaining 6 columns
+#       w: 24 # Occupies the remaining 24 columns
 #       h: 5  # Same height
 #     # ... lens configuration ...
 ```

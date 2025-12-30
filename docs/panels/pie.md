@@ -38,7 +38,7 @@ dashboards:
     panels:
       - type: charts
         title: "Website Traffic Sources"
-        grid: { x: 0, y: 0, w: 6, h: 6 }
+        grid: { x: 0, y: 0, w: 24, h: 6 }
         chart:
           type: pie
           data_view: "traffic-data"
@@ -70,24 +70,24 @@ dashboards:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------- | ----------------------------------------------- | ------------------------------------------------------------------ | ------- | -------- |
-| `donut` | `Literal['small', 'medium', 'large'] \| None` | Controls the size of the donut hole (Kibana defaults to 'medium'). | `None` | No |
+| `donut` | `Literal['small', 'medium', 'large'] \| None` | Controls the size of the donut hole. If not specified, Kibana displays as a pie chart (no donut hole). | `None` | No |
 
 #### PieTitlesAndText Options
 
 | YAML Key | Data Type | Description | Default | Required |
 | ---------------------- | ------------------------------------------------- | ----------------------------------------------------------------- | ------- | -------- |
-| `slice_labels` | `Literal['hide', 'inside', 'auto'] \| None` | Controls slice label visibility (Kibana defaults to 'auto'). | `None` | No |
-| `slice_values` | `Literal['hide', 'integer', 'percent'] \| None` | Controls slice value display (Kibana defaults to 'percent'). | `None` | No |
-| `value_decimal_places` | `int \| None` | Number of decimal places for values (0-10, Kibana defaults to 2). | `None` | No |
+| `slice_labels` | `Literal['hide', 'inside', 'auto'] \| None` | Controls slice label visibility. | `None` | No |
+| `slice_values` | `Literal['hide', 'integer', 'percent'] \| None` | Controls slice value display. | `None` | No |
+| `value_decimal_places` | `int \| None` | Number of decimal places for values (0-10). | `None` | No |
 
 #### PieLegend Options
 
 | YAML Key | Data Type | Description | Default | Required |
-| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------- | -------- |
-| `visible` | `Literal['show', 'hide', 'auto'] \| None` | Legend visibility (Kibana defaults to 'auto'). | `None` | No |
-| `width` | `Literal['small', 'medium', 'large', 'extra_large'] \| None` | Legend width (Kibana defaults to 'medium'). | `None` | No |
-| `truncate_labels` | `int \| None` | Lines to truncate labels to (0-5, Kibana defaults to 1, 0=disable). | `None` | No |
-| `nested` | `bool \| None` | Show legend in nested format for multi-level pie charts (Kibana defaults to false). | `None` | No |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- | ------- | -------- |
+| `visible` | `Literal['show', 'hide', 'auto'] \| None` | Legend visibility. | `None` | No |
+| `width` | `Literal['small', 'medium', 'large', 'extra_large'] \| None` | Legend width. | `None` | No |
+| `truncate_labels` | `int \| None` | Lines to truncate labels to (0-5, 0=disable). | `None` | No |
+| `nested` | `bool \| None` | Show legend in nested format for multi-level pie charts. | `None` | No |
 
 ### ESQL Pie Chart
 
