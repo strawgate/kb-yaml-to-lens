@@ -27,9 +27,9 @@ npm install
 npm run watch  # Start watch mode
 # Press F5 in VS Code to launch Extension Development Host
 
-# Before committing
-npm run lint
-npm run compile
+# Before committing (from repository root)
+make fix  # Auto-fix all linting issues
+make ci   # Run all CI checks (linting + typecheck + tests)
 ```
 
 ---

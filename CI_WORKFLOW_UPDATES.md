@@ -17,6 +17,7 @@ The Makefile has been restructured to provide clear, simple commands for CI and 
 ### 1. Update `.github/workflows/test.yml`
 
 **Current state:**
+
 - Separate jobs for `lint` and `typecheck`
 - Only runs Python linting (`lint-check`, `format-check`)
 - Missing: Markdown linting, YAML linting
@@ -121,7 +122,7 @@ This single job runs: `lint-all-check + typecheck + test-all`
 ## Command Reference
 
 | Old Pattern | New Command | Purpose |
-|-------------|-------------|---------|
+| ------------- | ------------- | --------- |
 | `make lint-check && make format-check` | `make lint-all-check` | Check all linting |
 | `make test && make test-smoke && ...` | `make test-all` | Run all tests |
 | `make lint-check && make typecheck && make test` | `make ci` | Run all CI checks |
