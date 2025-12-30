@@ -1,24 +1,22 @@
+---
 name: Deploy MkDocs to GitHub Pages
-
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - 'src/**'
-      - '.github/workflows/docs.yml'
-  workflow_dispatch:
-
+      - docs/**
+      - mkdocs.yml
+      - src/**
+      - .github/workflows/docs.yml
+  workflow_dispatch: null
 permissions:
   contents: read
   pages: write
   id-token: write
-
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -28,28 +26,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-
       - name: Install documentation dependencies
         run: |
           uv sync --group docs
-
       - name: Compile documentation reference
         run: make compile-docs
-
       - name: Build documentation
         run: make docs-build
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'site'
-
+          path: site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

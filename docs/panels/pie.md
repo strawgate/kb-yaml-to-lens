@@ -2,20 +2,52 @@
 
 The Pie chart panel visualizes data as a pie or donut chart, useful for showing proportions of a whole.
 
+## A Poem for the Proportion Perfectionists
+
+_For those who love a good slice of data:_
+
+```text
+Round and round the data goes,
+Each slice sized by what it shows.
+Pie or donut, take your pick,
+Small or large, or medium-thick!
+
+When you need to see the shares,
+How traffic splits between the pairs,
+Which service takes the biggest slice,
+Your pie chart makes it clear and nice.
+
+"Inside" or "auto" for the labels,
+"Percent" or "integer" on the tables,
+Legend positioned left or right,
+Colors making categories bright.
+
+From traffic sources to error types,
+Status codes and payment stripes,
+Every portion of the whole,
+Displayed to help you reach your goal!
+```
+
+---
+
 ## Minimal Configuration Example
 
 ```yaml
 dashboards:
--
-  name: "Traffic Sources"
-  panels:
-    - type: pie
-      title: "Website Traffic Sources"
-      grid: { x: 0, y: 0, w: 6, h: 6 }
-      data:
-        index: "traffic-data"
-        category: "source"
-        value: "visits"
+  - name: "Traffic Sources"
+    panels:
+      - type: charts
+        title: "Website Traffic Sources"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "traffic-data"
+          slice_by:
+            - field: "source"
+              type: values
+          metric:
+            aggregation: sum
+            field: visits
 ```
 
 ## Full Configuration Options

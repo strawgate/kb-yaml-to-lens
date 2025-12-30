@@ -2,34 +2,50 @@
 
 The `search` panel type is used to embed the results of a pre-existing, saved Kibana search directly onto your dashboard. This allows you to display dynamic log views, event lists, or any other data set defined by a saved search in Discover.
 
+## A Poem for the Log Detectives
+
+_For those who hunt through haystacks for needles:_
+
+```text
+Saved searches from Discover's land,
+Embedded on dashboards, close at hand.
+No need to navigate away,
+Your logs are right here on display!
+
+Critical alerts from the last day,
+Security incidents on full replay,
+System logs in columns neat,
+Making investigations complete.
+
+saved_search_id is all you need,
+To bring your query's results with speed.
+Columns sorted, filters applied,
+All your search configs right inside.
+
+From error logs to audit trails,
+Your search panel never fails.
+Dynamic views that auto-update,
+Helping you investigate and compute!
+```
+
+---
+
 ## Minimal Configuration Example
 
 To add a Search panel, you need to specify its `type`, `grid` position, and the `saved_search_id`.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: search
-#   title: "All System Logs"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 12 # Full width
-#     h: 10 # Height of 10 grid units
-#   saved_search_id: "your-saved-search-id" # Replace with the actual ID
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Log Monitoring Dashboard"
-  panels:
-    - type: search
-      title: "All System Logs"
-      grid:
-        x: 0
-        y: 0
-        w: 12
-        h: 10
-      saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
+  - name: "Log Monitoring Dashboard"
+    panels:
+      - type: search
+        title: "All System Logs"
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 10
+        saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
 ```
 
 ## Complex Configuration Example (Illustrative)
@@ -38,19 +54,18 @@ Search panels primarily rely on the configuration of the saved search itself (co
 
 ```yaml
 dashboards:
--
-  name: "Security Incidents Overview"
-  panels:
-    - type: search
-      # Title is defined in the saved search, so we hide the panel's own title
-      hide_title: true
-      description: "Displays critical security alerts from the last 24 hours, as defined in the 'Critical Alerts' saved search."
-      grid:
-        x: 0
-        y: 0
-        w: 12
-        h: 8
-      saved_search_id: "critical-security-alerts-saved-search"
+  - name: "Security Incidents Overview"
+    panels:
+      - type: search
+        # Title is defined in the saved search, so we hide the panel's own title
+        hide_title: true
+        description: "Displays critical security alerts from the last 24 hours, as defined in the 'Critical Alerts' saved search."
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8
+        saved_search_id: "critical-security-alerts-saved-search"
 ```
 
 ## Full Configuration Options

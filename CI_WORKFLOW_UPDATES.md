@@ -1,135 +1,162 @@
-# Recommended CI Workflow Updates
+# CI Workflow Updates Required
 
-This document describes the recommended updates to CI workflows to use the new Makefile targets. These changes could not be applied automatically due to GitHub App permissions restrictions on `.github/workflows/` files.
+This document describes the CI workflow changes needed to align with the new Makefile structure.
 
-## Benefits
+## Summary of Changes
 
-- **Consistency**: CI runs the same commands developers run locally
-- **Maintainability**: Changes to linting/testing commands only need to be made in the Makefile
-- **Simplicity**: Single source of truth for all build/test/lint commands
+The Makefile has been restructured to provide clear, simple commands for CI and development:
 
-## Recommended Changes
+- **`make ci`** - Run all CI checks (linting + type checking + tests) - useful for local pre-commit checks
+- **`make check`** - Alias for `make ci`
+- **`make fix`** - Auto-fix all linting issues
+- **`make lint-all-check`** - Check all linting (Python + Markdown + YAML)
+- **`make test-all`** - Run all tests (unit + smoke + links + extension)
 
-### 1. `.github/workflows/test.yml`
+## CI Philosophy: Individual Checks for Clear Reporting
 
-**Current:**
+**IMPORTANT:** CI should run **individual jobs** that report separately, not a single monolithic job.
 
-```yaml
-- name: Run pytest
-  run: |
-    uv run pytest -v
+**Why?** When CI fails, GitHub shows which specific job failed, making it immediately obvious what broke (linting vs typecheck vs tests) without having to dig through workflow logs.
 
-- name: Run smoke tests
-  run: |
-    uv run kb-dashboard --help
-```
+**Note:** While `make ci` runs everything in one command (useful for local pre-commit checks), CI workflows should use granular jobs.
 
-**Recommended:**
+## Required Workflow Updates
 
-```yaml
-- name: Run pytest
-  run: make test
+### Update `.github/workflows/test.yml`
 
-- name: Run smoke tests
-  run: make test-smoke
-```
+**Current state:**
 
----
+- ✅ Separate jobs for `lint`, `typecheck`, and `test` (good!)
+- ❌ Only runs Python linting (`lint-check`, `format-check`)
+- ❌ Missing: Markdown linting, YAML linting
 
-**Current:**
+**Recommended changes:**
+
+Keep the individual job structure but update to use new Makefile commands:
+
+#### 1. Update `lint` job to include all linting
 
 ```yaml
-- name: Run linting
-  run: |
-    uv run ruff check .
-    uv run ruff format . --check
-```
-
-**Recommended:**
-
-```yaml
-- name: Run linting
-  run: make lint-check
-
-- name: Check formatting
-  run: make format-check
-```
-
----
-
-**Current:**
-
-```yaml
-- name: Run type checking
-  run: |
-    uv run basedpyright
-```
-
-**Recommended:**
-
-```yaml
-- name: Run type checking
-  run: make typecheck
-```
-
-### 2. `.github/workflows/test-vscode-extension.yml`
-
-**Current:**
-
-```yaml
-- name: Run Python tests for extension
-  run: |
-    uv run python -m pytest vscode-extension/python/test_*.py -v
-```
-
-**Recommended:**
-
-```yaml
-- name: Run Python tests for extension
-  run: make test-extension-python
-```
-
-### 3. `.github/workflows/docs.yml`
-
-**Current:**
-
-```yaml
-- name: Build and deploy documentation
-  run: |
-    uv run python scripts/compile_docs.py
-    uv run --group docs mkdocs gh-deploy --force
-```
-
-**Recommended:**
-
-```yaml
-- name: Build and deploy documentation
-  run: make docs-deploy
-```
-
-## Optional: Comprehensive Check
-
-You could also add a single comprehensive check job that runs everything:
-
-```yaml
-comprehensive-check:
+lint:
   runs-on: ubuntu-latest
   steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-
-  - name: Setup Python Environment
-    uses: ./.github/actions/setup-python-env
-
-  - name: Run comprehensive validation
-    run: make check
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
+    - name: Install Node.js for markdownlint
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install markdownlint
+      run: npm install -g markdownlint-cli
+    - name: Run all linting checks
+      run: make lint-all-check
 ```
 
-This would run all validation (lint-check, format-check, lint-markdown-check, typecheck, test, test-links, test-smoke, test-extension-python, test-extension-typescript) in a single job.
+#### 2. Keep `typecheck` job as-is
 
-## Implementation Notes
+```yaml
+typecheck:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
+    - name: Run type checking
+      run: make typecheck
+```
 
-1. These changes require manual updates by a repository maintainer with workflow permissions
-2. The Makefile targets are already tested and working
-3. CI behavior will remain identical - these changes only improve maintainability
-4. Consider testing on a non-main branch first before deploying to production workflows
+#### 3. Update `test` job (choose one approach)
+
+**Option A: Keep granular test steps** (shows which test type failed)
+
+```yaml
+test:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
+    - name: Run pytest
+      run: make test
+    - name: Run smoke tests
+      run: make test-smoke
+    - name: Run link tests
+      run: make test-links
+```
+
+**Option B: Use `make test-all`** (simpler, but less granular reporting)
+
+```yaml
+test:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Python Environment
+      uses: ./.github/actions/setup-python-env
+    - name: Install Node.js for extension tests
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Run all tests
+      run: make test-all
+```
+
+## Benefits of New Structure
+
+1. **Clear Reporting**: Individual CI jobs show exactly which check failed
+2. **Completeness**: All linters (Python, Markdown, YAML) are checked
+3. **Consistency**: CI jobs use the same commands developers run locally
+4. **Clarity**: Commands have clear, obvious purposes
+
+## Command Reference
+
+| Use Case | Command | Purpose |
+| ------------- | ------------- | --------- |
+| **Local pre-commit check** | `make ci` or `make check` | Run all checks (lint-all-check + typecheck + test-all) |
+| **CI lint job** | `make lint-all-check` | Check all linting (Python + Markdown + YAML) |
+| **CI typecheck job** | `make typecheck` | Run type checking with basedpyright |
+| **CI test job** | `make test-all` OR individual test commands | Run all tests or specific test types |
+| **Fix linting locally** | `make fix` | Auto-fix all linting issues |
+
+## Migration Checklist for Copilot
+
+**Specific changes needed in `.github/workflows/test.yml`:**
+
+1. **In the `lint` job (starting at line 22):**
+   - After line 28 (after `uses: ./.github/actions/setup-python-env`), add:
+
+     ```yaml
+     - name: Install Node.js for markdownlint
+       uses: actions/setup-node@v4
+       with:
+         node-version: '20'
+     - name: Install markdownlint
+       run: npm install -g markdownlint-cli
+     ```
+
+   - Replace lines 29-32 (the two make commands) with:
+
+     ```yaml
+     - name: Run all linting checks
+       run: make lint-all-check
+     ```
+
+2. **The `typecheck` job (lines 33-41):** Keep as-is, no changes needed.
+
+3. **The `test` job (lines 11-21):** No changes needed (already runs individual test commands).
+
+## YAML Linting Issues to Fix
+
+The new `make lint-all-check` command revealed YAML linting issues in workflow files:
+
+1. **`.github/workflows/claude-on-issue-mention.yml`**: Lines 29, 31 too long
+2. **`.github/workflows/claude-on-open-label.yml`**: Lines 99-100, 106-107, 113 too long
+3. **`.github/workflows/claude-on-mention.yml`**: Lines 22-24, 29 too long
+4. **`inputs/aerospike-namespace-metrics/metrics-aerospike-namespace-metrics.yaml`**: Line 142 comment indentation
+
+These should be fixed to ensure `make ci` passes cleanly locally, but are not blocking for CI workflows (which will use `make lint-all-check` only after Copilot updates the test.yml workflow).
