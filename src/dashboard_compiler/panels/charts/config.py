@@ -44,43 +44,44 @@ class LensPanelFieldsMixin(BaseCfgModel):
     layers: list['MultiLayerChartTypes'] | None = Field(default=None)
     """Optional additional layers for multi-layer charts."""
 
-    @field_validator('layers', mode='after')
-    @classmethod
-    def validate_layers(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
-        """Validate that reference line layers are only used with XY charts.
-
-        Args:
-            layers: The list of layers to validate.
-
-        Returns:
-            The list of layers.
-        """
-        if layers is None:
-            return layers
-
-        # Check if reference lines are used with compatible charts
-        has_ref_line = any(isinstance(layer, LensReferenceLineLayer) for layer in layers)
-        if has_ref_line:
-            # Reference lines can only be used as additional layers on XY charts
-            # The base chart type is not available in this validator, but we can check
-            # that reference lines are not the only layers
-            if all(isinstance(layer, LensReferenceLineLayer) for layer in layers):
-                msg = 'Reference line layers cannot be used alone, they must be combined with an XY chart'
-                raise ValueError(msg)
-
-        return layers
-
 
 class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
     """Configuration for a Lens metric panel."""
+
+    @field_validator('layers', mode='after')
+    @classmethod
+    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
+        """Validate that reference lines are not used with metric charts."""
+        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
+            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
+            raise ValueError(msg)
+        return layers
 
 
 class LensGaugePanelConfig(LensGaugeChart, LensPanelFieldsMixin):
     """Configuration for a Lens gauge panel."""
 
+    @field_validator('layers', mode='after')
+    @classmethod
+    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
+        """Validate that reference lines are not used with gauge charts."""
+        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
+            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
+            raise ValueError(msg)
+        return layers
+
 
 class LensPiePanelConfig(LensPieChart, LensPanelFieldsMixin):
     """Configuration for a Lens pie panel."""
+
+    @field_validator('layers', mode='after')
+    @classmethod
+    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
+        """Validate that reference lines are not used with pie charts."""
+        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
+            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
+            raise ValueError(msg)
+        return layers
 
 
 class LensLinePanelConfig(LensLineChart, LensPanelFieldsMixin):
@@ -97,6 +98,15 @@ class LensAreaPanelConfig(LensAreaChart, LensPanelFieldsMixin):
 
 class LensTagcloudPanelConfig(LensTagcloudChart, LensPanelFieldsMixin):
     """Configuration for a Lens tagcloud panel."""
+
+    @field_validator('layers', mode='after')
+    @classmethod
+    def validate_no_reference_lines(cls, layers: list['MultiLayerChartTypes'] | None) -> list['MultiLayerChartTypes'] | None:
+        """Validate that reference lines are not used with tagcloud charts."""
+        if layers and any(isinstance(layer, LensReferenceLineLayer) for layer in layers):
+            msg = 'Reference line layers can only be used with XY chart visualizations (line, bar, area)'
+            raise ValueError(msg)
+        return layers
 
 
 type LensPanelConfig = Annotated[
