@@ -555,20 +555,19 @@ async def test_reference_line_layer_without_ids() -> None:
 
     # Validate basic structure
     accessor_ids = list(columns.keys())
-    assert (
-        isinstance(layer_id, str),
-        len(ref_layers),
-        len(columns),
-        # All accessor IDs should be unique (no collisions)
-        len(accessor_ids) == len(set(accessor_ids)),
-        # Accessor IDs should not be the layer_id (they should be generated)
-        all(accessor_id != layer_id for accessor_id in accessor_ids),
-        # Column values should be correct
-        sorted([col.params.value for col in columns.values()]),
-        # The single layer has all 3 accessors
-        len(ref_layers[0].accessors),
-        len(ref_layers[0].yConfig) if ref_layers[0].yConfig is not None else 0,
-    ) == (True, 1, 3, True, True, ['100.0', '200.0', '300.0'], 3, 3)
+    assert isinstance(layer_id, str)
+    assert len(ref_layers) == 1
+    assert len(columns) == 3
+    # All accessor IDs should be unique (no collisions)
+    assert len(accessor_ids) == len(set(accessor_ids))
+    # Accessor IDs should not be the layer_id (they should be generated)
+    assert all(accessor_id != layer_id for accessor_id in accessor_ids)
+    # Column values should be correct
+    assert sorted([col.params.value for col in columns.values()]) == ['100.0', '200.0', '300.0']
+    # The single layer has all 3 accessors
+    assert len(ref_layers[0].accessors) == 3
+    assert ref_layers[0].yConfig is not None
+    assert len(ref_layers[0].yConfig) == 3
 
 
 async def test_reference_line_layer_empty() -> None:
@@ -581,13 +580,12 @@ async def test_reference_line_layer_empty() -> None:
     layer_id, columns, ref_layers = compile_lens_reference_line_layer(layer_config)
 
     # Validate empty layer structure
-    assert (
-        isinstance(layer_id, str),
-        len(columns),
-        len(ref_layers),
-        len(ref_layers[0].accessors),
-        len(ref_layers[0].yConfig) if ref_layers[0].yConfig is not None else 0,
-    ) == (True, 0, 1, 0, 0)
+    assert isinstance(layer_id, str)
+    assert len(columns) == 0
+    assert len(ref_layers) == 1
+    assert len(ref_layers[0].accessors) == 0
+    assert ref_layers[0].yConfig is not None
+    assert len(ref_layers[0].yConfig) == 0
 
 
 async def test_xy_chart_with_legend_position() -> None:

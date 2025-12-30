@@ -57,10 +57,10 @@ def get_panel_type_name(panel: PanelTypes) -> str:
         return 'image'
     if isinstance(panel, SearchPanel):
         return 'search'
-    if isinstance(panel, (LensPanel, ESQLPanel)):
+    if isinstance(panel, (LensPanel, LensMultiLayerPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return 'charts'
     # This should never be reached if PanelTypes is exhaustive, but provides a clear error
-    msg = f'Unknown panel type: {type(panel).__name__}'
+    msg = f'Unknown panel type: {type(panel).__name__}'  # pyright: ignore[reportUnreachable]
     raise TypeError(msg)
 
 
