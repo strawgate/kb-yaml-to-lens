@@ -88,6 +88,8 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
+
+# When using extend-select, a rule like PLR will enable PLR* rules like PLR0###.
 extend-select = [
     "A", "ARG", "B", "C4", "COM", "DTZ", "E", "EM", "F", "FURB", "I",
     "LOG", "N", "PERF", "PIE", "PLR", "PLW", "PT", "PTH", "Q", "RET",

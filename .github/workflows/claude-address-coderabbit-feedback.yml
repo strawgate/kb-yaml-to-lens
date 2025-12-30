@@ -1,0 +1,221 @@
+---
+name: Claude Address CodeRabbit Feedback
+on:
+  pull_request_review:
+    types:
+      - submitted
+concurrency:
+  group: claude-coderabbit-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  id-token: write
+jobs:
+  claude-coderabbit-response:
+    if: |
+      github.event.review.user.login == 'coderabbitai[bot]' &&
+      (github.event.review.state == 'commented' || github.event.review.state == 'changes_requested') &&
+      !github.event.pull_request.draft
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      checkout-ref: ${{ github.event.pull_request.head.ref }}
+      allowed-bots: coderabbitai
+      prompt: |
+        You're a code assistant for kb-yaml-to-lens responding to CodeRabbit review feedback.
+
+        # YOUR TASK
+        CodeRabbit has left review feedback on PR  #${{ github.event.pull_request.number }}.
+        Review ID: ${{ github.event.review.id }}
+        Your goal is to:
+        1. Check if another Claude workflow has already responded (if so, skip this run)
+        2. Fetch all review comments from CodeRabbit for this PR
+        3. Address each comment by making appropriate code changes
+        4. Before completing, check again for newer reviews and address any new feedback
+        5. Resolve review threads after fixing issues
+        6. Run tests/linting to verify fixes
+        7. Document what was fixed and what couldn't be fixed
+
+        # GETTING STARTED
+
+        ## STEP 1: Check for newer reviews
+        Before doing any work, verify this is the most recent CodeRabbit review:
+        ```bash
+        set -euo pipefail
+        CURRENT_REVIEW_ID="${{ github.event.review.id }}"
+        LATEST_REVIEW=$(gh api graphql -f query='
+          query($owner: String!, $repo: String!, $prNumber: Int!) {
+            repository(owner: $owner, name: $repo) {
+              pullRequest(number: $prNumber) {
+                reviews(last: 5, states: [CHANGES_REQUESTED, APPROVED, COMMENTED]) {
+                  nodes {
+                    databaseId
+                    createdAt
+                    author { login }
+                  }
+                }
+              }
+            }
+          }' -F owner="${{ github.repository_owner }}" \
+             -F repo="${{ github.event.repository.name }}" \
+             -F prNumber=${{ github.event.pull_request.number }} \
+             --jq '.data.repository.pullRequest.reviews.nodes')
+
+        # Find the most recent CodeRabbit review
+        LATEST_CODERABBIT_REVIEW=$(echo "$LATEST_REVIEW" | jq -r '
+          map(select(.author.login == "coderabbitai[bot]"))
+          | sort_by(.createdAt)
+          | last // empty')
+        LATEST_REVIEW_ID=$(echo "$LATEST_CODERABBIT_REVIEW" | jq -r '.databaseId // empty')
+        if [ -n "$LATEST_REVIEW_ID" ] && [ "$LATEST_REVIEW_ID" != "$CURRENT_REVIEW_ID" ]; then
+          echo "⚠️ A newer CodeRabbit review exists (ID: $LATEST_REVIEW_ID)"
+          echo "⚠️ Current review ID: $CURRENT_REVIEW_ID"
+          echo "⚠️ Skipping this run - the newer review will be or is being processed"
+          exit 0
+        fi
+        echo "✅ This is the most recent CodeRabbit review, proceeding with work..."
+        ```
+
+        ## STEP 2: Fetch all review threads
+        1. Fetch review threads using GitHub GraphQL API:
+           ```bash
+           gh api graphql -f query='
+             query($owner: String!, $repo: String!, $prNumber: Int!) {
+               repository(owner: $owner, name: $repo) {
+                 pullRequest(number: $prNumber) {
+                   reviewThreads(first: 100) {
+                     nodes {
+                       id
+                       isResolved
+                       isOutdated
+                       path
+                       line
+                       comments(first: 10) {
+                         nodes {
+                           id
+                           body
+                           author { login }
+                           createdAt
+                         }
+                       }
+                     }
+                   }
+                 }
+               }
+             }' -F owner="${{ github.repository_owner }}" \
+                -F repo="${{ github.event.repository.name }}" \
+                -F prNumber=${{ github.event.pull_request.number }} \
+                --jq '.data.repository.pullRequest.reviewThreads.nodes'
+           ```
+        2. Filter threads to only those from coderabbitai[bot] that are unresolved
+
+        # ADDRESSING FEEDBACK
+        For each unresolved CodeRabbit comment:
+        1. Read the file and understand the context
+        2. Make the suggested change (or a better alternative if you disagree)
+        3. Document your reasoning if you deviate from the suggestion
+        4. After all changes, run: `make lint` and `make test`
+        5. Fix any failures caused by your changes
+
+        # BEFORE COMPLETING: Check for additional feedback
+        Before you finish and post your summary comment:
+        ```bash
+        # Check again for newer CodeRabbit reviews that arrived while you were working
+        CURRENT_REVIEW_ID="${{ github.event.review.id }}"
+        LATEST_REVIEW=$(gh api graphql -f query='
+          query($owner: String!, $repo: String!, $prNumber: Int!) {
+            repository(owner: $owner, name: $repo) {
+              pullRequest(number: $prNumber) {
+                reviews(last: 5, states: [CHANGES_REQUESTED, APPROVED, COMMENTED]) {
+                  nodes {
+                    databaseId
+                    createdAt
+                    author { login }
+                  }
+                }
+              }
+            }
+          }' -F owner="${{ github.repository_owner }}" \
+             -F repo="${{ github.event.repository.name }}" \
+             -F prNumber=${{ github.event.pull_request.number }} \
+             --jq '.data.repository.pullRequest.reviews.nodes')
+        LATEST_CODERABBIT_REVIEW=$(echo "$LATEST_REVIEW" | jq -r '
+          map(select(.author.login == "coderabbitai[bot]"))
+          | sort_by(.createdAt)
+          | last // empty')
+        LATEST_REVIEW_ID=$(echo "$LATEST_CODERABBIT_REVIEW" | jq -r '.databaseId // empty')
+        if [ -n "$LATEST_REVIEW_ID" ] && [ "$LATEST_REVIEW_ID" != "$CURRENT_REVIEW_ID" ]; then
+          echo "⚠️ New CodeRabbit review arrived during this run (ID: $LATEST_REVIEW_ID)"
+          echo "📋 Fetching additional feedback..."
+
+          # Fetch the new review threads and address them too
+          NEW_THREADS=$(gh api graphql -f query='
+            query($owner: String!, $repo: String!, $prNumber: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $prNumber) {
+                  reviewThreads(first: 100) {
+                    nodes {
+                      id
+                      isResolved
+                      isOutdated
+                      path
+                      line
+                      comments(first: 10) {
+                        nodes {
+                          id
+                          body
+                          author { login }
+                          createdAt
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -F owner="${{ github.repository_owner }}" \
+               -F repo="${{ github.event.repository.name }}" \
+               -F prNumber=${{ github.event.pull_request.number }} \
+               --jq '.data.repository.pullRequest.reviewThreads.nodes')
+
+          # Address the new feedback before completing
+          # (Follow same process: read files, make changes, test, resolve threads)
+          echo "✅ Addressing new feedback that arrived during this run..."
+        fi
+        ```
+        If new feedback was found, address it before posting your final summary.
+
+        # RESOLVING THREADS
+        After successfully addressing a comment:
+        ```bash
+        gh api graphql -f query='
+          mutation {
+            resolveReviewThread(input: {threadId: "THREAD_ID"}) {
+              thread { id isResolved }
+            }
+          }'
+        ```
+
+        # REPORTING
+        After all changes (including any new feedback found), comment on the PR with a summary:
+        - ✅ Comments addressed (list each with brief description)
+        - ⚠️ Comments not addressed (explain why)
+        - 🧪 Test results
+        - 📝 Additional notes
+        - If new reviews arrived during this run, note: "✨ Also addressed feedback from newer CodeRabbit review (ID: $LATEST_REVIEW_ID)"
+
+        # IMPORTANT GUIDELINES
+        - Be surgical - only change what's needed to address feedback
+        - If CodeRabbit is wrong, explain why in your response
+        - Always run tests after changes
+        - Don't blindly accept every suggestion - use judgment
+        - If you can't address a comment, explain why clearly
+
+        # AVOIDING LOOPS AND HANDLING CONCURRENT REVIEWS
+        - Make ONE round of changes per workflow run (but capture all feedback including new reviews that arrive during your work)
+        - Check for newer reviews at the start (skip if found) and before completing (address if found)
+        - Don't re-trigger CodeRabbit by mentioning it or requesting re-review
+        - Focus on fixing issues, not perfecting code
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

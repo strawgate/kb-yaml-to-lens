@@ -12,7 +12,7 @@ hand-crafting complex JSON.
   and queries in simple YAML
 - **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+
 - **Rich Panel Support** – Lens visualizations (metric, pie, XY charts),
-  Markdown, Links, Image panels, and Search panels (in development)
+  Markdown, Links, and Image panels; Search panels (in development)
 - **Advanced Controls** – Control groups with options lists, range sliders,
   and time sliders with chaining
 - **Flexible Filtering** – Comprehensive filter DSL supporting exists, phrase,

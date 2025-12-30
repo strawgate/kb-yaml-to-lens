@@ -7,6 +7,7 @@ from pytest_examples import CodeExample, EvalExample, find_examples
 markdown_files = [
     'docs/programmatic-usage.md',
     'docs/api/panels.md',
+    'docs/panels/gauge.md',
     'docs/panels/image.md',
     'docs/panels/links.md',
     'docs/panels/markdown.md',

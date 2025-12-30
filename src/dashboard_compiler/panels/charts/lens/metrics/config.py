@@ -29,10 +29,6 @@ class LensStaticValue(BaseMetric):
     """Optional label for the static value."""
 
 
-# class BaseMetricFormat(BaseCfgModel):
-#     """Base class for metric format configurations in Lens charts."""
-
-
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes | LensStaticValue
 
 type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat
