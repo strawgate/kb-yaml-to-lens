@@ -6,6 +6,8 @@ from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, Sea
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensMultiLayerPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
+from dashboard_compiler.panels.images.compile import compile_image_panel_config
+from dashboard_compiler.panels.images.view import KbnImagePanel
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.view import KbnLinksPanel
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
@@ -102,7 +104,11 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnB
         references, embeddable_config = compile_links_panel_config(panel)
         return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
 
-    if isinstance(panel, (ImagePanel, SearchPanel)):
+    if isinstance(panel, ImagePanel):
+        references, embeddable_config = compile_image_panel_config(panel)
+        return references, KbnImagePanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+
+    if isinstance(panel, SearchPanel):
         msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
         raise NotImplementedError(msg)
 

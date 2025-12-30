@@ -24,7 +24,8 @@ dashboards:
         markdown:
           content: |
             # Interactive Dashboard Controls
-            This dashboard demonstrates the use of **controls** for interactive filtering. Controls appear at the top of the dashboard and allow users to filter data dynamically.
+            This dashboard demonstrates the use of **controls** for interactive filtering.
+            Controls appear at the top of the dashboard and allow users to filter data dynamically.
             **Available Controls:**
             - **Host Selector** - Filter by specific host(s)
             - **Log Level** - Filter by log severity level
