@@ -11,13 +11,18 @@ from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 
 if TYPE_CHECKING:
+    from .gauge.view import KbnGaugeVisualizationState
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
 
     KbnVisualizationStateTypes = (
-        KbnPieVisualizationState | KbnMetricVisualizationState | KbnXYVisualizationState | KbnTagcloudVisualizationState
+        KbnPieVisualizationState
+        | KbnMetricVisualizationState
+        | KbnGaugeVisualizationState
+        | KbnXYVisualizationState
+        | KbnTagcloudVisualizationState
     )
 
 # region Form Data Source
@@ -165,6 +170,7 @@ class KbnVisualizationTypeEnum(StrEnum):
     XY = 'lnsXY'
     PIE = 'lnsPie'
     METRIC = 'lnsMetric'
+    GAUGE = 'lnsGauge'
     DATATABLE = 'lnsDatatable'
     TAGCLOUD = 'lnsTagcloud'
 

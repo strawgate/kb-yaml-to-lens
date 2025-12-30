@@ -9,25 +9,25 @@ When defining a panel in your YAML, you will specify its `type` (e.g., `markdown
 _For those who lay the foundation for every panel:_
 
 ```text
-Every panel needs a base,
+Every panel needs a base:
 A title, grid, and proper place.
-From x and y coordinates fine,
-To width and height, aligned in line.
+From x and y, the starting spot,
+To width and height—you plot the plot.
 
-id fields generated automatically,
-Descriptions shown quite tactfully.
-hide_title when you need it gone,
-The base configuration marches on!
+The id is yours, or auto-made,
+Descriptions help when things must be weighed.
+hide_title when you'd rather not—
+The base provides what others forgot.
 
 Whether metric, pie, or chart XY,
-Markdown text or links nearby,
-They all inherit from this core,
-The BasePanel forevermore!
+Markdown prose or links nearby,
+They all inherit from this floor:
+The BasePanel, forevermore.
 
 So here's to grids that organize,
-To titles helping us visualize,
-The foundation strong and true,
-That makes all panels work for you!
+To coordinates that plot the prize.
+The humble base, unsexy but true—
+No panel works without you.
 ```
 
 ---
@@ -122,10 +122,96 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 * [Markdown Panel](./markdown.md)
 * [Links Panel](./links.md)
 * [Search Panel](./search.md)
+* [Image Panel](./image.md)
 * [XY Chart Panel](./xy.md)
 * [Pie Chart Panel](./pie.md)
 * [Metric Panel](./metric.md)
-* [Image Panel](./image.md)
+* [Tagcloud Panel](./tagcloud.md)
+* [Lens Panel](./lens.md)
+* [ESQL Panel](./esql.md)
+
+## Color Mapping Configuration
+
+Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. This allows you to control how colors are assigned to different data values or categories in your visualizations.
+
+### ColorMapping Object
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `palette` | `string` | The color palette ID to use for unassigned colors. | `'eui_amsterdam_color_blind'` | No |
+| `assignments` | `list[ColorAssignment]` | Manual color assignments to specific data values. | `[]` | No |
+
+#### Available Color Palettes
+
+The `palette` field accepts the following palette IDs:
+
+* `'eui_amsterdam_color_blind'` - Color-blind safe palette (default, recommended)
+* `'default'` - Standard EUI palette
+* `'kibana_palette'` or `'legacy'` - Legacy Kibana colors
+* `'elastic_brand'` - Elastic brand colors
+* `'gray'` - Grayscale palette
+
+#### ColorAssignment Object
+
+| YAML Key | Data Type | Description | Required |
+| -------- | --------- | ----------- | -------- |
+| `value` | `string` | Single data value to assign this color to. | No* |
+| `values` | `list[str]` | List of data values to assign this color to. | No* |
+| `color` | `string` | Hex color code (e.g., '#FF0000'). | Yes |
+
+\* At least one of `value` or `values` must be provided.
+
+### Color Mapping Examples
+
+#### Example 1: Using a Different Palette
+
+```yaml
+dashboards:
+  - name: "Sales Dashboard"
+    panels:
+      - type: charts
+        title: "Revenue by Region"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "sales-data"
+          slice_by:
+            - field: "region"
+              type: values
+          metric:
+            aggregation: sum
+            field: revenue
+          color:
+            palette: 'elastic_brand'  # Use Elastic brand colors
+```
+
+#### Example 2: Manual Color Assignments
+
+```yaml
+dashboards:
+  - name: "Status Monitoring"
+    panels:
+      - type: charts
+        title: "Request Status Distribution"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          slice_by:
+            - field: "status"
+              type: values
+          metric:
+            aggregation: count
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['200', 'OK']
+                color: '#00BF6F'  # Green for success
+              - values: ['404', 'Not Found']
+                color: '#FFA500'  # Orange for not found
+              - values: ['500', 'Error']
+                color: '#BD271E'  # Red for errors
+```
 
 ## Related Documentation
 

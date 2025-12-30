@@ -4,6 +4,7 @@ from pydantic import Discriminator, Field, Tag
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
+from dashboard_compiler.panels.charts.gauge import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
 from dashboard_compiler.panels.charts.tagcloud import ESQLTagcloudChart, LensTagcloudChart
@@ -25,9 +26,9 @@ type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
 type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
-type SingleLayerChartTypes = LensMetricChart
+type SingleLayerChartTypes = LensMetricChart | LensGaugeChart
 
-type ESQLChartTypes = ESQLMetricChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
+type ESQLChartTypes = ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
 
 
 # Panel-level configuration mixin for Lens panels
@@ -47,6 +48,10 @@ class LensPanelFieldsMixin(BaseCfgModel):
 # Lens panel configurations that merge chart config with panel-level fields
 class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
     """Configuration for a Lens metric panel."""
+
+
+class LensGaugePanelConfig(LensGaugeChart, LensPanelFieldsMixin):
+    """Configuration for a Lens gauge panel."""
 
 
 class LensPiePanelConfig(LensPieChart, LensPanelFieldsMixin):
@@ -72,6 +77,7 @@ class LensTagcloudPanelConfig(LensTagcloudChart, LensPanelFieldsMixin):
 # Discriminated union of Lens panel configurations
 type LensPanelConfig = Annotated[
     Annotated[LensMetricPanelConfig, Tag('metric')]
+    | Annotated[LensGaugePanelConfig, Tag('gauge')]
     | Annotated[LensPiePanelConfig, Tag('pie')]
     | Annotated[LensLinePanelConfig, Tag('line')]
     | Annotated[LensBarPanelConfig, Tag('bar')]
@@ -92,6 +98,10 @@ class ESQLPanelFieldsMixin(BaseCfgModel):
 # ESQL panel configurations that merge chart config with query field
 class ESQLMetricPanelConfig(ESQLMetricChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL metric panel."""
+
+
+class ESQLGaugePanelConfig(ESQLGaugeChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL gauge panel."""
 
 
 class ESQLPiePanelConfig(ESQLPieChart, ESQLPanelFieldsMixin):
@@ -117,6 +127,7 @@ class ESQLTagcloudPanelConfig(ESQLTagcloudChart, ESQLPanelFieldsMixin):
 # Discriminated union of ESQL panel configurations
 type ESQLPanelConfig = Annotated[
     Annotated[ESQLMetricPanelConfig, Tag('metric')]
+    | Annotated[ESQLGaugePanelConfig, Tag('gauge')]
     | Annotated[ESQLPiePanelConfig, Tag('pie')]
     | Annotated[ESQLLinePanelConfig, Tag('line')]
     | Annotated[ESQLBarPanelConfig, Tag('bar')]

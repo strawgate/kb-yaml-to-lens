@@ -31,8 +31,6 @@ jobs:
       - name: Install documentation dependencies
         run: |
           uv sync --group docs
-      - name: Compile documentation reference
-        run: make compile-docs
       - name: Build documentation
         run: make docs-build
       - name: Setup Pages

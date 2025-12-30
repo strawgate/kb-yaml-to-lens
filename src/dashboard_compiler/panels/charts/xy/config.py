@@ -2,7 +2,7 @@ from typing import Literal, Self
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.config import BaseChart
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
@@ -117,6 +117,11 @@ class BaseXYChart(BaseChart):
     legend: XYLegend | None = Field(
         None,
         description='Formatting options for the chart legend.',
+    )
+
+    color: ColorMapping | None = Field(
+        None,
+        description='Formatting options for the chart color palette.',
     )
 
 

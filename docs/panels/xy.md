@@ -13,19 +13,19 @@ X-axis marching through the time,
 Y-axis tracking every climb.
 
 When incidents spike at 2 AM,
-Your XY charts help us understand them.
+The XY chart says: "Here I am."
 Stacked or unstacked, the choice is yours,
 Percentage mode for ratio scores.
 
-Dimensions define the horizontal way,
-Metrics show values throughout the day.
-Breakdown by service, host, or zone,
-Every pattern clearly shown.
+Dimensions set the horizontal stage,
+Metrics show what happens, page by page.
+Break it down by service, host, or zone—
+No pattern goes by, unknown.
 
 From request counts to error rates,
-Your time series never hesitates.
-So here's to charts both line and bar,
-That help us see how systems are!
+Your time series sits and waits.
+So here's to charts, both line and bar,
+That show exactly where things are.
 ```
 
 ---
@@ -48,6 +48,37 @@ dashboards:
             - aggregation: count
 ```
 
+## Example with Custom Colors
+
+```yaml
+dashboards:
+  - name: "Service Performance"
+    panels:
+      - type: charts
+        title: "Response Times by Service"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        chart:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - field: "@timestamp"
+          breakdown:
+            field: "service.name"
+            type: values
+          metrics:
+            - aggregation: average
+              field: response_time
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['web-frontend']
+                color: '#00BF6F'
+              - values: ['api-gateway']
+                color: '#0077CC'
+              - values: ['database']
+                color: '#FFA500'
+```
+
 ## Full Configuration Options
 
 ### Lens Bar Chart
@@ -63,6 +94,7 @@ dashboards:
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Line Chart
 
@@ -76,6 +108,7 @@ dashboards:
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Area Chart
 
@@ -90,6 +123,7 @@ dashboards:
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 #### XYLegend Options
 
@@ -97,6 +131,72 @@ dashboards:
 | ---------- | -------------------------------------------------------- | ------------------------------------------------- | ------- | -------- |
 | `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
 | `position` | `Literal['top', 'bottom', 'left', 'right'] \| None` | Position of the legend (Kibana defaults to 'right'). | `None` | No |
+
+### Chart Appearance Options
+
+XY charts support appearance customization through the `appearance` field. The available options depend on the chart type:
+
+#### Bar Chart Appearance
+
+For bar charts (`type: bar`), the following appearance options are available:
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------------- | --------------- | -------------------------------------------- | ------- | -------- |
+| `min_bar_height` | `float \| None` | The minimum height for bars in bar charts (in pixels). | `None` | No |
+
+**Example**:
+
+```yaml
+chart:
+  type: bar
+  data_view: "logs-*"
+  appearance:
+    min_bar_height: 5.0
+  # ... other fields
+```
+
+#### Line Chart Appearance
+
+For line charts (`type: line`), the following appearance options are available:
+
+| YAML Key | Data Type | Description | Default | Required |
+| ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
+| `fitting_function` | `Literal['Linear'] \| None` | The fitting function to apply to line charts for smoothing. | `None` | No |
+| `emphasize_fitting` | `bool \| None` | If `true`, emphasize the fitting function line. | `false` | No |
+| `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. | `None` | No |
+
+**Example**:
+
+```yaml
+chart:
+  type: line
+  data_view: "metrics-*"
+  appearance:
+    fitting_function: Linear
+    emphasize_fitting: true
+    curve_type: monotone-x
+  # ... other fields
+```
+
+#### Area Chart Appearance
+
+For area charts (`type: area`), all line chart appearance options are available, plus:
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------------- | --------------- | ------------------------------------------------------ | ------- | -------- |
+| `fill_opacity` | `float \| None` | The fill opacity for area charts (0.0 to 1.0). | `None` | No |
+
+**Example**:
+
+```yaml
+chart:
+  type: area
+  data_view: "metrics-*"
+  appearance:
+    fill_opacity: 0.7
+    curve_type: cardinal
+  # ... other fields
+```
 
 ## Reference Lines (Multi-Layer Panels)
 
