@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps check check-fix test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -8,12 +8,29 @@ help:
 	@echo "  install       - Install dependencies using uv"
 	@echo "  update-deps   - Update dependencies"
 	@echo ""
-	@echo "Build and Check:"
-	@echo "  check         - Validate code without making changes (lint, typecheck, tests)"
-	@echo "  check-fix     - Validate and auto-fix issues where possible"
+	@echo "CI and Development Workflow:"
+	@echo "  ci            - Run all CI checks (linting, type checking, tests) - no auto-fix"
+	@echo "  check         - Same as 'ci' - validate everything before committing"
+	@echo "  fix           - Auto-fix all linting issues (Python, Markdown, YAML)"
+	@echo ""
+	@echo "Linting (individual commands):"
+	@echo "  lint-all          - Auto-fix ALL linting issues (Python, Markdown, YAML)"
+	@echo "  lint-all-check    - Check ALL linting (Python, Markdown, YAML) without fixing"
+	@echo "  lint              - Auto-fix Python linting issues (ruff check --fix)"
+	@echo "  lint-check        - Check Python linting without fixing"
+	@echo "  format            - Auto-format Python code (ruff format)"
+	@echo "  format-check      - Check Python formatting without fixing"
+	@echo "  lint-markdown     - Auto-fix markdown linting issues"
+	@echo "  lint-markdown-check - Check markdown without fixing"
+	@echo "  lint-yaml         - Auto-fix YAML linting issues"
+	@echo "  lint-yaml-check   - Check YAML without fixing"
+	@echo ""
+	@echo "Type Checking:"
+	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test                     - Run unit tests"
+	@echo "  test-all                 - Run ALL tests (unit, smoke, extension)"
+	@echo "  test                     - Run Python unit tests"
 	@echo "  test-coverage            - Run tests with coverage report"
 	@echo "  test-links               - Check documentation links"
 	@echo "  test-smoke               - Run smoke tests"
@@ -25,26 +42,15 @@ help:
 	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
 	@echo "  upload        - Compile and upload dashboards to Kibana (requires input-dir)"
 	@echo ""
-	@echo "Cleaning:"
-	@echo "  clean         - Clean up cache and temporary files"
-	@echo "  clean-full    - Clean up all including virtual environment"
-	@echo ""
-	@echo "Linting and Formatting:"
-	@echo "  lint              - Auto-fix linting and formatting issues"
-	@echo "  lint-check        - Check for linting issues without fixing"
-	@echo "  format            - Auto-format code with ruff"
-	@echo "  format-check      - Check code formatting without fixing"
-	@echo "  lint-markdown     - Auto-fix markdown linting issues"
-	@echo "  lint-markdown-check - Check markdown without fixing"
-	@echo "  lint-yaml         - Auto-fix YAML linting issues"
-	@echo "  lint-yaml-check   - Check YAML without fixing"
-	@echo "  typecheck         - Run type checking with basedpyright"
-	@echo ""
 	@echo "Documentation:"
 	@echo "  compile-docs  - Regenerate YAML reference from source"
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
+	@echo ""
+	@echo "Cleaning:"
+	@echo "  clean         - Clean up cache and temporary files"
+	@echo "  clean-full    - Clean up all including virtual environment"
 	@echo ""
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
@@ -55,11 +61,24 @@ install:
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
 
-# Validation without auto-fixing (suitable for CI and pre-commit checks)
-check: lint-check format-check lint-markdown-check lint-yaml-check typecheck test test-links test-smoke test-extension-python test-extension-typescript
+# CI and development workflow commands
+ci: lint-all-check typecheck test-all
+	@echo "✓ All CI checks passed!"
 
-# Validation with auto-fixing
-check-fix: lint format lint-markdown lint-yaml typecheck test test-links test-smoke test-extension-python test-extension-typescript
+check: ci
+
+fix: lint-all
+
+# Linting meta-commands
+lint-all: lint format lint-markdown lint-yaml
+	@echo "✓ All linting complete (with auto-fix)"
+
+lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
+	@echo "✓ All linting checks passed"
+
+# Testing meta-command
+test-all: test test-smoke test-links test-extension-python test-extension-typescript
+	@echo "✓ All tests passed"
 
 test:
 	@echo "Running pytest..."
