@@ -630,7 +630,7 @@ async def test_dual_axis_chart() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [
             {'aggregation': 'count', 'id': 'metric1'},
             {'aggregation': 'average', 'field': 'error_rate', 'id': 'metric2'},
@@ -695,7 +695,7 @@ async def test_styled_series_chart() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [
             {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1'},
             {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2'},
@@ -740,7 +740,7 @@ async def test_axis_extent_configuration() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'x_axis': {'title': 'Time', 'extent': {'mode': 'custom', 'min': 0, 'max': 100, 'enforce': True}},
