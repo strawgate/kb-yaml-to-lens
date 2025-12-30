@@ -83,7 +83,6 @@ extend-exclude = [
     "__pycache__",
     "build",
     "dist",
-    "reference",
     "**/*.old.py",
 ]
 
