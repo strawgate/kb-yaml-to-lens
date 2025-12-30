@@ -170,9 +170,10 @@ Used to specify a metric column from your ESQL query result.
 Used to specify a dimension/grouping column from your ESQL query result.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
-| -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id` | `string` | An optional unique identifier for this dimension column definition. | Generated ID | No |
 | `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
+| `collapse` | `Literal['sum', 'avg', 'min', 'max'] \| None` | Aggregation function to apply when collapsing dimension values (e.g., for multi-value fields or breakdowns). | `None` | No |
 
 ---
 
