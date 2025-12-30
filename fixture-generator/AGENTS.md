@@ -74,7 +74,7 @@ When creating or modifying fixture generators, complete this checklist:
 - [ ] Verified `output/<your-file>-dataview.json` exists (for dual generators)
 - [ ] Inspected JSON structure with `cat output/<your-file>.json | python -m json.tool | head -100`
 - [ ] Compared fixture to compiler output (if applicable)
-- [ ] Ran `make check` from project root - all tests pass
+- [ ] Ran `make ci` from project root - all tests pass
 - [ ] Committed changes
 
 Copy this checklist into your response and check off each item as you complete it.
@@ -140,7 +140,7 @@ cat output/your-new-generator.json | python -m json.tool | head -50
 
 ```bash
 cd ..
-make check
+make ci  # Or: make check (alias)
 ```
 
 ### 5. Commit Only After Testing
@@ -150,7 +150,7 @@ Only commit after:
 - ✅ Generator runs successfully in Docker
 - ✅ Output JSON is created
 - ✅ Output JSON is valid
-- ✅ `make check` passes
+- ✅ `make ci` passes
 
 ---
 
@@ -260,7 +260,7 @@ node examples/your-generator.js
 1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
 2. Verify `fixture-generator/output/your-file.json` exists
 3. Check JSON is valid with `python -m json.tool`
-4. Run `make check` from project root
+4. Run `make ci` from project root
 5. Only then git add/commit/push
 
 **If you cannot run Docker**, clearly state this in your response and ask the user to test before merging.
