@@ -6,11 +6,12 @@ import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.charts.config import ESQLTagcloudPanelConfig, LensTagcloudChart
+from dashboard_compiler.panels.charts.config import ESQLTagcloudPanelConfig
 from dashboard_compiler.panels.charts.tagcloud.compile import (
     compile_esql_tagcloud_chart,
     compile_lens_tagcloud_chart,
 )
+from dashboard_compiler.panels.charts.tagcloud.config import LensTagcloudChart
 
 
 @pytest.fixture

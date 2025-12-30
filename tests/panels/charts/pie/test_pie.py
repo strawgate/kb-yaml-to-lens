@@ -26,7 +26,7 @@ async def test_basic_pie_chart() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -92,7 +92,7 @@ async def test_basic_donut_chart() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -158,7 +158,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -224,7 +224,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -298,7 +298,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -370,7 +370,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -442,7 +442,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -504,7 +504,7 @@ async def test_pie_chart_with_nested_legend() -> None:
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.nestedLegend is True

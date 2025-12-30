@@ -59,7 +59,7 @@ dashboards:
 dashboards:
   - name: "Traffic Analysis"
     panels:
-      -         title: "Traffic by Source"
+      - title: "Traffic by Source"
         grid: { x: 16, y: 0, w: 32, h: 3 }
         lens:
           type: pie # Specifies a LensPieChart
