@@ -16,10 +16,10 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
     """Compile metric chart config and return dict for snapshot testing."""
     if chart_type == 'lens':
         lens_chart = LensMetricChart.model_validate(config)
-        layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+        _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
     else:  # esql
         esql_chart = ESQLMetricChart.model_validate(config)
-        layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
 
     assert kbn_state_visualization is not None
     assert len(kbn_state_visualization.layers) > 0

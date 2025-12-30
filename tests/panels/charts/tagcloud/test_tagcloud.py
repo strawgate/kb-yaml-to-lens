@@ -20,10 +20,10 @@ def compile_tagcloud_chart_snapshot():
     def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
         if chart_type == 'lens':
             lens_chart = LensTagcloudChart.model_validate(config)
-            layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
+            _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
         else:  # esql
             esql_chart = ESQLTagcloudChart.model_validate(config)
-            layer_id, kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
+            _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
 
         assert kbn_state_visualization is not None
         # Tagcloud visualization state is flat (no layers array)

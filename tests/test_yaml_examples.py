@@ -63,7 +63,7 @@ def test_yaml_examples_use_dashboards_format(file_path: str) -> None:
             if line.startswith('dashboard:'):
                 pytest.fail(
                     f"{file_path}:{line_num} - YAML example uses deprecated 'dashboard:' format. "
-                    "Use 'dashboards:' (plural, array format) instead."
+                    + "Use 'dashboards:' (plural, array format) instead."
                 )
 
 

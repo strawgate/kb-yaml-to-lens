@@ -108,30 +108,16 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "tests/**/*.py" = [
-    "PLR2004", # Ignore magic numbers and docstring length in tests
-    "W505",
-    "INP001",
-    "S101", # Ignore use of assert
-    "ANN201", # Ignore missing type annotations in tests
-    "RUF029", # Ignore await not used in async function
-    "RUF059", # Allow unused unpacking in tests
-    "TC001", # Allow value imports used only for typing in tests
-    "PGH003", # Don't require specific rule exclusions for type checking ignores
-    "D104", # Docstrings in public packages
-    "E501", # Line too long
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
 ]
 "vscode-extension/python/**/*.py" = [
-    "PT009", # Allow unittest-style assertions in test files
-    "S101", # Ignore use of assert
-    "ANN201", # Ignore missing type annotations in python extension files
-    "E501", # Line too long
-    "PLR2004", # Ignore magic numbers in test files
+    "S101", # Allow assert usage in tests
+    "PT009", # Allow unittest-style assertions
+    "PT027", # Allow unittest-style assertRaises
+    "PLR2004", # Allow magic values in CLI argument checks
+    "PLR0911", # Allow more return statements in complex functions
     "B017", # Allow broad exception assertions in test files
-    "PT011", # Allow broad pytest.raises in test files
-    "PT027", # Allow unittest-style assertRaises in test files
-    "PLR0911", # Ignore too many return statements
-    "D400", # Ignore docstring formatting in test files
-    "D415", # Ignore docstring formatting in test files
 ]
 "src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
@@ -141,7 +127,6 @@ ignore = [
 ]
 "src/dashboard_compiler/**/config.py" = [
     "TC001", # Pydantic config models rely on runtime imports for type evaluation
-    "TC008", # allow quotes around type alias for forward references
 ]
 
 [tool.ruff.format]
@@ -170,12 +155,17 @@ reportImportCycles = "error"  # Enable circular import detection
 # Allow Pydantic view models to narrow types in subclasses (e.g., str -> Literal['value'])
 # This is a common pattern for serialization models
 reportIncompatibleVariableOverride = false
-include = ["src/dashboard_compiler"]
+include = ["src/dashboard_compiler", "tests"]
 exclude = [
-    "**/tests/**",
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",
+]
+# Per-directory settings: more lenient for tests
+# Tests use dynamic typing patterns that are difficult to type-check strictly
+executionEnvironments = [
+    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportMissingTypeArgument = false, reportUnusedCallResult = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
+    { root = "src/dashboard_compiler" },
 ]
 
 [tool.coverage.run]
