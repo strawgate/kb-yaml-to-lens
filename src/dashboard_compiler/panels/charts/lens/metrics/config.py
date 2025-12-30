@@ -15,10 +15,6 @@ class BaseMetric(BaseCfgModel):
     """A unique identifier for the metric. If not provided, one may be generated during compilation."""
 
 
-# class BaseMetricFormat(BaseCfgModel):
-#     """Base class for metric format configurations in Lens charts."""
-
-
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes
 
 type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat

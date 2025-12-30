@@ -29,13 +29,6 @@ class CollapseAggregationEnum(StrEnum):
     AVG = 'avg'
 
 
-# class CollapsedDimension(BaseDimension):
-#     """A dimension that is collapsed into a single value."""
-
-#     aggregation: CollapseAggregationEnum | None = Field(default=None)
-#     """The aggregation to use for the dimension."""
-
-
 class BaseLensDimension(BaseDimension):
     """Base model for defining dimensions within a Lens chart."""
 

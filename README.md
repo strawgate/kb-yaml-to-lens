@@ -8,7 +8,7 @@ This tool simplifies the process of creating and managing Kibana dashboards by a
 
 - **YAML-based Dashboard Definition** – Define dashboards, panels, filters, and queries in simple YAML
 - **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+
-- **Rich Panel Support** – Lens visualizations (metric, pie, XY charts), Markdown, Links, Image panels, and Search panels (in development)
+- **Rich Panel Support** – Lens visualizations (metric, pie, XY charts), Markdown, Links, and Image panels; Search panels (in development)
 - **Advanced Controls** – Control groups with options lists, range sliders, and time sliders with chaining
 - **Flexible Filtering** – Comprehensive filter DSL supporting exists, phrase, range, and custom DSL with AND/OR/NOT operators
 - **Multiple Query Types** – KQL, Lucene, and ESQL query support
