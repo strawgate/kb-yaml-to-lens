@@ -1,6 +1,6 @@
 """Configuration for dashboard panels."""
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
@@ -14,16 +14,16 @@ class Grid(BaseCfgModel):
     This determines the panel's position and size on the dashboard grid.
     """
 
-    x: int = Field(...)
+    x: int = Field(..., validation_alias=AliasChoices('x', 'from_left'))
     """The horizontal starting position of the panel on the grid (0-based)."""
 
-    y: int = Field(...)
+    y: int = Field(..., validation_alias=AliasChoices('y', 'from_top'))
     """The vertical starting position of the panel on the grid (0-based)."""
 
-    w: int = Field(...)
+    w: int = Field(..., validation_alias=AliasChoices('w', 'width'))
     """The width of the panel in grid units."""
 
-    h: int = Field(...)
+    h: int = Field(..., validation_alias=AliasChoices('h', 'height'))
     """The height of the panel in grid units."""
 
     @field_validator('x', 'y')
