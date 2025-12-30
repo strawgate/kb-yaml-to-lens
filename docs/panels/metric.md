@@ -80,14 +80,7 @@ from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
-
-# Simple count metric
-count_chart = LensMetricChart(
-    data_view='logs-*',
-    primary=LensCountAggregatedMetric(aggregation='count'),
-)
 
 panel = LensPanel(
     title='Total Documents',
@@ -107,14 +100,7 @@ from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
-
-# Average metric with field
-avg_chart = LensMetricChart(
-    data_view='logs-*',
-    primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
-)
 
 panel = LensPanel(
     title='Avg Response Time',

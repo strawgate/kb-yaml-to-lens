@@ -37,7 +37,7 @@ class LensPanelConfig(BaseCfgModel):
     are specified directly in this object alongside panel-level fields.
     """
 
-    model_config: ConfigDict = ConfigDict(extra='allow')
+    model_config: ConfigDict = ConfigDict(extra='ignore')
 
     # Panel-level configuration
     filters: list['FilterTypes'] | None = Field(default=None)
@@ -85,7 +85,7 @@ class ESQLPanelConfig(BaseCfgModel):
     ES|QL panels do not support multi-layer configurations.
     """
 
-    model_config: ConfigDict = ConfigDict(extra='allow')
+    model_config: ConfigDict = ConfigDict(extra='ignore')
 
     query: 'ESQLQueryTypes' = Field(...)
     """The ES|QL query to execute."""

@@ -111,7 +111,6 @@ from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
 
 dashboard = Dashboard(name='Metrics Dashboard')
@@ -123,11 +122,6 @@ metrics_config = [
 ]
 
 for i, metric in enumerate(metrics_config):
-    chart = LensMetricChart(
-        data_view='metrics-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field=metric['field']),
-    )
-
     panel = LensPanel(
         title=metric['name'],
         grid=Grid(
@@ -153,11 +147,6 @@ for i, metric in enumerate(metrics_config):
 ```python
 def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
     """Helper function to create a standard metric panel."""
-    chart = LensMetricChart(
-        data_view='logs-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field=field),
-    )
-
     return LensPanel(
         title=title,
         grid=Grid(x=x, y=y, w=24, h=15),

@@ -114,14 +114,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.pie.config import LensPieChart
 from dashboard_compiler.panels.config import Grid
-
-pie_chart = LensPieChart(
-    data_view='logs-*',
-    slice_by=[LensTopValuesDimension(field='status')],
-    metric=LensCountAggregatedMetric(aggregation='count'),
-)
 
 panel = LensPanel(
     title='Status Distribution',
