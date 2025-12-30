@@ -9,9 +9,9 @@ help:
 	@echo "  update-deps   - Update dependencies"
 	@echo ""
 	@echo "CI and Development Workflow:"
-	@echo "  ci            - Run all CI checks (linting, type checking, tests) - no auto-fix"
+	@echo "  ci            - Run all CI checks (compact output on success)"
 	@echo "  check         - Same as 'ci' - validate everything before committing"
-	@echo "  fix           - Auto-fix all linting issues (Python, Markdown, YAML)"
+	@echo "  fix           - Auto-fix all linting issues (compact output)"
 	@echo ""
 	@echo "Linting (individual commands):"
 	@echo "  lint-all          - Auto-fix ALL linting issues (Python, Markdown, YAML)"
@@ -81,7 +81,7 @@ test-all: test test-smoke test-links test-extension-python test-extension-typesc
 
 test:
 	@echo "Running pytest..."
-	uv run pytest
+	@uv run pytest -o addopts="" --tb=line --no-header -q
 
 test-coverage:
 	@echo "Running pytest with coverage..."
@@ -97,12 +97,12 @@ test-extension:
 
 test-extension-python:
 	@echo "Running Python tests for VSCode extension..."
-	uv run python -m pytest vscode-extension/python/test_*.py -v
+	@uv run python -m pytest vscode-extension/python/test_*.py -o addopts="" --tb=line --no-header -q
 
 test-extension-typescript:
 	@echo "Running TypeScript tests for VSCode extension..."
 	# Using npm install for local development flexibility (vs npm ci in CI)
-	cd vscode-extension && npm install && npm run compile && npm run test:unit
+	@cd vscode-extension && npm install > /dev/null 2>&1 && npm run compile > /dev/null 2>&1 && npm run test:unit
 
 
 inspector:
@@ -120,7 +120,7 @@ lint:
 # Check for linting issues without fixing
 lint-check:
 	@echo "Running ruff check..."
-	uv run ruff check .
+	@uv run ruff check . --quiet
 
 # Auto-format code
 format:
@@ -130,7 +130,7 @@ format:
 # Check formatting without fixing
 format-check:
 	@echo "Running ruff format --check..."
-	uv run ruff format . --check
+	@uv run ruff format . --check --quiet
 
 # Auto-fix markdown issues
 lint-markdown:
@@ -140,7 +140,7 @@ lint-markdown:
 # Check markdown without fixing
 lint-markdown-check:
 	@echo "Running markdownlint..."
-	markdownlint -c .markdownlint.jsonc .
+	@markdownlint -c .markdownlint.jsonc . > /dev/null 2>&1 && echo "✓ Markdown checks passed" || (markdownlint -c .markdownlint.jsonc . && exit 1)
 
 # Auto-fix YAML issues
 lint-yaml:
@@ -150,7 +150,7 @@ lint-yaml:
 # Check YAML without fixing
 lint-yaml-check:
 	@echo "Running yamllint..."
-	uv run yamllint .
+	@uv run yamllint . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamllint . && exit 1)
 
 typecheck:
 	@echo "Running type checking..."
