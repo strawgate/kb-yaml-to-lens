@@ -121,6 +121,7 @@ ignore = [
     "PLR2004", # Allow magic values in test assertions
     "ANN001", # Allow missing argument type annotations in tests
     "ANN201", # Allow missing return type annotations in tests
+    "INP001", # Tests are not meant to be imported as packages
 ]
 "vscode-extension/python/**/*.py" = [
     "PT009", # Allow unittest-style assertions in test files
