@@ -65,7 +65,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
         overwrite: Whether to overwrite the output file if it exists.
 
     """
-    if overwrite and output_path.exists():
+    if overwrite is True and output_path.exists():
         output_path.unlink()
 
     with output_path.open('w') as f:
@@ -264,12 +264,12 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         kb-dashboard compile --upload
     """
     # Validate mutual exclusivity of authentication options
-    if kibana_api_key and (kibana_username or kibana_password):
+    if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
         msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
         raise click.UsageError(msg)
 
     # Validate that username and password are used together
-    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
 
@@ -328,7 +328,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         display_path = combined_file
     console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
 
-    if upload:
+    if upload is True:
         console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana at {kibana_url}...')
         asyncio.run(
             upload_to_kibana(
@@ -381,22 +381,22 @@ async def upload_to_kibana(  # noqa: PLR0913
     try:
         result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
-        if result.success:
+        if result.success is True:
             console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
             dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
-            if dashboard_ids and open_browser:
+            if len(dashboard_ids) > 0 and open_browser is True:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                 console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
                 _ = webbrowser.open_new_tab(dashboard_url)
 
-            if result.errors:
+            if len(result.errors) > 0:
                 console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result.errors)} error(s):')
                 console.print(create_error_table(result.errors))
         else:
             console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
-            if result.errors:
+            if len(result.errors) > 0:
                 console.print(create_error_table(result.errors))
             msg = 'Upload to Kibana failed'
             raise click.ClickException(msg)
@@ -535,12 +535,12 @@ def screenshot_dashboard(  # noqa: PLR0913
             --width 3840 --height 2160
     """
     # Validate mutual exclusivity of authentication options
-    if kibana_api_key and (kibana_username or kibana_password):
+    if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
         msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
         raise click.UsageError(msg)
 
     # Validate that username and password are used together
-    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
 
@@ -637,7 +637,7 @@ async def generate_screenshot(  # noqa: PLR0913
         console.print(f'[green]{ICON_SUCCESS}[/green] Screenshot saved to: {display_path}')
         console.print(f'  Dashboard: {dashboard_id}')
         console.print(f'  Size: {width}x{height}')
-        if time_from or time_to:
+        if time_from is not None or time_to is not None:
             console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
 
     except aiohttp.ClientError as e:

@@ -190,7 +190,7 @@ def compile_xy_chart_visualization_state(
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
         accessors=metric_ids,
-        xAccessor=dimension_ids[0] if dimension_ids else None,
+        xAccessor=dimension_ids[0] if len(dimension_ids) > 0 else None,
         position='top',
         seriesType=series_type,
         showGridlines=False,
@@ -203,7 +203,7 @@ def compile_xy_chart_visualization_state(
     legend_visible = True
     legend_position = 'right'
 
-    if chart.legend:
+    if chart.legend is not None:
         if chart.legend.visible is not None:
             legend_visible = chart.legend.visible
         if chart.legend.position is not None:
@@ -244,7 +244,7 @@ def compile_lens_xy_chart(
     dimension_ids = list(kbn_dimension_columns.keys())
 
     breakdown_id = None
-    if lens_xy_chart.breakdown:
+    if lens_xy_chart.breakdown is not None:
         kbn_breakdown_columns = compile_lens_dimensions(dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns)
         breakdown_id = next(iter(kbn_breakdown_columns.keys()))
 
@@ -287,7 +287,7 @@ def compile_esql_xy_chart(
     dimension_ids = [column.columnId for column in dimensions]
 
     breakdown_id = None
-    if esql_xy_chart.breakdown:
+    if esql_xy_chart.breakdown is not None:
         breakdown = compile_esql_dimensions(dimensions=[esql_xy_chart.breakdown])
         breakdown_id = breakdown[0].columnId
         dimensions.extend(breakdown)
