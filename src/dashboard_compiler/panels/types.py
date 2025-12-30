@@ -25,11 +25,9 @@ def get_panel_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0
     simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image'}
 
     if isinstance(v, dict):
-        # Check simple panel types first
         for key, panel_type in simple_types.items():
             if key in v:
                 return panel_type
-        # Chart panels
         if ('type' in v and v['type'] == 'multi_layer_charts') or 'layers' in v:
             return 'multi_layer_charts'
         if 'esql' in v:
@@ -37,11 +35,9 @@ def get_panel_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0
         if 'chart' in v:
             return 'lens_charts'
     else:
-        # Check object attributes
         for attr, panel_type in simple_attrs.items():
             if hasattr(v, attr):
                 return panel_type
-        # Chart objects
         if (hasattr(v, 'type') and v.type == 'multi_layer_charts') or hasattr(v, 'layers'):  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
             return 'multi_layer_charts'
         if hasattr(v, 'esql'):
@@ -49,7 +45,6 @@ def get_panel_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0
         if hasattr(v, 'chart'):
             return 'lens_charts'
 
-    # Could not determine type
     if isinstance(v, dict):
         msg = f'Cannot determine panel type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
     else:

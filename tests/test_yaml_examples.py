@@ -34,11 +34,9 @@ def extract_yaml_examples(file_path: str) -> list[tuple[str, int]]:
     content = Path(file_path).read_text()
     examples = []
 
-    # Find all ```yaml code blocks
     pattern = r'```yaml\n(.*?)```'
     for match in re.finditer(pattern, content, re.DOTALL):
         yaml_content = match.group(1)
-        # Calculate line number
         line_num = content[: match.start()].count('\n') + 1
         examples.append((yaml_content, line_num))
 
@@ -51,15 +49,10 @@ def test_yaml_examples_use_dashboards_format(file_path: str) -> None:
     examples = extract_yaml_examples(file_path)
 
     for yaml_content, line_num in examples:
-        # Check if this example contains a dashboard definition
-        # Look for the top-level dashboard: key (not dashboard: inside links/other fields)
         lines = yaml_content.split('\n')
         for line in lines:
-            # Skip commented lines
             if line.strip().startswith('#'):
                 continue
-            # Check for top-level 'dashboard:' (not indented, at start of line)
-            # Must not be indented (no leading whitespace before 'dashboard:')
             if line.startswith('dashboard:'):
                 msg = (
                     f"{file_path}:{line_num} - YAML example uses deprecated 'dashboard:' format. "
@@ -74,7 +67,6 @@ def test_yaml_examples_valid_syntax(file_path: str) -> None:
     examples = extract_yaml_examples(file_path)
 
     for yaml_content, line_num in examples:
-        # Skip examples with placeholders or ellipsis
         if '...' in yaml_content or 'your-' in yaml_content.lower() or '# ...' in yaml_content:
             pytest.skip(f'Skipping example with placeholders at {file_path}:{line_num}')
 
@@ -89,8 +81,6 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
     """Test that complete YAML examples can be loaded by the dashboard compiler."""
     from dashboard_compiler.dashboard_compiler import load
 
-    # Skip files that contain examples with placeholder data sources
-    # These files show schema structures for different chart types
     placeholder_docs = [
         'docs/panels/esql.md',
         'docs/panels/lens.md',
@@ -102,7 +92,6 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
     examples = extract_yaml_examples(file_path)
 
     for yaml_content, line_num in examples:
-        # Skip examples that are fragments or have placeholders
         if (
             '...' in yaml_content
             or '# ...' in yaml_content
@@ -114,11 +103,9 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
             pytest.skip(f'Skipping incomplete/placeholder example at {file_path}:{line_num}')
 
         try:
-            # Write YAML to a temporary file for loading
             temp_yaml = tmp_path / f'example_{line_num}.yaml'
             _ = temp_yaml.write_text(yaml_content)
 
-            # Try to load the YAML as a dashboard config
             dashboards = load(str(temp_yaml))
             assert len(dashboards) > 0, 'Should load at least one dashboard'
         except Exception as e:
