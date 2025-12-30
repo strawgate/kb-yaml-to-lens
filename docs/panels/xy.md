@@ -446,10 +446,8 @@ panel = LensPanel(
     lens=LensLinePanelConfig(
         type='line',
         data_view='logs-*',
-        dimensions=[
-            LensDateHistogramDimension(type='date_histogram', field='@timestamp')
-        ],
-        metrics=[LensCountAggregatedMetric(aggregation='count')],
+        dimensions=[LensDateHistogramDimension(field='@timestamp')],
+        metrics=[LensCountAggregatedMetric()],
         layers=[
             # Additional reference line layer
             LensReferenceLineLayer(
