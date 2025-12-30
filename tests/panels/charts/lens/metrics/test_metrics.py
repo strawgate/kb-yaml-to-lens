@@ -289,4 +289,4 @@ async def test_compile_lens_metric_percentile_95() -> None:
 async def test_compile_esql_metric_count() -> None:
     """Test the compilation of a count ESQL metric."""
     result = compile_esql_metric_snapshot({'id': 'ac345678-90ab-cdef-1234-567890abcdef', 'field': 'count(*)'})
-    assert result == snapshot({'fieldName': 'count(*)', 'columnId': 'ac345678-90ab-cdef-1234-567890abcdef'})
+    assert result == snapshot({'fieldName': 'count(*)', 'columnId': 'ac345678-90ab-cdef-1234-567890abcdef', 'meta': {'type': 'number'}})

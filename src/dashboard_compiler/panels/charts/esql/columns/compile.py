@@ -2,6 +2,7 @@ from collections.abc import Sequence
 
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes, ESQLStaticValue
 from dashboard_compiler.panels.charts.esql.columns.view import (
+    KbnESQLColumnMeta,
     KbnESQLFieldDimensionColumn,
     KbnESQLFieldMetricColumn,
     KbnESQLMetricColumnTypes,
@@ -30,12 +31,13 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
             columnId=metric_id,
         )
 
-    # Handle regular field-based metrics
+    # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
     metric_id = metric.id or stable_id_generator([metric.field])
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
         columnId=metric_id,
+        meta=KbnESQLColumnMeta(type='number'),
     )
 
 
