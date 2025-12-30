@@ -8,24 +8,24 @@ _For those who measure how close we are to the goal:_
 
 ```text
 Not just a number on the screen,
-But progress toward what's yet to be seen.
+But progress toward a target seen.
 A gauge that fills from left to right,
-Or curves from zero to the height.
+From zero darkness into light.
 
 Where are we now? How far to go?
-The gauge will always let us know.
+The gauge will always let you know.
 From minimum to maximum range,
-The colored arc will shift and change.
+Watch the colored needle change.
 
-A goal line drawn across the way,
-"This much to go!" the numbers say.
-Arc or bullet, circle or bar,
-The gauge reveals just where we are.
+A goal line drawn across the way—
+"You're almost there!" the markers say.
+Arc or bullet, circle, bar:
+The gauge reveals just where you are.
 
-CPU usage, sales quota filled,
-Performance targets being fulfilled.
-Not just data, but direction clear,
-The gauge shows progress throughout the year!
+CPU usage, quota met,
+Performance targets? No sweat.
+Not just data, but direction clear—
+The gauge tracks progress through the year.
 ```
 
 ---

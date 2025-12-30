@@ -7,25 +7,25 @@ The `search` panel type is used to embed the results of a pre-existing, saved Ki
 _For those who hunt through haystacks for needles:_
 
 ```text
-Saved searches from Discover's land,
-Embedded on dashboards, close at hand.
-No need to navigate away,
-Your logs are right here on display!
+The case runs hot. The logs are cold.
+But Discover's got the clues on hold.
+Embedded here upon your board—
+No need to leave; it's all aboard.
 
-Critical alerts from the last day,
-Security incidents on full replay,
-System logs in columns neat,
-Making investigations complete.
+Security breaches? Last night's crime?
+System errors frozen in time?
+Columns lined up, suspects neat,
+Each row of evidence, complete.
 
-saved_search_id is all you need,
-To bring your query's results with speed.
-Columns sorted, filters applied,
-All your search configs right inside.
+saved_search_id—that's your lead,
+The only clue you'll ever need.
+Filters applied, the query's set,
+The perp's in there. I'd place a bet.
 
 From error logs to audit trails,
-Your search panel never fails.
-Dynamic views that auto-update,
-Helping you investigate and compute!
+This search panel never fails.
+Dynamic views that auto-scroll—
+The log detective's on patrol.
 ```
 
 ---

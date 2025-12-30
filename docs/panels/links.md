@@ -2,30 +2,30 @@
 
 The `links` panel type is used to display a collection of hyperlinks on your dashboard. These links can point to other Kibana dashboards or external web URLs. This panel is useful for creating navigation hubs or providing quick access to related resources.
 
-## A Poem for the Navigation Navigators
+## A Poem for the Portal Keepers
 
 _For those who build the bridges between dashboards:_
 
 ```text
-Click here, click there, the journey starts,
-Links connecting dashboard parts.
+Portals to dashboards near and far—
+Links will take you where they are.
 Horizontal rows or vertical stacks,
-Helping users stay on track.
+Teleporting users through the cracks.
 
 Dashboard links with time preserved,
-Filters carried through, well-served.
-External URLs in new tabs born,
-Wiki pages, docs, and forms.
+Filters carried, context served.
+External URLs in tabs brand new,
+Wiki pages, docs to pull you through.
 
-"with_time: true" keeps context flowing,
-"with_filters" helps users knowing,
-What they selected stays the same,
-As they navigate the dashboard game.
+"with_time: true" keeps your clock alive,
+"with_filters" helps context survive.
+What you selected stays in place
+As you traverse from space to space.
 
-From operations hub to service views,
-Your links provide the helpful clues.
-No more searching, lost and vexed,
-Just click to find what should come next!
+From the ops hub to service views,
+Your links provide the crucial clues.
+No more wandering, lost and stressed—
+Click once, arrive. You know the rest.
 ```
 
 ---
