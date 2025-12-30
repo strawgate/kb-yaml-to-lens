@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Discriminator, Tag
 
-from dashboard_compiler.panels.charts.config import ESQLPanel, LensMultiLayerPanel, LensPanel
+from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.images import ImagePanel
 from dashboard_compiler.panels.links import LinksPanel
 from dashboard_compiler.panels.markdown import MarkdownPanel
@@ -11,7 +11,7 @@ from dashboard_compiler.panels.search import SearchPanel
 __all__ = ['PanelTypes', 'get_panel_type']
 
 
-def get_panel_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0912
+def get_panel_type(v: dict[str, object] | object) -> str:
     """Extract panel type for discriminated union validation.
 
     Args:
@@ -25,31 +25,22 @@ def get_panel_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0
     simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image'}
 
     if isinstance(v, dict):
-        # Check simple panel types first
         for key, panel_type in simple_types.items():
             if key in v:
                 return panel_type
-        # Chart panels
-        if ('type' in v and v['type'] == 'multi_layer_charts') or 'layers' in v:
-            return 'multi_layer_charts'
+        if 'lens' in v:
+            return 'lens'
         if 'esql' in v:
-            return 'esql_charts'
-        if 'chart' in v:
-            return 'lens_charts'
+            return 'esql'
     else:
-        # Check object attributes
         for attr, panel_type in simple_attrs.items():
             if hasattr(v, attr):
                 return panel_type
-        # Chart objects
-        if (hasattr(v, 'type') and v.type == 'multi_layer_charts') or hasattr(v, 'layers'):  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-            return 'multi_layer_charts'
+        if hasattr(v, 'lens'):
+            return 'lens'
         if hasattr(v, 'esql'):
-            return 'esql_charts'
-        if hasattr(v, 'chart'):
-            return 'lens_charts'
+            return 'esql'
 
-    # Could not determine type
     if isinstance(v, dict):
         msg = f'Cannot determine panel type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
     else:
@@ -62,8 +53,7 @@ type PanelTypes = Annotated[
     | Annotated[SearchPanel, Tag('search')]
     | Annotated[LinksPanel, Tag('links')]
     | Annotated[ImagePanel, Tag('image')]
-    | Annotated[ESQLPanel, Tag('esql_charts')]
-    | Annotated[LensPanel, Tag('lens_charts')]
-    | Annotated[LensMultiLayerPanel, Tag('multi_layer_charts')],
+    | Annotated[LensPanel, Tag('lens')]
+    | Annotated[ESQLPanel, Tag('esql')],
     Discriminator(get_panel_type),
 ]

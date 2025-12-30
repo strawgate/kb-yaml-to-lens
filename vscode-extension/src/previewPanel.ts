@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { DashboardCompilerLSP, CompiledDashboard } from './compiler';
+import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 
 export class PreviewPanel {
     private panel: vscode.WebviewPanel | undefined;
@@ -42,45 +43,14 @@ export class PreviewPanel {
             return;
         }
 
-        this.panel.webview.html = this.getLoadingContent();
+        this.panel.webview.html = getLoadingContent('Compiling dashboard...');
 
         try {
             const compiled = await this.compiler.compile(dashboardPath, dashboardIndex);
             this.panel.webview.html = this.getWebviewContent(compiled, dashboardPath);
         } catch (error) {
-            this.panel.webview.html = this.getErrorContent(error);
+            this.panel.webview.html = getErrorContent(error, 'Compilation Error');
         }
-    }
-
-    private getLoadingContent(): string {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-editor-foreground);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                        margin: 0;
-                    }
-                    .loading {
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="loading">
-                    <h2>Compiling dashboard...</h2>
-                </div>
-            </body>
-            </html>
-        `;
     }
 
     private getWebviewContent(dashboard: CompiledDashboard, filePath: string): string {
@@ -187,8 +157,8 @@ export class PreviewPanel {
             </head>
             <body>
                 <div class="header">
-                    <div class="title">${this.escapeHtml(dashboardData.attributes?.title || 'Dashboard')}</div>
-                    <div class="file-path">${this.escapeHtml(fileName)}</div>
+                    <div class="title">${escapeHtml(dashboardData.attributes?.title || 'Dashboard')}</div>
+                    <div class="file-path">${escapeHtml(fileName)}</div>
                     <div class="actions">
                         <button class="export-btn" onclick="copyToClipboard()">
                             Copy NDJSON for Kibana Import
@@ -206,17 +176,17 @@ export class PreviewPanel {
                     <div class="section-title">Dashboard Information</div>
                     <div class="info-grid">
                         <div class="info-label">Type:</div>
-                        <div class="info-value">${this.escapeHtml(dashboardData.type || 'N/A')}</div>
+                        <div class="info-value">${escapeHtml(dashboardData.type || 'N/A')}</div>
                         <div class="info-label">ID:</div>
-                        <div class="info-value">${this.escapeHtml(dashboardData.id || 'N/A')}</div>
+                        <div class="info-value">${escapeHtml(dashboardData.id || 'N/A')}</div>
                         <div class="info-label">Version:</div>
-                        <div class="info-value">${this.escapeHtml(dashboardData.version || 'N/A')}</div>
+                        <div class="info-value">${escapeHtml(dashboardData.version || 'N/A')}</div>
                     </div>
                 </div>
 
                 <div class="section">
                     <div class="section-title">Compiled NDJSON Output</div>
-                    <pre><code>${this.escapeHtml(JSON.stringify(dashboard, null, 2))}</code></pre>
+                    <pre><code>${escapeHtml(JSON.stringify(dashboard, null, 2))}</code></pre>
                 </div>
 
                 <script>
@@ -240,7 +210,7 @@ export class PreviewPanel {
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = '${this.escapeHtml(fileName.replace('.yaml', '.ndjson'))}';
+                        a.download = '${escapeHtml(fileName.replace('.yaml', '.ndjson'))}';
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
@@ -252,48 +222,4 @@ export class PreviewPanel {
         `;
     }
 
-    private getErrorContent(error: unknown): string {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-errorForeground);
-                    }
-                    h2 {
-                        margin-top: 0;
-                    }
-                    pre {
-                        background: var(--vscode-textCodeBlock-background);
-                        padding: 15px;
-                        border-radius: 3px;
-                        overflow-x: auto;
-                        border: 1px solid var(--vscode-inputValidation-errorBorder);
-                    }
-                </style>
-            </head>
-            <body>
-                <h2>Compilation Error</h2>
-                <pre>${this.escapeHtml(error instanceof Error ? error.message : String(error))}</pre>
-            </body>
-            </html>
-        `;
-    }
-
-    private escapeHtml(text: string): string {
-        return text.replace(/[&<>"']/g, (char) => {
-            switch (char) {
-                case '&': return '&amp;';
-                case '<': return '&lt;';
-                case '>': return '&gt;';
-                case '"': return '&quot;';
-                case "'": return '&#039;';
-                default: return char;
-            }
-        });
-    }
 }

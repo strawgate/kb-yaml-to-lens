@@ -36,7 +36,7 @@ Your visualizations open every door!
 
 **Minimal ESQL Metric Chart:**
 
-```yaml
+```yaml skip
 dashboards:
   - name: "ESQL Metrics Dashboard"
     panels:

@@ -144,11 +144,8 @@ def test_yaml_examples_use_dashboards_format(file_path: str) -> None:
         # Look for the top-level dashboard: key (not dashboard: inside links/other fields)
         lines = yaml_content.split('\n')
         for line in lines:
-            # Skip commented lines
             if line.strip().startswith('#'):
                 continue
-            # Check for top-level 'dashboard:' (not indented, at start of line)
-            # Must not be indented (no leading whitespace before 'dashboard:')
             if line.startswith('dashboard:'):
                 msg = (
                     f"{file_path}:{line_num} - YAML example uses deprecated 'dashboard:' format. "
@@ -195,11 +192,9 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
             continue
 
         try:
-            # Write YAML to a temporary file for loading
             temp_yaml = tmp_path / f'example_{line_num}.yaml'
             _ = temp_yaml.write_text(yaml_content)
 
-            # Try to load the YAML as a dashboard config
             dashboards = load(str(temp_yaml))
             assert len(dashboards) > 0, 'Should load at least one dashboard'
         except Exception as e:

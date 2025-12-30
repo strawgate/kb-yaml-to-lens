@@ -165,14 +165,13 @@ The `palette` field accepts the following palette IDs:
 
 #### Example 1: Using a Different Palette
 
-```yaml
+```yaml skip
 dashboards:
   - name: "Sales Dashboard"
     panels:
-      - type: charts
-        title: "Revenue by Region"
+      -         title: "Revenue by Region"
         grid: { x: 0, y: 0, w: 6, h: 6 }
-        chart:
+        lens:
           type: pie
           data_view: "sales-data"
           slice_by:
@@ -187,14 +186,13 @@ dashboards:
 
 #### Example 2: Manual Color Assignments
 
-```yaml
+```yaml skip
 dashboards:
   - name: "Status Monitoring"
     panels:
-      - type: charts
-        title: "Request Status Distribution"
+      -         title: "Request Status Distribution"
         grid: { x: 0, y: 0, w: 6, h: 6 }
-        chart:
+        lens:
           type: pie
           data_view: "logs-*"
           slice_by:

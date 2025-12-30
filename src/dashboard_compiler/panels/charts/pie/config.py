@@ -3,49 +3,20 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendVisibleEnum, LegendWidthEnum
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
-class PieLegendWidthEnum(StrEnum):
-    """Represents the possible values for the width of the legend in a pie chart."""
-
-    SMALL = 'small'
-    """Small legend."""
-
-    MEDIUM = 'medium'
-    """Medium legend."""
-
-    LARGE = 'large'
-    """Large legend."""
-
-    EXTRA_LARGE = 'extra_large'
-    """Extra large legend."""
-
-
-class PieLegendVisibleEnum(StrEnum):
-    """Represents the possible values for the visibility of the legend in a pie chart."""
-
-    SHOW = 'show'
-    """Show the legend."""
-
-    HIDE = 'hide'
-    """Hide the legend."""
-
-    AUTO = 'auto'
-    """Automatically determine the visibility of the legend based on the data."""
-
-
 class PieLegend(BaseCfgModel):
     """Represents legend formatting options for pie charts."""
 
-    visible: PieLegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
+    visible: LegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
     """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified."""
 
-    width: PieLegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
+    width: LegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
     """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified."""
 
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
@@ -149,6 +120,3 @@ class ESQLPieChart(BasePieChart):
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
-
-    esql: str = Field(default=...)
-    """The ES|QL query that determines the data for the pie chart."""

@@ -49,7 +49,6 @@ def create_error_table(errors: list[SavedObjectError]) -> Table:
     error_table.add_column('Error', style='red')
 
     for error in errors:
-        # Extract error message from the SavedObjectError model
         error_msg = (error.error.get('message') if error.error else None) or error.message or str(error)
         error_table.add_row(error_msg)
 
@@ -263,12 +262,10 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         export KIBANA_API_KEY=your-api-key
         kb-dashboard compile --upload
     """
-    # Validate mutual exclusivity of authentication options
     if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
         msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
         raise click.UsageError(msg)
 
-    # Validate that username and password are used together
     if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
@@ -534,12 +531,10 @@ def screenshot_dashboard(  # noqa: PLR0913
         kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
             --width 3840 --height 2160
     """
-    # Validate mutual exclusivity of authentication options
     if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
         msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
         raise click.UsageError(msg)
 
-    # Validate that username and password are used together
     if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
@@ -628,7 +623,6 @@ async def generate_screenshot(  # noqa: PLR0913
 
             progress.update(task, description='Screenshot generated successfully')
 
-        # Show relative path if within project, otherwise show full path
         try:
             display_path = output_path.relative_to(PROJECT_ROOT)
         except ValueError:

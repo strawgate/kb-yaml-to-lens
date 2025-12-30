@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.config import BaseChart
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
@@ -41,13 +41,6 @@ class TagcloudAppearance(BaseCfgModel):
     """Toggle for label visibility. Defaults to True."""
 
 
-class ColorMapping(BaseCfgModel):
-    """Color palette configuration."""
-
-    palette: str = Field(default='default')
-    """The palette to use for the tagcloud colors."""
-
-
 class BaseTagcloudChart(BaseChart):
     """Base model for tagcloud chart objects."""
 
@@ -57,7 +50,7 @@ class BaseTagcloudChart(BaseChart):
     """Formatting options for the chart appearance."""
 
     color: ColorMapping | None = Field(default=None)
-    """Formatting options for the chart color."""
+    """Formatting options for the chart colors."""
 
 
 class LensTagcloudChart(BaseTagcloudChart):
@@ -84,6 +77,3 @@ class ESQLTagcloudChart(BaseTagcloudChart):
 
     metric: ESQLMetricTypes = Field(default=...)
     """The metric for sizing. This determines the size of each tag."""
-
-    esql: str = Field(default=...)
-    """The ES|QL query that determines the data for the tagcloud chart."""

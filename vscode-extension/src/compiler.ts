@@ -13,6 +13,7 @@ import {
     LanguageClientOptions,
     ServerOptions,
 } from 'vscode-languageclient/node';
+import { ConfigService } from './configService';
 
 // Interface for the compiled dashboard result
 export type CompiledDashboard = unknown;
@@ -54,8 +55,7 @@ export class DashboardCompilerLSP {
      * @returns Absolute path to Python executable or 'python' for system Python
      */
     private resolvePythonPath(): string {
-        const config = vscode.workspace.getConfiguration('yamlDashboard');
-        const configuredPath = config.get<string>('pythonPath', 'python');
+        const configuredPath = ConfigService.getPythonPath();
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
         // Check explicitly configured Python path

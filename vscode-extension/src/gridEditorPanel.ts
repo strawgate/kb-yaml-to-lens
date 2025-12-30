@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { spawn } from 'child_process';
+import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
+import { ConfigService } from './configService';
 
 interface PanelGridInfo {
     id: string;
@@ -31,7 +33,6 @@ export class GridEditorPanel {
     }
 
     async show(dashboardPath: string, dashboardIndex: number = 0) {
-        // Validate that the dashboard path is within the workspace
         if (!this.isPathInWorkspace(dashboardPath)) {
             vscode.window.showErrorMessage('Dashboard file must be within the workspace');
             return;
@@ -55,7 +56,6 @@ export class GridEditorPanel {
                 this.panel = undefined;
             });
 
-            // Handle messages from the webview
             this.panel.webview.onDidReceiveMessage(
                 async message => {
                     switch (message.command) {
@@ -80,18 +80,18 @@ export class GridEditorPanel {
             return;
         }
 
-        this.panel.webview.html = this.getLoadingContent();
+        this.panel.webview.html = getLoadingContent('Loading grid editor...');
 
         try {
             const gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
             this.panel.webview.html = this.getGridEditorContent(gridInfo, dashboardPath);
         } catch (error) {
-            this.panel.webview.html = this.getErrorContent(error);
+            this.panel.webview.html = getErrorContent(error, 'Grid Editor Error');
         }
     }
 
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        const pythonPath = vscode.workspace.getConfiguration('yamlDashboard').get<string>('pythonPath', 'python');
+        const pythonPath = ConfigService.getPythonPath();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
 
         return new Promise((resolve, reject) => {
@@ -146,7 +146,7 @@ export class GridEditorPanel {
             return;
         }
 
-        const pythonPath = vscode.workspace.getConfiguration('yamlDashboard').get<string>('pythonPath', 'python');
+        const pythonPath = ConfigService.getPythonPath();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_updater.py');
 
         return new Promise((resolve, reject) => {
@@ -192,7 +192,6 @@ export class GridEditorPanel {
     }
 
     private isPathInWorkspace(filePath: string): boolean {
-        // Check if the file path is within any workspace folder
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) {
             return false;
@@ -209,40 +208,8 @@ export class GridEditorPanel {
         return false;
     }
 
-    private getLoadingContent(): string {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-editor-foreground);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                        margin: 0;
-                    }
-                    .loading {
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="loading">
-                    <h2>Loading grid editor...</h2>
-                </div>
-            </body>
-            </html>
-        `;
-    }
-
     private getGridEditorContent(gridInfo: DashboardGridInfo, filePath: string): string {
         const fileName = path.basename(filePath);
-        // Escape </script to prevent script tag injection
         const panelsJson = JSON.stringify(gridInfo.panels).replace(/<\//g, '<\\/');
 
         return `
@@ -439,9 +406,9 @@ export class GridEditorPanel {
             </head>
             <body>
                 <div class="header">
-                    <div class="title">${this.escapeHtml(gridInfo.title)}</div>
+                    <div class="title">${escapeHtml(gridInfo.title)}</div>
                     <div class="subtitle">Grid Layout Editor</div>
-                    <div class="file-path">${this.escapeHtml(fileName)}</div>
+                    <div class="file-path">${escapeHtml(fileName)}</div>
                     <div class="info-message">
                         Drag panels to move them, drag the bottom-right corner to resize. Changes are saved automatically to the YAML file.
                     </div>
@@ -484,6 +451,15 @@ export class GridEditorPanel {
                     let isResizing = false;
                     let resizeStartW = 0;
                     let resizeStartH = 0;
+
+                    /**
+                     * Client-side HTML escape function to prevent XSS
+                     */
+                    function escapeHtml(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }
 
                     const gridElement = document.getElementById('grid');
                     const showGridCheckbox = document.getElementById('showGrid');
@@ -533,8 +509,8 @@ export class GridEditorPanel {
                             panelElement.style.height = height + 'px';
 
                             panelElement.innerHTML = \`
-                                <div class="panel-header">\${panel.title || 'Untitled'}</div>
-                                <div class="panel-type">Type: \${panel.type}</div>
+                                <div class="panel-header">\${escapeHtml(panel.title || 'Untitled')}</div>
+                                <div class="panel-type">Type: \${escapeHtml(panel.type)}</div>
                                 <div class="panel-coords">
                                     x:\${panel.grid.x} y:\${panel.grid.y} w:\${panel.grid.w} h:\${panel.grid.h}
                                 </div>
@@ -688,48 +664,4 @@ export class GridEditorPanel {
         `;
     }
 
-    private getErrorContent(error: unknown): string {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-errorForeground);
-                    }
-                    h2 {
-                        margin-top: 0;
-                    }
-                    pre {
-                        background: var(--vscode-textCodeBlock-background);
-                        padding: 15px;
-                        border-radius: 3px;
-                        overflow-x: auto;
-                        border: 1px solid var(--vscode-inputValidation-errorBorder);
-                    }
-                </style>
-            </head>
-            <body>
-                <h2>Grid Editor Error</h2>
-                <pre>${this.escapeHtml(error instanceof Error ? error.message : String(error))}</pre>
-            </body>
-            </html>
-        `;
-    }
-
-    private escapeHtml(text: string): string {
-        return text.replace(/[&<>"']/g, (char) => {
-            switch (char) {
-                case '&': return '&amp;';
-                case '<': return '&lt;';
-                case '>': return '&gt;';
-                case '"': return '&quot;';
-                case "'": return '&#039;';
-                default: return char;
-            }
-        });
-    }
 }
