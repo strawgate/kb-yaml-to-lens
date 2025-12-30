@@ -2,34 +2,50 @@
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
 
+## A Poem for the Visual Storytellers
+
+_For those who know a picture is worth a thousand metrics:_
+
+```text
+Contain, cover, fill, or none,
+Your images make dashboards fun!
+Company logos, architecture maps,
+System diagrams filling gaps.
+
+When words and numbers won't convey,
+The structure of your cloud array,
+An SVG or PNG file,
+Can make your dashboard worth the while.
+
+From branding at the dashboard top,
+To network diagrams that never stop,
+Your from_url pulls the view,
+Background colors, alt text too!
+
+So here's to images clear and bright,
+That help observers see the light.
+A visual element, tried and true,
+Making dashboards beautiful for you!
+```
+
+---
+
 ## Minimal Configuration Example
 
 To add an Image panel, you need to specify its `type`, `grid` position, and the `from_url` for the image source.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: image
-#   title: "Company Logo"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 4  # Width of 4 grid units
-#     h: 3  # Height of 3 grid units
-#   from_url: "https://example.com/path/to/your/logo.png"
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Branded Dashboard"
-  panels:
-    - type: image
-      title: "Company Logo"
-      grid:
-        x: 0
-        y: 0
-        w: 4
-        h: 3
-      from_url: "https://example.com/path/to/your/logo.png"
+  - name: "Branded Dashboard"
+    panels:
+      - type: image
+        title: "Company Logo"
+        grid:
+          x: 0
+          y: 0
+          w: 4
+          h: 3
+        from_url: "https://example.com/path/to/your/logo.png"
 ```
 
 ## Complex Configuration Example
@@ -38,20 +54,19 @@ This example demonstrates an Image panel with specific `fit` behavior, alternati
 
 ```yaml
 dashboards:
--
-  name: "Dashboard with Informative Image"
-  panels:
-    - type: image
-      title: "System Architecture Diagram"
-      grid:
-        x: 0
-        y: 0
-        w: 12 # Full width
-        h: 6
-      from_url: "https://example.com/path/to/architecture.svg"
-      fit: "contain"  # Ensure the whole image is visible within the panel
-      description: "Overview of the system components and their interactions." # Alt text
-      background_color: "#f0f0f0" # Light grey background
+  - name: "Dashboard with Informative Image"
+    panels:
+      - type: image
+        title: "System Architecture Diagram"
+        grid:
+          x: 0
+          y: 0
+          w: 12 # Full width
+          h: 6
+        from_url: "https://example.com/path/to/architecture.svg"
+        fit: "contain"  # Ensure the whole image is visible within the panel
+        description: "Overview of the system components and their interactions." # Alt text
+        background_color: "#f0f0f0" # Light grey background
 ```
 
 ## Full Configuration Options
