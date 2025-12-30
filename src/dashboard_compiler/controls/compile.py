@@ -131,8 +131,6 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, TimeSliderControl):
         return compile_time_slider_control(order, control=control)
 
-    # No need for isinstance check here since ControlTypes is OptionsListControl | TimeSliderControl | RangeSliderControl
-    # and we've already handled the first two types above
     return compile_range_slider_control(order, control=control)
 
 

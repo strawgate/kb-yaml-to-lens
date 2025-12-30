@@ -31,8 +31,6 @@ def compile_nonesql_query(query: LegacyQueryTypes) -> KbnQuery:
             language='kuery',
         )
 
-    # No need for isinstance check here since LegacyQueryTypes is KqlQuery | LuceneQuery
-    # and we've already handled KqlQuery above
     return KbnQuery(
         query=query.lucene,
         language='lucene',

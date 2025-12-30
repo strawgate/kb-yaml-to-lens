@@ -31,7 +31,6 @@ export class GridEditorPanel {
     }
 
     async show(dashboardPath: string, dashboardIndex: number = 0) {
-        // Validate that the dashboard path is within the workspace
         if (!this.isPathInWorkspace(dashboardPath)) {
             vscode.window.showErrorMessage('Dashboard file must be within the workspace');
             return;
@@ -55,7 +54,6 @@ export class GridEditorPanel {
                 this.panel = undefined;
             });
 
-            // Handle messages from the webview
             this.panel.webview.onDidReceiveMessage(
                 async message => {
                     switch (message.command) {
@@ -192,7 +190,6 @@ export class GridEditorPanel {
     }
 
     private isPathInWorkspace(filePath: string): boolean {
-        // Check if the file path is within any workspace folder
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) {
             return false;
@@ -242,7 +239,6 @@ export class GridEditorPanel {
 
     private getGridEditorContent(gridInfo: DashboardGridInfo, filePath: string): string {
         const fileName = path.basename(filePath);
-        // Escape </script to prevent script tag injection
         const panelsJson = JSON.stringify(gridInfo.panels).replace(/<\//g, '<\\/');
 
         return `
