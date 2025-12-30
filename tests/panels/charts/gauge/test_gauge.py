@@ -22,9 +22,7 @@ def compile_gauge_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens
         _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_gauge_chart(esql_gauge_chart=esql_chart)
 
     assert kbn_state_visualization is not None
-    assert len(kbn_state_visualization.layers) > 0
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
-    return kbn_state_visualization_layer.model_dump()
+    return kbn_state_visualization.model_dump()
 
 
 def test_compile_gauge_chart_metric_only_lens():
@@ -41,7 +39,6 @@ def test_compile_gauge_chart_metric_only_lens():
 
     result = compile_gauge_chart_snapshot(config, 'lens')
 
-    # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
             'layerId': IsUUID,
@@ -64,7 +61,6 @@ def test_compile_gauge_chart_metric_only_esql():
 
     result = compile_gauge_chart_snapshot(config, 'esql')
 
-    # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
             'layerId': IsUUID,
@@ -90,7 +86,6 @@ def test_compile_gauge_chart_with_shape_lens():
 
     result = compile_gauge_chart_snapshot(config, 'lens')
 
-    # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
             'layerId': IsUUID,
@@ -131,7 +126,6 @@ def test_compile_gauge_chart_with_min_max_goal_lens():
 
     result = compile_gauge_chart_snapshot(config, 'lens')
 
-    # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
             'layerId': IsUUID,
@@ -169,7 +163,6 @@ def test_compile_gauge_chart_with_min_max_goal_esql():
 
     result = compile_gauge_chart_snapshot(config, 'esql')
 
-    # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
             'layerId': IsUUID,
@@ -202,7 +195,6 @@ def test_compile_gauge_chart_with_all_options_lens():
 
     result = compile_gauge_chart_snapshot(config, 'lens')
 
-    # Verify the result matches the expected snapshot
     assert result == snapshot(
         {
             'layerId': IsUUID,
@@ -236,7 +228,6 @@ def test_compile_gauge_chart_with_all_shapes():
 
         result = compile_gauge_chart_snapshot(config, 'lens')
 
-        # Verify the shape is correctly set
         assert result['shape'] == shape
         assert result['layerType'] == 'data'
         assert result['metricAccessor'] == 'metric_accessor'
@@ -260,7 +251,6 @@ def test_compile_gauge_chart_with_ticks_positions():
 
         result = compile_gauge_chart_snapshot(config, 'lens')
 
-        # Verify the ticks_position is correctly set
         assert result['ticksPosition'] == ticks_position
         assert result['layerType'] == 'data'
         assert result['metricAccessor'] == 'metric_accessor'

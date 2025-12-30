@@ -4,27 +4,33 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
-from dashboard_compiler.shared.view import OmitIfNone
+from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
-class KbnGaugeStateVisualizationLayer(KbnBaseStateVisualizationLayer):
-    """View model for gauge visualization layer configuration.
+class KbnGaugeVisualizationState(BaseVwModel):
+    """View model for gauge visualization state after compilation to Kibana Lens format.
 
-    Represents a data layer in a gauge visualization, which displays a single metric value
-    with optional min/max ranges and goal indicators. Defines which metric to display and
-    visualization options like shape, ticks, and labels.
+    This model represents the complete visualization state for gauge visualizations as stored
+    in the Kibana saved object JSON structure. Gauge visualizations display a single metric
+    value with optional min/max ranges and goal indicators, typically used for KPIs and
+    progress tracking.
 
-    This model represents the compiled structure sent to Kibana for configuring gauge
-    visualization layers.
+    Unlike multi-layer chart types (pie, XY), gauge visualizations use a flat structure where
+    layer properties are directly on the visualization state object, not nested in a layers array.
+
+    The visualization state is part of the larger Lens panel configuration and defines how
+    the gauge should be rendered in Kibana dashboards.
 
     See Also:
-        Kibana type definition: Related layer types in
+        Kibana type definition: `GaugeVisualizationState` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/gauge/types.ts
     """
 
+    layerId: str = Field(...)
+    """Unique identifier for the layer within the visualization."""
+
     layerType: Literal['data'] = 'data'
-    """Always 'data' for gauge layers."""
+    """Always 'data' for gauge visualizations."""
 
     metricAccessor: str = Field(...)
     """Field accessor ID for the primary metric value to display."""
@@ -55,20 +61,3 @@ class KbnGaugeStateVisualizationLayer(KbnBaseStateVisualizationLayer):
 
     colorMode: Annotated[Literal['none', 'palette'] | None, OmitIfNone()] = Field(default=None)
     """Color mode for the gauge visualization."""
-
-
-class KbnGaugeVisualizationState(KbnBaseStateVisualization):
-    """View model for gauge visualization state after compilation to Kibana Lens format.
-
-    This model represents the complete visualization state for gauge visualizations as stored
-    in the Kibana saved object JSON structure. Gauge visualizations display a single metric
-    value with optional min/max ranges and goal indicators, typically used for KPIs and
-    progress tracking.
-
-    The visualization state is part of the larger Lens panel configuration and defines how
-    the gauge should be rendered in Kibana dashboards.
-
-    See Also:
-        Kibana type definition: `GaugeVisualizationState` in
-        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/gauge/types.ts
-    """

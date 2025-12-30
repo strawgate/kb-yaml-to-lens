@@ -5,10 +5,7 @@ from typing import TYPE_CHECKING
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
-from dashboard_compiler.panels.charts.gauge.view import (
-    KbnGaugeStateVisualizationLayer,
-    KbnGaugeVisualizationState,
-)
+from dashboard_compiler.panels.charts.gauge.view import KbnGaugeVisualizationState
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.shared.config import random_id_generator
 
@@ -38,10 +35,9 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
         KbnGaugeVisualizationState: The compiled visualization state.
 
     """
-    # Determine labelMajorMode based on whether label_major is provided
     label_major_mode = 'custom' if chart.label_major is not None else 'auto'
 
-    kbn_layer_visualization = KbnGaugeStateVisualizationLayer(
+    return KbnGaugeVisualizationState(
         layerId=layer_id,
         metricAccessor=metric_id,
         minAccessor=min_id,
@@ -54,8 +50,6 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
         labelMajorMode=label_major_mode,
         colorMode=chart.color_mode,
     )
-
-    return KbnGaugeVisualizationState(layers=[kbn_layer_visualization])
 
 
 def compile_lens_gauge_chart(

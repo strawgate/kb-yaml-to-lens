@@ -84,6 +84,37 @@ Each component follows this structure:
 - **Dependency manager**: `uv` (not Poetry)
 - **Docstring coverage**: 80% threshold
 
+### Comments
+
+Use comments thoughtfully to explain complex logic, not to state the obvious:
+
+**✅ Good comments** (provide value):
+
+```python
+# Calculate labelMajorMode based on whether custom label is provided
+label_major_mode = 'custom' if chart.label_major is not None else 'auto'
+
+# Gauge visualizations use a flat structure, not a layers array like pie/XY charts
+return KbnGaugeVisualizationState(...)
+```
+
+**❌ Bad comments** (redundant, state the obvious):
+
+```python
+# Verify the result matches the expected snapshot
+assert result == snapshot(...)
+
+# Compile primary metric
+metric_id, metric_column = compile_lens_metric(lens_gauge_chart.metric)
+```
+
+**Guidelines:**
+
+- Avoid comments that merely repeat what the code already says
+- Use comments to explain **why** something is done, not **what** is being done
+- For complex algorithms or non-obvious business logic, provide detailed explanations
+- Docstrings are preferred over inline comments for function/class documentation
+
 ### Pydantic Models
 
 **Configuration Models** (`BaseCfgModel`):
