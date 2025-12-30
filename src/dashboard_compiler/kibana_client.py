@@ -67,6 +67,7 @@ class KibanaClient:
     username: str | None
     password: str | None
     api_key: str | None
+    ssl_verify: bool
 
     def __init__(
         self,
@@ -75,6 +76,7 @@ class KibanaClient:
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
+        ssl_verify: bool = True,
     ) -> None:
         """Initialize the Kibana client.
 
@@ -83,12 +85,14 @@ class KibanaClient:
             username: Basic auth username (optional)
             password: Basic auth password (optional)
             api_key: API key for authentication (optional)
+            ssl_verify: Whether to verify SSL certificates (default: True). Set to False for self-signed certificates.
 
         """
         self.url = url.rstrip('/')
         self.username = username
         self.password = password
         self.api_key = api_key
+        self.ssl_verify = ssl_verify
 
     def _get_auth_headers_and_auth(self) -> tuple[dict[str, str], aiohttp.BasicAuth | None]:
         """Get authentication headers and auth object for Kibana API requests.
@@ -131,7 +135,8 @@ class KibanaClient:
 
         headers, auth = self._get_auth_headers_and_auth()
 
-        async with aiohttp.ClientSession() as session:
+        connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
+        async with aiohttp.ClientSession(connector=connector) as session:
             with ndjson_path.open('rb') as f:
                 data = aiohttp.FormData()
                 data.add_field('file', f, filename=ndjson_path.name, content_type='application/ndjson')
@@ -219,7 +224,11 @@ class KibanaClient:
 
         headers, auth = self._get_auth_headers_and_auth()
 
-        async with aiohttp.ClientSession() as session, session.post(endpoint, params=params, headers=headers, auth=auth) as response:
+        connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
+        async with (
+            aiohttp.ClientSession(connector=connector) as session,
+            session.post(endpoint, params=params, headers=headers, auth=auth) as response,
+        ):
             response.raise_for_status()
             result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
             job_path: str | None = result.get('path')
@@ -255,7 +264,8 @@ class KibanaClient:
 
         try:
             async with asyncio.timeout(timeout_seconds):
-                async with aiohttp.ClientSession() as session:
+                connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
+                async with aiohttp.ClientSession(connector=connector) as session:
                     while True:
                         async with session.get(endpoint, headers=headers, auth=auth) as response:
                             # Check if job is complete (200 OK with content)
