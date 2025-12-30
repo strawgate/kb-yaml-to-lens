@@ -310,6 +310,7 @@ def compile_xy_chart_visualization_state(
         legend={'isVisible': legend_visible, 'position': legend_position},
         valueLabels='hide',
         xTitle=x_title,
+        yTitle=y_left_title,  # Legacy field for backward compatibility - Kibana requires both yTitle and yLeftTitle
         yLeftTitle=y_left_title,
         yRightTitle=y_right_title,
         yLeftScale=y_left_scale,
