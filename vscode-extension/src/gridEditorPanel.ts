@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { spawn } from 'child_process';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
+import { ConfigService } from './configService';
 
 interface PanelGridInfo {
     id: string;
@@ -92,7 +93,7 @@ export class GridEditorPanel {
     }
 
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        const pythonPath = vscode.workspace.getConfiguration('yamlDashboard').get<string>('pythonPath', 'python');
+        const pythonPath = ConfigService.getPythonPath();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
 
         return new Promise((resolve, reject) => {
@@ -147,7 +148,7 @@ export class GridEditorPanel {
             return;
         }
 
-        const pythonPath = vscode.workspace.getConfiguration('yamlDashboard').get<string>('pythonPath', 'python');
+        const pythonPath = ConfigService.getPythonPath();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_updater.py');
 
         return new Promise((resolve, reject) => {
