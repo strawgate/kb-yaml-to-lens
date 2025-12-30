@@ -544,6 +544,40 @@ async def test_reference_line_layer_multiple_lines() -> None:
     assert columns['threshold-critical'].params.value == '1000.0'
 
 
+async def test_reference_line_layer_without_ids() -> None:
+    """Test that multiple reference lines without IDs get unique accessor IDs."""
+    layer_config = LensReferenceLineLayer(
+        data_view='logs-*',
+        reference_lines=[
+            XYReferenceLine(value=100.0, label='Threshold 1'),
+            XYReferenceLine(value=200.0, label='Threshold 2'),
+            XYReferenceLine(value=300.0, label='Threshold 3'),
+        ],
+    )
+
+    layer_id, columns, ref_layers = compile_lens_reference_line_layer(layer_config)
+
+    # Test that we got a layer ID
+    assert isinstance(layer_id, str)
+    assert len(layer_id) > 0
+
+    # Test that we have 3 reference line layers (one per reference line)
+    assert len(ref_layers) == 3
+
+    # Test that we have 3 columns with unique accessor IDs
+    assert len(columns) == 3
+    accessor_ids = list(columns.keys())
+    # All accessor IDs should be unique (no collisions)
+    assert len(accessor_ids) == len(set(accessor_ids))
+    # Accessor IDs should not be the layer_id (they should be generated)
+    for accessor_id in accessor_ids:
+        assert accessor_id != layer_id
+
+    # Test column values are correct
+    column_values = sorted([col.params.value for col in columns.values()])
+    assert column_values == ['100.0', '200.0', '300.0']
+
+
 async def test_reference_line_layer_empty() -> None:
     """Test compilation of a reference line layer with no lines."""
     layer_config = LensReferenceLineLayer(
