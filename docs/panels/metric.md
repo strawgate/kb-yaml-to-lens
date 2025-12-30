@@ -36,10 +36,9 @@ The most important number ever seen!
 dashboards:
   - name: "KPI Dashboard"
     panels:
-      - type: charts
-        title: "Total Revenue"
+      - title: "Total Revenue"
         grid: { x: 0, y: 0, w: 12, h: 2 }
-        chart:
+        lens:
           type: metric
           data_view: "sales-data"
           primary:
@@ -77,7 +76,7 @@ You can create Metric chart panels programmatically using Python:
 ### Count Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
@@ -93,14 +92,18 @@ count_chart = LensMetricChart(
 panel = LensPanel(
     title='Total Documents',
     grid=Grid(x=0, y=0, w=24, h=15),
-    chart=count_chart,
+    lens=LensPanelConfig(
+        type='metric',
+        data_view='logs-*',
+        primary=LensCountAggregatedMetric(aggregation='count'),
+    ),
 )
 ```
 
 ### Average Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
@@ -116,7 +119,11 @@ avg_chart = LensMetricChart(
 panel = LensPanel(
     title='Avg Response Time',
     grid=Grid(x=0, y=0, w=24, h=15),
-    chart=avg_chart,
+    lens=LensPanelConfig(
+        type='metric',
+        data_view='logs-*',
+        primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
+    ),
 )
 ```
 

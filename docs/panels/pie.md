@@ -36,10 +36,9 @@ Displayed to help you reach your goal!
 dashboards:
   - name: "Traffic Sources"
     panels:
-      - type: charts
-        title: "Website Traffic Sources"
+      - title: "Website Traffic Sources"
         grid: { x: 0, y: 0, w: 24, h: 6 }
-        chart:
+        lens:
           type: pie
           data_view: "traffic-data"
           slice_by:
@@ -108,7 +107,7 @@ dashboards:
 You can create Pie chart panels programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensTopValuesDimension,
 )
@@ -127,7 +126,12 @@ pie_chart = LensPieChart(
 panel = LensPanel(
     title='Status Distribution',
     grid=Grid(x=0, y=0, w=24, h=15),
-    chart=pie_chart,
+    lens=LensPanelConfig(
+        type='pie',
+        data_view='logs-*',
+        slice_by=[LensTopValuesDimension(field='status')],
+        metric=LensCountAggregatedMetric(aggregation='count'),
+    ),
 )
 ```
 
