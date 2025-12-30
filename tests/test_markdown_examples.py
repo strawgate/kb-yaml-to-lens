@@ -9,6 +9,9 @@ from pytest_examples import CodeExample, EvalExample, find_examples
 docs_dir = Path(__file__).parent.parent / 'docs'
 markdown_files = sorted(str(p.relative_to(docs_dir.parent)) for p in docs_dir.rglob('*.md'))
 
+# Fail fast if no markdown files are found (likely a path or checkout issue)
+assert markdown_files, f'No markdown files found in {docs_dir}'
+
 
 @pytest.mark.parametrize('example', find_examples(*markdown_files), ids=str)
 def test_markdown_examples(example: CodeExample, eval_example: EvalExample) -> None:
