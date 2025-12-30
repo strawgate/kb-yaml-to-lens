@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 const EXTENSION_ID = 'strawgate.yaml-dashboard-compiler';
 const FIXTURES_PATH = path.join(__dirname, '..', '..', '..', 'src', 'test', 'fixtures');
+const LSP_STARTUP_DELAY_MS = 3000;
 
 suite('Extension E2E Tests', () => {
     let extension: vscode.Extension<unknown> | undefined;
@@ -23,7 +24,7 @@ suite('Extension E2E Tests', () => {
         }
 
         // Give the LSP server time to start
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, LSP_STARTUP_DELAY_MS));
     });
 
     test('Extension should be present', () => {
@@ -74,5 +75,16 @@ suite('Extension E2E Tests', () => {
         assert.strictEqual(document.languageId, 'yaml');
         assert.ok(document.getText().includes('First Dashboard'));
         assert.ok(document.getText().includes('Second Dashboard'));
+    });
+
+    test('Should handle invalid YAML file', async function () {
+        this.timeout(10000);
+
+        const yamlFile = path.join(FIXTURES_PATH, 'invalid.yaml');
+        const document = await vscode.workspace.openTextDocument(yamlFile);
+        await vscode.window.showTextDocument(document);
+
+        assert.strictEqual(document.languageId, 'yaml');
+        assert.ok(document.getText().includes('Missing Grid'));
     });
 });
