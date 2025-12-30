@@ -121,7 +121,6 @@ When updating YAML configuration docs:
 2. Each component's markdown should include: overview, minimal example, complex example, full options table
 3. Table columns: `YAML Key`, `Data Type`, `Description`, `Default`, `Required`
 4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config models)
-5. Run `make compile-docs` to regenerate `docs/yaml_reference.md`
 
 ---
 
@@ -206,7 +205,6 @@ Run `make check` locally before pushing.
 | Resource | Location |
 | -------- | -------- |
 | Architecture details | `docs/architecture.md` |
-| YAML schema reference | `docs/yaml_reference.md` (generated via `make compile-docs`) |
 | Quickstart guide | `docs/quickstart.md` |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |

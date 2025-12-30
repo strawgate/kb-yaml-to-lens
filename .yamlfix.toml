@@ -1,0 +1,6 @@
+# yamlfix configuration
+# https://lyz-code.github.io/yamlfix/
+
+line_length = 140
+sequence_style = "block_style"
+none_representation = "null"
