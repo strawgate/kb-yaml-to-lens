@@ -119,8 +119,6 @@ ignore = [
 "tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
-    "ANN001", # Allow missing argument type annotations in tests
-    "ANN201", # Allow missing return type annotations in tests
     "INP001", # Tests are not meant to be imported as packages
 ]
 "vscode-extension/python/**/*.py" = [
@@ -183,7 +181,7 @@ exclude = [
 # Per-directory settings: more lenient for tests
 # Tests use dynamic typing patterns that are difficult to type-check strictly
 executionEnvironments = [
-    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportMissingTypeArgument = false, reportUnusedCallResult = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
+    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
     { root = "src/dashboard_compiler" },
 ]
 
