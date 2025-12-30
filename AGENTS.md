@@ -9,19 +9,9 @@
 
 This repository contains three main components:
 
-1. **Dashboard Compiler** (Python) - Core YAML → JSON compilation engine
-2. **VS Code Extension** (TypeScript) - Live preview and visual editing
-3. **Fixture Generator** (JavaScript/Docker) - Kibana API-based test fixture generation
-
-**Important:** Each component has its own `AGENTS.md` file with component-specific guidelines. When working on a specific component, refer to the relevant AGENTS.md:
-
-- Python compiler: `src/dashboard_compiler/AGENTS.md`
-- VS Code extension: `vscode-extension/AGENTS.md`
-- Fixture generator: `fixture-generator/AGENTS.md`
-
----
-
-## Quick Reference
+1. **Dashboard Compiler** - Core YAML → JSON compilation engine
+2. **VS Code Extension** - Live preview and visual editing
+3. **Fixture Generator** - Kibana API-based test fixture generation
 
 ### Repository Structure
 
@@ -36,7 +26,7 @@ This repository contains three main components:
 
 ### Common Commands
 
-**From repository root:**
+We try to make all common commands available via `make` commands.
 
 | Command | Purpose |
 | --------- | --------- |
@@ -49,9 +39,7 @@ This repository contains three main components:
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
-**Component-specific commands:**
-
-See component-specific AGENTS.md files for detailed commands.
+Note: These are intended to be used from the repository root. See component-specific AGENTS.md files for detailed commands.
 
 **Workflow example:**
 
@@ -71,14 +59,9 @@ make ci
 
 ## AI Agent Guidelines
 
-### Before Starting Work
+**Read the docs first:**
 
-1. **Identify the component** you're working on (Python compiler, VS Code extension, fixture generator)
-2. **Read the component-specific AGENTS.md** for detailed guidelines
-3. **Read relevant files** before making changes
-4. **Search for patterns** in the codebase to maintain consistency
-
-### General Principles
+- When working in any component, read the README.md or AGENTS.md/CLAUDE.md for the component you're working on.
 
 **Read Before Modify:**
 
@@ -88,6 +71,7 @@ make ci
 
 **Maintain Consistency:**
 
+- Always search for existing patterns in the codebase to maintain consistency
 - Follow existing code patterns within each component
 - Match the style and conventions of surrounding code
 - Don't introduce new patterns without strong justification
@@ -103,6 +87,12 @@ make ci
 - Document unresolved items
 - Acknowledge when you're uncertain
 - Never claim work is complete with critical issues unresolved
+
+**Be Thorough:**
+
+- Go the extra mile!
+- Update documentation and tests when you make code changes. These are not typically near the code so make sure you thoroughly search for items to update.
+- Consider the broader impact of your changes.
 
 ---
 
@@ -144,32 +134,6 @@ The repository uses GitHub Actions for:
 
 Each workflow has self-contained instructions. Claude receives both the workflow prompt and relevant AGENTS.md files.
 
-### GitHub Actions Workflow Patterns
-
-When creating new Claude-powered workflows:
-
-1. **Use the shared workflow:** `.github/workflows/run-claude.yml`
-2. **Standard MCP configuration** (automatically set up in shared workflow):
-   - `repository-summary` - For generating AGENTS.md summaries
-   - `code-search` - For searching code across repo
-   - `github-research` - For issue/PR analysis
-3. **Don't manually configure MCP servers** - use the shared workflow's built-in setup
-
-**Example:**
-
-```yaml
-jobs:
-  my-claude-job:
-    uses: ./.github/workflows/run-claude.yml
-    with:
-      checkout-ref: ${{ github.event.pull_request.head.ref }}
-      prompt: |
-        Your task here...
-      allowed-tools: mcp__github-research,Bash
-    secrets:
-      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-```
-
 ### Modifying Workflows
 
 **Claude CANNOT modify workflow files** in `.github/workflows/` due to GitHub App permissions. When attempting to push changes to workflow files, GitHub rejects the push with:
@@ -180,25 +144,14 @@ refusing to allow a GitHub App to create or update workflow `.github/workflows/*
 
 **To request workflow changes:**
 
+Copilot is extremely dumb and needs to be spoon-fed the exact change you want made. Do not give co-pilot options, do not rely on its expertise, do not trust its output.
+
 1. **Use @copilot** - Copilot (copilot-swe-agent[bot]) has full filesystem access and can modify workflows
 2. **Provide exact specifications** - Since Copilot requires very specific instructions, provide:
    - Exact file path (e.g., `.github/workflows/claude-on-mention.yml`)
    - Exact line numbers or context to modify
    - Exact text to add/change/remove
    - Clear explanation of the desired behavior
-
-**Example request to Copilot:**
-
-```text
-@copilot please update .github/workflows/claude-on-mention.yml
-line 50: change allowed-tools to include Read,Write,Edit tools
-```
-
-**Workflow modification capabilities by agent:**
-
-- **Claude** - ❌ Cannot push workflow changes (GitHub App limitation)
-- **Copilot** - ✅ Can create/modify workflows directly
-- **CodeRabbit** - ❌ Review-only, cannot make commits
 
 ---
 
@@ -245,12 +198,11 @@ gh api graphql -f query='
 
 ### Self Code Review Checklist
 
-- [ ] Solves the stated problem
-- [ ] Code is complete and well-written
-- [ ] Follows existing patterns in codebase
+- [ ] Solves the stated problem, with specific reference to the body of the related issue
+- [ ] Code is complete, well-written, and follows existing patterns in codebase
 - [ ] Tests added/updated as needed
-- [ ] Documentation updated if API changed
-- [ ] Component-specific checks pass
+- [ ] Documentation is still accurate after the changes
+- [ ] All checks pass (linting + typecheck + tests) - run `make ci` to verify all checks pass
 
 ---
 

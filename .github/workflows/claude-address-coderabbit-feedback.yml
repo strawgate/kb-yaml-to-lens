@@ -1,5 +1,5 @@
 ---
-name: Claude CodeRabbit Response
+name: Claude Address CodeRabbit Feedback
 on:
   pull_request_review:
     types:
@@ -29,7 +29,7 @@ jobs:
         CodeRabbit has left review feedback on PR  #${{ github.event.pull_request.number }}.
         Review ID: ${{ github.event.review.id }}
         Your goal is to:
-        1. Check if newer CodeRabbit reviews exist (if so, skip this run)
+        1. Check if another Claude workflow has already responded (if so, skip this run)
         2. Fetch all review comments from CodeRabbit for this PR
         3. Address each comment by making appropriate code changes
         4. Before completing, check again for newer reviews and address any new feedback
@@ -224,7 +224,6 @@ jobs:
         - Check for newer reviews at the start (skip if found) and before completing (address if found)
         - Don't re-trigger CodeRabbit by mentioning it or requesting re-review
         - Focus on fixing issues, not perfecting code
-        - This workflow allows multiple reviews in one run (`cancel-in-progress: false`)
       allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

@@ -1,17 +1,15 @@
 # Dashboard Compiler
 
-Convert human-friendly YAML dashboard definitions into Kibana NDJSON format.
+Making Dashboards in Kibana is so much fun! Sometimes though, it's nice to build dashboards and visualizations without clicking and clacking in a web browser. That's where the Dashboard Compiler comes in.
 
-This tool simplifies the process of creating and managing Kibana dashboards by allowing you to define them in a clean, maintainable YAML format instead of hand-crafting complex JSON.
+It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
 
 ## Features
 
 - **YAML-based Dashboard Definition** – Define dashboards, panels, filters, and queries in simple YAML
-- **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+
-- **Rich Panel Support** – Lens visualizations (metric, pie, XY charts), Markdown, Links, Image panels, and Search panels (in development)
+- **Rich Panel Support** – Lens visualizations (metric, pie, XY charts), Markdown, Links, Image panels, and more
 - **Advanced Controls** – Control groups with options lists, range sliders, and time sliders with chaining
-- **Flexible Filtering** – Comprehensive filter DSL supporting exists, phrase, range, and custom DSL with AND/OR/NOT operators
-- **Multiple Query Types** – KQL, Lucene, and ESQL query support
+- **Filter Support** – Exists, phrase, range, and custom DSL with AND/OR/NOT operators
 - **Direct Upload** – Optional direct upload to Kibana with authentication support
 - **Screenshot Export** – Generate PNG screenshots of dashboards with custom time ranges using Kibana's Reporting API
 
@@ -21,11 +19,11 @@ This tool simplifies the process of creating and managing Kibana dashboards by a
 
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
-```bash
-uv sync --group dev
-```
+To install the project dependencies, run:
 
-For more information, see the [uv documentation](https://docs.astral.sh/uv/).
+```bash
+uv sync
+```
 
 ### Compile Your First Dashboard
 
@@ -33,8 +31,7 @@ For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ```yaml
 dashboards:
--
-  name: My First Dashboard
+- name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
     - title: Welcome
@@ -147,78 +144,6 @@ kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 ```
 
 **Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
-
-## Project Structure
-
-```text
-src/dashboard_compiler/
-├── cli.py                 # Command-line interface
-├── dashboard_compiler.py  # Main compilation logic
-├── kibana_client.py       # Kibana API client
-├── dashboard/             # Dashboard compilation
-├── panels/                # Panel compilers (Lens, Markdown, Links, Images)
-├── controls/              # Control group compilation
-├── filters/               # Filter compilation
-├── queries/               # Query compilation
-└── shared/                # Shared utilities and models
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# Run all tests
-make test
-
-# Run all checks (recommended before committing)
-make check
-```
-
-See the `Makefile` for the underlying commands if you need to run them directly.
-
-### Code Quality
-
-This project uses [Ruff](https://github.com/astral-sh/ruff) for Python linting and formatting, [basedpyright](https://github.com/DetachHead/basedpyright) for type checking, and [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
-
-```bash
-# Run all linters and formatters
-make lint
-
-# Run type checking
-make typecheck
-```
-
-See the `Makefile` for the underlying commands if you need to run them directly.
-
-### Documentation
-
-Build and preview the documentation locally:
-
-```bash
-# Serve documentation locally
-make docs-serve
-
-# Build static documentation site
-make docs-build
-
-# Deploy to GitHub Pages
-make docs-deploy
-```
-
-See the `Makefile` for the underlying commands if you need to run them directly.
-
-### Adding New Features
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the process of adding new dashboard capabilities.
-
-## Requirements
-
-- Python 3.12+
-- PyYAML 6.0+
-- Pydantic 2.11.3+
-- beartype 0.20.2+
-- Node.js/npm (for markdown linting, development only)
 
 ## License
 
