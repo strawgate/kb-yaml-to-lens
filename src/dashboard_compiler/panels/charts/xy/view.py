@@ -28,6 +28,27 @@ class LabelsOrientationConfig(BaseVwModel):
     """Rotation angle in degrees for right Y-axis labels."""
 
 
+class AxisTitlesVisibilitySettings(BaseVwModel):
+    """View model for axis title visibility settings in XY charts.
+
+    Controls whether axis titles are visible for the X-axis, left Y-axis, and right Y-axis.
+    This must be set for axis titles to render in Kibana.
+
+    See Also:
+        Kibana type definition: `AxisTitlesVisibilitySettings` in
+        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
+    """
+
+    x: bool | None = None
+    """Whether to show the X-axis title."""
+
+    yLeft: bool | None = None
+    """Whether to show the left Y-axis title."""
+
+    yRight: bool | None = None
+    """Whether to show the right Y-axis title."""
+
+
 YAxisMode = Literal['left', 'right']
 
 
@@ -350,7 +371,7 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     yRightScale: Annotated[Literal['linear', 'log', 'sqrt', 'time'] | None, OmitIfNone()] = None
     """Scale type for the right Y-axis (linear, log, sqrt, time)."""
 
-    axisTitlesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    axisTitlesVisibilitySettings: Annotated[AxisTitlesVisibilitySettings | None, OmitIfNone()] = None
     """Control visibility of axis titles."""
 
     tickLabelsVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None

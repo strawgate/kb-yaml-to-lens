@@ -678,6 +678,12 @@ async def test_dual_axis_chart() -> None:
     assert kbn_state_visualization.yLeftScale == 'linear'
     assert kbn_state_visualization.yRightScale == 'linear'
 
+    # Test axis title visibility settings
+    assert kbn_state_visualization.axisTitlesVisibilitySettings is not None
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.x is False
+
 
 async def test_styled_series_chart() -> None:
     """Test chart with styled series using the new series configuration.
@@ -753,3 +759,9 @@ async def test_axis_extent_configuration() -> None:
     # Verify extent compilation for y-axis (data bounds)
     assert kbn_state_visualization.yLeftExtent is not None
     assert kbn_state_visualization.yLeftExtent.mode == 'dataBounds'
+
+    # Verify axis title visibility settings
+    assert kbn_state_visualization.axisTitlesVisibilitySettings is not None
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.x is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
+    assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is False

@@ -30,6 +30,7 @@ from dashboard_compiler.panels.charts.xy.config import (
 )
 from dashboard_compiler.panels.charts.xy.view import (
     AxisExtentConfig,
+    AxisTitlesVisibilitySettings,
     KbnXYVisualizationState,
     XYDataLayerConfig,
     XYReferenceLineLayerConfig,
@@ -270,6 +271,15 @@ def compile_xy_chart_visualization_state(
         y_left_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
         y_right_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
 
+    # Build axisTitlesVisibilitySettings if any titles are set
+    axis_titles_visibility = None
+    if x_title is not None or y_left_title is not None or y_right_title is not None:
+        axis_titles_visibility = AxisTitlesVisibilitySettings(
+            x=x_title is not None,
+            yLeft=y_left_title is not None,
+            yRight=y_right_title is not None,
+        )
+
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
         accessors=metric_ids,
@@ -307,6 +317,7 @@ def compile_xy_chart_visualization_state(
         xExtent=x_extent,
         yLeftExtent=y_left_extent,
         yRightExtent=y_right_extent,
+        axisTitlesVisibilitySettings=axis_titles_visibility,
     )
 
 

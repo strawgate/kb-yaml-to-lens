@@ -96,9 +96,12 @@ class AxisExtent(BaseCfgModel):
 
     @model_validator(mode='after')
     def validate_custom_bounds(self) -> Self:
-        """Validate that custom mode has at least one bound specified."""
-        if self.mode == 'custom' and self.min is None and self.max is None:
-            msg = "mode='custom' requires at least 'min' or 'max' to be specified"
+        """Validate that custom mode has both min and max bounds specified.
+
+        Kibana requires both bounds to be set when using custom mode.
+        """
+        if self.mode == 'custom' and (self.min is None or self.max is None):
+            msg = "mode='custom' requires both 'min' and 'max' to be specified"
             raise ValueError(msg)
         return self
 

@@ -165,10 +165,12 @@ Configures the bounds (range) of an axis.
 | YAML Key | Data Type | Description | Default | Required |
 | ------------- | -------------------------------------------- | --------------------------------------------------------- | ------- | -------- |
 | `mode` | `Literal['full', 'data_bounds', 'custom']` | Extent mode: 'full' (entire range), 'data_bounds' (fit to data), 'custom' (manual bounds). | N/A | Yes |
-| `min` | `float \| None` | Minimum bound (required if mode is 'custom'). | `None` | No |
-| `max` | `float \| None` | Maximum bound (required if mode is 'custom'). | `None` | No |
+| `min` | `float \| None` | Minimum bound (required when mode is 'custom'). | `None` | Conditional* |
+| `max` | `float \| None` | Maximum bound (required when mode is 'custom'). | `None` | Conditional* |
 | `enforce` | `bool \| None` | Whether to enforce the bounds strictly. | `None` | No |
 | `nice_values` | `bool \| None` | Whether to round bounds to nice values. | `None` | No |
+
+**\*Note:** When `mode='custom'`, both `min` and `max` must be specified (Kibana requirement).
 
 #### XYSeries Options
 
