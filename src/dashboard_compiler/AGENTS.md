@@ -5,35 +5,6 @@
 
 ---
 
-## Quick Reference
-
-### Essential Commands
-
-| Command | Purpose |
-| ------- | ------- |
-| `make install` | Install all dependencies |
-| `make ci` or `make check` | **Run before committing** (lint-all-check + typecheck + test-all) |
-| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML) |
-| `make test` | Run Python unit tests only |
-| `make test-all` | Run all tests (unit + smoke + extension) |
-| `make lint` | Format and lint Python code |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
-
-### Common Workflows
-
-```bash
-# First time setup
-make install
-
-# Development cycle
-# 1. Make changes
-# 2. Auto-fix linting issues
-make fix
-# 3. Run all CI checks (linting + typecheck + tests)
-make ci
-```
-
 ---
 
 ## Project Architecture
@@ -69,28 +40,17 @@ Each component follows this structure:
 
 ### Test Standards
 
-- **Use inline snapshots** via `inline-snapshot` library (not external snapshot files)
-- **Prefer inline tests** in Python test files over separate scenario files
-- **Note:** Scenario-based tests in `tests/scenarios/` are being phased out in favor of inline snapshot tests
-- See existing tests for patterns (e.g., `tests/panels/charts/lens/metrics/test_metrics.py`)
+New features and bug fixes should have corresponding and comprehensive tests. Our tests should be useful, easy to maintain and understand, and have proper documentation.
+
+- **Use and prefer inline snapshots** via `inline-snapshot` library. Prefer snapshots over many assertions
 
 ---
 
 ## Code Conventions
 
-### Style
-
-- **Line length**: 140 characters (Ruff enforced)
-- **Dependency manager**: `uv` (not Poetry)
-- **Docstring coverage**: 80% threshold
-
 ### Pydantic Models
 
-**Configuration Models** (`BaseCfgModel`):
-
-- Settings: `strict=True`, `extra='forbid'`, `frozen=True`, `validate_default=True`
-- Use attribute docstrings for field descriptions
-- Location: `**/config.py` files
+Pydantic models often inherit from `BaseCfgModel` and `BaseVwModel`, which sets a number of common settings and behaviors like strict mode, extra fields, frozen, validate_default, and more. In this repository we use attribute docstrings for field descriptions.
 
 **View Models** (`BaseVwModel`):
 
@@ -131,7 +91,7 @@ def handle_panel(panel: PanelTypes) -> str:
         return handle_markdown(panel)
     if isinstance(panel, LinksPanel):
         return handle_links(panel)
-    if isinstance(panel, (LensPanel, ESQLPanel)):
+    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return handle_charts(panel)
     # Explicit error case instead of relying on type narrowing
     msg = f'Unknown panel type: {type(panel).__name__}'
@@ -160,7 +120,7 @@ When updating YAML configuration docs:
 1. `config.py` files are the source of truth for all configuration options
 2. Each component's markdown should include: overview, minimal example, complex example, full options table
 3. Table columns: `YAML Key`, `Data Type`, `Description`, `Default`, `Required`
-4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config models)
+4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config or view models)
 
 ---
 
@@ -194,6 +154,10 @@ When modifying or creating chart compiler code, you need accurate reference data
 4. Verify the output JSON exists in `fixture-generator/output/`
 5. Compare your compiler output with the Kibana-generated fixture
 6. Commit BOTH the generator script AND output files
+
+#### Option 3: (Worst Option) Review the Kibana Codebase for schema examples
+
+Use the github code search tool to find examples of JSON from the chart type in the Kibana codebase and use those as references.
 
 **Why use fixtures:**
 
@@ -234,8 +198,9 @@ CI will fail if:
 - Ruff linting fails
 - Markdown/YAML linting fails
 - Tests fail
-- Type checking fails (basedpyright standard mode)
+- Type checking fails (basedpyright recommended mode)
 - Docstring coverage below 80%
+- Merge conflicts are present
 
 Run `make ci` (or `make check`) locally before pushing.
 
