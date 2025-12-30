@@ -1,7 +1,7 @@
 ---
 dashboards:
-  - name: "[Example] Multi-Panel Showcase"
-    description: "Comprehensive example demonstrating all available panel types and chart variations"
+  - name: '[Example] Multi-Panel Showcase'
+    description: Comprehensive example demonstrating all available panel types and chart variations
     panels:
       # Panel 1: Markdown Panel (Introduction)
       - type: markdown
@@ -69,7 +69,7 @@ dashboards:
           type: line
           data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - field: '@timestamp'
           metrics:
             - aggregation: count
 
@@ -83,7 +83,7 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: "host.name"
+            - field: host.name
           metrics:
             - aggregation: count
 
@@ -97,11 +97,11 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - field: '@timestamp'
           metrics:
             - aggregation: count
           breakdown:
-            field: "log.level"
+            field: log.level
 
       # Panel 8: Tagcloud Chart
       - type: charts
@@ -112,6 +112,6 @@ dashboards:
           type: tagcloud
           data_view: logs-*
           tags:
-            field: "tags"
+            field: tags
           metric:
             aggregation: count
