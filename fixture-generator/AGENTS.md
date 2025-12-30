@@ -6,54 +6,28 @@
 
 ## Critical Rules — READ THIS FIRST
 
-### ⚠️ MANDATORY FIXTURE GENERATION REQUIREMENT ⚠️
+### Fixture Generation is Required
 
-**When creating or modifying ANY fixture generator file, you MUST:**
+We're building a compiler that targets Kibana's JSON format. The fixture generator reliably produces valid Kibana JSON by using Kibana's official APIs. This takes a couple of minutes to run, which is much faster than creating fixtures manually.
 
-1. ✅ Run `cd fixture-generator && make build` (if Docker image doesn't exist)
-2. ✅ Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.js`
-3. ✅ Verify output file exists in `fixture-generator/output/`
-4. ✅ Inspect the output JSON to ensure it's valid
-5. ✅ Commit BOTH the generator script AND the output JSON files
+**When creating or modifying fixture generator files:**
 
-**This is NOT optional. This is NOT negotiable. There are ZERO exceptions.**
+1. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
+2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.js`
+3. Verify output file exists in `fixture-generator/output/`
+4. Inspect the output JSON to ensure it's valid
+5. Commit BOTH the generator script AND the output JSON files
 
-### What "MUST" Means
+**Why this matters:**
 
-- **MUST** = You are REQUIRED to do this before committing
-- **NEVER** = You are FORBIDDEN from doing this under any circumstances
-- If you skip fixture generation, your work will be REJECTED and you will be asked to redo it
+- Ensures the compiler produces JSON that actually works in Kibana
+- Provides accurate reference for what Kibana expects
+- Catches schema changes when Kibana updates
+- Faster than creating fixtures manually
 
-### Forbidden Excuses
+**If you can't run Docker:**
 
-The following are **EXPLICITLY FORBIDDEN** and will result in your PR being rejected:
-
-❌ "The Docker build takes too long for CI" — The 6-minute build is **cached** after first run
-❌ "Not practical in this CI environment" — Docker **IS** available in CI
-❌ "This follows existing patterns so testing isn't needed" — **ALL** generators must be tested
-❌ "I'll defer to manual validation when needed" — Testing must happen **NOW**, not later
-❌ "I can't run Docker" — Then **DO NOT** commit code (see exception below)
-
-### The Only Valid Exception
-
-**IF AND ONLY IF** you genuinely cannot run Docker (e.g., in a truly restricted environment):
-
-1. ✅ Explicitly state: "I cannot run Docker in this environment"
-2. ✅ Request: "Please run `cd fixture-generator && make run-example EXAMPLE=<file>.js` and verify the output"
-3. ❌ DO NOT commit the generator script until the user confirms it works
-4. ❌ DO NOT proceed to the next step until validation is complete
-
-**If you commit untested generator code, it will be rejected regardless of your excuse.**
-
-### Why This Matters
-
-Fixture generators create test data from **real Kibana APIs**. This ensures:
-
-- The compiler produces output that **actually works** in Kibana
-- Schema changes in Kibana are **caught immediately**
-- We have **verified examples** for every chart type
-
-Skipping fixture generation means shipping **unvalidated code** that may produce invalid Kibana JSON.
+State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.js` to verify the output before merging. Don't commit untested generator code.
 
 ---
 
@@ -91,7 +65,7 @@ cat output/metric-basic.json | python -m json.tool | head -50
 
 ## Fixture Generation Verification Checklist
 
-When creating or modifying fixture generators, you MUST complete this checklist:
+When creating or modifying fixture generators, complete this checklist:
 
 - [ ] Created/modified generator script in `examples/`
 - [ ] Ran `make build` (if Docker image doesn't exist)
@@ -103,7 +77,7 @@ When creating or modifying fixture generators, you MUST complete this checklist:
 - [ ] Ran `make check` from project root - all tests pass
 - [ ] Committed changes
 
-**Copy this checklist into your response and check off each item as you complete it.**
+Copy this checklist into your response and check off each item as you complete it.
 
 ---
 
@@ -118,7 +92,7 @@ make --version
 
 ### Running Generators
 
-The fixture generator **MUST** run inside Docker because it requires Kibana's `@kbn/lens-embeddable-utils` package.
+The fixture generator runs inside Docker because it requires Kibana's `@kbn/lens-embeddable-utils` package.
 
 **Generate all fixtures:**
 
@@ -149,7 +123,7 @@ cat fixture-generator/output/metric-basic.json | head -20
 
 Edit generator files in `fixture-generator/examples/`.
 
-### 2. Test Your Changes (REQUIRED)
+### 2. Test Your Changes
 
 ```bash
 cd fixture-generator
@@ -283,10 +257,10 @@ node examples/your-generator.js
 
 **Before you commit any generator code:**
 
-1. ✅ Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
-2. ✅ Verify `fixture-generator/output/your-file.json` exists
-3. ✅ Check JSON is valid with `python -m json.tool`
-4. ✅ Run `make check` from project root
-5. ✅ Only then git add/commit/push
+1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
+2. Verify `fixture-generator/output/your-file.json` exists
+3. Check JSON is valid with `python -m json.tool`
+4. Run `make check` from project root
+5. Only then git add/commit/push
 
 **If you cannot run Docker**, clearly state this in your response and ask the user to test before merging.

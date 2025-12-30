@@ -136,37 +136,31 @@ When updating YAML configuration docs:
    - `if x is not None:` instead of `if x:`
    - `if len(items) > 0:` instead of `if items:`
 
-### ⚠️ When Working on Chart Types (panels/charts/) ⚠️
+### When Working on Chart Types (panels/charts/)
 
-**If you modify or create ANY chart compiler code**, you MUST also work with test fixtures:
+When modifying or creating chart compiler code, you need accurate reference data for what Kibana expects. Use the fixture generator to get this reference data:
 
 #### Option 1: Reference Existing Fixtures (Preferred)
 
-1. ✅ Check if a fixture already exists in `fixture-generator/output/` for this chart type
-2. ✅ Read the existing fixture to understand the expected Kibana JSON structure
-3. ✅ Compare your compiler output against the fixture to ensure accuracy
-4. ✅ If the existing fixture doesn't cover your use case, create a new one (see Option 2)
+1. Check if a fixture already exists in `fixture-generator/output/` for this chart type
+2. Read the existing fixture to understand the expected Kibana JSON structure
+3. Compare your compiler output against the fixture to ensure accuracy
+4. If the existing fixture doesn't cover your use case, create a new one (see Option 2)
 
-#### Option 2: Create New Fixtures (Required for New Chart Types)
+#### Option 2: Create New Fixtures (For New Chart Types)
 
-1. ✅ Create a fixture generator script in `fixture-generator/examples/<chart-type>.js`
-2. ✅ Run `cd fixture-generator && make build` (if Docker image doesn't exist)
-3. ✅ Run `cd fixture-generator && make run-example EXAMPLE=<chart-type>.js`
-4. ✅ Verify the output JSON exists in `fixture-generator/output/`
-5. ✅ Compare your compiler output with the Kibana-generated fixture
-6. ✅ Commit BOTH the generator script AND output files
+1. Create a fixture generator script in `fixture-generator/examples/<chart-type>.js`
+2. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
+3. Run `cd fixture-generator && make run-example EXAMPLE=<chart-type>.js`
+4. Verify the output JSON exists in `fixture-generator/output/`
+5. Compare your compiler output with the Kibana-generated fixture
+6. Commit BOTH the generator script AND output files
 
-**Why This Matters:**
+**Why use fixtures:**
 
-Test fixtures are generated from **real Kibana APIs** using official LensConfigBuilder. This ensures:
+Fixtures are generated from real Kibana APIs using the official LensConfigBuilder. This ensures you're working with accurate reference data for what Kibana actually expects, not assumptions. It takes a couple of minutes and is much faster than creating references manually.
 
-- Your compiler produces JSON that **actually works** in Kibana (not just valid JSON)
-- You're following Kibana's **actual schema**, not assumptions
-- Future schema changes will be **caught by comparing to fixtures**
-
-**See `fixture-generator/AGENTS.md` for detailed fixture generation instructions.**
-
-**CRITICAL:** Do not skip fixture generation or reference. Every chart compiler change must be validated against real Kibana output.
+See `fixture-generator/AGENTS.md` for detailed instructions.
 
 ### Verification Requirements
 
