@@ -269,7 +269,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         raise click.UsageError(msg)
 
     # Validate that username and password are used together
-    if (kibana_username and not kibana_password) or (kibana_password and not kibana_username):
+    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
 
