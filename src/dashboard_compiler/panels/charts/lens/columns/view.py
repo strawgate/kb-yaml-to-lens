@@ -16,7 +16,7 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensCustomInvervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn
+type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -95,6 +95,31 @@ class KbnLensFieldMetricColumn(KbnLensBaseColumn):
 
     params: KbnLensMetricColumnParams
     """Additional parameters for the metric column."""
+
+
+class KbnLensStaticValueColumnParams(BaseVwModel):
+    """Parameters for static value columns."""
+
+    value: Annotated[int | float | str | None, OmitIfNone()] = Field(default=None)
+    """The static value to display."""
+
+
+class KbnLensStaticValueColumn(KbnLensBaseColumn):
+    """Represents a static value Lens column (not sourced from a field).
+
+    Used for displaying fixed numeric values in gauge charts (min/max/goal)
+    or reference lines. The value is specified directly rather than aggregated
+    from data.
+    """
+
+    operationType: Literal['static_value']
+    """Always 'static_value' for static value columns."""
+
+    params: KbnLensStaticValueColumnParams
+    """Parameters containing the static value."""
+
+    references: list[str] = Field(default_factory=list)
+    """References to other columns (typically empty for static values)."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):

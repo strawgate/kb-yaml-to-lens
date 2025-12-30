@@ -47,6 +47,31 @@ dashboards:
             field: system.cpu.total.pct
 ```
 
+## Static Values Example
+
+You can use static numeric values for min/max/goal instead of field-based metrics:
+
+```yaml
+dashboards:
+  - name: "Performance Dashboard"
+    panels:
+      - type: charts
+        title: "Response Time"
+        grid: { x: 0, y: 0, w: 4, h: 3 }
+        chart:
+          type: gauge
+          data_view: "logs-*"
+          metric:
+            aggregation: average
+            field: response_time_ms
+          minimum: 0        # Static value
+          maximum: 1000     # Static value
+          goal: 500         # Static value
+          appearance:
+            shape: arc
+            color_mode: palette
+```
+
 ## Full Configuration Options
 
 ### Lens Gauge Chart
@@ -56,14 +81,10 @@ dashboards:
 | `type` | `Literal['gauge']` | Specifies the chart type as gauge. | `'gauge'` | No |
 | `data_view` | `string` | The data view that determines the data for the gauge chart. | N/A | Yes |
 | `metric` | `LensMetricTypes` | The primary metric to display (main value shown in the gauge). | N/A | Yes |
-| `minimum` | `LensMetricTypes \| None` | Optional minimum value metric for the gauge range. | `None` | No |
-| `maximum` | `LensMetricTypes \| None` | Optional maximum value metric for the gauge range. | `None` | No |
-| `goal` | `LensMetricTypes \| None` | Optional goal/target metric shown as a reference line. | `None` | No |
-| `shape` | `'horizontalBullet' \| 'verticalBullet' \| 'arc' \| 'circle' \| None` | The shape of the gauge visualization. | Kibana Default | No |
-| `ticks_position` | `'auto' \| 'bands' \| 'hidden' \| None` | Position of tick marks on the gauge. | Kibana Default | No |
-| `label_major` | `string \| None` | Major label text to display on the gauge. | Kibana Default | No |
-| `label_minor` | `string \| None` | Minor label text to display on the gauge. | Kibana Default | No |
-| `color_mode` | `'none' \| 'palette' \| None` | Color mode for the gauge visualization. | Kibana Default | No |
+| `minimum` | `LensMetricTypes \| int \| float \| None` | Optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value. | `None` | No |
+| `maximum` | `LensMetricTypes \| int \| float \| None` | Optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value. | `None` | No |
+| `goal` | `LensMetricTypes \| int \| float \| None` | Optional goal/target value shown as a reference. Can be a metric (field-based) or a static numeric value. | `None` | No |
+| `appearance` | `GaugeAppearance \| None` | Visual appearance configuration for the gauge. | `None` | No |
 
 ### ESQL Gauge Chart
 
@@ -71,14 +92,20 @@ dashboards:
 | ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['gauge']` | Specifies the chart type as gauge. | `'gauge'` | No |
 | `metric` | `ESQLMetricTypes` | The primary metric to display (main value shown in the gauge). | N/A | Yes |
-| `minimum` | `ESQLMetricTypes \| None` | Optional minimum value metric for the gauge range. | `None` | No |
-| `maximum` | `ESQLMetricTypes \| None` | Optional maximum value metric for the gauge range. | `None` | No |
-| `goal` | `ESQLMetricTypes \| None` | Optional goal/target metric shown as a reference line. | `None` | No |
-| `shape` | `'horizontalBullet' \| 'verticalBullet' \| 'arc' \| 'circle' \| None` | The shape of the gauge visualization. | Kibana Default | No |
-| `ticks_position` | `'auto' \| 'bands' \| 'hidden' \| None` | Position of tick marks on the gauge. | Kibana Default | No |
-| `label_major` | `string \| None` | Major label text to display on the gauge. | Kibana Default | No |
-| `label_minor` | `string \| None` | Minor label text to display on the gauge. | Kibana Default | No |
-| `color_mode` | `'none' \| 'palette' \| None` | Color mode for the gauge visualization. | Kibana Default | No |
+| `minimum` | `ESQLMetricTypes \| int \| float \| None` | Optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value. | `None` | No |
+| `maximum` | `ESQLMetricTypes \| int \| float \| None` | Optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value. | `None` | No |
+| `goal` | `ESQLMetricTypes \| int \| float \| None` | Optional goal/target value shown as a reference. Can be a metric (field-based) or a static numeric value. | `None` | No |
+| `appearance` | `GaugeAppearance \| None` | Visual appearance configuration for the gauge. | `None` | No |
+
+### Gauge Appearance Options
+
+| YAML Key | Data Type | Description | Default | Required |
+| ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------- | -------- |
+| `shape` | `'horizontalBullet' \| 'verticalBullet' \| 'arc' \| 'circle' \| None` | The shape of the gauge visualization. | `'arc'` | No |
+| `ticks_position` | `'auto' \| 'bands' \| 'hidden' \| None` | Position of tick marks on the gauge. | `'auto'` | No |
+| `label_major` | `string \| None` | Major label text to display on the gauge. | `None` | No |
+| `label_minor` | `string \| None` | Minor label text to display on the gauge. | `None` | No |
+| `color_mode` | `'none' \| 'palette' \| None` | Color mode for the gauge visualization. | `None` | No |
 
 ## Shape Options
 
@@ -130,6 +157,8 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
 from dashboard_compiler.panels.config import Grid
 
 # Gauge with range and goal indicator
+from dashboard_compiler.panels.charts.gauge.config import GaugeAppearance
+
 gauge_chart = LensGaugeChart(
     data_view='sales-*',
     metric=LensOtherAggregatedMetric(
@@ -149,8 +178,10 @@ gauge_chart = LensGaugeChart(
         aggregation='average',
         field='revenue_target'
     ),
-    shape='arc',
-    color_mode='palette',
+    appearance=GaugeAppearance(
+        shape='arc',
+        color_mode='palette',
+    ),
 )
 
 panel = LensPanel(
@@ -169,10 +200,17 @@ from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart
 from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.queries.types import ESQLQuery
 
-# ESQL-based gauge
+# ESQL-based gauge with static min/max/goal
+from dashboard_compiler.panels.charts.gauge.config import GaugeAppearance
+
 gauge_chart = ESQLGaugeChart(
     metric=ESQLFieldMetric(field='avg_cpu'),
-    shape='horizontalBullet',
+    minimum=0,         # Static value
+    maximum=100,       # Static value
+    goal=80,           # Static value
+    appearance=GaugeAppearance(
+        shape='horizontalBullet',
+    ),
 )
 
 panel = ESQLPanel(

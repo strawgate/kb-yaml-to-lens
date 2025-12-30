@@ -3,10 +3,12 @@
 from typing import TYPE_CHECKING
 
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_metric
+from dashboard_compiler.panels.charts.esql.columns.config import ESQLStaticValue
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.gauge.view import KbnGaugeVisualizationState
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
+from dashboard_compiler.panels.charts.lens.metrics.config import LensStaticValue
 from dashboard_compiler.shared.config import random_id_generator
 
 if TYPE_CHECKING:
@@ -35,7 +37,15 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
         KbnGaugeVisualizationState: The compiled visualization state.
 
     """
-    label_major_mode = 'custom' if chart.label_major is not None else 'auto'
+    # Extract appearance settings with defaults
+    appearance = chart.appearance
+    shape = appearance.shape if appearance is not None and appearance.shape is not None else 'arc'
+    ticks_position = appearance.ticks_position if appearance is not None and appearance.ticks_position is not None else 'auto'
+    label_major = appearance.label_major if appearance is not None else None
+    label_minor = appearance.label_minor if appearance is not None else None
+    color_mode = appearance.color_mode if appearance is not None else None
+
+    label_major_mode = 'custom' if label_major is not None else 'auto'
 
     return KbnGaugeVisualizationState(
         layerId=layer_id,
@@ -43,12 +53,12 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
         minAccessor=min_id,
         maxAccessor=max_id,
         goalAccessor=goal_id,
-        shape=chart.shape if chart.shape is not None else 'arc',
-        ticksPosition=chart.ticks_position if chart.ticks_position is not None else 'auto',
-        labelMajor=chart.label_major,
-        labelMinor=chart.label_minor,
+        shape=shape,
+        ticksPosition=ticks_position,
+        labelMajor=label_major,
+        labelMinor=label_minor,
         labelMajorMode=label_major_mode,
-        colorMode=chart.color_mode,
+        colorMode=color_mode,
     )
 
 
@@ -78,17 +88,31 @@ def compile_lens_gauge_chart(
     metric_id, metric_column = compile_lens_metric(lens_gauge_chart.metric)
     kbn_metric_columns_by_id[metric_id] = metric_column
 
-    # Compile optional min/max/goal metrics
+    # Compile optional min/max/goal - handle both static values and metrics
     if lens_gauge_chart.minimum is not None:
-        min_id, min_column = compile_lens_metric(lens_gauge_chart.minimum)
+        # Convert raw numbers to LensStaticValue objects
+        minimum_metric = (
+            LensStaticValue(value=lens_gauge_chart.minimum)
+            if isinstance(lens_gauge_chart.minimum, (int, float))
+            else lens_gauge_chart.minimum
+        )
+        min_id, min_column = compile_lens_metric(minimum_metric)
         kbn_metric_columns_by_id[min_id] = min_column
 
     if lens_gauge_chart.maximum is not None:
-        max_id, max_column = compile_lens_metric(lens_gauge_chart.maximum)
+        maximum_metric = (
+            LensStaticValue(value=lens_gauge_chart.maximum)
+            if isinstance(lens_gauge_chart.maximum, (int, float))
+            else lens_gauge_chart.maximum
+        )
+        max_id, max_column = compile_lens_metric(maximum_metric)
         kbn_metric_columns_by_id[max_id] = max_column
 
     if lens_gauge_chart.goal is not None:
-        goal_id, goal_column = compile_lens_metric(lens_gauge_chart.goal)
+        goal_metric = (
+            LensStaticValue(value=lens_gauge_chart.goal) if isinstance(lens_gauge_chart.goal, (int, float)) else lens_gauge_chart.goal
+        )
+        goal_id, goal_column = compile_lens_metric(goal_metric)
         kbn_metric_columns_by_id[goal_id] = goal_column
 
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {**kbn_metric_columns_by_id}
@@ -133,22 +157,35 @@ def compile_esql_gauge_chart(
     metric_id: str = metric_column.columnId
     kbn_columns.append(metric_column)
 
-    # Compile optional min/max/goal metrics
+    # Compile optional min/max/goal - handle both static values and metrics
     min_id: str | None = None
     if esql_gauge_chart.minimum is not None:
-        min_column = compile_esql_metric(esql_gauge_chart.minimum)
+        minimum_metric = (
+            ESQLStaticValue(value=esql_gauge_chart.minimum)
+            if isinstance(esql_gauge_chart.minimum, (int, float))
+            else esql_gauge_chart.minimum
+        )
+        min_column = compile_esql_metric(minimum_metric)
         min_id = min_column.columnId
         kbn_columns.append(min_column)
 
     max_id: str | None = None
     if esql_gauge_chart.maximum is not None:
-        max_column = compile_esql_metric(esql_gauge_chart.maximum)
+        maximum_metric = (
+            ESQLStaticValue(value=esql_gauge_chart.maximum)
+            if isinstance(esql_gauge_chart.maximum, (int, float))
+            else esql_gauge_chart.maximum
+        )
+        max_column = compile_esql_metric(maximum_metric)
         max_id = max_column.columnId
         kbn_columns.append(max_column)
 
     goal_id: str | None = None
     if esql_gauge_chart.goal is not None:
-        goal_column = compile_esql_metric(esql_gauge_chart.goal)
+        goal_metric = (
+            ESQLStaticValue(value=esql_gauge_chart.goal) if isinstance(esql_gauge_chart.goal, (int, float)) else esql_gauge_chart.goal
+        )
+        goal_column = compile_esql_metric(goal_metric)
         goal_id = goal_column.columnId
         kbn_columns.append(goal_column)
 

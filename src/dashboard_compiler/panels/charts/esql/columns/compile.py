@@ -1,20 +1,36 @@
 from collections.abc import Sequence
 
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
+from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes, ESQLStaticValue
+from dashboard_compiler.panels.charts.esql.columns.view import (
+    KbnESQLFieldDimensionColumn,
+    KbnESQLFieldMetricColumn,
+    KbnESQLMetricColumnTypes,
+    KbnESQLStaticValueColumn,
+)
 from dashboard_compiler.shared.config import random_id_generator, stable_id_generator
 
 
-def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLFieldMetricColumn:
+def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
     """Compile a single ESQLMetricTypes object into its Kibana view model.
 
     Args:
         metric (ESQLMetricTypes): The ESQLMetricTypes object to compile.
 
     Returns:
-        tuple[str, KbnLensColumnTypes]: A tuple containing the metric ID and its compiled KbnLensColumnTypes.
+        KbnESQLMetricColumnTypes: The compiled Kibana column.
 
     """
+    # Handle static values
+    if isinstance(metric, ESQLStaticValue):
+        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
+        field_name = metric.label if metric.label is not None else str(metric.value)
+
+        return KbnESQLStaticValueColumn(
+            fieldName=field_name,
+            columnId=metric_id,
+        )
+
+    # Handle regular field-based metrics
     metric_id = metric.id or stable_id_generator([metric.field])
 
     return KbnESQLFieldMetricColumn(
@@ -23,14 +39,14 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLFieldMetricColumn:
     )
 
 
-def compile_esql_metrics(metrics: Sequence[ESQLMetricTypes]) -> list[KbnESQLFieldMetricColumn]:
+def compile_esql_metrics(metrics: Sequence[ESQLMetricTypes]) -> list[KbnESQLMetricColumnTypes]:
     """Compile a sequence of ESQLMetricTypes into their Kibana view model representation.
 
     Args:
         metrics (Sequence[ESQLMetricTypes]): The sequence of ESQLMetricTypes objects to compile.
 
     Returns:
-        list[KbnESQLFieldMetricColumn]: A list of compiled KbnESQLFieldMetricColumn objects.
+        list[KbnESQLMetricColumnTypes]: A list of compiled metric columns (field-based or static values).
 
     """
     return [compile_esql_metric(metric) for metric in metrics]

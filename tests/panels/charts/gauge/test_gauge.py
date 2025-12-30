@@ -85,7 +85,9 @@ def test_compile_gauge_chart_with_shape_lens():
             'id': 'metric_accessor',
             'aggregation': 'average',
         },
-        'shape': 'arc',
+        'appearance': {
+            'shape': 'arc',
+        },
     }
 
     result = compile_gauge_chart_snapshot(config, 'lens')
@@ -195,11 +197,13 @@ def test_compile_gauge_chart_with_all_options_lens():
             'id': 'metric_accessor',
             'aggregation': 'average',
         },
-        'shape': 'arc',
-        'ticks_position': 'auto',
-        'label_major': 'CPU Usage',
-        'label_minor': 'Percentage',
-        'color_mode': 'palette',
+        'appearance': {
+            'shape': 'arc',
+            'ticks_position': 'auto',
+            'label_major': 'CPU Usage',
+            'label_minor': 'Percentage',
+            'color_mode': 'palette',
+        },
     }
 
     result = compile_gauge_chart_snapshot(config, 'lens')
@@ -232,7 +236,9 @@ def test_compile_gauge_chart_with_all_shapes():
                 'id': 'metric_accessor',
                 'aggregation': 'average',
             },
-            'shape': shape,
+            'appearance': {
+                'shape': shape,
+            },
         }
 
         result = compile_gauge_chart_snapshot(config, 'lens')
@@ -255,7 +261,9 @@ def test_compile_gauge_chart_with_ticks_positions():
                 'id': 'metric_accessor',
                 'aggregation': 'average',
             },
-            'ticks_position': ticks_position,
+            'appearance': {
+                'ticks_position': ticks_position,
+            },
         }
 
         result = compile_gauge_chart_snapshot(config, 'lens')
@@ -263,3 +271,65 @@ def test_compile_gauge_chart_with_ticks_positions():
         assert result['ticksPosition'] == ticks_position
         assert result['layerType'] == 'data'
         assert result['metricAccessor'] == 'metric_accessor'
+
+
+def test_compile_gauge_chart_with_static_values_lens():
+    """Test the compilation of a gauge chart with static min/max/goal values (Lens)."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'minimum': 0,
+        'maximum': 1,
+        'goal': 0.8,
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'metric_accessor',
+            'minAccessor': IsUUID,
+            'maxAccessor': IsUUID,
+            'goalAccessor': IsUUID,
+            'shape': 'arc',
+            'ticksPosition': 'auto',
+            'labelMajorMode': 'auto',
+        }
+    )
+
+
+def test_compile_gauge_chart_with_static_values_esql():
+    """Test the compilation of a gauge chart with static min/max/goal values (ESQL)."""
+    config = {
+        'type': 'gauge',
+        'metric': {
+            'field': 'avg_cpu',
+            'id': 'metric_accessor',
+        },
+        'minimum': 0,
+        'maximum': 100,
+        'goal': 80,
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'metric_accessor',
+            'minAccessor': IsUUID,
+            'maxAccessor': IsUUID,
+            'goalAccessor': IsUUID,
+            'shape': 'arc',
+            'ticksPosition': 'auto',
+            'labelMajorMode': 'auto',
+        }
+    )

@@ -23,6 +23,7 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
     LensPercentileAggregatedMetric,
     LensPercentileRankAggregatedMetric,
+    LensStaticValue,
     LensSumAggregatedMetric,
 )
 from dashboard_compiler.queries.view import KbnQuery
@@ -137,6 +138,26 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         tuple[str, KbnColumn]: A tuple containing the metric ID and its compiled KbnColumn.
 
     """
+    # Handle static values
+    if isinstance(metric, LensStaticValue):
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensStaticValueColumn,
+            KbnLensStaticValueColumnParams,
+        )
+
+        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
+        label = metric.label if metric.label is not None else str(metric.value)
+        custom_label = metric.label is not None
+
+        return metric_id, KbnLensStaticValueColumn(
+            label=label,
+            customLabel=custom_label,
+            dataType='number',
+            operationType='static_value',
+            scale='ratio',
+            params=KbnLensStaticValueColumnParams(value=metric.value),
+        )
+
     custom_label = None if metric.label is None else True
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 

@@ -10,15 +10,12 @@ from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
-class BaseGaugeChart(BaseCfgModel):
-    """Base configuration for gauge chart visualizations.
+class GaugeAppearance(BaseCfgModel):
+    """Appearance configuration for gauge visualizations.
 
-    Provides common fields shared between Lens and ESQL gauge chart configurations.
-    Gauge charts display a single metric value with optional min/max ranges and goal indicators.
+    Groups all visual styling options for gauge charts including shape, tick positioning,
+    labels, and color mode.
     """
-
-    type: Literal['gauge'] = Field(default='gauge')
-    """The type of chart, which is 'gauge' for this visualization."""
 
     shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)
     """The shape of the gauge visualization."""
@@ -36,6 +33,20 @@ class BaseGaugeChart(BaseCfgModel):
     """Color mode for the gauge visualization."""
 
 
+class BaseGaugeChart(BaseCfgModel):
+    """Base configuration for gauge chart visualizations.
+
+    Provides common fields shared between Lens and ESQL gauge chart configurations.
+    Gauge charts display a single metric value with optional min/max ranges and goal indicators.
+    """
+
+    type: Literal['gauge'] = Field(default='gauge')
+    """The type of chart, which is 'gauge' for this visualization."""
+
+    appearance: GaugeAppearance | None = Field(default=None)
+    """Visual appearance configuration for the gauge."""
+
+
 class LensGaugeChart(BaseChart, BaseGaugeChart):
     """Represents a Gauge chart configuration within a Lens panel.
 
@@ -49,14 +60,14 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
     metric: LensMetricTypes = Field(...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: LensMetricTypes | None = Field(default=None)
-    """An optional minimum value metric for the gauge range."""
+    minimum: LensMetricTypes | int | float | None = Field(default=None)
+    """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: LensMetricTypes | None = Field(default=None)
-    """An optional maximum value metric for the gauge range."""
+    maximum: LensMetricTypes | int | float | None = Field(default=None)
+    """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: LensMetricTypes | None = Field(default=None)
-    """An optional goal/target metric to display as a reference line."""
+    goal: LensMetricTypes | int | float | None = Field(default=None)
+    """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
 
 class ESQLGaugeChart(BaseChart, BaseGaugeChart):
@@ -69,11 +80,11 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
     metric: ESQLMetricTypes = Field(...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: ESQLMetricTypes | None = Field(default=None)
-    """An optional minimum value metric for the gauge range."""
+    minimum: ESQLMetricTypes | int | float | None = Field(default=None)
+    """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: ESQLMetricTypes | None = Field(default=None)
-    """An optional maximum value metric for the gauge range."""
+    maximum: ESQLMetricTypes | int | float | None = Field(default=None)
+    """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: ESQLMetricTypes | None = Field(default=None)
-    """An optional goal/target metric to display as a reference line."""
+    goal: ESQLMetricTypes | int | float | None = Field(default=None)
+    """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
