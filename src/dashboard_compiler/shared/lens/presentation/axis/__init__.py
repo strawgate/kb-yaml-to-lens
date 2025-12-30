@@ -1,1 +1,0 @@
-"""Lens axis presentation configuration."""
