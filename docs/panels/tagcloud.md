@@ -2,6 +2,34 @@
 
 The Tag Cloud chart panel visualizes term frequency as a word cloud, where the size of each tag is proportional to its metric value. This is useful for showing the most common or significant terms in your data.
 
+## A Poem for Those Who Observe from the Skies Above
+
+_For the aerial observers of textual trends:_
+
+```text
+Up above the dashboard sky,
+Where word clouds float and patterns fly,
+Tags in sizes large and small,
+Showing which terms matter most of all.
+
+From eighteen points to seventy-two,
+Font sizes tell a story true.
+Horizontal, vertical, angles multiple,
+Orientations flexible!
+
+Error messages like cumulus clouds,
+User agents spelling names out loud,
+Kubernetes labels floating free,
+Pod names drifting across the sea.
+
+"single", "right angled", "multiple" ways,
+To orient your word displays.
+So here's to those who like to see,
+Their data in a sky of vocabulary!
+```
+
+---
+
 ## Minimal Configuration Example (Lens)
 
 ```yaml
@@ -115,8 +143,7 @@ dashboards:
 
 ## Related
 
-- [Base Chart Configuration](../base/config.md)
-- [Lens Dimensions](../lens/dimensions/config.md)
-- [Lens Metrics](../lens/metrics/config.md)
-- [ES|QL Dimensions](../esql/columns/config.md)
-- [Dashboard Configuration](../../../dashboard/config.md)
+- [Base Panel Configuration](base.md)
+- [Lens Panel Configuration](lens.md) (see sections on Dimensions and Metrics)
+- [ESQL Panel Configuration](esql.md) (see section on ESQL Columns)
+- [Dashboard Configuration](../dashboard/dashboard.md)

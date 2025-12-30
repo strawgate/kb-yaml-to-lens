@@ -2,6 +2,34 @@
 
 The XY chart panel creates line, bar, and area charts for time series and other data visualizations.
 
+## A Poem for the Time Series Enthusiasts
+
+_For those who see patterns across the timeline:_
+
+```text
+Lines that rise and bars that fall,
+Area charts that show it all.
+X-axis marching through the time,
+Y-axis tracking every climb.
+
+When incidents spike at 2 AM,
+Your XY charts help us understand them.
+Stacked or unstacked, the choice is yours,
+Percentage mode for ratio scores.
+
+Dimensions define the horizontal way,
+Metrics show values throughout the day.
+Breakdown by service, host, or zone,
+Every pattern clearly shown.
+
+From request counts to error rates,
+Your time series never hesitates.
+So here's to charts both line and bar,
+That help us see how systems are!
+```
+
+---
+
 ## Minimal Configuration Example
 
 ```yaml
