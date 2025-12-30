@@ -38,6 +38,7 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         fieldName=metric.field,
         columnId=metric_id,
         meta=KbnESQLColumnMeta(type='number'),
+        inMetricDimension=True,
     )
 
 
@@ -66,9 +67,11 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
     """
     dimension_id = dimension.id or random_id_generator()
 
+    # ES|QL dimensions default to string type
     return KbnESQLFieldDimensionColumn(
         fieldName=dimension.field,
         columnId=dimension_id,
+        meta=KbnESQLColumnMeta(type='string'),
     )
 
 

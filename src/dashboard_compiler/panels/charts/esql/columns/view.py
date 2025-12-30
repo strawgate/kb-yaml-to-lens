@@ -40,6 +40,9 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
     meta: Annotated[KbnESQLColumnMeta | None, OmitIfNone()] = Field(default=None)
     """Optional metadata about the column type."""
 
+    inMetricDimension: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    """Whether this column should be treated as a metric dimension."""
+
 
 class KbnESQLStaticValueColumn(BaseVwModel):
     """Represents a static value ESQL column.
