@@ -121,7 +121,6 @@ When updating YAML configuration docs:
 2. Each component's markdown should include: overview, minimal example, complex example, full options table
 3. Table columns: `YAML Key`, `Data Type`, `Description`, `Default`, `Required`
 4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config models)
-5. Run `make compile-docs` to regenerate `docs/yaml_reference.md`
 
 ---
 
@@ -135,6 +134,32 @@ When updating YAML configuration docs:
 4. **Use explicit Boolean comparisons** — Never rely on implicit truthiness
    - `if x is not None:` instead of `if x:`
    - `if len(items) > 0:` instead of `if items:`
+
+### When Working on Chart Types (panels/charts/)
+
+When modifying or creating chart compiler code, you need accurate reference data for what Kibana expects. Use the fixture generator to get this reference data:
+
+#### Option 1: Reference Existing Fixtures (Preferred)
+
+1. Check if a fixture already exists in `fixture-generator/output/` for this chart type
+2. Read the existing fixture to understand the expected Kibana JSON structure
+3. Compare your compiler output against the fixture to ensure accuracy
+4. If the existing fixture doesn't cover your use case, create a new one (see Option 2)
+
+#### Option 2: Create New Fixtures (For New Chart Types)
+
+1. Create a fixture generator script in `fixture-generator/examples/<chart-type>.js`
+2. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
+3. Run `cd fixture-generator && make run-example EXAMPLE=<chart-type>.js`
+4. Verify the output JSON exists in `fixture-generator/output/`
+5. Compare your compiler output with the Kibana-generated fixture
+6. Commit BOTH the generator script AND output files
+
+**Why use fixtures:**
+
+Fixtures are generated from real Kibana APIs using the official LensConfigBuilder. This ensures you're working with accurate reference data for what Kibana actually expects, not assumptions. It takes a couple of minutes and is much faster than creating references manually.
+
+See `fixture-generator/AGENTS.md` for detailed instructions.
 
 ### Verification Requirements
 
@@ -180,7 +205,6 @@ Run `make check` locally before pushing.
 | Resource | Location |
 | -------- | -------- |
 | Architecture details | `docs/architecture.md` |
-| YAML schema reference | `docs/yaml_reference.md` (generated via `make compile-docs`) |
 | Quickstart guide | `docs/quickstart.md` |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |

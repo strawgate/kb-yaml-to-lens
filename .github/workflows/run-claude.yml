@@ -1,41 +1,40 @@
+---
 name: Run Claude Code Action
-
 on:
   workflow_call:
     inputs:
       checkout-ref:
-        description: 'Git ref to checkout'
+        description: Git ref to checkout
         required: false
         type: string
         default: ''
       prompt:
-        description: 'Prompt to pass to Claude'
+        description: Prompt to pass to Claude
         required: true
         type: string
       allowed-tools:
-        description: 'Comma-separated list of allowed tools for Claude'
+        description: Comma-separated list of allowed tools for Claude
         required: true
         type: string
       claude-args:
-        description: 'Additional arguments to pass to Claude'
+        description: Additional arguments to pass to Claude
         required: false
         type: string
         default: ''
       track-progress:
-        description: 'Whether Claude should track progress'
+        description: Whether Claude should track progress
         required: false
         type: boolean
         default: true
       mcp-config:
-        description: 'MCP server configuration JSON'
+        description: MCP server configuration JSON
         required: false
         type: string
         default: ''
     secrets:
       claude-oauth-token:
-        description: 'Claude OAuth token'
+        description: Claude OAuth token
         required: true
-
 jobs:
   claude:
     runs-on: ubuntu-latest
@@ -47,10 +46,8 @@ jobs:
         with:
           ref: ${{ inputs.checkout-ref }}
           fetch-depth: 0
-    
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-
       - name: Setup MCP Server
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,7 +78,6 @@ jobs:
             }
           }
           EOF
-
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1.0.23
@@ -89,7 +85,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
           prompt: ${{ inputs.prompt }}
           track_progress: ${{ inputs.track-progress }}
-          claude_args: |
+          claude_args: |-
             --allowed-tools ${{ inputs.allowed-tools }}
             --mcp-config /tmp/mcp-config/mcp-servers.json
             ${{ inputs.claude-args }}

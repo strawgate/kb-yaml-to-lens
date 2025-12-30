@@ -101,7 +101,6 @@ New users should begin here to learn the basics:
 
 Reference documentation for building dashboards in YAML:
 
-- **[YAML Reference](yaml_reference.md)** – Complete schema documentation for all dashboard elements
 - **[Dashboard Configuration](dashboard/dashboard.md)** – Dashboard-level settings and options
 - **[Panel Types](panels/base.md)** – Available panel types (Markdown, Charts, Images, Links, etc.)
 - **[Dashboard Controls](controls/config.md)** – Interactive filtering controls
