@@ -82,7 +82,7 @@ def test_yaml_examples_valid_syntax(file_path: str) -> None:
 
     for yaml_content, line_num, skip in examples:
         # Skip examples marked with 'skip' in code fence or with placeholders
-        if skip or '...' in yaml_content or 'your-' in yaml_content.lower():
+        if skip or '...' in yaml_content or '# ...' in yaml_content or 'your-' in yaml_content.lower():
             continue
 
         try:
@@ -103,6 +103,7 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
         if (
             skip
             or '...' in yaml_content
+            or '# ...' in yaml_content
             or 'your-' in yaml_content.lower()
             or 'example.com' in yaml_content
             or 'dashboards:' not in yaml_content
