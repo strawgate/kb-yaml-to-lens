@@ -148,7 +148,7 @@ from dashboard_compiler.panels.config import Grid
 
 pie_chart = LensPieChart(
     data_view='logs-*',
-    slice_by=[LensTopValuesDimension(field='status')],
+    slice_by=[LensTopValuesDimension(type='values', field='status')],
     metric=LensCountAggregatedMetric(aggregation='count'),
 )
 

@@ -28,9 +28,9 @@ async def test_bar_stacked_chart() -> None:
         'type': 'bar',
         'mode': 'stacked',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+        'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'bar',
@@ -93,9 +93,9 @@ async def test_bar_unstacked_chart() -> None:
         'type': 'bar',
         'mode': 'unstacked',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+        'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'bar',
@@ -157,9 +157,9 @@ async def test_line_chart() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+        'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'line',
@@ -220,9 +220,9 @@ async def test_area_chart() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+        'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'area',
@@ -284,9 +284,9 @@ async def test_area_percentage_chart() -> None:
         'type': 'area',
         'mode': 'percentage',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
+        'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'area',
@@ -593,7 +593,7 @@ async def test_xy_chart_with_legend_position() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'position': 'top'},
     }
@@ -609,7 +609,7 @@ async def test_xy_chart_with_legend_hidden() -> None:
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'visible': False},
     }
@@ -625,7 +625,7 @@ async def test_xy_chart_with_legend_bottom_position() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'visible': True, 'position': 'bottom'},
     }
