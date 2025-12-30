@@ -10,14 +10,13 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import (
         KbnESQLColumnTypes,
         KbnESQLFieldDimensionColumn,
-        KbnESQLFieldMetricColumn,
+        KbnESQLMetricColumnTypes,
     )
     from dashboard_compiler.panels.charts.lens.columns.view import (
         KbnLensColumnTypes,
         KbnLensMetricColumnTypes,
     )
     from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
-
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.metric.view import (
@@ -130,11 +129,11 @@ def compile_esql_metric_chart(
 
     kbn_columns: list[KbnESQLColumnTypes]
 
-    primary_metric: KbnESQLFieldMetricColumn = compile_esql_metric(esql_metric_chart.primary)
+    primary_metric: KbnESQLMetricColumnTypes = compile_esql_metric(esql_metric_chart.primary)
     primary_metric_id: str = primary_metric.columnId
     kbn_columns = [primary_metric]
 
-    secondary_metric: KbnESQLFieldMetricColumn | None = None
+    secondary_metric: KbnESQLMetricColumnTypes | None = None
     secondary_metric_id: str | None = None
 
     if esql_metric_chart.secondary:
