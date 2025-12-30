@@ -25,4 +25,3 @@ ignore: |
   htmlcov/
   .git/
   vscode-extension/node_modules/
-  docs/examples/
