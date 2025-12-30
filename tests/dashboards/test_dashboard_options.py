@@ -6,7 +6,7 @@ from dashboard_compiler.dashboard.compile import compile_dashboard_options
 from dashboard_compiler.dashboard.config import DashboardSettings, DashboardSyncSettings
 
 
-def test_compile_dashboard_options_all_defaults():
+def test_compile_dashboard_options_all_defaults() -> None:
     """Test compile_dashboard_options with all default (None) values."""
     settings = DashboardSettings()
     result = compile_dashboard_options(settings)
@@ -22,7 +22,7 @@ def test_compile_dashboard_options_all_defaults():
     )
 
 
-def test_compile_dashboard_options_margins_true():
+def test_compile_dashboard_options_margins_true() -> None:
     """Test compile_dashboard_options with margins explicitly set to True."""
     settings = DashboardSettings(margins=True)
     result = compile_dashboard_options(settings)
@@ -32,7 +32,7 @@ def test_compile_dashboard_options_margins_true():
     )
 
 
-def test_compile_dashboard_options_margins_false():
+def test_compile_dashboard_options_margins_false() -> None:
     """Test compile_dashboard_options with margins explicitly set to False."""
     settings = DashboardSettings(margins=False)
     result = compile_dashboard_options(settings)
@@ -42,7 +42,7 @@ def test_compile_dashboard_options_margins_false():
     )
 
 
-def test_compile_dashboard_options_sync_colors_true():
+def test_compile_dashboard_options_sync_colors_true() -> None:
     """Test compile_dashboard_options with sync.colors explicitly set to True."""
     settings = DashboardSettings(sync=DashboardSyncSettings(colors=True))
     result = compile_dashboard_options(settings)
@@ -52,7 +52,7 @@ def test_compile_dashboard_options_sync_colors_true():
     )
 
 
-def test_compile_dashboard_options_sync_colors_false():
+def test_compile_dashboard_options_sync_colors_false() -> None:
     """Test compile_dashboard_options with sync.colors explicitly set to False."""
     settings = DashboardSettings(sync=DashboardSyncSettings(colors=False))
     result = compile_dashboard_options(settings)
@@ -62,7 +62,7 @@ def test_compile_dashboard_options_sync_colors_false():
     )
 
 
-def test_compile_dashboard_options_sync_cursor_true():
+def test_compile_dashboard_options_sync_cursor_true() -> None:
     """Test compile_dashboard_options with sync.cursor explicitly set to True."""
     settings = DashboardSettings(sync=DashboardSyncSettings(cursor=True))
     result = compile_dashboard_options(settings)
@@ -72,7 +72,7 @@ def test_compile_dashboard_options_sync_cursor_true():
     )
 
 
-def test_compile_dashboard_options_sync_cursor_false():
+def test_compile_dashboard_options_sync_cursor_false() -> None:
     """Test compile_dashboard_options with sync.cursor explicitly set to False."""
     settings = DashboardSettings(sync=DashboardSyncSettings(cursor=False))
     result = compile_dashboard_options(settings)
@@ -82,7 +82,7 @@ def test_compile_dashboard_options_sync_cursor_false():
     )
 
 
-def test_compile_dashboard_options_sync_tooltips_true():
+def test_compile_dashboard_options_sync_tooltips_true() -> None:
     """Test compile_dashboard_options with sync.tooltips explicitly set to True."""
     settings = DashboardSettings(sync=DashboardSyncSettings(tooltips=True))
     result = compile_dashboard_options(settings)
@@ -92,7 +92,7 @@ def test_compile_dashboard_options_sync_tooltips_true():
     )
 
 
-def test_compile_dashboard_options_sync_tooltips_false():
+def test_compile_dashboard_options_sync_tooltips_false() -> None:
     """Test compile_dashboard_options with sync.tooltips explicitly set to False."""
     settings = DashboardSettings(sync=DashboardSyncSettings(tooltips=False))
     result = compile_dashboard_options(settings)
@@ -102,7 +102,7 @@ def test_compile_dashboard_options_sync_tooltips_false():
     )
 
 
-def test_compile_dashboard_options_titles_true():
+def test_compile_dashboard_options_titles_true() -> None:
     """Test compile_dashboard_options with titles explicitly set to True."""
     settings = DashboardSettings(titles=True)
     result = compile_dashboard_options(settings)
@@ -112,7 +112,7 @@ def test_compile_dashboard_options_titles_true():
     )
 
 
-def test_compile_dashboard_options_titles_false():
+def test_compile_dashboard_options_titles_false() -> None:
     """Test compile_dashboard_options with titles explicitly set to False."""
     settings = DashboardSettings(titles=False)
     result = compile_dashboard_options(settings)
@@ -122,7 +122,7 @@ def test_compile_dashboard_options_titles_false():
     )
 
 
-def test_compile_dashboard_options_all_custom_values():
+def test_compile_dashboard_options_all_custom_values() -> None:
     """Test compile_dashboard_options with all custom values set."""
     settings = DashboardSettings(
         margins=False,
@@ -140,7 +140,7 @@ def test_compile_dashboard_options_all_custom_values():
     )
 
 
-def test_compile_dashboard_options_partial_sync_settings():
+def test_compile_dashboard_options_partial_sync_settings() -> None:
     """Test compile_dashboard_options with only some sync settings defined."""
     settings = DashboardSettings(sync=DashboardSyncSettings(colors=True))
     result = compile_dashboard_options(settings)
