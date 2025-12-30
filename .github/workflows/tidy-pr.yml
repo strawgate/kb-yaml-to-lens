@@ -1,0 +1,112 @@
+---
+name: Tidy PR Comments
+on:
+  issue_comment:
+    types:
+      - created
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+jobs:
+  tidy:
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/tidy')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Tidy PR comments
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          # Split repository into owner and repo
+          OWNER=$(echo "$REPOSITORY" | cut -d'/' -f1)
+          REPO=$(echo "$REPOSITORY" | cut -d'/' -f2)
+
+          echo "Fetching comments and reviews for PR #${PR_NUMBER}..."
+
+          # Fetch all issue comments, review comments, and reviews
+          QUERY=$(cat <<'EOF'
+          query($owner: String!, $repo: String!, $prNumber: Int!) {
+            repository(owner: $owner, name: $repo) {
+              pullRequest(number: $prNumber) {
+                comments(first: 100) {
+                  nodes {
+                    id
+                    author { login }
+                    createdAt
+                    isMinimized
+                  }
+                }
+                reviews(first: 100) {
+                  nodes {
+                    id
+                    author { login }
+                    createdAt
+                    comments(first: 100) {
+                      nodes {
+                        id
+                        author { login }
+                        createdAt
+                        isMinimized
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          EOF
+          )
+
+          # Execute the query
+          RESPONSE=$(gh api graphql -f query="$QUERY" -f owner="$OWNER" -f repo="$REPO" -F prNumber="$PR_NUMBER")
+
+          # Process the response with jq
+          # Group by author, sort by createdAt, and keep only IDs of all but the last comment from each author
+          TO_MINIMIZE=$(echo "$RESPONSE" | jq -r '
+            # Extract all comments with their metadata
+            [
+              (.data.repository.pullRequest.comments.nodes // []) +
+              (.data.repository.pullRequest.reviews.nodes // [] | map(.comments.nodes // []) | add // []) +
+              (.data.repository.pullRequest.reviews.nodes // [])
+            ] | add
+            # Filter out already minimized and null authors
+            | map(select(.isMinimized == false and .author != null))
+            # Group by author login
+            | group_by(.author.login)
+            # For each author, sort by createdAt and take all but the last
+            | map(sort_by(.createdAt) | .[:-1])
+            # Flatten and extract IDs
+            | add // []
+            | map(.id)
+            | .[]
+          ')
+
+          # Minimize each comment
+          MINIMIZED_COUNT=0
+          for ID in $TO_MINIMIZE; do
+            echo "Minimizing comment/review: $ID"
+            MUTATION=$(cat <<'EOF'
+          mutation($subjectId: ID!) {
+            minimizeComment(input: {
+              subjectId: $subjectId,
+              classifier: OUTDATED
+            }) {
+              minimizedComment {
+                isMinimized
+              }
+            }
+          }
+          EOF
+            )
+            gh api graphql -f query="$MUTATION" -f subjectId="$ID" > /dev/null
+            MINIMIZED_COUNT=$((MINIMIZED_COUNT + 1))
+          done
+
+          echo "Successfully minimized $MINIMIZED_COUNT comments/reviews"
+          echo "Kept the most recent comment/review from each user visible"
