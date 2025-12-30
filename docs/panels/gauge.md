@@ -153,6 +153,7 @@ from dashboard_compiler.panels.charts.config import LensPanel
 from dashboard_compiler.panels.charts.gauge.config import LensGaugeChart
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
+    LensSumAggregatedMetric,
 )
 from dashboard_compiler.panels.config import Grid
 
@@ -161,7 +162,7 @@ from dashboard_compiler.panels.charts.gauge.config import GaugeAppearance
 
 gauge_chart = LensGaugeChart(
     data_view='sales-*',
-    metric=LensOtherAggregatedMetric(
+    metric=LensSumAggregatedMetric(
         aggregation='sum',
         field='revenue',
         label='Current Revenue'
@@ -195,16 +196,16 @@ panel = LensPanel(
 
 ```python
 from dashboard_compiler.panels.charts.config import ESQLPanel
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLFieldMetric
+from dashboard_compiler.panels.charts.esql.columns.config import ESQLMetric
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.queries.types import ESQLQuery
+from dashboard_compiler.queries.config import ESQLQuery
 
 # ESQL-based gauge with static min/max/goal
 from dashboard_compiler.panels.charts.gauge.config import GaugeAppearance
 
 gauge_chart = ESQLGaugeChart(
-    metric=ESQLFieldMetric(field='avg_cpu'),
+    metric=ESQLMetric(field='avg_cpu'),
     minimum=0,         # Static value
     maximum=100,       # Static value
     goal=80,           # Static value
