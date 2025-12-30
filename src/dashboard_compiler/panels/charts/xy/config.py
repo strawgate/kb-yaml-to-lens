@@ -280,7 +280,7 @@ class BaseXYLineChart(BaseXYChart):
 class BaseXYAreaChart(BaseXYLineChart):
     """Represents an Area chart configuration within a Lens panel."""
 
-    type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")  # pyright: ignore[reportIncompatibleVariableOverride]
+    type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
 
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
         'stacked',

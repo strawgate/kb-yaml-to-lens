@@ -111,7 +111,7 @@ def extract_yaml_examples(file_path: str) -> list[tuple[str, int, bool]]:
         >>> yaml_content, line_num, skip = examples[0]
     """
     content = Path(file_path).read_text()
-    examples: list[tuple[str, int]] = []
+    examples: list[tuple[str, int, bool]] = []
 
     # Find all ```yaml code blocks, capturing optional info string after 'yaml'
     # Matches: ```yaml, ```yaml skip, ```yaml test="skip", etc.

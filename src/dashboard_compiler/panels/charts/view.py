@@ -1,4 +1,3 @@
-# pyright: reportIncompatibleVariableOverride=false, reportExplicitAny=false
 from enum import StrEnum
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 

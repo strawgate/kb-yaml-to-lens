@@ -1,5 +1,4 @@
 """View models for Search panels."""
-# pyright: reportIncompatibleVariableOverride=false, reportExplicitAny=false
 
 from typing import Any, Literal
 

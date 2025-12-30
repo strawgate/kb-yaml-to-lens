@@ -1,5 +1,4 @@
 """Base classes and data structures for panels in Kibana dashboards."""
-# pyright: reportIncompatibleVariableOverride=false, reportExplicitAny=false
 
 from typing import Annotated, Any
 

@@ -1,5 +1,4 @@
 """View models for filters in the Kibana JSON structure."""
-# pyright: reportIncompatibleVariableOverride=false, reportExplicitAny=false
 
 from typing import Annotated, Any, Literal
 

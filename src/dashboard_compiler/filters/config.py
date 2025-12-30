@@ -34,7 +34,7 @@ def get_filter_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR
             return 'or'
         if 'not' in v:
             return 'not'
-        msg = f'Cannot determine filter type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
+        msg = f'Cannot determine filter type from dict with keys: {list(v)}'
         raise ValueError(msg)
 
     if hasattr(v, 'exists'):
@@ -112,7 +112,7 @@ class CustomFilter(BaseFilter):
     This filter allows for custom query definitions that do not fit into the standard filters.
     """
 
-    dsl: dict[str, Any] = Field(...)  # pyright: ignore[reportExplicitAny]
+    dsl: dict[str, Any] = Field(...)
     """The custom query definition. This should be a valid Elasticsearch query object."""
 
 

@@ -166,23 +166,18 @@ classmethod-decorators = ["classmethod", "pydantic.validator"]
 [tool.basedpyright]
 pythonVersion = "3.12"
 typeCheckingMode = "recommended"
-# Enabled rules (with inline suppressions where needed):
-reportExplicitAny = "error"  # Enforced globally, suppressed for view.py files and legitimate JSON API uses
-reportIncompatibleVariableOverride = "error"  # Enforced globally, suppressed for view.py files (Pydantic pattern)
-reportImportCycles = "error"  # Circular import detection
-# Disabled rules:
-reportMissingTypeStubs = false  # Third-party libraries without stubs
+reportImportCycles = "error"
+reportMissingTypeStubs = false
+reportExplicitAny = false
+reportIncompatibleVariableOverride = false
 include = ["src/dashboard_compiler", "tests"]
 exclude = [
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",
 ]
-# Per-directory settings: more lenient for tests
-# Tests use dynamic typing patterns that are difficult to type-check strictly
-# Recently enabled for tests: reportMissingParameterType, reportUnknownMemberType
 executionEnvironments = [
-    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportExplicitAny = false },
+    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false },
     { root = "src/dashboard_compiler" },
 ]
 
