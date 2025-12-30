@@ -28,19 +28,7 @@ class LabelsOrientationConfig(BaseVwModel):
     """Rotation angle in degrees for right Y-axis labels."""
 
 
-class YAxisMode(BaseVwModel):
-    """View model for Y-axis mode configuration in XY charts.
-
-    Specifies the axis mode for a Y-axis series, such as which axis (left/right) to use
-    for displaying the data series.
-
-    See Also:
-        Kibana type definition: `YAxisMode` in
-        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
-    """
-
-    name: str
-    """The name of the axis mode (e.g., 'left', 'right')."""
+YAxisMode = Literal['left', 'right']
 
 
 class AxisConfig(BaseVwModel):
