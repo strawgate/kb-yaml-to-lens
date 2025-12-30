@@ -119,7 +119,8 @@ class AxisConfig(BaseCfgModel):
 class XYAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for XY charts.
 
-    Includes axis configuration for left Y-axis, right Y-axis, and X-axis.
+    Includes axis configuration for left Y-axis, right Y-axis, and X-axis,
+    as well as per-series visual styling.
     """
 
     x_axis: AxisConfig | None = Field(default=None)
@@ -130,6 +131,9 @@ class XYAppearance(BaseCfgModel):
 
     y_right_axis: AxisConfig | None = Field(default=None)
     """Configuration for the right Y-axis."""
+
+    series: list['XYSeries'] | None = Field(default=None)
+    """Per-series visual configuration (axis assignment, colors, line styles, etc.)."""
 
 
 class BarChartAppearance(BaseCfgModel):
@@ -207,11 +211,6 @@ class BaseXYChart(BaseChart):
     legend: XYLegend | None = Field(
         None,
         description='Formatting options for the chart legend.',
-    )
-
-    series: list[XYSeries] | None = Field(
-        None,
-        description='Per-series visual configuration (axis assignment, colors, line styles, etc.).',
     )
 
 

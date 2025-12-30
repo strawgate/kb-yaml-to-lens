@@ -235,9 +235,9 @@ def compile_xy_chart_visualization_state(
 
     # Build yConfig from series configuration if provided
     y_config: list[YConfig] | None = None
-    if chart.series is not None:
+    if chart.appearance is not None and chart.appearance.series is not None:
         y_config = []
-        for series_cfg in chart.series:
+        for series_cfg in chart.appearance.series:
             # Only create YConfig if at least one property is set
             if any(
                 (

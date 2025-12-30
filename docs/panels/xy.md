@@ -61,7 +61,6 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `series` | `list[XYSeries] \| None` | Per-series styling and axis assignment. | `None` | No |
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
@@ -75,7 +74,6 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `series` | `list[XYSeries] \| None` | Per-series styling and axis assignment. | `None` | No |
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
@@ -90,7 +88,6 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `series` | `list[XYSeries] \| None` | Per-series styling and axis assignment. | `None` | No |
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
@@ -104,13 +101,14 @@ dashboards:
 
 #### XYAppearance Options
 
-Configures the visual appearance of axes in XY charts. Allows customization of axis titles, scales, and extent (bounds).
+Configures the visual appearance of axes in XY charts. Allows customization of axis titles, scales, extent (bounds), and per-series styling.
 
 | YAML Key | Data Type | Description | Default | Required |
-| ------------- | ---------------------- | -------------------------------------------------------- | ------- | -------- |
+| ------------- | ------------------------ | -------------------------------------------------------- | ------- | -------- |
 | `x_axis` | `AxisConfig \| None` | Configuration for the X-axis (horizontal axis). | `None` | No |
 | `y_left_axis` | `AxisConfig \| None` | Configuration for the left Y-axis (primary vertical axis). | `None` | No |
 | `y_right_axis` | `AxisConfig \| None` | Configuration for the right Y-axis (secondary vertical axis). | `None` | No |
+| `series` | `list[XYSeries] \| None` | Per-series visual configuration (axis assignment, colors, line styles, etc.). | `None` | No |
 
 #### AxisConfig Options
 
@@ -240,16 +238,16 @@ dashboards:
             y_right_axis:
               title: "Error Rate (%)"
               scale: linear
-          series:
-            - metric_id: "request_count"
-              axis: left
-              color: "#2196F3"
-              line_width: 2
-            - metric_id: "avg_error_rate"
-              axis: right
-              color: "#FF5252"
-              line_width: 3
-              line_style: dashed
+            series:
+              - metric_id: "request_count"
+                axis: left
+                color: "#2196F3"
+                line_width: 2
+              - metric_id: "avg_error_rate"
+                axis: right
+                color: "#FF5252"
+                line_width: 3
+                line_style: dashed
 ```
 
 ### Custom Axis Bounds
@@ -305,15 +303,16 @@ dashboards:
             - aggregation: sum
               field: "bytes_out"
               id: "outbound"
-          series:
-            - metric_id: "inbound"
-              color: "#4CAF50"
-              fill: below
-              line_style: solid
-            - metric_id: "outbound"
-              color: "#FF9800"
-              fill: below
-              line_style: dotted
+          appearance:
+            series:
+              - metric_id: "inbound"
+                color: "#4CAF50"
+                fill: below
+                line_style: solid
+              - metric_id: "outbound"
+                color: "#FF9800"
+                fill: below
+                line_style: dotted
 ```
 
 ## Programmatic Usage (Python)

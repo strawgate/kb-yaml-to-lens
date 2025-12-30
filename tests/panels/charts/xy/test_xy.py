@@ -373,7 +373,6 @@ async def test_reference_line_single() -> None:
             'fill': 'above',
             'icon': 'alert',
             'iconPosition': 'auto',
-            'textVisibility': None,
             'axisMode': 'left',
         }
     )
@@ -464,23 +463,13 @@ async def test_reference_line_layer_multiple_lines() -> None:
                     {
                         'forAccessor': 'threshold-low',
                         'color': '#00FF00',
-                        'lineWidth': None,
                         'lineStyle': 'solid',
-                        'fill': None,
-                        'icon': None,
-                        'iconPosition': None,
-                        'textVisibility': None,
                         'axisMode': 'left',
                     },
                     {
                         'forAccessor': 'threshold-high',
                         'color': '#FF0000',
-                        'lineWidth': None,
                         'lineStyle': 'dashed',
-                        'fill': None,
-                        'icon': None,
-                        'iconPosition': None,
-                        'textVisibility': None,
                         'axisMode': 'left',
                     },
                     {
@@ -488,10 +477,6 @@ async def test_reference_line_layer_multiple_lines() -> None:
                         'color': '#FF00FF',
                         'lineWidth': 3.0,
                         'lineStyle': 'dotted',
-                        'fill': None,
-                        'icon': None,
-                        'iconPosition': None,
-                        'textVisibility': None,
                         'axisMode': 'left',
                     },
                 ],
@@ -640,7 +625,7 @@ async def test_dual_axis_chart() -> None:
     """Test dual Y-axis chart with per-series configuration.
 
     Uses the new series-based configuration structure where visual properties
-    are defined in the series section, separate from metric definitions.
+    are defined in the appearance.series section, separate from metric definitions.
     """
     lens_config = {
         'type': 'line',
@@ -653,11 +638,11 @@ async def test_dual_axis_chart() -> None:
         'appearance': {
             'y_left_axis': {'title': 'Count', 'scale': 'linear'},
             'y_right_axis': {'title': 'Error Rate (%)', 'scale': 'linear'},
+            'series': [
+                {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3', 'line_width': 2},
+                {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252', 'line_width': 3, 'line_style': 'dashed'},
+            ],
         },
-        'series': [
-            {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3', 'line_width': 2},
-            {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252', 'line_width': 3, 'line_style': 'dashed'},
-        ],
     }
     lens_chart = LensLineChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
@@ -698,7 +683,7 @@ async def test_styled_series_chart() -> None:
     """Test chart with styled series using the new series configuration.
 
     Uses the series-based configuration where visual properties like color,
-    fill, and line_style are defined in the series section.
+    fill, and line_style are defined in the appearance.series section.
     """
     lens_config = {
         'type': 'area',
@@ -708,10 +693,12 @@ async def test_styled_series_chart() -> None:
             {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1'},
             {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2'},
         ],
-        'series': [
-            {'metric_id': 'metric1', 'color': '#4CAF50', 'fill': 'below'},
-            {'metric_id': 'metric2', 'color': '#FF9800', 'fill': 'below', 'line_style': 'dotted'},
-        ],
+        'appearance': {
+            'series': [
+                {'metric_id': 'metric1', 'color': '#4CAF50', 'fill': 'below'},
+                {'metric_id': 'metric2', 'color': '#FF9800', 'fill': 'below', 'line_style': 'dotted'},
+            ],
+        },
     }
 
     lens_chart = LensAreaChart.model_validate(lens_config)
