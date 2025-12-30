@@ -107,11 +107,13 @@ One of the key benefits of programmatic dashboards is the ability to generate th
 
 ```python
 from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 from dashboard_compiler.panels.config import Grid
 
 dashboard = Dashboard(name='Metrics Dashboard')
@@ -123,11 +125,6 @@ metrics_config = [
 ]
 
 for i, metric in enumerate(metrics_config):
-    chart = LensMetricChart(
-        data_view='metrics-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field=metric['field']),
-    )
-
     panel = LensPanel(
         title=metric['name'],
         grid=Grid(
@@ -136,7 +133,13 @@ for i, metric in enumerate(metrics_config):
             w=16,
             h=15,
         ),
-        chart=chart,
+        lens=LensMetricPanelConfig(
+            type='metric',
+            data_view='metrics-*',
+            primary=LensOtherAggregatedMetric(
+                aggregation='average', field=metric['field']
+            ),
+        ),
     )
 
     dashboard.add_panel(panel)
@@ -147,15 +150,14 @@ for i, metric in enumerate(metrics_config):
 ```python
 def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
     """Helper function to create a standard metric panel."""
-    chart = LensMetricChart(
-        data_view='logs-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field=field),
-    )
-
     return LensPanel(
         title=title,
         grid=Grid(x=x, y=y, w=24, h=15),
-        chart=chart,
+        lens=LensMetricPanelConfig(
+            type='metric',
+            data_view='logs-*',
+            primary=LensOtherAggregatedMetric(aggregation='average', field=field),
+        ),
     )
 
 # Use the helper function

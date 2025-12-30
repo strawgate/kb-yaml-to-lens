@@ -1,7 +1,6 @@
-from typing import Literal
+from typing import Annotated
 
-from pydantic import Field
-from pydantic.functional_validators import field_validator
+from pydantic import Discriminator, Field, Tag
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
@@ -19,6 +18,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
+from dashboard_compiler.shared.config import BaseCfgModel
 
 type AllChartTypes = LensChartTypes | ESQLChartTypes
 
@@ -31,50 +31,123 @@ type SingleLayerChartTypes = LensMetricChart | LensGaugeChart
 type ESQLChartTypes = ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
 
 
-class LensPanel(BasePanel):
-    """Represents a Lens chart panel configuration."""
-
-    type: Literal['charts'] = 'charts'
+class LensPanelFieldsMixin(BaseCfgModel):
+    """Panel-level fields for Lens chart panels."""
 
     filters: list['FilterTypes'] | None = Field(default=None)
     """A list of filters to apply to the panel."""
 
     query: 'LegacyQueryTypes | None' = Field(default=None)
-    """The query to be executed. This is the core of the chart definition."""
+    """The query to be executed."""
 
-    chart: 'LensChartTypes' = Field(default=...)
+    layers: list['MultiLayerChartTypes'] | None = Field(default=None)
+    """Optional additional layers for multi-layer charts."""
 
 
-class LensMultiLayerPanel(BasePanel):
-    """Represents a multi-layer Lens chart panel configuration."""
+class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
+    """Configuration for a Lens metric panel."""
 
-    type: Literal['multi_layer_charts'] = 'multi_layer_charts'
 
-    layers: list['MultiLayerChartTypes'] = Field(default=..., min_length=1)
+class LensGaugePanelConfig(LensGaugeChart, LensPanelFieldsMixin):
+    """Configuration for a Lens gauge panel."""
 
-    @field_validator('layers', mode='after')
-    @classmethod
-    def validate_layers(cls, layers: list['MultiLayerChartTypes']) -> list['MultiLayerChartTypes']:
-        """Validate that the multi-layer panel does not start with a reference line layer.
 
-        Args:
-            layers: The list of layers to validate.
+class LensPiePanelConfig(LensPieChart, LensPanelFieldsMixin):
+    """Configuration for a Lens pie panel."""
 
-        Returns:
-            The list of layers.
-        """
-        if isinstance(layers[0], LensReferenceLineLayer):
-            msg = 'Multi-layer panel cannot start with a reference line layer'
-            raise TypeError(msg)
 
-        return layers
+class LensLinePanelConfig(LensLineChart, LensPanelFieldsMixin):
+    """Configuration for a Lens line panel."""
+
+
+class LensBarPanelConfig(LensBarChart, LensPanelFieldsMixin):
+    """Configuration for a Lens bar panel."""
+
+
+class LensAreaPanelConfig(LensAreaChart, LensPanelFieldsMixin):
+    """Configuration for a Lens area panel."""
+
+
+class LensTagcloudPanelConfig(LensTagcloudChart, LensPanelFieldsMixin):
+    """Configuration for a Lens tagcloud panel."""
+
+
+type LensPanelConfig = Annotated[
+    Annotated[LensMetricPanelConfig, Tag('metric')]
+    | Annotated[LensGaugePanelConfig, Tag('gauge')]
+    | Annotated[LensPiePanelConfig, Tag('pie')]
+    | Annotated[LensLinePanelConfig, Tag('line')]
+    | Annotated[LensBarPanelConfig, Tag('bar')]
+    | Annotated[LensAreaPanelConfig, Tag('area')]
+    | Annotated[LensTagcloudPanelConfig, Tag('tagcloud')],
+    Discriminator('type'),
+]
+
+
+class ESQLPanelFieldsMixin(BaseCfgModel):
+    """Panel-level fields for ES|QL chart panels."""
+
+    query: 'ESQLQueryTypes' = Field(...)
+    """The ES|QL query to execute."""
+
+
+class ESQLMetricPanelConfig(ESQLMetricChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL metric panel."""
+
+
+class ESQLGaugePanelConfig(ESQLGaugeChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL gauge panel."""
+
+
+class ESQLPiePanelConfig(ESQLPieChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL pie panel."""
+
+
+class ESQLLinePanelConfig(ESQLLineChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL line panel."""
+
+
+class ESQLBarPanelConfig(ESQLBarChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL bar panel."""
+
+
+class ESQLAreaPanelConfig(ESQLAreaChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL area panel."""
+
+
+class ESQLTagcloudPanelConfig(ESQLTagcloudChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL tagcloud panel."""
+
+
+type ESQLPanelConfig = Annotated[
+    Annotated[ESQLMetricPanelConfig, Tag('metric')]
+    | Annotated[ESQLGaugePanelConfig, Tag('gauge')]
+    | Annotated[ESQLPiePanelConfig, Tag('pie')]
+    | Annotated[ESQLLinePanelConfig, Tag('line')]
+    | Annotated[ESQLBarPanelConfig, Tag('bar')]
+    | Annotated[ESQLAreaPanelConfig, Tag('area')]
+    | Annotated[ESQLTagcloudPanelConfig, Tag('tagcloud')],
+    Discriminator('type'),
+]
+
+
+class LensPanel(BasePanel):
+    """Represents a Lens chart panel (single or multi-layer).
+
+    The lens field contains a discriminated union of chart panel configurations.
+    The chart type is determined by the 'type' field.
+    """
+
+    lens: LensPanelConfig = Field(...)
+    """Lens panel configuration."""
 
 
 class ESQLPanel(BasePanel):
-    """Represents an ESQL chart panel configuration."""
+    """Represents an ES|QL chart panel.
 
-    type: Literal['charts'] = 'charts'
+    The esql field contains a discriminated union of ES|QL chart panel configurations.
+    The chart type is determined by the 'type' field.
+    """
 
-    esql: 'ESQLQueryTypes' = Field(...)
-
-    chart: 'ESQLChartTypes' = Field(default=...)
+    esql: ESQLPanelConfig = Field(...)
+    """ES|QL panel configuration."""

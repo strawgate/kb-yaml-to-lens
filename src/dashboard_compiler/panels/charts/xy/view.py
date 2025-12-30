@@ -28,30 +28,64 @@ class LabelsOrientationConfig(BaseVwModel):
     """Rotation angle in degrees for right Y-axis labels."""
 
 
-YAxisMode = Literal['left', 'right']
+class AxisTitlesVisibilitySettings(BaseVwModel):
+    """View model for axis title visibility settings in XY charts.
 
-
-class AxisConfig(BaseVwModel):
-    """View model for axis configuration in XY charts.
-
-    Provides configuration options for XY chart axes, such as extent and other axis properties.
-    This is a placeholder model that can be extended with specific axis configuration fields
-    as needed.
+    Controls whether axis titles are visible for the X-axis, left Y-axis, and right Y-axis.
+    This must be set for axis titles to render in Kibana.
 
     See Also:
-        Kibana type definition: `AxisConfig` in
+        Kibana type definition: `AxisTitlesVisibilitySettings` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
     """
 
-    # Define fields based on actual Kibana structure if needed, using object for now
+    x: bool | None = None
+    """Whether to show the X-axis title."""
+
+    yLeft: bool | None = None
+    """Whether to show the left Y-axis title."""
+
+    yRight: bool | None = None
+    """Whether to show the right Y-axis title."""
+
+
+YAxisMode = Literal['left', 'right']
+
+
+class AxisExtentConfig(BaseVwModel):
+    """View model for axis extent (bounds) configuration in XY charts.
+
+    Defines the range/bounds of values displayed on an axis. Supports different modes:
+    - 'full': Use the full extent of the data range
+    - 'custom': Specify custom numeric bounds
+    - 'dataBounds': Fit to actual data bounds
+
+    See Also:
+        Kibana type definition: `AxisExtentConfig` in
+        https://github.com/elastic/kibana/blob/main/src/platform/plugins/shared/chart_expressions/expression_xy/common/types/expression_functions.ts
+    """
+
+    mode: Literal['full', 'custom', 'dataBounds']
+    """The extent mode for the axis."""
+
+    lowerBound: Annotated[float | None, OmitIfNone()] = None
+    """Minimum value for the axis (only used when mode is 'custom')."""
+
+    upperBound: Annotated[float | None, OmitIfNone()] = None
+    """Maximum value for the axis (only used when mode is 'custom')."""
+
+    enforce: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to enforce the bounds strictly."""
+
+    niceValues: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to use nice rounded values for bounds."""
 
 
 class YConfig(BaseVwModel):
     """View model for Y-axis series configuration in XY charts.
 
-    Defines the appearance and behavior of individual Y-axis data series, including
-    color, line style, width, icons, and axis assignment. Used to customize how each
-    metric is displayed in the visualization.
+    Defines the appearance and behavior of individual Y-axis data series and reference lines.
+    For data series, only color and axisMode are used (other fields are for reference lines).
 
     See Also:
         Kibana type definition: `YConfig` in
@@ -61,29 +95,26 @@ class YConfig(BaseVwModel):
     forAccessor: str
     """The accessor ID this configuration applies to (references a metric field)."""
 
-    color: str | None = None
+    color: Annotated[str | None, OmitIfNone()] = None
     """Hex color code for the series (e.g., '#FF0000')."""
 
-    icon: str | None = None
-    """Icon identifier for the series marker."""
-
-    lineWidth: float | None = None
-    """Width of the line in pixels for line/area charts."""
-
-    lineStyle: Any | None = None
-    """Style of the line (e.g., solid, dashed, dotted)."""
-
-    fill: Any | None = None
-    """Fill configuration for area charts."""
-
-    iconPosition: Any | None = None
-    """Position of icons relative to data points."""
-
-    textVisibility: bool | None = None
-    """Whether to show text labels for this series."""
-
-    axisMode: YAxisMode | None = None
+    axisMode: Annotated[Literal['left', 'right'] | None, OmitIfNone()] = None
     """Which Y-axis (left/right) to assign this series to."""
+
+    lineWidth: Annotated[float | None, OmitIfNone()] = None
+    """Width of the line in pixels (used by reference lines only)."""
+
+    lineStyle: Annotated[Literal['solid', 'dashed', 'dotted'] | None, OmitIfNone()] = None
+    """Style of the line (used by reference lines only)."""
+
+    fill: Annotated[Literal['none', 'below', 'above'] | None, OmitIfNone()] = None
+    """Fill configuration (used by reference lines only)."""
+
+    icon: Annotated[str | None, OmitIfNone()] = None
+    """Icon identifier (used by reference lines only)."""
+
+    iconPosition: Annotated[Literal['auto', 'left', 'right', 'above', 'below'] | None, OmitIfNone()] = None
+    """Position of icons (used by reference lines only)."""
 
 
 class XYDataLayerConfig(BaseVwModel):
@@ -328,16 +359,19 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     yTitle: Annotated[str | None, OmitIfNone()] = None
     """Custom title for the left Y-axis (deprecated, use yLeftTitle)."""
 
+    yLeftTitle: Annotated[str | None, OmitIfNone()] = None
+    """Custom title for the left Y-axis."""
+
     yRightTitle: Annotated[str | None, OmitIfNone()] = None
     """Custom title for the right Y-axis."""
 
-    yLeftScale: Annotated[Any | None, OmitIfNone()] = None
-    """Scale type for the left Y-axis (linear, log, sqrt, etc.)."""
+    yLeftScale: Annotated[Literal['linear', 'log', 'sqrt', 'time'] | None, OmitIfNone()] = None
+    """Scale type for the left Y-axis (linear, log, sqrt, time)."""
 
-    yRightScale: Annotated[Any | None, OmitIfNone()] = None
-    """Scale type for the right Y-axis."""
+    yRightScale: Annotated[Literal['linear', 'log', 'sqrt', 'time'] | None, OmitIfNone()] = None
+    """Scale type for the right Y-axis (linear, log, sqrt, time)."""
 
-    axisTitlesVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
+    axisTitlesVisibilitySettings: Annotated[AxisTitlesVisibilitySettings | None, OmitIfNone()] = None
     """Control visibility of axis titles."""
 
     tickLabelsVisibilitySettings: Annotated[Any | None, OmitIfNone()] = None
