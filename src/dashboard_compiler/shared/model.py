@@ -5,10 +5,10 @@ from pydantic import ConfigDict
 from pydantic import RootModel as PydanticRootModel
 
 
-class BaseRootCfgModel(PydanticRootModel[Any]):
+class BaseRootCfgModel(PydanticRootModel[Any]):  # pyright: ignore[reportExplicitAny]
     """Base configuration model for the dashboard compiler."""
 
-    model_config: ConfigDict = ConfigDict(
+    model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         strict=True,
         validate_default=True,
         use_enum_values=True,
@@ -21,7 +21,7 @@ class BaseRootCfgModel(PydanticRootModel[Any]):
 class BaseModel(PydanticBaseModel):
     """Base configuration model for the dashboard compiler."""
 
-    model_config: ConfigDict = ConfigDict(
+    model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         strict=True,
         validate_default=True,
         extra='forbid',

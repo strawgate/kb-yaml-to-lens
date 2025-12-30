@@ -1,4 +1,5 @@
 """Markdown panel view model."""
+# pyright: reportIncompatibleVariableOverride=false, reportExplicitAny=false
 
 from typing import Any, Literal
 

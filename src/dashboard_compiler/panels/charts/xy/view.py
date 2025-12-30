@@ -1,3 +1,4 @@
+# pyright: reportIncompatibleVariableOverride=false, reportExplicitAny=false
 from typing import Annotated, Any, Literal
 
 from pydantic import Field

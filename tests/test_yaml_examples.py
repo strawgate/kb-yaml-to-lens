@@ -32,7 +32,7 @@ def extract_yaml_examples(file_path: str) -> list[tuple[str, int]]:
     Returns list of (yaml_content, line_number) tuples.
     """
     content = Path(file_path).read_text()
-    examples = []
+    examples: list[tuple[str, int]] = []
 
     pattern = r'```yaml\n(.*?)```'
     for match in re.finditer(pattern, content, re.DOTALL):

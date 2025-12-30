@@ -112,7 +112,7 @@ class CustomFilter(BaseFilter):
     This filter allows for custom query definitions that do not fit into the standard filters.
     """
 
-    dsl: dict[str, Any] = Field(...)
+    dsl: dict[str, Any] = Field(...)  # pyright: ignore[reportExplicitAny]
     """The custom query definition. This should be a valid Elasticsearch query object."""
 
 

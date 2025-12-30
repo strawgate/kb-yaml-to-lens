@@ -23,7 +23,7 @@ class _JobParamsLayout(TypedDict):
 class _JobParams(TypedDict):
     layout: _JobParamsLayout
     browserTimezone: str
-    locatorParams: dict[str, Any]
+    locatorParams: dict[str, Any]  # pyright: ignore[reportExplicitAny]
 
 
 class SavedObjectResult(BaseModel):
@@ -41,7 +41,7 @@ class SavedObjectError(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
-    error: dict[str, Any] | None = None
+    error: dict[str, Any] | None = None  # pyright: ignore[reportExplicitAny]
     message: str | None = None
     status_code: int | None = Field(default=None, alias='statusCode')
 
@@ -142,7 +142,7 @@ class KibanaClient:
 
                 async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                     response.raise_for_status()
-                    json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+                    json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny, reportExplicitAny]
                     return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
@@ -183,7 +183,7 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        locator_params: dict[str, Any] = {
+        locator_params: dict[str, Any] = {  # pyright: ignore[reportExplicitAny]
             'id': 'DASHBOARD_APP_LOCATOR',
             'params': {
                 'dashboardId': dashboard_id,
@@ -224,7 +224,7 @@ class KibanaClient:
             session.post(endpoint, params=params, headers=headers, auth=auth) as response,
         ):
             response.raise_for_status()
-            result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny, reportExplicitAny]
             job_path: str | None = result.get('path')
             if job_path is None:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
