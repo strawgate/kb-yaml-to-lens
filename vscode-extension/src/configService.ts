@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
  * Provides type-safe access to yamlDashboard configuration with default values.
  */
 export class ConfigService {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly CONFIG_SECTION = 'yamlDashboard';
 
     /**

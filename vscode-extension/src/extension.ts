@@ -77,7 +77,7 @@ async function selectDashboard(filePath: string): Promise<number | undefined> {
  * @param action The action to execute with the file path and dashboard index
  * @returns A VS Code command handler
  */
-function createDashboardCommand(action: (filePath: string, dashboardIndex: number) => Promise<void>) {
+function createDashboardCommand(action: (filePath: string, dashboardIndex: number) => Promise<void>): () => Promise<void> {
     return async () => {
         const filePath = getActiveYamlFile();
         if (!filePath) {

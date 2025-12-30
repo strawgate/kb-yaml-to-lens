@@ -456,6 +456,15 @@ export class GridEditorPanel {
                     let resizeStartW = 0;
                     let resizeStartH = 0;
 
+                    /**
+                     * Client-side HTML escape function to prevent XSS
+                     */
+                    function escapeHtml(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }
+
                     const gridElement = document.getElementById('grid');
                     const showGridCheckbox = document.getElementById('showGrid');
                     const snapToGridCheckbox = document.getElementById('snapToGrid');
@@ -504,8 +513,8 @@ export class GridEditorPanel {
                             panelElement.style.height = height + 'px';
 
                             panelElement.innerHTML = \`
-                                <div class="panel-header">\${panel.title || 'Untitled'}</div>
-                                <div class="panel-type">Type: \${panel.type}</div>
+                                <div class="panel-header">\${escapeHtml(panel.title || 'Untitled')}</div>
+                                <div class="panel-type">Type: \${escapeHtml(panel.type)}</div>
                                 <div class="panel-coords">
                                     x:\${panel.grid.x} y:\${panel.grid.y} w:\${panel.grid.w} h:\${panel.grid.h}
                                 </div>
