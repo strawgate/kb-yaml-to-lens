@@ -1,21 +1,13 @@
 """Test that code examples in markdown files execute successfully."""
 
+from pathlib import Path
+
 import pytest
 from pytest_examples import CodeExample, EvalExample, find_examples
 
-# Find all Python code examples in markdown files
-markdown_files = [
-    'docs/programmatic-usage.md',
-    'docs/api/panels.md',
-    'docs/panels/gauge.md',
-    'docs/panels/image.md',
-    'docs/panels/links.md',
-    'docs/panels/markdown.md',
-    'docs/panels/metric.md',
-    'docs/panels/pie.md',
-    'docs/panels/search.md',
-    'docs/panels/xy.md',
-]
+# Find all Python code examples in markdown files using glob pattern
+docs_dir = Path(__file__).parent.parent / 'docs'
+markdown_files = sorted(str(p.relative_to(docs_dir.parent)) for p in docs_dir.rglob('*.md'))
 
 
 @pytest.mark.parametrize('example', find_examples(*markdown_files), ids=str)
