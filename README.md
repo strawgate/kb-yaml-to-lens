@@ -46,13 +46,13 @@ dashboards:
 1. Compile to NDJSON:
 
 ```bash
-kb-dashboard compile --input-dir inputs --output-dir output
+uv run kb-dashboard compile --input-dir inputs --output-dir output
 ```
 
 1. (Optional) Upload directly to Kibana:
 
 ```bash
-kb-dashboard compile \
+uv run kb-dashboard compile \
   --input-dir inputs \
   --output-dir output \
   --upload \
@@ -83,7 +83,7 @@ kb-dashboard compile [OPTIONS]
 
 **Options:**
 
-- `--input-dir PATH` – Directory containing YAML files (default: `tests/dashboards/scenarios`)
+- `--input-dir PATH` – Directory containing YAML files (default: `inputs`)
 - `--output-dir PATH` – Output directory for NDJSON files (default: `output`)
 - `--output-file NAME` – Combined output filename (default: `compiled_dashboards.ndjson`)
 - `--upload` – Upload to Kibana after compilation
@@ -93,6 +93,7 @@ kb-dashboard compile [OPTIONS]
 - `--kibana-api-key KEY` – API key for authentication (or set `KIBANA_API_KEY` env var)
 - `--no-browser` – Don't open browser after upload
 - `--overwrite/--no-overwrite` – Overwrite existing dashboards (default: `--overwrite`)
+- `--kibana-no-ssl-verify` – Disable SSL certificate verification
 
 ### Screenshot Dashboard
 

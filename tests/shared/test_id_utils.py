@@ -19,8 +19,8 @@ class TestGenerateId:
         id2 = generate_id(None)
 
         # Should generate valid UUID format
-        uuid.UUID(id1)  # Will raise if invalid
-        uuid.UUID(id2)
+        _ = uuid.UUID(id1)  # Will raise if invalid
+        _ = uuid.UUID(id2)
 
         # Should be different (random)
         assert id1 != id2

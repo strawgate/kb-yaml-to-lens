@@ -27,7 +27,7 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
     return kbn_state_visualization_layer.model_dump()
 
 
-def test_compile_metric_chart_primary_only_lens():
+def test_compile_metric_chart_primary_only_lens() -> None:
     """Test the compilation of a metric chart with only a primary metric (Lens)."""
     config = {
         'type': 'metric',
@@ -57,7 +57,7 @@ def test_compile_metric_chart_primary_only_lens():
     )
 
 
-def test_compile_metric_chart_primary_only_esql():
+def test_compile_metric_chart_primary_only_esql() -> None:
     """Test the compilation of a metric chart with only a primary metric (ESQL)."""
     config = {
         'type': 'metric',
@@ -85,7 +85,7 @@ def test_compile_metric_chart_primary_only_esql():
     )
 
 
-def test_compile_metric_chart_primary_and_secondary_lens():
+def test_compile_metric_chart_primary_and_secondary_lens() -> None:
     """Test the compilation of a metric chart with primary and secondary metrics (Lens)."""
     config = {
         'type': 'metric',
@@ -121,7 +121,7 @@ def test_compile_metric_chart_primary_and_secondary_lens():
     )
 
 
-def test_compile_metric_chart_primary_and_secondary_esql():
+def test_compile_metric_chart_primary_and_secondary_esql() -> None:
     """Test the compilation of a metric chart with primary and secondary metrics (ESQL)."""
     config = {
         'type': 'metric',
@@ -154,7 +154,7 @@ def test_compile_metric_chart_primary_and_secondary_esql():
     )
 
 
-def test_compile_metric_chart_primary_secondary_breakdown_lens():
+def test_compile_metric_chart_primary_secondary_breakdown_lens() -> None:
     """Test the compilation of a metric chart with primary, secondary metrics and breakdown (Lens)."""
     config = {
         'type': 'metric',
@@ -196,7 +196,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens():
     )
 
 
-def test_compile_metric_chart_primary_secondary_breakdown_esql():
+def test_compile_metric_chart_primary_secondary_breakdown_esql() -> None:
     """Test the compilation of a metric chart with primary, secondary metrics and breakdown (ESQL)."""
     config = {
         'type': 'metric',
