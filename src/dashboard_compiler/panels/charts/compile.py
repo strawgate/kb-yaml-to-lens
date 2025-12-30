@@ -12,6 +12,8 @@ from dashboard_compiler.panels.charts.config import (
     LensLinePanelConfig,
     LensPanel,
 )
+from dashboard_compiler.panels.charts.datatable.compile import compile_esql_datatable_chart, compile_lens_datatable_chart
+from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge.compile import compile_esql_gauge_chart, compile_lens_gauge_chart
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
@@ -36,7 +38,15 @@ from dashboard_compiler.panels.charts.view import (
     KbnVisualizationTypeEnum,
 )
 from dashboard_compiler.panels.charts.xy.compile import compile_lens_reference_line_layer, compile_lens_xy_chart
-from dashboard_compiler.panels.charts.xy.config import LensAreaChart, LensBarChart, LensLineChart, LensReferenceLineLayer
+from dashboard_compiler.panels.charts.xy.config import (
+    ESQLAreaChart,
+    ESQLBarChart,
+    ESQLLineChart,
+    LensAreaChart,
+    LensBarChart,
+    LensLineChart,
+    LensReferenceLineLayer,
+)
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
 from dashboard_compiler.queries.types import LegacyQueryTypes
@@ -58,20 +68,20 @@ CHART_TYPE_TO_KBN_TYPE_MAP = {
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
-    if isinstance(chart, LensPieChart):
+    if isinstance(chart, (LensPieChart, ESQLPieChart)):
         return KbnVisualizationTypeEnum.PIE
-    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart, LensReferenceLineLayer)):
+    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart, LensReferenceLineLayer, ESQLAreaChart, ESQLBarChart, ESQLLineChart)):
         return KbnVisualizationTypeEnum.XY
-    if isinstance(chart, LensMetricChart):
+    if isinstance(chart, (LensMetricChart, ESQLMetricChart)):
         return KbnVisualizationTypeEnum.METRIC
-    if isinstance(chart, LensGaugeChart):
+    if isinstance(chart, (LensDatatableChart, ESQLDatatableChart)):
+        return KbnVisualizationTypeEnum.DATATABLE
+    if isinstance(chart, (LensGaugeChart, ESQLGaugeChart)):
         return KbnVisualizationTypeEnum.GAUGE
-    if isinstance(chart, LensTagcloudChart):
+    if isinstance(chart, (LensTagcloudChart, ESQLTagcloudChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return KbnVisualizationTypeEnum.TAGCLOUD
-    # if isinstance(chart, LensDatatableChart):
-    #     return KbnVisualizationTypeEnum.DATATABLE
 
-    msg = f'Unsupported Lens chart type: {type(chart)}'
+    msg = f'Unsupported Lens chart type: {type(chart)}'  # pyright: ignore[reportUnreachable]
     raise NotImplementedError(msg)
 
 
@@ -103,6 +113,8 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
         elif isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
+        elif isinstance(chart, LensDatatableChart):
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_datatable_chart(chart)
         elif isinstance(chart, LensGaugeChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_gauge_chart(chart)
         elif isinstance(chart, LensTagcloudChart):
@@ -182,6 +194,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         layer_id, esql_columns, visualization_state = compile_esql_gauge_chart(chart)
     elif isinstance(chart, ESQLPieChart):
         layer_id, esql_columns, visualization_state = compile_esql_pie_chart(chart)
+    elif isinstance(chart, ESQLDatatableChart):
+        layer_id, esql_columns, visualization_state = compile_esql_datatable_chart(chart)
     elif isinstance(chart, ESQLTagcloudChart):
         layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(chart)
     else:

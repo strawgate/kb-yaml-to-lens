@@ -30,12 +30,13 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
             columnId=metric_id,
         )
 
-    # Handle regular field-based metrics
+    # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
     metric_id = metric.id or stable_id_generator([metric.field])
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
         columnId=metric_id,
+        inMetricDimension=True,
     )
 
 

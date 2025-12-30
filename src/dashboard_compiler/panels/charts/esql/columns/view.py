@@ -1,4 +1,8 @@
-from dashboard_compiler.shared.view import BaseVwModel
+from typing import Annotated
+
+from pydantic import Field
+
+from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
 class KbnESQLFieldDimensionColumn(BaseVwModel):
@@ -19,6 +23,9 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
 
     columnId: str
     """The ID of the column."""
+
+    inMetricDimension: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    """Whether this column should be treated as a metric dimension."""
 
 
 class KbnESQLStaticValueColumn(BaseVwModel):

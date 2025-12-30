@@ -61,7 +61,6 @@ def compile_lens_dimension(
         tuple[str, KbnLensDimensionColumnTypes]: A tuple containing the dimension ID and the compiled Kibana view model.
 
     """
-    kbn_column_index_to_id = dict(enumerate(kbn_metric_column_by_id.keys()))
     kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
 
     custom_label = True if dimension.label is not None else None
@@ -94,10 +93,18 @@ def compile_lens_dimension(
                 type='column',
                 columnId=kbn_column_name_to_id[dimension.sort.by],
             )
-        else:
+        elif len(kbn_metric_column_by_id) > 0:
+            # Default to ordering by first metric column if available (matches Kibana's behavior)
+            first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
             order_by = KbnLensTermsOrderBy(
                 type='column',
-                columnId=kbn_column_index_to_id[0],
+                columnId=first_metric_id,
+            )
+        else:
+            # No metrics available, fall back to alphabetical
+            order_by = KbnLensTermsOrderBy(
+                type='alphabetical',
+                fallback=False,
             )
 
         return dimension_id, KbnLensTermsDimensionColumn(
@@ -111,8 +118,8 @@ def compile_lens_dimension(
                 size=dimension.size,
                 orderBy=order_by,
                 orderDirection=dimension.sort.direction if dimension.sort else 'desc',
-                otherBucket=dimension.other_bucket or True,
-                missingBucket=dimension.missing_bucket or False,
+                otherBucket=dimension.other_bucket if dimension.other_bucket is not None else True,
+                missingBucket=dimension.missing_bucket if dimension.missing_bucket is not None else False,
                 parentFormat=KbnLensTermsParentFormat(),
                 include=dimension.include or [],
                 exclude=dimension.exclude or [],
