@@ -1,5 +1,3 @@
-"""Configuration models for metric chart panels."""
-
 from typing import Literal
 
 from pydantic import Field

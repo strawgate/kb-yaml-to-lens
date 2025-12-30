@@ -1,5 +1,3 @@
-"""Compilation logic for ESQL chart columns (dimensions and metrics)."""
-
 from collections.abc import Sequence
 
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes, ESQLStaticValue

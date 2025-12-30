@@ -1,5 +1,3 @@
-"""Compilation logic for Lens chart columns (dimensions and metrics)."""
-
 from collections.abc import Sequence
 
 from dashboard_compiler.panels.charts.lens.columns.view import (

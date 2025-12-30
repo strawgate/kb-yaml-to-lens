@@ -1,5 +1,3 @@
-"""Base Pydantic models with shared configuration for the dashboard compiler."""
-
 from typing import Any
 
 from pydantic import BaseModel as PydanticBaseModel

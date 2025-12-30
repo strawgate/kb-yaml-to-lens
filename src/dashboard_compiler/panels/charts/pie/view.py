@@ -1,5 +1,3 @@
-"""Pydantic models for Kibana pie chart visualization serialization."""
-
 from typing import Annotated, Literal
 
 from pydantic import Field

@@ -1,5 +1,3 @@
-"""Pydantic models for Kibana dashboard serialization."""
-
 import json
 
 from pydantic import BaseModel, Field, field_serializer

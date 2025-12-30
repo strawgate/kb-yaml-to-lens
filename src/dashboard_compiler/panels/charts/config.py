@@ -1,5 +1,3 @@
-"""Configuration models for chart panels (Lens and ESQL)."""
-
 from typing import Annotated
 
 from pydantic import Discriminator, Field, Tag

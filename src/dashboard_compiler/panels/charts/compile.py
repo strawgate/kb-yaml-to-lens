@@ -1,5 +1,3 @@
-"""Compilation logic for converting chart configurations to Kibana format."""
-
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 

@@ -1,5 +1,3 @@
-"""Base configuration model for all dashboard panels."""
-
 from pydantic import Field
 
 from dashboard_compiler.panels.config import Grid

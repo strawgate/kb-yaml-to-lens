@@ -1,5 +1,3 @@
-"""Base configuration models shared across all chart types."""
-
 from enum import StrEnum
 
 from pydantic import Field, model_validator

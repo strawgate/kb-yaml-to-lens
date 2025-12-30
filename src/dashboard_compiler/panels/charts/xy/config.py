@@ -1,5 +1,3 @@
-"""Configuration models for XY chart panels (line, bar, area)."""
-
 from typing import Literal, Self
 
 from pydantic import Field, model_validator

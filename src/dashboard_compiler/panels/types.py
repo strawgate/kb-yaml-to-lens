@@ -1,5 +1,3 @@
-"""Type definitions and discriminator for all panel types."""
-
 from typing import Annotated
 
 from pydantic import Discriminator, Tag

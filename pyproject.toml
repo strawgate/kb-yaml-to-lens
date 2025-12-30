@@ -109,6 +109,8 @@ ignore = [
     "D203",    # incorrect-blank-line-before-class
     "D213",    # multi-line-summary-second-line
     "D413",    # multi-line-summary-second-line
+    "D100",    # Ignore missing docstrings for modules
+    "A002",    # Allow shadowing builtin names (e.g., 'filter')
 ]
 
 # Per-file rule ignores

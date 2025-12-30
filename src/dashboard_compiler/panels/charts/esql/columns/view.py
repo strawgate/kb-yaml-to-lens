@@ -1,5 +1,3 @@
-"""Pydantic models for Kibana ESQL column serialization."""
-
 from dashboard_compiler.shared.view import BaseVwModel
 
 

@@ -1,5 +1,3 @@
-"""Compilation logic for Lens chart dimensions."""
-
 from collections.abc import Mapping, Sequence
 
 from dashboard_compiler.panels.charts.lens.columns.view import (

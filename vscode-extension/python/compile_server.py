@@ -1,9 +1,3 @@
-"""LSP-based compilation server using pygls for VS Code extension.
-
-This implementation uses the Language Server Protocol with pygls v2 to provide
-dashboard compilation services to the VS Code extension.
-"""
-
 import sys
 from pathlib import Path
 from typing import Any

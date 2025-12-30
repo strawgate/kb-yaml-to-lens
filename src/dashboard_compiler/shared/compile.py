@@ -1,5 +1,3 @@
-"""Utility functions for compiling dashboard components."""
-
 from typing import TypeVar
 
 T = TypeVar('T')

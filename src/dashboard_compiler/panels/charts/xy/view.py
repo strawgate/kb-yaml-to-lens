@@ -1,5 +1,3 @@
-"""Pydantic models for Kibana XY chart visualization serialization."""
-
 from typing import Annotated, Any, Literal
 
 from pydantic import Field
