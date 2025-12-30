@@ -176,7 +176,6 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
-    # The panel.esql field is now the chart config directly (with query field added via mixin)
     chart = panel.esql
 
     if isinstance(chart, ESQLMetricChart):
@@ -227,10 +226,8 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
     references: list[KbnReference] = []
 
     if isinstance(panel, LensPanel):
-        # The panel.lens field is now the base chart config directly (with panel fields added via mixin)
         base_chart = panel.lens
 
-        # Build list of all charts (base + layers)
         all_charts: list[LensChartTypes] = [base_chart]
         if base_chart.layers is not None:
             all_charts.extend(base_chart.layers)
@@ -240,12 +237,9 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
             filters=base_chart.filters,
             charts=all_charts,
         )
-        # Determine visualization type from the base chart
         visualization_type = chart_type_to_kbn_type_lens(base_chart)
     elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
         chart_state = compile_esql_chart_state(panel)
-
-        # The panel.esql field is now the chart config directly
         visualization_type = chart_type_to_kbn_type_lens(panel.esql)
     else:
         msg = f'Unsupported panel type: {type(panel)}'  # pyright: ignore[reportUnreachable]
