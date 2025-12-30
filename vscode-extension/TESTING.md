@@ -32,6 +32,7 @@ uv run python -m pytest vscode-extension/python/test_*.py -v
 ### E2E Extension Tests
 
 Located in `src/test/suite/extension.test.ts`, these tests run the actual extension inside a VS Code instance (headless). They verify:
+
 - The extension activates correctly
 - Commands are registered
 - YAML files can be opened and compiled
@@ -42,6 +43,7 @@ Located in `src/test/suite/extension.test.ts`, these tests run the actual extens
 # From repository root
 make test-extension-e2e
 ```
+
 *Note: This requires `xvfb` to be installed on Linux environments.*
 
 ## Running Tests
@@ -127,6 +129,7 @@ uv sync --group dev
 ### E2E Tests Fail
 
 If E2E tests fail with "No workspace folder found" or activation errors, ensure:
+
 1. You are running `make test-extension-e2e` from the repo root.
 2. The `.venv` is created (`uv sync --group dev`).
 3. `xvfb` is installed if running on Linux without a display.

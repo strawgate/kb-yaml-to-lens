@@ -111,6 +111,7 @@ ignore = [
     "D413",    # multi-line-summary-second-line
     "D100",    # Ignore missing docstrings for modules
     "A002",    # Allow shadowing builtin names (e.g., 'filter')
+    "ANN401",  # We use Pyright for Any checking
 ]
 
 # Per-file rule ignores
