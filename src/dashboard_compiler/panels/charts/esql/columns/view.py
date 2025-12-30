@@ -1,18 +1,8 @@
-from typing import Annotated, Literal
+from typing import Annotated
 
 from pydantic import Field
 
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
-
-
-class KbnESQLColumnMeta(BaseVwModel):
-    """Metadata for ES|QL columns."""
-
-    type: Annotated[Literal['number', 'string', 'date', 'boolean'] | None, OmitIfNone()] = Field(default=None)
-    """The data type of the column."""
-
-    esType: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """The Elasticsearch field type."""
 
 
 class KbnESQLFieldDimensionColumn(BaseVwModel):
@@ -24,9 +14,6 @@ class KbnESQLFieldDimensionColumn(BaseVwModel):
     columnId: str
     """The ID of the column."""
 
-    meta: Annotated[KbnESQLColumnMeta | None, OmitIfNone()] = Field(default=None)
-    """Optional metadata about the column type."""
-
 
 class KbnESQLFieldMetricColumn(BaseVwModel):
     """Represents a field-sourced ESQL column in the Kibana JSON structure."""
@@ -36,9 +23,6 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
 
     columnId: str
     """The ID of the column."""
-
-    meta: Annotated[KbnESQLColumnMeta | None, OmitIfNone()] = Field(default=None)
-    """Optional metadata about the column type."""
 
     inMetricDimension: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether this column should be treated as a metric dimension."""
