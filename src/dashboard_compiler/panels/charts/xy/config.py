@@ -1,6 +1,6 @@
 from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -48,6 +48,14 @@ class AxisExtent(BaseCfgModel):
 
     nice_values: bool | None = Field(default=None)
     """Whether to use nice rounded values for bounds. Defaults to true."""
+
+    @model_validator(mode='after')
+    def validate_custom_bounds(self) -> Self:
+        """Validate that custom mode has at least one bound specified."""
+        if self.mode == 'custom' and self.min is None and self.max is None:
+            msg = "mode='custom' requires at least 'min' or 'max' to be specified"
+            raise ValueError(msg)
+        return self
 
 
 class AxisConfig(BaseCfgModel):

@@ -116,9 +116,9 @@ Configures the visual appearance of axes in XY charts. Allows customization of a
 Defines configuration for a single axis.
 
 | YAML Key | Data Type | Description | Default | Required |
-| -------- | -------------------------------- | ---------------------------------------------- | ------- | -------- |
+| -------- | ------------------------------------------------ | ---------------------------------------------- | ------- | -------- |
 | `title` | `str \| None` | Custom title for the axis. | `None` | No |
-| `scale` | `Literal['linear', 'log'] \| None` | Scale type for the axis (linear or logarithmic). | `None` | No |
+| `scale` | `Literal['linear', 'log', 'sqrt', 'time'] \| None` | Scale type for the axis. | `None` | No |
 | `extent` | `AxisExtent \| None` | Axis bounds/range configuration. | `None` | No |
 
 #### AxisExtent Options
@@ -142,10 +142,10 @@ Configures per-series visual styling and axis assignment. Used to customize indi
 | `metric_id` | `str` | ID of the metric this series configuration applies to. | N/A | Yes |
 | `axis` | `Literal['left', 'right'] \| None` | Which Y-axis this series is assigned to (for dual-axis charts). | `None` | No |
 | `color` | `str \| None` | Hex color code for the series (e.g., '#2196F3'). | `None` | No |
-| `line_width` | `int \| None` | Line width (1-10 pixels). | `None` | No |
+| `line_width` | `float \| None` | Line width (1-10). | `None` | No |
 | `line_style` | `Literal['solid', 'dashed', 'dotted'] \| None` | Line style for line/area charts. | `None` | No |
 | `fill` | `Literal['none', 'below', 'above'] \| None` | Fill style for area charts. | `None` | No |
-| `icon` | `Literal['circle', 'square', 'triangle'] \| None` | Point marker icon for line charts. | `None` | No |
+| `icon` | `str \| None` | Point marker icon for line charts. | `None` | No |
 
 ### ESQL Bar/Line/Area Charts
 

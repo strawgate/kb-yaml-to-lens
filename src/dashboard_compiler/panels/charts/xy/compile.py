@@ -167,6 +167,7 @@ def compile_xy_chart_visualization_state(
 
     # Build axis configuration from appearance settings
     x_title = None
+    x_scale = None
     y_left_title = None
     y_right_title = None
     y_left_scale = None
@@ -176,7 +177,7 @@ def compile_xy_chart_visualization_state(
     x_extent = None
 
     if chart.appearance is not None:
-        x_title, _, x_extent = _extract_axis_config(chart.appearance.x_axis)
+        x_title, x_scale, x_extent = _extract_axis_config(chart.appearance.x_axis)
         y_left_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
         y_right_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
 
@@ -190,7 +191,8 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
-        yConfig=y_config if y_config else None,
+        yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
+        xScaleType=x_scale,
     )
 
     # Configure legend
