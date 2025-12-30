@@ -43,8 +43,12 @@ class LensPanelFieldsMixin(BaseCfgModel):
     query: 'LegacyQueryTypes | None' = Field(default=None)
     """The query to be executed."""
 
+
+class LensXYPanelFieldsMixin(LensPanelFieldsMixin):
+    """Panel-level fields for XY chart panels (line, bar, area)."""
+
     layers: list['MultiLayerChartTypes'] | None = Field(default=None)
-    """Optional additional layers for multi-layer charts."""
+    """Optional additional layers for multi-layer XY charts (including reference lines)."""
 
 
 class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
@@ -59,15 +63,15 @@ class LensPiePanelConfig(LensPieChart, LensPanelFieldsMixin):
     """Configuration for a Lens pie panel."""
 
 
-class LensLinePanelConfig(LensLineChart, LensPanelFieldsMixin):
+class LensLinePanelConfig(LensLineChart, LensXYPanelFieldsMixin):
     """Configuration for a Lens line panel."""
 
 
-class LensBarPanelConfig(LensBarChart, LensPanelFieldsMixin):
+class LensBarPanelConfig(LensBarChart, LensXYPanelFieldsMixin):
     """Configuration for a Lens bar panel."""
 
 
-class LensAreaPanelConfig(LensAreaChart, LensPanelFieldsMixin):
+class LensAreaPanelConfig(LensAreaChart, LensXYPanelFieldsMixin):
     """Configuration for a Lens area panel."""
 
 

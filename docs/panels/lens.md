@@ -40,13 +40,13 @@ Kibana's beating visual heart!
 dashboards:
   - name: "Key Metrics Dashboard"
     panels:
-      - type: charts
-        title: "Total Users"
+      - title: "Total Users"
         grid: { x: 0, y: 0, w: 16, h: 3 }
-        query: # Optional panel-specific query
-          kql: "event.dataset:website.visits"
-        chart:
+        lens:
           type: metric # Specifies a LensMetricChart
+          data_view: "logs-*"
+          query: # Optional panel-specific query
+            kql: "event.dataset:website.visits"
           primary:
             aggregation: "unique_count"
             field: "user.id"
@@ -91,12 +91,8 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../queries/config.md). | `None` (uses dashboard query) | No |
 | `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A | Yes |
-| `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). _Currently, only `LensPieChart` is supported as a multi-layer type._ | `None` | No |
 
-**Note on `layers` vs `chart`**:
-
-* Use the `chart` field for single-layer visualizations (most common use case, e.g., one metric display, one pie chart).
-* Use the `layers` field if you need to define multiple, distinct visualizations within the same Lens panel (e.g., overlaying different chart types or configurations). If `layers` is used, the `chart` field should not be.
+**Note**: For XY charts (line, bar, area), a `layers` field is available to add reference lines and additional data layers. See the [XY Chart Panel Configuration](xy.md#reference-lines-multi-layer-panels) documentation for details.
 
 ---
 

@@ -42,12 +42,12 @@ dashboards:
   name: My First Dashboard
   description: A simple dashboard with a markdown panel
   panels:
-    - type: markdown
-      grid: { x: 0, y: 0, w: 24, h: 15 }
-      content: |
-        # Hello, Kibana!
+    - markdown:
+        content: |
+          # Hello, Kibana!
 
-        This is my first markdown panel.
+          This is my first markdown panel.
+      grid: { x: 0, y: 0, w: 24, h: 15 }
 ```
 
 ## Creating a Simple Lens Metric Panel
