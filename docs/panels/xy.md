@@ -74,8 +74,6 @@ dashboards:
 
 Reference lines are implemented as separate layers in multi-layer panels. This allows you to combine data visualizations with threshold lines in a single chart.
 
-**Note:** Reference lines must be used in a `multi_layer_charts` panel type, not as a field on individual charts.
-
 ### Basic Reference Line Example
 
 ```yaml
@@ -98,14 +96,13 @@ dashboards:
               field: "response_time"
         # Reference line layer
         - type: reference_line
-          data_view: "metrics-*"  # Required for Kibana compatibility
+          data_view: "metrics-*"
           reference_lines:
             - label: "SLA Threshold"
               value: 500.0
               color: "#FF0000"
               line_style: "dashed"
 ```
-
 
 ### Reference Line Layer Configuration
 
@@ -166,7 +163,7 @@ panel = LensMultiLayerPanel(
         ),
         # Reference line layer
         LensReferenceLineLayer(
-            data_view='logs-*',  # Required for Kibana compatibility
+            data_view='logs-*',
             reference_lines=[
                 XYReferenceLine(
                     label='SLA Threshold',

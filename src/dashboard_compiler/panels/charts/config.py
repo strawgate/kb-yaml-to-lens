@@ -1,6 +1,7 @@
 from typing import Literal
 
 from pydantic import Field
+from pydantic.functional_validators import field_validator
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
@@ -48,7 +49,24 @@ class LensMultiLayerPanel(BasePanel):
 
     type: Literal['multi_layer_charts'] = 'multi_layer_charts'
 
-    layers: list['MultiLayerChartTypes'] = Field(default=...)
+    layers: list['MultiLayerChartTypes'] = Field(default=..., min_length=1)
+
+    @field_validator('layers', mode='after')
+    @classmethod
+    def validate_layers(cls, layers: list['MultiLayerChartTypes']) -> list['MultiLayerChartTypes']:
+        """Validate that the multi-layer panel does not start with a reference line layer.
+
+        Args:
+            layers: The list of layers to validate.
+
+        Returns:
+            The list of layers.
+        """
+        if isinstance(layers[0], LensReferenceLineLayer):
+            msg = 'Multi-layer panel cannot start with a reference line layer'
+            raise TypeError(msg)
+
+        return layers
 
 
 class ESQLPanel(BasePanel):

@@ -33,6 +33,7 @@ from dashboard_compiler.panels.charts.view import (
 )
 from dashboard_compiler.panels.charts.xy.compile import compile_lens_reference_line_layer, compile_lens_xy_chart
 from dashboard_compiler.panels.charts.xy.config import LensAreaChart, LensBarChart, LensLineChart, LensReferenceLineLayer
+from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
@@ -97,15 +98,18 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
         elif isinstance(chart, LensTagcloudChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
-        else:  # LensReferenceLineLayer
+        elif isinstance(chart, LensReferenceLineLayer):  # pyright: ignore[reportUnnecessaryIsInstance]
             # Reference line layers contribute layers and columns but no visualization state
             layer_id, lens_columns_static, ref_line_layers = compile_lens_reference_line_layer(chart)
             # Cast to the general type since KbnLensStaticValueColumn is a subtype of KbnLensColumnTypes
-            lens_columns_by_id: dict[str, KbnLensColumnTypes] = lens_columns_static  # pyright: ignore[reportAssignmentType]
+            lens_columns_by_id: dict[str, KbnLensColumnTypes] = dict(lens_columns_static)
             # Store reference line layers to be added to XY visualization state
             all_reference_line_layers.extend(ref_line_layers)
             # Don't update visualization_state for reference line layers
             # They will be merged into the XY visualization state after the loop
+        else:
+            msg = f'Unsupported chart type: {type(chart)}'
+            raise NotImplementedError(msg)
 
         kbn_references.append(
             KbnReference(
@@ -128,9 +132,8 @@ def compile_lens_chart_state(
     # Merge reference line layers into XY visualization state
     if len(all_reference_line_layers) > 0:
         # Reference line layers can only be added to XY visualizations
-        from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState as XYVisState
-
-        if not isinstance(visualization_state, XYVisState):
+        # TODO: Move this validation to the config model
+        if not isinstance(visualization_state, KbnXYVisualizationState):
             msg = 'Reference line layers can only be used with XY chart visualizations'
             raise ValueError(msg)
         # Add reference line layers to the existing visualization state
@@ -209,6 +212,7 @@ def compile_charts_attributes(panel: LensPanel | LensMultiLayerPanel | ESQLPanel
 
     """
     chart_state: KbnLensPanelState
+    visualization_type: KbnVisualizationTypeEnum
     references: list[KbnReference] = []
 
     if isinstance(panel, LensPanel):
@@ -225,15 +229,15 @@ def compile_charts_attributes(panel: LensPanel | LensMultiLayerPanel | ESQLPanel
             filters=None,
             charts=panel.layers,
         )
-        # Determine visualization type from the first non-reference-line layer
-        first_chart = next((layer for layer in panel.layers if not isinstance(layer, LensReferenceLineLayer)), None)
-        if first_chart is None:
-            msg = 'Multi-layer panel must have at least one data layer (non-reference-line layer)'
-            raise ValueError(msg)
-        visualization_type = chart_type_to_kbn_type_lens(first_chart)
+        # Determine visualization type from the first layer, first layer cannot be a reference line layer
+        first_layer = panel.layers[0]
+        visualization_type = chart_type_to_kbn_type_lens(chart=first_layer)
     elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
         chart_state = compile_esql_chart_state(panel)
         visualization_type = chart_type_to_kbn_type_lens(panel.chart)
+    else:
+        msg = f'Unsupported panel type: {type(panel)}'  # pyright: ignore[reportUnreachable]
+        raise NotImplementedError(msg)
 
     return (
         KbnLensPanelAttributes(
