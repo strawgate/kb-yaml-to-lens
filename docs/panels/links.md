@@ -39,7 +39,7 @@ dashboards:
   - name: "Main Overview"
     panels:
       - title: "Navigate to User Details"
-        grid: { x: 0, y: 0, w: 6, h: 2 }
+        grid: { x: 0, y: 0, w: 24, h: 2 }
         links:
           links:
             - label: "View User Activity Dashboard"
@@ -53,7 +53,7 @@ dashboards:
   - name: "Main Overview"
     panels:
       - title: "External Resources"
-        grid: { x: 6, y: 0, w: 6, h: 2 }
+        grid: { x: 24, y: 0, w: 24, h: 2 }
         links:
           links:
             - label: "Project Documentation"
@@ -71,7 +71,7 @@ dashboards:
     panels:
       - title: "Quick Access"
         description: "Links to key operational dashboards and tools."
-        grid: { x: 0, y: 0, w: 12, h: 3 }
+        grid: { x: 0, y: 0, w: 48, h: 3 }
         links:
           layout: "vertical" # Display links one above the other
           links:
@@ -123,7 +123,7 @@ Each item in the `links` list will be one of the following types. They share com
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
 | `id` | `string` | An optional unique identifier for the individual link item. Not typically needed. | Generated ID | No |
-| `label` | `string` | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No |
+| `label` | `string` | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` | No |
 
 #### Dashboard Link
 
@@ -146,7 +146,7 @@ Represents a link to an external web URL.
 | --------- | --------- | ---------------------------------------------------------------------------------------------------------- | -------------- | -------- |
 | `url` | `string` | The full web URL that the link points to (e.g., `https://www.example.com`). | N/A | Yes |
 | `id` | `string` | An optional unique identifier for this link item. | Generated ID | No |
-| `label` | `string` | The display text for the link. If not set, Kibana defaults to showing the URL. | `""` (empty string) or URL | No |
+| `label` | `string` | The display text for the link. If not set, Kibana defaults to showing the URL. | `None` | No |
 | `encode` | `boolean` | If `true`, the URL will be URL-encoded before navigation. | `true` | No |
 | `new_tab` | `boolean` | If `true`, the link will open in a new browser tab. | `false` | No |
 

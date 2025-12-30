@@ -38,7 +38,7 @@ dashboards:
     panels:
       - type: charts
         title: "Events Over Time"
-        grid: { x: 0, y: 0, w: 12, h: 6 }
+        grid: { x: 0, y: 0, w: 48, h: 6 }
         chart:
           type: line
           data_view: "logs-*"
@@ -94,8 +94,9 @@ dashboards:
 #### XYLegend Options
 
 | YAML Key | Data Type | Description | Default | Required |
-| --------- | ----------------- | ------------------------------ | ------- | -------- |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------- | ------- | -------- |
 | `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
+| `position` | `Literal['top', 'bottom', 'left', 'right'] \| None` | Position of the legend (Kibana defaults to 'right'). | `None` | No |
 
 ### ESQL Bar/Line/Area Charts
 

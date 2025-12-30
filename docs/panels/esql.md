@@ -42,7 +42,7 @@ dashboards:
     panels:
       - type: charts
         title: "Total Processed Events"
-        grid: { x: 0, y: 0, w: 4, h: 3 }
+        grid: { x: 0, y: 0, w: 16, h: 3 }
         esql: |
           FROM my_event_stream
           | STATS total_events = COUNT(event_id)
@@ -61,7 +61,7 @@ dashboards:
     panels:
       - type: charts
         title: "Events by Type (ESQL)"
-        grid: { x: 4, y: 0, w: 8, h: 3 }
+        grid: { x: 16, y: 0, w: 32, h: 3 }
         esql: |
           FROM my_event_stream
           | STATS event_count = COUNT(event_id) BY event_type
@@ -184,23 +184,23 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
+| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. If not specified, Kibana displays as a pie chart (no donut hole). | `None` | No |
 
 ### Pie Titles and Text Formatting (`titles_and_text` field)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
-| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
-| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
+| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `None` | No |
+| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `None` | No |
+| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `None` | No |
 
 ### Pie Legend Formatting (`legend` field)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `auto` | No |
-| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `medium` | No |
-| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `1` | No |
+| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `None` | No |
+| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `None` | No |
+| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `None` | No |
 
 ### Color Mapping Formatting (`color` field)
 

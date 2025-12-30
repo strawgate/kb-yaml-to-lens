@@ -42,7 +42,7 @@ dashboards:
     panels:
       - type: charts
         title: "Total Users"
-        grid: { x: 0, y: 0, w: 4, h: 3 }
+        grid: { x: 0, y: 0, w: 16, h: 3 }
         query: # Optional panel-specific query
           kql: "event.dataset:website.visits"
         chart:
@@ -61,7 +61,7 @@ dashboards:
     panels:
       - type: charts
         title: "Traffic by Source"
-        grid: { x: 4, y: 0, w: 8, h: 3 }
+        grid: { x: 16, y: 0, w: 32, h: 3 }
         chart:
           type: pie # Specifies a LensPieChart
           data_view: "weblogs-*"

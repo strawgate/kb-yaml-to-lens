@@ -42,7 +42,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 12
+          w: 48
           h: 10
         search:
           saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
@@ -62,7 +62,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 12
+          w: 48
           h: 8
         search:
           saved_search_id: "critical-security-alerts-saved-search"
