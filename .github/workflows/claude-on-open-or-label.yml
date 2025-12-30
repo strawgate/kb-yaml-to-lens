@@ -1,5 +1,5 @@
 ---
-name: Claude Code Triage
+name: Claude Assistant
 on:
   issues:
     types:

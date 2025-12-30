@@ -25,7 +25,8 @@ dashboards:
         markdown:
           content: |
             # Overview Dashboard
-            This dashboard provides high-level metrics across your log data. Use the navigation links above to drill into more detailed views.
+            This dashboard provides high-level metrics across your log data. Use the navigation links above to
+            drill into more detailed views.
             **Key Metrics:**
             - Total log volume
             - Unique hosts reporting
