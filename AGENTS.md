@@ -94,6 +94,13 @@ make ci
 - Update documentation and tests when you make code changes. These are not typically near the code so make sure you thoroughly search for items to update.
 - Consider the broader impact of your changes.
 
+**Slop-Free since 1993:**
+
+- No slop, no excuses, no half-measures
+- No slop comments, no slop code, no slop logic, no slop architecture, no slop design, no slop anything.
+- Avoid comments that simply state what the code is obviously doing
+- Do not write comments that contrast the current implementation with a previous implementation (i.e. "this now does X" or "this class now contains Y")
+
 ---
 
 ## Working with Code Review Feedback
