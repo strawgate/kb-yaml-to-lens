@@ -15,7 +15,21 @@ class BaseMetric(BaseCfgModel):
     """A unique identifier for the metric. If not provided, one may be generated during compilation."""
 
 
-type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes
+class LensStaticValue(BaseMetric):
+    """Represents a static numeric value metric in Lens charts.
+
+    Used to display a fixed numeric value rather than aggregating from data.
+    Commonly used for gauge min/max/goal values or reference lines.
+    """
+
+    value: int | float = Field(...)
+    """The static numeric value to display."""
+
+    label: str | None = Field(default=None)
+    """Optional label for the static value."""
+
+
+type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes | LensStaticValue
 
 type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat
 
