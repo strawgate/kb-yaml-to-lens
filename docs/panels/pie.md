@@ -87,6 +87,7 @@ dashboards:
 | `visible` | `Literal['show', 'hide', 'auto'] \| None` | Legend visibility. | `None` | No |
 | `width` | `Literal['small', 'medium', 'large', 'extra_large'] \| None` | Legend width. | `None` | No |
 | `truncate_labels` | `int \| None` | Lines to truncate labels to (0-5, 0=disable). | `None` | No |
+| `nested` | `bool \| None` | Show legend in nested format for multi-level pie charts. | `None` | No |
 
 ### ESQL Pie Chart
 

@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
+      allowed-bots: coderabbitai
       prompt: |
         You're a code assistant for kb-yaml-to-lens responding to CodeRabbit review feedback.
 
