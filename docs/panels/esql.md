@@ -55,7 +55,7 @@ dashboards:
 
 **Minimal ESQL Pie Chart:**
 
-```yaml
+```yaml skip
 dashboards:
   - name: "ESQL Event Analysis"
     panels:

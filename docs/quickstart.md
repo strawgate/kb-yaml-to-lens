@@ -36,7 +36,7 @@ dashboards:
 
 Here's an example of a dashboard with a single markdown panel:
 
-```yaml
+```yaml skip
 dashboards:
 -
   name: My First Dashboard

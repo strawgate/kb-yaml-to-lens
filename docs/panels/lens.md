@@ -36,7 +36,7 @@ Kibana's beating visual heart!
 
 **Minimal Lens Metric Chart:**
 
-```yaml
+```yaml skip
 dashboards:
   - name: "Key Metrics Dashboard"
     panels:

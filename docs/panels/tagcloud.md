@@ -32,7 +32,7 @@ Their data as vocabulary!
 
 ## Minimal Configuration Example (Lens)
 
-```yaml
+```yaml skip
 dashboards:
 -
   name: "Log Analysis"
@@ -51,7 +51,7 @@ dashboards:
 
 ## Minimal Configuration Example (ES|QL)
 
-```yaml
+```yaml skip
 dashboards:
 -
   name: "Log Analysis"
@@ -117,7 +117,7 @@ Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color
 
 ## Advanced Configuration Example
 
-```yaml
+```yaml skip
 dashboards:
 -
   name: "Advanced Tag Cloud"

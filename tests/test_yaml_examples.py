@@ -26,21 +26,26 @@ markdown_files = [
 ]
 
 
-def extract_yaml_examples(file_path: str) -> list[tuple[str, int]]:
+def extract_yaml_examples(file_path: str) -> list[tuple[str, int, bool]]:
     """Extract YAML code blocks from a markdown file.
 
-    Returns list of (yaml_content, line_number) tuples.
+    Returns list of (yaml_content, line_number, skip) tuples.
+    The skip flag is True if the code fence has a 'skip' marker (e.g., ```yaml skip).
     """
     content = Path(file_path).read_text()
     examples = []
 
-    # Find all ```yaml code blocks
-    pattern = r'```yaml\n(.*?)```'
+    # Find all ```yaml code blocks, capturing optional info string after 'yaml'
+    # Matches: ```yaml, ```yaml skip, ```yaml test="skip", etc.
+    pattern = r'```yaml([^\n]*)\n(.*?)```'
     for match in re.finditer(pattern, content, re.DOTALL):
-        yaml_content = match.group(1)
+        info_string = match.group(1).strip()
+        yaml_content = match.group(2)
         # Calculate line number
         line_num = content[: match.start()].count('\n') + 1
-        examples.append((yaml_content, line_num))
+        # Check if skip marker is present in the info string
+        should_skip = 'skip' in info_string.lower()
+        examples.append((yaml_content, line_num, should_skip))
 
     return examples
 
@@ -50,7 +55,9 @@ def test_yaml_examples_use_dashboards_format(file_path: str) -> None:
     """Test that YAML examples use 'dashboards:' (plural) not 'dashboard:' (singular)."""
     examples = extract_yaml_examples(file_path)
 
-    for yaml_content, line_num in examples:
+    for yaml_content, line_num, skip in examples:
+        if skip:
+            continue  # Skip examples marked with 'skip' in code fence
         # Check if this example contains a dashboard definition
         # Look for the top-level dashboard: key (not dashboard: inside links/other fields)
         lines = yaml_content.split('\n')
@@ -73,10 +80,10 @@ def test_yaml_examples_valid_syntax(file_path: str) -> None:
     """Test that YAML examples have valid syntax."""
     examples = extract_yaml_examples(file_path)
 
-    for yaml_content, line_num in examples:
-        # Skip examples with placeholders or ellipsis
-        if '...' in yaml_content or 'your-' in yaml_content.lower() or '# ...' in yaml_content:
-            pytest.skip(f'Skipping example with placeholders at {file_path}:{line_num}')
+    for yaml_content, line_num, skip in examples:
+        # Skip examples marked with 'skip' in code fence or with placeholders
+        if skip or '...' in yaml_content or 'your-' in yaml_content.lower():
+            continue
 
         try:
             yaml.safe_load(yaml_content)
@@ -89,29 +96,19 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
     """Test that complete YAML examples can be loaded by the dashboard compiler."""
     from dashboard_compiler.dashboard_compiler import load
 
-    # Skip files that contain examples with placeholder data sources
-    # These files show schema structures for different chart types
-    placeholder_docs = [
-        'docs/panels/esql.md',
-        'docs/panels/lens.md',
-        'docs/panels/tagcloud.md',
-    ]
-    if file_path in placeholder_docs:
-        pytest.skip(f'Skipping doc with placeholder examples: {file_path}')
-
     examples = extract_yaml_examples(file_path)
 
-    for yaml_content, line_num in examples:
-        # Skip examples that are fragments or have placeholders
+    for yaml_content, line_num, skip in examples:
+        # Skip examples marked with 'skip' in code fence, or that are fragments/placeholders
         if (
-            '...' in yaml_content
-            or '# ...' in yaml_content
+            skip
+            or '...' in yaml_content
             or 'your-' in yaml_content.lower()
             or 'example.com' in yaml_content
             or 'dashboards:' not in yaml_content
             or '# Your panel definitions go here' in yaml_content
         ):
-            pytest.skip(f'Skipping incomplete/placeholder example at {file_path}:{line_num}')
+            continue
 
         try:
             # Write YAML to a temporary file for loading
