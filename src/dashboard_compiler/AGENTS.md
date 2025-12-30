@@ -48,70 +48,27 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 
 ## Code Conventions
 
-### Pydantic Models
+> For detailed code style guidelines (explicit boolean checks, exhaustive type checking patterns, Pydantic conventions, line length, documentation requirements), see **[CODE_STYLE.md](../../CODE_STYLE.md)** at the repository root.
 
-Pydantic models often inherit from `BaseCfgModel` and `BaseVwModel`, which sets a number of common settings and behaviors like strict mode, extra fields, frozen, validate_default, and more. In this repository we use attribute docstrings for field descriptions.
+### Quick Reference
 
-**View Models** (`BaseVwModel`):
+**Explicit Boolean Comparisons:**
 
-- Custom serializer omits fields with `OmitIfNone` metadata when value is `None`
-- May narrow types in subclasses (e.g., `str` → `Literal['value']`)
-- `reportIncompatibleVariableOverride = false` in basedpyright allows this
+- Use `if x is not None:` instead of `if x:`
+- Use `if len(items) > 0:` instead of `if items:`
 
-### Explicit Boolean Checks
+**Exhaustive Type Checking:**
 
-Always use explicit comparisons instead of implicit truthiness:
+- Always use isinstance chains with a final error handler
+- Never rely on type narrowing alone for union types
 
-**✅ Correct:**
+**Pydantic Models:**
 
-- `if my_var is not None:` (for optional types)
-- `if my_var is None:` (for None checks)
-- `if len(my_list) > 0:` (for non-empty lists)
-- `if len(my_str) > 0:` (for non-empty strings)
-- `if my_bool is True:` or `if my_bool:` (for actual booleans)
+- Inherit from `BaseCfgModel` or `BaseVwModel` - they set common configuration
+- Use attribute docstrings for field descriptions
+- View models may narrow types in subclasses
 
-**❌ Incorrect:**
-
-- `if my_var:` (ambiguous: could be None, empty, False, 0, etc.)
-- `if not my_var:` (ambiguous truthiness check)
-
-**Exception:** `if TYPE_CHECKING:` is standard Python and acceptable.
-
-### Exhaustive Type Checking Pattern
-
-When handling union types (like `PanelTypes`), always use explicit isinstance checks with a final else clause that raises an error. **Never rely on type narrowing alone.**
-
-**Why:** When a new type is added to the union, relying on type narrowing means the code silently falls through to a default case. With explicit isinstance checks and a final error, you get a clear runtime error that forces you to handle the new type.
-
-**✅ Correct pattern:**
-
-```python
-def handle_panel(panel: PanelTypes) -> str:
-    if isinstance(panel, MarkdownPanel):
-        return handle_markdown(panel)
-    if isinstance(panel, LinksPanel):
-        return handle_links(panel)
-    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
-        return handle_charts(panel)
-    # Explicit error case instead of relying on type narrowing
-    msg = f'Unknown panel type: {type(panel).__name__}'
-    raise TypeError(msg)
-```
-
-**❌ Incorrect pattern:**
-
-```python
-def handle_panel(panel: PanelTypes) -> str:
-    if isinstance(panel, MarkdownPanel):
-        return handle_markdown(panel)
-    if isinstance(panel, LinksPanel):
-        return handle_links(panel)
-    # Relying on type narrowing - if a new type is added to PanelTypes,
-    # this silently handles it as a chart without any error
-    return handle_charts(panel)
-```
-
-**Key principle:** Make adding new types to unions a compile-time or runtime error, not a silent fallthrough.
+See [CODE_STYLE.md](../../CODE_STYLE.md) for detailed explanations and examples.
 
 ### Documentation Updates
 
