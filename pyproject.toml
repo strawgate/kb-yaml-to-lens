@@ -166,11 +166,9 @@ classmethod-decorators = ["classmethod", "pydantic.validator"]
 [tool.basedpyright]
 pythonVersion = "3.12"
 typeCheckingMode = "recommended"
-reportExplicitAny = false
+reportImportCycles = "error"
 reportMissingTypeStubs = false
-reportImportCycles = "error"  # Enable circular import detection
-# Allow Pydantic view models to narrow types in subclasses (e.g., str -> Literal['value'])
-# This is a common pattern for serialization models
+reportExplicitAny = false
 reportIncompatibleVariableOverride = false
 include = ["src/dashboard_compiler", "tests"]
 exclude = [
@@ -178,12 +176,18 @@ exclude = [
     "**/output/**",
     "**/*.old.py",
 ]
-# Per-directory settings: more lenient for tests
-# Tests use dynamic typing patterns that are difficult to type-check strictly
-executionEnvironments = [
-    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
-    { root = "src/dashboard_compiler" },
-]
+[[tool.basedpyright.executionEnvironments]]
+root = "tests"
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler"
 
 [tool.coverage.run]
 source = ["src/dashboard_compiler"]
