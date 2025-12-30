@@ -1,12 +1,17 @@
 """Test the compilation of Lens dimensions from config models to view models."""
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
-from pydantic import TypeAdapter, ValidationError
+from pydantic import TypeAdapter
 
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
-from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
+from dashboard_compiler.panels.charts.lens.dimensions.config import (
+    LensDateHistogramDimension,
+    LensDimensionTypes,
+    LensFiltersDimension,
+    LensIntervalsDimension,
+    LensTopValuesDimension,
+)
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 
@@ -307,12 +312,17 @@ async def test_intervals_dimension_with_custom_intervals() -> None:
     )
 
 
-async def test_dimension_requires_type_field() -> None:
-    """Test that dimension type field is required."""
-    dimension_config_missing_type = {'field': '@timestamp'}
+async def test_dimension_type_field_has_default() -> None:
+    """Test that dimension type field can be omitted and will use the default value."""
+    # Test that type defaults are applied correctly when constructing directly
+    date_hist = LensDateHistogramDimension(field='@timestamp')
+    assert date_hist.type == 'date_histogram'
 
-    with pytest.raises(ValidationError) as exc_info:
-        TypeAdapter(LensDimensionTypes).validate_python(dimension_config_missing_type)
+    top_values = LensTopValuesDimension(field='status')
+    assert top_values.type == 'values'
 
-    # Verify that the error mentions the missing 'type' field
-    assert 'type' in str(exc_info.value).lower()
+    filters = LensFiltersDimension(filters=[])
+    assert filters.type == 'filters'
+
+    intervals = LensIntervalsDimension(field='price')
+    assert intervals.type == 'intervals'
