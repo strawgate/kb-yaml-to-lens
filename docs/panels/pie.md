@@ -107,7 +107,10 @@ dashboards:
 You can create Pie chart panels programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
+from dashboard_compiler.panels.charts.config import (
+    LensPanel,
+    LensPiePanelConfig,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensTopValuesDimension,
 )
@@ -119,7 +122,7 @@ from dashboard_compiler.panels.config import Grid
 panel = LensPanel(
     title='Status Distribution',
     grid=Grid(x=0, y=0, w=24, h=15),
-    lens=LensPanelConfig(
+    lens=LensPiePanelConfig(
         type='pie',
         data_view='logs-*',
         slice_by=[LensTopValuesDimension(field='status')],

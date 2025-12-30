@@ -164,7 +164,10 @@ ESQL chart configuration is similar to Lens charts, but uses `ESQLDimensionTypes
 You can create XY chart panels with reference lines programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
+from dashboard_compiler.panels.charts.config import (
+    LensLinePanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensDateHistogramDimension,
 )
@@ -181,7 +184,7 @@ from dashboard_compiler.panels.config import Grid
 panel = LensPanel(
     title='Documents Over Time with Thresholds',
     grid=Grid(x=0, y=0, w=48, h=20),
-    lens=LensPanelConfig(
+    lens=LensLinePanelConfig(
         type='line',
         data_view='logs-*',
         dimensions=[LensDateHistogramDimension(field='@timestamp')],

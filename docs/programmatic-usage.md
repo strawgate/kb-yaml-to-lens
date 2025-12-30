@@ -107,7 +107,10 @@ One of the key benefits of programmatic dashboards is the ability to generate th
 
 ```python
 from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
@@ -130,7 +133,7 @@ for i, metric in enumerate(metrics_config):
             w=16,
             h=15,
         ),
-        lens=LensPanelConfig(
+        lens=LensMetricPanelConfig(
             type='metric',
             data_view='metrics-*',
             primary=LensOtherAggregatedMetric(
@@ -150,7 +153,7 @@ def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
     return LensPanel(
         title=title,
         grid=Grid(x=x, y=y, w=24, h=15),
-        lens=LensPanelConfig(
+        lens=LensMetricPanelConfig(
             type='metric',
             data_view='logs-*',
             primary=LensOtherAggregatedMetric(aggregation='average', field=field),

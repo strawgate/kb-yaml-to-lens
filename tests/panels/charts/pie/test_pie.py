@@ -3,8 +3,9 @@
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
+from dashboard_compiler.panels.charts.config import ESQLPiePanelConfig
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
-from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieChart
+from dashboard_compiler.panels.charts.pie.config import LensPieChart
 
 
 async def test_basic_pie_chart() -> None:
@@ -18,7 +19,7 @@ async def test_basic_pie_chart() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -47,7 +48,7 @@ async def test_basic_pie_chart() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -83,7 +84,7 @@ async def test_basic_donut_chart() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'appearance': {'donut': 'medium'},
@@ -113,7 +114,7 @@ async def test_basic_donut_chart() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -149,7 +150,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
@@ -179,7 +180,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -215,7 +216,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'visible': 'show', 'width': 'large', 'truncate_labels': 0},
@@ -247,7 +248,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -287,7 +288,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace, region',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace, region',
         'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'slice_by': [
             {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
@@ -320,7 +321,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -359,7 +360,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*), sum(bytes) by aerospike.namespace',
+        'query': 'FROM metrics-* | STATS count(*), sum(bytes) by aerospike.namespace',
         'metrics': [
             {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
             {'field': 'sum(bytes)', 'id': '9g131718-490f-5c65-cd0f-f6661g95g6f7'},
@@ -393,7 +394,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
@@ -432,7 +433,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
     }
     esql_config = {
         'type': 'pie',
-        'esql': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'slice_by': [
             {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
@@ -464,7 +465,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
         }
     )
 
-    esql_chart = ESQLPieChart.model_validate(esql_config)
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     layer_id, kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]

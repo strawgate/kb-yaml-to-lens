@@ -169,13 +169,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
-    # Get the chart configuration from the esql config
-    esql_config = panel.esql
-    if esql_config.chart_config is None:
-        msg = 'ES|QL chart configuration not initialized'
-        raise ValueError(msg)
-
-    chart = esql_config.chart_config
+    # The panel.esql field is now the chart config directly (with query field added via mixin)
+    chart = panel.esql
 
     if isinstance(chart, ESQLMetricChart):
         layer_id, esql_columns, visualization_state = compile_esql_metric_chart(chart)
@@ -188,7 +183,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         raise NotImplementedError(msg)
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        query=compile_esql_query(esql_config.query),
+        query=compile_esql_query(chart.query),
         columns=esql_columns,
     )
 
@@ -200,7 +195,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
 
     return KbnLensPanelState(
         visualization=visualization_state,
-        query=compile_esql_query(esql_config.query),
+        query=compile_esql_query(chart.query),
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],
@@ -223,23 +218,17 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
     references: list[KbnReference] = []
 
     if isinstance(panel, LensPanel):
-        lens_config = panel.lens
-
-        # Get the base chart configuration
-        if lens_config.chart_config is None:
-            msg = 'Lens chart configuration not initialized'
-            raise ValueError(msg)
-
-        base_chart = lens_config.chart_config
+        # The panel.lens field is now the base chart config directly (with panel fields added via mixin)
+        base_chart = panel.lens
 
         # Build list of all charts (base + layers)
         all_charts: list[LensChartTypes] = [base_chart]
-        if lens_config.layers is not None:
-            all_charts.extend(lens_config.layers)
+        if base_chart.layers is not None:
+            all_charts.extend(base_chart.layers)
 
         chart_state, references = compile_lens_chart_state(
-            query=lens_config.query,
-            filters=lens_config.filters,
+            query=base_chart.query,
+            filters=base_chart.filters,
             charts=all_charts,
         )
         # Determine visualization type from the base chart
@@ -247,13 +236,8 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
     elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
         chart_state = compile_esql_chart_state(panel)
 
-        # Get chart for visualization type
-        esql_config = panel.esql
-        if esql_config.chart_config is None:
-            msg = 'ES|QL chart configuration not initialized'
-            raise ValueError(msg)
-
-        visualization_type = chart_type_to_kbn_type_lens(esql_config.chart_config)
+        # The panel.esql field is now the chart config directly
+        visualization_type = chart_type_to_kbn_type_lens(panel.esql)
     else:
         msg = f'Unsupported panel type: {type(panel)}'  # pyright: ignore[reportUnreachable]
         raise NotImplementedError(msg)

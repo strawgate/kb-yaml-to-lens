@@ -76,7 +76,10 @@ You can create Metric chart panels programmatically using Python:
 ### Count Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
@@ -85,7 +88,7 @@ from dashboard_compiler.panels.config import Grid
 panel = LensPanel(
     title='Total Documents',
     grid=Grid(x=0, y=0, w=24, h=15),
-    lens=LensPanelConfig(
+    lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
         primary=LensCountAggregatedMetric(aggregation='count'),
@@ -96,7 +99,10 @@ panel = LensPanel(
 ### Average Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel, LensPanelConfig
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
@@ -105,7 +111,7 @@ from dashboard_compiler.panels.config import Grid
 panel = LensPanel(
     title='Avg Response Time',
     grid=Grid(x=0, y=0, w=24, h=15),
-    lens=LensPanelConfig(
+    lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
         primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
