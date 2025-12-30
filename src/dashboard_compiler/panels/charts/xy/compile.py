@@ -57,8 +57,8 @@ def compile_lens_reference_line_layer(
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
 
     for ref_line in layer.reference_lines:
-        ref_layer_id = random_id_generator()
-        ref_layer, ref_column = compile_reference_line_layer(ref_line, ref_layer_id)
+        # All reference lines in this layer share the same datasource layer (primary_layer_id)
+        ref_layer, ref_column = compile_reference_line_layer(ref_line, primary_layer_id)
         reference_line_layers.append(ref_layer)
         # Use the accessor ID from the layer to key the column
         accessor_id = ref_layer.accessors[0]
