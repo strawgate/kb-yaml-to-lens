@@ -8,8 +8,7 @@ Here's a minimal example of an `options` list control:
 
 ```yaml
 dashboards:
-  -
-    controls:
+  - controls:
       - type: options
         label: "Filter by Status"
         data_view: "your-data-view-id" # Replace with your data view ID or title
@@ -20,8 +19,7 @@ Here's a minimal example of a `range` slider control:
 
 ```yaml
 dashboards:
-  -
-    controls:
+  - controls:
       - type: range
         label: "Response Time (ms)"
         data_view: "your-data-view-id" # Replace with your data view ID or title
@@ -34,8 +32,7 @@ This example demonstrates multiple controls with custom widths and global contro
 
 ```yaml
 dashboards:
-  -
-    name: "Application Monitoring Dashboard"
+  - name: "Application Monitoring Dashboard"
     description: "Dashboard with interactive controls."
     data_view: "logs-*" # Default data view for panels
     settings:
