@@ -1,0 +1,106 @@
+---
+# Simple Quick Test Configuration for XY Chart Axis Features
+# Focused test cases for manual validation of the most common scenarios
+dashboards:
+  - name: XY Axis Quick Tests
+    description: Quick validation tests for axis appearance features
+    panels:
+      # Quick Test 1: Basic Dual Y-Axis
+      - type: charts
+        title: 'Dual Y-Axis: Count vs Average'
+        grid: {x: 0, y: 0, w: 48, h: 15}
+        chart:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+              id: time
+          metrics:
+            - aggregation: count
+              id: count_metric
+            - aggregation: average
+              field: bytes
+              id: avg_bytes
+          appearance:
+            y_left_axis:
+              title: Document Count
+              scale: linear
+            y_right_axis:
+              title: Average Bytes
+              scale: linear
+            series:
+              - metric_id: count_metric
+                axis: left
+                color: '#0077CC'
+              - metric_id: avg_bytes
+                axis: right
+                color: '#FF6B6B'
+
+      # Quick Test 2: Custom Bounds (SLA Monitoring)
+      - type: charts
+        title: Response Time with SLA Bounds (0-1000ms)
+        grid: {x: 0, y: 15, w: 48, h: 15}
+        chart:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: average
+              field: response_time
+              id: response_time
+          appearance:
+            y_left_axis:
+              title: Response Time (ms)
+              extent:
+                mode: custom
+                min: 0
+                max: 1000
+                enforce: true
+                nice_values: true
+
+      # Quick Test 3: Multi-Series with Colors
+      - type: charts
+        title: Traffic by Type (Custom Colors)
+        grid: {x: 0, y: 30, w: 48, h: 15}
+        chart:
+          type: area
+          mode: stacked
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          breakdown:
+            field: event.type
+            type: values
+          metrics:
+            - aggregation: count
+              id: event_count
+          appearance:
+            y_left_axis:
+              title: Events per Interval
+            series:
+              - metric_id: event_count
+                color: '#4CAF50'
+
+      # Quick Test 4: Data Bounds Mode
+      - type: charts
+        title: Auto-fit to Data (Data Bounds Mode)
+        grid: {x: 0, y: 45, w: 48, h: 15}
+        chart:
+          type: bar
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: sum
+              field: bytes
+              id: total_bytes
+          appearance:
+            y_left_axis:
+              title: Total Bytes
+              extent:
+                mode: data_bounds
