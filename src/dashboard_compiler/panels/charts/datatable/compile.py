@@ -48,7 +48,6 @@ def compile_lens_datatable_chart(
     kbn_metric_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     for metric in lens_datatable_chart.metrics:
         metric_id, compiled_metric = compile_lens_metric(metric)
-        kbn_columns_by_id[metric_id] = compiled_metric
         kbn_metric_columns_by_id[metric_id] = compiled_metric
 
     # Compile row dimensions (these come FIRST in column order for datatables)
@@ -70,8 +69,10 @@ def compile_lens_datatable_chart(
             kbn_columns_by_id[rows_by_id] = compiled_rows_by
             column_order.append(rows_by_id)
 
-    # Add metrics to column order AFTER dimensions
-    column_order.extend(kbn_metric_columns_by_id.keys())
+    # Add metrics to kbn_columns_by_id AFTER dimensions (preserves insertion order)
+    for metric_id, compiled_metric in kbn_metric_columns_by_id.items():
+        kbn_columns_by_id[metric_id] = compiled_metric
+        column_order.append(metric_id)
 
     # Build column states
     column_states: list[KbnDatatableColumnState] = []
@@ -155,7 +156,7 @@ def compile_lens_datatable_chart(
     return layer_id, kbn_columns_by_id, visualization_state
 
 
-def compile_esql_datatable_chart(
+def compile_esql_datatable_chart(  # noqa: PLR0915
     esql_datatable_chart: ESQLDatatableChart,
 ) -> tuple[str, list[KbnESQLColumnTypes], KbnDatatableVisualizationState]:
     """Compile an ESQL LensDatatableChart config object into a Kibana Lens Datatable visualization state.
@@ -173,12 +174,13 @@ def compile_esql_datatable_chart(
     layer_id = esql_datatable_chart.id or random_id_generator()
     kbn_columns: list[KbnESQLColumnTypes] = []
     column_order: list[str] = []
-    metric_column_ids: list[str] = []
 
-    # Compile metrics first (but don't add to column_order yet)
+    # Compile metrics first (to store for later, but don't add to kbn_columns yet)
+    compiled_metrics: list[KbnESQLColumnTypes] = []
+    metric_column_ids: list[str] = []
     for metric in esql_datatable_chart.metrics:
         compiled_metric = compile_esql_metric(metric)
-        kbn_columns.append(compiled_metric)
+        compiled_metrics.append(compiled_metric)
         metric_column_ids.append(compiled_metric.columnId)
 
     # Compile row dimensions (these come FIRST in column order for datatables)
@@ -194,7 +196,8 @@ def compile_esql_datatable_chart(
             kbn_columns.append(compiled_rows_by)
             column_order.append(compiled_rows_by.columnId)
 
-    # Add metrics to column order AFTER dimensions
+    # Add metrics to kbn_columns AFTER dimensions
+    kbn_columns.extend(compiled_metrics)
     column_order.extend(metric_column_ids)
 
     # Build column states
