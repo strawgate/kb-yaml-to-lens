@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: ''
+      allowed-bots:
+        description: Comma-separated list of allowed bot usernames, or '*' to allow all bots
+        required: false
+        type: string
+        default: ''
       prompt:
         description: Prompt to pass to Claude
         required: true
@@ -85,6 +90,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
           prompt: ${{ inputs.prompt }}
           track_progress: ${{ inputs.track-progress }}
+          allowed_bots: ${{ inputs.allowed-bots }}
           claude_args: |-
             --allowed-tools ${{ inputs.allowed-tools }}
             --mcp-config /tmp/mcp-config/mcp-servers.json

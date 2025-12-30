@@ -38,12 +38,12 @@ Just click to find what should come next!
 dashboards:
   - name: "Main Overview"
     panels:
-      - type: links
-        title: "Navigate to User Details"
-        grid: { x: 0, y: 0, w: 6, h: 2 }
+      - title: "Navigate to User Details"
+        grid: { x: 0, y: 0, w: 24, h: 2 }
         links:
-          - label: "View User Activity Dashboard"
-            dashboard: "user-activity-dashboard-id"
+          links:
+            - label: "View User Activity Dashboard"
+              dashboard: "user-activity-dashboard-id"
 ```
 
 **Linking to an External URL:**
@@ -52,13 +52,13 @@ dashboards:
 dashboards:
   - name: "Main Overview"
     panels:
-      - type: links
-        title: "External Resources"
-        grid: { x: 6, y: 0, w: 6, h: 2 }
+      - title: "External Resources"
+        grid: { x: 24, y: 0, w: 24, h: 2 }
         links:
-          - label: "Project Documentation"
-            url: "https://docs.example.com/project-alpha"
-            new_tab: true # Open this external link in a new tab
+          links:
+            - label: "Project Documentation"
+              url: "https://docs.example.com/project-alpha"
+              new_tab: true # Open this external link in a new tab
 ```
 
 ## Complex Configuration Example
@@ -69,12 +69,12 @@ This example demonstrates a Links panel with multiple link types, a vertical lay
 dashboards:
   - name: "Operations Hub"
     panels:
-      - type: links
-        title: "Quick Access"
+      - title: "Quick Access"
         description: "Links to key operational dashboards and tools."
-        grid: { x: 0, y: 0, w: 12, h: 3 }
-        layout: "vertical" # Display links one above the other
+        grid: { x: 0, y: 0, w: 48, h: 3 }
         links:
+          layout: "vertical" # Display links one above the other
+          links:
           - label: "Service Health Dashboard"
             dashboard: "service-health-monitor-v2"
             with_time: true      # Carry over current time range
@@ -100,12 +100,17 @@ Defines the main container for a list of links. It inherits from the [Base Panel
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
-| `type` | `Literal['links']` | Specifies the panel type. | `links` | Yes |
 | `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
+| `links` | `Links` object | Configuration for the links panel. | N/A | Yes |
+
+**Links Object Configuration:**
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
 | `layout` | `Literal['horizontal', 'vertical']` | The layout of the links in the panel. | `horizontal` | No |
 | `links` | `list of LinkTypes` | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list) | Yes |
 
@@ -118,7 +123,7 @@ Each item in the `links` list will be one of the following types. They share com
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
 | `id` | `string` | An optional unique identifier for the individual link item. Not typically needed. | Generated ID | No |
-| `label` | `string` | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` (or URL for URL links) | No |
+| `label` | `string` | The text displayed for the link. If not provided for a URL link, Kibana may show the URL itself. For dashboard links, a label is recommended. | `None` | No |
 
 #### Dashboard Link
 
@@ -141,7 +146,7 @@ Represents a link to an external web URL.
 | --------- | --------- | ---------------------------------------------------------------------------------------------------------- | -------------- | -------- |
 | `url` | `string` | The full web URL that the link points to (e.g., `https://www.example.com`). | N/A | Yes |
 | `id` | `string` | An optional unique identifier for this link item. | Generated ID | No |
-| `label` | `string` | The display text for the link. If not set, Kibana defaults to showing the URL. | `""` (empty string) or URL | No |
+| `label` | `string` | The display text for the link. If not set, Kibana defaults to showing the URL. | `None` | No |
 | `encode` | `boolean` | If `true`, the URL will be URL-encoded before navigation. | `true` | No |
 | `new_tab` | `boolean` | If `true`, the link will open in a new browser tab. | `false` | No |
 
@@ -151,36 +156,40 @@ You can create Links panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+from dashboard_compiler.panels.links.config import LinksPanel, LinksPanelConfig, UrlLink
 
 panel = LinksPanel(
     grid=Grid(x=0, y=0, w=24, h=10),
-    links=[
-        UrlLink(
-            label='Documentation',
-            url='https://example.com/docs',
-        ),
-        UrlLink(
-            label='API Reference',
-            url='https://example.com/api',
-        ),
-    ],
+    links=LinksPanelConfig(
+        links=[
+            UrlLink(
+                label='Documentation',
+                url='https://example.com/docs',
+            ),
+            UrlLink(
+                label='API Reference',
+                url='https://example.com/api',
+            ),
+        ],
+    ),
 )
 ```
 
-The `LinksPanel` model includes an `add_link(link: LinkTypes)` method for adding links dynamically:
+To create a panel with links defined programmatically, build the list of links and pass it to the `LinksPanelConfig`:
 
 ```python
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.links.config import LinksPanel, UrlLink
+from dashboard_compiler.panels.links.config import LinksPanel, LinksPanelConfig, UrlLink
+
+links = [
+    UrlLink(label='Docs', url='https://example.com/docs'),
+    UrlLink(label='API', url='https://example.com/api'),
+]
 
 panel = LinksPanel(
     grid=Grid(x=0, y=0, w=24, h=10),
-    links=[],
+    links=LinksPanelConfig(links=links),
 )
-
-panel.add_link(UrlLink(label='Docs', url='https://example.com/docs'))
-panel.add_link(UrlLink(label='API', url='https://example.com/api'))
 ```
 
 ## Related Documentation

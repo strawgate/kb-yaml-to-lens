@@ -62,14 +62,14 @@ class TestCompileDashboard(unittest.TestCase):
 - name: Test Dashboard
   description: A test dashboard
   panels:
-  - type: markdown
-    title: Test Panel
+  - title: Test Panel
     grid:
       x: 0
       y: 0
       w: 12
       h: 10
-    content: "# Test"
+    markdown:
+      content: "# Test"
 """
         self.temp_file.write_text(yaml_content)
 
@@ -142,10 +142,10 @@ class TestCompileDashboard(unittest.TestCase):
 - name: Second Dashboard
   description: The second one
   panels:
-  - type: markdown
-    title: Panel
+  - title: Panel
     grid: {x: 0, y: 0, w: 12, h: 10}
-    content: "Test"
+    markdown:
+      content: "Test"
 """
         self.temp_file.write_text(yaml_content)
 
