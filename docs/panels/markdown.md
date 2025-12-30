@@ -43,7 +43,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 12
+          w: 48
           h: 3
         content: |
           ## Welcome to the Dashboard!
@@ -67,7 +67,7 @@ dashboards:
         grid:
           x: 0
           y: 0
-          w: 8
+          w: 32
           h: 5
         content: |
           # Setup Guide

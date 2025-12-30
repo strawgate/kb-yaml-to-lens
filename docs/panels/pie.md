@@ -38,7 +38,7 @@ dashboards:
     panels:
       - type: charts
         title: "Website Traffic Sources"
-        grid: { x: 0, y: 0, w: 6, h: 6 }
+        grid: { x: 0, y: 0, w: 24, h: 6 }
         chart:
           type: pie
           data_view: "traffic-data"

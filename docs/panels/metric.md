@@ -38,7 +38,7 @@ dashboards:
     panels:
       - type: charts
         title: "Total Revenue"
-        grid: { x: 0, y: 0, w: 3, h: 2 }
+        grid: { x: 0, y: 0, w: 12, h: 2 }
         chart:
           type: metric
           data_view: "sales-data"

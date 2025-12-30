@@ -42,7 +42,7 @@ dashboards:
     panels:
       - type: charts
         title: "Total Processed Events"
-        grid: { x: 0, y: 0, w: 4, h: 3 }
+        grid: { x: 0, y: 0, w: 16, h: 3 }
         esql: |
           FROM my_event_stream
           | STATS total_events = COUNT(event_id)
@@ -61,7 +61,7 @@ dashboards:
     panels:
       - type: charts
         title: "Events by Type (ESQL)"
-        grid: { x: 4, y: 0, w: 8, h: 3 }
+        grid: { x: 16, y: 0, w: 32, h: 3 }
         esql: |
           FROM my_event_stream
           | STATS event_count = COUNT(event_id) BY event_type

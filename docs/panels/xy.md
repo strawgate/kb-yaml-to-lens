@@ -38,7 +38,7 @@ dashboards:
     panels:
       - type: charts
         title: "Events Over Time"
-        grid: { x: 0, y: 0, w: 12, h: 6 }
+        grid: { x: 0, y: 0, w: 48, h: 6 }
         chart:
           type: line
           data_view: "logs-*"

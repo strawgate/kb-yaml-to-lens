@@ -40,7 +40,7 @@ dashboards:
     panels:
       - type: links
         title: "Navigate to User Details"
-        grid: { x: 0, y: 0, w: 6, h: 2 }
+        grid: { x: 0, y: 0, w: 24, h: 2 }
         links:
           - label: "View User Activity Dashboard"
             dashboard: "user-activity-dashboard-id"
@@ -54,7 +54,7 @@ dashboards:
     panels:
       - type: links
         title: "External Resources"
-        grid: { x: 6, y: 0, w: 6, h: 2 }
+        grid: { x: 24, y: 0, w: 24, h: 2 }
         links:
           - label: "Project Documentation"
             url: "https://docs.example.com/project-alpha"
@@ -72,7 +72,7 @@ dashboards:
       - type: links
         title: "Quick Access"
         description: "Links to key operational dashboards and tools."
-        grid: { x: 0, y: 0, w: 12, h: 3 }
+        grid: { x: 0, y: 0, w: 48, h: 3 }
         layout: "vertical" # Display links one above the other
         links:
           - label: "Service Health Dashboard"

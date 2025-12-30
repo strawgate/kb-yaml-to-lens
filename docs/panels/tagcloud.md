@@ -39,7 +39,7 @@ dashboards:
   panels:
     - type: charts
       title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
+      grid: { x: 0, y: 0, w: 48, h: 6 }
       chart:
         type: tagcloud
         data_view: "logs-*"
@@ -58,7 +58,7 @@ dashboards:
   panels:
     - type: charts
       title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
+      grid: { x: 0, y: 0, w: 48, h: 6 }
       esql: "FROM logs-* | STATS count(*) BY error.message"
       chart:
         type: tagcloud
@@ -124,7 +124,7 @@ dashboards:
   panels:
     - type: charts
       title: "Kubernetes Pod Labels"
-      grid: { x: 0, y: 0, w: 12, h: 8 }
+      grid: { x: 0, y: 0, w: 48, h: 8 }
       chart:
         type: tagcloud
         data_view: "k8s-*"
