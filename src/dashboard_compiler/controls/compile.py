@@ -131,7 +131,12 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, TimeSliderControl):
         return compile_time_slider_control(order, control=control)
 
-    return compile_range_slider_control(order, control=control)
+    if isinstance(control, RangeSliderControl):  # pyright: ignore[reportUnnecessaryIsInstance]
+        return compile_range_slider_control(order, control=control)
+
+    # Explicit check to satisfy exhaustive checking pattern
+    msg = f'Unknown control type: {type(control).__name__}'
+    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
 def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:

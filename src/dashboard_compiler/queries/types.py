@@ -24,11 +24,11 @@ def get_query_type(v: dict[str, object] | object) -> str:
             return 'esql'
         msg = f'Cannot determine query type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
         raise ValueError(msg)
-    if hasattr(v, 'kql'):
+    if hasattr(v, 'kql') is True:
         return 'kql'
-    if hasattr(v, 'lucene'):
+    if hasattr(v, 'lucene') is True:
         return 'lucene'
-    if hasattr(v, 'root'):
+    if hasattr(v, 'root') is True:
         return 'esql'
     msg = f'Cannot determine query type from object: {type(v).__name__}'
     raise ValueError(msg)
