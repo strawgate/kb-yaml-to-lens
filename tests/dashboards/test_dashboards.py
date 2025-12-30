@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from dashboard_compiler.dashboard.view import KbnDashboard
 
 
-def deterministic_id_generator():
+def deterministic_id_generator() -> Generator[str, None, None]:
     """Generate deterministic UUIDs for testing."""
     i = 0
     while True:

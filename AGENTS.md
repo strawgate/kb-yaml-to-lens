@@ -204,6 +204,10 @@ gh api graphql -f query='
 - [ ] Documentation is still accurate after the changes
 - [ ] All checks pass (linting + typecheck + tests) - run `make ci` to verify all checks pass
 
+### Code Rabbit will review your PR
+
+Code Rabbit will review your PR and provide feedback on the changes you made. CodeRabbit sometimes makes mistakes, so you should carefully consider the feedback and address the feedback if necessary. CodeRabbit will follow the rules outlined in ./CODERABBIT.md, ./CODE_STYLE.md, and this file (./AGENTS.md).
+
 ---
 
 ## Additional Resources

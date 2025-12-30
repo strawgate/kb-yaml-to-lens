@@ -203,6 +203,7 @@ dashboards:
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: log.level
       - title: Common Tags
         description: Most frequent tags in log data
@@ -215,6 +216,7 @@ dashboards:
           type: tagcloud
           data_view: logs-*
           tags:
+            type: values
             field: tags
           metric:
             aggregation: count

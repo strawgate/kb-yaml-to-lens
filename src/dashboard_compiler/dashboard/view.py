@@ -2,9 +2,9 @@ import json
 
 from pydantic import BaseModel, Field, field_serializer
 
-from dashboard_compiler.controls.view import KbnControlGroupInput  # Controls are special
+from dashboard_compiler.controls.view import KbnControlGroupInput
 from dashboard_compiler.panels.view import KbnBasePanel, KbnSavedObjectMeta
-from dashboard_compiler.shared.view import KbnReference  # For top-level references
+from dashboard_compiler.shared.view import KbnReference
 
 
 class KbnDashboardOptions(BaseModel):
@@ -22,7 +22,6 @@ class KbnDashboardOptions(BaseModel):
     'Displays the titles in the panel headers'
 
 
-# Define nested models for Dashboard attributes based on samples
 class KbnDashboardAttributes(BaseModel):
     title: str
     description: str

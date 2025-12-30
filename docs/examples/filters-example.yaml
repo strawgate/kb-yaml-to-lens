@@ -147,6 +147,7 @@ dashboards:
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: http.request.method
           filters:
             - exists: url.path

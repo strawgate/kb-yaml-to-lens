@@ -25,27 +25,22 @@ def get_panel_type(v: dict[str, object] | object) -> str:
     simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image'}
 
     if isinstance(v, dict):
-        # Check simple panel types first
         for key, panel_type in simple_types.items():
             if key in v:
                 return panel_type
-        # Chart panels
         if 'lens' in v:
             return 'lens'
         if 'esql' in v:
             return 'esql'
     else:
-        # Check object attributes
         for attr, panel_type in simple_attrs.items():
             if hasattr(v, attr):
                 return panel_type
-        # Chart objects
         if hasattr(v, 'lens'):
             return 'lens'
         if hasattr(v, 'esql'):
             return 'esql'
 
-    # Could not determine type
     if isinstance(v, dict):
         msg = f'Cannot determine panel type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
     else:

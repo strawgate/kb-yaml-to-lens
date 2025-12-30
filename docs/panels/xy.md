@@ -60,10 +60,11 @@ dashboards:
           type: line
           data_view: "metrics-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           breakdown:
-            field: "service.name"
             type: values
+            field: "service.name"
           metrics:
             - aggregation: average
               field: response_time

@@ -126,6 +126,10 @@ View models (`BaseVwModel`) have special behaviors:
 
 ---
 
+### Lint and Type Checking Exceptions
+
+We do not add exceptions to pyproject.toml for linting and type checking. If you need to add an exception, you should add it with an inline ignore statement in the code.
+
 ### Line Length
 
 Maximum line length: **140 characters**

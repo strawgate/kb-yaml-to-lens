@@ -73,7 +73,8 @@ dashboards:
           type: line
           data_view: logs-*
           dimensions:
-            - field: '@timestamp'
+            - type: date_histogram
+              field: '@timestamp'
           metrics:
             - aggregation: count
       - title: Top Hosts by Event Count
@@ -88,7 +89,8 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: host.name
+            - type: values
+              field: host.name
           metrics:
             - aggregation: count
       - title: Cumulative Events
@@ -103,10 +105,12 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: '@timestamp'
+            - type: date_histogram
+              field: '@timestamp'
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: log.level
       - title: Common Tags Word Cloud
         description: Tagcloud visualization showing weighted terms
@@ -119,6 +123,7 @@ dashboards:
           type: tagcloud
           data_view: logs-*
           tags:
+            type: values
             field: tags
           metric:
             aggregation: count
