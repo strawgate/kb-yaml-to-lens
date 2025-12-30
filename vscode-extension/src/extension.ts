@@ -67,6 +67,32 @@ async function selectDashboard(filePath: string): Promise<number | undefined> {
     }
 }
 
+/**
+ * Factory function to create dashboard commands with standard file/dashboard selection.
+ * Reduces boilerplate by handling the common pattern of:
+ * 1. Getting active YAML file
+ * 2. Selecting dashboard
+ * 3. Executing action
+ *
+ * @param action The action to execute with the file path and dashboard index
+ * @returns A VS Code command handler
+ */
+function createDashboardCommand(action: (filePath: string, dashboardIndex: number) => Promise<void>): () => Promise<void> {
+    return async () => {
+        const filePath = getActiveYamlFile();
+        if (!filePath) {
+            return;
+        }
+
+        const dashboardIndex = await selectDashboard(filePath);
+        if (dashboardIndex === undefined) {
+            return;
+        }
+
+        await action(filePath, dashboardIndex);
+    };
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     console.log('YAML Dashboard Compiler extension is now active');
 
@@ -84,17 +110,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Register compile command
     context.subscriptions.push(
-        vscode.commands.registerCommand('yamlDashboard.compile', async () => {
-            const filePath = getActiveYamlFile();
-            if (!filePath) {
-                return;
-            }
-
-            const dashboardIndex = await selectDashboard(filePath);
-            if (dashboardIndex === undefined) {
-                return;
-            }
-
+        vscode.commands.registerCommand('yamlDashboard.compile', createDashboardCommand(async (filePath, dashboardIndex) => {
             try {
                 await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
@@ -106,39 +122,19 @@ export async function activate(context: vscode.ExtensionContext) {
             } catch (error) {
                 vscode.window.showErrorMessage(`Compilation failed: ${error instanceof Error ? error.message : String(error)}`);
             }
-        })
+        }))
     );
 
     // Register preview command
     context.subscriptions.push(
-        vscode.commands.registerCommand('yamlDashboard.preview', async () => {
-            const filePath = getActiveYamlFile();
-            if (!filePath) {
-                return;
-            }
-
-            const dashboardIndex = await selectDashboard(filePath);
-            if (dashboardIndex === undefined) {
-                return;
-            }
-
+        vscode.commands.registerCommand('yamlDashboard.preview', createDashboardCommand(async (filePath, dashboardIndex) => {
             await previewPanel.show(filePath, dashboardIndex);
-        })
+        }))
     );
 
     // Register export command
     context.subscriptions.push(
-        vscode.commands.registerCommand('yamlDashboard.export', async () => {
-            const filePath = getActiveYamlFile();
-            if (!filePath) {
-                return;
-            }
-
-            const dashboardIndex = await selectDashboard(filePath);
-            if (dashboardIndex === undefined) {
-                return;
-            }
-
+        vscode.commands.registerCommand('yamlDashboard.export', createDashboardCommand(async (filePath, dashboardIndex) => {
             try {
                 const result = await compiler.compile(filePath, dashboardIndex);
                 const ndjson = JSON.stringify(result);
@@ -147,24 +143,14 @@ export async function activate(context: vscode.ExtensionContext) {
             } catch (error) {
                 vscode.window.showErrorMessage(`Export failed: ${error instanceof Error ? error.message : String(error)}`);
             }
-        })
+        }))
     );
 
     // Register grid editor command
     context.subscriptions.push(
-        vscode.commands.registerCommand('yamlDashboard.editLayout', async () => {
-            const filePath = getActiveYamlFile();
-            if (!filePath) {
-                return;
-            }
-
-            const dashboardIndex = await selectDashboard(filePath);
-            if (dashboardIndex === undefined) {
-                return;
-            }
-
+        vscode.commands.registerCommand('yamlDashboard.editLayout', createDashboardCommand(async (filePath, dashboardIndex) => {
             await gridEditorPanel.show(filePath, dashboardIndex);
-        })
+        }))
     );
 }
 
