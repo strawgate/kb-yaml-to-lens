@@ -139,4 +139,4 @@ dashboards:
             - aggregation: min
               label: Transactions per Second
               field: metrics.aerospike.namespace.transaction.count
-          # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
+              # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema

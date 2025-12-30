@@ -5,7 +5,12 @@ from typing import Literal
 from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
+from dashboard_compiler.panels.charts.lens.columns.view import (
+    KbnLensColumnTypes,
+    KbnLensMetricColumnTypes,
+    KbnLensStaticValueColumn,
+    KbnLensStaticValueColumnParams,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
@@ -18,12 +23,16 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensAreaChart,
     LensBarChart,
     LensLineChart,
+    LensReferenceLineLayer,
     LensXYChartTypes,
+    XYReferenceLine,
+    XYReferenceLineValue,
 )
 from dashboard_compiler.panels.charts.xy.view import (
     AxisExtentConfig,
     KbnXYVisualizationState,
     XYDataLayerConfig,
+    XYReferenceLineLayerConfig,
     YConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
@@ -68,6 +77,95 @@ def _extract_axis_config(
     extent = _convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None
 
     return title, scale, extent
+
+
+def compile_lens_reference_line_layer(
+    layer: 'LensReferenceLineLayer',
+) -> tuple[str, dict[str, KbnLensStaticValueColumn], list[XYReferenceLineLayerConfig]]:
+    """Compile a LensReferenceLineLayer into a Kibana reference line layer and columns.
+
+    Args:
+        layer: The reference line layer configuration.
+
+    Returns:
+        tuple[str, dict[str, KbnLensStaticValueColumn], list[XYReferenceLineLayerConfig]]:
+            - layer_id: The primary layer ID (used for data view reference and visualization layer)
+            - columns: Dictionary of accessor ID -> static value column
+            - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
+    """
+    # Generate a primary layer ID for the data view reference and visualization layer
+    primary_layer_id = random_id_generator()
+
+    reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
+    accessor_ids: list[str] = []
+    y_configs: list[YConfig] = []
+
+    for ref_line in layer.reference_lines:
+        # Compile each reference line into an accessor and column
+        accessor_id, ref_column, y_config = compile_reference_line(ref_line)
+        reference_line_columns[accessor_id] = ref_column
+        accessor_ids.append(accessor_id)
+        y_configs.append(y_config)
+
+    # Create a single XYReferenceLineLayerConfig with all accessors
+    reference_line_layer = XYReferenceLineLayerConfig(
+        layerId=primary_layer_id,
+        accessors=accessor_ids,
+        yConfig=y_configs,
+        layerType='referenceLine',
+    )
+
+    return primary_layer_id, reference_line_columns, [reference_line_layer]
+
+
+def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStaticValueColumn, YConfig]:
+    """Compile a reference line into an accessor ID, static value column, and Y config.
+
+    Args:
+        ref_line: The reference line configuration.
+
+    Returns:
+        tuple[str, KbnLensStaticValueColumn, YConfig]: The accessor ID, static value column, and Y config.
+    """
+    # Generate accessor ID
+    accessor_id = ref_line.id if ref_line.id is not None else random_id_generator()
+
+    # Extract the numeric value from the ref_line.value field
+    if isinstance(ref_line.value, float):
+        numeric_value = ref_line.value
+    elif isinstance(ref_line.value, XYReferenceLineValue):
+        numeric_value = ref_line.value.value
+    else:
+        # This should never happen due to Pydantic validation
+        msg = f'Invalid value type: {type(ref_line.value)}'
+        raise TypeError(msg)
+
+    # Create the static value column for the reference line
+    static_value_column = KbnLensStaticValueColumn(
+        label=ref_line.label if ref_line.label is not None else f'Static value: {numeric_value}',
+        dataType='number',
+        operationType='static_value',
+        isBucketed=False,
+        isStaticValue=True,
+        scale='ratio',
+        params=KbnLensStaticValueColumnParams(value=str(numeric_value)),
+        references=[],
+        customLabel=ref_line.label is not None,
+    )
+
+    # Build yConfig for styling
+    y_config = YConfig(
+        forAccessor=accessor_id,
+        color=ref_line.color,
+        lineWidth=ref_line.line_width,
+        lineStyle=ref_line.line_style,
+        fill=ref_line.fill,
+        icon=ref_line.icon,
+        iconPosition=ref_line.icon_position,
+        axisMode=ref_line.axis,
+    )
+
+    return accessor_id, static_value_column, y_config
 
 
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:

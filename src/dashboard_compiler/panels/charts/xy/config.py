@@ -8,6 +8,51 @@ from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
+
+class XYReferenceLineValue(BaseCfgModel):
+    """Defines the value for a reference line."""
+
+    type: Literal['static'] = 'static'
+    """The type of value (always 'static' for now)."""
+
+    value: float
+    """The static value for the reference line."""
+
+
+class XYReferenceLine(BaseCfgModel):
+    """Configuration for a single reference line in an XY chart."""
+
+    id: str | None = None
+    """Optional ID for the reference line."""
+
+    label: str | None = None
+    """Optional label for the reference line."""
+
+    value: XYReferenceLineValue | float
+    """The value for the reference line. Can be a float or XYReferenceLineValue object."""
+
+    axis: Literal['left', 'right'] | None = 'left'
+    """The axis to assign the reference line to."""
+
+    color: str | None = None
+    """The color of the reference line."""
+
+    line_width: int | None = Field(default=None, ge=1, le=10)
+    """The width of the reference line (1-10)."""
+
+    line_style: Literal['solid', 'dashed', 'dotted'] | None = None
+    """The style of the reference line."""
+
+    fill: Literal['above', 'below', 'none'] | None = None
+    """Fill area above or below the line."""
+
+    icon: str | None = None
+    """Icon to display on the reference line."""
+
+    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = None
+    """Position of the icon on the reference line."""
+
+
 type XYChartTypes = LensXYChartTypes | ESQLXYChartTypes
 
 type LensXYChartTypes = LensBarChart | LensLineChart | LensAreaChart
@@ -273,3 +318,24 @@ class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
 
 class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
     """Represents an Area chart configuration within a ESQL panel."""
+
+
+class LensReferenceLineLayer(BaseChart):
+    """Represents a reference line layer configuration for multi-layer panels.
+
+    Reference lines display static threshold values, SLA targets, or baseline values
+    on XY charts. They appear as horizontal or vertical lines with optional styling,
+    labels, and icons.
+
+    Unlike data layers, reference lines don't query data - they display static values
+    for visual context and comparison.
+    """
+
+    type: Literal['reference_line'] = 'reference_line'
+    """The type of layer. Always 'reference_line'."""
+
+    data_view: str
+    """The data view to use for the layer (required for Kibana compatibility)."""
+
+    reference_lines: list[XYReferenceLine] = Field(default_factory=list)
+    """List of reference lines to display in this layer."""

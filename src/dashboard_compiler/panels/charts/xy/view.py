@@ -28,6 +28,9 @@ class LabelsOrientationConfig(BaseVwModel):
     """Rotation angle in degrees for right Y-axis labels."""
 
 
+YAxisMode = Literal['left', 'right']
+
+
 class AxisExtentConfig(BaseVwModel):
     """View model for axis extent (bounds) configuration in XY charts.
 
