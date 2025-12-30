@@ -20,9 +20,6 @@ class BaseESQLColumn(BaseCfgModel):
 class ESQLDimension(BaseESQLColumn):
     """A dimension that is defined in the ESQL query."""
 
-    id: str | None = Field(default=None)
-    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
-
     field: str = Field(default=...)
     """The field to use for the dimension."""
 

@@ -13,9 +13,19 @@ from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
 # Add the project source directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
+repo_root = Path(__file__).parent.parent.parent
+src_path = repo_root / 'src'
+if src_path.exists() and str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
-from dashboard_compiler.dashboard_compiler import load, render
+try:
+    from dashboard_compiler.dashboard_compiler import load, render
+except ImportError as e:
+    msg = (
+        f'Failed to import dashboard_compiler. Make sure the dashboard_compiler '
+        f'package is installed or the src directory exists at {src_path}'
+    )
+    raise ImportError(msg) from e
 
 # Initialize the language server
 server = LanguageServer('dashboard-compiler', 'v0.1')
