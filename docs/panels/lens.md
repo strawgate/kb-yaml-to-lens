@@ -40,13 +40,13 @@ Kibana's beating visual heart!
 dashboards:
   - name: "Key Metrics Dashboard"
     panels:
-      - type: charts
-        title: "Total Users"
+      - title: "Total Users"
         grid: { x: 0, y: 0, w: 16, h: 3 }
-        query: # Optional panel-specific query
-          kql: "event.dataset:website.visits"
-        chart:
+        lens:
           type: metric # Specifies a LensMetricChart
+          data_view: "logs-*"
+          query: # Optional panel-specific query
+            kql: "event.dataset:website.visits"
           primary:
             aggregation: "unique_count"
             field: "user.id"
