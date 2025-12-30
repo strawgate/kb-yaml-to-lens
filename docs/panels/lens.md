@@ -59,10 +59,9 @@ dashboards:
 dashboards:
   - name: "Traffic Analysis"
     panels:
-      - type: charts
-        title: "Traffic by Source"
+      -         title: "Traffic by Source"
         grid: { x: 16, y: 0, w: 32, h: 3 }
-        chart:
+        lens:
           type: pie # Specifies a LensPieChart
           data_view: "weblogs-*"
           metric:

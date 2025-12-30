@@ -55,10 +55,9 @@ dashboards:
 dashboards:
   - name: "HTTP Status Codes"
     panels:
-      - type: charts
-        title: "Response Status Distribution"
+      -         title: "Response Status Distribution"
         grid: { x: 0, y: 0, w: 6, h: 6 }
-        chart:
+        lens:
           type: pie
           data_view: "logs-*"
           slice_by:

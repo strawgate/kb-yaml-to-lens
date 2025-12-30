@@ -54,10 +54,9 @@ dashboards:
 dashboards:
   - name: "Service Performance"
     panels:
-      - type: charts
-        title: "Response Times by Service"
+      -         title: "Response Times by Service"
         grid: { x: 0, y: 0, w: 12, h: 6 }
-        chart:
+        lens:
           type: line
           data_view: "metrics-*"
           dimensions:

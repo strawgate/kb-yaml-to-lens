@@ -36,10 +36,9 @@ The gauge tracks progress through the year.
 dashboards:
   - name: "KPI Dashboard"
     panels:
-      - type: charts
-        title: "CPU Usage"
+      -         title: "CPU Usage"
         grid: { x: 0, y: 0, w: 3, h: 2 }
-        chart:
+        lens:
           type: gauge
           data_view: "metrics-*"
           metric:
@@ -55,10 +54,9 @@ You can use static numeric values for min/max/goal instead of field-based metric
 dashboards:
   - name: "Performance Dashboard"
     panels:
-      - type: charts
-        title: "Response Time"
+      -         title: "Response Time"
         grid: { x: 0, y: 0, w: 4, h: 3 }
-        chart:
+        lens:
           type: gauge
           data_view: "logs-*"
           metric:
