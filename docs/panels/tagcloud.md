@@ -32,18 +32,18 @@ Their data as vocabulary!
 
 ## Minimal Configuration Example (Lens)
 
-```yaml skip
+```yaml
 dashboards:
 -
   name: "Log Analysis"
   panels:
-    - type: charts
-      title: "Top Error Messages"
+    - title: "Top Error Messages"
       grid: { x: 0, y: 0, w: 48, h: 6 }
-      chart:
+      lens:
         type: tagcloud
         data_view: "logs-*"
         tags:
+          type: values
           field: "error.message"
         metric:
           aggregation: count
@@ -51,21 +51,20 @@ dashboards:
 
 ## Minimal Configuration Example (ES|QL)
 
-```yaml skip
+```yaml
 dashboards:
 -
   name: "Log Analysis"
   panels:
-    - type: charts
-      title: "Top Error Messages"
+    - title: "Top Error Messages"
       grid: { x: 0, y: 0, w: 48, h: 6 }
-      esql: "FROM logs-* | STATS count(*) BY error.message"
-      chart:
+      esql:
         type: tagcloud
+        query: "FROM logs-* | STATS error_count = count(*) BY error.message"
         tags:
           field: "error.message"
         metric:
-          field: "count(*)"
+          field: "error_count"
 ```
 
 ## Full Configuration Options
@@ -117,19 +116,19 @@ Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color
 
 ## Advanced Configuration Example
 
-```yaml skip
+```yaml
 dashboards:
 -
   name: "Advanced Tag Cloud"
   panels:
-    - type: charts
-      title: "Kubernetes Pod Labels"
+    - title: "Service Labels"
       grid: { x: 0, y: 0, w: 48, h: 8 }
-      chart:
+      lens:
         type: tagcloud
-        data_view: "k8s-*"
+        data_view: "logs-*"
         tags:
-          field: "kubernetes.labels.app"
+          type: values
+          field: "service.name"
         metric:
           aggregation: count
         appearance:
