@@ -12,5 +12,4 @@ plan-*
 site/
 *.ndjson
 dashboards.ndjson
-docs/yaml_reference.md
 *.env
