@@ -1,5 +1,7 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
+from typing import Literal
+
 from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -7,6 +9,8 @@ from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnType
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
+    AxisConfig,
+    AxisExtent,
     ESQLAreaChart,
     ESQLBarChart,
     ESQLLineChart,
@@ -23,6 +27,47 @@ from dashboard_compiler.panels.charts.xy.view import (
     YConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
+
+
+def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
+    """Convert config AxisExtent to view AxisExtentConfig.
+
+    Transforms snake_case 'data_bounds' to camelCase 'dataBounds' for Kibana.
+
+    Args:
+        extent: The axis extent configuration from the user config.
+
+    Returns:
+        AxisExtentConfig for Kibana visualization state.
+    """
+    return AxisExtentConfig(
+        mode='dataBounds' if extent.mode == 'data_bounds' else extent.mode,
+        lowerBound=extent.min,
+        upperBound=extent.max,
+        enforce=extent.enforce,
+        niceValues=extent.nice_values,
+    )
+
+
+def _extract_axis_config(
+    axis_config: AxisConfig | None,
+) -> tuple[str | None, Literal['linear', 'log', 'sqrt', 'time'] | None, AxisExtentConfig | None]:
+    """Extract axis configuration (title, scale, extent) from an AxisConfig.
+
+    Args:
+        axis_config: The axis configuration object (or None).
+
+    Returns:
+        Tuple of (title, scale, extent) where each can be None.
+    """
+    if axis_config is None:
+        return None, None, None
+
+    title = axis_config.title
+    scale = axis_config.scale
+    extent = _convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None
+
+    return title, scale, extent
 
 
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
@@ -92,7 +137,7 @@ def compile_xy_chart_visualization_state(
 
     # Build yConfig from series configuration if provided
     y_config: list[YConfig] | None = None
-    if chart.series is not None and len(chart.series) > 0:
+    if chart.series is not None:
         y_config = []
         for series_cfg in chart.series:
             # Only create YConfig if at least one property is set
@@ -131,42 +176,9 @@ def compile_xy_chart_visualization_state(
     x_extent = None
 
     if chart.appearance is not None:
-        if chart.appearance.x_axis is not None:
-            x_title = chart.appearance.x_axis.title
-            if chart.appearance.x_axis.extent is not None:
-                x_extent = AxisExtentConfig(
-                    mode='dataBounds' if chart.appearance.x_axis.extent.mode == 'data_bounds' else chart.appearance.x_axis.extent.mode,
-                    lowerBound=chart.appearance.x_axis.extent.min,
-                    upperBound=chart.appearance.x_axis.extent.max,
-                    enforce=chart.appearance.x_axis.extent.enforce,
-                    niceValues=chart.appearance.x_axis.extent.nice_values,
-                )
-
-        if chart.appearance.y_left_axis is not None:
-            y_left_title = chart.appearance.y_left_axis.title
-            y_left_scale = chart.appearance.y_left_axis.scale
-            if chart.appearance.y_left_axis.extent is not None:
-                extent_mode = chart.appearance.y_left_axis.extent.mode
-                y_left_extent = AxisExtentConfig(
-                    mode='dataBounds' if extent_mode == 'data_bounds' else extent_mode,
-                    lowerBound=chart.appearance.y_left_axis.extent.min,
-                    upperBound=chart.appearance.y_left_axis.extent.max,
-                    enforce=chart.appearance.y_left_axis.extent.enforce,
-                    niceValues=chart.appearance.y_left_axis.extent.nice_values,
-                )
-
-        if chart.appearance.y_right_axis is not None:
-            y_right_title = chart.appearance.y_right_axis.title
-            y_right_scale = chart.appearance.y_right_axis.scale
-            if chart.appearance.y_right_axis.extent is not None:
-                extent_mode = chart.appearance.y_right_axis.extent.mode
-                y_right_extent = AxisExtentConfig(
-                    mode='dataBounds' if extent_mode == 'data_bounds' else extent_mode,
-                    lowerBound=chart.appearance.y_right_axis.extent.min,
-                    upperBound=chart.appearance.y_right_axis.extent.max,
-                    enforce=chart.appearance.y_right_axis.extent.enforce,
-                    niceValues=chart.appearance.y_right_axis.extent.nice_values,
-                )
+        x_title, _, x_extent = _extract_axis_config(chart.appearance.x_axis)
+        y_left_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
+        y_right_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,

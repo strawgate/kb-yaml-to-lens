@@ -486,3 +486,30 @@ async def test_styled_series_chart() -> None:
             },
         }
     )
+
+
+async def test_axis_extent_configuration() -> None:
+    """Test axis extent/bounds configuration for custom axis ranges."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'x_axis': {'title': 'Time', 'extent': {'mode': 'custom', 'min': 0, 'max': 100, 'enforce': True}},
+            'y_left_axis': {'title': 'Count', 'extent': {'mode': 'data_bounds'}},
+        },
+    }
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    # Verify extent compilation for x-axis (custom bounds)
+    assert kbn_state_visualization.xExtent is not None
+    assert kbn_state_visualization.xExtent.mode == 'custom'
+    assert kbn_state_visualization.xExtent.lowerBound == 0
+    assert kbn_state_visualization.xExtent.upperBound == 100
+    assert kbn_state_visualization.xExtent.enforce is True
+
+    # Verify extent compilation for y-axis (data bounds)
+    assert kbn_state_visualization.yLeftExtent is not None
+    assert kbn_state_visualization.yLeftExtent.mode == 'dataBounds'
