@@ -1,12 +1,13 @@
 
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector compile-docs docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup setup-coderabbit
 
 help:
 	@echo "Dependency Management:"
-	@echo "  setup         - Set up the environment"
-	@echo "  install       - Install dependencies using uv"
-	@echo "  update-deps   - Update dependencies"
+	@echo "  setup            - Set up the environment"
+	@echo "  setup-coderabbit - Install and configure CodeRabbit CLI"
+	@echo "  install          - Install dependencies using uv"
+	@echo "  update-deps      - Update dependencies"
 	@echo ""
 	@echo "CI and Development Workflow:"
 	@echo "  ci            - Run all CI checks (linting, type checking, tests) - no auto-fix"
@@ -174,6 +175,23 @@ setup:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 	uv sync --group dev
 	echo "Environment set up successfully!"
+
+setup-coderabbit:
+	@echo "Setting up CodeRabbit CLI..."
+	@if [ -z "$$CODERABBIT_API_KEY" ]; then \
+		echo "Error: CODERABBIT_API_KEY environment variable is not set"; \
+		echo "Please set it with: export CODERABBIT_API_KEY=your_api_key"; \
+		exit 1; \
+	fi
+	@echo "Installing CodeRabbit CLI..."
+	curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+	@echo "Authenticating CodeRabbit CLI..."
+	@export PATH="$$HOME/.coderabbit/bin:$$PATH" && \
+		echo "$$CODERABBIT_API_KEY" | coderabbit auth login --token-stdin
+	@echo "Verifying installation..."
+	@export PATH="$$HOME/.coderabbit/bin:$$PATH" && coderabbit --version
+	@echo "CodeRabbit CLI setup complete!"
+	@echo "Note: Add '$$HOME/.coderabbit/bin' to your PATH to use coderabbit from anywhere"
 
 update-deps:
 	@echo "Updating dependencies..."
