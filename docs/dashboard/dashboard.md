@@ -8,8 +8,7 @@ A minimal dashboard requires a `name` and at least one panel.
 
 ```yaml
 dashboards:
-  -
-    name: "Simple Log Dashboard"
+  - name: "Simple Log Dashboard"
     panels:
       - type: markdown
         content: "Welcome to the dashboard!"
@@ -26,8 +25,7 @@ This example showcases a dashboard with various settings, a default data view, a
 
 ```yaml
 dashboards:
-  -
-    name: "Comprehensive Application Overview"
+  - name: "Comprehensive Application Overview"
     description: "An overview of application performance and logs, with interactive filtering."
     data_view: "production-logs-*" # Default data view for all items unless overridden
     settings:
