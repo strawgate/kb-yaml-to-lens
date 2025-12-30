@@ -8,34 +8,18 @@ on:
     branches:
       - main
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run pytest
-        run: make test
-      - name: Run smoke tests
-        run: make test-smoke
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Run linting
-        run: make lint-check
-      - name: Check formatting
-        run: make format-check
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Run type checking
-        run: make typecheck
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+      - name: Run all CI checks
+        run: make ci
