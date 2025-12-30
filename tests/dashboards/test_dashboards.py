@@ -1,3 +1,5 @@
+"""Integration tests for dashboard compilation using inline snapshots."""
+
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch

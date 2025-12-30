@@ -1,3 +1,5 @@
+"""Compilation logic for metric charts (Lens and ESQL)."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

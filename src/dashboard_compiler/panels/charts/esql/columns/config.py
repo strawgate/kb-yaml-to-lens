@@ -1,3 +1,5 @@
+"""Configuration models for ESQL chart columns (dimensions and metrics)."""
+
 from pydantic import Field
 
 from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum

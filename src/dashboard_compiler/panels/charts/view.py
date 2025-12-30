@@ -1,3 +1,5 @@
+"""Pydantic models for Kibana Lens panel serialization."""
+
 from enum import StrEnum
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 

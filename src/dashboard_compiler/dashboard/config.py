@@ -66,17 +66,17 @@ class Dashboard(BaseCfgModel):
     panels: list[PanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
 
-    def add_filter(self, filter: FilterTypes) -> Self:  # noqa: A002
+    def add_filter(self, filter_config: FilterTypes) -> Self:
         """Add a filter to the dashboard's global filters list.
 
         Args:
-            filter: The filter object to add.
+            filter_config: The filter object to add.
 
         Returns:
             Self: The current instance of the Dashboard for method chaining.
 
         """
-        self.filters.append(filter)
+        self.filters.append(filter_config)
 
         return self
 

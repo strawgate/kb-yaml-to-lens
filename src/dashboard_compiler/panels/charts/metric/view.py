@@ -1,3 +1,5 @@
+"""Pydantic models for Kibana metric visualization serialization."""
+
 from typing import Annotated, Literal
 
 from pydantic import Field

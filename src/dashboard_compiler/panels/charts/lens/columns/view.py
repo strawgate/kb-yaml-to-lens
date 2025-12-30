@@ -1,3 +1,5 @@
+"""Pydantic models for Kibana Lens column serialization."""
+
 from typing import Annotated, Literal
 
 from pydantic import Field

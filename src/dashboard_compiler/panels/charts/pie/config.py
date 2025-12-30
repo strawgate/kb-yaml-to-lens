@@ -1,3 +1,5 @@
+"""Configuration models for pie chart panels."""
+
 from enum import StrEnum
 from typing import Literal
 

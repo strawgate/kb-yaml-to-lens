@@ -1,3 +1,5 @@
+"""Type definitions and discriminator for query types (KQL, Lucene, ESQL)."""
+
 from typing import Annotated
 
 from pydantic import Discriminator, Tag

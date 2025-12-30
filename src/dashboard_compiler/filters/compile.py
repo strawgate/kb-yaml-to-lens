@@ -176,7 +176,7 @@ def compile_and_filter(*, and_filter: AndFilter, negate: bool = False, nested: b
         meta=KbnCombinedFilterMeta(
             type='combined',
             relation='AND',
-            params=[compile_filter(filter=sub_filter, negate=negate, nested=True) for sub_filter in and_filter.and_filters],
+            params=[compile_filter(filter_config=sub_filter, negate=negate, nested=True) for sub_filter in and_filter.and_filters],
             disabled=default_false(and_filter.disabled),
             negate=negate,
         ),
@@ -200,7 +200,7 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
         meta=KbnCombinedFilterMeta(
             type='combined',
             relation='OR',
-            params=[compile_filter(filter=sub_filter, negate=negate, nested=True) for sub_filter in or_filter.or_filters],
+            params=[compile_filter(filter_config=sub_filter, negate=negate, nested=True) for sub_filter in or_filter.or_filters],
             disabled=default_false(or_filter.disabled),
             negate=negate,
         ),
@@ -209,35 +209,35 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
     )
 
 
-def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: A002, PLR0911
+def compile_filter(*, filter_config: FilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: PLR0911
     """Compile a single filter object into its Kibana view model representation.
 
     Args:
-        filter (FilterTypes): The filter object to compile.
+        filter_config (FilterTypes): The filter object to compile.
         negate (bool): Whether to negate the filter. Defaults to False.
         nested (bool): Whether the filter is nested within another filter. Defaults to False.
 
     Returns:
         KbnFilter: The compiled Kibana filter view model.
     """
-    if isinstance(filter, NegateFilter):
-        return compile_filter(filter=filter.not_filter, negate=True, nested=nested)
-    if isinstance(filter, ExistsFilter):
-        return compile_exists_filter(exists_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, PhraseFilter):
-        return compile_phrase_filter(phrase_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, PhrasesFilter):
-        return compile_phrases_filter(phrases_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, RangeFilter):
-        return compile_range_filter(range_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, CustomFilter):
-        return compile_custom_filter(custom_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, AndFilter):
-        return compile_and_filter(and_filter=filter, negate=negate, nested=nested)
-    if isinstance(filter, OrFilter):  # pyright: ignore[reportUnnecessaryIsInstance]
-        return compile_or_filter(or_filter=filter, negate=negate, nested=nested)
+    if isinstance(filter_config, NegateFilter):
+        return compile_filter(filter_config=filter_config.not_filter, negate=True, nested=nested)
+    if isinstance(filter_config, ExistsFilter):
+        return compile_exists_filter(exists_filter=filter_config, negate=negate, nested=nested)
+    if isinstance(filter_config, PhraseFilter):
+        return compile_phrase_filter(phrase_filter=filter_config, negate=negate, nested=nested)
+    if isinstance(filter_config, PhrasesFilter):
+        return compile_phrases_filter(phrases_filter=filter_config, negate=negate, nested=nested)
+    if isinstance(filter_config, RangeFilter):
+        return compile_range_filter(range_filter=filter_config, negate=negate, nested=nested)
+    if isinstance(filter_config, CustomFilter):
+        return compile_custom_filter(custom_filter=filter_config, negate=negate, nested=nested)
+    if isinstance(filter_config, AndFilter):
+        return compile_and_filter(and_filter=filter_config, negate=negate, nested=nested)
+    if isinstance(filter_config, OrFilter):  # pyright: ignore[reportUnnecessaryIsInstance]
+        return compile_or_filter(or_filter=filter_config, negate=negate, nested=nested)
 
-    msg = f'Unimplemented filter type: {type(filter)}'  # pyright: ignore[reportUnreachable]
+    msg = f'Unimplemented filter type: {type(filter_config)}'  # pyright: ignore[reportUnreachable]
     raise NotImplementedError(msg)
 
 
@@ -250,4 +250,4 @@ def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
     Returns:
         list[KbnFilter]: The compiled list of Kibana filter view models.
     """
-    return [compile_filter(filter=dashboard_filter) for dashboard_filter in filters]
+    return [compile_filter(filter_config=dashboard_filter) for dashboard_filter in filters]
