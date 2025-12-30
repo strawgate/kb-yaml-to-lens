@@ -140,7 +140,7 @@ lint-markdown:
 # Check markdown without fixing
 lint-markdown-check:
 	@echo "Running markdownlint..."
-	@markdownlint -c .markdownlint.jsonc . --quiet
+	@markdownlint -c .markdownlint.jsonc . > /dev/null 2>&1 && echo "✓ Markdown checks passed" || (markdownlint -c .markdownlint.jsonc . && exit 1)
 
 # Auto-fix YAML issues
 lint-yaml:
