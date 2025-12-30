@@ -1,0 +1,402 @@
+---
+dashboards:
+  - name: '[Example] ES|QL Charts Showcase'
+    description: Comprehensive example demonstrating all ES|QL chart types and their configuration options
+    panels:
+      # Introduction Panel
+      - title: ES|QL Charts Showcase
+        hide_title: false
+        description: Introduction panel explaining ES|QL capabilities
+        grid:
+          x: 0
+          y: 0
+          w: 48
+          h: 6
+        markdown:
+          content: |
+            # ES|QL Charts Showcase
+
+            This dashboard demonstrates all supported ES|QL chart types and configurations.
+
+            **ES|QL Chart Types:**
+            - **Metric Charts** - Display key metrics with optional secondary/maximum values and breakdowns
+            - **Pie Charts** - Show proportional distributions with customizable appearance
+
+            ES|QL queries allow you to perform complex aggregations and transformations directly in the query,
+            giving you more flexibility than traditional Lens charts.
+          font_size: 12
+          links_in_new_tab: true
+
+      # ===== METRIC CHARTS =====
+
+      # 1. Simple Metric - Primary only
+      - title: "Total Events (Simple Metric)"
+        description: Basic metric showing total event count
+        grid:
+          x: 0
+          y: 6
+          w: 12
+          h: 8
+        esql:
+          query: |
+            FROM logs-*
+            | STATS total_events = COUNT(*)
+          type: metric
+          primary:
+            field: "total_events"
+
+      # 2. Metric with Secondary
+      - title: "Response Time Stats"
+        description: Metric with primary (avg) and secondary (p95)
+        grid:
+          x: 12
+          y: 6
+          w: 12
+          h: 8
+        esql:
+          query: |
+            FROM logs-*
+            | STATS
+                avg_response = AVG(http.response.time),
+                p95_response = PERCENTILE(http.response.time, 95.0)
+          type: metric
+          primary:
+            field: "avg_response"
+          secondary:
+            field: "p95_response"
+
+      # 3. Metric with Primary, Secondary, and Maximum
+      - title: "Memory Usage Analysis"
+        description: Comprehensive metric with primary, secondary, and maximum
+        grid:
+          x: 24
+          y: 6
+          w: 12
+          h: 8
+        esql:
+          query: |
+            FROM metrics-*
+            | STATS
+                avg_mem = AVG(system.memory.used.pct),
+                p95_mem = PERCENTILE(system.memory.used.pct, 95.0),
+                max_mem = MAX(system.memory.used.pct)
+          type: metric
+          primary:
+            field: "avg_mem"
+          secondary:
+            field: "p95_mem"
+          maximum:
+            field: "max_mem"
+
+      # 4. Metric with Breakdown
+      - title: "Events by Service"
+        description: Metric broken down by service name
+        grid:
+          x: 36
+          y: 6
+          w: 12
+          h: 8
+        esql:
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY service.name
+            | ORDER event_count DESC
+            | LIMIT 10
+          type: metric
+          primary:
+            field: "event_count"
+          breakdown:
+            field: "service.name"
+
+      # 5. Complex Metric with All Options
+      - title: "CPU Usage by Host (Complete)"
+        description: Metric with all available options
+        grid:
+          x: 0
+          y: 14
+          w: 16
+          h: 10
+        esql:
+          query: |
+            FROM metrics-*
+            | STATS
+                avg_cpu = AVG(system.cpu.total.pct),
+                p99_cpu = PERCENTILE(system.cpu.total.pct, 99.0),
+                max_cpu = MAX(system.cpu.total.pct)
+              BY host.name
+            | ORDER avg_cpu DESC
+            | LIMIT 5
+          type: metric
+          primary:
+            field: "avg_cpu"
+          secondary:
+            field: "p99_cpu"
+          maximum:
+            field: "max_cpu"
+          breakdown:
+            field: "host.name"
+
+      # ===== PIE CHARTS =====
+
+      # 6. Simple Pie Chart
+      - title: "Events by Log Level (Simple Pie)"
+        description: Basic pie chart showing distribution
+        grid:
+          x: 16
+          y: 14
+          w: 16
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY log.level
+            | ORDER event_count DESC
+            | LIMIT 5
+          type: pie
+          metric:
+            field: "event_count"
+          slice_by:
+            - field: "log.level"
+
+      # 7. Pie Chart with Multiple Dimensions
+      - title: "Events by Service and Level"
+        description: Pie chart with nested dimensions
+        grid:
+          x: 32
+          y: 14
+          w: 16
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY service.name, log.level
+            | ORDER event_count DESC
+            | LIMIT 10
+          type: pie
+          metric:
+            field: "event_count"
+          slice_by:
+            - field: "service.name"
+            - field: "log.level"
+
+      # 8. Donut Chart (Small)
+      - title: "Error Types (Small Donut)"
+        description: Donut chart with small hole
+        grid:
+          x: 0
+          y: 24
+          w: 12
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | WHERE log.level == "error"
+            | STATS error_count = COUNT(*) BY error.type
+            | ORDER error_count DESC
+            | LIMIT 5
+          type: pie
+          metric:
+            field: "error_count"
+          slice_by:
+            - field: "error.type"
+          appearance:
+            donut: small
+
+      # 9. Donut Chart (Medium)
+      - title: "HTTP Status Codes (Medium Donut)"
+        description: Donut chart with medium hole
+        grid:
+          x: 12
+          y: 24
+          w: 12
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS request_count = COUNT(*) BY http.response.status_code
+            | ORDER request_count DESC
+            | LIMIT 5
+          type: pie
+          metric:
+            field: "request_count"
+          slice_by:
+            - field: "http.response.status_code"
+          appearance:
+            donut: medium
+
+      # 10. Donut Chart (Large)
+      - title: "Top URLs (Large Donut)"
+        description: Donut chart with large hole
+        grid:
+          x: 24
+          y: 24
+          w: 12
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS visit_count = COUNT(*) BY url.path
+            | ORDER visit_count DESC
+            | LIMIT 5
+          type: pie
+          metric:
+            field: "visit_count"
+          slice_by:
+            - field: "url.path"
+          appearance:
+            donut: large
+
+      # 11. Pie Chart with Custom Formatting
+      - title: "Browser Usage (Formatted)"
+        description: Pie chart with custom titles, text, and legend
+        grid:
+          x: 36
+          y: 24
+          w: 12
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS user_count = COUNT(*) BY user_agent.name
+            | ORDER user_count DESC
+            | LIMIT 5
+          type: pie
+          metric:
+            field: "user_count"
+          slice_by:
+            - field: "user_agent.name"
+          titles_and_text:
+            slice_labels: auto
+            slice_values: percent
+            value_decimal_places: 1
+          legend:
+            visible: show
+            width: medium
+            truncate_labels: 2
+
+      # 12. Pie Chart with Color Palette
+      - title: "Geo Distribution (Custom Colors)"
+        description: Pie chart with custom color palette
+        grid:
+          x: 0
+          y: 34
+          w: 16
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS visitor_count = COUNT(*) BY geo.country_name
+            | ORDER visitor_count DESC
+            | LIMIT 8
+          type: pie
+          metric:
+            field: "visitor_count"
+          slice_by:
+            - field: "geo.country_name"
+          color:
+            palette: elasticColors
+
+      # 13. Complex Aggregation Metric
+      - title: "Error Rate Percentage"
+        description: Advanced ES|QL query with calculated percentage
+        grid:
+          x: 16
+          y: 34
+          w: 16
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | STATS
+                total = COUNT(*),
+                errors = COUNT(*) WHERE log.level == "error"
+            | EVAL error_rate = (errors * 100.0) / total
+            | KEEP error_rate
+          type: metric
+          primary:
+            field: "error_rate"
+
+      # 14. Time-based Aggregation
+      - title: "Recent Activity (Last Hour)"
+        description: ES|QL query with time filtering
+        grid:
+          x: 32
+          y: 34
+          w: 16
+          h: 10
+        esql:
+          query: |
+            FROM logs-*
+            | WHERE @timestamp > NOW() - 1 hour
+            | STATS
+                total_events = COUNT(*),
+                unique_users = COUNT_DISTINCT(user.id),
+                avg_duration = AVG(event.duration)
+          type: metric
+          primary:
+            field: "total_events"
+          secondary:
+            field: "unique_users"
+
+      # 15. Pie with All Formatting Options
+      - title: "Complete Pie Configuration"
+        description: Pie chart demonstrating all available formatting options
+        grid:
+          x: 0
+          y: 44
+          w: 24
+          h: 12
+        esql:
+          query: |
+            FROM logs-*
+            | STATS bytes_transferred = SUM(http.response.bytes) BY http.request.method
+            | ORDER bytes_transferred DESC
+            | LIMIT 6
+          type: pie
+          metric:
+            field: "bytes_transferred"
+          slice_by:
+            - field: "http.request.method"
+          appearance:
+            donut: medium
+          titles_and_text:
+            slice_labels: inside
+            slice_values: integer
+            value_decimal_places: 0
+          legend:
+            visible: show
+            width: large
+            truncate_labels: 3
+          color:
+            palette: default
+
+      # 16. Multi-level Pie Chart
+      - title: "Service Health by Environment"
+        description: Pie chart with multi-level grouping
+        grid:
+          x: 24
+          y: 44
+          w: 24
+          h: 12
+        esql:
+          query: |
+            FROM logs-*
+            | STATS health_count = COUNT(*) BY service.environment, service.health
+            | ORDER health_count DESC
+            | LIMIT 12
+          type: pie
+          metric:
+            field: "health_count"
+          slice_by:
+            - field: "service.environment"
+            - field: "service.health"
+          appearance:
+            donut: small
+          titles_and_text:
+            slice_labels: auto
+            slice_values: percent
+            value_decimal_places: 2
+          legend:
+            visible: show
+            width: extra_large
+            truncate_labels: 0
