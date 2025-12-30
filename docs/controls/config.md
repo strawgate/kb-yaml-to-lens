@@ -46,7 +46,6 @@ dashboards:
     controls:
       - type: options
         label: "Service Name"
-        id: "service_filter"
         width: "medium"
         data_view: "apm-*"
         field: "service.name"
@@ -55,14 +54,12 @@ dashboards:
         preselected: ["checkout-service"]
       - type: range
         label: "CPU Usage (%)"
-        id: "cpu_range_filter"
         width: "large"
         data_view: "metrics-*"
         field: "system.cpu.user.pct"
         step: 0.05
       - type: time
         label: "Custom Time Slice"
-        id: "time_slice_control"
         width: "small"
         start_offset: 0.1  # 10% from the start of the global time range
         end_offset: 0.9    # 90% from the start of the global time range
