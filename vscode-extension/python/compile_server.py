@@ -1,9 +1,3 @@
-"""LSP-based compilation server using pygls for VS Code extension.
-
-This implementation uses the Language Server Protocol with pygls v2 to provide
-dashboard compilation services to the VS Code extension.
-"""
-
 import sys
 from pathlib import Path
 from typing import Any
@@ -31,7 +25,7 @@ except ImportError as e:
 server = LanguageServer('dashboard-compiler', 'v0.1')
 
 
-def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def _params_to_dict(params: dict[str, Any] | object) -> dict[str, Any]:
     """Convert pygls params object to dict.
 
     In pygls v2, params are passed as cattrs-structured objects.
@@ -99,7 +93,7 @@ def compile_command(_ls: LanguageServer, args: list[Any]) -> dict[str, Any]:
 
 
 @server.feature('dashboard/compile')
-def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def compile_custom(params: dict[str, Any] | object) -> dict[str, Any]:
     """Handle custom compilation request for a dashboard.
 
     Args:
@@ -116,7 +110,7 @@ def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
 
 
 @server.feature('dashboard/getDashboards')
-def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def get_dashboards_custom(params: dict[str, Any] | object) -> dict[str, Any]:
     """Get list of dashboards from a YAML file.
 
     Args:
