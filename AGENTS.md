@@ -256,7 +256,6 @@ gh api graphql -f query='
 | ---------- | ---------- |
 | Component AGENTS.md files | `src/dashboard_compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
 | Architecture details | `docs/architecture.md` |
-| YAML schema reference | `docs/yaml_reference.md` (generated via `make compile-docs`) |
 | Quickstart guide | `docs/quickstart.md` |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |

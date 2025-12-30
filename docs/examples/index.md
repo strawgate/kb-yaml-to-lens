@@ -84,6 +84,5 @@ To use an example as a starting point for your own dashboard:
 
 ## Related Documentation
 
-- [YAML Reference](../yaml_reference.md) - Complete schema documentation
 - [Dashboard Configuration](../dashboard/dashboard.md) - Dashboard-level settings
 - [Panel Types](../panels/base.md) - Available panel types and configurations
