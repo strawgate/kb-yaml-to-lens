@@ -117,6 +117,42 @@ Always use explicit comparisons instead of implicit truthiness:
 
 **Exception:** `if TYPE_CHECKING:` is standard Python and acceptable.
 
+### Exhaustive Type Checking Pattern
+
+When handling union types (like `PanelTypes`), always use explicit isinstance checks with a final else clause that raises an error. **Never rely on type narrowing alone.**
+
+**Why:** When a new type is added to the union, relying on type narrowing means the code silently falls through to a default case. With explicit isinstance checks and a final error, you get a clear runtime error that forces you to handle the new type.
+
+**✅ Correct pattern:**
+
+```python
+def handle_panel(panel: PanelTypes) -> str:
+    if isinstance(panel, MarkdownPanel):
+        return handle_markdown(panel)
+    if isinstance(panel, LinksPanel):
+        return handle_links(panel)
+    if isinstance(panel, (LensPanel, ESQLPanel)):
+        return handle_charts(panel)
+    # Explicit error case instead of relying on type narrowing
+    msg = f'Unknown panel type: {type(panel).__name__}'
+    raise TypeError(msg)
+```
+
+**❌ Incorrect pattern:**
+
+```python
+def handle_panel(panel: PanelTypes) -> str:
+    if isinstance(panel, MarkdownPanel):
+        return handle_markdown(panel)
+    if isinstance(panel, LinksPanel):
+        return handle_links(panel)
+    # Relying on type narrowing - if a new type is added to PanelTypes,
+    # this silently handles it as a chart without any error
+    return handle_charts(panel)
+```
+
+**Key principle:** Make adding new types to unions a compile-time or runtime error, not a silent fallthrough.
+
 ### Documentation Updates
 
 When updating YAML configuration docs:
