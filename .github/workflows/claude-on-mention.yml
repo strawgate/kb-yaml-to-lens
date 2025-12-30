@@ -1,20 +1,21 @@
+---
 name: Claude Code Assistant
-
 on:
   issue_comment:
-    types: [created]
+    types:
+      - created
   pull_request_review_comment:
-    types: [created]
+    types:
+      - created
   pull_request_review:
-    types: [submitted]
-
+    types:
+      - submitted
 permissions:
   contents: write
   pull-requests: write
   issues: write
   id-token: write
   actions: read
-
 jobs:
   claude:
     if: |
@@ -25,11 +26,9 @@ jobs:
     with:
       prompt: |
         You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
-        
         You've been mentioned in ${{ github.event_name == 'issue_comment' && 'issue' || 'pull request' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
 
         # YOUR CAPABILITIES
-
         - Read and modify code files
         - Run `make` commands (lint, test, check, compile)
         - Use `gh api` for GitHub operations
@@ -37,15 +36,12 @@ jobs:
         - Search codebase and related repositories
 
         # YOUR TASK
-
         Address the request from the user. Follow the development workflow:
-        
         1. Understand the request and context
         2. Read relevant files to understand current implementation
         3. Make necessary changes following project patterns
         4. Run `make check` to verify (lint + test)
         5. If working on a PR and addressing review feedback, resolve the review threads after making fixes
-
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
       allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:api:*)
     secrets:
