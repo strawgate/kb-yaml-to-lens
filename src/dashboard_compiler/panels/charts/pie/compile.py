@@ -73,6 +73,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         else:
             legend_max_lines = chart.legend.truncate_labels
 
+    nested_legend = None
+    if chart.legend and chart.legend.nested is not None:
+        nested_legend = chart.legend.nested
+
     palette_id = 'default'
     if chart.color and chart.color.palette:
         palette_id = chart.color.palette
@@ -92,7 +96,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
-        nestedLegend=False,
+        nestedLegend=nested_legend if nested_legend is not None else False,
         layerType='data',
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,
