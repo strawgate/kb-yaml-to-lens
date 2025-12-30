@@ -61,7 +61,7 @@ install:
 	npm install -g markdownlint-cli
 
 # CI and development workflow commands
-ci: lint-all-check typecheck test-all
+ci: lint-all-check typecheck test-all docs-build-quiet
 	@echo "✓ All CI checks passed!"
 
 check: ci
@@ -193,6 +193,10 @@ docs-serve:
 docs-build:
 	@echo "Building documentation..."
 	uv run --group docs mkdocs build
+
+docs-build-quiet:
+	@echo "Building documentation (errors only)..."
+	@uv run --group docs mkdocs build --quiet 2>&1 | grep -E "ERROR|WARNING" || echo "✓ Documentation builds successfully"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."

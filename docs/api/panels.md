@@ -84,12 +84,6 @@ Create line, bar, and area charts for time series and other data.
 
 For configuration details and examples, see the [XY Chart Panel Configuration](../panels/xy.md).
 
-## Lens Multi-Layer Panel
-
-::: dashboard_compiler.panels.charts.config.LensMultiLayerPanel
-    options:
-      show_source: true
-
 ## ESQL Panel
 
 ::: dashboard_compiler.panels.charts.config.ESQLPanel
