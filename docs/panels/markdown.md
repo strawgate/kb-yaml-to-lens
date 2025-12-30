@@ -2,6 +2,34 @@
 
 The `markdown` panel type is used to display rich text content, formatted using Markdown syntax, directly on your dashboard. This is equivalent to the "Text" visualization in Kibana.
 
+## A Poem for the Documentation Devotees
+
+_For those who believe every dashboard needs context:_
+
+```text
+# Bold headers and *italic* flair,
+- Bullet lists with items to share,
+[Links](that take you anywhere),
+Markdown panels handle with care!
+
+When charts alone won't tell the tale,
+And metrics need context to prevail,
+You write instructions, notes, and more,
+To help users understand the score.
+
+"## Welcome to the Dashboard!"
+"Please follow these steps, move forward!"
+Font size twelve or maybe more,
+Links in new tabs, or the same as before.
+
+From setup guides to troubleshooting tips,
+Important warnings, helpful quips,
+Your markdown keeps the team aligned,
+With documentation well-designed!
+```
+
+---
+
 ## Minimal Configuration Example
 
 To add a simple Markdown panel, you need to specify its `type`, `grid` position, and the `content`.

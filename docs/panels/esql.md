@@ -4,6 +4,34 @@ ESQL panels leverage the power of Elasticsearch Query Language (ESQL) to create 
 
 The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query, and its `chart` field defines the specific type of visualization (e.g., `metric`, `pie`).
 
+## A Poem for the Query Wizards
+
+_For those who wield the power of Elasticsearch Query Language:_
+
+```text
+FROM the indexes, data flows,
+Through STATS and WHERE, your pipeline grows.
+ESQL queries, powerful and clean,
+Transforming data never seen!
+
+Pipe by pipe, you craft the view,
+LIMIT, ORDER, filtering through.
+Complex aggregations, custom math,
+Your query blazes the perfect path.
+
+No need for pre-defined fields to bind,
+You calculate metrics on the fly, refined.
+FROM, BY, and STATS aligned,
+Column names thoughtfully designed.
+
+So here's to those who love to query,
+With ESQL power, never weary!
+Direct from Elasticsearch's core,
+Your visualizations open every door!
+```
+
+---
+
 ## Minimal Configuration Examples
 
 **Minimal ESQL Metric Chart:**
