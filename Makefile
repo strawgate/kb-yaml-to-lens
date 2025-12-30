@@ -196,7 +196,7 @@ docs-build:
 
 docs-build-quiet:
 	@echo "Building documentation (errors only)..."
-	@uv run --group docs mkdocs build --quiet 2>&1 | grep -E "ERROR|WARNING" || echo "✓ Documentation builds successfully"
+	@uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
