@@ -49,6 +49,37 @@ dashboards:
             - aggregation: count
 ```
 
+## Example with Custom Colors
+
+```yaml
+dashboards:
+  - name: "Service Performance"
+    panels:
+      - type: charts
+        title: "Response Times by Service"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
+        chart:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - field: "@timestamp"
+          breakdown:
+            field: "service.name"
+            type: values
+          metrics:
+            - aggregation: average
+              field: response_time
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['web-frontend']
+                color: '#00BF6F'
+              - values: ['api-gateway']
+                color: '#0077CC'
+              - values: ['database']
+                color: '#FFA500'
+```
+
 ## Full Configuration Options
 
 ### Lens Bar Chart
@@ -64,6 +95,7 @@ dashboards:
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Line Chart
 
@@ -77,6 +109,7 @@ dashboards:
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Area Chart
 
@@ -91,6 +124,7 @@ dashboards:
 | `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 #### XYLegend Options
 
