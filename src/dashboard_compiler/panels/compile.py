@@ -39,6 +39,26 @@ def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) ->
     )
 
 
+def get_panel_type_name(panel: PanelTypes) -> str:
+    """Get the type name for a panel.
+
+    Args:
+        panel (PanelTypes): The panel object.
+
+    Returns:
+        str: The type name for the panel.
+
+    """
+    if isinstance(panel, MarkdownPanel):
+        return 'markdown'
+    if isinstance(panel, LinksPanel):
+        return 'links'
+    if isinstance(panel, LensPanel | ESQLPanel):
+        return 'charts'
+    # Future: ImagePanel, SearchPanel
+    return type(panel).__name__
+
+
 def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
     """Compile shared properties of a panel into its Kibana view model representation.
 
@@ -49,7 +69,8 @@ def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
         tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
 
     """
-    panel_index = panel.id or stable_id_generator(values=[panel.type, panel.title, str(panel.grid)])
+    panel_type = get_panel_type_name(panel)
+    panel_index = panel.id or stable_id_generator(values=[panel_type, panel.title, str(panel.grid)])
 
     grid_data = KbnGridData(x=panel.grid.x, y=panel.grid.y, w=panel.grid.w, h=panel.grid.h, i=panel_index)
 

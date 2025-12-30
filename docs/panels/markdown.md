@@ -36,33 +36,33 @@ To add a simple Markdown panel, you need to specify its `type`, `grid` position,
 
 ```yaml
 # Within a dashboard's 'panels' list:
-# - type: markdown
-#   title: "Welcome Note"
+# - title: "Welcome Note"
 #   grid:
 #     x: 0
 #     y: 0
 #     w: 12 # Full width
 #     h: 3  # Height of 3 grid units
-#   content: "## Welcome to the Dashboard!\nThis panel provides an overview."
+#   markdown:
+#     content: "## Welcome to the Dashboard!\nThis panel provides an overview."
 
 # For a complete dashboard structure:
 dashboards:
 -
   name: "Dashboard with Markdown"
   panels:
-    - type: markdown
-      title: "Welcome Note"
+    - title: "Welcome Note"
       grid:
         x: 0
         y: 0
         w: 12
         h: 3
-      content: |
-        ## Welcome to the Dashboard!
-        This panel provides an overview of the key metrics and reports available.
+      markdown:
+        content: |
+          ## Welcome to the Dashboard!
+          This panel provides an overview of the key metrics and reports available.
 
-        - Item 1
-        - Item 2
+          - Item 1
+          - Item 2
 ```
 
 ## Complex Configuration Example
@@ -74,27 +74,27 @@ dashboards:
 -
   name: "Informational Dashboard"
   panels:
-    - type: markdown
-      title: "Important Instructions & Links"
+    - title: "Important Instructions & Links"
       description: "Follow these steps for system setup."
       grid:
         x: 0
         y: 0
         w: 8
         h: 5
-      content: |
-        # Setup Guide
+      markdown:
+        content: |
+          # Setup Guide
 
-        Please follow the [official documentation](https://example.com/docs) for detailed setup instructions.
+          Please follow the [official documentation](https://example.com/docs) for detailed setup instructions.
 
-        Key steps include:
-        1.  **Download** the installer.
-        2.  **Configure** the `config.yaml` file.
-        3.  **Run** the start script.
+          Key steps include:
+          1.  **Download** the installer.
+          2.  **Configure** the `config.yaml` file.
+          3.  **Run** the start script.
 
-        For issues, refer to the [Troubleshooting Page](https://example.com/troubleshooting).
-      font_size: 14
-      links_in_new_tab: false # Links will open in the same tab
+          For issues, refer to the [Troubleshooting Page](https://example.com/troubleshooting).
+        font_size: 14
+        links_in_new_tab: false # Links will open in the same tab
 ```
 
 ## Full Configuration Options
@@ -103,12 +103,17 @@ Markdown panels inherit from the [Base Panel Configuration](./base.md) and have 
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------- |
-| `type` | `Literal['markdown']` | Specifies the panel type. | `markdown` | Yes |
 | `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
+| `markdown` | `Markdown` object | Configuration for the markdown panel content. | N/A | Yes |
+
+**Markdown Object Configuration:**
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------- |
 | `content` | `string` | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `\|` or `>`) for readability. | N/A | Yes |
 | `font_size` | `integer` | The font size for the Markdown content, in pixels. | `12` | No |
 | `links_in_new_tab` | `boolean` | If `true`, links in the Markdown content will open in a new tab. | `true` | No |
@@ -119,18 +124,20 @@ You can also create Markdown panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.markdown.config import MarkdownPanel
+from dashboard_compiler.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
 
 panel = MarkdownPanel(
     grid=Grid(x=0, y=0, w=24, h=15),
-    content="""
+    markdown=MarkdownPanelConfig(
+        content="""
 # Dashboard Title
 
 This is a **markdown** panel with:
 - Lists
 - **Bold** and *italic* text
 - [Links](https://example.com)
-    """,
+        """,
+    ),
 )
 ```
 

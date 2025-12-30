@@ -81,6 +81,16 @@ class UrlLink(BaseLink):
     """If `true`, the link will open in a new browser tab. Kibana defaults to `false` if not set."""
 
 
+class LinksPanelConfig(BaseCfgModel):
+    """Configuration specific to Links panels."""
+
+    layout: Literal['horizontal', 'vertical'] | None = Field(default=None)
+    """The layout of the links in the panel, either 'horizontal' or 'vertical'. Kibana defaults to 'horizontal' if not set."""
+
+    links: list[LinkTypes] = Field(default_factory=list)
+    """A list of link objects to be displayed in the panel."""
+
+
 class LinksPanel(BasePanel):
     """Represents a Links panel configuration.
 
@@ -88,13 +98,7 @@ class LinksPanel(BasePanel):
     saved objects, or external URLs.
     """
 
-    type: Literal['links'] = 'links'
-
-    layout: Literal['horizontal', 'vertical'] | None = Field(default=None)
-    """The layout of the links in the panel, either 'horizontal' or 'vertical'. Kibana defaults to 'horizontal' if not set."""
-
-    links: list[LinkTypes] = Field(default_factory=list)
-    """A list of link objects to be displayed in the panel."""
+    links_config: LinksPanelConfig = Field(..., description='Links panel configuration.', alias='links')
 
     def add_link(self, link: LinkTypes) -> Self:
         """Add a link object to the Links panel's links list.
@@ -106,5 +110,5 @@ class LinksPanel(BasePanel):
             Self: The current instance of the LinksPanel for method chaining.
 
         """
-        self.links.append(link)
+        self.links_config.links.append(link)
         return self

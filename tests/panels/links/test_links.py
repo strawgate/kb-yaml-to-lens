@@ -24,10 +24,11 @@ def test_compile_links_panel_basic_url() -> None:
     """Test the compilation of a basic URL link with no label."""
     references, result = compile_links_panel_snapshot(
         {
-            'type': 'links',
-            'links': [
-                {'url': 'https://elastic.co'},
-            ],
+            'links': {
+                'links': [
+                    {'url': 'https://elastic.co'},
+                ],
+            },
         }
     )
     assert references == snapshot([])
@@ -46,13 +47,14 @@ def test_compile_links_panel_custom_id() -> None:
     """Test the compilation of a custom ID (note: URL links currently ignore provided IDs)."""
     references, result = compile_links_panel_snapshot(
         {
-            'type': 'links',
-            'links': [
-                {
-                    'url': 'https://elastic.co',
-                    'id': '16da766e-c67a-4d2e-9eec-c477af79f374',
-                },
-            ],
+            'links': {
+                'links': [
+                    {
+                        'url': 'https://elastic.co',
+                        'id': '16da766e-c67a-4d2e-9eec-c477af79f374',
+                    },
+                ],
+            },
         }
     )
     assert references == snapshot([])
@@ -71,10 +73,11 @@ def test_compile_links_panel_with_label() -> None:
     """Test the compilation of a basic URL link with a label."""
     references, result = compile_links_panel_snapshot(
         {
-            'type': 'links',
-            'links': [
-                {'url': 'https://elastic.co', 'label': 'Custom Label'},
-            ],
+            'links': {
+                'links': [
+                    {'url': 'https://elastic.co', 'label': 'Custom Label'},
+                ],
+            },
         }
     )
     assert references == snapshot([])
@@ -93,10 +96,11 @@ def test_compile_links_panel_inverted_options() -> None:
     """Test the compilation of a basic URL link with all options inverted."""
     references, result = compile_links_panel_snapshot(
         {
-            'type': 'links',
-            'links': [
-                {'url': 'https://elastic.co', 'label': 'Custom Label', 'new_tab': False, 'encode': False},
-            ],
+            'links': {
+                'links': [
+                    {'url': 'https://elastic.co', 'label': 'Custom Label', 'new_tab': False, 'encode': False},
+                ],
+            },
         }
     )
     assert references == snapshot([])
@@ -124,16 +128,17 @@ def test_compile_links_panel_dashboard_link() -> None:
     """Test the compilation of a basic Dashboard link."""
     references, result = compile_links_panel_snapshot(
         {
-            'type': 'links',
             'id': '74522ed1-eb91-4b8a-bcbe-ffa0ff9c9abf',
-            'layout': 'vertical',
-            'links': [
-                {
-                    'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
-                    'label': 'Go to Dashboard',
-                    'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
-                },
-            ],
+            'links': {
+                'layout': 'vertical',
+                'links': [
+                    {
+                        'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
+                        'label': 'Go to Dashboard',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                    },
+                ],
+            },
         }
     )
     assert references == snapshot(
@@ -162,19 +167,20 @@ def test_compile_links_panel_dashboard_link_inverted_options() -> None:
     """Test the compilation of a basic Dashboard link with all options inverted."""
     references, result = compile_links_panel_snapshot(
         {
-            'type': 'links',
             'id': '71a1e537-eb91-4b8a-bcbe-ffa0ff9c9abf',
-            'layout': 'vertical',
-            'links': [
-                {
-                    'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
-                    'label': 'Go to Dashboard',
-                    'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
-                    'with_time': False,
-                    'with_filters': False,
-                    'new_tab': True,
-                },
-            ],
+            'links': {
+                'layout': 'vertical',
+                'links': [
+                    {
+                        'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
+                        'label': 'Go to Dashboard',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'with_time': False,
+                        'with_filters': False,
+                        'new_tab': True,
+                    },
+                ],
+            },
         }
     )
     assert references == snapshot(

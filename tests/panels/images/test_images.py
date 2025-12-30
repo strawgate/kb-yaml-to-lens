@@ -19,7 +19,9 @@ def compile_image_panel_snapshot(config: dict[str, Any]) -> dict[str, Any]:
 
 def test_compile_image_panel_url() -> None:
     """Test the compilation of a basic image panel with URL."""
-    result = compile_image_panel_snapshot({'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg'})
+    result = compile_image_panel_snapshot(
+        {'image': {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg'}}
+    )
     assert result == snapshot(
         {
             'enhancements': {'dynamicActions': {'events': []}},
@@ -36,7 +38,7 @@ def test_compile_image_panel_url() -> None:
 def test_compile_image_panel_url_sizing_cover() -> None:
     """Test the compilation of an image panel with URL and cover sizing."""
     result = compile_image_panel_snapshot(
-        {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'cover'}
+        {'image': {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'cover'}}
     )
     assert result == snapshot(
         {
@@ -54,7 +56,7 @@ def test_compile_image_panel_url_sizing_cover() -> None:
 def test_compile_image_panel_url_fill() -> None:
     """Test the compilation of an image panel with URL and fill sizing."""
     result = compile_image_panel_snapshot(
-        {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'fill'}
+        {'image': {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'fill'}}
     )
     assert result == snapshot(
         {
@@ -72,7 +74,7 @@ def test_compile_image_panel_url_fill() -> None:
 def test_compile_image_panel_url_sizing_none() -> None:
     """Test the compilation of an image panel with URL and none sizing."""
     result = compile_image_panel_snapshot(
-        {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'none'}
+        {'image': {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'fit': 'none'}}
     )
     assert result == snapshot(
         {
@@ -91,8 +93,10 @@ def test_compile_image_panel_url_alt_text() -> None:
     """Test the compilation of an image panel with URL and alt text."""
     result = compile_image_panel_snapshot(
         {
-            'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg',
-            'description': 'this is the alt text',
+            'image': {
+                'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg',
+                'description': 'this is the alt text',
+            },
         }
     )
     assert result == snapshot(
@@ -111,7 +115,12 @@ def test_compile_image_panel_url_alt_text() -> None:
 def test_compile_image_panel_url_background_color() -> None:
     """Test the compilation of an image panel with URL and background color."""
     result = compile_image_panel_snapshot(
-        {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg', 'background_color': '#a53c3c'}
+        {
+            'image': {
+                'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg',
+                'background_color': '#a53c3c',
+            }
+        }
     )
     assert result == snapshot(
         {

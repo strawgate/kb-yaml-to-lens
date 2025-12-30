@@ -1,19 +1,14 @@
 """Configuration for a Markdown Panel in a dashboard."""
 
-from typing import Literal
-
 from pydantic import Field
 
 from dashboard_compiler.panels.base import BasePanel
+from dashboard_compiler.shared.config import BaseCfgModel
 
 
-class MarkdownPanel(BasePanel):
-    """Represents a Markdown panel configuration.
+class MarkdownPanelConfig(BaseCfgModel):
+    """Configuration specific to Markdown panels."""
 
-    Markdown panels are used to display rich text content using Markdown syntax.
-    """
-
-    type: Literal['markdown'] = 'markdown'
     content: str = Field(..., description='The Markdown content to be displayed in the panel.')
     font_size: int | None = Field(
         default=None,
@@ -23,3 +18,12 @@ class MarkdownPanel(BasePanel):
         default=None,
         description='If true, links in the Markdown content will open in a new tab. Defaults to true if not set.',
     )
+
+
+class MarkdownPanel(BasePanel):
+    """Represents a Markdown panel configuration.
+
+    Markdown panels are used to display rich text content using Markdown syntax.
+    """
+
+    markdown: MarkdownPanelConfig = Field(..., description='Markdown panel configuration.')

@@ -21,11 +21,11 @@ def compile_image_panel_config(image_panel: ImagePanel) -> tuple[list[KbnReferen
 
     """
     image_config = KbnImageConfig(
-        src=KbnUrlImageInfoSrc(url=image_panel.from_url),
-        altText=image_panel.description or '',
-        backgroundColor=image_panel.background_color or '',
+        src=KbnUrlImageInfoSrc(url=image_panel.image.from_url),
+        altText=image_panel.image.description or '',
+        backgroundColor=image_panel.image.background_color or '',
         sizing=KbnUrlImageSizing(
-            objectFit=image_panel.fit or 'contain',
+            objectFit=image_panel.image.fit or 'contain',
         ),
     )
 

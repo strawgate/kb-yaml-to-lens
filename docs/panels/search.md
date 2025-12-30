@@ -36,28 +36,28 @@ To add a Search panel, you need to specify its `type`, `grid` position, and the 
 
 ```yaml
 # Within a dashboard's 'panels' list:
-# - type: search
-#   title: "All System Logs"
+# - title: "All System Logs"
 #   grid:
 #     x: 0
 #     y: 0
 #     w: 12 # Full width
 #     h: 10 # Height of 10 grid units
-#   saved_search_id: "your-saved-search-id" # Replace with the actual ID
+#   search:
+#     saved_search_id: "your-saved-search-id" # Replace with the actual ID
 
 # For a complete dashboard structure:
 dashboards:
 -
   name: "Log Monitoring Dashboard"
   panels:
-    - type: search
-      title: "All System Logs"
+    - title: "All System Logs"
       grid:
         x: 0
         y: 0
         w: 12
         h: 10
-      saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
+      search:
+        saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
 ```
 
 ## Complex Configuration Example (Illustrative)
@@ -69,8 +69,7 @@ dashboards:
 -
   name: "Security Incidents Overview"
   panels:
-    - type: search
-      # Title is defined in the saved search, so we hide the panel's own title
+    - # Title is defined in the saved search, so we hide the panel's own title
       hide_title: true
       description: "Displays critical security alerts from the last 24 hours, as defined in the 'Critical Alerts' saved search."
       grid:
@@ -78,7 +77,8 @@ dashboards:
         y: 0
         w: 12
         h: 8
-      saved_search_id: "critical-security-alerts-saved-search"
+      search:
+        saved_search_id: "critical-security-alerts-saved-search"
 ```
 
 ## Full Configuration Options
@@ -87,12 +87,17 @@ Search panels inherit from the [Base Panel Configuration](./base.md) and have on
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type` | `Literal['search']` | Specifies the panel type. | `search` | Yes |
 | `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. This can override the title of the saved search if desired. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
+| `search` | `Search` object | Configuration for the search panel. | N/A | Yes |
+
+**Search Object Configuration:**
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
 | `saved_search_id` | `string` | The ID of the saved Kibana search object (from Discover app) to display in the panel. | N/A | Yes |
 
 **Note on Behavior:** The appearance, columns displayed, sort order, and underlying query of the Search panel are primarily controlled by the configuration of the saved search itself within Kibana's Discover application. The dashboard panel configuration mainly serves to embed that saved search.
@@ -103,11 +108,13 @@ You can create Search panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.search.config import SearchPanel
+from dashboard_compiler.panels.search.config import SearchPanel, SearchPanelConfig
 
 panel = SearchPanel(
     grid=Grid(x=0, y=0, w=48, h=20),
-    saved_search_id='my-saved-search',
+    search=SearchPanelConfig(
+        saved_search_id='my-saved-search',
+    ),
 )
 ```
 

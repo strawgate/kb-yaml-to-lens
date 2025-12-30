@@ -1,10 +1,15 @@
 """Configuration for a Search panel in a dashboard."""
 
-from typing import Literal
-
 from pydantic import Field
 
 from dashboard_compiler.panels.base import BasePanel
+from dashboard_compiler.shared.config import BaseCfgModel
+
+
+class SearchPanelConfig(BaseCfgModel):
+    """Configuration specific to Search panels."""
+
+    saved_search_id: str = Field(..., description='The ID of the saved Kibana search object to display in the panel.')
 
 
 class SearchPanel(BasePanel):
@@ -13,5 +18,4 @@ class SearchPanel(BasePanel):
     Search panels are used to display the results of a saved Kibana search.
     """
 
-    type: Literal['search'] = 'search'
-    saved_search_id: str = Field(..., description='The ID of the saved Kibana search object to display in the panel.')
+    search: SearchPanelConfig = Field(..., description='Search panel configuration.')
