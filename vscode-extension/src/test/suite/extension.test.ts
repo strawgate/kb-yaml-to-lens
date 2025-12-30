@@ -67,6 +67,42 @@ suite('Extension Test Suite', () => {
         assert.ok(commands.includes('yamlDashboard.preview'), 'yamlDashboard.preview command missing');
     });
 
+    test('Should get dashboards from YAML file', async () => {
+        // This test specifically verifies the getDashboards custom request works
+        // which was failing with AttributeError: 'Object' object has no attribute 'get'
+        const extension = vscode.extensions.getExtension('strawgate.yaml-dashboard-compiler');
+        assert.ok(extension);
+
+        if (!extension.isActive) {
+            await extension.activate();
+        }
+
+        const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
+        if (!fs.existsSync(fixturePath)) {
+            const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
+            if (!fs.existsSync(fallbackPath)) {
+                assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
+            }
+        }
+
+        // Get the compiler from the extension's exports (if available)
+        // For now, we'll test it indirectly through the compile command which calls getDashboards
+        const uri = vscode.Uri.file(fixturePath);
+        const doc = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(doc);
+
+        // Give the LSP server a moment to initialize
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Execute compile command - this internally calls getDashboards()
+        // and will fail if the AttributeError occurs
+        try {
+            await vscode.commands.executeCommand('yamlDashboard.compile');
+        } catch (error) {
+            assert.fail(`getDashboards failed: ${error}`);
+        }
+    });
+
     test('Should open YAML file and compile', async () => {
         // Construct path to fixture relative to this file
         // The fixture is in src/test/fixtures/test.yaml

@@ -34,11 +34,11 @@ server = LanguageServer('dashboard-compiler', 'v0.1')
 def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Convert pygls params object to dict.
 
-    In pygls v2, params are passed as cattrs-structured objects.
+    In pygls v2, params are passed as cattrs-structured objects or raw dicts.
     This helper converts them to dictionaries for easier handling.
 
     Args:
-        params: The params object (either dict or attrs-structured object)
+        params: The params object (dict, attrs-structured object, or object with __dict__)
 
     Returns:
         Dictionary representation of the params
@@ -48,7 +48,23 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
             msg = 'Params dictionary keys must be strings'
             raise TypeError(msg)
         return params  # pyright: ignore[reportUnknownVariableType]
-    return cattrs.unstructure(params)  # pyright: ignore[reportAny]
+
+    # Try cattrs.unstructure first (handles attrs classes)
+    unstructured = cattrs.unstructure(params)  # pyright: ignore[reportAny]
+    if isinstance(unstructured, dict):
+        return unstructured  # pyright: ignore[reportUnknownVariableType]
+
+    # If cattrs didn't help, try to access __dict__ (handles plain objects)
+    if hasattr(params, '__dict__'):
+        return params.__dict__  # pyright: ignore[reportAny]
+
+    # Last resort: try to convert to dict if it has dict-like methods
+    if hasattr(params, 'keys') and hasattr(params, 'values'):
+        return dict(params)  # pyright: ignore[reportAny]
+
+    # If all else fails, return an empty dict to avoid AttributeError
+    msg = f'Unable to convert params of type {type(params).__name__} to dict'
+    raise TypeError(msg)
 
 
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
