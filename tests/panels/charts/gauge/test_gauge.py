@@ -16,10 +16,10 @@ def compile_gauge_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens
     """Compile gauge chart config and return dict for snapshot testing."""
     if chart_type == 'lens':
         lens_chart = LensGaugeChart.model_validate(config)
-        layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_gauge_chart(lens_gauge_chart=lens_chart)
+        _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_gauge_chart(lens_gauge_chart=lens_chart)
     else:  # esql
         esql_chart = ESQLGaugeChart.model_validate(config)
-        layer_id, kbn_columns, kbn_state_visualization = compile_esql_gauge_chart(esql_gauge_chart=esql_chart)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_gauge_chart(esql_gauge_chart=esql_chart)
 
     assert kbn_state_visualization is not None
     assert len(kbn_state_visualization.layers) > 0
