@@ -178,18 +178,23 @@ setup:
 
 setup-coderabbit:
 	@echo "Setting up CodeRabbit CLI..."
-	@if [ -z "$$CODERABBIT_API_KEY" ]; then \
-		echo "Error: CODERABBIT_API_KEY environment variable is not set"; \
-		echo "Please set it with: export CODERABBIT_API_KEY=your_api_key"; \
+	@echo "Installing CodeRabbit CLI..."
+	@if ! curl -fsSL https://cli.coderabbit.ai/install.sh | sh; then \
+		echo "Error: CodeRabbit CLI installation failed"; \
 		exit 1; \
 	fi
-	@echo "Installing CodeRabbit CLI..."
-	curl -fsSL https://cli.coderabbit.ai/install.sh | sh
 	@echo "Authenticating CodeRabbit CLI..."
-	@export PATH="$$HOME/.coderabbit/bin:$$PATH" && \
-		echo "$$CODERABBIT_API_KEY" | coderabbit auth login --token-stdin
+	@echo "Opening browser for authentication..."
+	@echo "Note: This will open a browser window for interactive login"
+	@if ! export PATH="$$HOME/.coderabbit/bin:$$PATH" && coderabbit auth login; then \
+		echo "Error: CodeRabbit CLI authentication failed"; \
+		exit 1; \
+	fi
 	@echo "Verifying installation..."
-	@export PATH="$$HOME/.coderabbit/bin:$$PATH" && coderabbit --version
+	@if ! export PATH="$$HOME/.coderabbit/bin:$$PATH" && coderabbit --version; then \
+		echo "Error: CodeRabbit CLI verification failed"; \
+		exit 1; \
+	fi
 	@echo "CodeRabbit CLI setup complete!"
 	@echo "Note: Add '$$HOME/.coderabbit/bin' to your PATH to use coderabbit from anywhere"
 
