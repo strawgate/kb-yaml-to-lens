@@ -22,7 +22,6 @@ def load(path: str) -> list[Dashboard]:
     load_path = Path(path)
 
     with load_path.open() as file:
-        # yaml.safe_load returns Any, so we ignore the type check
         config = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
     dashboards_data = config.get('dashboards', [])  # pyright: ignore[reportAny]

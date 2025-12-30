@@ -1,3 +1,5 @@
+"""Compile Dashboard filter objects into their Kibana view model representations."""
+
 from collections.abc import Sequence
 
 from dashboard_compiler.filters import (
@@ -207,7 +209,7 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
     )
 
 
-def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: PLR0911
+def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: A002, PLR0911
     """Compile a single filter object into its Kibana view model representation.
 
     Args:

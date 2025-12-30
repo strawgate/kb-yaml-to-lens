@@ -1,3 +1,5 @@
+"""Configuration for a Dashboard."""
+
 from typing import Self
 
 from pydantic import Field, model_validator
@@ -64,7 +66,7 @@ class Dashboard(BaseCfgModel):
     panels: list[PanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
 
-    def add_filter(self, filter: FilterTypes) -> Self:
+    def add_filter(self, filter: FilterTypes) -> Self:  # noqa: A002
         """Add a filter to the dashboard's global filters list.
 
         Args:

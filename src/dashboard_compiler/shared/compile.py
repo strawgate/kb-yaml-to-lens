@@ -1,7 +1,8 @@
-from typing import TypeVar
+"""Utility functions for compiling dashboard components."""
+
+from typing import Any, TypeVar
 
 T = TypeVar('T')
-V = TypeVar('V')
 
 
 def return_unless(var: bool | None, is_none: bool) -> bool:
@@ -36,7 +37,7 @@ def return_if(var: bool | None, is_false: T, is_true: T, default: T) -> T:
     return default if var is None else (is_true if var else is_false)
 
 
-def return_if_equals(var: V | None, equals: V, is_false: T, is_true: T, is_none: T) -> T:
+def return_if_equals(var: Any, equals: Any, is_false: T, is_true: T, is_none: T) -> T:  # pyright: ignore[reportAny]
     """Evaluate var against a value and return a corresponding value.
 
     Args:
