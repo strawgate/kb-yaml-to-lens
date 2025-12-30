@@ -25,7 +25,7 @@ def compile_datatable_chart_snapshot(config: dict[str, Any], chart_type: str = '
     return kbn_state_visualization.model_dump()
 
 
-def test_compile_datatable_chart_basic_lens():
+def test_compile_datatable_chart_basic_lens() -> None:
     """Test the compilation of a basic datatable chart with metrics only (Lens)."""
     config = {
         'type': 'datatable',
@@ -51,7 +51,7 @@ def test_compile_datatable_chart_basic_lens():
     )
 
 
-def test_compile_datatable_chart_with_rows_lens():
+def test_compile_datatable_chart_with_rows_lens() -> None:
     """Test the compilation of a datatable chart with metrics and rows (Lens)."""
     config = {
         'type': 'datatable',
@@ -87,7 +87,7 @@ def test_compile_datatable_chart_with_rows_lens():
     )
 
 
-def test_compile_datatable_chart_with_metric_column_config_lens():
+def test_compile_datatable_chart_with_metric_column_config_lens() -> None:
     """Test the compilation of a datatable chart with custom metric column configurations (Lens)."""
     config = {
         'type': 'datatable',
@@ -130,7 +130,7 @@ def test_compile_datatable_chart_with_metric_column_config_lens():
     )
 
 
-def test_compile_datatable_chart_with_sorting_and_paging_lens():
+def test_compile_datatable_chart_with_sorting_and_paging_lens() -> None:
     """Test the compilation of a datatable chart with sorting and pagination (Lens)."""
     config = {
         'type': 'datatable',
@@ -160,7 +160,7 @@ def test_compile_datatable_chart_with_sorting_and_paging_lens():
     )
 
 
-def test_compile_datatable_chart_with_appearance_lens():
+def test_compile_datatable_chart_with_appearance_lens() -> None:
     """Test the compilation of a datatable chart with appearance settings (Lens)."""
     config = {
         'type': 'datatable',
@@ -194,7 +194,7 @@ def test_compile_datatable_chart_with_appearance_lens():
     )
 
 
-def test_compile_datatable_chart_basic_esql():
+def test_compile_datatable_chart_basic_esql() -> None:
     """Test the compilation of a basic datatable chart with metrics only (ESQL)."""
     config = {
         'type': 'datatable',
@@ -218,7 +218,7 @@ def test_compile_datatable_chart_basic_esql():
     )
 
 
-def test_compile_datatable_chart_with_rows_esql():
+def test_compile_datatable_chart_with_rows_esql() -> None:
     """Test the compilation of a datatable chart with metrics and rows (ESQL)."""
     config = {
         'type': 'datatable',

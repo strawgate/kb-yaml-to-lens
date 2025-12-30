@@ -29,7 +29,9 @@ type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAr
 
 type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart
 
-type ESQLChartTypes = ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLDatatableChart | ESQLTagcloudChart
+type ESQLChartTypes = (
+    ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLDatatableChart | ESQLTagcloudChart
+)
 
 
 class LensPanel(BasePanel):

@@ -75,7 +75,7 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
     raise NotImplementedError(msg)
 
 
-def compile_lens_chart_state(
+def compile_lens_chart_state(  # noqa: PLR0912
     query: LegacyQueryTypes | None,
     filters: list[FilterTypes] | None,
     charts: Sequence[LensChartTypes],

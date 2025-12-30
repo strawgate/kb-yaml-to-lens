@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
 if TYPE_CHECKING:
-    from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn, KbnESQLFieldMetricColumn
+    from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn
 
 from dashboard_compiler.panels.charts.datatable.config import (
     DatatableDensityEnum,
@@ -173,7 +173,7 @@ def compile_esql_datatable_chart(
 
     # Compile metrics
     for metric in esql_datatable_chart.metrics:
-        compiled_metric: KbnESQLFieldMetricColumn = compile_esql_metric(metric)
+        compiled_metric = compile_esql_metric(metric)
         kbn_columns.append(compiled_metric)
         column_order.append(compiled_metric.columnId)
 
