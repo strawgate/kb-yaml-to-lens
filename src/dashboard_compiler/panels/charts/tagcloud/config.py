@@ -41,8 +41,11 @@ class TagcloudAppearance(BaseCfgModel):
     """Toggle for label visibility. Defaults to True."""
 
 
-class ColorMapping(BaseCfgModel):
-    """Color palette configuration."""
+class TagcloudColorPalette(BaseCfgModel):
+    """Color palette configuration for tagcloud charts.
+
+    Note: Tagcloud charts only support palette selection, not custom color assignments.
+    """
 
     palette: str = Field(default='default')
     """The palette to use for the tagcloud colors."""
@@ -56,8 +59,8 @@ class BaseTagcloudChart(BaseChart):
     appearance: TagcloudAppearance | None = Field(default=None)
     """Formatting options for the chart appearance."""
 
-    color: ColorMapping | None = Field(default=None)
-    """Formatting options for the chart color."""
+    color: TagcloudColorPalette | None = Field(default=None)
+    """Formatting options for the chart color palette."""
 
 
 class LensTagcloudChart(BaseTagcloudChart):
