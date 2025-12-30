@@ -5,35 +5,35 @@ import uuid
 from dashboard_compiler.shared.config import random_id_generator, stable_id_generator
 
 
-def test_stable_id_generator_consistency():
+def test_stable_id_generator_consistency() -> None:
     """Verify that the same input produces the same output."""
     id1 = stable_id_generator(['field', 'aggregation'])
     id2 = stable_id_generator(['field', 'aggregation'])
     assert id1 == id2
 
 
-def test_stable_id_generator_different_inputs():
+def test_stable_id_generator_different_inputs() -> None:
     """Verify that different inputs produce different outputs."""
     id1 = stable_id_generator(['field', 'sum'])
     id2 = stable_id_generator(['field', 'count'])
     assert id1 != id2
 
 
-def test_stable_id_generator_order_matters():
+def test_stable_id_generator_order_matters() -> None:
     """Verify that order of inputs affects the output."""
     id1 = stable_id_generator(['a', 'b'])
     id2 = stable_id_generator(['b', 'a'])
     assert id1 != id2
 
 
-def test_stable_id_generator_uuid_format():
+def test_stable_id_generator_uuid_format() -> None:
     """Verify that output is a valid UUID format."""
     result = stable_id_generator(['test'])
     # This will raise ValueError if the result is not a valid UUID
     uuid.UUID(result)
 
 
-def test_stable_id_generator_with_numbers():
+def test_stable_id_generator_with_numbers() -> None:
     """Verify stable ID generation with numeric values."""
     id1 = stable_id_generator(['field', 100])
     id2 = stable_id_generator(['field', 100])
@@ -45,7 +45,7 @@ def test_stable_id_generator_with_numbers():
     uuid.UUID(id1)
 
 
-def test_stable_id_generator_with_floats():
+def test_stable_id_generator_with_floats() -> None:
     """Verify stable ID generation with float values."""
     id1 = stable_id_generator(['field', 95.5])
     id2 = stable_id_generator(['field', 95.5])
@@ -56,7 +56,7 @@ def test_stable_id_generator_with_floats():
     uuid.UUID(id1)
 
 
-def test_stable_id_generator_with_none():
+def test_stable_id_generator_with_none() -> None:
     """Verify stable ID generation with None values."""
     id1 = stable_id_generator(['field', None])
     id2 = stable_id_generator(['field', None])
@@ -67,7 +67,7 @@ def test_stable_id_generator_with_none():
     uuid.UUID(id1)
 
 
-def test_stable_id_generator_mixed_types():
+def test_stable_id_generator_mixed_types() -> None:
     """Verify stable ID generation with mixed types."""
     id1 = stable_id_generator(['field', 'aggregation', 100, 95.5, None])
     id2 = stable_id_generator(['field', 'aggregation', 100, 95.5, None])
@@ -76,7 +76,7 @@ def test_stable_id_generator_mixed_types():
     uuid.UUID(id1)
 
 
-def test_stable_id_generator_empty_list():
+def test_stable_id_generator_empty_list() -> None:
     """Verify stable ID generation with empty list."""
     id1 = stable_id_generator([])
     id2 = stable_id_generator([])
@@ -85,7 +85,7 @@ def test_stable_id_generator_empty_list():
     uuid.UUID(id1)
 
 
-def test_random_id_generator_uniqueness():
+def test_random_id_generator_uniqueness() -> None:
     """Verify that random IDs are unique."""
     # Generate 100 random IDs
     ids = {random_id_generator() for _ in range(100)}
@@ -93,14 +93,14 @@ def test_random_id_generator_uniqueness():
     assert len(ids) == 100
 
 
-def test_random_id_generator_uuid_format():
+def test_random_id_generator_uuid_format() -> None:
     """Verify that random ID generator produces valid UUIDs."""
     result = random_id_generator()
     # This will raise ValueError if the result is not a valid UUID
     uuid.UUID(result)
 
 
-def test_random_id_generator_different_from_stable():
+def test_random_id_generator_different_from_stable() -> None:
     """Verify that random and stable generators produce different results."""
     stable_id = stable_id_generator(['test'])
     random_id = random_id_generator()
