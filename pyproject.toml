@@ -176,10 +176,18 @@ exclude = [
     "**/output/**",
     "**/*.old.py",
 ]
-executionEnvironments = [
-    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false },
-    { root = "src/dashboard_compiler" },
-]
+[[tool.basedpyright.executionEnvironments]]
+root = "tests"
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler"
 
 [tool.coverage.run]
 source = ["src/dashboard_compiler"]
