@@ -96,7 +96,7 @@ dashboards:
 
 | YAML Key | Data Type | Description | Default | Required |
 | --------------- | ------------------------- | -------------------------------- | ------- | -------- |
-| `min_font_size` | `int` (1-100) | Minimum font size for tags. | 18 | No |
+| `min_font_size` | `int` (1-100) | Minimum font size for tags. | 12 | No |
 | `max_font_size` | `int` (1-200) | Maximum font size for tags. | 72 | No |
 | `orientation` | `TagcloudOrientationEnum` | Text orientation configuration. | single | No |
 | `show_label` | `boolean` | Toggle for label visibility. | true | No |
