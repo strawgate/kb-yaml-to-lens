@@ -77,3 +77,6 @@ class ESQLTagcloudChart(BaseTagcloudChart):
 
     metric: ESQLMetricTypes = Field(default=...)
     """The metric for sizing. This determines the size of each tag."""
+
+    esql: str = Field(default=...)
+    """The ES|QL query that determines the data for the tagcloud chart."""

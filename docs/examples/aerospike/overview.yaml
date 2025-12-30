@@ -4,11 +4,7 @@ dashboards:
     name: '[Metrics Aerospike] Overview'
     description: ''
     panels:
-      - grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 2
+      - grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
           links:
@@ -18,27 +14,24 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - grid:
-          x: 0
-          y: 2
-          w: 10
-          h: 3
-        lens:
+      - type: charts
+        grid: {x: 0, y: 2, w: 10, h: 3}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: metric
           data_view: metrics-*
           primary:
             aggregation: unique_count
             field: aerospike.node.name
             label: Aerospike Nodes
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 10
-          y: 2
-          w: 38
-          h: 9
-        lens:
+      - type: charts
+        grid: {x: 10, y: 2, w: 38, h: 9}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -50,7 +43,7 @@ dashboards:
               label: Top 15 values of aerospike.node.name
               size: 15
               sort:
-                by: Free Memory
+                by: Free Memory  # Assuming alphabetical sort maps to _key
                 direction: asc
               other_bucket: true
               missing_bucket: false
@@ -58,30 +51,26 @@ dashboards:
             - aggregation: min
               label: Free Memory
               field: aerospike.node.memory.free
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 5
-          w: 10
-          h: 3
-        lens:
+              # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
+      - type: charts
+        grid: {x: 0, y: 5, w: 10, h: 3}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: metric
           data_view: metrics-*
           primary:
             aggregation: unique_count
             field: aerospike.namespace
             label: Unique Namespaces
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 11
-          w: 48
-          h: 9
-        lens:
+      - type: charts
+        grid: {x: 0, y: 11, w: 48, h: 9}
+        filters:
+          - exists: aerospike.node.connection.open
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -100,7 +89,3 @@ dashboards:
             - aggregation: max
               field: aerospike.node.connection.open
               label: Open Connections
-          filters:
-            - exists: aerospike.node.connection.open
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel

@@ -71,16 +71,14 @@ suite('Extension Test Suite', () => {
         // Construct path to fixture relative to this file
         // The fixture is in src/test/fixtures/test.yaml
         // compiled test file is in out/test/suite/extension.test.js
-        // so we need ../../../src/test/fixtures/test.yaml
+        // so we need ../../../src/test/fixtures/test.yaml relative to __dirname (out/test/suite)
 
         const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
 
         if (!fs.existsSync(fixturePath)) {
-             // Fallback for CI if source is not available or structured differently
+            // Check potential fallback location
              const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
-             if (fs.existsSync(fallbackPath)) {
-                 // Use fallback
-             } else {
+             if (!fs.existsSync(fallbackPath)) {
                 assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
              }
         }

@@ -37,13 +37,13 @@ dashboards:
 -
   name: "Log Analysis"
   panels:
-    - title: "Top Error Messages"
+    - type: charts
+      title: "Top Error Messages"
       grid: { x: 0, y: 0, w: 48, h: 6 }
-      lens:
+      chart:
         type: tagcloud
         data_view: "logs-*"
         tags:
-          type: values
           field: "error.message"
         metric:
           aggregation: count
@@ -56,15 +56,16 @@ dashboards:
 -
   name: "Log Analysis"
   panels:
-    - title: "Top Error Messages"
+    - type: charts
+      title: "Top Error Messages"
       grid: { x: 0, y: 0, w: 48, h: 6 }
-      esql:
+      esql: "FROM logs-* | STATS count(*) BY error.message"
+      chart:
         type: tagcloud
-        query: "FROM logs-* | STATS error_count = count(*) BY error.message"
         tags:
           field: "error.message"
         metric:
-          field: "error_count"
+          field: "count(*)"
 ```
 
 ## Full Configuration Options
@@ -121,14 +122,14 @@ dashboards:
 -
   name: "Advanced Tag Cloud"
   panels:
-    - title: "Service Labels"
+    - type: charts
+      title: "Kubernetes Pod Labels"
       grid: { x: 0, y: 0, w: 48, h: 8 }
-      lens:
+      chart:
         type: tagcloud
-        data_view: "logs-*"
+        data_view: "k8s-*"
         tags:
-          type: values
-          field: "service.name"
+          field: "kubernetes.labels.app"
         metric:
           aggregation: count
         appearance:

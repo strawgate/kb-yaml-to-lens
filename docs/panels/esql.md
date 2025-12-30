@@ -40,13 +40,14 @@ Your visualizations open every door!
 dashboards:
   - name: "ESQL Metrics Dashboard"
     panels:
-      - title: "Total Processed Events"
+      - type: charts
+        title: "Total Processed Events"
         grid: { x: 0, y: 0, w: 16, h: 3 }
-        esql:
+        esql: |
+          FROM my_event_stream
+          | STATS total_events = COUNT(event_id)
+        chart:
           type: metric # Specifies an ESQLMetricChart
-          query: |
-            FROM logs-*
-            | STATS total_events = COUNT(*)
           primary:
             field: "total_events"
             # Label can be inferred from field if not provided
@@ -58,19 +59,20 @@ dashboards:
 dashboards:
   - name: "ESQL Event Analysis"
     panels:
-      - title: "Events by Type (ESQL)"
+      - type: charts
+        title: "Events by Type (ESQL)"
         grid: { x: 16, y: 0, w: 32, h: 3 }
-        esql:
+        esql: |
+          FROM my_event_stream
+          | STATS event_count = COUNT(event_id) BY event_type
+          | ORDER event_count DESC
+          | LIMIT 5
+        chart:
           type: pie # Specifies an ESQLPieChart
-          query: |
-            FROM logs-*
-            | STATS event_count = COUNT(*) BY event.category
-            | ORDER event_count DESC
-            | LIMIT 5
           metric:
             field: "event_count"
           slice_by:
-            - field: "event.category"
+            - field: "event_type"
 ```
 
 ## Full Configuration Options

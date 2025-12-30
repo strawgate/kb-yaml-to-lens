@@ -12,11 +12,7 @@ dashboards:
         field: aerospike.node.name
         match_technique: contains
     panels:
-      - grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 2
+      - grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
           links:
@@ -26,49 +22,40 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - grid:
-          x: 0
-          y: 2
-          w: 48
-          h: 2
+      - grid: {x: 0, y: 2, w: 48, h: 2}
         markdown:
-          content: "This dashboard is intended to be used with a single Aerospike node. Filter to a specific node before using this dashboard.\n"
-      - grid:
-          x: 0
-          y: 4
-          w: 7
-          h: 5
-        lens:
+          content: |
+            This dashboard is intended to be used with a single Aerospike node. Filter to a specific node before using this dashboard.
+      - type: charts
+        grid: {x: 0, y: 4, w: 7, h: 5}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: metric
           data_view: metrics-*
           primary:
             aggregation: unique_count
             field: aerospike.node.name
             label: Selected Nodes
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 9
-          w: 10
-          h: 5
-        lens:
+      - type: charts
+        grid: {x: 0, y: 9, w: 10, h: 5}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: metric
           data_view: metrics-*
           primary:
             aggregation: unique_count
             field: aerospike.namespace
             label: Aerospike Namespaces
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 10
-          y: 4
-          w: 38
-          h: 9
-        lens:
+      - type: charts
+        grid: {x: 10, y: 4, w: 38, h: 9}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -88,15 +75,12 @@ dashboards:
             - aggregation: min
               label: Free Memory
               field: aerospike.node.memory.free
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 10
-          y: 13
-          w: 17
-          h: 14
-        lens:
+      - type: charts
+        grid: {x: 10, y: 13, w: 17, h: 14}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -116,15 +100,13 @@ dashboards:
             - aggregation: min
               label: Used Memory
               field: aerospike.node.memory.used
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 27
-          y: 13
-          w: 21
-          h: 14
-        lens:
+      - type: charts
+        grid: {x: 27, y: 13, w: 21, h: 14}
+        filters:
+          - exists: aerospike.node.connection.open
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -144,7 +126,3 @@ dashboards:
             - aggregation: max
               field: aerospike.node.connection.open
               label: Open Connections
-          filters:
-            - exists: aerospike.node.connection.open
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel

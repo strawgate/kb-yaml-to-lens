@@ -7,12 +7,11 @@ import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.charts.config import ESQLTagcloudPanelConfig
 from dashboard_compiler.panels.charts.tagcloud.compile import (
     compile_esql_tagcloud_chart,
     compile_lens_tagcloud_chart,
 )
-from dashboard_compiler.panels.charts.tagcloud.config import LensTagcloudChart
+from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 
 # Type alias for the fixture return type
 CompileTagcloudSnapshot = Callable[[dict[str, Any], str], dict[str, Any]]
@@ -27,7 +26,7 @@ def compile_tagcloud_chart_snapshot() -> CompileTagcloudSnapshot:
             lens_chart = LensTagcloudChart.model_validate(config)
             _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
         else:  # esql
-            esql_chart = ESQLTagcloudPanelConfig.model_validate(config)
+            esql_chart = ESQLTagcloudChart.model_validate(config)
             _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
 
         assert kbn_state_visualization is not None
@@ -72,7 +71,7 @@ def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot: CompileTagcl
     """Test the compilation of a basic tagcloud chart (ESQL)."""
     config = {
         'type': 'tagcloud',
-        'query': 'FROM logs-* | STATS count(*) by tags',
+        'esql': 'FROM logs-* | STATS count(*) by tags',
         'tags': {
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
@@ -142,7 +141,7 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: Co
     """Test the compilation of a tagcloud chart with custom appearance settings (ESQL)."""
     config = {
         'type': 'tagcloud',
-        'query': 'FROM logs-* | STATS count(*) by tags',
+        'esql': 'FROM logs-* | STATS count(*) by tags',
         'tags': {
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
@@ -251,7 +250,7 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: Compile
     """Test tagcloud with labels hidden (ESQL)."""
     config = {
         'type': 'tagcloud',
-        'query': 'FROM logs-* | STATS total = SUM(bytes) BY host.name',
+        'esql': 'FROM logs-* | STATS total = SUM(bytes) BY host.name',
         'tags': {
             'field': 'host.name',
             'id': 'host-dimension',
@@ -325,7 +324,7 @@ def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: Compile
     for orientation_value, expected_orientation in configs:
         config = {
             'type': 'tagcloud',
-            'query': 'FROM logs-* | STATS count(*) BY service.name',
+            'esql': 'FROM logs-* | STATS count(*) BY service.name',
             'tags': {
                 'field': 'service.name',
                 'id': 'service-tag',

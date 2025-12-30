@@ -36,9 +36,10 @@ Every slice helps reach your goal!
 dashboards:
   - name: "Traffic Sources"
     panels:
-      - title: "Website Traffic Sources"
+      - type: charts
+        title: "Website Traffic Sources"
         grid: { x: 0, y: 0, w: 24, h: 6 }
-        lens:
+        chart:
           type: pie
           data_view: "traffic-data"
           slice_by:
@@ -55,9 +56,10 @@ dashboards:
 dashboards:
   - name: "HTTP Status Codes"
     panels:
-      - title: "Response Status Distribution"
+      - type: charts
+        title: "Response Status Distribution"
         grid: { x: 0, y: 0, w: 6, h: 6 }
-        lens:
+        chart:
           type: pie
           data_view: "logs-*"
           slice_by:
@@ -134,27 +136,26 @@ dashboards:
 You can create Pie chart panels programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.charts.config import (
-    LensPanel,
-    LensPiePanelConfig,
-)
+from dashboard_compiler.panels.charts.config import LensPanel
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensTopValuesDimension,
 )
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
+from dashboard_compiler.panels.charts.pie.config import LensPieChart
 from dashboard_compiler.panels.config import Grid
+
+pie_chart = LensPieChart(
+    data_view='logs-*',
+    slice_by=[LensTopValuesDimension(type='values', field='status')],
+    metric=LensCountAggregatedMetric(aggregation='count'),
+)
 
 panel = LensPanel(
     title='Status Distribution',
     grid=Grid(x=0, y=0, w=24, h=15),
-    lens=LensPiePanelConfig(
-        type='pie',
-        data_view='logs-*',
-        slice_by=[LensTopValuesDimension(type='values', field='status')],
-        metric=LensCountAggregatedMetric(aggregation='count'),
-    ),
+    chart=pie_chart,
 )
 ```
 

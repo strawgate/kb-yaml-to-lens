@@ -4,91 +4,96 @@ dashboards:
     name: '[Example] Advanced Filtering Techniques'
     description: Demonstrates various panel-level filter types and combinations
     panels:
+      # Introduction
       - title: Filter Types Reference
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 6
+        grid: {x: 0, y: 0, w: 48, h: 6}
         markdown:
-          content: "# Advanced Filtering Techniques\nThis dashboard demonstrates various filter types available for panels:\n\n## Filter Types\n\
-            1. **Equals Filter** - Exact field value match\n2. **Exists Filter** - Field existence check\n3. **Comparison Filters** - Greater\
-            \ than/less than (gte, gt, lte, lt)\n4. **Not Filter** - Negation of other filters\n5. **Combined Filters** - Multiple filters on\
-            \ same panel\nEach panel below demonstrates a different filtering pattern.\n"
+          content: |
+            # Advanced Filtering Techniques
+            This dashboard demonstrates various filter types available for panels:
+
+            ## Filter Types
+            1. **Equals Filter** - Exact field value match
+            2. **Exists Filter** - Field existence check
+            3. **Comparison Filters** - Greater than/less than (gte, gt, lte, lt)
+            4. **Not Filter** - Negation of other filters
+            5. **Combined Filters** - Multiple filters on same panel
+            Each panel below demonstrates a different filtering pattern.
           font_size: 12
-      - title: Error Logs Only
+
+      # Example 1: Equals Filter
+      - type: charts
+        title: Error Logs Only
         description: "Using equals filter: log.level = 'error'"
-        grid:
-          x: 0
-          y: 6
-          w: 12
-          h: 8
-        lens:
+        grid: {x: 0, y: 6, w: 12, h: 8}
+        filters:
+          - field: log.level
+            equals: error
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Error Count
-          filters:
-            - field: log.level
-              equals: error
-      - title: HTTP Requests Only
+
+      # Example 2: Exists Filter
+      - type: charts
+        title: HTTP Requests Only
         description: 'Using exists filter: http.response.status_code exists'
-        grid:
-          x: 12
-          y: 6
-          w: 12
-          h: 8
-        lens:
+        grid: {x: 12, y: 6, w: 12, h: 8}
+        filters:
+          - exists: http.response.status_code
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: HTTP Events
-          filters:
-            - exists: http.response.status_code
-      - title: Slow Requests (≥500ms)
+
+      # Example 3: Greater Than or Equal Filter
+      - type: charts
+        title: Slow Requests (≥500ms)
         description: 'Using gte filter: http.response.time >= 500'
-        grid:
-          x: 24
-          y: 6
-          w: 12
-          h: 8
-        lens:
+        grid: {x: 24, y: 6, w: 12, h: 8}
+        filters:
+          - field: http.response.time
+            gte: '500'
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Slow Requests
-          filters:
-            - field: http.response.time
-              gte: '500'
-      - title: Non-Success HTTP Codes
+
+      # Example 4: Not Filter (Negation)
+      - type: charts
+        title: Non-Success HTTP Codes
         description: 'Using not filter: NOT (http.response.status_code = 200)'
-        grid:
-          x: 36
-          y: 6
-          w: 12
-          h: 8
-        lens:
+        grid: {x: 36, y: 6, w: 12, h: 8}
+        filters:
+          - exists: http.response.status_code
+          - not:
+              field: http.response.status_code
+              equals: '200'
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Non-200 Responses
-          filters:
-            - exists: http.response.status_code
-            - not:
-                field: http.response.status_code
-                equals: '200'
-      - title: Critical Production Errors
+
+      # Example 5: Combined Filters (AND logic)
+      - type: charts
+        title: Critical Production Errors
         description: "Multiple filters: level='error' AND environment='production'"
-        grid:
-          x: 0
-          y: 14
-          w: 24
-          h: 10
-        lens:
+        grid: {x: 0, y: 14, w: 24, h: 10}
+        filters:
+          - field: log.level
+            equals: error
+          - field: environment
+            equals: production
+          - exists: error.message
+        chart:
           type: line
           data_view: logs-*
           dimensions:
@@ -98,20 +103,18 @@ dashboards:
           metrics:
             - aggregation: count
               label: Production Errors
-          filters:
-            - field: log.level
-              equals: error
-            - field: environment
-              equals: production
-            - exists: error.message
-      - title: 4xx HTTP Status Codes
+
+      # Example 6: Range Filters
+      - type: charts
+        title: 4xx HTTP Status Codes
         description: 'Range filter: 400 <= status_code < 500'
-        grid:
-          x: 24
-          y: 14
-          w: 24
-          h: 10
-        lens:
+        grid: {x: 24, y: 14, w: 24, h: 10}
+        filters:
+          - field: http.response.status_code
+            gte: '400'
+          - field: http.response.status_code
+            lt: '500'
+        chart:
           type: bar
           mode: stacked
           data_view: logs-*
@@ -125,19 +128,21 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
-          filters:
-            - field: http.response.status_code
-              gte: '400'
-            - field: http.response.status_code
-              lt: '500'
-      - title: Non-Health-Check Requests
+
+      # Example 7: Excluding specific values
+      - type: charts
+        title: Non-Health-Check Requests
         description: Excluding health check endpoints
-        grid:
-          x: 0
-          y: 24
-          w: 24
-          h: 12
-        lens:
+        grid: {x: 0, y: 24, w: 24, h: 12}
+        filters:
+          - exists: url.path
+          - not:
+              field: url.path
+              equals: /health
+          - not:
+              field: url.path
+              equals: /ping
+        chart:
           type: area
           mode: stacked
           data_view: logs-*
@@ -149,22 +154,16 @@ dashboards:
           breakdown:
             type: values
             field: http.request.method
-          filters:
-            - exists: url.path
-            - not:
-                field: url.path
-                equals: /health
-            - not:
-                field: url.path
-                equals: /ping
-      - title: Application Logs Only
+
+      # Example 8: Filtering by data stream
+      - type: charts
+        title: Application Logs Only
         description: Filter by data stream dataset
-        grid:
-          x: 24
-          y: 24
-          w: 24
-          h: 12
-        lens:
+        grid: {x: 24, y: 24, w: 24, h: 12}
+        filters:
+          - field: data_stream.dataset
+            equals: application.logs
+        chart:
           type: line
           data_view: logs-*
           dimensions:
@@ -180,6 +179,3 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
-          filters:
-            - field: data_stream.dataset
-              equals: application.logs

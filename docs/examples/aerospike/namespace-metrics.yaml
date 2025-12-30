@@ -17,11 +17,7 @@ dashboards:
         field: aerospike.namespace
         match_technique: prefix
     panels:
-      - grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 2
+      - grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
           links:
@@ -31,42 +27,38 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - grid:
-          x: 0
-          y: 2
-          w: 48
-          h: 2
+      - grid: {x: 0, y: 2, w: 48, h: 2}
         markdown:
-          content: "This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.\nFilter to a specific\
-            \ node and namespace before using this dashboard.\n"
-      - grid:
-          x: 0
-          y: 4
-          w: 9
-          h: 4
-        lens:
+          content: |
+            This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.
+            Filter to a specific node and namespace before using this dashboard.
+      - type: charts
+        grid: {x: 0, y: 4, w: 9, h: 4}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: metric
           data_view: metrics-*
           primary:
             aggregation: unique_count
             field: aerospike.namespace
             label: Selected Namespaces
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 8
-          w: 48
-          h: 3
+      - grid: {x: 0, y: 8, w: 48, h: 3}
         markdown:
-          content: "## Query Information\n"
-      - grid:
-          x: 0
-          y: 11
-          w: 24
-          h: 12
-        lens:
+          content: |
+            ## Query Information
+      - type: charts
+        grid: {x: 0, y: 11, w: 24, h: 12}
+        filters:
+          - field: attributes.index
+            equals: primary
+          - not:
+              field: aerospike.namespace.query.count
+              equals: '0'
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -86,20 +78,16 @@ dashboards:
             - aggregation: max
               label: Queries per Second
               field: metrics.aerospike.namespace.query.count
-          filters:
-            - field: attributes.index
-              equals: primary
-            - not:
-                field: aerospike.namespace.query.count
-                equals: '0'
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 24
-          y: 11
-          w: 24
-          h: 12
-        lens:
+      - type: charts
+        grid: {x: 24, y: 11, w: 24, h: 12}
+        filters:
+          - field: metrics.aerospike.namespace.query.count
+            gte: '1'
+          - field: attributes.index
+            equals: secondary
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -111,7 +99,7 @@ dashboards:
               label: Top values of attributes.type + 1 other
               size: 50
               sort:
-                by: Queries per Second
+                by: Queries per Second  # Assuming alphabetical sort maps to _key
                 direction: desc
               other_bucket: false
               missing_bucket: true
@@ -119,26 +107,18 @@ dashboards:
             - aggregation: min
               label: Queries per Second
               field: aerospike.namespace.query.count
-          filters:
-            - field: metrics.aerospike.namespace.query.count
-              gte: '1'
-            - field: attributes.index
-              equals: secondary
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 23
-          w: 48
-          h: 3
+      - grid: {x: 0, y: 23, w: 48, h: 3}
         markdown:
-          content: "## Transaction Information\n"
-      - grid:
-          x: 0
-          y: 26
-          w: 48
-          h: 10
-        lens:
+          content: |
+            ## Transaction Information
+      - type: charts
+        grid: {x: 0, y: 26, w: 48, h: 10}
+        filters:
+          - field: aerospike.namespace.transaction.count
+            gte: '1'
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -150,16 +130,13 @@ dashboards:
               label: Top values of attributes.type + 1 other
               size: 50
               sort:
-                by: Transactions per Second
+                by: Transactions per Second  # Assuming alphabetical sort maps to _key
                 direction: desc
               other_bucket: false
               missing_bucket: true
+          # secondaryFields: ["attributes.result"] # Not directly supported in YAML schema
           metrics:
             - aggregation: min
               label: Transactions per Second
               field: metrics.aerospike.namespace.transaction.count
-          filters:
-            - field: aerospike.namespace.transaction.count
-              gte: '1'
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
+              # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema

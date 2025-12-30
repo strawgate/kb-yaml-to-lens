@@ -5,10 +5,10 @@ dashboards:
   - name: Color Palette Examples
     panels:
       # Example 1: Categorical colors with custom palette
-      -
+      - type: charts
         title: HTTP Status Codes (Custom Colors)
         grid: {x: 0, y: 0, w: 12, h: 8}
-        lens:
+        chart:
           type: pie
           data_view: logs-*
           slice_by:
@@ -30,10 +30,10 @@ dashboards:
                 color: '#BD271E'  # Red for server errors
 
       # Example 2: Line chart with service-specific colors
-      -
+      - type: charts
         title: Response Time by Service
         grid: {x: 12, y: 0, w: 12, h: 8}
-        lens:
+        chart:
           type: line
           data_view: metrics-*
           dimensions:
@@ -58,10 +58,10 @@ dashboards:
                 color: '#9170B8'  # Purple
 
       # Example 3: Bar chart with status colors
-      -
+      - type: charts
         title: Deployment Status by Environment
         grid: {x: 24, y: 0, w: 24, h: 8}
-        lens:
+        chart:
           type: bar
           mode: stacked
           data_view: deployments-*
@@ -86,10 +86,10 @@ dashboards:
                 color: '#98A2B3'  # Gray
 
       # Example 4: Area chart with elastic brand palette
-      -
+      - type: charts
         title: Network Traffic (Elastic Brand Colors)
         grid: {x: 0, y: 8, w: 12, h: 8}
-        lens:
+        chart:
           type: area
           mode: stacked
           data_view: network-*
@@ -106,10 +106,10 @@ dashboards:
             palette: elastic_brand
 
       # Example 5: Pie chart with grayscale palette
-      -
+      - type: charts
         title: Document Types (Grayscale)
         grid: {x: 12, y: 8, w: 12, h: 8}
-        lens:
+        chart:
           type: pie
           data_view: documents-*
           slice_by:
@@ -121,10 +121,10 @@ dashboards:
             palette: gray
 
       # Example 6: Multi-value assignment example
-      -
+      - type: charts
         title: Log Levels (Grouped Colors)
         grid: {x: 24, y: 8, w: 12, h: 8}
-        lens:
+        chart:
           type: pie
           data_view: logs-*
           slice_by:
@@ -151,10 +151,10 @@ dashboards:
                 color: '#BD271E'  # Red for errors
 
       # Example 7: Legacy Kibana palette
-      -
+      - type: charts
         title: User Activity by Browser (Legacy Colors)
         grid: {x: 36, y: 8, w: 12, h: 8}
-        lens:
+        chart:
           type: bar
           data_view: web-analytics-*
           dimensions:
@@ -166,10 +166,10 @@ dashboards:
             palette: kibana_palette
 
       # Example 8: XY chart with custom breakdown colors
-      -
+      - type: charts
         title: Request Count by Method
         grid: {x: 0, y: 16, w: 12, h: 8}
-        lens:
+        chart:
           type: line
           data_view: api-logs-*
           dimensions:

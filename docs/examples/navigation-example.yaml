@@ -4,13 +4,10 @@ dashboards:
     name: '[Example] Navigation - Overview Dashboard'
     description: Demonstrates navigation patterns with links panel and basic metric charts
     panels:
+      # Navigation Links Panel - Standard pattern at top
       - title: Dashboard Navigation
         description: Navigate between related dashboards
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 2
+        grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
           links:
@@ -20,84 +17,77 @@ dashboards:
               dashboard: nav-details-001
             - label: Analytics
               dashboard: nav-analytics-001
+
+      # Informational Markdown Panel
       - title: Overview Dashboard Guide
         hide_title: false
-        grid:
-          x: 0
-          y: 2
-          w: 48
-          h: 3
+        grid: {x: 0, y: 2, w: 48, h: 3}
         markdown:
-          content: "# Overview Dashboard\nThis dashboard provides high-level metrics across your log data. Use the navigation links above to\n\
-            drill into more detailed views.\n**Key Metrics:**\n- Total log volume\n- Unique hosts reporting\n- Log level distribution\n"
+          content: |
+            # Overview Dashboard
+            This dashboard provides high-level metrics across your log data. Use the navigation links above to
+            drill into more detailed views.
+            **Key Metrics:**
+            - Total log volume
+            - Unique hosts reporting
+            - Log level distribution
           font_size: 12
-      - title: Total Events
+
+      # KPI Metric Cards
+      - type: charts
+        title: Total Events
         description: Total log events in the selected time range
-        grid:
-          x: 0
-          y: 5
-          w: 12
-          h: 6
-        lens:
+        grid: {x: 0, y: 5, w: 12, h: 6}
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Events
-      - title: Unique Hosts
+      - type: charts
+        title: Unique Hosts
         description: Number of unique hosts reporting
-        grid:
-          x: 12
-          y: 5
-          w: 12
-          h: 6
-        lens:
+        grid: {x: 12, y: 5, w: 12, h: 6}
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: unique_count
             field: host.name
             label: Hosts
-      - title: Error Rate
+      - type: charts
+        title: Error Rate
         description: Percentage of error-level logs
-        grid:
-          x: 24
-          y: 5
-          w: 12
-          h: 6
-        lens:
+        grid: {x: 24, y: 5, w: 12, h: 6}
+        filters:
+          - field: log.level
+            equals: error
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Errors
-          filters:
-            - field: log.level
-              equals: error
-      - title: Warning Rate
+      - type: charts
+        title: Warning Rate
         description: Percentage of warning-level logs
-        grid:
-          x: 36
-          y: 5
-          w: 12
-          h: 6
-        lens:
+        grid: {x: 36, y: 5, w: 12, h: 6}
+        filters:
+          - field: log.level
+            equals: warning
+        chart:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
             label: Warnings
-          filters:
-            - field: log.level
-              equals: warning
-      - title: Event Trends Over Time
+
+      # Main Trend Chart
+      - type: charts
+        title: Event Trends Over Time
         description: Time series view of log events
-        grid:
-          x: 0
-          y: 11
-          w: 48
-          h: 12
-        lens:
+        grid: {x: 0, y: 11, w: 48, h: 12}
+        chart:
           type: line
           data_view: logs-*
           dimensions:
@@ -115,12 +105,9 @@ dashboards:
     name: '[Example] Navigation - Details Dashboard'
     description: Detailed view with host-level breakdowns
     panels:
+      # Consistent Navigation
       - title: Dashboard Navigation
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 2
+        grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
           links:
@@ -130,14 +117,13 @@ dashboards:
               dashboard: nav-details-001
             - label: Analytics
               dashboard: nav-analytics-001
-      - title: Events by Host
+
+      # Host Breakdown Bar Chart
+      - type: charts
+        title: Events by Host
         description: Top hosts by event count
-        grid:
-          x: 0
-          y: 2
-          w: 24
-          h: 15
-        lens:
+        grid: {x: 0, y: 2, w: 24, h: 15}
+        chart:
           type: bar
           mode: stacked
           data_view: logs-*
@@ -151,14 +137,13 @@ dashboards:
           metrics:
             - aggregation: count
               label: Event Count
-      - title: Log Level Distribution
+
+      # Log Level Distribution
+      - type: charts
+        title: Log Level Distribution
         description: Distribution of log severity levels
-        grid:
-          x: 24
-          y: 2
-          w: 24
-          h: 15
-        lens:
+        grid: {x: 24, y: 2, w: 24, h: 15}
+        chart:
           type: pie
           data_view: logs-*
           slice_by:
@@ -171,12 +156,9 @@ dashboards:
     name: '[Example] Navigation - Analytics Dashboard'
     description: Advanced analytics with multiple visualizations
     panels:
+      # Consistent Navigation
       - title: Dashboard Navigation
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 2
+        grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
           links:
@@ -186,14 +168,13 @@ dashboards:
               dashboard: nav-details-001
             - label: Analytics
               dashboard: nav-analytics-001
-      - title: Cumulative Event Volume
+
+      # Cumulative Trends
+      - type: charts
+        title: Cumulative Event Volume
         description: Stacked area chart showing cumulative trends
-        grid:
-          x: 0
-          y: 2
-          w: 24
-          h: 15
-        lens:
+        grid: {x: 0, y: 2, w: 24, h: 15}
+        chart:
           type: area
           mode: stacked
           data_view: logs-*
@@ -205,14 +186,13 @@ dashboards:
           breakdown:
             type: values
             field: log.level
-      - title: Common Tags
+
+      # Tag Cloud
+      - type: charts
+        title: Common Tags
         description: Most frequent tags in log data
-        grid:
-          x: 24
-          y: 2
-          w: 24
-          h: 15
-        lens:
+        grid: {x: 24, y: 2, w: 24, h: 15}
+        chart:
           type: tagcloud
           data_view: logs-*
           tags:

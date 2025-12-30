@@ -1,5 +1,5 @@
 """Charts panel configuration."""
 
-from .config import ESQLPanel, LensPanel
+from .config import ESQLPanel, LensMultiLayerPanel, LensPanel
 
-__all__ = ['ESQLPanel', 'LensPanel']
+__all__ = ['ESQLPanel', 'LensMultiLayerPanel', 'LensPanel']
