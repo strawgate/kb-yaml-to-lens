@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.config import BaseChart
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
@@ -51,6 +51,9 @@ class PieLegend(BaseCfgModel):
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
     """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
 
+    nested: bool | None = Field(default=None)
+    """Whether to show legend in nested format for multi-level pie charts. Kibana defaults to False if not specified."""
+
 
 class PieSliceValuesEnum(StrEnum):
     """Represents the possible values for slice values in a pie chart."""
@@ -85,7 +88,7 @@ class PieTitlesAndText(BaseCfgModel):
     """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
 
     slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the display of slice values in the pie chart. Kibana defaults to 'percentage' if not specified."""
+    """Controls the display of slice values in the pie chart. Kibana defaults to PERCENT if not specified."""
 
     value_decimal_places: int | None = Field(default=None, ge=0, le=10)
     """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
@@ -96,13 +99,6 @@ class PieChartAppearance(BaseCfgModel):
 
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
-
-
-class ColorMapping(BaseCfgModel):
-    """Formatting options for the chart color."""
-
-    palette: str = Field(...)
-    """The palette to use for the chart color."""
 
 
 class BasePieChart(BaseChart):

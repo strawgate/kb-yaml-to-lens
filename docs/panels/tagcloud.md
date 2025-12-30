@@ -2,6 +2,34 @@
 
 The Tag Cloud chart panel visualizes term frequency as a word cloud, where the size of each tag is proportional to its metric value. This is useful for showing the most common or significant terms in your data.
 
+## A Poem for the Cloud Watchers
+
+_For those who see meaning in the drift of words:_
+
+```text
+Up above the dashboard sky,
+Word clouds float and drift on by.
+Tags in sizes large and small—
+The bigger the word, the more you've got of all.
+
+From eighteen points to seventy-two,
+Font sizes speak the gospel true.
+Horizontal, vertical, angles wide,
+Orientations far and wide!
+
+Error messages like cumulus forms,
+User agents weathering storms,
+Kubernetes labels floating free,
+Pod names adrift across the sea.
+
+"single", "right angled", "multiple" ways
+To orient your word displays.
+So here's to those who like to see
+Their data as vocabulary!
+```
+
+---
+
 ## Minimal Configuration Example (Lens)
 
 ```yaml
@@ -11,7 +39,7 @@ dashboards:
   panels:
     - type: charts
       title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
+      grid: { x: 0, y: 0, w: 48, h: 6 }
       chart:
         type: tagcloud
         data_view: "logs-*"
@@ -30,7 +58,7 @@ dashboards:
   panels:
     - type: charts
       title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
+      grid: { x: 0, y: 0, w: 48, h: 6 }
       esql: "FROM logs-* | STATS count(*) BY error.message"
       chart:
         type: tagcloud
@@ -68,7 +96,7 @@ dashboards:
 
 | YAML Key | Data Type | Description | Default | Required |
 | --------------- | ------------------------- | -------------------------------- | ------- | -------- |
-| `min_font_size` | `int` (1-100) | Minimum font size for tags. | 18 | No |
+| `min_font_size` | `int` (1-100) | Minimum font size for tags. | 12 | No |
 | `max_font_size` | `int` (1-200) | Maximum font size for tags. | 72 | No |
 | `orientation` | `TagcloudOrientationEnum` | Text orientation configuration. | single | No |
 | `show_label` | `boolean` | Toggle for label visibility. | true | No |
@@ -96,7 +124,7 @@ dashboards:
   panels:
     - type: charts
       title: "Kubernetes Pod Labels"
-      grid: { x: 0, y: 0, w: 12, h: 8 }
+      grid: { x: 0, y: 0, w: 48, h: 8 }
       chart:
         type: tagcloud
         data_view: "k8s-*"
@@ -115,8 +143,7 @@ dashboards:
 
 ## Related
 
-- [Base Chart Configuration](../base/config.md)
-- [Lens Dimensions](../lens/dimensions/config.md)
-- [Lens Metrics](../lens/metrics/config.md)
-- [ES|QL Dimensions](../esql/columns/config.md)
-- [Dashboard Configuration](../../../dashboard/config.md)
+- [Base Panel Configuration](base.md)
+- [Lens Panel Configuration](lens.md) (see sections on Dimensions and Metrics)
+- [ESQL Panel Configuration](esql.md) (see section on ESQL Columns)
+- [Dashboard Configuration](../dashboard/dashboard.md)

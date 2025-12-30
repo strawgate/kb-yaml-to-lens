@@ -16,10 +16,10 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
     """Compile metric chart config and return dict for snapshot testing."""
     if chart_type == 'lens':
         lens_chart = LensMetricChart.model_validate(config)
-        layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+        _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
     else:  # esql
         esql_chart = ESQLMetricChart.model_validate(config)
-        layer_id, kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
 
     assert kbn_state_visualization is not None
     assert len(kbn_state_visualization.layers) > 0
@@ -27,7 +27,7 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
     return kbn_state_visualization_layer.model_dump()
 
 
-def test_compile_metric_chart_primary_only_lens():
+def test_compile_metric_chart_primary_only_lens() -> None:
     """Test the compilation of a metric chart with only a primary metric (Lens)."""
     config = {
         'type': 'metric',
@@ -46,12 +46,18 @@ def test_compile_metric_chart_primary_only_lens():
         {
             'layerId': IsUUID,
             'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
         }
     )
 
 
-def test_compile_metric_chart_primary_only_esql():
+def test_compile_metric_chart_primary_only_esql() -> None:
     """Test the compilation of a metric chart with only a primary metric (ESQL)."""
     config = {
         'type': 'metric',
@@ -68,12 +74,18 @@ def test_compile_metric_chart_primary_only_esql():
         {
             'layerId': IsUUID,
             'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
         }
     )
 
 
-def test_compile_metric_chart_primary_and_secondary_lens():
+def test_compile_metric_chart_primary_and_secondary_lens() -> None:
     """Test the compilation of a metric chart with primary and secondary metrics (Lens)."""
     config = {
         'type': 'metric',
@@ -97,13 +109,19 @@ def test_compile_metric_chart_primary_and_secondary_lens():
         {
             'layerId': IsUUID,
             'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
         }
     )
 
 
-def test_compile_metric_chart_primary_and_secondary_esql():
+def test_compile_metric_chart_primary_and_secondary_esql() -> None:
     """Test the compilation of a metric chart with primary and secondary metrics (ESQL)."""
     config = {
         'type': 'metric',
@@ -124,13 +142,19 @@ def test_compile_metric_chart_primary_and_secondary_esql():
         {
             'layerId': IsUUID,
             'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
         }
     )
 
 
-def test_compile_metric_chart_primary_secondary_breakdown_lens():
+def test_compile_metric_chart_primary_secondary_breakdown_lens() -> None:
     """Test the compilation of a metric chart with primary, secondary metrics and breakdown (Lens)."""
     config = {
         'type': 'metric',
@@ -159,6 +183,12 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens():
         {
             'layerId': IsUUID,
             'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
@@ -166,7 +196,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens():
     )
 
 
-def test_compile_metric_chart_primary_secondary_breakdown_esql():
+def test_compile_metric_chart_primary_secondary_breakdown_esql() -> None:
     """Test the compilation of a metric chart with primary, secondary metrics and breakdown (ESQL)."""
     config = {
         'type': 'metric',
@@ -191,6 +221,12 @@ def test_compile_metric_chart_primary_secondary_breakdown_esql():
         {
             'layerId': IsUUID,
             'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',

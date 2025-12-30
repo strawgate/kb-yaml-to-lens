@@ -1,16 +1,19 @@
-from typing import Any
+from collections.abc import Generator
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.dashboard_compiler import render
 from tests.conftest import de_json_kbn_dashboard
 
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
-def deterministic_id_generator():
+
+def deterministic_id_generator() -> Generator[str, None, None]:
     """Generate deterministic UUIDs for testing."""
     i = 0
     while True:
@@ -444,10 +447,11 @@ async def test_dashboard_with_custom_options() -> None:
                 },
                 'panels': [
                     {
-                        'type': 'markdown',
                         'title': 'Test Panel',
                         'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
-                        'content': '# Testing dashboard options\n',
+                        'markdown': {
+                            'content': '# Testing dashboard options\n',
+                        },
                     }
                 ],
             }
@@ -540,10 +544,11 @@ async def test_dashboard_with_default_options() -> None:
                 'description': 'A dashboard to test default dashboard options behavior',
                 'panels': [
                     {
-                        'type': 'markdown',
                         'title': 'Test Panel',
                         'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
-                        'content': '# Testing default dashboard options\n',
+                        'markdown': {
+                            'content': '# Testing default dashboard options\n',
+                        },
                     }
                 ],
             }

@@ -4,85 +4,82 @@ ESQL panels leverage the power of Elasticsearch Query Language (ESQL) to create 
 
 The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query, and its `chart` field defines the specific type of visualization (e.g., `metric`, `pie`).
 
+## A Poem for the Query Wizards
+
+_For those who wield the power of Elasticsearch Query Language:_
+
+```text
+FROM the indexes, data flows,
+Through STATS and WHERE, your pipeline grows.
+ESQL queries, powerful and clean,
+Transforming data never seen!
+
+Pipe by pipe, you craft the view,
+LIMIT, ORDER, filtering through.
+Complex aggregations, custom math,
+Your query blazes the perfect path.
+
+No need for pre-defined fields to bind,
+You calculate metrics on the fly, refined.
+FROM, BY, and STATS aligned,
+Column names thoughtfully designed.
+
+So here's to those who love to query,
+With ESQL power, never weary!
+Direct from Elasticsearch's core,
+Your visualizations open every door!
+```
+
+---
+
 ## Minimal Configuration Examples
 
 **Minimal ESQL Metric Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts  # This is the ESQLPanel type (distinguished by `esql` field)
-#   title: "Total Processed Events"
-#   grid: { x: 0, y: 0, w: 4, h: 3 }
-#   esql: |
-#     FROM my_event_stream
-#     | STATS total_events = COUNT(event_id)
-#   chart:
-#     type: metric
-#     primary:
-#       field: "total_events" # Must match a column name from ESQL query
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "ESQL Metrics Dashboard"
-  panels:
-    - type: charts
-      title: "Total Processed Events"
-      grid: { x: 0, y: 0, w: 4, h: 3 }
-      esql: |
-        FROM my_event_stream
-        | STATS total_events = COUNT(event_id)
-      chart:
-        type: metric # Specifies an ESQLMetricChart
-        primary:
-          field: "total_events"
-          # Label can be inferred from field if not provided
+  - name: "ESQL Metrics Dashboard"
+    panels:
+      - type: charts
+        title: "Total Processed Events"
+        grid: { x: 0, y: 0, w: 16, h: 3 }
+        esql: |
+          FROM my_event_stream
+          | STATS total_events = COUNT(event_id)
+        chart:
+          type: metric # Specifies an ESQLMetricChart
+          primary:
+            field: "total_events"
+            # Label can be inferred from field if not provided
 ```
 
 **Minimal ESQL Pie Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts
-#   title: "Events by Type (ESQL)"
-#   grid: { x: 4, y: 0, w: 8, h: 3 }
-#   esql: |
-#     FROM my_event_stream
-#     | STATS event_count = COUNT(event_id) BY event_type
-#     | LIMIT 5
-#   chart:
-#     type: pie
-#     metric:
-#       field: "event_count" # Must match a metric column from ESQL
-#     slice_by:
-#       - field: "event_type"  # Must match a dimension column from ESQL
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "ESQL Event Analysis"
-  panels:
-    - type: charts
-      title: "Events by Type (ESQL)"
-      grid: { x: 4, y: 0, w: 8, h: 3 }
-      esql: |
-        FROM my_event_stream
-        | STATS event_count = COUNT(event_id) BY event_type
-        | ORDER event_count DESC
-        | LIMIT 5
-      chart:
-        type: pie # Specifies an ESQLPieChart
-        metric:
-          field: "event_count"
-        slice_by:
-          - field: "event_type"
+  - name: "ESQL Event Analysis"
+    panels:
+      - type: charts
+        title: "Events by Type (ESQL)"
+        grid: { x: 16, y: 0, w: 32, h: 3 }
+        esql: |
+          FROM my_event_stream
+          | STATS event_count = COUNT(event_id) BY event_type
+          | ORDER event_count DESC
+          | LIMIT 5
+        chart:
+          type: pie # Specifies an ESQLPieChart
+          metric:
+            field: "event_count"
+          slice_by:
+            - field: "event_type"
 ```
 
 ## Full Configuration Options
 
 ### ESQL Panel (`type: charts` with an `esql` field)
 
-This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](./base.md). The presence of the `esql` field distinguishes it from a Lens panel.
+This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](base.md). The presence of the `esql` field distinguishes it from a Lens panel.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
@@ -91,8 +88,8 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
-| `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query). | N/A | Yes |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration). | N/A | Yes |
+| `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../queries/config.md#esql-query). | N/A | Yes |
 | `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart-charttype-metric) or [ESQL Pie Chart](#esql-pie-chart-charttype-pie). | N/A | Yes |
 
 ---
@@ -173,9 +170,10 @@ Used to specify a metric column from your ESQL query result.
 Used to specify a dimension/grouping column from your ESQL query result.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
-| -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id` | `string` | An optional unique identifier for this dimension column definition. | Generated ID | No |
 | `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
+| `collapse` | `Literal['sum', 'avg', 'min', 'max'] \| None` | Aggregation function to apply when collapsing dimension values (e.g., for multi-value fields or breakdowns). | `None` | No |
 
 ---
 
@@ -187,23 +185,23 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
+| `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. If not specified, Kibana displays as a pie chart (no donut hole). | `None` | No |
 
 ### Pie Titles and Text Formatting (`titles_and_text` field)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
-| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
-| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
+| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `None` | No |
+| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `None` | No |
+| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `None` | No |
 
 ### Pie Legend Formatting (`legend` field)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `auto` | No |
-| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `medium` | No |
-| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `1` | No |
+| `visible` | `Literal['show', 'hide', 'auto']` | Controls legend visibility. | `None` | No |
+| `width` | `Literal['small', 'medium', 'large', 'extra_large']` | Width of the legend area. | `None` | No |
+| `truncate_labels` | `integer` (0-5) | Max number of lines for legend labels before truncating. `0` disables truncation. | `None` | No |
 
 ### Color Mapping Formatting (`color` field)
 
@@ -213,7 +211,7 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 ## Related Documentation
 
-* [Base Panel Configuration](./base.md)
+* [Base Panel Configuration](base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
-* [Queries Configuration](../../queries/config.md#esql-query)
+* [Queries Configuration](../queries/config.md#esql-query)
 * Elasticsearch ESQL Reference (external)

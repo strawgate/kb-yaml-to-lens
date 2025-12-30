@@ -5,35 +5,6 @@
 
 ---
 
-## Quick Reference
-
-### Essential Commands
-
-| Command | Purpose |
-| ------- | ------- |
-| `make install` | Install all dependencies |
-| `make ci` or `make check` | **Run before committing** (lint-all-check + typecheck + test-all) |
-| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML) |
-| `make test` | Run Python unit tests only |
-| `make test-all` | Run all tests (unit + smoke + extension) |
-| `make lint` | Format and lint Python code |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
-
-### Common Workflows
-
-```bash
-# First time setup
-make install
-
-# Development cycle
-# 1. Make changes
-# 2. Auto-fix linting issues
-make fix
-# 3. Run all CI checks (linting + typecheck + tests)
-make ci
-```
-
 ---
 
 ## Project Architecture
@@ -69,53 +40,35 @@ Each component follows this structure:
 
 ### Test Standards
 
-- **Use inline snapshots** via `inline-snapshot` library (not external snapshot files)
-- **Prefer inline tests** in Python test files over separate scenario files
-- **Note:** Scenario-based tests in `tests/scenarios/` are being phased out in favor of inline snapshot tests
-- See existing tests for patterns (e.g., `tests/panels/charts/lens/metrics/test_metrics.py`)
+New features and bug fixes should have corresponding and comprehensive tests. Our tests should be useful, easy to maintain and understand, and have proper documentation.
+
+- **Use and prefer inline snapshots** via `inline-snapshot` library. Prefer snapshots over many assertions
 
 ---
 
 ## Code Conventions
 
-### Style
+> For detailed code style guidelines (explicit boolean checks, exhaustive type checking patterns, Pydantic conventions, line length, documentation requirements), see **[CODE_STYLE.md](../../CODE_STYLE.md)** at the repository root.
 
-- **Line length**: 140 characters (Ruff enforced)
-- **Dependency manager**: `uv` (not Poetry)
-- **Docstring coverage**: 80% threshold
+### Quick Reference
 
-### Pydantic Models
+**Explicit Boolean Comparisons:**
 
-**Configuration Models** (`BaseCfgModel`):
+- Use `if x is not None:` instead of `if x:`
+- Use `if len(items) > 0:` instead of `if items:`
 
-- Settings: `strict=True`, `extra='forbid'`, `frozen=True`, `validate_default=True`
+**Exhaustive Type Checking:**
+
+- Always use isinstance chains with a final error handler
+- Never rely on type narrowing alone for union types
+
+**Pydantic Models:**
+
+- Inherit from `BaseCfgModel` or `BaseVwModel` - they set common configuration
 - Use attribute docstrings for field descriptions
-- Location: `**/config.py` files
+- View models may narrow types in subclasses
 
-**View Models** (`BaseVwModel`):
-
-- Custom serializer omits fields with `OmitIfNone` metadata when value is `None`
-- May narrow types in subclasses (e.g., `str` → `Literal['value']`)
-- `reportIncompatibleVariableOverride = false` in basedpyright allows this
-
-### Explicit Boolean Checks
-
-Always use explicit comparisons instead of implicit truthiness:
-
-**✅ Correct:**
-
-- `if my_var is not None:` (for optional types)
-- `if my_var is None:` (for None checks)
-- `if len(my_list) > 0:` (for non-empty lists)
-- `if len(my_str) > 0:` (for non-empty strings)
-- `if my_bool is True:` or `if my_bool:` (for actual booleans)
-
-**❌ Incorrect:**
-
-- `if my_var:` (ambiguous: could be None, empty, False, 0, etc.)
-- `if not my_var:` (ambiguous truthiness check)
-
-**Exception:** `if TYPE_CHECKING:` is standard Python and acceptable.
+See [CODE_STYLE.md](../../CODE_STYLE.md) for detailed explanations and examples.
 
 ### Documentation Updates
 
@@ -124,7 +77,7 @@ When updating YAML configuration docs:
 1. `config.py` files are the source of truth for all configuration options
 2. Each component's markdown should include: overview, minimal example, complex example, full options table
 3. Table columns: `YAML Key`, `Data Type`, `Description`, `Default`, `Required`
-4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config models)
+4. Defaults are typically "Kibana Default" (defined in `compile.py`, not config or view models)
 
 ---
 
@@ -158,6 +111,10 @@ When modifying or creating chart compiler code, you need accurate reference data
 4. Verify the output JSON exists in `fixture-generator/output/`
 5. Compare your compiler output with the Kibana-generated fixture
 6. Commit BOTH the generator script AND output files
+
+#### Option 3: (Worst Option) Review the Kibana Codebase for schema examples
+
+Use the github code search tool to find examples of JSON from the chart type in the Kibana codebase and use those as references.
 
 **Why use fixtures:**
 
@@ -198,8 +155,9 @@ CI will fail if:
 - Ruff linting fails
 - Markdown/YAML linting fails
 - Tests fail
-- Type checking fails (basedpyright standard mode)
+- Type checking fails (basedpyright recommended mode)
 - Docstring coverage below 80%
+- Merge conflicts are present
 
 Run `make ci` (or `make check`) locally before pushing.
 

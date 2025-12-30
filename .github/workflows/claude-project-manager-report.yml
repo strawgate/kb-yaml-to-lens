@@ -1,5 +1,5 @@
 ---
-name: Claude Project Manager
+name: Claude Project Manager Report
 on:
   schedule:
     # Run daily at 9 AM UTC (adjust as needed)

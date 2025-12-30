@@ -1,5 +1,6 @@
 """Test the compilation of tagcloud charts from config models to view models using inline snapshots."""
 
+from collections.abc import Callable
 from typing import Any
 
 import pytest
@@ -12,18 +13,21 @@ from dashboard_compiler.panels.charts.tagcloud.compile import (
 )
 from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 
+# Type alias for the fixture return type
+CompileTagcloudSnapshot = Callable[[dict[str, Any], str], dict[str, Any]]
+
 
 @pytest.fixture
-def compile_tagcloud_chart_snapshot():
+def compile_tagcloud_chart_snapshot() -> CompileTagcloudSnapshot:
     """Fixture that returns a function to compile tagcloud charts and return dict for snapshot."""
 
     def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
         if chart_type == 'lens':
             lens_chart = LensTagcloudChart.model_validate(config)
-            layer_id, kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
+            _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
         else:  # esql
             esql_chart = ESQLTagcloudChart.model_validate(config)
-            layer_id, kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
+            _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
 
         assert kbn_state_visualization is not None
         # Tagcloud visualization state is flat (no layers array)
@@ -32,12 +36,13 @@ def compile_tagcloud_chart_snapshot():
     return _compile
 
 
-def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot):
+def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test the compilation of a basic tagcloud chart (Lens)."""
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
@@ -62,7 +67,7 @@ def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot):
     )
 
 
-def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot):
+def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test the compilation of a basic tagcloud chart (ESQL)."""
     config = {
         'type': 'tagcloud',
@@ -92,12 +97,13 @@ def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot):
     )
 
 
-def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot):
+def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test the compilation of a tagcloud chart with custom appearance settings (Lens)."""
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
@@ -131,7 +137,7 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot):
     )
 
 
-def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot):
+def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test the compilation of a tagcloud chart with custom appearance settings (ESQL)."""
     config = {
         'type': 'tagcloud',
@@ -170,12 +176,13 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot):
     )
 
 
-def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot):
+def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test tagcloud with right angled orientation (Lens)."""
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': 'tag-id-123',
         },
@@ -203,12 +210,13 @@ def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot)
     )
 
 
-def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot):
+def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test tagcloud with extreme font size settings (Lens)."""
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'tags',
             'id': 'tag-id-789',
         },
@@ -238,7 +246,7 @@ def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot):
     )
 
 
-def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot):
+def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test tagcloud with labels hidden (ESQL)."""
     config = {
         'type': 'tagcloud',
@@ -271,12 +279,13 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot):
     )
 
 
-def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapshot):
+def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test tagcloud with only some appearance settings provided (Lens)."""
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
         'tags': {
+            'type': 'values',
             'field': 'user.name',
             'id': 'user-id',
         },
@@ -304,7 +313,7 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
     )
 
 
-def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot):
+def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:
     """Test all three orientation options (ESQL)."""
     configs = [
         ('single', 'single'),

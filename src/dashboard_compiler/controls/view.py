@@ -185,32 +185,12 @@ class KbnIgnoreParentSettingsJson(BaseVwModel):
     ignoreTimerange: bool = Field(...)
     ignoreValidations: bool = Field(...)
 
-    # @model_serializer(when_used='always')
-    # def stringify(self) -> str:
-    #     """Kibana wants this field to be stringified JSON.
-
-    #     Returns:
-    #         str: The JSON string representation of the ignore settings.
-
-    #     """
-    #     return self.model_dump_json()
-
 
 type KbnControlTypes = KbnRangeSliderControl | KbnOptionsListControl | KbnTimeSliderControl
 
 
 class KbnControlPanelsJson(RootDict[KbnControlTypes]):
     """A dictionary mapping control IDs to their respective control configurations."""
-
-    # @model_serializer(when_used='always')
-    # def stringify(self) -> str:
-    #     """Kibana wants this field to be stringified JSON.
-
-    #     Returns:
-    #         str: The JSON string representation of the control panels.
-
-    #     """
-    #     return self.model_dump_json()
 
 
 class ControlStyleEnum(str, Enum):

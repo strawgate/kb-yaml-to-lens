@@ -5,32 +5,33 @@ dashboards:
     description: Demonstrates navigation patterns with links panel and basic metric charts
     panels:
       # Navigation Links Panel - Standard pattern at top
-      - type: links
-        title: Dashboard Navigation
+      - title: Dashboard Navigation
         description: Navigate between related dashboards
         grid: {x: 0, y: 0, w: 48, h: 2}
-        layout: horizontal
         links:
-          - label: Overview
-            dashboard: nav-overview-001
-          - label: Details
-            dashboard: nav-details-001
-          - label: Analytics
-            dashboard: nav-analytics-001
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: nav-overview-001
+            - label: Details
+              dashboard: nav-details-001
+            - label: Analytics
+              dashboard: nav-analytics-001
 
       # Informational Markdown Panel
-      - type: markdown
-        title: Overview Dashboard Guide
+      - title: Overview Dashboard Guide
         hide_title: false
         grid: {x: 0, y: 2, w: 48, h: 3}
-        content: |
-          # Overview Dashboard
-          This dashboard provides high-level metrics across your log data. Use the navigation links above to drill into more detailed views.
-          **Key Metrics:**
-          - Total log volume
-          - Unique hosts reporting
-          - Log level distribution
-        font_size: 12
+        markdown:
+          content: |
+            # Overview Dashboard
+            This dashboard provides high-level metrics across your log data. Use the navigation links above to
+            drill into more detailed views.
+            **Key Metrics:**
+            - Total log volume
+            - Unique hosts reporting
+            - Log level distribution
+          font_size: 12
 
       # KPI Metric Cards
       - type: charts
@@ -105,17 +106,17 @@ dashboards:
     description: Detailed view with host-level breakdowns
     panels:
       # Consistent Navigation
-      - type: links
-        title: Dashboard Navigation
+      - title: Dashboard Navigation
         grid: {x: 0, y: 0, w: 48, h: 2}
-        layout: horizontal
         links:
-          - label: Overview
-            dashboard: nav-overview-001
-          - label: Details
-            dashboard: nav-details-001
-          - label: Analytics
-            dashboard: nav-analytics-001
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: nav-overview-001
+            - label: Details
+              dashboard: nav-details-001
+            - label: Analytics
+              dashboard: nav-analytics-001
 
       # Host Breakdown Bar Chart
       - type: charts
@@ -156,17 +157,17 @@ dashboards:
     description: Advanced analytics with multiple visualizations
     panels:
       # Consistent Navigation
-      - type: links
-        title: Dashboard Navigation
+      - title: Dashboard Navigation
         grid: {x: 0, y: 0, w: 48, h: 2}
-        layout: horizontal
         links:
-          - label: Overview
-            dashboard: nav-overview-001
-          - label: Details
-            dashboard: nav-details-001
-          - label: Analytics
-            dashboard: nav-analytics-001
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: nav-overview-001
+            - label: Details
+              dashboard: nav-details-001
+            - label: Analytics
+              dashboard: nav-analytics-001
 
       # Cumulative Trends
       - type: charts
@@ -183,6 +184,7 @@ dashboards:
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: log.level
 
       # Tag Cloud
@@ -194,6 +196,7 @@ dashboards:
           type: tagcloud
           data_view: logs-*
           tags:
+            type: values
             field: tags
           metric:
             aggregation: count

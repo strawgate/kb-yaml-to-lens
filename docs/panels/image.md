@@ -2,34 +2,50 @@
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
 
+## A Poem for the Visual Storytellers
+
+_For those who know a picture is worth a thousand metrics:_
+
+```text
+Contain, cover, fill, or none—
+Four ways to get the framing done.
+Company logos, architecture maps,
+System diagrams filling gaps.
+
+When words and numbers just won't do,
+A picture paints the broader view.
+An SVG or PNG file
+Can save a thousand words of toil.
+
+From branding bold at dashboard's crown,
+To network maps when things break down,
+Your from_url pulls it through—
+Background colors, alt text too.
+
+So here's to images on the page,
+Worth more than data can engage.
+A visual anchor, tried and true,
+That shows what numbers never knew.
+```
+
+---
+
 ## Minimal Configuration Example
 
-To add an Image panel, you need to specify its `type`, `grid` position, and the `from_url` for the image source.
+To add an Image panel, you need to specify its `grid` position and the `image` configuration with `from_url` for the image source.
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: image
-#   title: "Company Logo"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 4  # Width of 4 grid units
-#     h: 3  # Height of 3 grid units
-#   from_url: "https://example.com/path/to/your/logo.png"
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Branded Dashboard"
-  panels:
-    - type: image
-      title: "Company Logo"
-      grid:
-        x: 0
-        y: 0
-        w: 4
-        h: 3
-      from_url: "https://example.com/path/to/your/logo.png"
+  - name: "Branded Dashboard"
+    panels:
+      - title: "Company Logo"
+        grid:
+          x: 0
+          y: 0
+          w: 16
+          h: 3
+        image:
+          from_url: "https://example.com/path/to/your/logo.png"
 ```
 
 ## Complex Configuration Example
@@ -38,20 +54,19 @@ This example demonstrates an Image panel with specific `fit` behavior, alternati
 
 ```yaml
 dashboards:
--
-  name: "Dashboard with Informative Image"
-  panels:
-    - type: image
-      title: "System Architecture Diagram"
-      grid:
-        x: 0
-        y: 0
-        w: 12 # Full width
-        h: 6
-      from_url: "https://example.com/path/to/architecture.svg"
-      fit: "contain"  # Ensure the whole image is visible within the panel
-      description: "Overview of the system components and their interactions." # Alt text
-      background_color: "#f0f0f0" # Light grey background
+  - name: "Dashboard with Informative Image"
+    panels:
+      - title: "System Architecture Diagram"
+        description: "Overview of the system components and their interactions." # Alt text
+        grid:
+          x: 0
+          y: 0
+          w: 48 # Full width
+          h: 6
+        image:
+          from_url: "https://example.com/path/to/architecture.svg"
+          fit: "contain"  # Ensure the whole image is visible within the panel
+          background_color: "#f0f0f0" # Light grey background
 ```
 
 ## Full Configuration Options
@@ -60,12 +75,17 @@ Image panels inherit from the [Base Panel Configuration](./base.md) and have the
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type` | `Literal['image']` | Specifies the panel type. | `image` | Yes |
 | `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | Alternative text for the image, used for accessibility. This overrides the BasePanel `description` if you want specific alt text for the image itself. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
+| `image` | `Image` object | Configuration for the image panel. | N/A | Yes |
+
+**Image Object Configuration:**
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
 | `from_url` | `string` | The URL of the image to be displayed in the panel. | N/A | Yes |
 | `fit` | `Literal['contain', 'cover', 'fill', 'none']` | The sizing of the image within the panel boundaries. | `contain` | No |
 | `background_color` | `string` | Background color for the image panel (e.g., hex code like `#FFFFFF` or color name like `transparent`). | `""` (empty string, likely transparent in Kibana) | No |
@@ -83,11 +103,13 @@ You can create Image panels programmatically using Python:
 
 ```python
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.images.config import ImagePanel
+from dashboard_compiler.panels.images.config import ImagePanel, ImagePanelConfig
 
 panel = ImagePanel(
     grid=Grid(x=0, y=0, w=24, h=20),
-    from_url='https://example.com/logo.png',
+    image=ImagePanelConfig(
+        from_url='https://example.com/logo.png',
+    ),
 )
 ```
 

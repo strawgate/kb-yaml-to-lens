@@ -3,11 +3,11 @@ from pydantic import Field
 from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum
 from dashboard_compiler.shared.config import BaseCfgModel
 
-type ESQLColumnTypes = ESQLDimension | ESQLMetric
+type ESQLColumnTypes = ESQLDimension | ESQLMetric | ESQLStaticValue
 
 type ESQLDimensionTypes = ESQLDimension
 
-type ESQLMetricTypes = ESQLMetric
+type ESQLMetricTypes = ESQLMetric | ESQLStaticValue
 
 
 class BaseESQLColumn(BaseCfgModel):
@@ -35,3 +35,17 @@ class ESQLMetric(BaseESQLColumn):
 
     field: str = Field(default=...)
     """The field in the data view that this metric is based on."""
+
+
+class ESQLStaticValue(BaseESQLColumn):
+    """A static numeric value metric for ESQL charts.
+
+    Used to display a fixed numeric value rather than querying from data.
+    Commonly used for gauge min/max/goal values or reference lines.
+    """
+
+    value: int | float = Field(...)
+    """The static numeric value to display."""
+
+    label: str | None = Field(default=None)
+    """Optional label for the static value."""

@@ -44,9 +44,9 @@ def compile_markdown_saved_vis_params(markdown_panel: MarkdownPanel) -> KbnMarkd
 
     """
     return KbnMarkdownSavedVisParams(
-        fontSize=markdown_panel.font_size or KBN_MARKDOWN_DEFAULT_FONT_SIZE,
-        openLinksInNewTab=markdown_panel.links_in_new_tab or KBN_MARKDOWN_DEFAULT_OPEN_LINKS_IN_NEW_TAB,
-        markdown=markdown_panel.content,
+        fontSize=markdown_panel.markdown.font_size or KBN_MARKDOWN_DEFAULT_FONT_SIZE,
+        openLinksInNewTab=markdown_panel.markdown.links_in_new_tab or KBN_MARKDOWN_DEFAULT_OPEN_LINKS_IN_NEW_TAB,
+        markdown=markdown_panel.markdown.content,
     )
 
 

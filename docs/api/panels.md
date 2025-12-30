@@ -18,7 +18,7 @@ Display rich text content using markdown syntax.
     options:
       show_source: true
 
-For configuration details and examples, see the [Markdown Panel Configuration](../../src/dashboard_compiler/panels/markdown/markdown.md).
+For configuration details and examples, see the [Markdown Panel Configuration](../panels/markdown.md).
 
 ## Links Panels
 
@@ -30,7 +30,7 @@ Display collections of clickable links.
     options:
       show_source: true
 
-For configuration details and examples, see the [Links Panel Configuration](../../src/dashboard_compiler/panels/links/links.md).
+For configuration details and examples, see the [Links Panel Configuration](../panels/links.md).
 
 ## Image Panels
 
@@ -42,7 +42,7 @@ Embed images in your dashboard.
     options:
       show_source: true
 
-For configuration details and examples, see the [Image Panel Configuration](../../src/dashboard_compiler/panels/images/image.md).
+For configuration details and examples, see the [Image Panel Configuration](../panels/image.md).
 
 ## Search Panels
 
@@ -54,7 +54,7 @@ Display search results from Elasticsearch.
     options:
       show_source: true
 
-For configuration details and examples, see the [Search Panel Configuration](../../src/dashboard_compiler/panels/search/search.md).
+For configuration details and examples, see the [Search Panel Configuration](../panels/search.md).
 
 ## Lens Panel
 

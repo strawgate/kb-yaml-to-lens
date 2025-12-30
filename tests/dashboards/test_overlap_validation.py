@@ -8,17 +8,15 @@ from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
 
-def test_dashboard_no_overlap():
+def test_dashboard_no_overlap() -> None:
     """Test that non-overlapping panels are accepted."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=24, h=10),
-        type='markdown',
-        content='Panel 1',
+        markdown={'content': 'Panel 1'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=0, y=10, w=24, h=10),
-        type='markdown',
-        content='Panel 2',
+        markdown={'content': 'Panel 2'},
     )
     dashboard = Dashboard(
         name='Test Dashboard',
@@ -27,17 +25,15 @@ def test_dashboard_no_overlap():
     assert len(dashboard.panels) == 2
 
 
-def test_dashboard_adjacent_panels_horizontal():
+def test_dashboard_adjacent_panels_horizontal() -> None:
     """Test that horizontally adjacent panels (touching but not overlapping) are accepted."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=12, h=10),
-        type='markdown',
-        content='Left Panel',
+        markdown={'content': 'Left Panel'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=12, y=0, w=12, h=10),
-        type='markdown',
-        content='Right Panel',
+        markdown={'content': 'Right Panel'},
     )
     dashboard = Dashboard(
         name='Test Dashboard',
@@ -46,17 +42,15 @@ def test_dashboard_adjacent_panels_horizontal():
     assert len(dashboard.panels) == 2
 
 
-def test_dashboard_adjacent_panels_vertical():
+def test_dashboard_adjacent_panels_vertical() -> None:
     """Test that vertically adjacent panels (touching but not overlapping) are accepted."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=24, h=10),
-        type='markdown',
-        content='Top Panel',
+        markdown={'content': 'Top Panel'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=0, y=10, w=24, h=10),
-        type='markdown',
-        content='Bottom Panel',
+        markdown={'content': 'Bottom Panel'},
     )
     dashboard = Dashboard(
         name='Test Dashboard',
@@ -65,22 +59,20 @@ def test_dashboard_adjacent_panels_vertical():
     assert len(dashboard.panels) == 2
 
 
-def test_dashboard_overlap_complete():
+def test_dashboard_overlap_complete() -> None:
     """Test that completely overlapping panels are detected."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=24, h=10),
-        type='markdown',
         title='First Panel',
-        content='Panel 1',
+        markdown={'content': 'Panel 1'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=24, h=10),
-        type='markdown',
         title='Second Panel',
-        content='Panel 2',
+        markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -90,22 +82,20 @@ def test_dashboard_overlap_complete():
     assert 'Second Panel' in error_msg
 
 
-def test_dashboard_overlap_partial():
+def test_dashboard_overlap_partial() -> None:
     """Test that partially overlapping panels are detected."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=20, h=10),
-        type='markdown',
         title='Panel A',
-        content='Panel 1',
+        markdown={'content': 'Panel 1'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=10, y=5, w=20, h=10),
-        type='markdown',
         title='Panel B',
-        content='Panel 2',
+        markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -115,22 +105,20 @@ def test_dashboard_overlap_partial():
     assert 'Panel B' in error_msg
 
 
-def test_dashboard_overlap_contained():
+def test_dashboard_overlap_contained() -> None:
     """Test that a panel completely inside another is detected as overlapping."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=48, h=30),
-        type='markdown',
         title='Large Panel',
-        content='Large Panel',
+        markdown={'content': 'Large Panel'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=10, y=10, w=10, h=5),
-        type='markdown',
         title='Small Panel',
-        content='Small Panel',
+        markdown={'content': 'Small Panel'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -140,22 +128,20 @@ def test_dashboard_overlap_contained():
     assert 'Small Panel' in error_msg
 
 
-def test_dashboard_overlap_edge_case_same_x():
+def test_dashboard_overlap_edge_case_same_x() -> None:
     """Test overlap when panels share the same x coordinate but overlap in y."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=24, h=10),
-        type='markdown',
         title='Top Panel',
-        content='Panel 1',
+        markdown={'content': 'Panel 1'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=0, y=5, w=24, h=10),
-        type='markdown',
         title='Overlapping Panel',
-        content='Panel 2',
+        markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -163,22 +149,19 @@ def test_dashboard_overlap_edge_case_same_x():
     assert 'overlaps with' in error_msg
 
 
-def test_dashboard_no_overlap_different_rows():
+def test_dashboard_no_overlap_different_rows() -> None:
     """Test that panels in different rows don't overlap."""
     panel1 = MarkdownPanel(
         grid=Grid(x=0, y=0, w=48, h=10),
-        type='markdown',
-        content='Row 1',
+        markdown={'content': 'Row 1'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=0, y=10, w=48, h=10),
-        type='markdown',
-        content='Row 2',
+        markdown={'content': 'Row 2'},
     )
     panel3 = MarkdownPanel(
         grid=Grid(x=0, y=20, w=48, h=10),
-        type='markdown',
-        content='Row 3',
+        markdown={'content': 'Row 3'},
     )
     dashboard = Dashboard(
         name='Test Dashboard',
@@ -187,15 +170,15 @@ def test_dashboard_no_overlap_different_rows():
     assert len(dashboard.panels) == 3
 
 
-def test_dashboard_no_overlap_grid_layout():
+def test_dashboard_no_overlap_grid_layout() -> None:
     """Test a typical grid layout with multiple panels that don't overlap."""
     panels = [
-        MarkdownPanel(grid=Grid(x=0, y=0, w=12, h=10), type='markdown', content='Panel 1'),
-        MarkdownPanel(grid=Grid(x=12, y=0, w=12, h=10), type='markdown', content='Panel 2'),
-        MarkdownPanel(grid=Grid(x=24, y=0, w=12, h=10), type='markdown', content='Panel 3'),
-        MarkdownPanel(grid=Grid(x=36, y=0, w=12, h=10), type='markdown', content='Panel 4'),
-        MarkdownPanel(grid=Grid(x=0, y=10, w=24, h=15), type='markdown', content='Panel 5'),
-        MarkdownPanel(grid=Grid(x=24, y=10, w=24, h=15), type='markdown', content='Panel 6'),
+        MarkdownPanel(grid=Grid(x=0, y=0, w=12, h=10), markdown={'content': 'Panel 1'}),
+        MarkdownPanel(grid=Grid(x=12, y=0, w=12, h=10), markdown={'content': 'Panel 2'}),
+        MarkdownPanel(grid=Grid(x=24, y=0, w=12, h=10), markdown={'content': 'Panel 3'}),
+        MarkdownPanel(grid=Grid(x=36, y=0, w=12, h=10), markdown={'content': 'Panel 4'}),
+        MarkdownPanel(grid=Grid(x=0, y=10, w=24, h=15), markdown={'content': 'Panel 5'}),
+        MarkdownPanel(grid=Grid(x=24, y=10, w=24, h=15), markdown={'content': 'Panel 6'}),
     ]
     dashboard = Dashboard(
         name='Test Dashboard',
@@ -204,22 +187,20 @@ def test_dashboard_no_overlap_grid_layout():
     assert len(dashboard.panels) == 6
 
 
-def test_dashboard_overlap_error_message_format():
+def test_dashboard_overlap_error_message_format() -> None:
     """Test that overlap error message includes helpful grid position information."""
     panel1 = MarkdownPanel(
         grid=Grid(x=5, y=10, w=20, h=15),
-        type='markdown',
         title='First',
-        content='Panel 1',
+        markdown={'content': 'Panel 1'},
     )
     panel2 = MarkdownPanel(
         grid=Grid(x=15, y=15, w=20, h=15),
-        type='markdown',
         title='Second',
-        content='Panel 2',
+        markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )

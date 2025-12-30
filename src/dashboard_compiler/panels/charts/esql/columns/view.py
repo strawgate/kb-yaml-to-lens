@@ -21,8 +21,22 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
     """The ID of the column."""
 
 
+class KbnESQLStaticValueColumn(BaseVwModel):
+    """Represents a static value ESQL column.
+
+    ESQL uses the same column structure as Lens for static values,
+    storing the value in the column definition.
+    """
+
+    fieldName: str
+    """Field name (for static values, this is typically the string representation of the value)."""
+
+    columnId: str
+    """The ID of the column."""
+
+
 type KbnESQLColumnTypes = KbnESQLMetricColumnTypes | KbnESQLDimensionColumnTypes
 
-type KbnESQLMetricColumnTypes = KbnESQLFieldMetricColumn
+type KbnESQLMetricColumnTypes = KbnESQLFieldMetricColumn | KbnESQLStaticValueColumn
 
 type KbnESQLDimensionColumnTypes = KbnESQLFieldDimensionColumn

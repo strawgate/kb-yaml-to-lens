@@ -1,6 +1,6 @@
 """Compile dashboard queries into their Kibana view model representation."""
 
-from dashboard_compiler.queries.config import KqlQuery
+from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 
@@ -31,9 +31,12 @@ def compile_nonesql_query(query: LegacyQueryTypes) -> KbnQuery:
             language='kuery',
         )
 
-    # No need for isinstance check here since LegacyQueryTypes is KqlQuery | LuceneQuery
-    # and we've already handled KqlQuery above
-    return KbnQuery(
-        query=query.lucene,
-        language='lucene',
-    )
+    if isinstance(query, LuceneQuery):  # pyright: ignore[reportUnnecessaryIsInstance]
+        return KbnQuery(
+            query=query.lucene,
+            language='lucene',
+        )
+
+    # Explicit check to satisfy exhaustive checking pattern
+    msg = f'Unknown query type: {type(query).__name__}'
+    raise TypeError(msg)  # pyright: ignore[reportUnreachable]

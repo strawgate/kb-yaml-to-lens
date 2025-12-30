@@ -4,81 +4,82 @@ Lens panels in Kibana provide a flexible and user-friendly way to create various
 
 The `LensPanel` is the primary container. Its `chart` field will define the specific type of visualization (e.g., `metric`, `pie`).
 
+## A Poem for the Lens Pioneers
+
+_For those who craft visualizations with elegant flexibility:_
+
+```text
+Through this Lens we magnify
+Patterns hiding on the fly.
+From metrics bold to pies that slice,
+Lens makes your data look quite nice!
+
+Dimensions group and metrics measure,
+Aggregations are your treasure.
+count(), sum(), unique_count() too,
+Percentiles showing p95 for you.
+
+Date histograms march through time,
+Top values sorted, so sublime.
+Formulas for custom math—
+Lens blazes the perfect path!
+
+With data views and layers deep,
+Your dashboard promises to keep.
+So here's to Lens, both strong and smart:
+Kibana's beating visual heart!
+```
+
+---
+
 ## Minimal Configuration Examples
 
 **Minimal Lens Metric Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts  # This is the LensPanel type
-#   title: "Total Users"
-#   grid: { x: 0, y: 0, w: 4, h: 3 }
-#   chart:
-#     type: metric
-#     primary:
-#       aggregation: "unique_count"
-#       field: "user.id" # Field for unique count
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Key Metrics Dashboard"
-  panels:
-    - type: charts
-      title: "Total Users"
-      grid: { x: 0, y: 0, w: 4, h: 3 }
-      query: # Optional panel-specific query
-        kql: "event.dataset:website.visits"
-      chart:
-        type: metric # Specifies a LensMetricChart
-        primary:
-          aggregation: "unique_count"
-          field: "user.id"
-          label: "Unique Visitors"
+  - name: "Key Metrics Dashboard"
+    panels:
+      - type: charts
+        title: "Total Users"
+        grid: { x: 0, y: 0, w: 16, h: 3 }
+        query: # Optional panel-specific query
+          kql: "event.dataset:website.visits"
+        chart:
+          type: metric # Specifies a LensMetricChart
+          primary:
+            aggregation: "unique_count"
+            field: "user.id"
+            label: "Unique Visitors"
 ```
 
 **Minimal Lens Pie Chart:**
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - type: charts
-#   title: "Traffic by Source"
-#   grid: { x: 4, y: 0, w: 8, h: 3 }
-#   chart:
-#     type: pie
-#     data_view: "your-data-view-id" # Required for pie chart
-#     metric:
-#       aggregation: "count" # Count of documents for slice size
-#     slice_by:
-#       - type: values
-#         field: "source.medium" # Field to create slices from
-
-# For a complete dashboard structure:
 dashboards:
--
-  name: "Traffic Analysis"
-  panels:
-    - type: charts
-      title: "Traffic by Source"
-      grid: { x: 4, y: 0, w: 8, h: 3 }
-      chart:
-        type: pie # Specifies a LensPieChart
-        data_view: "weblogs-*"
-        metric:
-          aggregation: "count"
-          label: "Sessions"
-        slice_by:
-          - type: values
-            field: "source.medium"
-            label: "Traffic Source"
-            size: 5 # Top 5 sources
+  - name: "Traffic Analysis"
+    panels:
+      - type: charts
+        title: "Traffic by Source"
+        grid: { x: 16, y: 0, w: 32, h: 3 }
+        chart:
+          type: pie # Specifies a LensPieChart
+          data_view: "weblogs-*"
+          metric:
+            aggregation: "count"
+            label: "Sessions"
+          slice_by:
+            - type: values
+              field: "source.medium"
+              label: "Traffic Source"
+              size: 5 # Top 5 sources
 ```
 
 ## Full Configuration Options
 
 ### Lens Panel (`type: charts`)
 
-This is the main object for a Lens-based visualization. It inherits from the [Base Panel Configuration](./base.md).
+This is the main object for a Lens-based visualization. It inherits from the [Base Panel Configuration](base.md).
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
@@ -87,11 +88,11 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
-| `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../../queries/config.md). | `None` (uses dashboard query) | No |
-| `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../../filters/config.md). | `[]` (empty list) | No |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration). | N/A | Yes |
+| `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../queries/config.md). | `None` (uses dashboard query) | No |
+| `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A | Yes |
-| `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). *Currently, only `LensPieChart` is supported as a multi-layer type.* | `None` | No |
+| `layers` | `list of MultiLayerChartTypes` | For multi-layer charts (e.g., multiple pie charts on one panel). _Currently, only `LensPieChart` is supported as a multi-layer type._ | `None` | No |
 
 **Note on `layers` vs `chart`**:
 
@@ -199,7 +200,7 @@ Groups data by the most frequent unique values of a field.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['values']` | Specifies the dimension type. | `values` | Yes |
+| `type` | `Literal['values']` | Specifies the dimension type. | N/A | Yes |
 | `field` | `string` | The field to get top values from. | N/A | Yes |
 | `size` | `integer` | The number of top values to display. | `3` | No |
 | `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
@@ -216,7 +217,7 @@ Groups data into time-based buckets (e.g., per hour, day).
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['date_histogram']` | Specifies the dimension type. | `date_histogram` | Yes |
+| `type` | `Literal['date_histogram']` | Specifies the dimension type. | N/A | Yes |
 | `field` | `string` | The date field to use for the histogram. | N/A | Yes |
 | `minimum_interval` | `string` | The time interval (e.g., `auto`, `1h`, `1d`, `1w`). | `auto` | No |
 | `partial_intervals` | `boolean` | If `true`, includes buckets for time periods that are only partially covered by the data. | `true` | No |
@@ -228,7 +229,7 @@ Creates buckets based on a list of custom KQL/Lucene queries.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['filters']` | Specifies the dimension type. | `filters` | Yes |
+| `type` | `Literal['filters']` | Specifies the dimension type. | N/A | Yes |
 | `filters` | `list of LensFiltersDimensionFilter` objects | A list of filter definitions. Each filter object has `query` (KQL/Lucene) and an optional `label`. | N/A | Yes |
 
 **`LensFiltersDimensionFilter` Object:**
@@ -244,7 +245,7 @@ Groups data into numeric ranges (buckets).
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['intervals']` | Specifies the dimension type. | `intervals` | Yes |
+| `type` | `Literal['intervals']` | Specifies the dimension type. | N/A | Yes |
 | `field` | `string` | The numeric field to create intervals from. | N/A | Yes |
 | `intervals` | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used. | `None` | No |
 | `granularity` | `integer` (1-7) | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest. | `4` | No |
@@ -274,7 +275,7 @@ All specific metric types below can include:
 | `id` | `string` | An optional unique identifier for the metric. | Generated ID | No |
 | `label` | `string` | A custom display label for the metric. If not provided, a label is inferred. | Inferred | No |
 | `format` | `LensMetricFormatTypes` object | How to format the metric's value (e.g., number, bytes, percent). See [Metric Formatting](#metric-formatting-format-field-within-a-metric). | Default for type | No |
-| `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data *before* this metric is calculated. | `None` | No |
+| `filter` | `LegacyQueryTypes` object | A KQL or Lucene query to filter data _before_ this metric is calculated. | `None` | No |
 
 ### Aggregated Metric Types
 
@@ -329,7 +330,7 @@ These metrics perform an aggregation on a field.
 
 ### Formula Metric
 
-Allows custom calculations using a formula string. *Note: Formula structure is complex and detailed parsing/compilation for its internal operations is not fully covered here but is handled by the compiler.*
+Allows custom calculations using a formula string. _Note: Formula structure is complex and detailed parsing/compilation for its internal operations is not fully covered here but is handled by the compiler._
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
@@ -401,7 +402,7 @@ These objects are used within the `LensPieChart` configuration.
 
 ## Related Documentation
 
-* [Base Panel Configuration](./base.md)
+* [Base Panel Configuration](base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
-* [Queries Configuration](../../queries/config.md)
-* [Filters Configuration](../../filters/config.md)
+* [Queries Configuration](../queries/config.md)
+* [Filters Configuration](../filters/config.md)

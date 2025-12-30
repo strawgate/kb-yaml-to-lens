@@ -4,6 +4,34 @@ All panel types used within a dashboard (e.g., Markdown, Lens charts, Search pan
 
 When defining a panel in your YAML, you will specify its `type` (e.g., `markdown`, `lens_metric`) and then include these base fields alongside type-specific configurations.
 
+## A Poem for the Dashboard Builders
+
+_For those who lay the foundation for every panel:_
+
+```text
+Every panel needs a base:
+A title, grid, and proper place.
+From x and y, the starting spot,
+To width and height—you plot the plot.
+
+The id is yours, or auto-made,
+Descriptions help when things must be weighed.
+hide_title when you'd rather not—
+The base provides what others forgot.
+
+Whether metric, pie, or chart XY,
+Markdown prose or links nearby,
+They all inherit from this floor:
+The BasePanel, forevermore.
+
+So here's to grids that organize,
+To coordinates that plot the prize.
+The humble base, unsexy but true—
+No panel works without you.
+```
+
+---
+
 ## Minimal Example (Illustrating Base Fields within a Specific Panel Type)
 
 This example shows how base panel fields are used within a `markdown` panel:
@@ -55,7 +83,7 @@ These fields are available for all panel types and are inherited from the `BaseP
 
 ### Grid Object Configuration (`grid`)
 
-The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard is typically a 12-column grid, but `w` and `h` are unitless and relative to this grid system.
+The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard uses a 48-column grid, and `w` and `h` are unitless and relative to this grid system.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ------------------------------------------------------------------------ | -------------- | -------- |
@@ -74,15 +102,15 @@ The `grid` object is required for every panel and defines its placement and dime
 #     grid:
 #       x: 0  # Starts at the far left
 #       y: 0  # Starts at the very top
-#       w: 6  # Occupies 6 out of 12 columns (half width)
+#       w: 24 # Occupies 24 out of 48 columns (half width)
 #       h: 5  # Height of 5 grid units
 #     content: "..."
 #   - type: lens_metric
 #     title: "Top Right Panel"
 #     grid:
-#       x: 6  # Starts at the 7th column (0-indexed)
+#       x: 24 # Starts at the 25th column (0-indexed)
 #       y: 0  # Starts at the very top
-#       w: 6  # Occupies the remaining 6 columns
+#       w: 24 # Occupies the remaining 24 columns
 #       h: 5  # Same height
 #     # ... lens configuration ...
 ```
@@ -94,10 +122,96 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 * [Markdown Panel](./markdown.md)
 * [Links Panel](./links.md)
 * [Search Panel](./search.md)
+* [Image Panel](./image.md)
 * [XY Chart Panel](./xy.md)
 * [Pie Chart Panel](./pie.md)
 * [Metric Panel](./metric.md)
-* [Image Panel](./image.md)
+* [Tagcloud Panel](./tagcloud.md)
+* [Lens Panel](./lens.md)
+* [ESQL Panel](./esql.md)
+
+## Color Mapping Configuration
+
+Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. This allows you to control how colors are assigned to different data values or categories in your visualizations.
+
+### ColorMapping Object
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `palette` | `string` | The color palette ID to use for unassigned colors. | `'eui_amsterdam_color_blind'` | No |
+| `assignments` | `list[ColorAssignment]` | Manual color assignments to specific data values. | `[]` | No |
+
+#### Available Color Palettes
+
+The `palette` field accepts the following palette IDs:
+
+* `'eui_amsterdam_color_blind'` - Color-blind safe palette (default, recommended)
+* `'default'` - Standard EUI palette
+* `'kibana_palette'` or `'legacy'` - Legacy Kibana colors
+* `'elastic_brand'` - Elastic brand colors
+* `'gray'` - Grayscale palette
+
+#### ColorAssignment Object
+
+| YAML Key | Data Type | Description | Required |
+| -------- | --------- | ----------- | -------- |
+| `value` | `string` | Single data value to assign this color to. | No* |
+| `values` | `list[str]` | List of data values to assign this color to. | No* |
+| `color` | `string` | Hex color code (e.g., '#FF0000'). | Yes |
+
+\* At least one of `value` or `values` must be provided.
+
+### Color Mapping Examples
+
+#### Example 1: Using a Different Palette
+
+```yaml
+dashboards:
+  - name: "Sales Dashboard"
+    panels:
+      - type: charts
+        title: "Revenue by Region"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "sales-data"
+          slice_by:
+            - field: "region"
+              type: values
+          metric:
+            aggregation: sum
+            field: revenue
+          color:
+            palette: 'elastic_brand'  # Use Elastic brand colors
+```
+
+#### Example 2: Manual Color Assignments
+
+```yaml
+dashboards:
+  - name: "Status Monitoring"
+    panels:
+      - type: charts
+        title: "Request Status Distribution"
+        grid: { x: 0, y: 0, w: 6, h: 6 }
+        chart:
+          type: pie
+          data_view: "logs-*"
+          slice_by:
+            - field: "status"
+              type: values
+          metric:
+            aggregation: count
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['200', 'OK']
+                color: '#00BF6F'  # Green for success
+              - values: ['404', 'Not Found']
+                color: '#FFA500'  # Orange for not found
+              - values: ['500', 'Error']
+                color: '#BD271E'  # Red for errors
+```
 
 ## Related Documentation
 

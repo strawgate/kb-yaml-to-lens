@@ -19,17 +19,18 @@ dashboards:
         match_technique: prefix
     panels:
       # Informational Panel
-      - type: markdown
-        title: Using Dashboard Controls
+      - title: Using Dashboard Controls
         grid: {x: 0, y: 0, w: 48, h: 4}
-        content: |
-          # Interactive Dashboard Controls
-          This dashboard demonstrates the use of **controls** for interactive filtering. Controls appear at the top of the dashboard and allow users to filter data dynamically.
-          **Available Controls:**
-          - **Host Selector** - Filter by specific host(s)
-          - **Log Level** - Filter by log severity level
-          Select values from the controls above to filter all panels on this dashboard.
-        font_size: 12
+        markdown:
+          content: |
+            # Interactive Dashboard Controls
+            This dashboard demonstrates the use of **controls** for interactive filtering.
+            Controls appear at the top of the dashboard and allow users to filter data dynamically.
+            **Available Controls:**
+            - **Host Selector** - Filter by specific host(s)
+            - **Log Level** - Filter by log severity level
+            Select values from the controls above to filter all panels on this dashboard.
+          font_size: 12
 
       # Metrics that respond to controls
       - type: charts

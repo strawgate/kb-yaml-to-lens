@@ -16,7 +16,7 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensCustomInvervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn
+type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -95,6 +95,43 @@ class KbnLensFieldMetricColumn(KbnLensBaseColumn):
 
     params: KbnLensMetricColumnParams
     """Additional parameters for the metric column."""
+
+
+class KbnLensStaticValueColumnParams(BaseVwModel):
+    """Parameters for static value columns."""
+
+    value: int | float | str
+    """The static value - can be numeric (for gauge charts) or string (for reference lines)."""
+
+
+class KbnLensStaticValueColumn(KbnLensBaseColumn):
+    """Represents a static value Lens column (not sourced from a field).
+
+    Used for displaying fixed numeric values in gauge charts (min/max/goal)
+    or reference lines. The value is specified directly rather than aggregated
+    from data.
+    """
+
+    operationType: Literal['static_value']
+    """Always 'static_value' for static value columns."""
+
+    dataType: Literal['number']
+    """Data type is always 'number' for static values."""
+
+    isBucketed: Literal[False] = False
+    """Static values are never bucketed."""
+
+    isStaticValue: Literal[True] = True
+    """Marker to indicate this is a static value column."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for numeric static values."""
+
+    params: KbnLensStaticValueColumnParams
+    """Parameters containing the static value."""
+
+    references: list[str] = Field(default_factory=list)
+    """List of referenced column IDs (typically empty for static values)."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):

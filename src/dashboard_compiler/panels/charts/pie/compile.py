@@ -1,6 +1,6 @@
 """Compile Lens pie visualizations into their Kibana view models."""
 
-from dashboard_compiler.panels.charts.base.compile import create_default_color_mapping
+from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
@@ -73,11 +73,11 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         else:
             legend_max_lines = chart.legend.truncate_labels
 
-    palette_id = 'default'
-    if chart.color and chart.color.palette:
-        palette_id = chart.color.palette
+    nested_legend = None
+    if chart.legend and chart.legend.nested is not None:
+        nested_legend = chart.legend.nested
 
-    kbn_color_mapping = create_default_color_mapping(palette_id=palette_id)
+    kbn_color_mapping = compile_color_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     empty_size_ratio = 0.0 if len(metric_ids) > 1 else None
@@ -92,7 +92,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
-        nestedLegend=False,
+        nestedLegend=nested_legend if nested_legend is not None else False,
         layerType='data',
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,

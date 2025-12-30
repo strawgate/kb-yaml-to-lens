@@ -2,6 +2,34 @@
 
 The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
 
+## A Poem for the Dashboard Architects
+
+_For those who distill chaos into a single number:_
+
+```text
+One number to rule them all,
+One metric standing proud and tall.
+From millions of logs, a truth extracted,
+A KPI perfectly compacted.
+
+When executives ask "How are we doing?"
+Your metric chart saves us from our undoing.
+No need for graphs or tables wide,
+Just one big number, full of pride.
+
+Primary, secondary, maximum too,
+These metrics tell the story true.
+COUNT the users, SUM the sales,
+AVERAGE the latency when the system fails.
+
+So here's to metrics, bold and bright,
+That make our dashboards such a sight!
+A single value, clear and clean,
+The most important number ever seen!
+```
+
+---
+
 ## Minimal Configuration Example
 
 ```yaml
@@ -10,7 +38,7 @@ dashboards:
     panels:
       - type: charts
         title: "Total Revenue"
-        grid: { x: 0, y: 0, w: 3, h: 2 }
+        grid: { x: 0, y: 0, w: 12, h: 2 }
         chart:
           type: metric
           data_view: "sales-data"
@@ -31,6 +59,7 @@ dashboards:
 | `secondary` | `LensMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
 | `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### ESQL Metric Chart
 
@@ -41,6 +70,7 @@ dashboards:
 | `secondary` | `ESQLMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
 | `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
 | `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
+| `color` | `ColorMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ## Programmatic Usage (Python)
 

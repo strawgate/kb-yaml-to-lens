@@ -1,5 +1,7 @@
 """Test the compilation of filters from config models to view models using inline snapshots."""
 
+from typing import Any
+
 from dirty_equals import IsPartialDict
 from inline_snapshot import snapshot
 from pydantic import BaseModel
@@ -14,14 +16,14 @@ class FilterHolder(BaseModel):
     filter: FilterTypes
 
 
-def compile_filter_snapshot(config: dict) -> dict:
+def compile_filter_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile filter config and return dict for snapshot testing."""
     filter_holder = FilterHolder.model_validate({'filter': config})
     kbn_filter = compile_filters(filters=[filter_holder.filter])[0]
     return kbn_filter.model_dump()
 
 
-def test_compile_phrase_filter():
+def test_compile_phrase_filter() -> None:
     """Test the compilation of a phrase filter."""
     config = {'field': 'status', 'equals': 'active'}
     result = compile_filter_snapshot(config)
@@ -42,7 +44,7 @@ def test_compile_phrase_filter():
     )
 
 
-def test_compile_exists_filter():
+def test_compile_exists_filter() -> None:
     """Test the compilation of an exists filter."""
     config = {'exists': 'status'}
     result = compile_filter_snapshot(config)
@@ -62,7 +64,7 @@ def test_compile_exists_filter():
     )
 
 
-def test_compile_not_exists_filter():
+def test_compile_not_exists_filter() -> None:
     """Test the compilation of a not exists filter."""
     config = {'not': {'exists': 'status'}}
     result = compile_filter_snapshot(config)
@@ -82,7 +84,7 @@ def test_compile_not_exists_filter():
     )
 
 
-def test_compile_phrase_negated_filter():
+def test_compile_phrase_negated_filter() -> None:
     """Test the compilation of a negated phrase filter."""
     config = {'not': {'field': 'status', 'equals': 'active'}}
     result = compile_filter_snapshot(config)
@@ -103,7 +105,7 @@ def test_compile_phrase_negated_filter():
     )
 
 
-def test_compile_range_filter():
+def test_compile_range_filter() -> None:
     """Test the compilation of a range filter."""
     config = {'field': '@timestamp', 'gte': '0004-12-31T18:09:24.000-05:50', 'lt': '0009-12-31T18:09:24.000-05:50'}
     result = compile_filter_snapshot(config)
@@ -124,7 +126,7 @@ def test_compile_range_filter():
     )
 
 
-def test_compile_in_list_filter():
+def test_compile_in_list_filter() -> None:
     """Test the compilation of an in-list filter."""
     config = {'field': 'status', 'in': ['active', 'inactive']}
     result = compile_filter_snapshot(config)
@@ -153,7 +155,7 @@ def test_compile_in_list_filter():
     )
 
 
-def test_compile_compound_and_filter():
+def test_compile_compound_and_filter() -> None:
     """Test the compilation of a compound AND filter with two sub-filters."""
     config = {
         'and': [
@@ -212,7 +214,7 @@ def test_compile_compound_and_filter():
     )
 
 
-def test_compile_compound_or_filter():
+def test_compile_compound_or_filter() -> None:
     """Test the compilation of a compound OR filter with two sub-filters."""
     config = {
         'or': [
@@ -271,7 +273,7 @@ def test_compile_compound_or_filter():
     )
 
 
-def test_compile_compound_or_not_filter():
+def test_compile_compound_or_not_filter() -> None:
     """Test the compilation of a compound OR filter with a negated sub-filter."""
     config = {
         'or': [
@@ -332,7 +334,7 @@ def test_compile_compound_or_not_filter():
     )
 
 
-def test_compile_compound_or_and_filter():
+def test_compile_compound_or_and_filter() -> None:
     """Test the compilation of a compound OR filter with a nested compound AND sub-filter."""
     config = {
         'or': [
@@ -419,7 +421,7 @@ def test_compile_compound_or_and_filter():
     )
 
 
-def test_compile_query_dsl_filter():
+def test_compile_query_dsl_filter() -> None:
     """Test the compilation of a custom query DSL filter."""
     config = {'dsl': {'match_phrase': {'status': 'active'}}}
     result = compile_filter_snapshot(config)

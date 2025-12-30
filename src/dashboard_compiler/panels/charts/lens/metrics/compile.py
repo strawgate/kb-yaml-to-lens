@@ -11,6 +11,8 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensMetricFormat,
     KbnLensMetricFormatParams,
     KbnLensMetricFormatTypes,
+    KbnLensStaticValueColumn,
+    KbnLensStaticValueColumnParams,
 )
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
@@ -23,38 +25,12 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
     LensPercentileAggregatedMetric,
     LensPercentileRankAggregatedMetric,
+    LensStaticValue,
     LensSumAggregatedMetric,
 )
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
-
-# def compile_lens_formula_metric(
-#     metric_id: str,
-#     metric: LensFormulaMetric,
-# ) -> tuple[str, KbnLensFormulaSourcedColumn]:
-#     """Compile a LensFormulaMetric object into its Kibana view model.
-
-#     Args:
-#         metric_id (str): The ID of the metric.
-#         metric (LensFormulaMetric): The LensFormulaMetric object to compile.
-
-#     Returns:
-#         tuple[str, KbnLensFormulaSourcedColumn]: A tuple containing the metric ID and its compiled KbnLensFormulaSourcedColumn.
-
-#     """
-#     return metric_id, KbnLensFormulaSourcedColumn(
-#         label=metric.label,
-#         customLabel=metric.label is not None or None,
-#         dataType='number',
-#         operationType=metric.type,
-#         scale='ratio',
-#         formula=metric.formula,
-#         isBucketed=False,
-#         params={
-#             'emptyAsNull': True,
-#         },
-#     )
 
 FORMAT_TO_DEFAULT_DECIMALS = {
     'number': 2,
@@ -123,10 +99,6 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
     raise NotImplementedError(msg)
 
 
-# def compile_lens_formula(metric: LensFormulaMetric) -> tuple[str, KbnLensFormulaMetricColumnTypes]:
-#     """Compile a lens formula into its Kibana view model"""
-
-
 def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColumnTypes]:
     """Compile a single LensMetricTypes object into its Kibana view model.
 
@@ -137,6 +109,21 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         tuple[str, KbnColumn]: A tuple containing the metric ID and its compiled KbnColumn.
 
     """
+    # Handle static values
+    if isinstance(metric, LensStaticValue):
+        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
+        label = metric.label if metric.label is not None else str(metric.value)
+        custom_label = metric.label is not None
+
+        return metric_id, KbnLensStaticValueColumn(
+            label=label,
+            customLabel=custom_label,
+            dataType='number',
+            operationType='static_value',
+            scale='ratio',
+            params=KbnLensStaticValueColumnParams(value=metric.value),
+        )
+
     custom_label = None if metric.label is None else True
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 
