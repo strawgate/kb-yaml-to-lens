@@ -38,6 +38,16 @@ kb-dashboard compile --upload
 
 This will compile the dashboards and upload them to a local Kibana instance.
 
+### Screenshot Dashboards
+
+Generate a PNG screenshot of a dashboard:
+
+```bash
+kb-dashboard screenshot --dashboard-id <id> --output <file.png>
+```
+
+This will use Kibana's Reporting API to take a screenshot.
+
 ## Configuration
 
 ### Environment Variables
@@ -88,6 +98,26 @@ Compile YAML dashboard configurations to NDJSON format.
 - `--kibana-api-key KEY` - Kibana API key for authentication (can use `KIBANA_API_KEY` env var)
 - `--no-browser` - Do not open browser after upload
 - `--overwrite/--no-overwrite` - Overwrite existing dashboards in Kibana (default: `--overwrite`)
+- `--kibana-no-ssl-verify` - Disable SSL certificate verification
+
+### `kb-dashboard screenshot`
+
+Generate a PNG screenshot of a Kibana dashboard.
+
+**Options:**
+
+- `--dashboard-id TEXT` - Kibana dashboard ID to capture (required)
+- `--output PATH` - Path where the PNG screenshot will be saved (required)
+- `--time-from TEXT` - Start time for dashboard data range (e.g., "2024-01-01T00:00:00Z" or "now-7d")
+- `--time-to TEXT` - End time for dashboard data range (e.g., "now")
+- `--width INTEGER` - Screenshot width in pixels (default: 1920)
+- `--height INTEGER` - Screenshot height in pixels (default: 1080)
+- `--browser-timezone TEXT` - Browser timezone (default: UTC)
+- `--timeout INTEGER` - Maximum time in seconds to wait (default: 300)
+- `--kibana-url URL` - Kibana base URL (default: `http://localhost:5601`)
+- `--kibana-username USER` - Kibana username
+- `--kibana-password PASS` - Kibana password
+- `--kibana-api-key KEY` - Kibana API key
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
 
 ## Examples

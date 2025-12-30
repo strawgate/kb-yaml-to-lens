@@ -49,10 +49,20 @@ def create_error_table(errors: list[SavedObjectError]) -> Table:
     error_table.add_column('Error', style='red')
 
     for error in errors:
-        error_msg = (error.error.get('message') if error.error else None) or error.message or str(error)
+        error_msg = _extract_error_message(error)
         error_table.add_row(error_msg)
 
     return error_table
+
+
+def _extract_error_message(error: SavedObjectError) -> str:
+    if error.error:
+        message: str | None = error.error.get('message')  # type: ignore[assignment]
+        if message:
+            return message
+    if error.message:
+        return error.message
+    return str(error)
 
 
 def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -> None:
