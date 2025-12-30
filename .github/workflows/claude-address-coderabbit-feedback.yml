@@ -43,9 +43,7 @@ jobs:
         Before doing any work, verify this is the most recent CodeRabbit review:
         ```bash
         set -euo pipefail
-
         CURRENT_REVIEW_ID="${{ github.event.review.id }}"
-
         LATEST_REVIEW=$(gh api graphql -f query='
           query($owner: String!, $repo: String!, $prNumber: Int!) {
             repository(owner: $owner, name: $repo) {
@@ -70,14 +68,12 @@ jobs:
           | sort_by(.createdAt)
           | last // empty')
         LATEST_REVIEW_ID=$(echo "$LATEST_CODERABBIT_REVIEW" | jq -r '.databaseId // empty')
-
         if [ -n "$LATEST_REVIEW_ID" ] && [ "$LATEST_REVIEW_ID" != "$CURRENT_REVIEW_ID" ]; then
           echo "⚠️ A newer CodeRabbit review exists (ID: $LATEST_REVIEW_ID)"
           echo "⚠️ Current review ID: $CURRENT_REVIEW_ID"
           echo "⚠️ Skipping this run - the newer review will be or is being processed"
           exit 0
         fi
-
         echo "✅ This is the most recent CodeRabbit review, proceeding with work..."
         ```
 
@@ -127,7 +123,6 @@ jobs:
         ```bash
         # Check again for newer CodeRabbit reviews that arrived while you were working
         CURRENT_REVIEW_ID="${{ github.event.review.id }}"
-
         LATEST_REVIEW=$(gh api graphql -f query='
           query($owner: String!, $repo: String!, $prNumber: Int!) {
             repository(owner: $owner, name: $repo) {
@@ -145,13 +140,11 @@ jobs:
              -F repo="${{ github.event.repository.name }}" \
              -F prNumber=${{ github.event.pull_request.number }} \
              --jq '.data.repository.pullRequest.reviews.nodes')
-
         LATEST_CODERABBIT_REVIEW=$(echo "$LATEST_REVIEW" | jq -r '
           map(select(.author.login == "coderabbitai[bot]"))
           | sort_by(.createdAt)
           | last // empty')
         LATEST_REVIEW_ID=$(echo "$LATEST_CODERABBIT_REVIEW" | jq -r '.databaseId // empty')
-
         if [ -n "$LATEST_REVIEW_ID" ] && [ "$LATEST_REVIEW_ID" != "$CURRENT_REVIEW_ID" ]; then
           echo "⚠️ New CodeRabbit review arrived during this run (ID: $LATEST_REVIEW_ID)"
           echo "📋 Fetching additional feedback..."
@@ -190,7 +183,6 @@ jobs:
           echo "✅ Addressing new feedback that arrived during this run..."
         fi
         ```
-
         If new feedback was found, address it before posting your final summary.
 
         # RESOLVING THREADS
