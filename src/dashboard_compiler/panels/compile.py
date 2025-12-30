@@ -57,11 +57,11 @@ def get_panel_type_name(panel: PanelTypes) -> str:
         return 'image'
     if isinstance(panel, SearchPanel):
         return 'search'
-    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if isinstance(panel, (LensPanel, ESQLPanel)):
         return 'charts'
     # This should never be reached if PanelTypes is exhaustive, but provides a clear error
     msg = f'Unknown panel type: {type(panel).__name__}'
-    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+    raise TypeError(msg)
 
 
 def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:

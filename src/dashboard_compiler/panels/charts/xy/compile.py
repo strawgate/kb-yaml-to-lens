@@ -82,7 +82,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
         tuple[str, KbnLensStaticValueColumn, YConfig]: The accessor ID, static value column, and Y config.
     """
     # Generate accessor ID
-    accessor_id = ref_line.id or random_id_generator()
+    accessor_id = ref_line.id if ref_line.id is not None else random_id_generator()
 
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):
@@ -96,7 +96,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
 
     # Create the static value column for the reference line
     static_value_column = KbnLensStaticValueColumn(
-        label=ref_line.label or f'Static value: {numeric_value}',
+        label=ref_line.label if ref_line.label is not None else f'Static value: {numeric_value}',
         dataType='number',
         operationType='static_value',
         isBucketed=False,

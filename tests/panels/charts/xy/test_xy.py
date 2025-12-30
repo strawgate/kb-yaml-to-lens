@@ -452,67 +452,92 @@ async def test_reference_line_layer_multiple_lines() -> None:
 
     layer_id, columns, ref_layers = compile_lens_reference_line_layer(layer_config)
 
-    # Test that we got a layer ID
-    assert isinstance(layer_id, str)
-    assert len(layer_id) > 0
-
-    # Test that we have 1 reference line layer (containing all reference lines)
-    assert len(ref_layers) == 1
-
-    # Test that we have 3 columns (one per reference line)
-    assert len(columns) == 3
-    assert 'threshold-low' in columns
-    assert 'threshold-high' in columns
-    assert 'threshold-critical' in columns
-
-    # Test the single reference line layer with all 3 reference lines
-    assert ref_layers[0].model_dump() == snapshot(
-        {
-            'layerId': IsUUID,
-            'accessors': ['threshold-low', 'threshold-high', 'threshold-critical'],
-            'yConfig': [
-                {
-                    'forAccessor': 'threshold-low',
-                    'color': '#00FF00',
-                    'lineWidth': None,
-                    'lineStyle': 'solid',
-                    'fill': None,
-                    'icon': None,
-                    'iconPosition': None,
-                    'textVisibility': None,
-                    'axisMode': 'left',
-                },
-                {
-                    'forAccessor': 'threshold-high',
-                    'color': '#FF0000',
-                    'lineWidth': None,
-                    'lineStyle': 'dashed',
-                    'fill': None,
-                    'icon': None,
-                    'iconPosition': None,
-                    'textVisibility': None,
-                    'axisMode': 'left',
-                },
-                {
-                    'forAccessor': 'threshold-critical',
-                    'color': '#FF00FF',
-                    'lineWidth': 3.0,
-                    'lineStyle': 'dotted',
-                    'fill': None,
-                    'icon': None,
-                    'iconPosition': None,
-                    'textVisibility': None,
-                    'axisMode': 'left',
-                },
-            ],
-            'layerType': 'referenceLine',
-        }
+    # Validate the complete output structure using snapshots
+    assert (layer_id, len(ref_layers), ref_layers[0].model_dump()) == snapshot(
+        (
+            IsUUID,
+            1,
+            {
+                'layerId': IsUUID,
+                'accessors': ['threshold-low', 'threshold-high', 'threshold-critical'],
+                'yConfig': [
+                    {
+                        'forAccessor': 'threshold-low',
+                        'color': '#00FF00',
+                        'lineWidth': None,
+                        'lineStyle': 'solid',
+                        'fill': None,
+                        'icon': None,
+                        'iconPosition': None,
+                        'textVisibility': None,
+                        'axisMode': 'left',
+                    },
+                    {
+                        'forAccessor': 'threshold-high',
+                        'color': '#FF0000',
+                        'lineWidth': None,
+                        'lineStyle': 'dashed',
+                        'fill': None,
+                        'icon': None,
+                        'iconPosition': None,
+                        'textVisibility': None,
+                        'axisMode': 'left',
+                    },
+                    {
+                        'forAccessor': 'threshold-critical',
+                        'color': '#FF00FF',
+                        'lineWidth': 3.0,
+                        'lineStyle': 'dotted',
+                        'fill': None,
+                        'icon': None,
+                        'iconPosition': None,
+                        'textVisibility': None,
+                        'axisMode': 'left',
+                    },
+                ],
+                'layerType': 'referenceLine',
+            },
+        )
     )
 
-    # Test column values
-    assert columns['threshold-low'].params.value == '100.0'
-    assert columns['threshold-high'].params.value == '500.0'
-    assert columns['threshold-critical'].params.value == '1000.0'
+    # Validate columns structure using snapshot
+    assert {k: v.model_dump() for k, v in columns.items()} == snapshot(
+        {
+            'threshold-low': {
+                'label': 'Low Threshold',
+                'dataType': 'number',
+                'operationType': 'static_value',
+                'isBucketed': False,
+                'isStaticValue': True,
+                'scale': 'ratio',
+                'params': {'value': '100.0'},
+                'references': [],
+                'customLabel': True,
+            },
+            'threshold-high': {
+                'label': 'High Threshold',
+                'dataType': 'number',
+                'operationType': 'static_value',
+                'isBucketed': False,
+                'isStaticValue': True,
+                'scale': 'ratio',
+                'params': {'value': '500.0'},
+                'references': [],
+                'customLabel': True,
+            },
+            'threshold-critical': {
+                'label': 'Critical',
+                'dataType': 'number',
+                'operationType': 'static_value',
+                'isBucketed': False,
+                'isStaticValue': True,
+                'scale': 'ratio',
+                'params': {'value': '1000.0'},
+                'references': [],
+                'customLabel': True,
+            },
+        }
+    )
 
 
 async def test_reference_line_layer_without_ids() -> None:
@@ -528,29 +553,22 @@ async def test_reference_line_layer_without_ids() -> None:
 
     layer_id, columns, ref_layers = compile_lens_reference_line_layer(layer_config)
 
-    # Test that we got a layer ID
-    assert isinstance(layer_id, str)
-    assert len(layer_id) > 0
-
-    # Test that we have 1 reference line layer (containing all reference lines)
-    assert len(ref_layers) == 1
-
-    # Test that we have 3 columns with unique accessor IDs
-    assert len(columns) == 3
+    # Validate basic structure
     accessor_ids = list(columns.keys())
-    # All accessor IDs should be unique (no collisions)
-    assert len(accessor_ids) == len(set(accessor_ids))
-    # Accessor IDs should not be the layer_id (they should be generated)
-    for accessor_id in accessor_ids:
-        assert accessor_id != layer_id
-
-    # Test column values are correct
-    column_values = sorted([col.params.value for col in columns.values()])
-    assert column_values == ['100.0', '200.0', '300.0']
-
-    # Test that the single layer has all 3 accessors
-    assert len(ref_layers[0].accessors) == 3
-    assert len(ref_layers[0].yConfig) == 3
+    assert (
+        isinstance(layer_id, str),
+        len(ref_layers),
+        len(columns),
+        # All accessor IDs should be unique (no collisions)
+        len(accessor_ids) == len(set(accessor_ids)),
+        # Accessor IDs should not be the layer_id (they should be generated)
+        all(accessor_id != layer_id for accessor_id in accessor_ids),
+        # Column values should be correct
+        sorted([col.params.value for col in columns.values()]),
+        # The single layer has all 3 accessors
+        len(ref_layers[0].accessors),
+        len(ref_layers[0].yConfig) if ref_layers[0].yConfig is not None else 0,
+    ) == (True, 1, 3, True, True, ['100.0', '200.0', '300.0'], 3, 3)
 
 
 async def test_reference_line_layer_empty() -> None:
@@ -562,12 +580,14 @@ async def test_reference_line_layer_empty() -> None:
 
     layer_id, columns, ref_layers = compile_lens_reference_line_layer(layer_config)
 
-    # Should return empty collections for columns but still have 1 layer (with no accessors)
-    assert isinstance(layer_id, str)
-    assert len(columns) == 0
-    assert len(ref_layers) == 1
-    assert len(ref_layers[0].accessors) == 0
-    assert len(ref_layers[0].yConfig) == 0
+    # Validate empty layer structure
+    assert (
+        isinstance(layer_id, str),
+        len(columns),
+        len(ref_layers),
+        len(ref_layers[0].accessors),
+        len(ref_layers[0].yConfig) if ref_layers[0].yConfig is not None else 0,
+    ) == (True, 0, 1, 0, 0)
 
 
 async def test_xy_chart_with_legend_position() -> None:
