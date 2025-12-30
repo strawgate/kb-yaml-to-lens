@@ -48,7 +48,7 @@ class KbnDatatableSortingState(BaseVwModel):
     Maps to Kibana's SortingState interface.
     """
 
-    columnId: str | None = Field(default=None)
+    columnId: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """The ID of the column to sort by."""
 
     direction: Literal['asc', 'desc', 'none'] = Field(default='none')

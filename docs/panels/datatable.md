@@ -2,34 +2,6 @@
 
 The Datatable chart panel displays tabular data with customizable columns, sorting, pagination, and formatting options. Perfect for displaying detailed records and performing quick data analysis.
 
-## A Poem for the Infrastructure Observability Team
-
-_For @graphaelli and the team who keep the lights on:_
-
-```text
-In rows and columns, data flows,
-Where metrics dance and insight grows.
-From pods that crash at 3 AM,
-To logs that tell us "Here I am!"
-
-Your tables sort, they page, they shine,
-With summary rows of COUNT and MIN.
-While others sleep, your dashboards wake,
-Detecting every small mistake.
-
-So here's to datatable displays,
-That light our darkest on-call days.
-With alignment left and summaries right,
-You make observability a delight!
-
-Infrastructure never sleeps, they say,
-But datatables help us find the way.
-From namespace counts to error rates,
-Your tabular views are truly great!
-```
-
----
-
 ## Minimal Configuration Example
 
 ```yaml

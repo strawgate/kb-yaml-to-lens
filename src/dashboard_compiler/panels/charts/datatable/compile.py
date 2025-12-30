@@ -109,7 +109,7 @@ def compile_lens_datatable_chart(
 
     # Build sorting state
     sorting_state = None
-    if lens_datatable_chart.sorting:
+    if lens_datatable_chart.sorting is not None:
         sorting_state = KbnDatatableSortingState(
             columnId=lens_datatable_chart.sorting.column_id,
             direction=lens_datatable_chart.sorting.direction,
@@ -117,7 +117,7 @@ def compile_lens_datatable_chart(
 
     # Build paging state
     paging_state = None
-    if lens_datatable_chart.paging:
+    if lens_datatable_chart.paging is not None:
         paging_state = KbnDatatablePagingState(
             size=lens_datatable_chart.paging.page_size,
             enabled=lens_datatable_chart.paging.enabled,
@@ -238,7 +238,7 @@ def compile_esql_datatable_chart(  # noqa: PLR0915
 
     # Build sorting state
     sorting_state = None
-    if esql_datatable_chart.sorting:
+    if esql_datatable_chart.sorting is not None:
         sorting_state = KbnDatatableSortingState(
             columnId=esql_datatable_chart.sorting.column_id,
             direction=esql_datatable_chart.sorting.direction,
@@ -246,7 +246,7 @@ def compile_esql_datatable_chart(  # noqa: PLR0915
 
     # Build paging state
     paging_state = None
-    if esql_datatable_chart.paging:
+    if esql_datatable_chart.paging is not None:
         paging_state = KbnDatatablePagingState(
             size=esql_datatable_chart.paging.page_size,
             enabled=esql_datatable_chart.paging.enabled,
