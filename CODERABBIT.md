@@ -105,27 +105,15 @@ The codebase uses `# pyright: ignore[reportUnnecessaryIsInstance]` in specific l
 
 ### Python Code Style
 
+The project follows specific code style conventions documented in [CODE_STYLE.md](CODE_STYLE.md).
+
 #### Explicit Boolean Comparisons
 
-Per `src/dashboard_compiler/AGENTS.md`, the codebase uses **explicit boolean comparisons** instead of implicit truthiness:
-
-**Preferred**:
-
-```python
-if x is not None:
-if len(items) > 0:
-if my_bool is True:
-```
-
-**Not preferred**:
-
-```python
-if x:
-if items:
-if my_bool:
-```
+The codebase uses **explicit boolean comparisons** instead of implicit truthiness (e.g., `if x is not None:` instead of `if x:`).
 
 **Do NOT suggest replacing explicit comparisons with implicit truthiness checks**. This is an intentional project style.
+
+See [CODE_STYLE.md](CODE_STYLE.md) for detailed explanations and examples.
 
 ### Testing Patterns
 
@@ -247,6 +235,7 @@ When reviewing code for kb-yaml-to-lens:
 When in doubt, check the relevant configuration files:
 
 - `pyproject.toml` - Ruff rules and exemptions
-- `src/dashboard_compiler/AGENTS.md` - Coding standards
+- `CODE_STYLE.md` - Code style conventions and patterns
+- `src/dashboard_compiler/AGENTS.md` - Component-specific architecture
 - `src/dashboard_compiler/shared/model.py` - Base Pydantic configuration
 - `CLAUDE.md` - Overall project guidelines
