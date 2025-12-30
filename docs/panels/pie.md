@@ -152,7 +152,7 @@ panel = LensPanel(
     lens=LensPiePanelConfig(
         type='pie',
         data_view='logs-*',
-        slice_by=[LensTopValuesDimension(field='status')],
+        slice_by=[LensTopValuesDimension(type='values', field='status')],
         metric=LensCountAggregatedMetric(aggregation='count'),
     ),
 )

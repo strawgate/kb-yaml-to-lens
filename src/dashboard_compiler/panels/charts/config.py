@@ -31,7 +31,6 @@ type SingleLayerChartTypes = LensMetricChart | LensGaugeChart
 type ESQLChartTypes = ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
 
 
-# Panel-level configuration mixin for Lens panels
 class LensPanelFieldsMixin(BaseCfgModel):
     """Panel-level fields for Lens chart panels."""
 
@@ -45,7 +44,6 @@ class LensPanelFieldsMixin(BaseCfgModel):
     """Optional additional layers for multi-layer charts."""
 
 
-# Lens panel configurations that merge chart config with panel-level fields
 class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
     """Configuration for a Lens metric panel."""
 
@@ -74,7 +72,6 @@ class LensTagcloudPanelConfig(LensTagcloudChart, LensPanelFieldsMixin):
     """Configuration for a Lens tagcloud panel."""
 
 
-# Discriminated union of Lens panel configurations
 type LensPanelConfig = Annotated[
     Annotated[LensMetricPanelConfig, Tag('metric')]
     | Annotated[LensGaugePanelConfig, Tag('gauge')]
@@ -87,7 +84,6 @@ type LensPanelConfig = Annotated[
 ]
 
 
-# ESQL panel configuration mixin that adds query field
 class ESQLPanelFieldsMixin(BaseCfgModel):
     """Panel-level fields for ES|QL chart panels."""
 
@@ -95,7 +91,6 @@ class ESQLPanelFieldsMixin(BaseCfgModel):
     """The ES|QL query to execute."""
 
 
-# ESQL panel configurations that merge chart config with query field
 class ESQLMetricPanelConfig(ESQLMetricChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL metric panel."""
 
@@ -124,7 +119,6 @@ class ESQLTagcloudPanelConfig(ESQLTagcloudChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL tagcloud panel."""
 
 
-# Discriminated union of ESQL panel configurations
 type ESQLPanelConfig = Annotated[
     Annotated[ESQLMetricPanelConfig, Tag('metric')]
     | Annotated[ESQLGaugePanelConfig, Tag('gauge')]
