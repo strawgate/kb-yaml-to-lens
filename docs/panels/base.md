@@ -173,6 +173,11 @@ The `palette` field accepts the following palette IDs:
 | `type` | `Literal['sequential', 'divergent']` | Gradient type. | `'sequential'` | No |
 | `colors` | `list[str]` | Hex color codes for the gradient. Use 2 colors for sequential, 3 for divergent. | N/A | Yes |
 
+**Note on color count validation:**
+
+* Sequential gradients require exactly 2 colors. If you provide a different number, you'll see: `"Sequential gradients require exactly 2 colors"`
+* Divergent gradients require exactly 3 colors. If you provide a different number, you'll see: `"Divergent gradients require exactly 3 colors"`
+
 ### Color Mapping Examples
 
 #### Example 1: Using a Different Palette

@@ -1,0 +1,234 @@
+---
+# Color Palette Configuration Examples
+# This file demonstrates the various color mapping features for charts
+dashboards:
+  - name: Color Palette Examples
+    panels:
+      # Example 1: Categorical colors with custom palette
+      - type: charts
+        title: HTTP Status Codes (Custom Colors)
+        grid: {x: 0, y: 0, w: 12, h: 8}
+        chart:
+          type: pie
+          data_view: logs-*
+          slice_by:
+            - field: http.response.status_code
+              type: values
+          metric:
+            aggregation: count
+          color:
+            palette: eui_amsterdam_color_blind
+            mode: categorical
+            assignments:
+              - value: '200'
+                color: '#00BF6F'  # Green for success
+              - value: '404'
+                color: '#FFA500'  # Orange for not found
+              - values:
+                  - '500'
+                  - '502'
+                  - '503'
+                color: '#BD271E'  # Red for server errors
+
+      # Example 2: Sequential gradient for metrics
+      - type: charts
+        title: Average Temperature (Sequential Gradient)
+        grid: {x: 12, y: 0, w: 12, h: 8}
+        chart:
+          type: metric
+          data_view: sensor-data
+          primary:
+            aggregation: average
+            field: temperature
+          color:
+            mode: gradient
+            gradient:
+              type: sequential
+              colors:
+                - '#F5F7FA'
+                - '#BD271E'
+
+      # Example 3: Line chart with service-specific colors
+      - type: charts
+        title: Response Time by Service
+        grid: {x: 24, y: 0, w: 24, h: 8}
+        chart:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: service.name
+            type: values
+          metrics:
+            - aggregation: average
+              field: response_time
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: web-frontend
+                color: '#00BF6F'  # Green
+              - value: api-gateway
+                color: '#0077CC'  # Blue
+              - value: database
+                color: '#FFA500'  # Orange
+              - value: cache
+                color: '#9170B8'  # Purple
+
+      # Example 4: Bar chart with status colors
+      - type: charts
+        title: Deployment Status by Environment
+        grid: {x: 0, y: 8, w: 16, h: 8}
+        chart:
+          type: bar
+          mode: stacked
+          data_view: deployments-*
+          dimensions:
+            - field: environment
+              type: values
+          breakdown:
+            field: status
+            type: values
+          metrics:
+            - aggregation: count
+          color:
+            palette: default
+            assignments:
+              - value: success
+                color: '#00BF6F'  # Green
+              - value: failed
+                color: '#BD271E'  # Red
+              - value: in_progress
+                color: '#FFA500'  # Orange
+              - value: pending
+                color: '#98A2B3'  # Gray
+
+      # Example 5: Area chart with elastic brand palette
+      - type: charts
+        title: Network Traffic (Elastic Brand Colors)
+        grid: {x: 16, y: 8, w: 16, h: 8}
+        chart:
+          type: area
+          mode: stacked
+          data_view: network-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: network.protocol
+            type: values
+          metrics:
+            - aggregation: sum
+              field: bytes
+          color:
+            palette: elastic_brand
+
+      # Example 6: Pie chart with grayscale palette
+      - type: charts
+        title: Document Types (Grayscale)
+        grid: {x: 32, y: 8, w: 16, h: 8}
+        chart:
+          type: pie
+          data_view: documents-*
+          slice_by:
+            - field: document.type
+              type: values
+          metric:
+            aggregation: count
+          color:
+            palette: gray
+            mode: categorical
+
+      # Example 7: Metric with divergent gradient
+      - type: charts
+        title: Average Response Time (Divergent Gradient)
+        grid: {x: 0, y: 16, w: 12, h: 6}
+        chart:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: response_time
+          color:
+            mode: gradient
+            gradient:
+              type: divergent
+              colors:
+                - '#BD271E'
+                - '#F5F7FA'
+                - '#00BF6F'
+
+      # Example 8: Multi-value assignment example
+      - type: charts
+        title: Log Levels (Grouped Colors)
+        grid: {x: 12, y: 16, w: 12, h: 6}
+        chart:
+          type: pie
+          data_view: logs-*
+          slice_by:
+            - field: log.level
+              type: values
+          metric:
+            aggregation: count
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - values:
+                  - DEBUG
+                  - TRACE
+                  - INFO
+                color: '#00BF6F'  # Green for informational
+              - values:
+                  - WARN
+                  - WARNING
+                color: '#FFA500'  # Orange for warnings
+              - values:
+                  - ERROR
+                  - FATAL
+                  - CRITICAL
+                color: '#BD271E'  # Red for errors
+
+      # Example 9: Legacy Kibana palette
+      - type: charts
+        title: User Activity by Browser (Legacy Colors)
+        grid: {x: 24, y: 16, w: 12, h: 6}
+        chart:
+          type: bar
+          data_view: web-analytics-*
+          dimensions:
+            - field: user_agent.browser
+              type: values
+          metrics:
+            - aggregation: count
+          color:
+            palette: kibana_palette
+
+      # Example 10: XY chart with custom breakdown colors
+      - type: charts
+        title: Request Count by Method
+        grid: {x: 36, y: 16, w: 12, h: 6}
+        chart:
+          type: line
+          data_view: api-logs-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: http.request.method
+            type: values
+          metrics:
+            - aggregation: count
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: GET
+                color: '#00BF6F'  # Green
+              - value: POST
+                color: '#0077CC'  # Blue
+              - value: PUT
+                color: '#FFA500'  # Orange
+              - value: DELETE
+                color: '#BD271E'  # Red
+              - value: PATCH
+                color: '#9170B8'  # Purple

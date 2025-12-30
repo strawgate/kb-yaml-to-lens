@@ -26,21 +26,25 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
 
     """
     # Use default ColorMapping if none provided
-    if not color_config:
+    if color_config is None:
         color_config = ColorMapping()
 
     # Build manual color assignments
     kbn_assignments: list[KbnLayerColorMappingAssignment] = []
 
+    # TODO: Implement range_assignments compilation for gradient ranges
+    # TODO: Implement gradient configuration compilation for custom gradient palettes
+    # Currently only categorical assignments are supported
+
     for assignment in color_config.assignments:
         # Determine which values to use
         values_to_assign: list[str] = []
-        if assignment.value:
+        if assignment.value is not None:
             values_to_assign = [assignment.value]
-        elif assignment.values:
+        elif assignment.values is not None and len(assignment.values) > 0:
             values_to_assign = assignment.values
 
-        if values_to_assign:
+        if len(values_to_assign) > 0:
             kbn_rule = KbnLayerColorMappingRule(
                 type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
                 values=values_to_assign,
