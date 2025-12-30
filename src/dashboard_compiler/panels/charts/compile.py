@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from dashboard_compiler.filters.compile import compile_filters
@@ -6,6 +7,7 @@ from dashboard_compiler.panels.charts.config import (
     AllChartTypes,
     ESQLPanel,
     LensChartTypes,
+    LensMultiLayerPanel,
     LensPanel,
 )
 from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
@@ -29,8 +31,9 @@ from dashboard_compiler.panels.charts.view import (
     KbnTextBasedDataSourceStateLayerById,
     KbnVisualizationTypeEnum,
 )
-from dashboard_compiler.panels.charts.xy.compile import compile_lens_xy_chart
-from dashboard_compiler.panels.charts.xy.config import LensAreaChart, LensBarChart, LensLineChart
+from dashboard_compiler.panels.charts.xy.compile import compile_lens_reference_line_layer, compile_lens_xy_chart
+from dashboard_compiler.panels.charts.xy.config import LensAreaChart, LensBarChart, LensLineChart, LensReferenceLineLayer
+from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
@@ -38,7 +41,9 @@ from dashboard_compiler.shared.view import KbnReference
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
     from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
+    from dashboard_compiler.panels.charts.xy.view import XYReferenceLineLayerConfig
 
 CHART_TYPE_TO_KBN_TYPE_MAP = {
     'metric': KbnVisualizationTypeEnum.METRIC,
@@ -50,7 +55,7 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
     if isinstance(chart, LensPieChart):
         return KbnVisualizationTypeEnum.PIE
-    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart)):
+    if isinstance(chart, (LensLineChart, LensBarChart, LensAreaChart, LensReferenceLineLayer)):
         return KbnVisualizationTypeEnum.XY
     if isinstance(chart, LensMetricChart):
         return KbnVisualizationTypeEnum.METRIC
@@ -66,7 +71,7 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
 def compile_lens_chart_state(
     query: LegacyQueryTypes | None,
     filters: list[FilterTypes] | None,
-    charts: list[LensChartTypes],
+    charts: Sequence[LensChartTypes],
 ) -> tuple[KbnLensPanelState, list[KbnReference]]:
     """Compile a multi-layer chart into its Kibana view model representation."""
     if len(charts) == 0:
@@ -76,6 +81,9 @@ def compile_lens_chart_state(
     form_based_datasource_state_layer_by_id: dict[str, KbnFormBasedDataSourceStateLayer] = {}
     kbn_references: list[KbnReference] = []
     visualization_state: KbnVisualizationStateTypes | None = None
+
+    # Collect reference line layers to be merged into XY visualization state
+    all_reference_line_layers: list[XYReferenceLineLayerConfig] = []
 
     # IMPORTANT: When multiple charts are provided in a single panel, only the LAST chart's
     # visualization state is used. Earlier charts contribute their datasource layers, but
@@ -88,10 +96,19 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
         elif isinstance(chart, LensMetricChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
-        elif isinstance(chart, LensTagcloudChart):  # pyright: ignore[reportUnnecessaryIsInstance]
+        elif isinstance(chart, LensTagcloudChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
+        elif isinstance(chart, LensReferenceLineLayer):  # pyright: ignore[reportUnnecessaryIsInstance]
+            # Reference line layers contribute layers and columns but no visualization state
+            layer_id, lens_columns_static, ref_line_layers = compile_lens_reference_line_layer(chart)
+            # Cast to the general type since KbnLensStaticValueColumn is a subtype of KbnLensColumnTypes
+            lens_columns_by_id: dict[str, KbnLensColumnTypes] = dict(lens_columns_static)
+            # Store reference line layers to be added to XY visualization state
+            all_reference_line_layers.extend(ref_line_layers)
+            # Don't update visualization_state for reference line layers
+            # They will be merged into the XY visualization state after the loop
         else:
-            msg = f'Unsupported Lens chart type: {type(chart)}'
+            msg = f'Unsupported chart type: {type(chart)}'
             raise NotImplementedError(msg)
 
         kbn_references.append(
@@ -111,6 +128,16 @@ def compile_lens_chart_state(
     if visualization_state is None:
         msg = 'No charts were successfully processed'
         raise ValueError(msg)
+
+    # Merge reference line layers into XY visualization state
+    if len(all_reference_line_layers) > 0:
+        # Reference line layers can only be added to XY visualizations
+        # TODO: Move this validation to the config model
+        if not isinstance(visualization_state, KbnXYVisualizationState):
+            msg = 'Reference line layers can only be used with XY chart visualizations'
+            raise ValueError(msg)
+        # Add reference line layers to the existing visualization state
+        visualization_state.layers.extend(all_reference_line_layers)
 
     datasource_states = KbnDataSourceState(
         formBased=KbnFormBasedDataSourceState(layers=KbnFormBasedDataSourceStateLayerById(form_based_datasource_state_layer_by_id)),
@@ -174,17 +201,18 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
     )
 
 
-def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
+def compile_charts_attributes(panel: LensPanel | LensMultiLayerPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
     """Compile a LensPanel into its Kibana view model representation.
 
     Args:
-        panel (LensPanel | ESQLPanel): The panel to compile.
+        panel (LensPanel | LensMultiLayerPanel | ESQLPanel): The panel to compile.
 
     Returns:
         KbnLensPanelAttributes: The compiled Kibana Lens panel view model.
 
     """
     chart_state: KbnLensPanelState
+    visualization_type: KbnVisualizationTypeEnum
     references: list[KbnReference] = []
 
     if isinstance(panel, LensPanel):
@@ -193,13 +221,28 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
             filters=panel.filters,
             charts=[panel.chart],
         )
+        # Determine visualization type from the single chart
+        visualization_type = chart_type_to_kbn_type_lens(panel.chart)
+    elif isinstance(panel, LensMultiLayerPanel):
+        chart_state, references = compile_lens_chart_state(
+            query=None,
+            filters=None,
+            charts=panel.layers,
+        )
+        # Determine visualization type from the first layer, first layer cannot be a reference line layer
+        first_layer = panel.layers[0]
+        visualization_type = chart_type_to_kbn_type_lens(chart=first_layer)
     elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
         chart_state = compile_esql_chart_state(panel)
+        visualization_type = chart_type_to_kbn_type_lens(panel.chart)
+    else:
+        msg = f'Unsupported panel type: {type(panel)}'  # pyright: ignore[reportUnreachable]
+        raise NotImplementedError(msg)
 
     return (
         KbnLensPanelAttributes(
             title=panel.title,
-            visualizationType=chart_type_to_kbn_type_lens(panel.chart),
+            visualizationType=visualization_type,
             references=references,
             state=chart_state,
         ),
@@ -207,11 +250,13 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
     )
 
 
-def compile_charts_panel_config(panel: LensPanel | ESQLPanel) -> tuple[list[KbnReference], KbnLensPanelEmbeddableConfig]:
+def compile_charts_panel_config(
+    panel: LensPanel | LensMultiLayerPanel | ESQLPanel,
+) -> tuple[list[KbnReference], KbnLensPanelEmbeddableConfig]:
     """Compile a LensPanel into an embeddable config.
 
     Args:
-        panel (LensPanel | ESQLPanel): The panel to compile.
+        panel (LensPanel | LensMultiLayerPanel | ESQLPanel): The panel to compile.
 
     Returns:
         KbnLensPanelEmbeddableConfig: The compiled Kibana Lens panel embeddable config.
