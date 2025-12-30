@@ -69,7 +69,8 @@ dashboards:
           type: line
           data_view: logs-*
           dimensions:
-            - field: '@timestamp'
+            - type: date_histogram
+              field: '@timestamp'
           metrics:
             - aggregation: count
 
@@ -83,7 +84,8 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: host.name
+            - type: values
+              field: host.name
           metrics:
             - aggregation: count
 
@@ -97,10 +99,12 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: '@timestamp'
+            - type: date_histogram
+              field: '@timestamp'
           metrics:
             - aggregation: count
           breakdown:
+            type: values
             field: log.level
 
       # Panel 8: Tagcloud Chart
@@ -112,6 +116,7 @@ dashboards:
           type: tagcloud
           data_view: logs-*
           tags:
+            type: values
             field: tags
           metric:
             aggregation: count
