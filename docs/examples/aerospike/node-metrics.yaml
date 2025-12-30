@@ -1,8 +1,16 @@
 ---
 dashboards:
-  - id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
-    name: '[Metrics Aerospike] Overview'
+  - id: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
+    name: '[Metrics Aerospike] Node Metrics'
     description: ''
+    controls:
+      - type: options
+        id: 28b2de58-2df1-404b-869b-5c056630a213
+        label: Aerospike Node
+        width: medium
+        data_view: metrics-*
+        field: aerospike.node.name
+        match_technique: contains
     panels:
       - grid: {x: 0, y: 0, w: 48, h: 2}
         links:
@@ -14,8 +22,12 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
+      - grid: {x: 0, y: 2, w: 48, h: 2}
+        markdown:
+          content: |
+            This dashboard is intended to be used with a single Aerospike node. Filter to a specific node before using this dashboard.
       - type: charts
-        grid: {x: 0, y: 2, w: 10, h: 3}
+        grid: {x: 0, y: 4, w: 7, h: 5}
         filters:
           - field: data_stream.dataset
             equals: aerospikereceiver.otel
@@ -25,9 +37,21 @@ dashboards:
           primary:
             aggregation: unique_count
             field: aerospike.node.name
-            label: Aerospike Nodes
+            label: Selected Nodes
       - type: charts
-        grid: {x: 10, y: 2, w: 38, h: 9}
+        grid: {x: 0, y: 9, w: 10, h: 5}
+        filters:
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: aerospike.namespace
+            label: Aerospike Namespaces
+      - type: charts
+        grid: {x: 10, y: 4, w: 38, h: 9}
         filters:
           - field: data_stream.dataset
             equals: aerospikereceiver.otel
@@ -43,31 +67,17 @@ dashboards:
               label: Top 15 values of aerospike.node.name
               size: 15
               sort:
-                by: Free Memory  # Assuming alphabetical sort maps to _key
+                by: Free Memory
                 direction: asc
               other_bucket: true
               missing_bucket: false
-          primary:
+          metrics:
             - aggregation: min
               label: Free Memory
               field: aerospike.node.memory.free
-              # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
       - type: charts
-        grid: {x: 0, y: 5, w: 10, h: 3}
+        grid: {x: 10, y: 13, w: 17, h: 14}
         filters:
-          - field: data_stream.dataset
-            equals: aerospikereceiver.otel
-        chart:
-          type: metric
-          data_view: metrics-*
-          primary:
-            aggregation: unique_count
-            field: aerospike.namespace
-            label: Unique Namespaces
-      - type: charts
-        grid: {x: 27, y: 9, w: 38, h: 9}
-        filters:
-          - exists: aerospike.node.connection.open
           - field: data_stream.dataset
             equals: aerospikereceiver.otel
         chart:
@@ -79,13 +89,40 @@ dashboards:
               label: '@timestamp'
             - field: aerospike.node.name
               type: values
+              label: Top 15 values of aerospike.node.name
+              size: 15
+              sort:
+                by: Used Memory
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: min
+              label: Used Memory
+              field: aerospike.node.memory.used
+      - type: charts
+        grid: {x: 27, y: 13, w: 21, h: 14}
+        filters:
+          - exists: aerospike.node.connection.open
+          - field: data_stream.dataset
+            equals: aerospikereceiver.otel
+        chart:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+              label: '@timestamp'
+            - field: attributes.type
+              type: values
+              label: Top 15 values of attributes.type
               size: 15
               sort:
                 by: Open Connections
                 direction: desc
               other_bucket: true
               missing_bucket: false
-          primary:
+          metrics:
             - aggregation: max
               field: aerospike.node.connection.open
               label: Open Connections
