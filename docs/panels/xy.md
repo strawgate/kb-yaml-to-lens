@@ -92,7 +92,7 @@ dashboards:
           dimensions:
             - field: "@timestamp"
           metrics:
-            - aggregation: "avg"
+            - aggregation: "average"
               field: "response_time"
         # Reference line layer
         - type: reference_line
