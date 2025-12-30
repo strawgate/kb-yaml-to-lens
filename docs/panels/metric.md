@@ -6,15 +6,17 @@ The Metric chart panel displays a single value or a small set of key metrics, of
 
 ```yaml
 dashboards:
--
-  name: "KPI Dashboard"
-  panels:
-    - type: metric
-      title: "Total Revenue"
-      grid: { x: 0, y: 0, w: 3, h: 2 }
-      data:
-        index: "sales-data"
-        value: "revenue"
+  - name: "KPI Dashboard"
+    panels:
+      - type: charts
+        title: "Total Revenue"
+        grid: { x: 0, y: 0, w: 3, h: 2 }
+        chart:
+          type: metric
+          data_view: "sales-data"
+          primary:
+            aggregation: sum
+            field: revenue
 ```
 
 ## Full Configuration Options
