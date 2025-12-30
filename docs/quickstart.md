@@ -85,6 +85,5 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 
 - Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in the `src/dashboard_compiler/*/` directories.
 - Refer to the example YAML files in the `inputs/` and `tests/dashboards/scenarios/` directories for more complex examples.
-- See the [YAML Reference](yaml_reference.md) for complete schema documentation.
 - Check the [CLI Documentation](CLI.md) for compilation and upload instructions.
 - Try the [Programmatic Usage Guide](programmatic-usage.md) for creating dashboards in Python code.
