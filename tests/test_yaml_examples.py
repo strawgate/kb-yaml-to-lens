@@ -23,10 +23,7 @@ markdown_files = [
     'src/dashboard_compiler/panels/base.md',
     'src/dashboard_compiler/panels/charts/esql/esql.md',
     'src/dashboard_compiler/panels/charts/lens/lens.md',
-    'src/dashboard_compiler/panels/charts/metric/config.md',
-    'src/dashboard_compiler/panels/charts/pie/config.md',
     'src/dashboard_compiler/panels/charts/tagcloud/config.md',
-    'src/dashboard_compiler/panels/charts/xy/config.md',
     'src/dashboard_compiler/panels/images/image.md',
     'src/dashboard_compiler/panels/links/links.md',
     'src/dashboard_compiler/panels/markdown/markdown.md',
@@ -97,18 +94,15 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
     """Test that complete YAML examples can be loaded by the dashboard compiler."""
     from dashboard_compiler.dashboard_compiler import load
 
-    # Skip files that contain deprecated/incomplete chart examples
+    # Skip files that contain incomplete chart examples
     # These are internal API docs showing schema structures and aren't meant to be complete examples
-    deprecated_api_docs = [
-        'src/dashboard_compiler/panels/charts/metric/config.md',
-        'src/dashboard_compiler/panels/charts/pie/config.md',
-        'src/dashboard_compiler/panels/charts/xy/config.md',
+    internal_api_docs = [
         'src/dashboard_compiler/panels/charts/tagcloud/config.md',
         'src/dashboard_compiler/panels/charts/esql/esql.md',
         'src/dashboard_compiler/panels/charts/lens/lens.md',
     ]
-    if file_path in deprecated_api_docs:
-        pytest.skip(f'Skipping deprecated API doc: {file_path}')
+    if file_path in internal_api_docs:
+        pytest.skip(f'Skipping internal API doc: {file_path}')
 
     examples = extract_yaml_examples(file_path)
 
