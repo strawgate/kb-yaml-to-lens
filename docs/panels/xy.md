@@ -38,12 +38,13 @@ dashboards:
     panels:
       - type: charts
         title: "Events Over Time"
-        grid: { x: 0, y: 0, w: 12, h: 6 }
+        grid: { x: 0, y: 0, w: 48, h: 6 }
         chart:
           type: line
           data_view: "logs-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: count
 ```
@@ -125,8 +126,65 @@ dashboards:
 #### XYLegend Options
 
 | YAML Key | Data Type | Description | Default | Required |
-| --------- | ----------------- | ------------------------------ | ------- | -------- |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------- | ------- | -------- |
 | `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
+| `position` | `Literal['top', 'bottom', 'left', 'right'] \| None` | Position of the legend (Kibana defaults to 'right'). | `None` | No |
+
+## Reference Lines (Multi-Layer Panels)
+
+Reference lines are implemented as separate layers in multi-layer panels. This allows you to combine data visualizations with threshold lines in a single chart.
+
+### Basic Reference Line Example
+
+```yaml
+dashboards:
+  - name: "Service Level Dashboard"
+    panels:
+    - type: multi_layer_charts
+      title: "Response Time with SLA"
+      grid: { x: 0, y: 0, w: 24, h: 12 }
+      layers:
+        # Data layer
+        - type: line
+          data_view: "metrics-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: "average"
+              field: "response_time"
+        # Reference line layer
+        - type: reference_line
+          data_view: "metrics-*"
+          reference_lines:
+            - label: "SLA Threshold"
+              value: 500.0
+              color: "#FF0000"
+              line_style: "dashed"
+```
+
+### Reference Line Layer Configuration
+
+| YAML Key | Data Type | Description | Default | Required |
+| --------------- | ------------------------------- | --------------------------------------------------------- | ------- | -------- |
+| `type` | `Literal['reference_line']` | Specifies the layer type as reference line. | N/A | Yes |
+| `data_view` | `string` | The data view (required for Kibana compatibility). | N/A | Yes |
+| `reference_lines` | `list[XYReferenceLine]` | List of reference lines to display in this layer. | `[]` | No |
+
+### Individual Reference Line Options
+
+| YAML Key | Data Type | Description | Default | Required |
+| --------------- | ----------------------------------------------------------- | ------------------------------------------------------- | -------- | -------- |
+| `value` | `float \| XYReferenceLineValue` | The y-axis value for the reference line. | N/A | Yes |
+| `label` | `string \| None` | Label text displayed on the reference line. | `None` | No |
+| `id` | `string \| None` | Optional unique identifier for the reference line. | `None` | No |
+| `axis` | `Literal['left', 'right'] \| None` | Which y-axis to assign the reference line to. | `'left'` | No |
+| `color` | `string \| None` | Color of the reference line (hex code). | Kibana Default | No |
+| `line_width` | `int \| None` | Width of the reference line (1-10). | Kibana Default | No |
+| `line_style` | `Literal['solid', 'dashed', 'dotted'] \| None` | Style of the reference line. | Kibana Default | No |
+| `fill` | `Literal['above', 'below', 'none'] \| None` | Fill area above or below the line. | `None` | No |
+| `icon` | `string \| None` | Icon to display on the reference line. | `None` | No |
+| `icon_position` | `Literal['auto', 'left', 'right', 'above', 'below'] \| None` | Position of the icon relative to the line. | `None` | No |
 
 ### ESQL Bar/Line/Area Charts
 
@@ -134,31 +192,54 @@ ESQL chart configuration is similar to Lens charts, but uses `ESQLDimensionTypes
 
 ## Programmatic Usage (Python)
 
-You can create XY chart panels programmatically using Python:
+You can create XY chart panels with reference lines programmatically using Python:
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
+from dashboard_compiler.panels.charts.config import LensMultiLayerPanel
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensDateHistogramDimension,
 )
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.charts.xy.config import LensLineChart
+from dashboard_compiler.panels.charts.xy.config import (
+    LensLineChart,
+    LensReferenceLineLayer,
+    XYReferenceLine,
+)
 from dashboard_compiler.panels.config import Grid
 
-# Time series line chart
-line_chart = LensLineChart(
-    data_view='logs-*',
-    dimensions=[LensDateHistogramDimension(field='@timestamp')],
-    breakdown=None,
-    metrics=[LensCountAggregatedMetric(aggregation='count')],
-)
-
-panel = LensPanel(
-    title='Documents Over Time',
+# Create a multi-layer panel with data layer and reference line layer
+panel = LensMultiLayerPanel(
+    title='Documents Over Time with Thresholds',
     grid=Grid(x=0, y=0, w=48, h=20),
-    chart=line_chart,
+    layers=[
+        # Data layer
+        LensLineChart(
+            data_view='logs-*',
+            dimensions=[LensDateHistogramDimension(field='@timestamp')],
+            metrics=[LensCountAggregatedMetric(aggregation='count')],
+        ),
+        # Reference line layer
+        LensReferenceLineLayer(
+            data_view='logs-*',
+            reference_lines=[
+                XYReferenceLine(
+                    label='SLA Threshold',
+                    value=500.0,
+                    color='#FF0000',
+                    line_style='dashed',
+                    line_width=2,
+                ),
+                XYReferenceLine(
+                    label='Target',
+                    value=200.0,
+                    color='#00FF00',
+                    line_style='solid',
+                ),
+            ],
+        ),
+    ],
 )
 ```
 

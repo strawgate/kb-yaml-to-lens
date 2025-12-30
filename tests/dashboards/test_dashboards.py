@@ -444,10 +444,11 @@ async def test_dashboard_with_custom_options() -> None:
                 },
                 'panels': [
                     {
-                        'type': 'markdown',
                         'title': 'Test Panel',
                         'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
-                        'content': '# Testing dashboard options\n',
+                        'markdown': {
+                            'content': '# Testing dashboard options\n',
+                        },
                     }
                 ],
             }
@@ -540,10 +541,11 @@ async def test_dashboard_with_default_options() -> None:
                 'description': 'A dashboard to test default dashboard options behavior',
                 'panels': [
                     {
-                        'type': 'markdown',
                         'title': 'Test Panel',
                         'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
-                        'content': '# Testing default dashboard options\n',
+                        'markdown': {
+                            'content': '# Testing default dashboard options\n',
+                        },
                     }
                 ],
             }

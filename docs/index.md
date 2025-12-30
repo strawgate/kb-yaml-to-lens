@@ -53,12 +53,13 @@ dashboards:
   name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
-    - type: markdown
+    - title: Welcome
       grid: { x: 0, y: 0, w: 24, h: 15 }
-      content: |
-        # Welcome to Kibana!
+      markdown:
+        content: |
+          # Welcome to Kibana!
 
-        This is my first dashboard compiled from YAML.
+          This is my first dashboard compiled from YAML.
 ```
 
 1. Compile to NDJSON:

@@ -58,7 +58,7 @@ class ColorAssignment(BaseCfgModel):
     @model_validator(mode='after')
     def check_value_or_values(self) -> 'ColorAssignment':
         """Validate that at least one of value or values is provided."""
-        if self.value is None and not self.values:
+        if self.value is None and (self.values is None or len(self.values) == 0):
             msg = "At least one of 'value' or 'values' must be provided"
             raise ValueError(msg)
         return self

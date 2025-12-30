@@ -4,16 +4,16 @@ dashboards:
     name: '[Metrics Aerospike] Overview'
     description: ''
     panels:
-      - type: links
-        grid: {x: 0, y: 0, w: 48, h: 2}
-        layout: horizontal
+      - grid: {x: 0, y: 0, w: 48, h: 2}
         links:
-          - label: Overview
-            dashboard: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
-          - label: Node Metrics
-            dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
-          - label: Namespace Metrics
-            dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
+            - label: Node Metrics
+              dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
+            - label: Namespace Metrics
+              dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
       - type: charts
         grid: {x: 0, y: 2, w: 10, h: 3}
         filters:
@@ -47,7 +47,7 @@ dashboards:
                 direction: asc
               other_bucket: true
               missing_bucket: false
-          primary:
+          metrics:
             - aggregation: min
               label: Free Memory
               field: aerospike.node.memory.free
@@ -65,7 +65,7 @@ dashboards:
             field: aerospike.namespace
             label: Unique Namespaces
       - type: charts
-        grid: {x: 27, y: 9, w: 38, h: 9}
+        grid: {x: 0, y: 11, w: 48, h: 9}
         filters:
           - exists: aerospike.node.connection.open
           - field: data_stream.dataset
@@ -85,7 +85,7 @@ dashboards:
                 direction: desc
               other_bucket: true
               missing_bucket: false
-          primary:
+          metrics:
             - aggregation: max
               field: aerospike.node.connection.open
               label: Open Connections

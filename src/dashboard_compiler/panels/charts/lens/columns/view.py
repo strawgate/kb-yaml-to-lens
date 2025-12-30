@@ -16,7 +16,7 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensCustomInvervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn
+type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -95,6 +95,26 @@ class KbnLensFieldMetricColumn(KbnLensBaseColumn):
 
     params: KbnLensMetricColumnParams
     """Additional parameters for the metric column."""
+
+
+class KbnLensStaticValueColumnParams(BaseVwModel):
+    """Parameters for static value columns."""
+
+    value: str
+    """The static value as a string."""
+
+
+class KbnLensStaticValueColumn(KbnLensBaseColumn):
+    """Represents a static value column for reference lines."""
+
+    operationType: Literal['static_value']
+    dataType: Literal['number']
+    isBucketed: Literal[False] = False
+    isStaticValue: Literal[True] = True
+    scale: Literal['ratio']
+    params: KbnLensStaticValueColumnParams
+    references: list[str] = Field(default_factory=list)
+    """List of referenced column IDs (typically empty for static values)."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):

@@ -5,18 +5,18 @@ dashboards:
     description: Demonstrates complex dimension configurations and breakdowns
     panels:
       # Introduction
-      - type: markdown
-        title: Multi-Dimensional Visualizations
+      - title: Multi-Dimensional Visualizations
         grid: {x: 0, y: 0, w: 48, h: 5}
-        content: |
-          # Multi-Dimensional Chart Examples
-          This dashboard demonstrates advanced dimension and breakdown configurations:
-          - **Single dimension** - Basic time series
-          - **Multiple dimensions** - Cross-tabulation
-          - **Breakdowns** - Additional grouping layer
-          - **Top N with sorting** - Size limits and sort orders
-          - **Other bucket** - Handling remaining values
-        font_size: 12
+        markdown:
+          content: |
+            # Multi-Dimensional Chart Examples
+            This dashboard demonstrates advanced dimension and breakdown configurations:
+            - **Single dimension** - Basic time series
+            - **Multiple dimensions** - Cross-tabulation
+            - **Breakdowns** - Additional grouping layer
+            - **Top N with sorting** - Size limits and sort orders
+            - **Other bucket** - Handling remaining values
+          font_size: 12
 
       # Example 1: Simple time dimension
       - type: charts

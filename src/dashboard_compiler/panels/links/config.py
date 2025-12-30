@@ -1,6 +1,6 @@
 """Configuration for Links Panel."""
 
-from typing import Annotated, Literal, Self
+from typing import Annotated, Literal
 
 from pydantic import Discriminator, Field, Tag
 
@@ -81,14 +81,8 @@ class UrlLink(BaseLink):
     """If `true`, the link will open in a new browser tab. Kibana defaults to `false` if not set."""
 
 
-class LinksPanel(BasePanel):
-    """Represents a Links panel configuration.
-
-    Links panels are used to display a collection of links to other dashboards,
-    saved objects, or external URLs.
-    """
-
-    type: Literal['links'] = 'links'
+class LinksPanelConfig(BaseCfgModel):
+    """Configuration specific to Links panels."""
 
     layout: Literal['horizontal', 'vertical'] | None = Field(default=None)
     """The layout of the links in the panel, either 'horizontal' or 'vertical'. Kibana defaults to 'horizontal' if not set."""
@@ -96,15 +90,13 @@ class LinksPanel(BasePanel):
     links: list[LinkTypes] = Field(default_factory=list)
     """A list of link objects to be displayed in the panel."""
 
-    def add_link(self, link: LinkTypes) -> Self:
-        """Add a link object to the Links panel's links list.
 
-        Args:
-            link (LinkTypes): The link object to add.
+class LinksPanel(BasePanel):
+    """Represents a Links panel configuration.
 
-        Returns:
-            Self: The current instance of the LinksPanel for method chaining.
+    Links panels are used to display a collection of links to other dashboards,
+    saved objects, or external URLs.
+    """
 
-        """
-        self.links.append(link)
-        return self
+    links_config: LinksPanelConfig = Field(..., alias='links')
+    """Links panel configuration."""
