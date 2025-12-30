@@ -101,6 +101,6 @@ jobs:
         - Make ONE round of changes per CodeRabbit review
         - Don't re-trigger CodeRabbit by mentioning it or requesting re-review
         - Focus on fixing issues, not perfecting code
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*,gh:api:*)
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

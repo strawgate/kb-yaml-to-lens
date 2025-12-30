@@ -46,10 +46,12 @@ jobs:
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
       prompt: |
-        You're a merge conflict resolution assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
+        You're a merge conflict resolution assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards
+         from YAML to Lens format.
 
         # YOUR TASK
-        This pull request (#${{ github.event.pull_request.number }}) has merge conflicts with the base branch (${{ github.event.pull_request.base.ref }}).
+        This pull request (#${{ github.event.pull_request.number }}) has merge conflicts with the base branch
+        (${{ github.event.pull_request.base.ref }}).
         Your goal is to:
         1. Analyze the merge conflicts
         2. Understand the changes in both branches

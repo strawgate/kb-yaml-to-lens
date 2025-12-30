@@ -30,7 +30,8 @@ dashboards:
       - type: markdown
         grid: {x: 0, y: 2, w: 48, h: 2}
         content: |
-          This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace. Filter to a specific node and namespace before using this dashboard.
+          This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.
+          Filter to a specific node and namespace before using this dashboard.
       - type: charts
         grid: {x: 0, y: 4, w: 9, h: 4}
         filters:
@@ -43,35 +44,6 @@ dashboards:
             aggregation: unique_count
             field: aerospike.namespace
             label: Selected Namespaces
-
-  # - type: lens
-  #   grid: { x: 9, y: 4, w: 39, h: 4 }
-  #   index_pattern: metrics-*
-  #   filters:
-  #     - field: data_stream.dataset
-  #       equals: aerospikereceiver.otel
-  #   chart:
-  #     type: table
-  #     columns:
-  #       - field: aerospike.namespace
-  #         type: terms
-  #         label: Namespace
-  #         size: 5
-  #         sort:
-  #           by: Last Gather Time  # Assuming this maps to the column label
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #       - field: host.name
-  #         type: last_value
-  #         label: Monitored By
-  #         sort_field: "@timestamp"
-  #         filter: "host.name: *"
-  #       - field: "@timestamp"
-  #         type: last_value
-  #         label: Last Gather Time
-  #         sort_field: "@timestamp"
-  #         filter: "@timestamp: *"
       - type: markdown
         grid: {x: 0, y: 8, w: 48, h: 3}
         content: |
@@ -98,16 +70,14 @@ dashboards:
               label: Top values of attributes.type + 1 other
               size: 50
               sort:
-                by: Queries per Second  # Assuming alphabetical sort maps to _key
+                by: Queries per Second
                 direction: asc
               other_bucket: false
               missing_bucket: true
-          # secondaryFields: ["attributes.result"] # Not directly supported in YAML schema
           metrics:
             - aggregation: max
               label: Queries per Second
               field: metrics.aerospike.namespace.query.count
-          # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
       - type: charts
         grid: {x: 24, y: 11, w: 24, h: 12}
         filters:
@@ -133,12 +103,10 @@ dashboards:
                 direction: desc
               other_bucket: false
               missing_bucket: true
-          # secondaryFields: ["attributes.result"] # Not directly supported in YAML schema
           metrics:
             - aggregation: min
               label: Queries per Second
               field: aerospike.namespace.query.count
-          # format: {id: "number", params: {decimals: 2}} # Not directly supported in YAML schema
       - type: markdown
         grid: {x: 0, y: 23, w: 48, h: 3}
         content: |

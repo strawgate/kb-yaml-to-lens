@@ -38,35 +38,6 @@ dashboards:
             aggregation: unique_count
             field: aerospike.node.name
             label: Selected Nodes
-
-  # - type: lens
-  #   grid: { x: 7, y: 4, w: 41, h: 5 }
-  #   index_pattern: metrics-*
-  #   filters:
-  #     - field: data_stream.dataset
-  #       equals: aerospikereceiver.otel
-  #   chart:
-  #     type: table
-  #     columns:
-  #       - field: aerospike.node.name
-  #         type: terms
-  #         label: Node Name
-  #         size: 5
-  #         sort:
-  #           by: Last Gather Time  # Assuming this maps to the column label
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #       - field: host.name
-  #         type: last_value
-  #         label: Monitored By
-  #         sort_field: "@timestamp"
-  #         filter: "host.name: *"
-  #       - field: "@timestamp"
-  #         type: last_value
-  #         label: Last Gather Time
-  #         sort_field: "@timestamp"
-  #         filter: "@timestamp: *"
       - type: charts
         grid: {x: 0, y: 9, w: 10, h: 5}
         filters:
@@ -96,7 +67,7 @@ dashboards:
               label: Top 15 values of aerospike.node.name
               size: 15
               sort:
-                by: Free Memory  # Assuming alphabetical sort maps to _key
+                by: Free Memory
                 direction: asc
               other_bucket: true
               missing_bucket: false
@@ -104,38 +75,6 @@ dashboards:
             - aggregation: min
               label: Free Memory
               field: aerospike.node.memory.free
-          # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
-
-  # - type: lens
-  #   grid: { x: 0, y: 8, w: 10, h: 12 }
-  #   index_pattern: metrics-*
-  #   filters:
-  #     - field: data_stream.dataset
-  #       equals: aerospikereceiver.otel
-  #   chart:
-  #     type: table
-  #     columns:
-  #       - field: aerospike.node.name
-  #         type: terms
-  #         label: Node
-  #         size: 100
-  #         sort:
-  #           by: Aerospike Namespaces  # Assuming this maps to the column label
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #       - field: aerospike.namespace
-  #         type: terms
-  #         label: Namespace
-  #         size: 100
-  #         sort:
-  #           by: Aerospike Namespaces  # Assuming this maps to the column label
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #       - type: unique_count
-  #         field: aerospike.namespace
-  #         label: Aerospike Namespaces
       - type: charts
         grid: {x: 10, y: 9, w: 17, h: 14}
         filters:
@@ -153,7 +92,7 @@ dashboards:
               label: Top 15 values of aerospike.node.name
               size: 15
               sort:
-                by: Used Memory  # Assuming alphabetical sort maps to _key
+                by: Used Memory
                 direction: desc
               other_bucket: true
               missing_bucket: false
@@ -161,8 +100,6 @@ dashboards:
             - aggregation: min
               label: Used Memory
               field: aerospike.node.memory.used
-          # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
-      # Reference lines are not directly supported in the YAML schema
       - type: charts
         grid: {x: 27, y: 9, w: 21, h: 14}
         filters:
@@ -181,7 +118,7 @@ dashboards:
               label: Top 15 values of attributes.type
               size: 15
               sort:
-                by: Open Connections  # Assuming this maps to the column label
+                by: Open Connections
                 direction: desc
               other_bucket: true
               missing_bucket: false
@@ -189,4 +126,3 @@ dashboards:
             - aggregation: max
               field: aerospike.node.connection.open
               label: Open Connections
-          # format: {id: "number", params: {decimals: 0}} # Not directly supported in YAML schema

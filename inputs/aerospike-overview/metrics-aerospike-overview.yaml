@@ -64,65 +64,6 @@ dashboards:
             aggregation: unique_count
             field: aerospike.namespace
             label: Unique Namespaces
-
-  # - type: lens
-  #   grid: { x: 0, y: 8, w: 10, h: 12 }
-  #   index_pattern: metrics-*
-  #   filters:
-  #     - field: data_stream.dataset
-  #       equals: aerospikereceiver.otel
-  #   chart:
-  #     type: table
-  #     columns:
-  #       - field: aerospike.node.name
-  #         type: terms
-  #         label: Node
-  #         size: 100
-  #         sort:
-  #           by: Aerospike Namespaces  # Assuming this maps to the column label
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #       - field: aerospike.namespace
-  #         type: terms
-  #         label: Namespace
-  #         size: 100
-  #         sort:
-  #           by: Aerospike Namespaces  # Assuming this maps to the column label
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #       - type: unique_count
-  #         field: aerospike.namespace
-  #         label: Aerospike Namespaces
-
-  # - type: lens
-  #   grid: { x: 10, y: 9, w: 17, h: 14 }
-  #   index_pattern: metrics-*
-  #   filters:
-  #     - field: data_stream.dataset
-  #       equals: aerospikereceiver.otel
-  #   chart:
-  #     type: line
-  #     dimensions:
-  #       - field: "@timestamp"
-  #         type: date_histogram
-  #         label: "@timestamp"
-  #       - field: aerospike.node.name
-  #         type: terms
-  #         label: Top 15 values of aerospike.node.name
-  #         size: 15
-  #         sort:
-  #           by: "Used Memory" # Assuming alphabetical sort maps to _key
-  #           direction: desc
-  #         other_bucket: true
-  #         missing_bucket: false
-  #     primary:
-  #       - type: min
-  #         label: Used Memory
-  #         field: aerospike.node.memory.used
-          # format: {id: "percent", params: {decimals: 0}} # Not directly supported in YAML schema
-      # Reference lines are not directly supported in the YAML schema
       - type: charts
         grid: {x: 27, y: 9, w: 38, h: 9}
         filters:
@@ -148,4 +89,3 @@ dashboards:
             - aggregation: max
               field: aerospike.node.connection.open
               label: Open Connections
-              # format: {id: "number", params: {decimals: 0}} # Not directly supported in YAML schema
