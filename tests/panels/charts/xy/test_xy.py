@@ -41,7 +41,7 @@ async def test_bar_stacked_chart() -> None:
     }
 
     lens_chart = LensBarChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -64,7 +64,7 @@ async def test_bar_stacked_chart() -> None:
     )
 
     esql_chart = ESQLBarChart(**esql_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -106,7 +106,7 @@ async def test_bar_unstacked_chart() -> None:
     }
 
     lens_chart = LensBarChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -129,7 +129,7 @@ async def test_bar_unstacked_chart() -> None:
     )
 
     esql_chart = ESQLBarChart(**esql_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -169,7 +169,7 @@ async def test_line_chart() -> None:
     }
 
     lens_chart = LensLineChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -192,7 +192,7 @@ async def test_line_chart() -> None:
     )
 
     esql_chart = ESQLLineChart(**esql_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -232,7 +232,7 @@ async def test_area_chart() -> None:
     }
 
     lens_chart = LensAreaChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -255,7 +255,7 @@ async def test_area_chart() -> None:
     )
 
     esql_chart = ESQLAreaChart(**esql_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -297,7 +297,7 @@ async def test_area_percentage_chart() -> None:
     }
 
     lens_chart = LensAreaChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -320,7 +320,7 @@ async def test_area_percentage_chart() -> None:
     )
 
     esql_chart = ESQLAreaChart(**esql_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -599,7 +599,7 @@ async def test_xy_chart_with_legend_position() -> None:
     }
 
     lens_chart = LensLineChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'top'})
 
@@ -615,7 +615,7 @@ async def test_xy_chart_with_legend_hidden() -> None:
     }
 
     lens_chart = LensBarChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot({'isVisible': False, 'position': 'right'})
 
@@ -631,6 +631,6 @@ async def test_xy_chart_with_legend_bottom_position() -> None:
     }
 
     lens_chart = LensAreaChart(**lens_config)
-    layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'bottom'})

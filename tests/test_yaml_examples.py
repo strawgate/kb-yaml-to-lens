@@ -61,10 +61,11 @@ def test_yaml_examples_use_dashboards_format(file_path: str) -> None:
             # Check for top-level 'dashboard:' (not indented, at start of line)
             # Must not be indented (no leading whitespace before 'dashboard:')
             if line.startswith('dashboard:'):
-                pytest.fail(
+                msg = (
                     f"{file_path}:{line_num} - YAML example uses deprecated 'dashboard:' format. "
                     "Use 'dashboards:' (plural, array format) instead."
                 )
+                pytest.fail(msg)
 
 
 @pytest.mark.parametrize('file_path', markdown_files)
@@ -115,7 +116,7 @@ def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
         try:
             # Write YAML to a temporary file for loading
             temp_yaml = tmp_path / f'example_{line_num}.yaml'
-            temp_yaml.write_text(yaml_content)
+            _ = temp_yaml.write_text(yaml_content)
 
             # Try to load the YAML as a dashboard config
             dashboards = load(str(temp_yaml))

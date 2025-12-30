@@ -25,7 +25,7 @@ def compile_gauge_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens
     return kbn_state_visualization.model_dump()
 
 
-def test_compile_gauge_chart_metric_only_lens():
+def test_compile_gauge_chart_metric_only_lens() -> None:
     """Test the compilation of a gauge chart with only a metric (Lens)."""
     config = {
         'type': 'gauge',
@@ -51,7 +51,7 @@ def test_compile_gauge_chart_metric_only_lens():
     )
 
 
-def test_compile_gauge_chart_metric_only_esql():
+def test_compile_gauge_chart_metric_only_esql() -> None:
     """Test the compilation of a gauge chart with only a metric (ESQL)."""
     config = {
         'type': 'gauge',
@@ -75,7 +75,7 @@ def test_compile_gauge_chart_metric_only_esql():
     )
 
 
-def test_compile_gauge_chart_with_shape_lens():
+def test_compile_gauge_chart_with_shape_lens() -> None:
     """Test the compilation of a gauge chart with shape configuration (Lens)."""
     config = {
         'type': 'gauge',
@@ -104,7 +104,7 @@ def test_compile_gauge_chart_with_shape_lens():
     )
 
 
-def test_compile_gauge_chart_with_min_max_goal_lens():
+def test_compile_gauge_chart_with_min_max_goal_lens() -> None:
     """Test the compilation of a gauge chart with min/max/goal (Lens)."""
     config = {
         'type': 'gauge',
@@ -148,7 +148,7 @@ def test_compile_gauge_chart_with_min_max_goal_lens():
     )
 
 
-def test_compile_gauge_chart_with_min_max_goal_esql():
+def test_compile_gauge_chart_with_min_max_goal_esql() -> None:
     """Test the compilation of a gauge chart with min/max/goal (ESQL)."""
     config = {
         'type': 'gauge',
@@ -187,7 +187,7 @@ def test_compile_gauge_chart_with_min_max_goal_esql():
     )
 
 
-def test_compile_gauge_chart_with_all_options_lens():
+def test_compile_gauge_chart_with_all_options_lens() -> None:
     """Test the compilation of a gauge chart with all configuration options (Lens)."""
     config = {
         'type': 'gauge',
@@ -223,7 +223,7 @@ def test_compile_gauge_chart_with_all_options_lens():
     )
 
 
-def test_compile_gauge_chart_with_all_shapes():
+def test_compile_gauge_chart_with_all_shapes() -> None:
     """Test the compilation of gauge charts with different shape options."""
     shapes = ['horizontalBullet', 'verticalBullet', 'arc', 'circle']
 
@@ -248,7 +248,7 @@ def test_compile_gauge_chart_with_all_shapes():
         assert result['metricAccessor'] == 'metric_accessor'
 
 
-def test_compile_gauge_chart_with_ticks_positions():
+def test_compile_gauge_chart_with_ticks_positions() -> None:
     """Test the compilation of gauge charts with different ticks position options."""
     ticks_positions = ['auto', 'bands', 'hidden']
 
@@ -273,7 +273,7 @@ def test_compile_gauge_chart_with_ticks_positions():
         assert result['metricAccessor'] == 'metric_accessor'
 
 
-def test_compile_gauge_chart_with_static_values_lens():
+def test_compile_gauge_chart_with_static_values_lens() -> None:
     """Test the compilation of a gauge chart with static min/max/goal values (Lens)."""
     config = {
         'type': 'gauge',
@@ -305,7 +305,7 @@ def test_compile_gauge_chart_with_static_values_lens():
     )
 
 
-def test_compile_gauge_chart_with_static_values_esql():
+def test_compile_gauge_chart_with_static_values_esql() -> None:
     """Test the compilation of a gauge chart with static min/max/goal values (ESQL)."""
     config = {
         'type': 'gauge',

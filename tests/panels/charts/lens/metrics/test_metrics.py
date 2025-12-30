@@ -26,7 +26,7 @@ class ESQLMetricHolder(BaseModel):
 def compile_metric_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile Lens metric config and return dict for snapshot testing."""
     metric_holder = LensMetricHolder.model_validate({'metric': config})
-    column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
+    _column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
     assert kbn_column is not None
     return kbn_column.model_dump()
 
