@@ -122,10 +122,13 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 * [Markdown Panel](./markdown.md)
 * [Links Panel](./links.md)
 * [Search Panel](./search.md)
+* [Image Panel](./image.md)
 * [XY Chart Panel](./xy.md)
 * [Pie Chart Panel](./pie.md)
 * [Metric Panel](./metric.md)
-* [Image Panel](./image.md)
+* [Tagcloud Panel](./tagcloud.md)
+* [Lens Panel](./lens.md)
+* [ESQL Panel](./esql.md)
 
 ## Related Documentation
 
