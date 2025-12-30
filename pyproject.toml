@@ -117,18 +117,11 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "tests/**/*.py" = [
-    "PLR2004", # Ignore magic numbers and docstring length in tests
-    "W505",
-    "INP001",
-    "S101", # Ignore use of assert
-    "ANN001", # Ignore missing type annotations for function arguments in tests
-    "ANN201", # Ignore missing return type annotations in tests
-    "RUF029", # Ignore await not used in async function
-    "RUF059", # Allow unused unpacking in tests
-    "TC001", # Allow value imports used only for typing in tests
-    "PGH003", # Don't require specific rule exclusions for type checking ignores
-    "D104", # Docstrings in public packages
-    "E501", # Line too long
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "ANN001", # Allow missing argument type annotations in tests
+    "ANN201", # Allow missing return type annotations in tests
+    "INP001", # Tests are not meant to be imported as packages
 ]
 "vscode-extension/python/**/*.py" = [
     "PT009", # Allow unittest-style assertions in test files
@@ -153,7 +146,6 @@ ignore = [
 ]
 "src/dashboard_compiler/**/config.py" = [
     "TC001", # Pydantic config models rely on runtime imports for type evaluation
-    "TC008", # allow quotes around type alias for forward references
 ]
 
 [tool.ruff.format]
@@ -182,12 +174,17 @@ reportImportCycles = "error"  # Enable circular import detection
 # Allow Pydantic view models to narrow types in subclasses (e.g., str -> Literal['value'])
 # This is a common pattern for serialization models
 reportIncompatibleVariableOverride = false
-include = ["src/dashboard_compiler"]
+include = ["src/dashboard_compiler", "tests"]
 exclude = [
-    "**/tests/**",
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",
+]
+# Per-directory settings: more lenient for tests
+# Tests use dynamic typing patterns that are difficult to type-check strictly
+executionEnvironments = [
+    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportMissingTypeArgument = false, reportUnusedCallResult = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
+    { root = "src/dashboard_compiler" },
 ]
 
 [tool.coverage.run]

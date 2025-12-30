@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 import pytest
 from freezegun.api import FrozenDateTimeFactory
@@ -12,7 +13,7 @@ def freezer(freezer: FrozenDateTimeFactory) -> FrozenDateTimeFactory:
     return freezer
 
 
-def de_json_kbn_dashboard(kbn_dashboard_dict: dict) -> dict:
+def de_json_kbn_dashboard(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
     """Deserialize any stringified JSON in the kibana dashboard."""
     attributes = kbn_dashboard_dict['attributes']
     if attributes['optionsJSON'] and isinstance(attributes['optionsJSON'], str):
