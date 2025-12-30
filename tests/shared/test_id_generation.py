@@ -30,7 +30,7 @@ def test_stable_id_generator_uuid_format() -> None:
     """Verify that output is a valid UUID format."""
     result = stable_id_generator(['test'])
     # This will raise ValueError if the result is not a valid UUID
-    uuid.UUID(result)
+    _ = uuid.UUID(result)
 
 
 def test_stable_id_generator_with_numbers() -> None:
@@ -42,7 +42,7 @@ def test_stable_id_generator_with_numbers() -> None:
     assert id1 == id2
     assert id1 != id3
     # Verify it's a valid UUID
-    uuid.UUID(id1)
+    _ = uuid.UUID(id1)
 
 
 def test_stable_id_generator_with_floats() -> None:
@@ -53,7 +53,7 @@ def test_stable_id_generator_with_floats() -> None:
 
     assert id1 == id2
     assert id1 != id3
-    uuid.UUID(id1)
+    _ = uuid.UUID(id1)
 
 
 def test_stable_id_generator_with_none() -> None:
@@ -64,7 +64,7 @@ def test_stable_id_generator_with_none() -> None:
 
     assert id1 == id2
     assert id1 != id3
-    uuid.UUID(id1)
+    _ = uuid.UUID(id1)
 
 
 def test_stable_id_generator_mixed_types() -> None:
@@ -73,7 +73,7 @@ def test_stable_id_generator_mixed_types() -> None:
     id2 = stable_id_generator(['field', 'aggregation', 100, 95.5, None])
 
     assert id1 == id2
-    uuid.UUID(id1)
+    _ = uuid.UUID(id1)
 
 
 def test_stable_id_generator_empty_list() -> None:
@@ -82,7 +82,7 @@ def test_stable_id_generator_empty_list() -> None:
     id2 = stable_id_generator([])
 
     assert id1 == id2
-    uuid.UUID(id1)
+    _ = uuid.UUID(id1)
 
 
 def test_random_id_generator_uniqueness() -> None:
@@ -97,7 +97,7 @@ def test_random_id_generator_uuid_format() -> None:
     """Verify that random ID generator produces valid UUIDs."""
     result = random_id_generator()
     # This will raise ValueError if the result is not a valid UUID
-    uuid.UUID(result)
+    _ = uuid.UUID(result)
 
 
 def test_random_id_generator_different_from_stable() -> None:

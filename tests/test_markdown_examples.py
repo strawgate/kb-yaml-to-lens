@@ -23,7 +23,7 @@ def test_markdown_examples(example: CodeExample, eval_example: EvalExample) -> N
     # Skip linting/running for incomplete code fragments (they would fail with undefined names)
     elif _is_complete_example(example):
         eval_example.lint(example)
-        eval_example.run(example)
+        _ = eval_example.run(example)
 
 
 def _is_complete_example(example: CodeExample) -> bool:

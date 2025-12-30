@@ -181,7 +181,7 @@ exclude = [
 # Per-directory settings: more lenient for tests
 # Tests use dynamic typing patterns that are difficult to type-check strictly
 executionEnvironments = [
-    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportUnusedCallResult = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
+    { root = "tests", reportUnknownParameterType = false, reportUnknownArgumentType = false, reportUnknownVariableType = false, reportUnknownMemberType = false, reportAny = false, reportArgumentType = false, reportCallIssue = false, reportMissingImports = false, reportMissingParameterType = false },
     { root = "src/dashboard_compiler" },
 ]
 

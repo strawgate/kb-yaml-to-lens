@@ -72,7 +72,7 @@ def test_dashboard_overlap_complete() -> None:
         markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -95,7 +95,7 @@ def test_dashboard_overlap_partial() -> None:
         markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -118,7 +118,7 @@ def test_dashboard_overlap_contained() -> None:
         markdown={'content': 'Small Panel'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -141,7 +141,7 @@ def test_dashboard_overlap_edge_case_same_x() -> None:
         markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )
@@ -200,7 +200,7 @@ def test_dashboard_overlap_error_message_format() -> None:
         markdown={'content': 'Panel 2'},
     )
     with pytest.raises(ValidationError) as exc_info:
-        Dashboard(
+        _ = Dashboard(
             name='Test Dashboard',
             panels=[panel1, panel2],
         )

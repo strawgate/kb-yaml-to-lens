@@ -18,42 +18,42 @@ def test_grid_valid_position() -> None:
 def test_grid_negative_x() -> None:
     """Test that negative x coordinate raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=-1, y=0, w=24, h=15)
+        _ = Grid(x=-1, y=0, w=24, h=15)
     assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
 
 
 def test_grid_negative_y() -> None:
     """Test that negative y coordinate raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=0, y=-5, w=24, h=15)
+        _ = Grid(x=0, y=-5, w=24, h=15)
     assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
 
 
 def test_grid_zero_width() -> None:
     """Test that zero width raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=0, y=0, w=0, h=15)
+        _ = Grid(x=0, y=0, w=0, h=15)
     assert 'Width and height (w, h) must be positive' in str(exc_info.value)
 
 
 def test_grid_negative_width() -> None:
     """Test that negative width raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=0, y=0, w=-10, h=15)
+        _ = Grid(x=0, y=0, w=-10, h=15)
     assert 'Width and height (w, h) must be positive' in str(exc_info.value)
 
 
 def test_grid_zero_height() -> None:
     """Test that zero height raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=0, y=0, w=24, h=0)
+        _ = Grid(x=0, y=0, w=24, h=0)
     assert 'Width and height (w, h) must be positive' in str(exc_info.value)
 
 
 def test_grid_negative_height() -> None:
     """Test that negative height raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=0, y=0, w=24, h=-3)
+        _ = Grid(x=0, y=0, w=24, h=-3)
     assert 'Width and height (w, h) must be positive' in str(exc_info.value)
 
 
@@ -69,7 +69,7 @@ def test_grid_large_y_position() -> None:
 def test_grid_exceeds_kibana_width() -> None:
     """Test that panel extending beyond Kibana grid width raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        Grid(x=30, y=0, w=24, h=15)
+        _ = Grid(x=30, y=0, w=24, h=15)
     error_msg = str(exc_info.value)
     assert 'Panel extends beyond standard Kibana grid width (48 units)' in error_msg
     assert 'x=30 + w=24 = 54' in error_msg
