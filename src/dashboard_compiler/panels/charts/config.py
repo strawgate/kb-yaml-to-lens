@@ -1,6 +1,7 @@
 from typing import Literal
 
 from pydantic import Field
+from pydantic.functional_validators import field_validator
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
@@ -14,6 +15,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensAreaChart,
     LensBarChart,
     LensLineChart,
+    LensReferenceLineLayer,
 )
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 
@@ -21,7 +23,7 @@ type AllChartTypes = LensChartTypes | ESQLChartTypes
 
 type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
-type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart
+type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
 type SingleLayerChartTypes = LensMetricChart
 
@@ -45,9 +47,26 @@ class LensPanel(BasePanel):
 class LensMultiLayerPanel(BasePanel):
     """Represents a multi-layer Lens chart panel configuration."""
 
-    type: Literal['charts'] = 'charts'
+    type: Literal['multi_layer_charts'] = 'multi_layer_charts'
 
-    layers: list['MultiLayerChartTypes'] = Field(default=...)
+    layers: list['MultiLayerChartTypes'] = Field(default=..., min_length=1)
+
+    @field_validator('layers', mode='after')
+    @classmethod
+    def validate_layers(cls, layers: list['MultiLayerChartTypes']) -> list['MultiLayerChartTypes']:
+        """Validate that the multi-layer panel does not start with a reference line layer.
+
+        Args:
+            layers: The list of layers to validate.
+
+        Returns:
+            The list of layers.
+        """
+        if isinstance(layers[0], LensReferenceLineLayer):
+            msg = 'Multi-layer panel cannot start with a reference line layer'
+            raise TypeError(msg)
+
+        return layers
 
 
 class ESQLPanel(BasePanel):
