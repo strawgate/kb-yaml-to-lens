@@ -1,18 +1,18 @@
 ---
 dashboards:
-  - name: "[Example] Interactive Controls"
-    description: "Demonstrates dashboard controls for dynamic filtering"
+  - name: '[Example] Interactive Controls'
+    description: Demonstrates dashboard controls for dynamic filtering
 
     # Dashboard-level controls
     controls:
       - type: options
-        label: "Select Host"
+        label: Select Host
         width: medium
         data_view: logs-*
         field: host.name
         match_technique: contains
       - type: options
-        label: "Log Level"
+        label: Log Level
         width: small
         data_view: logs-*
         field: log.level
