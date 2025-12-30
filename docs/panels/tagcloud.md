@@ -115,8 +115,7 @@ dashboards:
 
 ## Related
 
-- [Base Chart Configuration](../base/config.md)
-- [Lens Dimensions](../lens/dimensions/config.md)
-- [Lens Metrics](../lens/metrics/config.md)
-- [ES|QL Dimensions](../esql/columns/config.md)
-- [Dashboard Configuration](../../../dashboard/config.md)
+- [Base Panel Configuration](base.md)
+- [Lens Panel Configuration](lens.md) (see sections on Dimensions and Metrics)
+- [ESQL Panel Configuration](esql.md) (see section on ESQL Columns)
+- [Dashboard Configuration](../dashboard/dashboard.md)
