@@ -2,6 +2,34 @@
 
 The `image` panel type is used to display an image directly on your dashboard. This can be useful for branding, diagrams, or other visual elements.
 
+## A Poem for the Visual Storytellers
+
+_For those who know a picture is worth a thousand metrics:_
+
+```text
+Contain, cover, fill, or none,
+Your images make dashboards fun!
+Company logos, architecture maps,
+System diagrams filling gaps.
+
+When words and numbers won't convey,
+The structure of your cloud array,
+An SVG or PNG file,
+Can make your dashboard worth the while.
+
+From branding at the dashboard top,
+To network diagrams that never stop,
+Your from_url pulls the view,
+Background colors, alt text too!
+
+So here's to images clear and bright,
+That help observers see the light.
+A visual element, tried and true,
+Making dashboards beautiful for you!
+```
+
+---
+
 ## Minimal Configuration Example
 
 To add an Image panel, you need to specify its `type`, `grid` position, and the `from_url` for the image source.
