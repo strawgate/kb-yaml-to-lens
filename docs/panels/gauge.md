@@ -36,10 +36,9 @@ The gauge tracks progress through the year.
 dashboards:
   - name: "KPI Dashboard"
     panels:
-      - type: charts
-        title: "CPU Usage"
+      -         title: "CPU Usage"
         grid: { x: 0, y: 0, w: 3, h: 2 }
-        chart:
+        lens:
           type: gauge
           data_view: "metrics-*"
           metric:
@@ -55,10 +54,9 @@ You can use static numeric values for min/max/goal instead of field-based metric
 dashboards:
   - name: "Performance Dashboard"
     panels:
-      - type: charts
-        title: "Response Time"
+      -         title: "Response Time"
         grid: { x: 0, y: 0, w: 4, h: 3 }
-        chart:
+        lens:
           type: gauge
           data_view: "logs-*"
           metric:
@@ -123,92 +121,78 @@ You can create Gauge chart panels programmatically using Python:
 ### Basic Gauge Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
-from dashboard_compiler.panels.charts.gauge.config import LensGaugeChart
+from dashboard_compiler.panels.charts.config import LensGaugePanelConfig, LensPanel
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
 from dashboard_compiler.panels.config import Grid
 
-# Simple gauge showing average CPU usage
-gauge_chart = LensGaugeChart(
-    data_view='metrics-*',
-    metric=LensOtherAggregatedMetric(
-        aggregation='average', field='system.cpu.total.pct'
-    ),
-)
-
 panel = LensPanel(
     title='CPU Usage',
     grid=Grid(x=0, y=0, w=6, h=4),
-    chart=gauge_chart,
+    lens=LensGaugePanelConfig(
+        type='gauge',
+        data_view='metrics-*',
+        metric=LensOtherAggregatedMetric(
+            aggregation='average', field='system.cpu.total.pct'
+        ),
+    ),
 )
 ```
 
 ### Gauge with Min/Max/Goal Example
 
 ```python
-from dashboard_compiler.panels.charts.config import LensPanel
-from dashboard_compiler.panels.charts.gauge.config import (
-    GaugeAppearance,
-    LensGaugeChart,
-)
+from dashboard_compiler.panels.charts.config import LensGaugePanelConfig, LensPanel
+from dashboard_compiler.panels.charts.gauge.config import GaugeAppearance
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
     LensSumAggregatedMetric,
 )
 from dashboard_compiler.panels.config import Grid
 
-# Gauge with range and goal indicator
-gauge_chart = LensGaugeChart(
-    data_view='sales-*',
-    metric=LensSumAggregatedMetric(
-        aggregation='sum', field='revenue', label='Current Revenue'
-    ),
-    minimum=LensOtherAggregatedMetric(aggregation='min', field='revenue'),
-    maximum=LensOtherAggregatedMetric(aggregation='max', field='revenue'),
-    goal=LensOtherAggregatedMetric(aggregation='average', field='revenue_target'),
-    appearance=GaugeAppearance(
-        shape='arc',
-        color_mode='palette',
-    ),
-)
-
 panel = LensPanel(
     title='Revenue vs Target',
     grid=Grid(x=0, y=0, w=6, h=4),
-    chart=gauge_chart,
+    lens=LensGaugePanelConfig(
+        type='gauge',
+        data_view='sales-*',
+        metric=LensSumAggregatedMetric(
+            aggregation='sum', field='revenue', label='Current Revenue'
+        ),
+        minimum=LensOtherAggregatedMetric(aggregation='min', field='revenue'),
+        maximum=LensOtherAggregatedMetric(aggregation='max', field='revenue'),
+        goal=LensOtherAggregatedMetric(aggregation='average', field='revenue_target'),
+        appearance=GaugeAppearance(
+            shape='arc',
+            color_mode='palette',
+        ),
+    ),
 )
 ```
 
 ### ESQL Gauge Example
 
 ```python
-from dashboard_compiler.panels.charts.config import ESQLPanel
+from dashboard_compiler.panels.charts.config import ESQLGaugePanelConfig, ESQLPanel
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLMetric
-from dashboard_compiler.panels.charts.gauge.config import (
-    ESQLGaugeChart,
-    GaugeAppearance,
-)
+from dashboard_compiler.panels.charts.gauge.config import GaugeAppearance
 from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.queries.config import ESQLQuery
-
-# ESQL-based gauge with static min/max/goal
-gauge_chart = ESQLGaugeChart(
-    metric=ESQLMetric(field='avg_cpu'),
-    minimum=0,  # Static value
-    maximum=100,  # Static value
-    goal=80,  # Static value
-    appearance=GaugeAppearance(
-        shape='horizontalBullet',
-    ),
-)
 
 panel = ESQLPanel(
     title='Average CPU Usage',
     grid=Grid(x=0, y=0, w=6, h=4),
-    esql=ESQLQuery('FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)'),
-    chart=gauge_chart,
+    esql=ESQLGaugePanelConfig(
+        type='gauge',
+        query='FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)',
+        metric=ESQLMetric(field='avg_cpu'),
+        minimum=0,  # Static value
+        maximum=100,  # Static value
+        goal=80,  # Static value
+        appearance=GaugeAppearance(
+            shape='horizontalBullet',
+        ),
+    ),
 )
 ```
 
