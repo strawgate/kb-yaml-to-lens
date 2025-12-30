@@ -95,8 +95,9 @@ dashboards:
 #### XYLegend Options
 
 | YAML Key | Data Type | Description | Default | Required |
-| --------- | ----------------- | ------------------------------ | ------- | -------- |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------- | ------- | -------- |
 | `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
+| `position` | `Literal['top', 'bottom', 'left', 'right'] \| None` | Position of the legend (Kibana defaults to 'right'). | `None` | No |
 
 ## Reference Lines (Multi-Layer Panels)
 

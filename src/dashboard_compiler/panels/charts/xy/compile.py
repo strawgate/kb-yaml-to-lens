@@ -200,10 +200,20 @@ def compile_xy_chart_visualization_state(
         splitAccessor=breakdown_id,
     )
 
+    # Configure legend
+    legend_visible = True
+    legend_position = 'right'
+
+    if chart.legend:
+        if chart.legend.visible is not None:
+            legend_visible = chart.legend.visible
+        if chart.legend.position is not None:
+            legend_position = chart.legend.position
+
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
         layers=[kbn_layer_visualization],
-        legend={'isVisible': True, 'position': 'right'},
+        legend={'isVisible': legend_visible, 'position': legend_position},
         valueLabels='hide',
     )
 
