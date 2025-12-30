@@ -25,7 +25,7 @@ Addressing these could reduce code by 15-25% while improving maintainability.
 The legend enums are defined twice with identical values:
 
 | Enum | base/config.py | pie/config.py |
-|------|----------------|---------------|
+| --- | --- | --- |
 | Width | `LegendWidthEnum` (L16-29) | `PieLegendWidthEnum` (L13-26) |
 | Visible | `LegendVisibleEnum` (L32-42) | `PieLegendVisibleEnum` (L29-39) |
 
@@ -45,7 +45,7 @@ Two classes named `ColorMapping` with different structures:
 Child classes re-define `id` field already in parent:
 
 | Parent | Child | Location |
-|--------|-------|----------|
+| --- | --- | --- |
 | `BaseDimension` (L17) | `BaseLensDimension` (L35) | lens/dimensions/config.py |
 | `BaseESQLColumn` (L16) | `ESQLDimension` (L23) | esql/columns/config.py |
 
@@ -56,13 +56,14 @@ Child classes re-define `id` field already in parent:
 Each chart type has nearly identical dual functions:
 
 | Chart | Lens Function | ESQL Function | Shared State |
-|-------|--------------|---------------|--------------|
+| --- | --- | --- | --- |
 | Pie | `compile_lens_pie_chart()` | `compile_esql_pie_chart()` | `compile_pie_chart_visualization_state()` |
 | Metric | `compile_lens_metric_chart()` | `compile_esql_metric_chart()` | `compile_metric_chart_visualization_state()` |
 | Gauge | `compile_lens_gauge_chart()` | `compile_esql_gauge_chart()` | `compile_gauge_chart_visualization_state()` |
 | Tagcloud | `compile_lens_tagcloud_chart()` | `compile_esql_tagcloud_chart()` | `compile_tagcloud_chart_visualization_state()` |
 
 **Pattern**: Both variants:
+
 1. Generate or use provided layer_id
 2. Compile metrics (different functions)
 3. Compile dimensions (different functions)
@@ -93,7 +94,7 @@ if lens_gauge_chart.minimum is not None:
 Not all visualization states inherit from base:
 
 | Class | Current Parent | Should Inherit |
-|-------|---------------|----------------|
+| --- | --- | --- |
 | `KbnTagcloudVisualizationState` | `BaseVwModel` | `KbnBaseStateVisualization` |
 | `KbnGaugeVisualizationState` | `BaseVwModel` | `KbnBaseStateVisualization` |
 
@@ -112,6 +113,7 @@ All have only `fieldName: str` and `columnId: str`.
 ### 8. JSON Serializer Pattern Repeated 3x
 
 Same `@field_serializer` pattern in:
+
 - `dashboard/view.py` (L36-45)
 - `controls/view.py` (L229-253)
 - `panels/view.py` (L58-66)
@@ -150,12 +152,14 @@ context.subscriptions.push(
 ### 2. Duplicate escapeHtml() Method
 
 Identical implementation in both:
+
 - `previewPanel.ts` (L287-298)
 - `gridEditorPanel.ts` (L723-734)
 
 ### 3. Duplicate Loading/Error HTML Content
 
 Near-identical HTML generation in both panel types:
+
 - `getLoadingContent()`: previewPanel (L55-84) vs gridEditorPanel (L212-241)
 - `getErrorContent()`: previewPanel (L255-285) vs gridEditorPanel (L691-721)
 
@@ -164,6 +168,7 @@ Near-identical HTML generation in both panel types:
 ### 4. Process Spawning Pattern (100 lines)
 
 Identical spawn pattern in `gridEditorPanel.ts`:
+
 - `extractGridInfo()` (L93-142)
 - `updatePanelGrid()` (L144-192)
 
@@ -172,6 +177,7 @@ Identical spawn pattern in `gridEditorPanel.ts`:
 ### 5. Python Import Path Setup
 
 Different approaches in:
+
 - `compile_server.py` (L15-18) - Simple
 - `grid_extractor.py` (L23-35) - With error handling
 
@@ -190,6 +196,7 @@ Different approaches in:
 ### 1. No sharedConfig Pattern in 10 Files
 
 Files that skip the sharedConfig pattern:
+
 - xy-chart-stacked-bar.js
 - xy-chart-dual-axis.js
 - xy-chart-multi-layer.js
@@ -204,6 +211,7 @@ Files that skip the sharedConfig pattern:
 ### 2. Legend Configuration Duplication
 
 Same legend config repeated in 10+ files:
+
 ```javascript
 legend: { show: true, position: 'right' }
 ```
@@ -213,6 +221,7 @@ legend: { show: true, position: 'right' }
 ### 3. Custom Palette Defined Multiple Times
 
 Same palette structure in:
+
 - `pie-chart-advanced-colors.js` (L12-21, L57-68)
 - `xy-chart-custom-colors.js` (L12-25)
 
@@ -224,6 +233,7 @@ Has unique batch orchestration pattern.
 ### 5. Time Range Inconsistency
 
 Mixed time ranges without clear reasoning:
+
 - 'now-24h': 18 files
 - 'now-7d': 8 files
 - 'now-15m': 1 file
@@ -242,25 +252,25 @@ Mixed time ranges without clear reasoning:
 
 ### Phase 2: Medium Effort (Moderate Risk)
 
-6. [ ] Make visualization states inherit from base class
-7. [ ] Extract JSON serializer utility
-8. [ ] Create command registration factory in extension.ts
-9. [ ] Create spawnPythonScript utility
-10. [ ] Create fixture-generator config-presets.js
+1. [ ] Make visualization states inherit from base class
+2. [ ] Extract JSON serializer utility
+3. [ ] Create command registration factory in extension.ts
+4. [ ] Create spawnPythonScript utility
+5. [ ] Create fixture-generator config-presets.js
 
 ### Phase 3: Larger Refactors (Higher Risk)
 
-11. [ ] Unify Lens/ESQL compile function patterns
-12. [ ] Extract gauge optional value helper
-13. [ ] Standardize ID generation (random vs stable)
-14. [ ] Create XY chart layer transformation utilities
+1. [ ] Unify Lens/ESQL compile function patterns
+2. [ ] Extract gauge optional value helper
+3. [ ] Standardize ID generation (random vs stable)
+4. [ ] Create XY chart layer transformation utilities
 
 ---
 
 ## Metrics
 
 | Component | Estimated Lines Saved | Risk Level |
-|-----------|----------------------|------------|
+| --- | --- | --- |
 | Dashboard Compiler | 200-300 | Medium |
 | VS Code Extension | 100-150 | Low |
 | Fixture Generator | 100-200 | Low |
@@ -268,4 +278,4 @@ Mixed time ranges without clear reasoning:
 
 ---
 
-*Generated: 2025-12-30*
+Generated: 2025-12-30
