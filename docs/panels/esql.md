@@ -82,7 +82,7 @@ dashboards:
 
 ### ESQL Panel (`type: charts` with an `esql` field)
 
-This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](../base.md). The presence of the `esql` field distinguishes it from a Lens panel.
+This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](./base.md). The presence of the `esql` field distinguishes it from a Lens panel.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
@@ -91,7 +91,7 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](../base.md#grid-object-configuration). | N/A | Yes |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
 | `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../../queries/config.md#esql-query). | N/A | Yes |
 | `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart-charttype-metric) or [ESQL Pie Chart](#esql-pie-chart-charttype-pie). | N/A | Yes |
 
@@ -213,7 +213,7 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 ## Related Documentation
 
-* [Base Panel Configuration](../base.md)
+* [Base Panel Configuration](./base.md)
 * [Dashboard Configuration](../dashboard/dashboard.md)
 * [Queries Configuration](../../queries/config.md#esql-query)
 * Elasticsearch ESQL Reference (external)
