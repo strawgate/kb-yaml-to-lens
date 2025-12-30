@@ -1,13 +1,15 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.dashboard_compiler import render
 from tests.conftest import de_json_kbn_dashboard
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 def deterministic_id_generator():
