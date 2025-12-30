@@ -26,10 +26,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run linting
-        run: make lint-check
-      - name: Check formatting
-        run: make format-check
+      - name: Install Node.js for markdownlint
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+      - name: Run all linting checks
+        run: make lint-all-check
   typecheck:
     runs-on: ubuntu-latest
     steps:
