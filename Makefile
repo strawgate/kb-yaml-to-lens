@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript test-extension-e2e typecheck compile upload setup
 
 help:
 	@echo "Dependency Management:"
@@ -37,6 +37,7 @@ help:
 	@echo "  test-extension           - Run all VSCode extension tests"
 	@echo "  test-extension-python    - Run Python tests for extension"
 	@echo "  test-extension-typescript - Run TypeScript tests for extension"
+	@echo "  test-extension-e2e       - Run VSCode extension E2E tests (requires display)"
 	@echo ""
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
@@ -104,6 +105,10 @@ test-extension-typescript:
 	# Using npm install for local development flexibility (vs npm ci in CI)
 	@cd vscode-extension && npm install > /dev/null 2>&1 && npm run compile > /dev/null 2>&1 && npm run test:unit
 
+test-extension-e2e:
+	@echo "Running VSCode extension E2E tests..."
+	@echo "Note: Requires a display (use xvfb-run in headless environments)"
+	@cd vscode-extension && npm install > /dev/null 2>&1 && npm run test:e2e
 
 inspector:
 	@echo "Running MCP Inspector..."

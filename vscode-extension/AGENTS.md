@@ -14,7 +14,8 @@
 | `npm run compile` | Build TypeScript |
 | `npm run watch` | Watch mode for development |
 | `npm run lint` | Run ESLint |
-| `npm test` | Run tests |
+| `npm run test:e2e` | Run E2E tests (requires display) |
+| `npm run test:unit` | Run unit tests |
 | `npm run package` | Create .vsix package |
 
 ### Development Workflow
@@ -155,6 +156,51 @@ The Python server uses stdio-based JSON-RPC:
 
 ## Testing
 
+### Test Types
+
+| Type | Command | Purpose |
+| ---- | ------- | ------- |
+| Unit Tests | `npm run test:unit` | Fast, isolated unit tests |
+| E2E Tests | `npm run test:e2e` | Full extension tests in VS Code |
+| Python Tests | `make test-extension-python` | LSP server tests |
+
+### Running Tests
+
+```bash
+# Run E2E tests (requires display or xvfb)
+npm run test:e2e
+
+# Run in headless CI environment
+xvfb-run -a npm run test:e2e
+
+# Run Python LSP server tests
+make test-extension-python
+```
+
+### Test Structure
+
+```text
+src/test/
+├── fixtures/           # Test YAML files
+│   ├── simple-dashboard.yaml
+│   ├── multi-dashboard.yaml
+│   └── invalid.yaml
+├── suite/
+│   ├── index.ts       # Mocha test runner config
+│   └── extension.test.ts  # E2E tests
+├── unit/              # Unit tests
+└── runTest.ts         # Test launcher
+```
+
+### E2E Tests
+
+The E2E tests use `@vscode/test-electron` to launch VS Code and run tests:
+
+- Extension activation
+- Command registration
+- YAML file handling
+- LSP communication
+
 ### Manual Testing
 
 1. Press F5 in VS Code to launch Extension Development Host
@@ -164,17 +210,6 @@ The Python server uses stdio-based JSON-RPC:
    - Preview Dashboard
    - Edit Dashboard Layout
    - Export to NDJSON
-
-### Automated Testing
-
-```bash
-npm test
-```
-
-Tests are located in `src/test/`:
-
-- `suite/` - Integration tests
-- `unit/` - Unit tests
 
 ---
 

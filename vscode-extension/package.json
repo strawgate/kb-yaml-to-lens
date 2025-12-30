@@ -94,6 +94,7 @@
     "package-bundle": "node esbuild.js --production",
     "pretest": "npm run compile",
     "test": "npm run compile && node ./out/test/runTest.js",
+    "test:e2e": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
     "lint": "eslint src --ext ts",
     "package": "vsce package"

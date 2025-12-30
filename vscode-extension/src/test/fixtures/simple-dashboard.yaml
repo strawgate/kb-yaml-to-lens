@@ -1,0 +1,12 @@
+dashboards:
+  - name: Test Dashboard
+    description: A simple test dashboard for E2E tests
+    panels:
+      - title: Test Markdown Panel
+        grid:
+          x: 0
+          y: 0
+          w: 24
+          h: 10
+        markdown:
+          content: "# Hello World\n\nThis is a test panel."

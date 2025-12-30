@@ -1,0 +1,23 @@
+dashboards:
+  - name: First Dashboard
+    description: The first dashboard
+    panels:
+      - title: Panel One
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8
+        markdown:
+          content: "# First"
+  - name: Second Dashboard
+    description: The second dashboard
+    panels:
+      - title: Panel Two
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8
+        markdown:
+          content: "# Second"

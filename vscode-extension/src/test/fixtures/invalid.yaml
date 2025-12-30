@@ -1,0 +1,6 @@
+dashboards:
+  - name: Invalid Dashboard
+    panels:
+      - title: Missing Grid
+        markdown:
+          content: "This panel is missing grid configuration"
