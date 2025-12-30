@@ -47,28 +47,6 @@ dashboards:
             field: revenue
 ```
 
-## Example with Color Gradient
-
-```yaml
-dashboards:
-  - name: "Temperature Monitoring"
-    panels:
-      - type: charts
-        title: "Average Temperature"
-        grid: { x: 0, y: 0, w: 4, h: 3 }
-        chart:
-          type: metric
-          data_view: "sensor-data"
-          primary:
-            aggregation: average
-            field: temperature
-          color:
-            mode: 'gradient'
-            gradient:
-              type: 'sequential'
-              colors: ['#F5F7FA', '#BD271E']  # Cool to hot
-```
-
 ## Full Configuration Options
 
 ### Lens Metric Chart

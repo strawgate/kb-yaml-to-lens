@@ -32,10 +32,6 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
     # Build manual color assignments
     kbn_assignments: list[KbnLayerColorMappingAssignment] = []
 
-    # TODO: Implement range_assignments compilation for gradient ranges
-    # TODO: Implement gradient configuration compilation for custom gradient palettes
-    # Currently only categorical assignments are supported
-
     for assignment in color_config.assignments:
         # Determine which values to use
         values_to_assign: list[str] = []
@@ -70,8 +66,8 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
         )
     ]
 
-    # Build color mode
-    color_mode = {'type': color_config.mode}
+    # Color mode is always categorical (gradients are not supported)
+    color_mode = {'type': 'categorical'}
 
     return KbnLayerColorMapping(
         paletteId=color_config.palette,

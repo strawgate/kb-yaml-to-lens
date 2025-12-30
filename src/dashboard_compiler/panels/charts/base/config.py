@@ -1,5 +1,4 @@
 from enum import StrEnum
-from typing import ClassVar, Literal
 
 from pydantic import Field, model_validator
 
@@ -64,51 +63,6 @@ class ColorAssignment(BaseCfgModel):
         return self
 
 
-class RangeColorAssignment(BaseCfgModel):
-    """Range-based color assignment for gradient visualizations."""
-
-    min: float = Field(...)
-    """Minimum value of the range."""
-
-    max: float = Field(...)
-    """Maximum value of the range."""
-
-    color: str = Field(...)
-    """The hex color code to assign to this range (e.g., '#FF0000')."""
-
-    @model_validator(mode='after')
-    def check_min_less_than_max(self) -> 'RangeColorAssignment':
-        """Validate that min is less than max."""
-        if self.min >= self.max:
-            msg = "'min' must be less than 'max'"
-            raise ValueError(msg)
-        return self
-
-
-class GradientConfig(BaseCfgModel):
-    """Gradient color palette configuration."""
-
-    SEQUENTIAL_COLOR_COUNT: ClassVar[int] = 2
-    DIVERGENT_COLOR_COUNT: ClassVar[int] = 3
-
-    type: Literal['sequential', 'divergent'] = Field(default='sequential')
-    """Type of gradient: sequential (2 colors) or divergent (3 colors)."""
-
-    colors: list[str] = Field(...)
-    """List of hex color codes for the gradient. Use 2 colors for sequential, 3 for divergent."""
-
-    @model_validator(mode='after')
-    def check_color_count(self) -> 'GradientConfig':
-        """Validate that color count matches gradient type."""
-        if self.type == 'sequential' and len(self.colors) != self.SEQUENTIAL_COLOR_COUNT:
-            msg = f'Sequential gradients require exactly {self.SEQUENTIAL_COLOR_COUNT} colors'
-            raise ValueError(msg)
-        if self.type == 'divergent' and len(self.colors) != self.DIVERGENT_COLOR_COUNT:
-            msg = f'Divergent gradients require exactly {self.DIVERGENT_COLOR_COUNT} colors'
-            raise ValueError(msg)
-        return self
-
-
 class ColorMapping(BaseCfgModel):
     """Color configuration for chart visualizations."""
 
@@ -123,14 +77,5 @@ class ColorMapping(BaseCfgModel):
     - 'gray' - Grayscale palette
     """
 
-    mode: Literal['categorical', 'gradient'] = Field(default='categorical')
-    """Color mode: 'categorical' for discrete categories, 'gradient' for continuous data."""
-
     assignments: list[ColorAssignment] = Field(default_factory=list)
-    """Manual color assignments to specific data values (categorical mode)."""
-
-    range_assignments: list[RangeColorAssignment] = Field(default_factory=list)
-    """Range-based color assignments for gradient mode."""
-
-    gradient: GradientConfig | None = Field(default=None)
-    """Gradient configuration for gradient mode."""
+    """Manual color assignments to specific data values."""
