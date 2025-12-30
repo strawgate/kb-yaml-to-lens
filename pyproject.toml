@@ -110,7 +110,7 @@ ignore = [
     "D213",    # multi-line-summary-second-line
     "D413",    # multi-line-summary-second-line
     "D100",    # Ignore missing docstrings for modules
-    "ANN401",  # Allow typing.Any where needed (Pydantic compatibility)
+    "A002",    # Allow shadowing builtin names (e.g., 'filter')
 ]
 
 # Per-file rule ignores

@@ -167,8 +167,9 @@ class KbnLensDateHistogramDimensionColumn(KbnLensBaseDimensionColumn):
 class KbnLensTermsOrderBy(BaseVwModel):
     """Represents the orderBy parameter for terms dimension columns."""
 
-    type: Literal['column']
-    columnId: str
+    type: Literal['column', 'alphabetical']
+    columnId: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    fallback: Annotated[bool | None, OmitIfNone()] = Field(default=None)
 
 
 class KbnLensTermsParentFormatParams(BaseVwModel):

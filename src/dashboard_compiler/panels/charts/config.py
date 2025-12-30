@@ -4,6 +4,7 @@ from pydantic import Discriminator, Field, Tag
 
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
+from dashboard_compiler.panels.charts.datatable import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
@@ -26,9 +27,11 @@ type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
 type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
-type SingleLayerChartTypes = LensMetricChart | LensGaugeChart
+type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart
 
-type ESQLChartTypes = ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLTagcloudChart
+type ESQLChartTypes = (
+    ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLDatatableChart | ESQLTagcloudChart
+)
 
 
 class LensPanelFieldsMixin(BaseCfgModel):
@@ -76,6 +79,10 @@ class LensTagcloudPanelConfig(LensTagcloudChart, LensPanelFieldsMixin):
     """Configuration for a Lens tagcloud panel."""
 
 
+class LensDatatablePanelConfig(LensDatatableChart, LensPanelFieldsMixin):
+    """Configuration for a Lens datatable panel."""
+
+
 type LensPanelConfig = Annotated[
     Annotated[LensMetricPanelConfig, Tag('metric')]
     | Annotated[LensGaugePanelConfig, Tag('gauge')]
@@ -83,7 +90,8 @@ type LensPanelConfig = Annotated[
     | Annotated[LensLinePanelConfig, Tag('line')]
     | Annotated[LensBarPanelConfig, Tag('bar')]
     | Annotated[LensAreaPanelConfig, Tag('area')]
-    | Annotated[LensTagcloudPanelConfig, Tag('tagcloud')],
+    | Annotated[LensTagcloudPanelConfig, Tag('tagcloud')]
+    | Annotated[LensDatatablePanelConfig, Tag('datatable')],
     Discriminator('type'),
 ]
 
@@ -123,6 +131,10 @@ class ESQLTagcloudPanelConfig(ESQLTagcloudChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL tagcloud panel."""
 
 
+class ESQLDatatablePanelConfig(ESQLDatatableChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL datatable panel."""
+
+
 type ESQLPanelConfig = Annotated[
     Annotated[ESQLMetricPanelConfig, Tag('metric')]
     | Annotated[ESQLGaugePanelConfig, Tag('gauge')]
@@ -130,7 +142,8 @@ type ESQLPanelConfig = Annotated[
     | Annotated[ESQLLinePanelConfig, Tag('line')]
     | Annotated[ESQLBarPanelConfig, Tag('bar')]
     | Annotated[ESQLAreaPanelConfig, Tag('area')]
-    | Annotated[ESQLTagcloudPanelConfig, Tag('tagcloud')],
+    | Annotated[ESQLTagcloudPanelConfig, Tag('tagcloud')]
+    | Annotated[ESQLDatatablePanelConfig, Tag('datatable')],
     Discriminator('type'),
 ]
 

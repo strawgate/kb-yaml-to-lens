@@ -11,6 +11,7 @@ from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
 from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 
 if TYPE_CHECKING:
+    from .datatable.view import KbnDatatableVisualizationState
     from .gauge.view import KbnGaugeVisualizationState
     from .metric.view import KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
         | KbnMetricVisualizationState
         | KbnGaugeVisualizationState
         | KbnXYVisualizationState
+        | KbnDatatableVisualizationState
         | KbnTagcloudVisualizationState
     )
 
