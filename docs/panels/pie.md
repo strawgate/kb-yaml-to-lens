@@ -83,10 +83,11 @@ dashboards:
 #### PieLegend Options
 
 | YAML Key | Data Type | Description | Default | Required |
-| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- | ------- | -------- |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------- | -------- |
 | `visible` | `Literal['show', 'hide', 'auto'] \| None` | Legend visibility (Kibana defaults to 'auto'). | `None` | No |
 | `width` | `Literal['small', 'medium', 'large', 'extra_large'] \| None` | Legend width (Kibana defaults to 'medium'). | `None` | No |
 | `truncate_labels` | `int \| None` | Lines to truncate labels to (0-5, Kibana defaults to 1, 0=disable). | `None` | No |
+| `nested` | `bool \| None` | Show legend in nested format for multi-level pie charts (Kibana defaults to false). | `None` | No |
 
 ### ESQL Pie Chart
 
