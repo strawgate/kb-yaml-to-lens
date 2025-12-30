@@ -1,0 +1,59 @@
+<!-- markdownlint-disable MD041 -->
+## Summary
+
+<!-- Brief description of what this PR does -->
+
+## Changes
+
+<!-- List the main changes in this PR -->
+
+## Testing Instructions
+
+### Test Sample Config
+
+<!-- If this PR modifies config/compilation, provide a YAML sample that demonstrates the change -->
+<!-- Delete this section if not applicable -->
+
+```yaml
+# Example YAML that can be compiled to test this PR
+```
+
+### Expected Outcome
+
+<!-- Describe what the compiled NDJSON should look like or what behavior should be observed -->
+<!-- Delete this section if not applicable -->
+
+### How to Verify
+
+<!-- Provide step-by-step instructions for reviewers to test your changes -->
+
+```bash
+# Example verification commands
+make install
+make compile  # or other relevant commands
+```
+
+### Fixture Generation (Chart Types Only)
+
+<!-- If this PR modifies chart types in `panels/charts/`, complete this checklist -->
+<!-- Delete this section if not applicable -->
+
+- [ ] Checked existing fixtures in `fixture-generator/output/`
+- [ ] Created/updated fixture generator script (if needed)
+- [ ] Verified compiler output matches Kibana fixture
+- [ ] Committed both generator script and output files
+
+See `fixture-generator/AGENTS.md` for details.
+
+## Related Issues
+
+Fixes #
+Relates to #
+
+## Checklist
+
+- [ ] All static checks pass (`make ci`)
+- [ ] Tests added/updated as needed
+- [ ] Documentation updated (if API changed)
+- [ ] Breaking changes documented with migration path
+- [ ] Self-review completed
