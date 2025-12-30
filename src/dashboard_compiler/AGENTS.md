@@ -12,9 +12,11 @@
 | Command | Purpose |
 | ------- | ------- |
 | `make install` | Install all dependencies |
-| `make check` | **Run before committing** (lint + typecheck + test) |
-| `make test` | Run pytest suite |
-| `make lint` | Format and lint code |
+| `make ci` or `make check` | **Run before committing** (lint-all-check + typecheck + test-all) |
+| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML) |
+| `make test` | Run Python unit tests only |
+| `make test-all` | Run all tests (unit + smoke + extension) |
+| `make lint` | Format and lint Python code |
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
@@ -26,8 +28,10 @@ make install
 
 # Development cycle
 # 1. Make changes
-# 2. Run checks
-make check
+# 2. Auto-fix linting issues
+make fix
+# 3. Run all CI checks (linting + typecheck + tests)
+make ci
 ```
 
 ---
@@ -192,11 +196,12 @@ Before claiming work is complete:
 CI will fail if:
 
 - Ruff linting fails
+- Markdown/YAML linting fails
 - Tests fail
 - Type checking fails (basedpyright standard mode)
 - Docstring coverage below 80%
 
-Run `make check` locally before pushing.
+Run `make ci` (or `make check`) locally before pushing.
 
 ---
 
