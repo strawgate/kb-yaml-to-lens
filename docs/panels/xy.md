@@ -13,19 +13,19 @@ X-axis marching through the time,
 Y-axis tracking every climb.
 
 When incidents spike at 2 AM,
-Your XY charts help us understand them.
+The XY chart says: "Here I am."
 Stacked or unstacked, the choice is yours,
 Percentage mode for ratio scores.
 
-Dimensions define the horizontal way,
-Metrics show values throughout the day.
-Breakdown by service, host, or zone,
-Every pattern clearly shown.
+Dimensions set the horizontal stage,
+Metrics show what happens, page by page.
+Break it down by service, host, or zone—
+No pattern goes by, unknown.
 
 From request counts to error rates,
-Your time series never hesitates.
-So here's to charts both line and bar,
-That help us see how systems are!
+Your time series sits and waits.
+So here's to charts, both line and bar,
+That show exactly where things are.
 ```
 
 ---

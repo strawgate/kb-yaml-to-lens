@@ -9,25 +9,25 @@ When defining a panel in your YAML, you will specify its `type` (e.g., `markdown
 _For those who lay the foundation for every panel:_
 
 ```text
-Every panel needs a base,
+Every panel needs a base:
 A title, grid, and proper place.
-From x and y coordinates fine,
-To width and height, aligned in line.
+From x and y, the starting spot,
+To width and height—you plot the plot.
 
-id fields generated automatically,
-Descriptions shown quite tactfully.
-hide_title when you need it gone,
-The base configuration marches on!
+The id is yours, or auto-made,
+Descriptions help when things must be weighed.
+hide_title when you'd rather not—
+The base provides what others forgot.
 
 Whether metric, pie, or chart XY,
-Markdown text or links nearby,
-They all inherit from this core,
-The BasePanel forevermore!
+Markdown prose or links nearby,
+They all inherit from this floor:
+The BasePanel, forevermore.
 
 So here's to grids that organize,
-To titles helping us visualize,
-The foundation strong and true,
-That makes all panels work for you!
+To coordinates that plot the prize.
+The humble base, unsexy but true—
+No panel works without you.
 ```
 
 ---

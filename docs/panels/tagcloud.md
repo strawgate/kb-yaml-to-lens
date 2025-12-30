@@ -2,30 +2,30 @@
 
 The Tag Cloud chart panel visualizes term frequency as a word cloud, where the size of each tag is proportional to its metric value. This is useful for showing the most common or significant terms in your data.
 
-## A Poem for Those Who Observe from the Skies Above
+## A Poem for the Cloud Watchers
 
-_For the aerial observers of textual trends:_
+_For those who see meaning in the drift of words:_
 
 ```text
 Up above the dashboard sky,
-Where word clouds float and patterns fly,
-Tags in sizes large and small,
-Showing which terms matter most of all.
+Word clouds float and drift on by.
+Tags in sizes large and small—
+The bigger the word, the more you've got of all.
 
 From eighteen points to seventy-two,
-Font sizes tell a story true.
-Horizontal, vertical, angles multiple,
-Orientations flexible!
+Font sizes speak the gospel true.
+Horizontal, vertical, angles wide,
+Orientations far and wide!
 
-Error messages like cumulus clouds,
-User agents spelling names out loud,
+Error messages like cumulus forms,
+User agents weathering storms,
 Kubernetes labels floating free,
-Pod names drifting across the sea.
+Pod names adrift across the sea.
 
-"single", "right angled", "multiple" ways,
+"single", "right angled", "multiple" ways
 To orient your word displays.
-So here's to those who like to see,
-Their data in a sky of vocabulary!
+So here's to those who like to see
+Their data as vocabulary!
 ```
 
 ---

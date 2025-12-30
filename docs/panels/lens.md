@@ -9,10 +9,10 @@ The `LensPanel` is the primary container. Its `chart` field will define the spec
 _For those who craft visualizations with elegant flexibility:_
 
 ```text
-Lens is the lens through which we see,
-Data's patterns, wild and free.
+Through this Lens we magnify
+Patterns hiding on the fly.
 From metrics bold to pies that slice,
-Lens makes visualizations nice!
+Lens makes your data look quite nice!
 
 Dimensions group and metrics measure,
 Aggregations are your treasure.
@@ -21,13 +21,13 @@ Percentiles showing p95 for you.
 
 Date histograms march through time,
 Top values sorted, so sublime.
-Filters, intervals, formula power,
-Lens transforms data by the hour!
+Formulas for custom math—
+Lens blazes the perfect path!
 
-So here's to Lens, both strong and smart,
-The beating visualization heart.
 With data views and layers deep,
-Your dashboard promises to keep!
+Your dashboard promises to keep.
+So here's to Lens, both strong and smart:
+Kibana's beating visual heart!
 ```
 
 ---
