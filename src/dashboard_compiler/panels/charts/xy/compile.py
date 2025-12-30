@@ -28,7 +28,6 @@ from dashboard_compiler.panels.charts.xy.view import (
     KbnXYVisualizationState,
     XYDataLayerConfig,
     XYReferenceLineLayerConfig,
-    YAxisMode,
     YConfig,
 )
 from dashboard_compiler.shared.config import random_id_generator
@@ -78,7 +77,7 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tu
         tuple[XYReferenceLineLayerConfig, KbnLensStaticValueColumn]: The compiled reference line layer and column.
     """
     # Generate accessor ID
-    accessor_id = ref_line.id or f'ref_line_{layer_id}'
+    accessor_id = ref_line.id or f'{layer_id}'
 
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):
@@ -112,7 +111,7 @@ def compile_reference_line_layer(ref_line: XYReferenceLine, layer_id: str) -> tu
         fill=ref_line.fill,
         icon=ref_line.icon,
         iconPosition=ref_line.icon_position,
-        axisMode=YAxisMode(name=ref_line.axis) if ref_line.axis is not None else None,
+        axisMode=ref_line.axis,
     )
 
     return (

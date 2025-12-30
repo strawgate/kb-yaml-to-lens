@@ -333,7 +333,3 @@ async def test_area_percentage_chart() -> None:
             },
         }
     )
-
-
-# Reference line tests removed - reference lines are now implemented as separate layers
-# in LensMultiLayerPanel, not as a field on individual charts

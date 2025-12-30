@@ -15,7 +15,8 @@ dashboards:
           type: line
           data_view: "logs-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: count
 ```
@@ -90,7 +91,8 @@ dashboards:
         - type: line
           data_view: "metrics-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: "average"
               field: "response_time"
@@ -103,6 +105,7 @@ dashboards:
               color: "#FF0000"
               line_style: "dashed"
 ```
+
 
 ### Reference Line Layer Configuration
 

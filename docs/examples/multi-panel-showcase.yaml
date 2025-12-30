@@ -69,7 +69,8 @@ dashboards:
           type: line
           data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: count
 
@@ -97,7 +98,8 @@ dashboards:
           mode: stacked
           data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: count
           breakdown:
