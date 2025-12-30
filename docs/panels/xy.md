@@ -223,7 +223,8 @@ dashboards:
           type: line
           data_view: "logs-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
               id: "time"
           metrics:
             - aggregation: count
@@ -265,7 +266,8 @@ dashboards:
           type: line
           data_view: "logs-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: average
               field: "response_time_ms"
@@ -295,7 +297,8 @@ dashboards:
           type: area
           data_view: "metrics-*"
           dimensions:
-            - field: "@timestamp"
+            - type: date_histogram
+              field: "@timestamp"
           metrics:
             - aggregation: sum
               field: "bytes_in"
