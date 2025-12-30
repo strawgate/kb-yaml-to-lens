@@ -1,6 +1,6 @@
 """Configuration for Links Panel."""
 
-from typing import Annotated, Literal, Self
+from typing import Annotated, Literal
 
 from pydantic import Discriminator, Field, Tag
 
@@ -100,16 +100,3 @@ class LinksPanel(BasePanel):
 
     links_config: LinksPanelConfig = Field(..., alias='links')
     """Links panel configuration."""
-
-    def add_link(self, link: LinkTypes) -> Self:
-        """Add a link object to the Links panel's links list.
-
-        Args:
-            link (LinkTypes): The link object to add.
-
-        Returns:
-            Self: The current instance of the LinksPanel for method chaining.
-
-        """
-        self.links_config.links.append(link)
-        return self

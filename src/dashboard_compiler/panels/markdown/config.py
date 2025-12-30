@@ -16,7 +16,7 @@ class MarkdownPanelConfig(BaseCfgModel):
     """The font size for the Markdown content, in pixels. Defaults to 12 if not set."""
 
     links_in_new_tab: bool | None = Field(default=None)
-    """If true, links in the Markdown content will open in a new tab. Defaults to true if not set."""
+    """If true, links in the Markdown content will open in a new tab. Defaults to false if not set."""
 
 
 class MarkdownPanel(BasePanel):
