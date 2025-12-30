@@ -70,19 +70,19 @@ Lens panels are used to create data visualizations including metrics, pie charts
 
 Display key performance indicators.
 
-For configuration details and examples, see the [Metric Chart Panel Configuration](../../src/dashboard_compiler/panels/charts/metric/config.md).
+For configuration details and examples, see the [Metric Chart Panel Configuration](../panels/metric.md).
 
 ### Pie Charts
 
 Create pie chart visualizations to show distribution of categorical data.
 
-For configuration details and examples, see the [Pie Chart Panel Configuration](../../src/dashboard_compiler/panels/charts/pie/config.md).
+For configuration details and examples, see the [Pie Chart Panel Configuration](../panels/pie.md).
 
 ### XY Charts
 
 Create line, bar, and area charts for time series and other data.
 
-For configuration details and examples, see the [XY Chart Panel Configuration](../../src/dashboard_compiler/panels/charts/xy/config.md).
+For configuration details and examples, see the [XY Chart Panel Configuration](../panels/xy.md).
 
 ## Lens Multi-Layer Panel
 

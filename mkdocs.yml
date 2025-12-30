@@ -1,10 +1,10 @@
+---
 site_name: Dashboard Compiler Documentation
 site_description: Convert human-friendly YAML dashboard definitions into Kibana NDJSON format
 site_url: https://strawgate.github.io/kb-yaml-to-lens/
 repo_url: https://github.com/strawgate/kb-yaml-to-lens
 repo_name: strawgate/kb-yaml-to-lens
 edit_uri: edit/main/
-
 theme:
   name: material
   palette:
@@ -41,13 +41,13 @@ theme:
     - content.code.annotate
     - content.action.edit
     - content.action.view
-
 plugins:
   - search
   - mkdocstrings:
       handlers:
         python:
-          paths: [src]
+          paths:
+            - src
           options:
             show_source: true
             docstring_style: google
@@ -58,7 +58,6 @@ plugins:
             signature_crossrefs: true
             separate_signature: true
             line_length: 80
-
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -76,29 +75,47 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
-
 nav:
   - Home: index.md
-  - Getting Started: quickstart.md
-  - Programmatic Usage: programmatic-usage.md
-  - Architecture: architecture.md
-  - YAML Reference: yaml_reference.md
-  - CLI Guide: CLI.md
-  - Contributing: ../CONTRIBUTING.md
-  - Guides:
-      - Kibana Fixture Generator: kibana-fixture-generator-guide.md
-  - API Reference:
-      - api/index.md
-      - Dashboard: api/dashboard.md
-      - Panels: api/panels.md
-      - Controls: api/controls.md
-      - Filters: api/filters.md
-      - Queries: api/queries.md
-  - Panel Configuration:
-      - Markdown Panel: panels/markdown.md
-      - Image Panel: panels/image.md
-      - Links Panel: panels/links.md
-      - Search Panel: panels/search.md
-      - Metric Chart: panels/metric.md
-      - Pie Chart: panels/pie.md
-      - XY Chart: panels/xy.md
+
+  # TIER 1: Getting Started (New Users)
+  - Getting Started:
+      - Quickstart: quickstart.md
+      - CLI Reference: CLI.md
+      - Complete Examples: examples/index.md
+
+  # TIER 2: User Guide (Building Dashboards)
+  - User Guide:
+      - Dashboard Configuration: dashboard/dashboard.md
+      - Panel Types:
+          - Overview: panels/base.md
+          - Links Panels: panels/links.md
+          - Markdown Panels: panels/markdown.md
+          - Chart Panels:
+              - Metric Charts: panels/metric.md
+              - Pie Charts: panels/pie.md
+              - XY Charts: panels/xy.md
+          - Image Panels: panels/image.md
+          - Search Panels: panels/search.md
+      - Dashboard Controls: controls/config.md
+      - Filters & Queries:
+          - Filters: filters/config.md
+          - Queries: queries/config.md
+      - Complete Examples: examples/index.md
+      - CLI Reference: CLI.md
+
+  # TIER 3: Developer Resources (Advanced/Contributors)
+  - Developer Guide:
+      - Architecture Overview: architecture.md
+      - Programmatic Usage: programmatic-usage.md
+      - API Reference:
+          - api/index.md
+          - Dashboard API: api/dashboard.md
+          - Panels API: api/panels.md
+          - Controls API: api/controls.md
+          - Filters API: api/filters.md
+          - Queries API: api/queries.md
+      - Contributing: ../CONTRIBUTING.md
+      - Advanced Topics:
+          - Kibana Architecture Reference: kibana-architecture.md
+          - Fixture Generator Guide: kibana-fixture-generator-guide.md

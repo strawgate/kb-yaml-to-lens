@@ -1,182 +1,180 @@
+---
 dashboards:
   - id: filters-example-001
-    name: "[Example] Advanced Filtering Techniques"
-    description: "Demonstrates various panel-level filter types and combinations"
+    name: '[Example] Advanced Filtering Techniques'
+    description: Demonstrates various panel-level filter types and combinations
     panels:
       # Introduction
       - type: markdown
-        title: "Filter Types Reference"
-        grid: { x: 0, y: 0, w: 48, h: 6 }
+        title: Filter Types Reference
+        grid: {x: 0, y: 0, w: 48, h: 6}
         content: |
           # Advanced Filtering Techniques
-
           This dashboard demonstrates various filter types available for panels:
 
           ## Filter Types
-
           1. **Equals Filter** - Exact field value match
           2. **Exists Filter** - Field existence check
           3. **Comparison Filters** - Greater than/less than (gte, gt, lte, lt)
           4. **Not Filter** - Negation of other filters
           5. **Combined Filters** - Multiple filters on same panel
-
           Each panel below demonstrates a different filtering pattern.
         font_size: 12
 
       # Example 1: Equals Filter
       - type: charts
-        title: "Error Logs Only"
+        title: Error Logs Only
         description: "Using equals filter: log.level = 'error'"
-        grid: { x: 0, y: 6, w: 12, h: 8 }
+        grid: {x: 0, y: 6, w: 12, h: 8}
         filters:
-          - field: "log.level"
-            equals: "error"
+          - field: log.level
+            equals: error
         chart:
           type: metric
-          data_view: "logs-*"
+          data_view: logs-*
           primary:
             aggregation: count
-            label: "Error Count"
+            label: Error Count
 
       # Example 2: Exists Filter
       - type: charts
-        title: "HTTP Requests Only"
-        description: "Using exists filter: http.response.status_code exists"
-        grid: { x: 12, y: 6, w: 12, h: 8 }
+        title: HTTP Requests Only
+        description: 'Using exists filter: http.response.status_code exists'
+        grid: {x: 12, y: 6, w: 12, h: 8}
         filters:
-          - exists: "http.response.status_code"
+          - exists: http.response.status_code
         chart:
           type: metric
-          data_view: "logs-*"
+          data_view: logs-*
           primary:
             aggregation: count
-            label: "HTTP Events"
+            label: HTTP Events
 
       # Example 3: Greater Than or Equal Filter
       - type: charts
-        title: "Slow Requests (≥500ms)"
-        description: "Using gte filter: http.response.time >= 500"
-        grid: { x: 24, y: 6, w: 12, h: 8 }
+        title: Slow Requests (≥500ms)
+        description: 'Using gte filter: http.response.time >= 500'
+        grid: {x: 24, y: 6, w: 12, h: 8}
         filters:
-          - field: "http.response.time"
-            gte: "500"
+          - field: http.response.time
+            gte: '500'
         chart:
           type: metric
-          data_view: "logs-*"
+          data_view: logs-*
           primary:
             aggregation: count
-            label: "Slow Requests"
+            label: Slow Requests
 
       # Example 4: Not Filter (Negation)
       - type: charts
-        title: "Non-Success HTTP Codes"
-        description: "Using not filter: NOT (http.response.status_code = 200)"
-        grid: { x: 36, y: 6, w: 12, h: 8 }
+        title: Non-Success HTTP Codes
+        description: 'Using not filter: NOT (http.response.status_code = 200)'
+        grid: {x: 36, y: 6, w: 12, h: 8}
         filters:
-          - exists: "http.response.status_code"
+          - exists: http.response.status_code
           - not:
-              field: "http.response.status_code"
-              equals: "200"
+              field: http.response.status_code
+              equals: '200'
         chart:
           type: metric
-          data_view: "logs-*"
+          data_view: logs-*
           primary:
             aggregation: count
-            label: "Non-200 Responses"
+            label: Non-200 Responses
 
       # Example 5: Combined Filters (AND logic)
       - type: charts
-        title: "Critical Production Errors"
+        title: Critical Production Errors
         description: "Multiple filters: level='error' AND environment='production'"
-        grid: { x: 0, y: 14, w: 24, h: 10 }
+        grid: {x: 0, y: 14, w: 24, h: 10}
         filters:
-          - field: "log.level"
-            equals: "error"
-          - field: "environment"
-            equals: "production"
-          - exists: "error.message"
+          - field: log.level
+            equals: error
+          - field: environment
+            equals: production
+          - exists: error.message
         chart:
           type: line
-          data_view: "logs-*"
+          data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - field: '@timestamp'
               type: date_histogram
-              label: "Time"
+              label: Time
           metrics:
             - aggregation: count
-              label: "Production Errors"
+              label: Production Errors
 
       # Example 6: Range Filters
       - type: charts
-        title: "4xx HTTP Status Codes"
-        description: "Range filter: 400 <= status_code < 500"
-        grid: { x: 24, y: 14, w: 24, h: 10 }
+        title: 4xx HTTP Status Codes
+        description: 'Range filter: 400 <= status_code < 500'
+        grid: {x: 24, y: 14, w: 24, h: 10}
         filters:
-          - field: "http.response.status_code"
-            gte: "400"
-          - field: "http.response.status_code"
-            lt: "500"
+          - field: http.response.status_code
+            gte: '400'
+          - field: http.response.status_code
+            lt: '500'
         chart:
           type: bar
           mode: stacked
-          data_view: "logs-*"
+          data_view: logs-*
           dimensions:
-            - field: "http.response.status_code"
+            - field: http.response.status_code
               type: values
               size: 10
               sort:
-                by: "Count"
+                by: Count
                 direction: desc
           metrics:
             - aggregation: count
-              label: "Count"
+              label: Count
 
       # Example 7: Excluding specific values
       - type: charts
-        title: "Non-Health-Check Requests"
-        description: "Excluding health check endpoints"
-        grid: { x: 0, y: 24, w: 24, h: 12 }
+        title: Non-Health-Check Requests
+        description: Excluding health check endpoints
+        grid: {x: 0, y: 24, w: 24, h: 12}
         filters:
-          - exists: "url.path"
+          - exists: url.path
           - not:
-              field: "url.path"
-              equals: "/health"
+              field: url.path
+              equals: /health
           - not:
-              field: "url.path"
-              equals: "/ping"
+              field: url.path
+              equals: /ping
         chart:
           type: area
           mode: stacked
-          data_view: "logs-*"
+          data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - field: '@timestamp'
               type: date_histogram
           metrics:
             - aggregation: count
           breakdown:
-            field: "http.request.method"
+            field: http.request.method
 
       # Example 8: Filtering by data stream
       - type: charts
-        title: "Application Logs Only"
-        description: "Filter by data stream dataset"
-        grid: { x: 24, y: 24, w: 24, h: 12 }
+        title: Application Logs Only
+        description: Filter by data stream dataset
+        grid: {x: 24, y: 24, w: 24, h: 12}
         filters:
-          - field: "data_stream.dataset"
-            equals: "application.logs"
+          - field: data_stream.dataset
+            equals: application.logs
         chart:
           type: line
-          data_view: "logs-*"
+          data_view: logs-*
           dimensions:
-            - field: "@timestamp"
+            - field: '@timestamp'
               type: date_histogram
-              label: "Time"
-            - field: "log.level"
+              label: Time
+            - field: log.level
               type: values
               size: 5
               sort:
-                by: "Count"
+                by: Count
                 direction: desc
           metrics:
             - aggregation: count
-              label: "Count"
+              label: Count

@@ -1,51 +1,41 @@
+---
 name: Run Tests
-
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
-
+    branches:
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Setup Python Environment
-      uses: ./.github/actions/setup-python-env
-
-    - name: Run pytest
-      run: make test
-
-    - name: Run smoke tests
-      run: make test-smoke
-
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run pytest
+        run: make test
+      - name: Run smoke tests
+        run: make test-smoke
   lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Setup Python Environment
-      uses: ./.github/actions/setup-python-env
-
-    - name: Run linting
-      run: make lint-check
-
-    - name: Check formatting
-      run: make format-check
-
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run linting
+        run: make lint-check
+      - name: Check formatting
+        run: make format-check
   typecheck:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Setup Python Environment
-      uses: ./.github/actions/setup-python-env
-
-    - name: Run type checking
-      run: make typecheck
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run type checking
+        run: make typecheck

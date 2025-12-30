@@ -82,15 +82,41 @@ kb-dashboard compile \
 The `--upload` flag will automatically open your dashboard in the browser upon
 successful upload.
 
-## Documentation
+## Where to Start
 
-- **[Quickstart Guide](quickstart.md)** – Step-by-step guide for creating your
-  first dashboard
-- **[Architecture](architecture.md)** – Technical design and data flow overview
-- **[YAML Reference](yaml_reference.md)** – Complete schema documentation for
-  all dashboard elements
-- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new
-  capabilities
+- **New to kb-yaml-to-lens?** → Start with the [Quickstart Guide](quickstart.md)
+- **Building dashboards?** → Browse the [User Guide](#user-guide) for YAML reference and panel documentation
+- **Contributing or extending?** → Check the [Developer Guide](#developer-guide) for architecture and API documentation
+
+## Documentation Sections
+
+### Getting Started
+
+New users should begin here to learn the basics:
+
+- **[Quickstart Guide](quickstart.md)** – Step-by-step guide for creating your first dashboard
+- **[CLI Reference](CLI.md)** – Command-line interface documentation
+
+### User Guide
+
+Reference documentation for building dashboards in YAML:
+
+- **[Dashboard Configuration](dashboard/dashboard.md)** – Dashboard-level settings and options
+- **[Panel Types](panels/base.md)** – Available panel types (Markdown, Charts, Images, Links, etc.)
+- **[Dashboard Controls](controls/config.md)** – Interactive filtering controls
+- **[Filters & Queries](filters/config.md)** – Data filtering and query configuration
+- **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples
+
+### Developer Guide
+
+Advanced documentation for contributors and programmatic usage:
+
+- **[Architecture Overview](architecture.md)** – Technical design and data flow
+- **[Programmatic Usage](programmatic-usage.md)** – Using the Python API directly
+- **[API Reference](api/index.md)** – Auto-generated Python API documentation
+- **[Contributing Guide](../CONTRIBUTING.md)** – How to contribute and add new capabilities
+- **[Kibana Architecture Reference](kibana-architecture.md)** – Understanding Kibana's internal structure
+- **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** – Generating test fixtures from live Kibana instances
 
 ## Requirements
 
