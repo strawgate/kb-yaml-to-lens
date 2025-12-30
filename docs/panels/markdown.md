@@ -32,7 +32,7 @@ With documentation well-designed!
 
 ## Minimal Configuration Example
 
-To add a simple Markdown panel, you need to specify its `type`, `grid` position, and the `content`.
+To add a simple Markdown panel, you need to specify its `grid` position and the `markdown` configuration with `content`.
 
 ```yaml
 dashboards:

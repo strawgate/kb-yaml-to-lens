@@ -32,7 +32,7 @@ Helping you investigate and compute!
 
 ## Minimal Configuration Example
 
-To add a Search panel, you need to specify its `type`, `grid` position, and the `saved_search_id`.
+To add a Search panel, you need to specify its `grid` position and the `search` configuration with `saved_search_id`.
 
 ```yaml
 dashboards:

@@ -175,7 +175,7 @@ panel = LinksPanel(
 )
 ```
 
-The `Links` object includes an `add_link(link: LinkTypes)` method for adding links dynamically:
+The `LinksPanel` includes an `add_link(link: LinkTypes)` method for adding links dynamically:
 
 ```python
 from dashboard_compiler.panels.config import Grid
@@ -186,8 +186,8 @@ panel = LinksPanel(
     links=LinksPanelConfig(links=[]),
 )
 
-panel.links_config.links.append(UrlLink(label='Docs', url='https://example.com/docs'))
-panel.links_config.links.append(UrlLink(label='API', url='https://example.com/api'))
+panel.add_link(UrlLink(label='Docs', url='https://example.com/docs'))
+panel.add_link(UrlLink(label='API', url='https://example.com/api'))
 ```
 
 ## Related Documentation

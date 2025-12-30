@@ -9,15 +9,14 @@ from dashboard_compiler.shared.config import BaseCfgModel
 class MarkdownPanelConfig(BaseCfgModel):
     """Configuration specific to Markdown panels."""
 
-    content: str = Field(..., description='The Markdown content to be displayed in the panel.')
-    font_size: int | None = Field(
-        default=None,
-        description='The font size for the Markdown content, in pixels. Defaults to 12 if not set.',
-    )
-    links_in_new_tab: bool | None = Field(
-        default=None,
-        description='If true, links in the Markdown content will open in a new tab. Defaults to true if not set.',
-    )
+    content: str = Field(...)
+    """The Markdown content to be displayed in the panel."""
+
+    font_size: int | None = Field(default=None)
+    """The font size for the Markdown content, in pixels. Defaults to 12 if not set."""
+
+    links_in_new_tab: bool | None = Field(default=None)
+    """If true, links in the Markdown content will open in a new tab. Defaults to true if not set."""
 
 
 class MarkdownPanel(BasePanel):
@@ -26,4 +25,5 @@ class MarkdownPanel(BasePanel):
     Markdown panels are used to display rich text content using Markdown syntax.
     """
 
-    markdown: MarkdownPanelConfig = Field(..., description='Markdown panel configuration.')
+    markdown: MarkdownPanelConfig = Field(...)
+    """Markdown panel configuration."""

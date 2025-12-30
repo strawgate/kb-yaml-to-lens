@@ -33,7 +33,7 @@ def get_panel_type(v: dict[str, object] | object) -> str:
             if key in v:
                 return panel_type
         # Charts can have multiple discriminator keys
-        if 'charts' in v or 'chart' in v or 'esql' in v:
+        if 'chart' in v or 'esql' in v:
             return 'charts'
         msg = f'Cannot determine panel type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
         raise ValueError(msg)

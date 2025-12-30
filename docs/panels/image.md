@@ -32,7 +32,7 @@ Making dashboards beautiful for you!
 
 ## Minimal Configuration Example
 
-To add an Image panel, you need to specify its `type`, `grid` position, and the `from_url` for the image source.
+To add an Image panel, you need to specify its `grid` position and the `image` configuration with `from_url` for the image source.
 
 ```yaml
 dashboards:

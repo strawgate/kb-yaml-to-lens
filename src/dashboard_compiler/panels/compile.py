@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from dashboard_compiler.panels import LinksPanel, MarkdownPanel
+from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
@@ -53,9 +53,12 @@ def get_panel_type_name(panel: PanelTypes) -> str:
         return 'markdown'
     if isinstance(panel, LinksPanel):
         return 'links'
+    if isinstance(panel, ImagePanel):
+        return 'image'
+    if isinstance(panel, SearchPanel):
+        return 'search'
     if isinstance(panel, LensPanel | ESQLPanel):
         return 'charts'
-    # Future: ImagePanel, SearchPanel
     return type(panel).__name__
 
 
@@ -63,7 +66,7 @@ def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
     """Compile shared properties of a panel into its Kibana view model representation.
 
     Args:
-        panel (LensPanel | ESQLPanel): The panel object to compile.
+        panel (PanelTypes): The panel object to compile.
 
     Returns:
         tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.

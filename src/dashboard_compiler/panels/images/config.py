@@ -30,4 +30,5 @@ class ImagePanel(BasePanel):
     Image panels are used to display images.
     """
 
-    image: ImagePanelConfig = Field(..., description='Image panel configuration.')
+    image: ImagePanelConfig = Field(...)
+    """Image panel configuration."""

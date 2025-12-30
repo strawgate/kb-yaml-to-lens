@@ -98,7 +98,8 @@ class LinksPanel(BasePanel):
     saved objects, or external URLs.
     """
 
-    links_config: LinksPanelConfig = Field(..., description='Links panel configuration.', alias='links')
+    links_config: LinksPanelConfig = Field(..., alias='links')
+    """Links panel configuration."""
 
     def add_link(self, link: LinkTypes) -> Self:
         """Add a link object to the Links panel's links list.
