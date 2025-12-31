@@ -153,6 +153,8 @@ prompt: |
 
 ### Example 4: Minimizing Outdated Comments (tidy-pr.yml)
 
+> Note: The example below is simplified for clarity. The actual workflow file has 85 lines of minimization logic (lines 26-110).
+
 **Before** (entire workflow logic):
 
 ```yaml
@@ -242,7 +244,7 @@ run: |-
   .github/scripts/gh-minimize-outdated-comments.sh "$OWNER" "$REPO" ${{ github.event.issue.number }}
 ```
 
-**Lines saved**: 86 → 5 (94% reduction)
+**Lines saved**: 85 → 5 (94% reduction)
 
 ---
 
