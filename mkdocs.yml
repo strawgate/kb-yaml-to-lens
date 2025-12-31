@@ -89,11 +89,11 @@ nav:
       - Dashboard Configuration: dashboard/dashboard.md
       - Panel Types:
           - Overview: panels/base.md
-          - Lens Panels: panels/lens.md
-          - ESQL Panels: panels/esql.md
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
           - Chart Panels:
+              - Lens Panels: panels/lens.md
+              - ESQL Panels: panels/esql.md
               - Datatable Charts: panels/datatable.md
               - Gauge Charts: panels/gauge.md
               - Metric Charts: panels/metric.md
