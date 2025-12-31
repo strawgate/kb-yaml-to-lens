@@ -37,26 +37,6 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
    - Select "Install from VSIX..."
    - Choose the generated `.vsix` file
 
-### For Development
-
-If you're contributing to the extension or want to run the latest development version:
-
-1. Clone the repository
-2. Navigate to the extension folder:
-
-   ```bash
-   cd vscode-extension
-   npm install
-   ```
-
-3. Open the folder in VS Code:
-
-   ```bash
-   code .
-   ```
-
-4. Press F5 to launch the Extension Development Host
-
 ## Setup
 
 ### Python Environment
@@ -66,28 +46,9 @@ The extension requires the `dashboard_compiler` package to be installed in your 
 From the repository root:
 
 ```bash
-# Using pip
-pip install -e .
-
 # Or using uv
 uv sync
 ```
-
-### Extension Configuration
-
-Configure the extension in VS Code settings (File → Preferences → Settings):
-
-**`yamlDashboard.pythonPath`**
-
-Path to your Python interpreter (default: `python`)
-
-Examples:
-
-- Linux/macOS: `/usr/bin/python3`
-- PyEnv: `~/.pyenv/versions/3.11.0/bin/python`
-- Windows: `C:\\Python311\\python.exe`
-- Virtual environment: `/path/to/venv/bin/python`
-- Conda environment: `/path/to/conda/envs/yourenv/bin/python`
 
 **`yamlDashboard.compileOnSave`**
 
@@ -161,78 +122,6 @@ Once you've compiled your dashboard, you can import it into Kibana:
 2. In Kibana, navigate to: **Stack Management → Saved Objects → Import**
 3. Paste or upload the NDJSON file
 4. Your dashboard is now available in Kibana!
-
-## Troubleshooting
-
-### Python server not starting
-
-**Problem**: Extension shows "Python server not running" error
-
-**Solutions**:
-
-- Verify `dashboard_compiler` is installed:
-
-  ```bash
-  python -c "import dashboard_compiler"
-  ```
-
-- Check the Python path in extension settings
-- View the Output panel (View → Output) and select "YAML Dashboard Compiler" to see logs
-
-### Compilation errors
-
-**Problem**: "Compilation failed" messages
-
-**Solutions**:
-
-- Check your YAML syntax
-- Verify your dashboard structure matches the expected schema
-- Review the error message in the preview panel for details
-- Test compilation manually:
-
-  ```bash
-  python -c "from dashboard_compiler.dashboard_compiler import load; load('your_file.yaml')"
-  ```
-
-### Preview not updating
-
-**Problem**: Preview doesn't refresh after saving
-
-**Solutions**:
-
-- Check that `yamlDashboard.compileOnSave` is enabled in settings
-- Try manually running **YAML Dashboard: Preview Dashboard**
-- Close and reopen the preview panel
-
-### Python path issues
-
-**Problem**: Extension can't find Python or packages
-
-**Solutions**:
-
-- Use absolute path in settings:
-
-  ```json
-  {
-    "yamlDashboard.pythonPath": "/full/path/to/python"
-  }
-  ```
-
-- For virtual environments, use the venv Python:
-
-  ```json
-  {
-    "yamlDashboard.pythonPath": "/path/to/venv/bin/python"
-  }
-  ```
-
-- For conda environments:
-
-  ```json
-  {
-    "yamlDashboard.pythonPath": "/path/to/conda/envs/yourenv/bin/python"
-  }
-  ```
 
 ## Related Links
 
