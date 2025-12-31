@@ -53,7 +53,6 @@ from dashboard_compiler.dashboard.config import Dashboard
 dashboard = Dashboard(
     name='Dashboard Name',  # Required: Display name
     description='Dashboard description',  # Optional: Description
-    data_view='logs-*',  # Optional: Default data view
 )
 ```
 
