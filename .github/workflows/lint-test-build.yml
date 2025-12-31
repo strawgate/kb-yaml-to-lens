@@ -79,14 +79,17 @@ jobs:
         with:
           name: coverage-report
           path: |
+            .coverage
             htmlcov/
             coverage.json
           retention-days: 30
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request'
-        uses: py-cov-action/python-coverage-comment-action@v3.39
+        uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MINIMUM_GREEN: 80
+          MINIMUM_ORANGE: 70
   test-python-cli:
     name: Test Python CLI
     runs-on: ubuntu-latest
