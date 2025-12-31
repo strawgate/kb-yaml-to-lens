@@ -2,6 +2,22 @@
 
 This section provides real-world YAML dashboard examples demonstrating various features and capabilities of the Dashboard Compiler.
 
+## How to Use These Examples
+
+1. **Download:** Click the link for an example to view it on GitHub, then download the raw file or copy the content.
+2. **Save:** Save the content to a `.yaml` file in your `inputs/` directory (e.g., `inputs/my_example.yaml`).
+3. **Compile:** Run the compiler:
+
+   ```bash
+   kb-dashboard compile
+   ```
+
+4. **Upload (Optional):** To upload directly to Kibana:
+
+   ```bash
+   kb-dashboard compile --upload
+   ```
+
 ## Available Examples
 
 ### [Controls Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)

@@ -78,16 +78,10 @@ markdown_extensions:
   - toc:
       permalink: true
 nav:
-  - Home: index.md
-
-  # TIER 1: Getting Started (New Users)
-  - Getting Started:
-      - Quickstart: quickstart.md
+  - User Guide:
+      - Getting Started: index.md
       - CLI Reference: CLI.md
       - Complete Examples: examples/index.md
-
-  # TIER 2: User Guide (Building Dashboards)
-  - User Guide:
       - Dashboard Configuration: dashboard/dashboard.md
       - Panel Types:
           - Overview: panels/base.md
@@ -110,10 +104,8 @@ nav:
       - Filters & Queries:
           - Filters: filters/config.md
           - Queries: queries/config.md
-      - Complete Examples: examples/index.md
-      - CLI Reference: CLI.md
-
-  # TIER 3: Developer Resources (Advanced/Contributors)
+      - Advanced Topics:
+          - ES|QL "views": advanced/esql-views.md
   - Developer Guide:
       - Architecture Overview: architecture.md
       - Programmatic Usage: programmatic-usage.md
