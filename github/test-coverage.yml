@@ -10,6 +10,9 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,67 +30,7 @@ jobs:
             coverage.json
           retention-days: 30
       - name: Comment coverage on PR
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        uses: py-cov-action/python-coverage-comment-action@v3
         with:
-          script: |
-            const fs = require('fs');
-
-            if (!fs.existsSync('coverage.json')) {
-              console.log('coverage.json not found, skipping PR comment');
-              return;
-            }
-
-            // Parse coverage.json with error handling
-            let coverage;
-            try {
-              coverage = JSON.parse(fs.readFileSync('coverage.json', 'utf8'));
-              if (!coverage.totals || typeof coverage.totals.percent_covered !== 'number') {
-                throw new Error('Missing required fields in coverage.json');
-              }
-            } catch (error) {
-              console.error('Failed to parse coverage.json:', error.message);
-              return;
-            }
-
-            const percent = coverage.totals.percent_covered.toFixed(2);
-            const missing = coverage.totals.missing_lines || 0;
-            const covered = coverage.totals.covered_lines || 0;
-            const total = covered + missing;
-
-            // Extract threshold from pyproject.toml to avoid duplication
-            let threshold = 80; // Default fallback
-            try {
-              const toml = fs.readFileSync('pyproject.toml', 'utf8');
-              const thresholdMatch = toml.match(/^[^#\n]*fail_under\s*=\s*([\d.]+)/m);
-              if (thresholdMatch) {
-                threshold = parseFloat(thresholdMatch[1]);
-              }
-            } catch (error) {
-              console.warn('Could not extract threshold from pyproject.toml, using default:', error.message);
-            }
-
-            const meetsThreshold = parseFloat(percent) >= threshold;
-            const statusIcon = meetsThreshold ? '✅' : '❌';
-
-            const body = `### ${statusIcon} Test Coverage Report
-
-            **Overall Coverage: ${percent}%** (threshold: ${threshold}%)
-
-            - ✅ Covered lines: ${covered}
-            - ❌ Missing lines: ${missing}
-            - 📝 Total lines: ${total}
-
-            <details>
-            <summary>View detailed coverage report</summary>
-
-            Download the \`coverage-report\` artifact from this workflow run to view the full HTML report.
-
-            </details>`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+          GITHUB_TOKEN: ${{ github.token }}
