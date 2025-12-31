@@ -5,6 +5,9 @@ from pydantic import Field, field_validator
 from dashboard_compiler.shared.config import BaseCfgModel
 from dashboard_compiler.shared.model import BaseRootCfgModel
 
+# Recursive type for nested query parts from YAML anchor expansion
+type QueryPart = str | list['QueryPart']
+
 
 class KqlQuery(BaseCfgModel):
     """Represents a KQL (Kibana Query Language) query configuration.
@@ -35,16 +38,46 @@ class ESQLQuery(BaseRootCfgModel):
     - A string: The complete ESQL query
     - A list of strings: Query parts that will be concatenated with pipe characters (|)
 
-    This enables using YAML anchors to share parts of ESQL queries across panels.
+    The list format supports YAML anchors for query reuse. When anchors reference arrays,
+    they create nested lists which are automatically flattened before concatenation.
+
+    Example with YAML anchors:
+        .base: &base_query
+          - FROM logs-*
+          - WHERE @timestamp > NOW() - 1h
+
+        query:
+          - *base_query
+          - STATS count = COUNT()
+
+        # Results in: FROM logs-* | WHERE @timestamp > NOW() - 1h | STATS count = COUNT()
     """
 
     root: str = Field(...)
 
     @field_validator('root', mode='before')
     @classmethod
-    def normalize_query(cls, value: str | list[str]) -> str:
-        """Normalize the query to a string by concatenating list elements with pipes."""
+    def normalize_query(cls, value: QueryPart) -> str:
+        """Normalize the query to a string by flattening and concatenating list elements with pipes."""
         if isinstance(value, list):
-            # Join array elements with " | "
-            return ' | '.join(value)
+            flattened = _flatten_query_parts(value)
+            return ' | '.join(flattened)
         return value
+
+
+def _flatten_query_parts(parts: list[QueryPart]) -> list[str]:
+    """Flatten a potentially nested list of query parts into a single list of strings.
+
+    Args:
+        parts: A list that may contain strings or nested lists of strings (arbitrarily deep).
+
+    Returns:
+        A flat list of strings.
+    """
+    result: list[str] = []
+    for part in parts:
+        if isinstance(part, list):
+            result.extend(_flatten_query_parts(part))
+        else:
+            result.append(part)
+    return result

@@ -150,6 +150,80 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[rep
         return {'success': True, 'data': dashboard_list}
 
 
+def _get_panel_type(panel: Any) -> str:  # pyright: ignore[reportAny]
+    """Extract the panel type, including chart type for Lens/ESQL panels.
+
+    Args:
+        panel: The panel object to extract type from
+
+    Returns:
+        The panel type string (e.g., 'pie', 'bar', 'markdown', 'search')
+    """
+    class_name = panel.__class__.__name__
+
+    if hasattr(panel, 'lens') and panel.lens is not None:
+        return getattr(panel.lens, 'type', 'lens')
+
+    if hasattr(panel, 'esql') and panel.esql is not None:
+        return getattr(panel.esql, 'type', 'esql')
+
+    return class_name.replace('Panel', '').lower()
+
+
+@server.feature('dashboard/getGridLayout')
+def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Get grid layout information from a YAML dashboard file.
+
+    Args:
+        params: Object containing path and dashboard_index
+
+    Returns:
+        Dictionary with grid layout information or error
+    """
+    params_dict = _params_to_dict(params)
+    path = params_dict.get('path')
+    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+
+    if path is None or len(path) == 0:
+        return {'success': False, 'error': 'Missing path parameter'}
+
+    try:
+        dashboards = load(path)  # pyright: ignore[reportAny]
+        if len(dashboards) == 0:
+            return {'success': False, 'error': 'No dashboards found in YAML file'}
+
+        if dashboard_index < 0 or dashboard_index >= len(dashboards):
+            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'}
+
+        dashboard_config = dashboards[dashboard_index]
+
+        panels = []
+        for index, panel in enumerate(dashboard_config.panels):
+            panel_type = _get_panel_type(panel)
+            panel_info = {
+                'id': panel.id or f'panel_{index}',
+                'title': panel.title or 'Untitled Panel',
+                'type': panel_type,
+                'grid': {
+                    'x': panel.grid.x,
+                    'y': panel.grid.y,
+                    'w': panel.grid.w,
+                    'h': panel.grid.h,
+                },
+            }
+            panels.append(panel_info)
+
+        result = {
+            'title': dashboard_config.name or 'Untitled Dashboard',
+            'description': dashboard_config.description or '',
+            'panels': panels,
+        }
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    else:
+        return {'success': True, 'data': result}
+
+
 @server.feature(types.TEXT_DOCUMENT_DID_SAVE)
 def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> None:
     """Handle file save events and notify client of changes.

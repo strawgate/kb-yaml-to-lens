@@ -2,76 +2,91 @@
 /**
  * Generate all test fixtures
  *
- * Runs all example generator scripts and produces JSON fixtures
+ * Automatically discovers and runs all example generator scripts in the examples/ directory
  */
 
 import { fileURLToPath } from 'url';
-import { generateMetricBasic } from './examples/metric-basic.js';
-import { generateMetricWithBreakdown } from './examples/metric-with-breakdown.js';
-import { generateMetricWithTrend } from './examples/metric-with-trend.js';
-import { generateMetricGrid } from './examples/metric-grid.js';
-import { generateXYChart } from './examples/xy-chart.js';
-import { generateXYChartStackedBar } from './examples/xy-chart-stacked-bar.js';
-import { generateXYChartDualAxis } from './examples/xy-chart-dual-axis.js';
-import { generateXYChartMultiLayer } from './examples/xy-chart-multi-layer.js';
-import { generatePieChart } from './examples/pie-chart.js';
-import { generatePieChartDonut } from './examples/pie-chart-donut.js';
-import { generateHeatmap } from './examples/heatmap.js';
-import { generateDatatableAdvanced } from './examples/datatable-advanced.js';
-import { generateGauge } from './examples/gauge.js';
-import { generateTreemap } from './examples/treemap.js';
-import { generateWaffle } from './examples/waffle.js';
-import { generateXYChartAdvancedLegend } from './examples/xy-chart-advanced-legend.js';
-import { generateXYChartCustomColors } from './examples/xy-chart-custom-colors.js';
-import { generatePieChartAdvancedColors } from './examples/pie-chart-advanced-colors.js';
+import { dirname, join } from 'path';
+import { readdir } from 'fs/promises';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+/**
+ * Discover all example generator files in the examples/ directory
+ */
+async function discoverExamples() {
+  const examplesDir = join(__dirname, 'examples');
+  const files = await readdir(examplesDir);
+
+  const exampleFiles = files
+    .filter(file => file.endsWith('.js'))
+    .sort();
+
+  return exampleFiles;
+}
+
+/**
+ * Load generator function from an example file
+ */
+async function loadGenerator(filename) {
+  const modulePath = `./examples/${filename}`;
+  const module = await import(modulePath);
+
+  // Find the exported generator function (should start with 'generate')
+  const generatorName = Object.keys(module).find(key => key.startsWith('generate'));
+
+  if (!generatorName) {
+    throw new Error(`No generator function found in ${filename}`);
+  }
+
+  return {
+    fn: module[generatorName],
+    name: generatorName,
+    filename
+  };
+}
+
+/**
+ * Format a generator name for display
+ */
+function formatName(generatorName) {
+  // Convert generateMetricBasic -> Metric (Basic)
+  // Convert generateXYChartStackedBar -> XY Chart (Stacked Bar)
+  // Convert generatePieChartNestedLegend -> Pie Chart (Nested Legend)
+  return generatorName
+    .replace(/^generate/, '')
+    // Insert space before uppercase letters that follow lowercase letters
+    // This keeps consecutive capitals together (XY stays as XY, not X Y)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim()
+    .replace(/^([^(]+?)(\s.+)?$/, (_, first, rest) => {
+      // Split into main type and variant
+      // e.g., "XY Chart Stacked Bar" -> "XY Chart (Stacked Bar)"
+      if (rest) {
+        return `${first} (${rest.trim()})`;
+      }
+      return first;
+    });
+}
 
 async function generateAll() {
   console.log('Generating all test fixtures...\n');
+  console.log('Discovering example generators...');
 
-  const generators = [
-    // Metric visualizations (ES|QL only)
-    { name: 'Metric (Basic)', fn: generateMetricBasic },
-    { name: 'Metric (Breakdown)', fn: generateMetricWithBreakdown },
+  const exampleFiles = await discoverExamples();
+  console.log(`Found ${exampleFiles.length} example files\n`);
 
-    // Metric visualizations (dual: ES|QL + Data View)
-    { name: 'Metric (Trend)', fn: generateMetricWithTrend, dual: true },
-    { name: 'Metric (Grid)', fn: generateMetricGrid, dual: true },
-
-    // XY Charts (ES|QL only)
-    { name: 'XY Chart (Line)', fn: generateXYChart },
-
-    // XY Charts (dual: ES|QL + Data View)
-    { name: 'XY Chart (Stacked Bar)', fn: generateXYChartStackedBar, dual: true },
-    { name: 'XY Chart (Dual Axis)', fn: generateXYChartDualAxis, dual: true },
-    { name: 'XY Chart (Multi-Layer)', fn: generateXYChartMultiLayer, dual: true },
-    { name: 'XY Chart (Advanced Legend)', fn: generateXYChartAdvancedLegend, dual: true },
-    { name: 'XY Chart (Custom Colors)', fn: generateXYChartCustomColors, dual: true },
-
-    // Pie Charts (ES|QL only)
-    { name: 'Pie Chart', fn: generatePieChart },
-
-    // Pie Charts (dual: ES|QL + Data View)
-    { name: 'Pie Chart (Donut)', fn: generatePieChartDonut, dual: true },
-    { name: 'Pie Chart (Advanced Colors)', fn: generatePieChartAdvancedColors, dual: true },
-
-    // Other chart types (ES|QL only)
-    { name: 'Heatmap', fn: generateHeatmap },
-
-    // Other chart types (dual: ES|QL + Data View)
-    { name: 'Datatable (Advanced)', fn: generateDatatableAdvanced, dual: true },
-    { name: 'Gauge', fn: generateGauge, dual: true },
-    { name: 'Treemap', fn: generateTreemap, dual: true },
-    { name: 'Waffle', fn: generateWaffle, dual: true },
-  ];
-
-  for (const { name, fn, dual } of generators) {
+  for (const filename of exampleFiles) {
     try {
+      const { fn, name } = await loadGenerator(filename);
+      const displayName = formatName(name);
+
       await fn();
-      if (dual) {
-        console.log(`  (generated both ES|QL and Data View variants)`);
-      }
+
+      console.log(`✓ Generated ${displayName}`);
     } catch (err) {
-      console.error(`✗ Failed to generate ${name}:`, err.message);
+      console.error(`✗ Failed to generate ${filename}:`, err.message);
       process.exit(1);
     }
   }

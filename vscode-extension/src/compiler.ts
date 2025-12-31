@@ -24,6 +24,24 @@ export interface DashboardInfo {
     description: string;
 }
 
+export interface PanelGridInfo {
+    id: string;
+    title: string;
+    type: string;
+    grid: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+    };
+}
+
+export interface DashboardGridInfo {
+    title: string;
+    description: string;
+    panels: PanelGridInfo[];
+}
+
 interface CompileResult {
     success: boolean;
     data?: CompiledDashboard;
@@ -33,6 +51,12 @@ interface CompileResult {
 interface DashboardListResult {
     success: boolean;
     data?: DashboardInfo[];
+    error?: string;
+}
+
+interface GridLayoutResult {
+    success: boolean;
+    data?: DashboardGridInfo;
     error?: string;
 }
 
@@ -186,6 +210,31 @@ export class DashboardCompilerLSP {
         }
 
         return result.data || [];
+    }
+
+    /**
+     * Get grid layout information from a YAML dashboard file.
+     *
+     * @param filePath Path to the YAML file
+     * @param dashboardIndex Index of the dashboard to extract (default: 0)
+     * @returns Grid layout information
+     */
+    async getGridLayout(filePath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
+        if (!this.client) {
+            throw new Error('LSP client not started');
+        }
+
+        const result = await this.client.sendRequest<GridLayoutResult>(
+            'dashboard/getGridLayout',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            { path: filePath, dashboard_index: dashboardIndex }
+        );
+
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to get grid layout');
+        }
+
+        return result.data || { title: '', description: '', panels: [] };
     }
 
     async dispose(): Promise<void> {
