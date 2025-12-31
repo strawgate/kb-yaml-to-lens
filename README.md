@@ -20,12 +20,24 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 
 ### Installation
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
 
-To install the project dependencies, run:
+**For basic usage (compiling dashboards):**
 
 ```bash
 uv sync
+```
+
+**For development (includes testing, linting, type checking):**
+
+```bash
+uv sync --group dev
+```
+
+Or simply use the convenience command:
+
+```bash
+make install
 ```
 
 ### Compile Your First Dashboard
@@ -38,7 +50,7 @@ dashboards:
   description: A simple dashboard with markdown
   panels:
     - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
       markdown:
         content: |
           # Welcome to Kibana!
