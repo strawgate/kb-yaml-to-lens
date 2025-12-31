@@ -17,9 +17,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run ruff check
+      - name: Run ruff check (make lint-check)
         run: make lint-check
-      - name: Run ruff format check
+      - name: Run ruff format check (make format-check)
         run: make format-check
 
   # Markdown Linting
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run markdownlint
+      - name: Run markdownlint (make lint-markdown-check)
         run: make lint-markdown-check
 
   # YAML Linting
@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run yamllint
+      - name: Run yamllint (make lint-yaml-check)
         run: make lint-yaml-check
 
   # Python Type Checking
@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run basedpyright
+      - name: Run basedpyright (make typecheck)
         run: make typecheck
 
   # Python Unit Tests
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run pytest
+      - name: Run pytest (make test)
         run: make test
 
   # CLI Smoke Tests
@@ -79,7 +79,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run smoke tests
+      - name: Run smoke tests (make test-smoke)
         run: make test-smoke
 
   # Documentation Link Validation
@@ -91,7 +91,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Check documentation links
+      - name: Check documentation links (make test-links)
         run: make test-links
 
   # Documentation Build (with strict mode)
@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Build documentation
+      - name: Build documentation (make docs-build-quiet)
         run: make docs-build-quiet
 
   # VSCode Extension Tests (Python)
@@ -115,7 +115,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run Python tests for extension
+      - name: Run Python tests for extension (make test-extension-python)
         run: make test-extension-python
 
   # VSCode Extension Tests (TypeScript)
@@ -131,5 +131,5 @@ jobs:
           node-version: '20'
           cache: npm
           cache-dependency-path: vscode-extension/package-lock.json
-      - name: Run TypeScript tests for extension
+      - name: Run TypeScript tests for extension (make test-extension-typescript)
         run: make test-extension-typescript
