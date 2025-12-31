@@ -111,10 +111,10 @@ async function registerYamlSchema(): Promise<void> {
         const yamlApi = await yamlExtension.activate();
 
         // Fetch schema from our LSP server
-        const schemaResult = await compiler.client?.sendRequest<{ success: boolean; data?: unknown; error?: string }>('dashboard/getSchema', {});
+        const schemaResult = await compiler.getSchema();
 
-        if (!schemaResult?.success || !schemaResult.data) {
-            console.error('Failed to get schema from LSP server:', schemaResult?.error);
+        if (!schemaResult.success || !schemaResult.data) {
+            console.error('Failed to get schema from LSP server:', schemaResult.error);
             return;
         }
 
@@ -125,9 +125,10 @@ async function registerYamlSchema(): Promise<void> {
         yamlApi.registerContributor(
             'kb-yaml-to-lens',
             (uri: string) => {
-                // Match YAML files that look like dashboard configs
-                // We use a custom URI scheme to identify our schema
-                if (uri.endsWith('.yaml') || uri.endsWith('.yml')) {
+                // Match YAML files in inputs/ or docs/examples/ directories
+                // This prevents applying dashboard schema to other YAML files (CI configs, etc.)
+                if ((uri.endsWith('.yaml') || uri.endsWith('.yml')) &&
+                    (uri.includes('/inputs/') || uri.includes('/docs/examples/'))) {
                     return 'kb-yaml-to-lens://schema/dashboard';
                 }
                 return undefined;
