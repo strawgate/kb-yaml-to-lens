@@ -6,25 +6,21 @@ from pathlib import Path
 import pytest
 import yaml
 
-# Markdown files that contain YAML dashboard examples
-markdown_files = [
-    'README.md',
-    'docs/index.md',
-    'docs/quickstart.md',
-    'docs/advanced/esql-views.md',
-    'docs/panels/base.md',
-    'docs/panels/esql.md',
-    'docs/panels/image.md',
-    'docs/panels/lens.md',
-    'docs/panels/links.md',
-    'docs/panels/markdown.md',
-    'docs/panels/metric.md',
-    'docs/panels/pie.md',
-    'docs/panels/search.md',
-    'docs/panels/tagcloud.md',
-    'docs/panels/xy.md',
-    'docs/queries/config.md',
+# Automatically discover markdown files that contain YAML dashboard examples
+_project_root = Path(__file__).parent.parent
+_docs_dir = _project_root / 'docs'
+
+# Find all markdown files in the repository
+_all_markdown_files = sorted(
+    str(p.relative_to(_project_root)) for p in [_project_root / 'README.md', *_docs_dir.rglob('*.md')] if p.exists()
+)
+
+# Exclude files that shouldn't be tested (add patterns here if needed)
+_excluded_patterns = [
+    # 'docs/dev/',  # Example: exclude development docs
 ]
+
+markdown_files = [f for f in _all_markdown_files if not any(pattern in f for pattern in _excluded_patterns)]
 
 
 def _has_skip_marker(info_string: str) -> bool:
