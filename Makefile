@@ -80,7 +80,7 @@ lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
-test-all: test test-smoke test-links test-extension-python test-extension-typescript
+test-all: test-coverage test-smoke test-links test-extension-python test-extension-typescript
 	@echo "✓ All tests passed"
 
 test:
