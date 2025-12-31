@@ -107,7 +107,7 @@ coverage-report:
 
 test-links:
 	@echo "Checking documentation links..."
-	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
+	@uv run pytest --check-links docs/ README.md CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
 
 test-extension:
 	@echo "Running VSCode extension tests..."
