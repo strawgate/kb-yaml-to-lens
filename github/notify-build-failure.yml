@@ -1,0 +1,47 @@
+---
+name: Notify Build Failures
+on:
+  workflow_run:
+    workflows: ["Checks"]
+    types:
+      - completed
+    branches:
+      - main
+permissions:
+  issues: write
+  contents: read
+jobs:
+  create-issue-on-failure:
+    name: Create Issue on Build Failure
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Create or Update Build Failure Issue
+        uses: jayqi/failed-build-issue-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          title-template: "Build failed on main branch - {{date}}"
+          body-template: |
+            ## Build Failure on Main Branch
+
+            The CI/CD pipeline failed on the main branch.
+
+            **Workflow Run:** [{{workflow}} #{{runNumber}}]({{runUrl}})
+            **Commit:** {{sha}} by @{{sender}}
+            **Branch:** {{ref}}
+            **Event:** {{eventName}}
+            **Triggered:** {{date}}
+
+            ### Failed Jobs
+
+            Please check the workflow run for details on which jobs failed and why.
+
+            ### Action Items
+
+            - [ ] Review the failed workflow run
+            - [ ] Identify the root cause of the failure
+            - [ ] Create a fix or revert the problematic commit
+            - [ ] Verify the fix resolves the issue
+
+            ---
+            *This issue was automatically created by the Build Failure Notification workflow.*
