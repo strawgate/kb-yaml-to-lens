@@ -177,8 +177,13 @@ def compile_lens_chart_state(
     )
 
 
-def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
-    """Compile an ESQLPanel into its Kibana view model representation."""
+def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
+    """Compile an ESQLPanel into its Kibana view model representation.
+
+    Returns:
+        tuple[KbnLensPanelState, str]: A tuple containing the panel state and layer ID.
+
+    """
     layer_id: str
     esql_columns: list[KbnESQLColumnTypes]
 
@@ -205,6 +210,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
         query=compile_esql_query(chart.query),
         columns=esql_columns,
+        allColumns=esql_columns,
     )
 
     datasource_states = KbnDataSourceState(
@@ -213,7 +219,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         )
     )
 
-    return KbnLensPanelState(
+    panel_state = KbnLensPanelState(
         visualization=visualization_state,
         query=compile_esql_query(chart.query),
         filters=[],
@@ -221,6 +227,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         internalReferences=[],
         adHocDataViews={},
     )
+
+    return panel_state, layer_id
 
 
 def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
@@ -252,8 +260,9 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
         )
         visualization_type = chart_type_to_kbn_type_lens(base_chart)
     elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
-        chart_state = compile_esql_chart_state(panel)
+        chart_state, _ = compile_esql_chart_state(panel)
         visualization_type = chart_type_to_kbn_type_lens(panel.esql)
+        references = []
     else:
         msg = f'Unsupported panel type: {type(panel)}'  # pyright: ignore[reportUnreachable]
         raise NotImplementedError(msg)

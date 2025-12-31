@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.metric.view import (
+    KbnESQLMetricVisualizationState,
     KbnMetricStateVisualizationLayer,
     KbnMetricVisualizationState,
 )
@@ -112,17 +113,17 @@ def compile_lens_metric_chart(
 
 def compile_esql_metric_chart(
     esql_metric_chart: ESQLMetricChart,
-) -> tuple[str, list[KbnESQLColumnTypes], KbnMetricVisualizationState]:
-    """Compile an ESQL LensMetricChart config object into a Kibana Lens Metric visualization state.
+) -> tuple[str, list[KbnESQLColumnTypes], KbnESQLMetricVisualizationState]:
+    """Compile an ESQLMetricChart config object into a Kibana ES|QL Metric visualization state.
 
     Args:
         esql_metric_chart (ESQLMetricChart): The ESQLMetricChart object to compile.
 
     Returns:
-        tuple[str, list[KbnESQLColumnTypes], KbnMetricVisualizationState]: A tuple containing:
+        tuple[str, list[KbnESQLColumnTypes], KbnESQLMetricVisualizationState]: A tuple containing:
             - layer_id (str): The ID of the layer.
             - kbn_columns (list[KbnESQLColumnTypes]): A list of columns for the layer.
-            - kbn_state_visualization (KbnMetricVisualizationState): The compiled visualization state.
+            - kbn_state_visualization (KbnESQLMetricVisualizationState): The compiled visualization state.
 
     """
     layer_id = esql_metric_chart.id or random_id_generator()
@@ -152,11 +153,12 @@ def compile_esql_metric_chart(
     return (
         layer_id,
         kbn_columns,
-        compile_metric_chart_visualization_state(
-            layer_id=layer_id,
-            primary_metric_id=primary_metric_id,
-            secondary_metric_id=secondary_metric_id,
-            breakdown_dimension_id=breakdown_dimension_id,
-            color_config=esql_metric_chart.color,
+        KbnESQLMetricVisualizationState(
+            layerId=layer_id,
+            layerType='data',
+            metricAccessor=primary_metric_id,
+            showBar=False,
+            secondaryMetricAccessor=secondary_metric_id,
+            breakdownByAccessor=breakdown_dimension_id,
         ),
     )
