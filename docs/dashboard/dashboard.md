@@ -100,7 +100,7 @@ Global settings for the dashboard, configured under the `dashboard.settings` pat
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `margins` | `boolean` | Whether to put space (margins) between panels in the dashboard. | `true` | No |
 | `sync` | `DashboardSyncSettings` object | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings-settingssync). | See defaults below | No |
-| `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No |
+| `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings-settingscontrols). | See defaults in Controls docs | No |
 | `titles` | `boolean` | Whether to display the titles in the panel headers. | `true` | No |
 
 ### Dashboard Sync Settings (`settings.sync`)
