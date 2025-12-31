@@ -193,6 +193,7 @@ root = "src/dashboard_compiler"
 [tool.coverage.run]
 source = ["src/dashboard_compiler"]
 branch = true
+relative_files = true
 omit = [
     "*/tests/*",
     "*/test_*.py",
@@ -205,6 +206,8 @@ precision = 2
 show_missing = true
 skip_covered = false
 skip_empty = true
+# Enforce minimum coverage threshold (fails if below this percentage)
+fail_under = 80
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
@@ -218,4 +221,7 @@ exclude_lines = [
 directory = "htmlcov"
 
 [tool.coverage.json]
+# Do not fail JSON export based on coverage threshold
+# (threshold enforcement happens in [tool.coverage.report] for make test-coverage)
 output = "coverage.json"
+show_contexts = false
