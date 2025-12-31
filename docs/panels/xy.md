@@ -20,7 +20,7 @@ Percentage mode for ratio scores.
 Dimensions set the horizontal stage,
 Metrics show what happens, page by page.
 Break it down by service, host, or zone—
-No pattern goes by, unknown.
+No pattern ever goes unknown.
 
 From request counts to error rates,
 Your time series sits and waits.

@@ -17,8 +17,8 @@ And metrics need context to prevail,
 You write instructions, notes, and more,
 To help users understand the score.
 
-"## Welcome to the Dashboard!"
-"Please follow these steps, move forward!"
+"## Welcome to this Dashboard space!"
+"Please follow these steps with grace!"
 Font size twelve or maybe more,
 Links in new tabs, or the same as before.
 

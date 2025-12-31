@@ -14,8 +14,8 @@ System diagrams filling gaps.
 
 When words and numbers just won't do,
 A picture paints the broader view.
-An SVG or PNG file
-Can save a thousand words of toil.
+An SVG or PNG so fine
+Can speak a thousand words in line.
 
 From branding bold at dashboard's crown,
 To network maps when things break down,

@@ -10,12 +10,12 @@ _For those who see meaning in the drift of words:_
 Up above the dashboard sky,
 Word clouds float and drift on by.
 Tags in sizes large and small—
-The bigger the word, the more you've got of all.
+The bigger the word, the more counts overall.
 
 From eighteen points to seventy-two,
 Font sizes speak the gospel true.
 Horizontal, vertical, angles wide,
-Orientations far and wide!
+Orientations multiply!
 
 Error messages like cumulus forms,
 User agents weathering storms,

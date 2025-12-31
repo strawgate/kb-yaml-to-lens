@@ -20,7 +20,7 @@ Complex aggregations, custom math,
 Your query blazes the perfect path.
 
 No need for pre-defined fields to bind,
-You calculate metrics on the fly, refined.
+You shape your metrics, well-defined.
 FROM, BY, and STATS aligned,
 Column names thoughtfully designed.
 
