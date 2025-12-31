@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
@@ -7,6 +8,27 @@ import { setupFileWatcher } from './fileWatcher';
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
 let gridEditorPanel: GridEditorPanel;
+
+/**
+ * Checks if a YAML file contains a 'dashboards' root key.
+ * This is used to determine if the file is a dashboard configuration file.
+ * @param filePath Path to the YAML file
+ * @returns true if the file has a 'dashboards' root key, false otherwise
+ */
+function hasDashboardsKey(filePath: string): boolean {
+    try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        // Check for 'dashboards:' at the start of a line (after optional whitespace and YAML document separator)
+        // This matches:
+        // - "dashboards:" at the beginning
+        // - "---\ndashboards:" (with YAML document separator)
+        // - Lines with leading spaces/tabs before "dashboards:"
+        return /^[\s]*dashboards\s*:/m.test(content);
+    } catch (error) {
+        // If we can't read the file, don't apply the schema
+        return false;
+    }
+}
 
 /**
  * Validates that the active editor is a YAML file and returns its path.
@@ -125,11 +147,14 @@ async function registerYamlSchema(): Promise<void> {
         yamlApi.registerContributor(
             'kb-yaml-to-lens',
             (uri: string) => {
-                // Match YAML files in inputs/ or docs/examples/ directories
+                // Only apply schema to YAML files that contain a 'dashboards' root key
                 // This prevents applying dashboard schema to other YAML files (CI configs, etc.)
-                if ((uri.endsWith('.yaml') || uri.endsWith('.yml')) &&
-                    (uri.includes('/inputs/') || uri.includes('/docs/examples/'))) {
-                    return 'kb-yaml-to-lens://schema/dashboard';
+                if (uri.endsWith('.yaml') || uri.endsWith('.yml')) {
+                    // Convert URI to file path
+                    const filePath = vscode.Uri.parse(uri).fsPath;
+                    if (hasDashboardsKey(filePath)) {
+                        return 'kb-yaml-to-lens://schema/dashboard';
+                    }
                 }
                 return undefined;
             },
