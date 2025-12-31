@@ -221,4 +221,7 @@ exclude_lines = [
 directory = "htmlcov"
 
 [tool.coverage.json]
+# Do not fail JSON export based on coverage threshold
+# (threshold enforcement happens in [tool.coverage.report] for make test-coverage)
 output = "coverage.json"
+show_contexts = false
