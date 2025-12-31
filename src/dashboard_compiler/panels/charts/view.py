@@ -80,7 +80,6 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 # "textBased": {                                                          <--- KbnTextBasedDataSourceState
 #     "layers": {                                                         <--- KbnTextBasedDataSourceStateLayerById
 #         "42607131-7dd7-4935-a1eb-c9bed5cd302c": {                       <--- KbnTextBasedDataSourceStateLayer
-#             "index": "d3b7e528216ce7ef6....",
 #             "query": {                                                  <--- KbnESQLQuery
 #                 "esql": "FROM metrics-* | ..."
 #             },
@@ -93,6 +92,9 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 #                     "columnId": "ae78ca1b-bad2-47b3-aaaf-ecd8aa05761c",
 #                     "fieldName": "count(*)"
 #                 }
+#             ],
+#             "allColumns": [                                             <--- list[KbnESQLColumnTypes]
+#                 ...
 #             ]
 #         }
 #     },
@@ -107,7 +109,6 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
-    index: str
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]

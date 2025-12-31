@@ -1,15 +1,8 @@
-from typing import Annotated, Literal
+from typing import Annotated
 
 from pydantic import Field
 
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
-
-
-class KbnESQLMetaType(BaseVwModel):
-    """Represents column metadata in the Kibana JSON structure."""
-
-    type: Literal['number', 'string', 'date', 'boolean']
-    """The data type of the column."""
 
 
 class KbnESQLFieldDimensionColumn(BaseVwModel):
@@ -30,9 +23,6 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
 
     columnId: str
     """The ID of the column."""
-
-    meta: Annotated[KbnESQLMetaType | None, OmitIfNone()] = Field(default=None)
-    """Column metadata (type information)."""
 
     inMetricDimension: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether this column should be treated as a metric dimension."""

@@ -205,7 +205,6 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
     index_pattern = extract_index_from_esql(chart.query.root)
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        index=index_pattern,
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
