@@ -51,8 +51,7 @@ For more information, see the [uv documentation](https://docs.astral.sh/uv/).
 
 ```yaml
 dashboards:
--
-  name: My First Dashboard
+- name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
     - title: Welcome
