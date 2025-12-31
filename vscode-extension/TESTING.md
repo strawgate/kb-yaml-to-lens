@@ -7,6 +7,7 @@ This document describes the testing infrastructure for the YAML Dashboard Compil
 We focus on **high-value, maintainable tests** that validate business logic and catch real bugs:
 
 - ✅ **Python tests**: Test core functionality (YAML parsing, grid updates, error handling)
+- ✅ **E2E Extension Tests**: Test the extension functionality in a real VS Code environment
 - ❌ **Low-value smoke tests**: Avoid tests that only check if classes/functions exist without validating behavior
 
 ## Test Structure
@@ -28,6 +29,23 @@ make test-extension-python
 uv run python -m pytest vscode-extension/python/test_*.py -v
 ```
 
+### E2E Extension Tests
+
+Located in `src/test/suite/extension.test.ts`, these tests run the actual extension inside a VS Code instance (headless). They verify:
+
+- The extension activates correctly
+- Commands are registered
+- YAML files can be opened and compiled
+
+**Running E2E tests:**
+
+```bash
+# From repository root
+make test-extension-e2e
+```
+
+*Note: This requires `xvfb` to be installed on Linux environments.*
+
 ## Running Tests
 
 ```bash
@@ -36,6 +54,9 @@ make check
 
 # Run only extension Python tests
 make test-extension-python
+
+# Run E2E tests
+make test-extension-e2e
 ```
 
 ## Continuous Integration
@@ -105,10 +126,10 @@ If Python tests fail with import errors:
 uv sync --group dev
 ```
 
-### Import Errors
+### E2E Tests Fail
 
-If you see import errors about `dashboard_compiler`, ensure the main package is installed:
+If E2E tests fail with "No workspace folder found" or activation errors, ensure:
 
-```bash
-uv sync --group dev
-```
+1. You are running `make test-extension-e2e` from the repo root.
+2. The `.venv` is created (`uv sync --group dev`).
+3. `xvfb` is installed if running on Linux without a display.
