@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 # Add parent directories to path for importing
 sys.path.insert(0, str(Path(__file__).parent))
@@ -25,21 +25,17 @@ class TestParamsToDict(unittest.TestCase):
         result = _params_to_dict(params)
         self.assertEqual(result, params)
 
-    def test_cattrs_object_conversion(self) -> None:
-        """Test conversion of cattrs-structured objects to dict."""
-        # Create a mock object with attributes
-        mock_params = MagicMock()
-        mock_params.path = '/test.yaml'
-        mock_params.dashboard_index = 0
+    def test_namedtuple_conversion(self) -> None:
+        """Test conversion of namedtuple objects (like pygls.protocol.Object) to dict."""
+        from collections import namedtuple
 
-        # Mock cattrs.unstructure to return a dict
-        with patch('compile_server.cattrs.unstructure') as mock_unstructure:
-            mock_unstructure.return_value = {'path': '/test.yaml', 'dashboard_index': 0}
+        # Create a namedtuple like pygls.protocol.Object
+        ParamsType = namedtuple('ParamsType', ['path', 'dashboard_index'])
+        params = ParamsType(path='/test.yaml', dashboard_index=0)
 
-            result = _params_to_dict(mock_params)
+        result = _params_to_dict(params)
 
-            self.assertEqual(result, {'path': '/test.yaml', 'dashboard_index': 0})
-            mock_unstructure.assert_called_once_with(mock_params)
+        self.assertEqual(result, {'path': '/test.yaml', 'dashboard_index': 0})
 
 
 class TestCompileDashboard(unittest.TestCase):
@@ -299,17 +295,16 @@ class TestCompileCustom(unittest.TestCase):
         self.assertTrue(result['success'])
         self.assertEqual(result['data']['attributes']['title'], 'Test Dashboard')
 
-    def test_compile_custom_with_mock_object(self) -> None:
-        """Test custom request with cattrs-structured object."""
-        mock_params = MagicMock()
+    def test_compile_custom_with_namedtuple(self) -> None:
+        """Test custom request with namedtuple params (like pygls.protocol.Object)."""
+        from collections import namedtuple
 
-        with patch('compile_server.cattrs.unstructure') as mock_unstructure:
-            mock_unstructure.return_value = {'path': str(self.temp_file), 'dashboard_index': 0}
+        ParamsType = namedtuple('ParamsType', ['path', 'dashboard_index'])
+        params = ParamsType(path=str(self.temp_file), dashboard_index=0)
 
-            result = compile_custom(mock_params)
+        result = compile_custom(params)
 
-            self.assertTrue(result['success'])
-            mock_unstructure.assert_called_once()
+        self.assertTrue(result['success'])
 
 
 class TestGetDashboardsCustom(unittest.TestCase):
@@ -415,23 +410,22 @@ class TestGetDashboardsCustom(unittest.TestCase):
         self.assertFalse(result['success'])
         self.assertIn('error', result)
 
-    def test_get_dashboards_with_mock_object(self) -> None:
-        """Test with cattrs-structured object."""
+    def test_get_dashboards_with_namedtuple(self) -> None:
+        """Test with namedtuple params (like pygls.protocol.Object)."""
+        from collections import namedtuple
+
         yaml_content = """dashboards:
 - name: Test
   panels: []
 """
         self.temp_file.write_text(yaml_content)
 
-        mock_params = MagicMock()
+        ParamsType = namedtuple('ParamsType', ['path'])
+        params = ParamsType(path=str(self.temp_file))
 
-        with patch('compile_server.cattrs.unstructure') as mock_unstructure:
-            mock_unstructure.return_value = {'path': str(self.temp_file)}
+        result = get_dashboards_custom(params)
 
-            result = get_dashboards_custom(mock_params)
-
-            self.assertTrue(result['success'])
-            mock_unstructure.assert_called_once()
+        self.assertTrue(result['success'])
 
 
 class TestDidSaveHandler(unittest.TestCase):

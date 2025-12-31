@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e
 
 help:
 	@echo "Dependency Management:"
@@ -37,6 +37,7 @@ help:
 	@echo "  test-extension           - Run all VSCode extension tests"
 	@echo "  test-extension-python    - Run Python tests for extension"
 	@echo "  test-extension-typescript - Run TypeScript tests for extension"
+	@echo "  test-extension-e2e       - Run E2E tests for extension (headless)"
 	@echo ""
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
@@ -104,6 +105,10 @@ test-extension-typescript:
 	# Using npm install for local development flexibility (vs npm ci in CI)
 	@cd vscode-extension && npm install > /dev/null 2>&1 && npm run compile > /dev/null 2>&1 && npm run test:unit
 
+test-extension-e2e:
+	@echo "Running Extension E2E Tests..."
+	@uv sync --group dev
+	@. .venv/bin/activate && cd vscode-extension && xvfb-run -a npm test
 
 inspector:
 	@echo "Running MCP Inspector..."
