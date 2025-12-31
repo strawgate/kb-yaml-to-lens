@@ -177,6 +177,43 @@ class KbnTimeSliderControl(KbnBaseControl):
     """The actual definition of the time slider control."""
 
 
+class KbnESQLControlExplicitInput(KbnBaseControlExplicitInput):
+    """Explicit input for ES|QL controls."""
+
+    variableName: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variableType: str = Field(...)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    esqlQuery: str = Field(...)
+    """The ES|QL query string."""
+
+    controlType: str = Field(...)
+    """The control type ('STATIC_VALUES' or 'VALUES_FROM_QUERY')."""
+
+    title: str = Field(...)
+    """Display title for the control."""
+
+    selectedOptions: list[str] = Field(default_factory=list)
+    """Currently selected options."""
+
+    singleSelect: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    """Whether to allow only single selection."""
+
+    availableOptions: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
+    """For STATIC_VALUES controls, the list of available options."""
+
+
+class KbnESQLControl(KbnBaseControl):
+    """ES|QL control for a Kibana Dashboard."""
+
+    type: Literal['esqlControl'] = Field(default='esqlControl')
+
+    explicitInput: KbnESQLControlExplicitInput = Field(...)
+    """The actual definition of the ES|QL control."""
+
+
 class KbnIgnoreParentSettingsJson(BaseVwModel):
     """Settings that control whether to ignore inherited values from the dashboard."""
 
@@ -186,7 +223,7 @@ class KbnIgnoreParentSettingsJson(BaseVwModel):
     ignoreValidations: bool = Field(...)
 
 
-type KbnControlTypes = KbnRangeSliderControl | KbnOptionsListControl | KbnTimeSliderControl
+type KbnControlTypes = KbnRangeSliderControl | KbnOptionsListControl | KbnTimeSliderControl | KbnESQLControl
 
 
 class KbnControlPanelsJson(RootDict[KbnControlTypes]):
