@@ -228,8 +228,9 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
 def get_schema_custom(_params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Get the JSON schema for the Dashboard configuration model.
 
-    This endpoint returns the JSON schema generated from the Pydantic Dashboard model,
-    which can be used by VS Code extensions to provide auto-complete, validation,
+    This endpoint returns the JSON schema for the root YAML structure,
+    which contains a 'dashboards' array of Dashboard objects. This schema
+    can be used by VS Code extensions to provide auto-complete, validation,
     and hover documentation for YAML dashboard files.
 
     Args:
@@ -239,9 +240,16 @@ def get_schema_custom(_params: Any) -> dict[str, Any]:  # pyright: ignore[report
         Dictionary with success status and schema data or error message
     """
     try:
+        from pydantic import BaseModel
+
         from dashboard_compiler.dashboard.config import Dashboard
 
-        schema = Dashboard.model_json_schema()
+        class DashboardsRoot(BaseModel):
+            """Root structure for dashboard YAML files."""
+
+            dashboards: list[Dashboard]
+
+        schema = DashboardsRoot.model_json_schema()
     except Exception as e:
         return {'success': False, 'error': str(e)}
     else:
