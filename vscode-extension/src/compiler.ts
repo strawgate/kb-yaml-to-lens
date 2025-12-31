@@ -237,6 +237,24 @@ export class DashboardCompilerLSP {
         return result.data || { title: '', description: '', panels: [] };
     }
 
+    /**
+     * Get the JSON schema for dashboard YAML files.
+     * This schema is used for auto-complete and validation in the YAML editor.
+     *
+     * @returns Schema result with success status and schema data
+     */
+    async getSchema(): Promise<{ success: boolean; data?: unknown; error?: string }> {
+        if (!this.client) {
+            return { success: false, error: 'LSP client not started' };
+        }
+
+        try {
+            return await this.client.sendRequest('dashboard/getSchema', {});
+        } catch (error) {
+            return { success: false, error: error instanceof Error ? error.message : String(error) };
+        }
+    }
+
     async dispose(): Promise<void> {
         if (this.client) {
             await this.client.stop();

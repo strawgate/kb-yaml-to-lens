@@ -21,8 +21,17 @@
   "activationEvents": [
     "onLanguage:yaml"
   ],
+  "extensionDependencies": [
+    "redhat.vscode-yaml"
+  ],
   "main": "./out/extension.js",
   "contributes": {
+    "snippets": [
+      {
+        "language": "yaml",
+        "path": "./snippets/dashboards.json"
+      }
+    ],
     "commands": [
       {
         "command": "yamlDashboard.compile",
