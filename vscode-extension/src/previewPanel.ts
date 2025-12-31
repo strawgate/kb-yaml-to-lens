@@ -4,6 +4,9 @@ import { DashboardCompilerLSP, CompiledDashboard, DashboardGridInfo } from './co
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 
 export class PreviewPanel {
+    private static readonly gridColumns = 48;
+    private static readonly scaleFactor = 10; // pixels per grid unit
+
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
     private currentDashboardIndex: number = 0;
@@ -353,28 +356,22 @@ export class PreviewPanel {
             return '<div class="layout-container" style="padding: 20px; text-align: center; color: var(--vscode-descriptionForeground);">No panels in this dashboard</div>';
         }
 
-        const GRID_COLUMNS = 48;
-        const SCALE_FACTOR = 10; // pixels per grid unit
-
-        // Calculate the height based on panel positions
+        // Calculate the height based on panel positions and generate HTML in a single pass
         let maxY = 0;
+        let panelsHtml = '';
+
         for (const panel of gridInfo.panels) {
+            // Calculate maxY
             const panelBottom = panel.grid.y + panel.grid.h;
             if (panelBottom > maxY) {
                 maxY = panelBottom;
             }
-        }
-        const containerHeight = maxY * SCALE_FACTOR;
-        const containerWidth = GRID_COLUMNS * SCALE_FACTOR;
 
-        // Generate panel HTML
-        let panelsHtml = '';
-
-        for (const panel of gridInfo.panels) {
-            const left = (panel.grid.x / GRID_COLUMNS) * 100;
-            const top = panel.grid.y * SCALE_FACTOR;
-            const width = (panel.grid.w / GRID_COLUMNS) * 100;
-            const height = panel.grid.h * SCALE_FACTOR;
+            // Generate panel HTML
+            const left = (panel.grid.x / PreviewPanel.gridColumns) * 100;
+            const top = panel.grid.y * PreviewPanel.scaleFactor;
+            const width = (panel.grid.w / PreviewPanel.gridColumns) * 100;
+            const height = panel.grid.h * PreviewPanel.scaleFactor;
 
             const icon = this.getChartTypeIcon(panel.type);
             const typeLabel = this.getChartTypeLabel(panel.type);
@@ -390,6 +387,9 @@ export class PreviewPanel {
                 </div>
             `;
         }
+
+        const containerHeight = maxY * PreviewPanel.scaleFactor;
+        const containerWidth = PreviewPanel.gridColumns * PreviewPanel.scaleFactor;
 
         return `
             <div class="layout-container" style="height: ${containerHeight}px; width: ${containerWidth}px; max-width: 100%;">
