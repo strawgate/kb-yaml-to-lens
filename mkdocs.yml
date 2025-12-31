@@ -7,6 +7,8 @@ repo_name: strawgate/kb-yaml-to-lens
 edit_uri: edit/main/
 theme:
   name: material
+  logo: images/chameleon.png
+  favicon: images/chameleon.png
   palette:
     # Palette toggle for light mode
     - scheme: default
