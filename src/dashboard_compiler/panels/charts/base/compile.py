@@ -33,26 +33,19 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
     kbn_assignments: list[KbnLayerColorMappingAssignment] = []
 
     for assignment in color_config.assignments:
-        # Determine which values to use
-        values_to_assign: list[str] = []
-        if assignment.value is not None:
-            values_to_assign = [assignment.value]
-        elif assignment.values is not None and len(assignment.values) > 0:
-            values_to_assign = assignment.values
+        values_to_assign = [assignment.value] if assignment.value is not None else (assignment.values or [])
 
-        if len(values_to_assign) > 0:
-            kbn_rule = KbnLayerColorMappingRule(
-                type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
-                values=values_to_assign,
-            )
-            kbn_color = KbnLayerColorMappingColor(
-                type=KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
-                colorCode=assignment.color,
-            )
+        if values_to_assign:
             kbn_assignments.append(
                 KbnLayerColorMappingAssignment(
-                    rule=kbn_rule,
-                    color=kbn_color,
+                    rule=KbnLayerColorMappingRule(
+                        type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
+                        values=values_to_assign,
+                    ),
+                    color=KbnLayerColorMappingColor(
+                        type=KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
+                        colorCode=assignment.color,
+                    ),
                     touched=KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
                 )
             )
