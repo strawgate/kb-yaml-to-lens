@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test build-binary
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary
 
 help:
 	@echo "Dependency Management:"
@@ -49,12 +49,13 @@ help:
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "Docker:"
-	@echo "  docker-build  - Build Docker image for the compiler"
-	@echo "  docker-run    - Run Docker container with sample inputs"
-	@echo "  docker-test   - Test Docker image with smoke test"
+	@echo "  docker-build   - Build Docker image for the compiler"
+	@echo "  docker-run     - Run Docker container with sample inputs"
+	@echo "  docker-test    - Test Docker image with smoke test"
+	@echo "  docker-publish - Publish multi-arch Docker image to GHCR"
 	@echo ""
 	@echo "Binary Distribution:"
-	@echo "  build-binary  - Build standalone binary for current platform"
+	@echo "  build-binary   - Build standalone binary for current platform"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean up cache and temporary files"
@@ -230,10 +231,15 @@ docker-test:
 	@echo "Testing Docker image..."
 	docker run --rm kb-dashboard-compiler:latest --help
 
+docker-publish:
+	@echo "Publishing Docker image to GHCR..."
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+		--push .
+
 # Binary build command
 build-binary:
 	@echo "Building standalone binary..."
-	@echo "Installing PyInstaller..."
 	@uv pip install pyinstaller
-	@echo "Building binary..."
 	@uv run python build_binaries.py

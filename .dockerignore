@@ -1,4 +1,4 @@
-# Git
+# Git and GitHub
 .git
 .github
 .gitignore
@@ -21,7 +21,6 @@ venv
 .mypy_cache
 htmlcov
 .coverage
-coverage.json
 
 # IDE
 .vscode
@@ -34,29 +33,20 @@ coverage.json
 docs
 mkdocs.yml
 .markdownlint.jsonc
+*.md
+!README.md
 
 # Tests
 tests
 inputs
 output
 
-# Node.js (for extension)
+# Other components
 node_modules
 vscode-extension
-
-# Fixture generator
 fixture-generator
 
-# Other project files
+# Config files
 .yamllint
 .yamlfix.toml
 Makefile
-CONTRIBUTING.md
-CLAUDE.md
-CODE_STYLE.md
-CODERABBIT.md
-*.md
-!README.md
-
-# CI/CD
-.github
