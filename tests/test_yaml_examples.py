@@ -11,6 +11,7 @@ markdown_files = [
     'README.md',
     'docs/index.md',
     'docs/quickstart.md',
+    'docs/advanced/esql-views.md',
     'docs/panels/base.md',
     'docs/panels/esql.md',
     'docs/panels/image.md',
