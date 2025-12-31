@@ -81,6 +81,7 @@ nav:
   - User Guide:
       - Getting Started: index.md
       - CLI Reference: CLI.md
+      - VS Code Extension: vscode-extension.md
       - Complete Examples: examples/index.md
       - Dashboard Configuration: dashboard/dashboard.md
       - Panel Types:

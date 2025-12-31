@@ -111,6 +111,7 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 ### Learn More
 
 - **[CLI Reference](CLI.md)** – Detailed documentation of the `kb-dashboard` command-line tool for compiling and uploading dashboards.
+- **[VS Code Extension](vscode-extension.md)** – Live compilation, preview, and visual grid editing in Visual Studio Code.
 - **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples covering various use cases.
 
 ### User Guide
