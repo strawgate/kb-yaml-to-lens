@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import cattrs
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
@@ -34,53 +33,27 @@ server = LanguageServer('dashboard-compiler', 'v0.1')
 def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Convert pygls params object to dict.
 
-    In pygls v2, params can be passed as:
-    - Plain dicts (from internal requests)
-    - namedtuples (from pygls.protocol.Object)
-    - LSPObject instances (from external LSP clients like vscode-languageclient)
-    - cattrs-structured objects (from some LSP requests)
+    In pygls v2, custom LSP requests receive params as pygls.protocol.Object (a namedtuple).
+    Internal calls may pass plain dicts directly.
 
     Args:
-        params: The params object
+        params: The params object (dict or namedtuple)
 
     Returns:
         Dictionary representation of the params
+
+    Raises:
+        TypeError: If params cannot be converted to dict
     """
-    # Already a dict - fast path
+    # Already a dict - return as-is
     if isinstance(params, dict):
-        if not all(isinstance(key, str) for key in params):  # pyright: ignore[reportUnknownVariableType]
-            msg = 'Params dictionary keys must be strings'
-            raise TypeError(msg)
         return params  # pyright: ignore[reportUnknownVariableType]
 
-    # Check if it's a namedtuple (has _asdict method)
-    # This handles pygls.protocol.Object and other namedtuples
+    # pygls.protocol.Object is a namedtuple with _asdict() method
     if hasattr(params, '_asdict') and callable(params._asdict):  # pyright: ignore[reportAny]
         return params._asdict()  # pyright: ignore[reportAny]
 
-    # Try cattrs.unstructure (handles attrs classes and some LSP types)
-    unstructured = cattrs.unstructure(params)  # pyright: ignore[reportAny]
-    if isinstance(unstructured, dict):
-        return unstructured  # pyright: ignore[reportUnknownVariableType]
-
-    # Try vars() to extract instance variables (works for plain objects with __dict__)
-    try:
-        params_dict = vars(params)  # pyright: ignore[reportAny]
-        if isinstance(params_dict, dict):
-            return params_dict  # pyright: ignore[reportAny]
-    except TypeError:
-        # vars() failed, object doesn't have __dict__
-        pass
-
-    # Last resort: try to convert to dict if it has dict-like methods
-    if hasattr(params, 'keys') and hasattr(params, 'values'):
-        try:
-            return dict(params)  # pyright: ignore[reportAny]
-        except Exception:  # noqa: S110
-            # Silently fall through to error - this is a last-resort attempt
-            pass
-
-    # If all else fails, raise an informative error
+    # If we get here, we received an unexpected type
     msg = f'Unable to convert params of type {type(params).__name__} to dict'
     raise TypeError(msg)
 
