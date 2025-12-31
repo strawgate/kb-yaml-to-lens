@@ -2,7 +2,7 @@
 
 All panel types used within a dashboard (e.g., Markdown, Lens charts, Search panels) share a common set of base configuration fields. These fields define fundamental properties like the panel's title, its position and size on the dashboard grid, and an optional description.
 
-When defining a panel in your YAML, you will specify its `type` (e.g., `markdown`, `lens_metric`) and then include these base fields alongside type-specific configurations.
+When defining a panel in your YAML, you must specify the configuration block for that specific panel type (e.g., `markdown`, `lens`) which serves as the key to identify the panel type.
 
 ## A Poem for the Dashboard Builders
 
@@ -38,21 +38,22 @@ This example shows how base panel fields are used within a `markdown` panel:
 
 ```yaml
 # Within a dashboard's 'panels' list:
-# - type: markdown  # Specific panel type
+# - markdown:  # Specific panel type key
+#     content: "System is **operational**."
 #   title: "Status Overview"
 #   grid:
 #     x: 0
 #     y: 0
 #     w: 6
 #     h: 4
-#   # ... other markdown-specific fields ...
+#   # ... other fields ...
 
 # For a complete dashboard structure:
 dashboards:
--
-  name: "Example Dashboard"
+- name: "Example Dashboard"
   panels:
-    - type: markdown # This 'type' field is part of the MarkdownPanel model, not BasePanel
+    - markdown:
+        content: "System is **operational**." # MarkdownPanel specific config
       title: "Status Overview"
       description: "A quick look at system status." # BasePanel field
       hide_title: false                             # BasePanel field
@@ -61,8 +62,6 @@ dashboards:
         y: 0
         w: 6
         h: 4
-      # --- MarkdownPanel specific fields would go here ---
-      content: "System is **operational**."
 ```
 
 ## Full Configuration Options
@@ -73,13 +72,13 @@ These fields are available for all panel types and are inherited from the `BaseP
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------ | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `id` | `string` | A unique identifier for the panel. If not provided, one will be generated during compilation. | Generated ID | No |
+| `id` | `string` | A unique identifier for the panel. If not provided, one may be generated during compilation. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. Can be an empty string if you wish for no visible title. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden. | `false` (title is shown) | No |
 | `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration-grid). | N/A | Yes |
 
-**Note on `type`**: The `type` field (e.g., `type: markdown`, `type: lens_metric`) is **required** for every panel definition in your YAML. However, it is not part of the `BasePanel` model itself but is a discriminator field defined in each specific panel type's configuration (e.g., `MarkdownPanel`, `LensPanel`). It tells the compiler which specific panel configuration to use.
+**Note on Panel Types**: Each panel must have exactly one key identifying its type (e.g., `markdown`, `lens`, `search`, `links`, `image`, `esql`). This key contains the type-specific configuration.
 
 ### Grid Object Configuration (`grid`)
 
@@ -99,34 +98,35 @@ Both shorthand and verbose parameter names are supported for improved readabilit
 ```yaml
 # Shorthand syntax (concise)
 panels:
-  - type: markdown
+  - markdown:
+      content: "..."
     title: "Top Left Panel"
     grid:
       x: 0  # Starts at the far left
       y: 0  # Starts at the very top
       w: 24 # Occupies 24 out of 48 columns (half width)
       h: 5  # Height of 5 grid units
-    content: "..."
 
   # Verbose syntax (explicit)
-  - type: lens_metric
+  - lens:
+      type: metric
+      # ... lens configuration ...
     title: "Top Right Panel"
     grid:
       from_left: 24  # Starts at the 25th column (0-indexed)
       from_top: 0    # Starts at the very top
       width: 24      # Occupies the remaining 24 columns
       height: 5      # Same height
-    # ... lens configuration ...
 
   # Mixed syntax (both forms work together)
-  - type: markdown
+  - markdown:
+      content: "..."
     title: "Bottom Panel"
     grid:
       x: 0        # Shorthand for horizontal position
       from_top: 5 # Verbose for vertical position
       width: 48   # Verbose for full width
       h: 10       # Shorthand for height
-    content: "..."
 ```
 
 ## Panel Types (Specific Configurations)

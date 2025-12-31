@@ -36,14 +36,14 @@ The gauge tracks progress through the year.
 dashboards:
   - name: "KPI Dashboard"
     panels:
-      -         title: "CPU Usage"
-        grid: { x: 0, y: 0, w: 3, h: 2 }
-        lens:
+      - lens:
           type: gauge
           data_view: "metrics-*"
           metric:
             aggregation: average
             field: system.cpu.total.pct
+        title: "CPU Usage"
+        grid: { x: 0, y: 0, w: 3, h: 2 }
 ```
 
 ## Static Values Example
@@ -54,9 +54,7 @@ You can use static numeric values for min/max/goal instead of field-based metric
 dashboards:
   - name: "Performance Dashboard"
     panels:
-      -         title: "Response Time"
-        grid: { x: 0, y: 0, w: 4, h: 3 }
-        lens:
+      - lens:
           type: gauge
           data_view: "logs-*"
           metric:
@@ -68,6 +66,8 @@ dashboards:
           appearance:
             shape: arc
             color_mode: palette
+        title: "Response Time"
+        grid: { x: 0, y: 0, w: 4, h: 3 }
 ```
 
 ## Full Configuration Options

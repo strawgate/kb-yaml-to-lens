@@ -1,6 +1,7 @@
-# YAML ➤ Lens
+<!-- markdownlint-disable MD041 -->
+![project-banner-smaller](https://github.com/user-attachments/assets/2cf8c18b-32e1-4b32-9a15-41f0d0d657f7)
 
-<img width="1600" height="714" alt="project-banner-smaller" src="https://github.com/user-attachments/assets/2cf8c18b-32e1-4b32-9a15-41f0d0d657f7" />
+# YAML ➤ Lens Dashboard Compiler
 
 Making Dashboards in Kibana is so much fun! Sometimes though, it's nice to build dashboards and visualizations without clicking and clacking in a web browser.
 

@@ -64,9 +64,8 @@ Here's a dashboard with a single markdown panel:
 
 ```yaml
 dashboards:
--
-  name: My First Dashboard
-  description: A simple dashboard with a markdown panel
+- name: My First Dashboard
+  description: A simple dashboard with markdown
   panels:
     - markdown:
         content: |
