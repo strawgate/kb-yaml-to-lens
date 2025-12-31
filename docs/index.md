@@ -1,6 +1,8 @@
-# Dashboard Compiler
+# YAML ➤ Lens Dashboard Compiler
 
 Convert human-friendly YAML dashboard definitions into Kibana NDJSON format.
+
+![The Chameleon mascot](./images/project-banner-smaller.png)
 
 This tool simplifies the process of creating and managing Kibana dashboards by
 allowing you to define them in a clean, maintainable YAML format instead of
