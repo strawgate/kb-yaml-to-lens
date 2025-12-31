@@ -5,6 +5,7 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 ## Features
 
 - **Auto-complete and Validation**: Schema-based auto-complete, validation, and hover documentation for YAML dashboard files (powered by Red Hat YAML extension)
+- **Code Snippets**: Pre-built snippets for all panel types, controls, and layouts - just start typing a prefix like `panel-lens-metric` and press Tab
 - **Auto-compile on Save**: Automatically compiles your YAML dashboard files whenever you save them
 - **Live Preview**: View your compiled dashboard in a side-by-side preview panel with live reload functionality
 - **Visual Grid Layout Editor**: Drag and drop panels to rearrange them, resize panels interactively, with automatic YAML updates
@@ -108,19 +109,59 @@ You can add custom keyboard shortcuts in VS Code:
 }
 ```
 
+### Using Code Snippets
+
+The extension provides comprehensive code snippets to speed up dashboard creation:
+
+1. **Start typing a snippet prefix** - e.g., `panel-lens-metric`, `panel-markdown`, `control-options`
+2. **Press Tab** to insert the snippet (or Ctrl+Space to see available completions)
+3. **Tab through placeholders** to fill in values
+4. **Use dropdown menus** where provided (e.g., aggregation types)
+
+**Available Snippet Prefixes:**
+
+| Prefix | Description |
+| ------ | ----------- |
+| `dashboard` | Complete dashboard structure with panels array |
+| `panel-markdown` | Markdown content panel |
+| `panel-search` | Saved search panel |
+| `panel-links` | Links panel with multiple links |
+| `panel-image` | Image panel |
+| `panel-lens-metric` | Lens metric visualization |
+| `panel-lens-pie` | Lens pie chart |
+| `panel-lens-line` | Lens line chart |
+| `panel-lens-bar` | Lens bar chart |
+| `panel-lens-area` | Lens area chart |
+| `panel-lens-datatable` | Lens data table |
+| `panel-lens-gauge` | Lens gauge |
+| `panel-esql-metric` | ES\|QL metric panel |
+| `panel-esql-line` | ES\|QL line chart |
+| `panel-esql-bar` | ES\|QL bar chart |
+| `panel-esql-datatable` | ES\|QL data table |
+| `grid-full` | Full width grid layout (48 units) |
+| `grid-half` | Half width grid layout (24 units) |
+| `grid-third` | Third width grid layout (16 units) |
+| `grid-quarter` | Quarter width grid layout (12 units) |
+| `control-options` | Options list control |
+| `control-range` | Range slider control |
+| `control-time` | Time slider control |
+
+**Note for Cursor Users:** In Cursor, IntelliSense auto-complete is disabled by default. Press **Ctrl+Space** (or **Cmd+Space** on Mac) to manually trigger auto-complete suggestions and see available snippets.
+
 ### Workflow
 
 1. Open a YAML dashboard file (e.g., `inputs/aerospike-cluster/metrics-cluster.yaml`)
 2. The extension activates automatically for YAML files
-3. Save the file (Ctrl+S) - it will automatically compile
-4. Run "YAML Dashboard: Preview Dashboard" to see the compiled output
-5. Run "YAML Dashboard: Edit Dashboard Layout" to visually rearrange panels
+3. **Use snippets** to quickly insert panels - start typing a prefix like `panel-lens-metric` and press Tab
+4. Save the file (Ctrl+S) - it will automatically compile
+5. Run "YAML Dashboard: Preview Dashboard" to see the compiled output
+6. Run "YAML Dashboard: Edit Dashboard Layout" to visually rearrange panels
    - Drag panels to move them on the 48-column Kibana grid
    - Drag the bottom-right corner of panels to resize them
    - Changes are saved automatically to the YAML file
    - Use "Show Grid Lines" and "Snap to Grid" options for easier alignment
-6. The preview updates automatically when you save changes
-7. Use the "Copy NDJSON" button in the preview to export for Kibana
+7. The preview updates automatically when you save changes
+8. Use the "Copy NDJSON" button in the preview to export for Kibana
 
 ## Preview Panel
 
