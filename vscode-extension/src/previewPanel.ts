@@ -1,36 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { spawn } from 'child_process';
-import { DashboardCompilerLSP, CompiledDashboard } from './compiler';
+import { DashboardCompilerLSP, CompiledDashboard, DashboardGridInfo } from './compiler';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
-import { ConfigService } from './configService';
-
-interface PanelGridInfo {
-    id: string;
-    title: string;
-    type: string;
-    grid: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-    };
-}
-
-interface DashboardGridInfo {
-    title: string;
-    description: string;
-    panels: PanelGridInfo[];
-}
 
 export class PreviewPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
     private currentDashboardIndex: number = 0;
-    private extensionPath: string;
 
-    constructor(private compiler: DashboardCompilerLSP, context: vscode.ExtensionContext) {
-        this.extensionPath = context.extensionPath;
+    constructor(private compiler: DashboardCompilerLSP) {
     }
 
     async show(dashboardPath: string, dashboardIndex: number = 0) {
@@ -72,7 +50,7 @@ export class PreviewPanel {
             const compiled = await this.compiler.compile(dashboardPath, dashboardIndex);
             let gridInfo: DashboardGridInfo = { title: '', description: '', panels: [] };
             try {
-                gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
+                gridInfo = await this.compiler.getGridLayout(dashboardPath, dashboardIndex);
             } catch (gridError) {
                 console.warn('Grid extraction failed, showing preview without layout:', gridError);
             }
@@ -80,68 +58,6 @@ export class PreviewPanel {
         } catch (error) {
             this.panel.webview.html = getErrorContent(error, 'Compilation Error');
         }
-    }
-
-    private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        const pythonPath = ConfigService.getPythonPath();
-        const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
-
-        return new Promise((resolve, reject) => {
-            let settled = false;
-            const process = spawn(pythonPath, [scriptPath, dashboardPath, dashboardIndex.toString()], {
-                cwd: path.join(this.extensionPath, '..')
-            });
-
-            let stdout = '';
-            let stderr = '';
-
-            const timeout = setTimeout(() => {
-                process.kill();
-                if (!settled) {
-                    settled = true;
-                    reject(new Error('Grid extraction timed out after 30 seconds'));
-                }
-            }, 30000);
-
-            process.on('error', (err) => {
-                clearTimeout(timeout);
-                if (!settled) {
-                    settled = true;
-                    reject(new Error(`Failed to start Python: ${err.message}`));
-                }
-            });
-
-            process.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-
-            process.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-
-            process.on('close', (code) => {
-                clearTimeout(timeout);
-                if (settled) {
-                    return;
-                }
-                settled = true;
-                if (code !== 0) {
-                    reject(new Error(`Grid extraction failed: ${stderr || stdout}`));
-                    return;
-                }
-
-                try {
-                    const result = JSON.parse(stdout);
-                    if (result.error) {
-                        reject(new Error(result.error));
-                    } else {
-                        resolve(result);
-                    }
-                } catch (error) {
-                    reject(new Error(`Failed to parse grid info: ${error}`));
-                }
-            });
-        });
     }
 
     private getWebviewContent(dashboard: CompiledDashboard, filePath: string, gridInfo: DashboardGridInfo): string {
