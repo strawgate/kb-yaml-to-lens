@@ -1,0 +1,274 @@
+{
+  "Dashboard Structure": {
+    "prefix": "dashboard",
+    "body": [
+      "dashboards:",
+      "  - name: '${1:Dashboard Name}'",
+      "    description: ${2:Dashboard description}",
+      "    panels:",
+      "      - $0"
+    ],
+    "description": "Create a new dashboard structure"
+  },
+  "Markdown Panel": {
+    "prefix": "panel-markdown",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:24}, h: ${5:12}}",
+      "  markdown:",
+      "    content: |",
+      "      ${6:Markdown content here}"
+    ],
+    "description": "Add a Markdown panel"
+  },
+  "Search Panel": {
+    "prefix": "panel-search",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  search:",
+      "    saved_search_id: ${6:search-id}"
+    ],
+    "description": "Add a Search panel"
+  },
+  "Links Panel": {
+    "prefix": "panel-links",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:3}}",
+      "  links:",
+      "    layout: ${6|horizontal,vertical|}",
+      "    links:",
+      "      - label: ${7:Link Label}",
+      "        ${8|url,dashboard|}: ${9:destination}"
+    ],
+    "description": "Add a Links panel"
+  },
+  "Image Panel": {
+    "prefix": "panel-image",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:24}, h: ${5:12}}",
+      "  image:",
+      "    url: ${6:https://example.com/image.png}"
+    ],
+    "description": "Add an Image panel"
+  },
+  "Lens Metric Panel": {
+    "prefix": "panel-lens-metric",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:12}, h: ${5:8}}",
+      "  lens:",
+      "    type: metric",
+      "    data_view: ${6:logs-*}",
+      "    metric:",
+      "      aggregation: ${7|count,sum,avg,min,max,median,unique_count|}",
+      "      ${8:field: ${9:field_name}}"
+    ],
+    "description": "Add a Lens metric panel"
+  },
+  "Lens Pie Chart": {
+    "prefix": "panel-lens-pie",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:24}, h: ${5:16}}",
+      "  lens:",
+      "    type: pie",
+      "    data_view: ${6:logs-*}",
+      "    slice_by:",
+      "      - field: ${7:field_name}",
+      "        type: values",
+      "        size: ${8:5}",
+      "    metric:",
+      "      aggregation: ${9|count,sum,avg,min,max|}"
+    ],
+    "description": "Add a Lens pie chart"
+  },
+  "Lens Line Chart": {
+    "prefix": "panel-lens-line",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  lens:",
+      "    type: line",
+      "    data_view: ${6:logs-*}",
+      "    dimensions:",
+      "      - field: '@timestamp'",
+      "        type: date_histogram",
+      "    metrics:",
+      "      - aggregation: ${7|count,sum,avg,min,max|}",
+      "        ${8:field: ${9:field_name}}"
+    ],
+    "description": "Add a Lens line chart"
+  },
+  "Lens Bar Chart": {
+    "prefix": "panel-lens-bar",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  lens:",
+      "    type: bar",
+      "    data_view: ${6:logs-*}",
+      "    dimensions:",
+      "      - field: ${7:field_name}",
+      "        type: ${8|values,date_histogram|}",
+      "    metrics:",
+      "      - aggregation: ${9|count,sum,avg,min,max|}",
+      "        ${10:field: ${11:field_name}}"
+    ],
+    "description": "Add a Lens bar chart"
+  },
+  "Lens Area Chart": {
+    "prefix": "panel-lens-area",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  lens:",
+      "    type: area",
+      "    data_view: ${6:logs-*}",
+      "    dimensions:",
+      "      - field: '@timestamp'",
+      "        type: date_histogram",
+      "    metrics:",
+      "      - aggregation: ${7|count,sum,avg,min,max|}",
+      "        ${8:field: ${9:field_name}}"
+    ],
+    "description": "Add a Lens area chart"
+  },
+  "Lens Datatable": {
+    "prefix": "panel-lens-datatable",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  lens:",
+      "    type: datatable",
+      "    data_view: ${6:logs-*}",
+      "    columns:",
+      "      - field: ${7:field_name}",
+      "        type: ${8|values,date_histogram|}"
+    ],
+    "description": "Add a Lens datatable"
+  },
+  "Lens Gauge": {
+    "prefix": "panel-lens-gauge",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:12}, h: ${5:8}}",
+      "  lens:",
+      "    type: gauge",
+      "    data_view: ${6:logs-*}",
+      "    metric:",
+      "      aggregation: ${7|count,sum,avg,min,max|}",
+      "      ${8:field: ${9:field_name}}",
+      "    ${10:max: ${11:100}}"
+    ],
+    "description": "Add a Lens gauge"
+  },
+  "ESQL Metric Panel": {
+    "prefix": "panel-esql-metric",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:12}, h: ${5:8}}",
+      "  esql:",
+      "    type: metric",
+      "    query:",
+      "      esql: |",
+      "        FROM ${6:logs-*}",
+      "        | ${7:STATS count()}"
+    ],
+    "description": "Add an ESQL metric panel"
+  },
+  "ESQL Line Chart": {
+    "prefix": "panel-esql-line",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  esql:",
+      "    type: line",
+      "    query:",
+      "      esql: |",
+      "        FROM ${6:logs-*}",
+      "        | ${7:STATS count() BY @timestamp}"
+    ],
+    "description": "Add an ESQL line chart"
+  },
+  "ESQL Bar Chart": {
+    "prefix": "panel-esql-bar",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  esql:",
+      "    type: bar",
+      "    query:",
+      "      esql: |",
+      "        FROM ${6:logs-*}",
+      "        | ${7:STATS count() BY field_name}"
+    ],
+    "description": "Add an ESQL bar chart"
+  },
+  "ESQL Datatable": {
+    "prefix": "panel-esql-datatable",
+    "body": [
+      "- title: ${1:Panel Title}",
+      "  grid: {x: ${2:0}, y: ${3:0}, w: ${4:48}, h: ${5:16}}",
+      "  esql:",
+      "    type: datatable",
+      "    query:",
+      "      esql: |",
+      "        FROM ${6:logs-*}",
+      "        | ${7:LIMIT 10}"
+    ],
+    "description": "Add an ESQL datatable"
+  },
+  "Grid Layout - Full Width": {
+    "prefix": "grid-full",
+    "body": "grid: {x: 0, y: ${1:0}, w: 48, h: ${2:16}}",
+    "description": "Full width grid layout (48 units)"
+  },
+  "Grid Layout - Half Width": {
+    "prefix": "grid-half",
+    "body": "grid: {x: ${1|0,24|}, y: ${2:0}, w: 24, h: ${3:16}}",
+    "description": "Half width grid layout (24 units)"
+  },
+  "Grid Layout - Third Width": {
+    "prefix": "grid-third",
+    "body": "grid: {x: ${1|0,16,32|}, y: ${2:0}, w: 16, h: ${3:16}}",
+    "description": "Third width grid layout (16 units)"
+  },
+  "Grid Layout - Quarter Width": {
+    "prefix": "grid-quarter",
+    "body": "grid: {x: ${1|0,12,24,36|}, y: ${2:0}, w: 12, h: ${3:16}}",
+    "description": "Quarter width grid layout (12 units)"
+  },
+  "Control - Options List": {
+    "prefix": "control-options",
+    "body": [
+      "- type: options",
+      "  label: ${1:Control Label}",
+      "  data_view: ${2:logs-*}",
+      "  field: ${3:field_name}"
+    ],
+    "description": "Add an options list control"
+  },
+  "Control - Range Slider": {
+    "prefix": "control-range",
+    "body": [
+      "- type: range",
+      "  label: ${1:Control Label}",
+      "  data_view: ${2:logs-*}",
+      "  field: ${3:field_name}"
+    ],
+    "description": "Add a range slider control"
+  },
+  "Control - Time Slider": {
+    "prefix": "control-time",
+    "body": [
+      "- type: time",
+      "  label: ${1:Control Label}",
+      "  data_view: ${2:logs-*}",
+      "  field: ${3:@timestamp}"
+    ],
+    "description": "Add a time slider control"
+  }
+}
