@@ -34,8 +34,7 @@ Their data as vocabulary!
 
 ```yaml
 dashboards:
--
-  name: "Log Analysis"
+- name: "Log Analysis"
   panels:
     - title: "Top Error Messages"
       grid: { x: 0, y: 0, w: 48, h: 6 }
@@ -53,8 +52,7 @@ dashboards:
 
 ```yaml
 dashboards:
--
-  name: "Log Analysis"
+- name: "Log Analysis"
   panels:
     - title: "Top Error Messages"
       grid: { x: 0, y: 0, w: 48, h: 6 }
@@ -118,8 +116,7 @@ Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color
 
 ```yaml
 dashboards:
--
-  name: "Advanced Tag Cloud"
+- name: "Advanced Tag Cloud"
   panels:
     - title: "Service Labels"
       grid: { x: 0, y: 0, w: 48, h: 8 }

@@ -5,8 +5,7 @@ dashboards:
   - name: Color Palette Examples
     panels:
       # Example 1: Categorical colors with custom palette
-      -
-        title: HTTP Status Codes (Custom Colors)
+      - title: HTTP Status Codes (Custom Colors)
         grid: {x: 0, y: 0, w: 12, h: 8}
         lens:
           type: pie
@@ -30,8 +29,7 @@ dashboards:
                 color: '#BD271E'  # Red for server errors
 
       # Example 2: Line chart with service-specific colors
-      -
-        title: Response Time by Service
+      - title: Response Time by Service
         grid: {x: 12, y: 0, w: 12, h: 8}
         lens:
           type: line
@@ -58,8 +56,7 @@ dashboards:
                 color: '#9170B8'  # Purple
 
       # Example 3: Bar chart with status colors
-      -
-        title: Deployment Status by Environment
+      - title: Deployment Status by Environment
         grid: {x: 24, y: 0, w: 24, h: 8}
         lens:
           type: bar
@@ -86,8 +83,7 @@ dashboards:
                 color: '#98A2B3'  # Gray
 
       # Example 4: Area chart with elastic brand palette
-      -
-        title: Network Traffic (Elastic Brand Colors)
+      - title: Network Traffic (Elastic Brand Colors)
         grid: {x: 0, y: 8, w: 12, h: 8}
         lens:
           type: area
@@ -106,8 +102,7 @@ dashboards:
             palette: elastic_brand
 
       # Example 5: Pie chart with grayscale palette
-      -
-        title: Document Types (Grayscale)
+      - title: Document Types (Grayscale)
         grid: {x: 12, y: 8, w: 12, h: 8}
         lens:
           type: pie
@@ -121,8 +116,7 @@ dashboards:
             palette: gray
 
       # Example 6: Multi-value assignment example
-      -
-        title: Log Levels (Grouped Colors)
+      - title: Log Levels (Grouped Colors)
         grid: {x: 24, y: 8, w: 12, h: 8}
         lens:
           type: pie
@@ -151,8 +145,7 @@ dashboards:
                 color: '#BD271E'  # Red for errors
 
       # Example 7: Legacy Kibana palette
-      -
-        title: User Activity by Browser (Legacy Colors)
+      - title: User Activity by Browser (Legacy Colors)
         grid: {x: 36, y: 8, w: 12, h: 8}
         lens:
           type: bar
@@ -166,8 +159,7 @@ dashboards:
             palette: kibana_palette
 
       # Example 8: XY chart with custom breakdown colors
-      -
-        title: Request Count by Method
+      - title: Request Count by Method
         grid: {x: 0, y: 16, w: 12, h: 8}
         lens:
           type: line
