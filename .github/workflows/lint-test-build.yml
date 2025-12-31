@@ -1,5 +1,5 @@
 ---
-name: Run Tests
+name: Checks
 on:
   push:
     branches:
@@ -47,7 +47,7 @@ jobs:
         run: make lint-yaml-check
 
   # Python Type Checking
-  typecheck:
+  typecheck-python:
     name: Type Check Python
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: make typecheck
 
   # Python Unit Tests
-  test-unit:
+  test-python:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +71,7 @@ jobs:
         run: make test
 
   # CLI Smoke Tests
-  test-smoke:
+  test-python-cli:
     name: Smoke Tests
     runs-on: ubuntu-latest
     steps:
@@ -83,7 +83,7 @@ jobs:
         run: make test-smoke
 
   # Documentation Link Validation
-  test-links:
+  test-markdown-links:
     name: Documentation Link Validation
     runs-on: ubuntu-latest
     steps:
@@ -95,7 +95,7 @@ jobs:
         run: make test-links
 
   # Documentation Build (with strict mode)
-  docs-build:
+  build-docs:
     name: Documentation Build
     runs-on: ubuntu-latest
     steps:
@@ -107,7 +107,7 @@ jobs:
         run: make docs-build-quiet
 
   # VSCode Extension Tests (Python)
-  test-extension-python:
+  test-vscode-extension-python:
     name: VSCode Extension (Python)
     runs-on: ubuntu-latest
     steps:
@@ -119,7 +119,7 @@ jobs:
         run: make test-extension-python
 
   # VSCode Extension Tests (TypeScript)
-  test-extension-typescript:
+  test-vscode-extension-typescript:
     name: VSCode Extension (TypeScript)
     runs-on: ubuntu-latest
     steps:
