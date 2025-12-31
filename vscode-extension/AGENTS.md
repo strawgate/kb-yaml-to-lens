@@ -63,6 +63,13 @@ The extension uses a hybrid TypeScript + Python architecture:
 - Receives JSON responses via stdout
 - Handles errors and subprocess crashes
 
+**Schema Registration** (`extension.ts`):
+
+- Registers JSON schema with Red Hat YAML extension
+- Fetches schema from LSP server (`dashboard/getSchema` endpoint)
+- Provides auto-complete, validation, and hover documentation
+- Automatically matches YAML files for dashboard editing
+
 **Preview Panel** (`previewPanel.ts`):
 
 - Webview-based dashboard preview
