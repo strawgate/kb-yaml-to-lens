@@ -179,7 +179,7 @@ Displays bar chart visualizations with data sourced from an ESQL query. Supports
 # metrics:
 #   - field: "event_count"  # Column from ESQL: ... | STATS event_count = COUNT(*)
 # breakdown:
-#   - field: "event.category"  # Column from ESQL: ... BY event.category
+#   field: "event.category"  # Column from ESQL: ... BY event.category
 ```
 
 ---
@@ -209,7 +209,7 @@ Displays line chart visualizations with data sourced from an ESQL query. The `fi
 # metrics:
 #   - field: "avg_response_time"  # Column from ESQL: ... | STATS avg_response_time = AVG(response.time)
 # breakdown:
-#   - field: "service.name"  # Column from ESQL: ... BY service.name
+#   field: "service.name"  # Column from ESQL: ... BY service.name
 ```
 
 ---
@@ -241,7 +241,7 @@ Displays area chart visualizations with data sourced from an ESQL query. Support
 # metrics:
 #   - field: "bytes_total"  # Column from ESQL: ... | STATS bytes_total = SUM(bytes)
 # breakdown:
-#   - field: "host.name"  # Column from ESQL: ... BY host.name
+#   field: "host.name"  # Column from ESQL: ... BY host.name
 ```
 
 ---
