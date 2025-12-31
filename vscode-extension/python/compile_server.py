@@ -224,6 +224,30 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
         return {'success': True, 'data': result}
 
 
+@server.feature('dashboard/getSchema')
+def get_schema_custom(_params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Get the JSON schema for the Dashboard configuration model.
+
+    This endpoint returns the JSON schema generated from the Pydantic Dashboard model,
+    which can be used by VS Code extensions to provide auto-complete, validation,
+    and hover documentation for YAML dashboard files.
+
+    Args:
+        _params: Request parameters (unused)
+
+    Returns:
+        Dictionary with success status and schema data or error message
+    """
+    try:
+        from dashboard_compiler.dashboard.config import Dashboard
+
+        schema = Dashboard.model_json_schema()
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    else:
+        return {'success': True, 'data': schema}
+
+
 @server.feature(types.TEXT_DOCUMENT_DID_SAVE)
 def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> None:
     """Handle file save events and notify client of changes.

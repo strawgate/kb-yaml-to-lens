@@ -61,7 +61,7 @@ interface GridLayoutResult {
 }
 
 export class DashboardCompilerLSP {
-    private client: LanguageClient | null = null;
+    public client: LanguageClient | null = null;
     private outputChannel: vscode.OutputChannel;
 
     constructor(private context: vscode.ExtensionContext) {

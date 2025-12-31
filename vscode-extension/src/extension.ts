@@ -93,6 +93,60 @@ function createDashboardCommand(action: (filePath: string, dashboardIndex: numbe
     };
 }
 
+/**
+ * Register JSON schema with the YAML extension for auto-complete support.
+ * This enables schema-based validation, hover documentation, and auto-complete
+ * for dashboard YAML files.
+ */
+async function registerYamlSchema(): Promise<void> {
+    // Check if YAML extension is available
+    const yamlExtension = vscode.extensions.getExtension('redhat.vscode-yaml');
+    if (!yamlExtension) {
+        console.log('YAML extension not found - schema auto-complete disabled');
+        return;
+    }
+
+    try {
+        // Activate the YAML extension if not already active
+        const yamlApi = await yamlExtension.activate();
+
+        // Fetch schema from our LSP server
+        const schemaResult = await compiler.client?.sendRequest<{ success: boolean; data?: unknown; error?: string }>('dashboard/getSchema', {});
+
+        if (!schemaResult?.success || !schemaResult.data) {
+            console.error('Failed to get schema from LSP server:', schemaResult?.error);
+            return;
+        }
+
+        const schemaJSON = JSON.stringify(schemaResult.data);
+
+        // Register the schema contributor
+        // The contributor provides schemas for matching URIs
+        yamlApi.registerContributor(
+            'kb-yaml-to-lens',
+            (uri: string) => {
+                // Match YAML files that look like dashboard configs
+                // We use a custom URI scheme to identify our schema
+                if (uri.endsWith('.yaml') || uri.endsWith('.yml')) {
+                    return 'kb-yaml-to-lens://schema/dashboard';
+                }
+                return undefined;
+            },
+            (uri: string) => {
+                // Return the schema content for our custom URI
+                if (uri === 'kb-yaml-to-lens://schema/dashboard') {
+                    return schemaJSON;
+                }
+                return undefined;
+            }
+        );
+
+        console.log('YAML schema registered successfully');
+    } catch (error) {
+        console.error('Failed to register YAML schema:', error);
+    }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     console.log('YAML Dashboard Compiler extension is now active');
 
@@ -100,6 +154,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Start the LSP server
     await compiler.start();
+
+    // Register JSON schema with YAML extension for auto-complete
+    await registerYamlSchema();
 
     previewPanel = new PreviewPanel(compiler);
     gridEditorPanel = new GridEditorPanel(context);
