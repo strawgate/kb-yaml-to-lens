@@ -114,7 +114,7 @@ def compile_lens_metric_chart(
 def compile_esql_metric_chart(
     esql_metric_chart: ESQLMetricChart,
 ) -> tuple[str, list[KbnESQLColumnTypes], KbnESQLMetricVisualizationState]:
-    """Compile an ESQL LensMetricChart config object into a Kibana Lens Metric visualization state.
+    """Compile an ESQLMetricChart config object into a Kibana ES|QL Metric visualization state.
 
     Args:
         esql_metric_chart (ESQLMetricChart): The ESQLMetricChart object to compile.

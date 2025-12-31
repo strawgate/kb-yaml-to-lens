@@ -23,7 +23,7 @@ def extract_index_from_esql(query_str: str) -> str:
 
     """
     match = re.search(r'FROM\s+([^\s|]+)', query_str, re.IGNORECASE)
-    index_pattern = '*' if not match else match.group(1).strip()
+    index_pattern = '*' if match is None else match.group(1).strip()
 
     index_obj = {'index': index_pattern, 'timeFieldName': '@timestamp'}
 

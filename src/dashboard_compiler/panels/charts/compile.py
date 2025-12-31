@@ -177,8 +177,13 @@ def compile_lens_chart_state(
     )
 
 
-def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
-    """Compile an ESQLPanel into its Kibana view model representation."""
+def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str, str]:
+    """Compile an ESQLPanel into its Kibana view model representation.
+
+    Returns:
+        tuple[KbnLensPanelState, str, str]: A tuple containing the panel state, index pattern, and layer ID.
+
+    """
     layer_id: str
     esql_columns: list[KbnESQLColumnTypes]
 
@@ -216,7 +221,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         )
     )
 
-    return KbnLensPanelState(
+    panel_state = KbnLensPanelState(
         visualization=visualization_state,
         query=compile_esql_query(chart.query),
         filters=[],
@@ -224,6 +229,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         internalReferences=[],
         adHocDataViews={index_pattern: {}},
     )
+
+    return panel_state, index_pattern, layer_id
 
 
 def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
@@ -255,15 +262,9 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
         )
         visualization_type = chart_type_to_kbn_type_lens(base_chart)
     elif isinstance(panel, ESQLPanel):  # pyright: ignore[reportUnnecessaryIsInstance]
-        chart_state = compile_esql_chart_state(panel)
+        chart_state, index_pattern, layer_id = compile_esql_chart_state(panel)
         visualization_type = chart_type_to_kbn_type_lens(panel.esql)
 
-        index_pattern = extract_index_from_esql(panel.esql.query.root)
-        layer_id = (
-            next(iter(chart_state.datasourceStates.textBased.layers.root.keys()))
-            if chart_state.datasourceStates.textBased.layers
-            else 'layer_0'
-        )
         references = [
             KbnReference(
                 type='index-pattern',
