@@ -7,15 +7,15 @@ The `image` panel type is used to display an image directly on your dashboard. T
 _For those who know a picture is worth a thousand metrics:_
 
 ```text
+When words and numbers just won't do,
+A picture paints the broader view.
+An SVG or PNG so fine
+Can speak a thousand words in line.
+
 Contain, cover, fill, or none—
 Four ways to get the framing done.
 Company logos, architecture maps,
 System diagrams filling gaps.
-
-When words and numbers just won't do,
-A picture paints the broader view.
-An SVG or PNG file
-Can save a thousand words of toil.
 
 From branding bold at dashboard's crown,
 To network maps when things break down,

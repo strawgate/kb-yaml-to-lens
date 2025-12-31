@@ -13,7 +13,7 @@ Horizontal rows or vertical stacks,
 Teleporting users through the cracks.
 
 Dashboard links with time preserved,
-Filters carried, context served.
+Filters carried, context preserved.
 External URLs in tabs brand new,
 Wiki pages, docs to pull you through.
 
