@@ -83,7 +83,7 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 
 ## Next Steps
 
-- Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in the `src/dashboard_compiler/*/` directories.
-- Refer to the example YAML files in the `inputs/` and `tests/dashboards/scenarios/` directories for more complex examples.
+- Explore the detailed documentation for each object type (dashboard, panels, controls, filters, queries) in the **User Guide**.
+- Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/inputs) and [`tests/dashboards/scenarios/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/tests/dashboards/scenarios) directories on GitHub for more complex examples.
 - Check the [CLI Documentation](CLI.md) for compilation and upload instructions.
 - Try the [Programmatic Usage Guide](programmatic-usage.md) for creating dashboards in Python code.
