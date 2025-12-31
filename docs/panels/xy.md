@@ -9,7 +9,7 @@ _For those who see patterns across the timeline:_
 ```text
 Lines that rise and bars that fall,
 Area charts that show it all.
-X-axis marching through the time,
+X-axis marching slowly through time,
 Y-axis tracking every climb.
 
 When incidents spike at 2 AM,

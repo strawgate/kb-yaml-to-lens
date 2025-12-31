@@ -10,24 +10,24 @@ _For those who craft visualizations with elegant flexibility:_
 
 ```text
 Through this Lens we magnify
-Patterns hiding on the fly.
+Patterns hiding oh so sly.
 From metrics bold to pies that slice,
 Lens makes your data look quite nice!
 
 Dimensions group and metrics measure,
 Aggregations are your treasure.
-count(), sum(), unique_count() too,
-Percentiles showing p95 for you.
+count(), sum(), and unique_count() too,
+Percentiles show p95 to you.
 
-Date histograms march through time,
+Date histograms go back in time,
 Top values sorted, so sublime.
 Formulas for custom math—
 Lens blazes the perfect path!
 
 With data views and layers deep,
-Your dashboard promises to keep.
-So here's to Lens, both strong and smart:
-Kibana's beating visual heart!
+Finally, a dashboard you'll keep.
+So here's to Lens, a beauty so true:
+That nobody can take away from you.
 ```
 
 ---

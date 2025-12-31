@@ -10,12 +10,12 @@ _For those who wield the power of Elasticsearch Query Language:_
 
 ```text
 FROM the indexes, data flows,
-Through STATS and WHERE, your pipeline grows.
+WHERE the data goes, nobody knows.
+STATS works on numbers, ORDER shows the best,
+LIMIT lets the engine rest.
+
 ESQL queries, powerful and clean,
 Transforming data never seen!
-
-Pipe by pipe, you craft the view,
-LIMIT, ORDER, filtering through.
 Complex aggregations, custom math,
 Your query blazes the perfect path.
 
@@ -27,7 +27,7 @@ Column names thoughtfully designed.
 So here's to those who love to query,
 With ESQL power, never weary!
 Direct from Elasticsearch's core,
-Your visualizations open every door!
+Your visualizations are never a bore!
 ```
 
 ---

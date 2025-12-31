@@ -10,7 +10,7 @@ _For those who see meaning in the drift of words:_
 Up above the dashboard sky,
 Word clouds float and drift on by.
 Tags in sizes large and small—
-The bigger the word, the more counts overall.
+The bigger the word, the higher the fall.
 
 From eighteen points to seventy-two,
 Font sizes speak the gospel true.
@@ -25,7 +25,7 @@ Pod names adrift across the sea.
 "single", "right angled", "multiple" ways
 To orient your word displays.
 So here's to those who like to see
-Their data as vocabulary!
+Their data in words, big and free!
 ```
 
 ---
