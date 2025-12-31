@@ -76,7 +76,8 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
     if hasattr(params, 'keys') and hasattr(params, 'values'):
         try:
             return dict(params)  # pyright: ignore[reportAny]
-        except Exception:
+        except Exception:  # noqa: S110
+            # Silently fall through to error - this is a last-resort attempt
             pass
 
     # If all else fails, raise an informative error

@@ -28,7 +28,7 @@ class TestParamsToDict(unittest.TestCase):
     def test_cattrs_object_conversion(self) -> None:
         """Test conversion of cattrs-structured objects to dict."""
         # Create a mock object with attributes
-        mock_params = MagicMock()
+        mock_params = MagicMock(spec=['path', 'dashboard_index'])
         mock_params.path = '/test.yaml'
         mock_params.dashboard_index = 0
 
@@ -301,7 +301,7 @@ class TestCompileCustom(unittest.TestCase):
 
     def test_compile_custom_with_mock_object(self) -> None:
         """Test custom request with cattrs-structured object."""
-        mock_params = MagicMock()
+        mock_params = MagicMock(spec=['path', 'dashboard_index'])
 
         with patch('compile_server.cattrs.unstructure') as mock_unstructure:
             mock_unstructure.return_value = {'path': str(self.temp_file), 'dashboard_index': 0}
@@ -423,7 +423,7 @@ class TestGetDashboardsCustom(unittest.TestCase):
 """
         self.temp_file.write_text(yaml_content)
 
-        mock_params = MagicMock()
+        mock_params = MagicMock(spec=['path'])
 
         with patch('compile_server.cattrs.unstructure') as mock_unstructure:
             mock_unstructure.return_value = {'path': str(self.temp_file)}
