@@ -44,7 +44,7 @@ dashboards:
       - field: "geo.country_iso_code"
         equals: "US"
       - field: "service.environment"
-        in_list: ["production", "staging"]
+        in: ["production", "staging"]
     controls:
       - type: options
         label: "Filter by Region"
@@ -57,17 +57,18 @@ dashboards:
         grid: { x: 0, y: 0, w: 12, h: 2 }
       - lens:
           type: metric
-          metrics:
-            - type: count
+          primary:
+            aggregation: count
           data_view: "apm-traces-*"
         title: "Total Requests"
         grid: { x: 0, y: 2, w: 4, h: 4 }
       - lens:
           type: bar
-          x_axis:
-            field: "http.response.status_code"
+          dimensions:
+            - type: values
+              field: "http.response.status_code"
           metrics:
-            - type: count
+            - aggregation: count
           data_view: "apm-traces-*"
         title: "Requests by Response Code"
         grid: { x: 4, y: 2, w: 8, h: 4 }
