@@ -49,9 +49,6 @@ class Dashboard(BaseCfgModel):
 
     settings: DashboardSettings = Field(default_factory=DashboardSettings)
 
-    data_view: str | None = Field(default=None)
-    """The default data view (index pattern) used by items in this dashboard."""
-
     query: LegacyQueryTypes | None = Field(default=None)
     """A query (KQL or Lucene) applied to the dashboard."""
 
