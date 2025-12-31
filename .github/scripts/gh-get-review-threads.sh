@@ -17,6 +17,11 @@ set -euo pipefail
 #
 # Output:
 #   JSON array of review threads with nested comments
+#
+# Limitations:
+#   - Maximum 100 review threads returned
+#   - Maximum 10 comments per thread returned
+#   - No pagination; large PRs may have truncated results
 
 OWNER="${1:?Owner required}"
 REPO="${2:?Repo required}"

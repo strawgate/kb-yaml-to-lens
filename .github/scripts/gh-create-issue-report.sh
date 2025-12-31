@@ -4,14 +4,14 @@ set -euo pipefail
 # Create a new issue with structured content
 #
 # Usage:
-#   gh-create-issue-report.sh OWNER REPO TITLE BODY [LABELS...]
+#   gh-create-issue-report.sh OWNER REPO TITLE BODY [LABELS]
 #
 # Arguments:
 #   OWNER    - Repository owner
 #   REPO     - Repository name
 #   TITLE    - Issue title
 #   BODY     - Issue body (markdown supported)
-#   LABELS   - Optional: comma-separated list of labels
+#   LABELS   - Optional: comma-separated list of labels (e.g., "bug,urgent")
 #
 # Environment:
 #   GITHUB_TOKEN - GitHub API token (required for gh cli)
@@ -25,15 +25,10 @@ TITLE="${3:?Title required}"
 BODY="${4:?Body required}"
 LABELS="${5:-}"
 
+ARGS=(--repo "$OWNER/$REPO" --title "$TITLE" --body "$BODY")
+
 if [ -n "$LABELS" ]; then
-  gh issue create \
-    --repo "$OWNER/$REPO" \
-    --title "$TITLE" \
-    --body "$BODY" \
-    --label "$LABELS"
-else
-  gh issue create \
-    --repo "$OWNER/$REPO" \
-    --title "$TITLE" \
-    --body "$BODY"
+  ARGS+=(--label "$LABELS")
 fi
+
+gh issue create "${ARGS[@]}"

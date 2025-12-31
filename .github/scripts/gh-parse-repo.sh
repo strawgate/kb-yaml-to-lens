@@ -18,6 +18,11 @@ set -euo pipefail
 REPOSITORY="${1:?Repository required (format: owner/repo)}"
 PART="${2:-both}"
 
+if [[ ! "$REPOSITORY" =~ ^[^/]+/[^/]+$ ]]; then
+  echo "Error: Repository must be in 'owner/repo' format" >&2
+  exit 1
+fi
+
 OWNER=$(echo "$REPOSITORY" | cut -d'/' -f1)
 REPO=$(echo "$REPOSITORY" | cut -d'/' -f2)
 

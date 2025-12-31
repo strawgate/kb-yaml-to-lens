@@ -16,6 +16,13 @@ set -euo pipefail
 #
 # Output:
 #   Status messages showing what was minimized
+#
+# Limitations:
+#   - Maximum 100 PR comments processed
+#   - Maximum 100 reviews processed
+#   - Maximum 100 review comments per review processed
+#   - No pagination; PRs with >100 items in any category will have results truncated
+#   - For very active PRs, some comments may not be minimized
 
 OWNER="${1:?Owner required}"
 REPO="${2:?Repo required}"
@@ -89,8 +96,11 @@ for ID in $TO_MINIMIZE; do
       }
     }
   }'
-  gh api graphql -f query="$MUTATION" -f subjectId="$ID" > /dev/null
-  MINIMIZED_COUNT=$((MINIMIZED_COUNT + 1))
+  if ! gh api graphql -f query="$MUTATION" -f subjectId="$ID" --silent; then
+    echo "Warning: Failed to minimize $ID" >&2
+  else
+    MINIMIZED_COUNT=$((MINIMIZED_COUNT + 1))
+  fi
 done
 
 echo "Successfully minimized $MINIMIZED_COUNT comments/reviews"

@@ -18,6 +18,10 @@ set -euo pipefail
 # Output:
 #   JSON object with latest review from specified author, or empty if none found
 #   Fields: databaseId, createdAt, author.login
+#
+# Limitations:
+#   - Only checks the last 10 reviews (older reviews are not considered)
+#   - This limit optimizes performance for typical PR review workflows
 
 OWNER="${1:?Owner required}"
 REPO="${2:?Repo required}"

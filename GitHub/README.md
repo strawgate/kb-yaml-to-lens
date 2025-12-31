@@ -7,8 +7,8 @@ This directory contains updated GitHub workflow files that use the helper script
 ### tidy-pr.yml
 
 **Original size:** 110 lines
-**New size:** 32 lines
-**Reduction:** 71%
+**New size:** 28 lines
+**Reduction:** ~75%
 
 Simplified workflow that uses `gh-minimize-outdated-comments.sh` to minimize all but the most recent comment from each author on a PR.
 
@@ -48,6 +48,7 @@ To apply these updated workflows:
 3. **Replace workflows** - Copy these files to `.github/workflows/`:
 
    ```bash
+   mkdir -p .github/workflows
    cp GitHub/tidy-pr.yml .github/workflows/
    cp GitHub/claude-address-coderabbit-feedback.yml .github/workflows/
    ```

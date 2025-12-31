@@ -25,4 +25,8 @@ jobs:
           REPO=${{ github.event.repository.name }}
           PR_NUMBER=${{ github.event.issue.number }}
           echo "Minimizing outdated comments for PR #${PR_NUMBER}..."
-          make gh-minimize-outdated-comments "$OWNER" "$REPO" "$PR_NUMBER"
+          if ! make gh-minimize-outdated-comments "$OWNER" "$REPO" "$PR_NUMBER"; then
+            gh api "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" \
+              -f body="❌ Failed to minimize outdated comments. Check workflow logs for details."
+            exit 1
+          fi

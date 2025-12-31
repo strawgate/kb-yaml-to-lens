@@ -237,16 +237,6 @@ run: |-
 
 ```yaml
 run: |-
-  .github/scripts/gh-minimize-outdated-comments.sh \
-    $(echo "${{ github.repository }}" | cut -d'/' -f1) \
-    $(echo "${{ github.repository }}" | cut -d'/' -f2) \
-    ${{ github.event.issue.number }}
-```
-
-Or even simpler using the parse-repo helper:
-
-```yaml
-run: |-
   OWNER=$(.github/scripts/gh-parse-repo.sh "${{ github.repository }}" owner)
   REPO=$(.github/scripts/gh-parse-repo.sh "${{ github.repository }}" repo)
   .github/scripts/gh-minimize-outdated-comments.sh "$OWNER" "$REPO" ${{ github.event.issue.number }}
