@@ -229,7 +229,7 @@ class TestCompileLensChartState:
     def test_raises_error_when_no_charts_provided(self) -> None:
         """Test that compile_lens_chart_state raises ValueError when no charts are provided."""
         with pytest.raises(ValueError, match='At least one chart must be provided'):
-            compile_lens_chart_state(query=None, filters=None, charts=[])
+            _ = compile_lens_chart_state(query=None, filters=None, charts=[])
 
     def test_compiles_chart_with_reference_line_layer(self) -> None:
         """Test that compile_lens_chart_state merges reference line layers into XY visualization."""

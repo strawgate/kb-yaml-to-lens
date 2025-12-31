@@ -95,16 +95,16 @@ class TestGetFilterTypeFromObject:
 
             def __init__(self) -> None:
                 """Initialize unknown filter."""
-                self.value = 'test'
+                self.value: str = 'test'
 
         filter_obj = UnknownFilter()
         with pytest.raises(ValueError, match='Cannot determine filter type from object'):
-            get_filter_type(filter_obj)
+            _ = get_filter_type(filter_obj)
 
     def test_raises_error_for_string_input(self) -> None:
         """Test that get_filter_type raises ValueError for string input."""
         with pytest.raises(ValueError, match='Cannot determine filter type from object'):
-            get_filter_type('not a filter')  # type: ignore[arg-type]
+            _ = get_filter_type('not a filter')  # type: ignore[arg-type]
 
 
 class TestGetFilterTypeFromDict:
@@ -114,13 +114,13 @@ class TestGetFilterTypeFromDict:
         """Test that get_filter_type raises ValueError for unknown dict keys."""
         filter_dict = {'unknown_key': 'value'}
         with pytest.raises(ValueError, match='Cannot determine filter type from dict with keys'):
-            get_filter_type(filter_dict)
+            _ = get_filter_type(filter_dict)
 
     def test_raises_error_for_empty_dict(self) -> None:
         """Test that get_filter_type raises ValueError for empty dict."""
         filter_dict: dict[str, object] = {}
         with pytest.raises(ValueError, match='Cannot determine filter type from dict with keys'):
-            get_filter_type(filter_dict)
+            _ = get_filter_type(filter_dict)
 
 
 class TestRangeFilterValidation:
@@ -155,4 +155,4 @@ class TestRangeFilterValidation:
     def test_range_filter_raises_error_when_no_values_provided(self) -> None:
         """Test that RangeFilter raises ValueError when no range values are provided."""
         with pytest.raises(ValueError, match="At least one of 'gte', 'lte', 'gt', or 'lt' must be provided"):
-            RangeFilter(field='age')
+            _ = RangeFilter(field='age')

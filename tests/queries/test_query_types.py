@@ -28,13 +28,13 @@ class TestGetQueryTypeFromDict:
         """Test that get_query_type raises ValueError for unknown dict keys."""
         query_dict = {'unknown': 'value'}
         with pytest.raises(ValueError, match='Cannot determine query type from dict with keys'):
-            get_query_type(query_dict)
+            _ = get_query_type(query_dict)
 
     def test_raises_value_error_for_empty_dict(self) -> None:
         """Test that get_query_type raises ValueError for empty dict."""
         query_dict: dict[str, object] = {}
         with pytest.raises(ValueError, match='Cannot determine query type from dict with keys'):
-            get_query_type(query_dict)
+            _ = get_query_type(query_dict)
 
 
 class TestGetQueryTypeFromObject:
@@ -63,18 +63,18 @@ class TestGetQueryTypeFromObject:
 
             def __init__(self) -> None:
                 """Initialize the unknown query."""
-                self.value = 'test'
+                self.value: str = 'test'
 
         query = UnknownQuery()
         with pytest.raises(ValueError, match='Cannot determine query type from object'):
-            get_query_type(query)
+            _ = get_query_type(query)
 
     def test_raises_value_error_for_string_input(self) -> None:
         """Test that get_query_type raises ValueError for string input."""
         with pytest.raises(ValueError, match='Cannot determine query type from object'):
-            get_query_type('not a query')  # type: ignore[arg-type]
+            _ = get_query_type('not a query')  # type: ignore[arg-type]
 
     def test_raises_value_error_for_none_input(self) -> None:
         """Test that get_query_type raises ValueError for None input."""
         with pytest.raises(ValueError, match='Cannot determine query type from object'):
-            get_query_type(None)  # type: ignore[arg-type]
+            _ = get_query_type(None)  # type: ignore[arg-type]
