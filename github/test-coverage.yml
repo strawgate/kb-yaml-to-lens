@@ -38,12 +38,35 @@ jobs:
               return;
             }
 
-            const coverage = JSON.parse(fs.readFileSync('coverage.json', 'utf8'));
+            // Parse coverage.json with error handling
+            let coverage;
+            try {
+              coverage = JSON.parse(fs.readFileSync('coverage.json', 'utf8'));
+              if (!coverage.totals || typeof coverage.totals.percent_covered !== 'number') {
+                throw new Error('Missing required fields in coverage.json');
+              }
+            } catch (error) {
+              console.error('Failed to parse coverage.json:', error.message);
+              return;
+            }
+
             const percent = coverage.totals.percent_covered.toFixed(2);
-            const missing = coverage.totals.missing_lines;
-            const covered = coverage.totals.covered_lines;
+            const missing = coverage.totals.missing_lines || 0;
+            const covered = coverage.totals.covered_lines || 0;
             const total = covered + missing;
-            const threshold = 81.56;
+
+            // Extract threshold from pyproject.toml to avoid duplication
+            let threshold = 80; // Default fallback
+            try {
+              const toml = fs.readFileSync('pyproject.toml', 'utf8');
+              const thresholdMatch = toml.match(/fail_under\s*=\s*([\d.]+)/);
+              if (thresholdMatch) {
+                threshold = parseFloat(thresholdMatch[1]);
+              }
+            } catch (error) {
+              console.warn('Could not extract threshold from pyproject.toml, using default:', error.message);
+            }
+
             const meetsThreshold = percent >= threshold;
             const statusIcon = meetsThreshold ? '✅' : '❌';
 

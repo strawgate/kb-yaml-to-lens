@@ -206,6 +206,7 @@ show_missing = true
 skip_covered = false
 skip_empty = true
 # Enforce minimum coverage threshold (fails if below this percentage)
+# This value is automatically extracted by github/test-coverage.yml for PR comments
 fail_under = 81.56
 exclude_lines = [
     "pragma: no cover",
