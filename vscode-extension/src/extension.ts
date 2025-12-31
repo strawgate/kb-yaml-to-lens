@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
@@ -10,14 +9,40 @@ let previewPanel: PreviewPanel;
 let gridEditorPanel: GridEditorPanel;
 
 /**
- * Checks if a YAML file contains a 'dashboards' root key.
- * This is used to determine if the file is a dashboard configuration file.
- * @param filePath Path to the YAML file
+ * Checks if a YAML document contains a 'dashboards' root key.
+ * Uses VS Code's TextDocument API when available to access in-memory content,
+ * which works with both saved and unsaved changes.
+ *
+ * Following the pattern from vscode-kubernetes-tools extension:
+ * - First try to find the document in VS Code's open documents (fast, in-memory)
+ * - This works with unsaved changes and is more efficient than disk reads
+ *
+ * @param uri URI of the YAML file
  * @returns true if the file has a 'dashboards' root key, false otherwise
  */
-function hasDashboardsKey(filePath: string): boolean {
+function hasDashboardsKey(uri: string): boolean {
     try {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const parsedUri = vscode.Uri.parse(uri);
+
+        // Try to find the document in already opened/cached documents
+        // This is synchronous and efficient - uses VS Code's existing document cache
+        const document = vscode.workspace.textDocuments.find(
+            doc => doc.uri.toString() === uri
+        );
+
+        let content: string;
+        if (document) {
+            // Document is already open - use in-memory content
+            // This works with unsaved changes!
+            content = document.getText();
+        } else {
+            // Document not open - need to read from disk
+            // Note: This is a fallback. In practice, the YAML extension will have
+            // opened the document before calling this contributor.
+            const fs = require('fs');
+            content = fs.readFileSync(parsedUri.fsPath, 'utf-8');
+        }
+
         // Check for 'dashboards:' at the start of a line (after optional whitespace and YAML document separator)
         // This matches:
         // - "dashboards:" at the beginning
@@ -25,7 +50,7 @@ function hasDashboardsKey(filePath: string): boolean {
         // - Lines with leading spaces/tabs before "dashboards:"
         return /^[\s]*dashboards\s*:/m.test(content);
     } catch (error) {
-        // If we can't read the file, don't apply the schema
+        // If we can't access the document, don't apply the schema
         return false;
     }
 }
@@ -150,9 +175,7 @@ async function registerYamlSchema(): Promise<void> {
                 // Only apply schema to YAML files that contain a 'dashboards' root key
                 // This prevents applying dashboard schema to other YAML files (CI configs, etc.)
                 if (uri.endsWith('.yaml') || uri.endsWith('.yml')) {
-                    // Convert URI to file path
-                    const filePath = vscode.Uri.parse(uri).fsPath;
-                    if (hasDashboardsKey(filePath)) {
+                    if (hasDashboardsKey(uri)) {
                         return 'kb-yaml-to-lens://schema/dashboard';
                     }
                 }
