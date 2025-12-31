@@ -4,10 +4,55 @@ import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
 import { ConfigService } from './configService';
+import * as fs from 'fs';
 
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
 let gridEditorPanel: GridEditorPanel;
+
+/**
+ * Checks if a YAML document contains a 'dashboards' root key.
+ * Uses VS Code's TextDocument API when available to access in-memory content,
+ * which works with both saved and unsaved changes.
+ *
+ * Following the pattern from vscode-kubernetes-tools extension:
+ * - First try to find the document in VS Code's open documents (fast, in-memory)
+ * - This works with unsaved changes and is more efficient than disk reads
+ *
+ * @param uri URI of the YAML file
+ * @returns true if the file has a 'dashboards' root key, false otherwise
+ */
+function hasDashboardsKey(uri: string): boolean {
+    try {
+        const parsedUri = vscode.Uri.parse(uri);
+
+        // Try to find the document in already opened/cached documents
+        // This is synchronous and efficient - uses VS Code's existing document cache
+        const document = vscode.workspace.textDocuments.find(
+            doc => doc.uri.toString() === uri
+        );
+
+        let content: string;
+        if (document) {
+            // Document is already open - use in-memory content
+            // This works with unsaved changes!
+            content = document.getText();
+        } else {
+            // Document not open - need to read from disk
+            // Note: This is a fallback. In practice, the YAML extension will have
+            // opened the document before calling this contributor.
+            content = fs.readFileSync(parsedUri.fsPath, 'utf-8');
+        }
+
+        // Check for 'dashboards:' at root level (start of line, no indentation)
+        // This regex matches 'dashboards:' only when it appears at column 0 (no leading spaces/tabs)
+        // The /m flag enables multiline mode so ^ matches the start of any line
+        return /^dashboards\s*:/m.test(content);
+    } catch (error) {
+        // If we can't access the document, don't apply the schema
+        return false;
+    }
+}
 
 /**
  * Validates that the active editor is a YAML file and returns its path.
@@ -94,6 +139,62 @@ function createDashboardCommand(action: (filePath: string, dashboardIndex: numbe
     };
 }
 
+/**
+ * Register JSON schema with the YAML extension for auto-complete support.
+ * This enables schema-based validation, hover documentation, and auto-complete
+ * for dashboard YAML files.
+ */
+async function registerYamlSchema(): Promise<void> {
+    // Check if YAML extension is available
+    const yamlExtension = vscode.extensions.getExtension('redhat.vscode-yaml');
+    if (!yamlExtension) {
+        console.log('YAML extension not found - schema auto-complete disabled');
+        return;
+    }
+
+    try {
+        // Activate the YAML extension if not already active
+        const yamlApi = await yamlExtension.activate();
+
+        // Fetch schema from our LSP server
+        const schemaResult = await compiler.getSchema();
+
+        if (!schemaResult.success || !schemaResult.data) {
+            console.error('Failed to get schema from LSP server:', schemaResult.error);
+            return;
+        }
+
+        const schemaJSON = JSON.stringify(schemaResult.data);
+
+        // Register the schema contributor
+        // The contributor provides schemas for matching URIs
+        yamlApi.registerContributor(
+            'kb-yaml-to-lens',
+            (uri: string) => {
+                // Only apply schema to YAML files that contain a 'dashboards' root key
+                // This prevents applying dashboard schema to other YAML files (CI configs, etc.)
+                if (uri.endsWith('.yaml') || uri.endsWith('.yml')) {
+                    if (hasDashboardsKey(uri)) {
+                        return 'kb-yaml-to-lens://schema/dashboard';
+                    }
+                }
+                return undefined;
+            },
+            (uri: string) => {
+                // Return the schema content for our custom URI
+                if (uri === 'kb-yaml-to-lens://schema/dashboard') {
+                    return schemaJSON;
+                }
+                return undefined;
+            }
+        );
+
+        console.log('YAML schema registered successfully');
+    } catch (error) {
+        console.error('Failed to register YAML schema:', error);
+    }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     console.log('YAML Dashboard Compiler extension is now active');
 
@@ -101,6 +202,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Start the LSP server
     await compiler.start();
+
+    // Register JSON schema with YAML extension for auto-complete
+    await registerYamlSchema();
 
     previewPanel = new PreviewPanel(compiler);
     gridEditorPanel = new GridEditorPanel(context);
