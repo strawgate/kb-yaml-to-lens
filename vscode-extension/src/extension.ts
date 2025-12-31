@@ -43,12 +43,9 @@ function hasDashboardsKey(uri: string): boolean {
             content = fs.readFileSync(parsedUri.fsPath, 'utf-8');
         }
 
-        // Check for 'dashboards:' at the start of a line (after optional whitespace and YAML document separator)
-        // This matches:
-        // - "dashboards:" at the beginning
-        // - "---\ndashboards:" (with YAML document separator)
-        // - Lines with leading spaces/tabs before "dashboards:"
-        return /^[\s]*dashboards\s*:/m.test(content);
+        // Check for 'dashboards:' at root level (start of line, no indentation)
+        // Handles optional YAML document separator (---)
+        return /^dashboards\s*:/m.test(content);
     } catch (error) {
         // If we can't access the document, don't apply the schema
         return false;

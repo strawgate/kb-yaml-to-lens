@@ -248,7 +248,11 @@ export class DashboardCompilerLSP {
             return { success: false, error: 'LSP client not started' };
         }
 
-        return this.client.sendRequest('dashboard/getSchema', {});
+        try {
+            return await this.client.sendRequest('dashboard/getSchema', {});
+        } catch (error) {
+            return { success: false, error: error instanceof Error ? error.message : String(error) };
+        }
     }
 
     async dispose(): Promise<void> {
