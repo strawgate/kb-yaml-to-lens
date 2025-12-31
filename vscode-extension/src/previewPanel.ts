@@ -69,10 +69,13 @@ export class PreviewPanel {
         this.panel.webview.html = getLoadingContent('Compiling dashboard...');
 
         try {
-            const [compiled, gridInfo] = await Promise.all([
-                this.compiler.compile(dashboardPath, dashboardIndex),
-                this.extractGridInfo(dashboardPath, dashboardIndex)
-            ]);
+            const compiled = await this.compiler.compile(dashboardPath, dashboardIndex);
+            let gridInfo: DashboardGridInfo = { title: '', description: '', panels: [] };
+            try {
+                gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
+            } catch (gridError) {
+                console.warn('Grid extraction failed, showing preview without layout:', gridError);
+            }
             this.panel.webview.html = this.getWebviewContent(compiled, dashboardPath, gridInfo);
         } catch (error) {
             this.panel.webview.html = getErrorContent(error, 'Compilation Error');
@@ -84,6 +87,7 @@ export class PreviewPanel {
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
 
         return new Promise((resolve, reject) => {
+            let settled = false;
             const process = spawn(pythonPath, [scriptPath, dashboardPath, dashboardIndex.toString()], {
                 cwd: path.join(this.extensionPath, '..')
             });
@@ -93,12 +97,18 @@ export class PreviewPanel {
 
             const timeout = setTimeout(() => {
                 process.kill();
-                reject(new Error('Grid extraction timed out after 30 seconds'));
+                if (!settled) {
+                    settled = true;
+                    reject(new Error('Grid extraction timed out after 30 seconds'));
+                }
             }, 30000);
 
             process.on('error', (err) => {
                 clearTimeout(timeout);
-                reject(new Error(`Failed to start Python: ${err.message}`));
+                if (!settled) {
+                    settled = true;
+                    reject(new Error(`Failed to start Python: ${err.message}`));
+                }
             });
 
             process.stdout.on('data', (data) => {
@@ -111,6 +121,10 @@ export class PreviewPanel {
 
             process.on('close', (code) => {
                 clearTimeout(timeout);
+                if (settled) {
+                    return;
+                }
+                settled = true;
                 if (code !== 0) {
                     reject(new Error(`Grid extraction failed: ${stderr || stdout}`));
                     return;
