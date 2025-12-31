@@ -236,5 +236,17 @@ gh-get-comments-since:
 gh-minimize-outdated-comments:
 	@.github/scripts/gh-minimize-outdated-comments.sh $(filter-out $@,$(MAKECMDGOALS))
 
+gh-get-pr-info:
+	@.github/scripts/gh-get-pr-info.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-post-pr-comment:
+	@.github/scripts/gh-post-pr-comment.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-create-issue-report:
+	@.github/scripts/gh-create-issue-report.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-close-issue-with-comment:
+	@.github/scripts/gh-close-issue-with-comment.sh $(filter-out $@,$(MAKECMDGOALS))
+
 %:
 	@:

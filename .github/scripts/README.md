@@ -91,6 +91,57 @@ gh-minimize-outdated-comments.sh OWNER REPO PR_NUMBER
 gh-minimize-outdated-comments.sh strawgate kb-yaml-to-lens 426
 ```
 
+### PR and Issue Management
+
+#### `gh-get-pr-info.sh`
+
+Get PR information via GitHub GraphQL API.
+
+```bash
+gh-get-pr-info.sh OWNER REPO PR_NUMBER [FIELD]
+
+# Examples:
+gh-get-pr-info.sh strawgate kb-yaml-to-lens 456              # All fields as JSON
+gh-get-pr-info.sh strawgate kb-yaml-to-lens 456 headRef     # Just the branch name
+gh-get-pr-info.sh strawgate kb-yaml-to-lens 456 isDraft     # Just draft status
+```
+
+Available fields: `headRef`, `baseRef`, `author`, `state`, `isDraft`, `title`, `body`, `url`
+
+#### `gh-post-pr-comment.sh`
+
+Post a comment to a PR or issue.
+
+```bash
+gh-post-pr-comment.sh OWNER REPO NUMBER BODY
+
+# Example:
+gh-post-pr-comment.sh strawgate kb-yaml-to-lens 456 "✅ All checks passed"
+```
+
+#### `gh-create-issue-report.sh`
+
+Create a new issue with structured content.
+
+```bash
+gh-create-issue-report.sh OWNER REPO TITLE BODY [LABELS]
+
+# Examples:
+gh-create-issue-report.sh strawgate kb-yaml-to-lens "Bug Report" "Description here"
+gh-create-issue-report.sh strawgate kb-yaml-to-lens "Feature Request" "Description" "enhancement,help-wanted"
+```
+
+#### `gh-close-issue-with-comment.sh`
+
+Close an issue with a comment.
+
+```bash
+gh-close-issue-with-comment.sh OWNER REPO ISSUE_NUMBER COMMENT
+
+# Example:
+gh-close-issue-with-comment.sh strawgate kb-yaml-to-lens 123 "Closing as completed"
+```
+
 ### Utility Scripts
 
 #### `gh-parse-repo.sh`

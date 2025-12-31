@@ -158,35 +158,62 @@ Copilot is extremely dumb and needs to be spoon-fed the exact change you want ma
 
 ---
 
-## Resolving PR Review Threads
+## GitHub Workflow Helper Scripts
 
-You can resolve review threads via GitHub GraphQL API. **Only resolve after making code changes that address the feedback.**
+The repository provides reusable helper scripts in `.github/scripts/` for common GitHub API operations. These scripts can be used directly or via `make` commands.
+
+### Common Operations
+
+#### Getting PR Information
 
 ```bash
-# Get review threads
-gh api graphql -f query='
-  query {
-    repository(owner: "OWNER", name: "REPO") {
-      pullRequest(number: PR_NUMBER) {
-        reviewThreads(first: 100) {
-          nodes { id isResolved path line
-            comments(first: 10) { nodes { body author { login } } }
-          }
-        }
-      }
-    }
-  }' -f owner=OWNER -f name=REPO -F number=PR_NUMBER
+# Using make (recommended)
+make gh-get-pr-info strawgate kb-yaml-to-lens 456
+make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef
 
-# Resolve a thread (after fixing the issue)
-gh api graphql -f query='
-  mutation {
-    resolveReviewThread(input: {threadId: "THREAD_ID"}) {
-      thread { id isResolved }
-    }
-  }'
+# Direct script usage
+.github/scripts/gh-get-pr-info.sh strawgate kb-yaml-to-lens 456
+.github/scripts/gh-get-pr-info.sh strawgate kb-yaml-to-lens 456 isDraft
 ```
 
-**Note**: Claude will NOT add comments or reviews to PRs. It can only resolve threads after making code changes.
+#### Managing PR Review Threads
+
+```bash
+# Get review threads (optionally filter by author)
+make gh-get-review-threads strawgate kb-yaml-to-lens 456
+make gh-get-review-threads strawgate kb-yaml-to-lens 456 "coderabbitai[bot]"
+
+# Resolve a thread (after fixing the issue)
+make gh-resolve-review-thread "THREAD_ID"
+```
+
+#### Posting Comments
+
+```bash
+# Post a comment to PR or issue
+make gh-post-pr-comment strawgate kb-yaml-to-lens 456 "Comment text here"
+```
+
+#### Managing Issues
+
+```bash
+# Create an issue with labels
+make gh-create-issue-report strawgate kb-yaml-to-lens "Issue Title" "Description" "bug,help-wanted"
+
+# Close an issue with a comment
+make gh-close-issue-with-comment strawgate kb-yaml-to-lens 123 "Closing comment"
+```
+
+### Available Helper Scripts
+
+See `.github/scripts/README.md` for complete documentation of all helper scripts:
+
+- **Review Management**: `gh-get-review-threads.sh`, `gh-resolve-review-thread.sh`, `gh-get-latest-review.sh`, `gh-check-latest-review.sh`
+- **Comment Management**: `gh-get-comments-since.sh`, `gh-minimize-outdated-comments.sh`, `gh-post-pr-comment.sh`
+- **PR/Issue Management**: `gh-get-pr-info.sh`, `gh-create-issue-report.sh`, `gh-close-issue-with-comment.sh`
+- **Utilities**: `gh-parse-repo.sh`
+
+**Note**: All scripts require `GITHUB_TOKEN` environment variable and can be tested locally.
 
 ---
 
