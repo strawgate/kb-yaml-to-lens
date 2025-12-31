@@ -203,6 +203,10 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
         layer_id, esql_columns, visualization_state = compile_esql_datatable_chart(chart)
     elif isinstance(chart, ESQLTagcloudChart):
         layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(chart)
+    elif isinstance(chart, (ESQLBarChart, ESQLLineChart, ESQLAreaChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
+        from dashboard_compiler.panels.charts.xy.compile import compile_esql_xy_chart
+
+        layer_id, esql_columns, visualization_state = compile_esql_xy_chart(chart)
     else:
         msg = f'Unsupported ESQL chart type: {type(chart)}'
         raise NotImplementedError(msg)
