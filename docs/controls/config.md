@@ -34,7 +34,6 @@ This example demonstrates multiple controls with custom widths and global contro
 dashboards:
   - name: "Application Monitoring Dashboard"
     description: "Dashboard with interactive controls."
-    data_view: "logs-*" # Default data view for panels
     settings:
       controls:
         label_position: "above"

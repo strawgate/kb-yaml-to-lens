@@ -21,13 +21,12 @@ dashboards:
 
 ## Complex Configuration Example
 
-This example showcases a dashboard with various settings, a default data view, a global query, filters, controls, and multiple panels.
+This example showcases a dashboard with various settings, a global query, filters, controls, and multiple panels.
 
 ```yaml
 dashboards:
   - name: "Comprehensive Application Overview"
     description: "An overview of application performance and logs, with interactive filtering."
-    data_view: "production-logs-*" # Default data view for all items unless overridden
     settings:
       margins: true
       titles: true
@@ -86,7 +85,6 @@ The main object defining the dashboard.
 | `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
 | `description` | `string` | A brief description of the dashboard's purpose or content. | `""` (empty string) | No |
 | `settings` | `DashboardSettings` object | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings-settings). | See defaults below | No |
-| `data_view` | `string` | The default data view (index pattern) ID or title used by items in this dashboard unless overridden. | `None` | No |
 | `query` | `Query` object | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None` | No |
 | `filters` | `list of Filter objects` | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `controls` | `list of Control objects` | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md). | `[]` (empty list) | No |

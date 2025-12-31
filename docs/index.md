@@ -72,7 +72,7 @@ dashboards:
           # Hello, Kibana!
 
           This is my first markdown panel.
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
 ```
 
 #### Example 2: Simple Lens Metric Panel
@@ -86,7 +86,7 @@ dashboards:
   description: A dashboard with a single metric panel
   panels:
     - type: lens
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
       index_pattern: your-index-pattern-*
       chart:
         type: metric
@@ -140,9 +140,6 @@ Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/
 ## Requirements
 
 - Python 3.12+
-- PyYAML 6.0+
-- Pydantic 2.11.3+
-- beartype 0.20.2+
 
 ## License
 
