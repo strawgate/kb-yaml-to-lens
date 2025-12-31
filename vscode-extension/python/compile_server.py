@@ -7,7 +7,6 @@ dashboard compilation services to the VS Code extension.
 import json
 import logging
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -304,7 +303,6 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     if not path or not kibana_url:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
 
-    temp_path = None
     try:
         # Compile the dashboard first
         logger.info(f'Compiling dashboard from {path} (index {dashboard_index})')
@@ -317,11 +315,6 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         ndjson_content = json.dumps(compile_result['data'])
         logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
 
-        # Create temporary file for upload
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.ndjson', delete=False) as f:
-            f.write(ndjson_content)
-            temp_path = Path(f.name)
-
         # Create Kibana client
         logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
         client = KibanaClient(
@@ -333,7 +326,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         )
 
         # Upload to Kibana
-        result = await client.upload_ndjson(temp_path, overwrite=True)
+        result = await client.upload_ndjson(ndjson_content, overwrite=True)
         logger.debug(
             f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
         )
@@ -357,10 +350,6 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     except Exception as e:
         logger.exception('Upload error occurred')
         return {'success': False, 'error': f'Upload error: {e!s}'}
-    finally:
-        # Clean up temp file
-        if temp_path is not None and temp_path.exists():
-            temp_path.unlink()
 
 
 if __name__ == '__main__':
