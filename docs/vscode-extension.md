@@ -19,16 +19,43 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 - **dashboard_compiler package** – Must be installed and available in your Python environment
 - **VS Code 1.85.0 or higher**
 
-### From VSIX (Manual Installation)
+### Building and Installing
 
-1. Download the latest `.vsix` file from the [releases page](https://github.com/strawgate/kb-yaml-to-lens/releases)
+1. Build the extension:
+
+   ```bash
+   cd vscode-extension
+   npm install
+   npm run compile
+   npm run package
+   ```
 
 2. Install in VS Code:
    - Open VS Code
    - Go to Extensions view (Ctrl+Shift+X)
    - Click the "..." menu at the top of the Extensions view
    - Select "Install from VSIX..."
-   - Choose the downloaded `.vsix` file
+   - Choose the generated `.vsix` file
+
+### For Development
+
+If you're contributing to the extension or want to run the latest development version:
+
+1. Clone the repository
+2. Navigate to the extension folder:
+
+   ```bash
+   cd vscode-extension
+   npm install
+   ```
+
+3. Open the folder in VS Code:
+
+   ```bash
+   code .
+   ```
+
+4. Press F5 to launch the Extension Development Host
 
 ## Setup
 
@@ -36,19 +63,14 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 
 The extension requires the `dashboard_compiler` package to be installed in your Python environment.
 
-#### Install from PyPI (when available)
+From the repository root:
 
 ```bash
-pip install dashboard-compiler
-```
+# Using pip
+pip install -e .
 
-#### Install from source
-
-If you've cloned the repository:
-
-```bash
-# From the repository root
-pip install .
+# Or using uv
+uv sync
 ```
 
 ### Extension Configuration
