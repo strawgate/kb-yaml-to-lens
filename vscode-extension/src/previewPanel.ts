@@ -361,6 +361,16 @@ export class PreviewPanel {
         let panelsHtml = '';
 
         for (const panel of gridInfo.panels) {
+            // Validate grid properties to prevent invalid CSS
+            if (!panel.grid ||
+                typeof panel.grid.x !== 'number' ||
+                typeof panel.grid.y !== 'number' ||
+                typeof panel.grid.w !== 'number' ||
+                typeof panel.grid.h !== 'number') {
+                console.warn('Skipping panel with invalid grid data:', panel);
+                continue;
+            }
+
             // Calculate maxY
             const panelBottom = panel.grid.y + panel.grid.h;
             if (panelBottom > maxY) {
@@ -389,10 +399,9 @@ export class PreviewPanel {
         }
 
         const containerHeight = maxY * PreviewPanel.scaleFactor;
-        const containerWidth = PreviewPanel.gridColumns * PreviewPanel.scaleFactor;
 
         return `
-            <div class="layout-container" style="height: ${containerHeight}px; width: ${containerWidth}px; max-width: 100%;">
+            <div class="layout-container" style="height: ${containerHeight}px; width: 100%;">
                 ${panelsHtml}
             </div>
         `;
