@@ -48,7 +48,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
-from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
+from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query, extract_index_from_esql
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.view import KbnReference
@@ -203,6 +203,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> KbnLensPanelState:
         raise NotImplementedError(msg)
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
+        index=extract_index_from_esql(chart.query.root),
         query=compile_esql_query(chart.query),
         columns=esql_columns,
     )

@@ -1,8 +1,36 @@
 """Compile dashboard queries into their Kibana view model representation."""
 
+import json
+import re
+
 from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
+
+
+def extract_index_from_esql(query_str: str) -> str:
+    """Extract index pattern from ESQL query and format as JSON string.
+
+    Args:
+        query_str: The ESQL query string
+
+    Returns:
+        JSON string containing index and timeFieldName
+
+    Example:
+        >>> extract_index_from_esql("FROM logs-* | STATS count = COUNT()")
+        '{"index":"logs-*","timeFieldName":"@timestamp"}'
+
+    """
+    match = re.search(r'FROM\s+([^\s|]+)', query_str, re.IGNORECASE)
+    index_pattern = '*' if not match else match.group(1).strip()
+
+    index_obj = {
+        'index': index_pattern,
+        'timeFieldName': '@timestamp',
+    }
+
+    return json.dumps(index_obj, separators=(',', ':'))
 
 
 def compile_esql_query(query: ESQLQueryTypes) -> KbnESQLQuery:

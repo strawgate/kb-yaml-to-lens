@@ -106,7 +106,7 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
-    # index: str
+    index: str
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
 
