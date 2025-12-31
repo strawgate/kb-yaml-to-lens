@@ -1,0 +1,59 @@
+title: ES|QL Controls Example
+description: Dashboard demonstrating ES|QL controls with both static and query-driven values
+time_range:
+  from: now-24h
+  to: now
+
+controls:
+  settings:
+    chain_controls: true
+    label_position: inline
+
+  controls:
+    # Static values ES|QL control
+    - type: esql_static
+      variable_name: environment
+      variable_type: VALUES
+      available_options:
+        - production
+        - staging
+        - development
+      title: Environment
+      width: medium
+
+    # Query-driven ES|QL control
+    - type: esql_query
+      variable_name: status_code
+      variable_type: VALUES
+      esql_query: FROM logs-* | STATS count BY http.response.status_code | SORT count DESC | LIMIT 10
+      title: Top Status Codes
+      width: medium
+
+panels:
+  - type: esql_metric
+    title: Request Count by Environment
+    query:
+      - FROM logs-*
+      - WHERE environment == ?environment
+      - STATS count = COUNT(*)
+    metric:
+      value: count
+    grid:
+      x: 0
+      y: 0
+      w: 24
+      h: 8
+
+  - type: esql_pie
+    title: Requests by Status Code
+    query:
+      - FROM logs-*
+      - WHERE http.response.status_code == ?status_code
+      - STATS count = COUNT(*) BY http.response.status_code
+    breakdown: http.response.status_code
+    metric: count
+    grid:
+      x: 24
+      y: 0
+      w: 24
+      h: 8

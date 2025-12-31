@@ -26,6 +26,34 @@ dashboards:
         field: "response.time"       # Replace with the numeric field
 ```
 
+Here's a minimal example of an ES|QL control with static values:
+
+```yaml
+dashboards:
+  - name: "ES|QL Static Control Example"
+    controls:
+      - type: esql_static
+        variable_name: environment
+        variable_type: VALUES
+        available_options:
+          - production
+          - staging
+        title: "Environment"
+```
+
+Here's a minimal example of an ES|QL control with query-driven values:
+
+```yaml
+dashboards:
+  - name: "ES|QL Query Control Example"
+    controls:
+      - type: esql_query
+        variable_name: status_code
+        variable_type: VALUES
+        esql_query: "FROM logs-* | STATS count BY http.response.status_code"
+        title: "Status Code"
+```
+
 ## Complex Configuration Example
 
 This example demonstrates multiple controls with custom widths and global control settings:
@@ -123,6 +151,89 @@ Allows users to select a sub-section of the dashboard's current time range. This
 | `end_offset` | `float` (between 0.0 and 1.0) | The end offset for the time range as a percentage of the global time range (e.g., `0.75` for 75%). Must be greater than `start_offset`. | `1.0` (100%) | No |
 
 **Note on Time Slider Offsets:** The YAML configuration expects `start_offset` and `end_offset` as float values between 0.0 (0%) and 1.0 (100%). Kibana internally represents these as percentages from 0.0 to 100.0. If not provided, Kibana defaults to `0.0` for start and `100.0` for end.
+
+### ES|QL Static Values Control
+
+Allows users to select from a predefined list of values to filter ES|QL visualizations via variables. This control type is ideal when you have a known, fixed set of options.
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['esql_static']` | Specifies the control type. | `esql_static` | Yes |
+| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
+| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
+| `label` | `string` | The display label for the control. If not provided, a label may be inferred. | `None` | No |
+| `variable_name` | `string` | The name of the ES\|QL variable (e.g., 'environment', 'status_code'). This variable can be referenced in ES\|QL queries using `?variable_name`. | N/A | Yes |
+| `variable_type` | `Literal['VALUES', 'FIELDS', 'TIME_LITERAL']` | The type of variable. See [ES\|QL Variable Type Enum](#esql-variable-type-enum-variable_type). | `VALUES` | No |
+| `available_options` | `list of strings` | The static list of values available for selection. | N/A | Yes |
+| `title` | `string` | Display title for the control. | N/A | Yes |
+| `single_select` | `boolean` | If true, only allow single selection. | `false` | No |
+
+**Example:**
+
+```yaml
+controls:
+  - type: esql_static
+    variable_name: environment
+    variable_type: VALUES
+    available_options:
+      - production
+      - staging
+      - development
+    title: Environment
+    width: medium
+```
+
+### ES|QL Query Control
+
+Allows users to select from values dynamically populated by an ES|QL query to filter ES|QL visualizations via variables. This control type is ideal when the available options should be derived from your data.
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| -------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['esql_query']` | Specifies the control type. | `esql_query` | Yes |
+| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
+| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
+| `label` | `string` | The display label for the control. If not provided, a label may be inferred. | `None` | No |
+| `variable_name` | `string` | The name of the ES\|QL variable (e.g., 'status_code', 'host_name'). This variable can be referenced in ES\|QL queries using `?variable_name`. | N/A | Yes |
+| `variable_type` | `Literal['VALUES', 'FIELDS', 'TIME_LITERAL']` | The type of variable. See [ES\|QL Variable Type Enum](#esql-variable-type-enum-variable_type). | `VALUES` | No |
+| `esql_query` | `string` | The ES\|QL query that returns the available values. | N/A | Yes |
+| `title` | `string` | Display title for the control. | N/A | Yes |
+| `single_select` | `boolean` | If true, only allow single selection. | `false` | No |
+
+**Example:**
+
+```yaml
+controls:
+  - type: esql_query
+    variable_name: status_code
+    variable_type: VALUES
+    esql_query: FROM logs-* | STATS count BY http.response.status_code | SORT count DESC | LIMIT 10
+    title: Top Status Codes
+    width: medium
+```
+
+**Using ES|QL Controls in Panels:**
+
+ES|QL controls create variables that can be referenced in ES|QL panel queries using the `?variable_name` syntax:
+
+```yaml
+panels:
+  - type: esql_metric
+    title: Request Count
+    query:
+      - FROM logs-*
+      - WHERE environment == ?environment AND http.response.status_code == ?status_code
+      - STATS count = COUNT(*)
+    metric:
+      value: count
+```
+
+## ES|QL Variable Type Enum (`variable_type`)
+
+This enum defines the types of ES|QL variables that can be used with ES|QL controls.
+
+* `VALUES`: (Default) Variable represents a list of values.
+* `FIELDS`: Variable represents field names.
+* `TIME_LITERAL`: Variable represents a time literal.
 
 ## Match Technique Enum (`match_technique`)
 
