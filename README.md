@@ -1,8 +1,11 @@
-# Dashboard Compiler
+<!-- markdownlint-disable MD041 -->
+![project-banner-smaller](https://github.com/user-attachments/assets/2cf8c18b-32e1-4b32-9a15-41f0d0d657f7)
 
-Making Dashboards in Kibana is so much fun! Sometimes though, it's nice to build dashboards and visualizations without clicking and clacking in a web browser. That's where the Dashboard Compiler comes in.
+# YAML ➤ Lens Dashboard Compiler
 
-It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
+Making Dashboards in Kibana is so much fun! Sometimes though, it's nice to build dashboards and visualizations without clicking and clacking in a web browser.
+
+That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
 
 ## Features
 
@@ -17,12 +20,24 @@ It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
 
 ### Installation
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
 
-To install the project dependencies, run:
+**For basic usage (compiling dashboards):**
 
 ```bash
 uv sync
+```
+
+**For development (includes testing, linting, type checking):**
+
+```bash
+uv sync --group dev
+```
+
+Or simply use the convenience command:
+
+```bash
+make install
 ```
 
 ### Compile Your First Dashboard
@@ -35,7 +50,7 @@ dashboards:
   description: A simple dashboard with markdown
   panels:
     - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
       markdown:
         content: |
           # Welcome to Kibana!
@@ -65,8 +80,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 
 ## Documentation
 
-- **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with API reference
-- **[Quickstart Guide](docs/quickstart.md)** – Step-by-step guide for creating your first dashboard
+- **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with getting started guide and API reference
 - **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
 - **[Architecture](docs/architecture.md)** – Technical design and data flow overview
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities

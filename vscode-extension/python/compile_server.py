@@ -1,8 +1,13 @@
+"""LSP-based compilation server using pygls for VS Code extension.
+
+This implementation uses the Language Server Protocol with pygls v2 to provide
+dashboard compilation services to the VS Code extension.
+"""
+
 import sys
 from pathlib import Path
 from typing import Any
 
-import cattrs
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
@@ -25,24 +30,32 @@ except ImportError as e:
 server = LanguageServer('dashboard-compiler', 'v0.1')
 
 
-def _params_to_dict(params: dict[str, Any] | object) -> dict[str, Any]:
+def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Convert pygls params object to dict.
 
-    In pygls v2, params are passed as cattrs-structured objects.
-    This helper converts them to dictionaries for easier handling.
+    In pygls v2, custom LSP requests receive params as pygls.protocol.Object (a namedtuple).
+    Internal calls may pass plain dicts directly.
 
     Args:
-        params: The params object (either dict or attrs-structured object)
+        params: The params object (dict or namedtuple)
 
     Returns:
         Dictionary representation of the params
+
+    Raises:
+        TypeError: If params cannot be converted to dict
     """
+    # Already a dict - return as-is
     if isinstance(params, dict):
-        if not all(isinstance(key, str) for key in params):  # pyright: ignore[reportUnknownVariableType]
-            msg = 'Params dictionary keys must be strings'
-            raise TypeError(msg)
         return params  # pyright: ignore[reportUnknownVariableType]
-    return cattrs.unstructure(params)  # pyright: ignore[reportAny]
+
+    # pygls.protocol.Object is a namedtuple with _asdict() method
+    if hasattr(params, '_asdict') and callable(params._asdict):  # pyright: ignore[reportAny]
+        return params._asdict()  # pyright: ignore[reportAny]
+
+    # If we get here, we received an unexpected type
+    msg = f'Unable to convert params of type {type(params).__name__} to dict'
+    raise TypeError(msg)
 
 
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -93,7 +106,7 @@ def compile_command(_ls: LanguageServer, args: list[Any]) -> dict[str, Any]:
 
 
 @server.feature('dashboard/compile')
-def compile_custom(params: dict[str, Any] | object) -> dict[str, Any]:
+def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Handle custom compilation request for a dashboard.
 
     Args:
@@ -110,7 +123,7 @@ def compile_custom(params: dict[str, Any] | object) -> dict[str, Any]:
 
 
 @server.feature('dashboard/getDashboards')
-def get_dashboards_custom(params: dict[str, Any] | object) -> dict[str, Any]:
+def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Get list of dashboards from a YAML file.
 
     Args:
@@ -135,6 +148,80 @@ def get_dashboards_custom(params: dict[str, Any] | object) -> dict[str, Any]:
         return {'success': False, 'error': str(e)}
     else:
         return {'success': True, 'data': dashboard_list}
+
+
+def _get_panel_type(panel: Any) -> str:  # pyright: ignore[reportAny]
+    """Extract the panel type, including chart type for Lens/ESQL panels.
+
+    Args:
+        panel: The panel object to extract type from
+
+    Returns:
+        The panel type string (e.g., 'pie', 'bar', 'markdown', 'search')
+    """
+    class_name = panel.__class__.__name__
+
+    if hasattr(panel, 'lens') and panel.lens is not None:
+        return getattr(panel.lens, 'type', 'lens')
+
+    if hasattr(panel, 'esql') and panel.esql is not None:
+        return getattr(panel.esql, 'type', 'esql')
+
+    return class_name.replace('Panel', '').lower()
+
+
+@server.feature('dashboard/getGridLayout')
+def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Get grid layout information from a YAML dashboard file.
+
+    Args:
+        params: Object containing path and dashboard_index
+
+    Returns:
+        Dictionary with grid layout information or error
+    """
+    params_dict = _params_to_dict(params)
+    path = params_dict.get('path')
+    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+
+    if path is None or len(path) == 0:
+        return {'success': False, 'error': 'Missing path parameter'}
+
+    try:
+        dashboards = load(path)  # pyright: ignore[reportAny]
+        if len(dashboards) == 0:
+            return {'success': False, 'error': 'No dashboards found in YAML file'}
+
+        if dashboard_index < 0 or dashboard_index >= len(dashboards):
+            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'}
+
+        dashboard_config = dashboards[dashboard_index]
+
+        panels = []
+        for index, panel in enumerate(dashboard_config.panels):
+            panel_type = _get_panel_type(panel)
+            panel_info = {
+                'id': panel.id or f'panel_{index}',
+                'title': panel.title or 'Untitled Panel',
+                'type': panel_type,
+                'grid': {
+                    'x': panel.grid.x,
+                    'y': panel.grid.y,
+                    'w': panel.grid.w,
+                    'h': panel.grid.h,
+                },
+            }
+            panels.append(panel_info)
+
+        result = {
+            'title': dashboard_config.name or 'Untitled Dashboard',
+            'description': dashboard_config.description or '',
+            'panels': panels,
+        }
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    else:
+        return {'success': True, 'data': result}
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_SAVE)

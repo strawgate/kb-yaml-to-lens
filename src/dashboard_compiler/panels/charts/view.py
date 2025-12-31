@@ -13,7 +13,7 @@ from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 if TYPE_CHECKING:
     from .datatable.view import KbnDatatableVisualizationState
     from .gauge.view import KbnGaugeVisualizationState
-    from .metric.view import KbnMetricVisualizationState
+    from .metric.view import KbnESQLMetricVisualizationState, KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     KbnVisualizationStateTypes = (
         KbnPieVisualizationState
         | KbnMetricVisualizationState
+        | KbnESQLMetricVisualizationState
         | KbnGaugeVisualizationState
         | KbnXYVisualizationState
         | KbnDatatableVisualizationState
@@ -79,7 +80,6 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 # "textBased": {                                                          <--- KbnTextBasedDataSourceState
 #     "layers": {                                                         <--- KbnTextBasedDataSourceStateLayerById
 #         "42607131-7dd7-4935-a1eb-c9bed5cd302c": {                       <--- KbnTextBasedDataSourceStateLayer
-#             "index": "d3b7e528216ce7ef6....",
 #             "query": {                                                  <--- KbnESQLQuery
 #                 "esql": "FROM metrics-* | ..."
 #             },
@@ -92,6 +92,9 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 #                     "columnId": "ae78ca1b-bad2-47b3-aaaf-ecd8aa05761c",
 #                     "fieldName": "count(*)"
 #                 }
+#             ],
+#             "allColumns": [                                             <--- list[KbnESQLColumnTypes]
+#                 ...
 #             ]
 #         }
 #     },
@@ -106,9 +109,9 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
-    # index: str
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
+    allColumns: list[KbnESQLColumnTypes]
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):

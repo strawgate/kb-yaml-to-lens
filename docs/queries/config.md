@@ -9,8 +9,7 @@ Queries are used to define the search criteria for retrieving data. They can be 
 ```yaml
 # Applied at the dashboard level
 dashboards:
--
-  # ...
+- # ...
   query:
     kql: 'response_code:200 AND "user.id": "test-user"'
 ```
@@ -20,8 +19,7 @@ dashboards:
 ```yaml
 # Applied at the dashboard level
 dashboards:
--
-  # ...
+- # ...
   query:
     lucene: 'event.module:nginx AND event.dataset:nginx.access'
 ```
@@ -55,8 +53,7 @@ Filters documents using the Kibana Query Language (KQL). This is often the defau
 
 ```yaml
 dashboards:
--
-  # ...
+- # ...
   query:
     kql: 'event.action:"user_login" AND event.outcome:success'
 ```
@@ -74,8 +71,7 @@ Filters documents using the more expressive, but complex, Lucene query syntax.
 
 ```yaml
 dashboards:
--
-  # ...
+- # ...
   query:
     lucene: '(geo.src:"US" OR geo.src:"CA") AND tags:"production"'
 ```
@@ -86,21 +82,38 @@ Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQ
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | --------------------------------------------------------------------------- | -------------- | -------- |
-| `query` | `string` | The ESQL query string. The Pydantic model uses `root` for this direct string. | N/A | Yes |
+| `query` | `string` or `list[string]` | The ESQL query string, or an array of query parts to concatenate. Array parts are joined with the pipe operator (`\|`). Nested arrays (from YAML anchor expansion) are automatically flattened. | N/A | Yes |
 
-**Usage Example (Panel Level - for a hypothetical ESQL panel):**
+**Usage Example (Panel Level - String Format):**
 
 ```yaml
 panels:
-  - type: esql_backed_chart # This panel type would be designed to use ESQL
+  - type: esql_backed_chart
     title: "Top User Agents by Count"
     query: |
       FROM "web-logs-*"
       | STATS count = COUNT(user_agent.name) BY user_agent.name
       | SORT count DESC
       | LIMIT 10
-    # ... other panel-specific configurations
 ```
+
+**Usage Example (Panel Level - Array Format):**
+
+```yaml
+panels:
+  - type: esql_backed_chart
+    title: "Top User Agents by Count"
+    query:
+      - FROM "web-logs-*"
+      - STATS count = COUNT(user_agent.name) BY user_agent.name
+      - SORT count DESC
+      - LIMIT 10
+```
+
+When using the array format, query parts are automatically joined with the ES|QL pipe operator (`|`). Nested arrays produced by YAML anchor expansion are automatically flattened before joining, allowing flexible composition of query components. This enables powerful query reuse patterns with YAML anchors.
+
+!!! tip "Advanced: ES|QL Query Reuse with YAML Anchors"
+    You can use YAML anchors (`&` and `*`) to create reusable ES|QL query components, reducing duplication when multiple panels query similar data. This pattern lets you define base queries, filters, or complete "view-like" abstractions once and reference them across panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
 
 ## Query Scope
 
@@ -114,3 +127,4 @@ panels:
 * [Dashboard Configuration](../dashboard/dashboard.md)
 * [Filters Configuration](../filters/config.md)
 * [Panel Documentation (e.g., Lens, ESQL specific panels)](../panels/base.md)
+* [ESQL Panel Configuration](../panels/esql.md)

@@ -10,8 +10,8 @@ A minimal dashboard requires a `name` and at least one panel.
 dashboards:
   - name: "Simple Log Dashboard"
     panels:
-      - type: markdown
-        content: "Welcome to the dashboard!"
+      - markdown:
+          content: "Welcome to the dashboard!"
         grid:
           x: 0
           y: 0
@@ -21,13 +21,12 @@ dashboards:
 
 ## Complex Configuration Example
 
-This example showcases a dashboard with various settings, a default data view, a global query, filters, controls, and multiple panels.
+This example showcases a dashboard with various settings, a global query, filters, controls, and multiple panels.
 
 ```yaml
 dashboards:
   - name: "Comprehensive Application Overview"
     description: "An overview of application performance and logs, with interactive filtering."
-    data_view: "production-logs-*" # Default data view for all items unless overridden
     settings:
       margins: true
       titles: true
@@ -44,7 +43,7 @@ dashboards:
       - field: "geo.country_iso_code"
         equals: "US"
       - field: "service.environment"
-        in_list: ["production", "staging"]
+        in: ["production", "staging"]
     controls:
       - type: options
         label: "Filter by Region"
@@ -52,26 +51,25 @@ dashboards:
         field: "user.geo.region_name"
         width: "medium"
     panels:
-      - type: markdown
-        content: "### Key Performance Indicators"
+      - markdown:
+          content: "### Key Performance Indicators"
         grid: { x: 0, y: 0, w: 12, h: 2 }
-      - type: lens
-        title: "Total Requests"
-        data_view: "apm-traces-*"
-        chart:
+      - lens:
           type: metric
-          metrics:
-            - type: count
+          primary:
+            aggregation: count
+          data_view: "apm-traces-*"
+        title: "Total Requests"
         grid: { x: 0, y: 2, w: 4, h: 4 }
-      - type: lens
-        title: "Requests by Response Code"
-        data_view: "apm-traces-*"
-        chart:
+      - lens:
           type: bar
-          x_axis:
-            field: "http.response.status_code"
+          dimensions:
+            - type: values
+              field: "http.response.status_code"
           metrics:
-            - type: count
+            - aggregation: count
+          data_view: "apm-traces-*"
+        title: "Requests by Response Code"
         grid: { x: 4, y: 2, w: 8, h: 4 }
 ```
 
@@ -87,11 +85,10 @@ The main object defining the dashboard.
 | `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
 | `description` | `string` | A brief description of the dashboard's purpose or content. | `""` (empty string) | No |
 | `settings` | `DashboardSettings` object | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings-settings). | See defaults below | No |
-| `data_view` | `string` | The default data view (index pattern) ID or title used by items in this dashboard unless overridden. | `None` | No |
 | `query` | `Query` object | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None` | No |
 | `filters` | `list of Filter objects` | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `controls` | `list of Control objects` | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md). | `[]` (empty list) | No |
-| `panels` | `list of Panel objects` | A list of panels defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
+| `panels` | `list of Panel objects` | A list of Panel objects defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
 
 ### Dashboard Settings (`settings`)
 
@@ -101,7 +98,7 @@ Global settings for the dashboard, configured under the `dashboard.settings` pat
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `margins` | `boolean` | Whether to put space (margins) between panels in the dashboard. | `true` | No |
 | `sync` | `DashboardSyncSettings` object | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings-settingssync). | See defaults below | No |
-| `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings). | See defaults in Controls docs | No |
+| `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings-settingscontrols). | See defaults in Controls docs | No |
 | `titles` | `boolean` | Whether to display the titles in the panel headers. | `true` | No |
 
 ### Dashboard Sync Settings (`settings.sync`)

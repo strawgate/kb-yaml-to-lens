@@ -43,14 +43,16 @@ dashboards:
       - title: "Total Processed Events"
         grid: { x: 0, y: 0, w: 16, h: 3 }
         esql:
-          type: metric # Specifies an ESQLMetricChart
+          type: metric
           query: |
             FROM logs-*
             | STATS total_events = COUNT(*)
           primary:
             field: "total_events"
-            # Label can be inferred from field if not provided
 ```
+
+!!! tip "Advanced: Query Reuse with YAML Anchors"
+    ES|QL queries can also be defined as arrays, enabling reuse patterns with YAML anchors. This lets you define base queries once and extend them across multiple panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
 
 **Minimal ESQL Pie Chart:**
 
@@ -86,7 +88,7 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration). | N/A | Yes |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-grid). | N/A | Yes |
 | `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../queries/config.md#esql-query). | N/A | Yes |
 | `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart-charttype-metric) or [ESQL Pie Chart](#esql-pie-chart-charttype-pie). | N/A | Yes |
 

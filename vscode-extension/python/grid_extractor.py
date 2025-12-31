@@ -8,6 +8,27 @@ for each panel, returning it as JSON for use by the VSCode extension.
 import json
 import sys
 from pathlib import Path
+from typing import Any
+
+
+def _get_panel_type(panel: Any) -> str:
+    """Extract the panel type, including chart type for Lens/ESQL panels.
+
+    Args:
+        panel: The panel object to extract type from
+
+    Returns:
+        The panel type string (e.g., 'pie', 'bar', 'markdown', 'search')
+    """
+    class_name = panel.__class__.__name__
+
+    if hasattr(panel, 'lens') and panel.lens is not None:
+        return getattr(panel.lens, 'type', 'lens')
+
+    if hasattr(panel, 'esql') and panel.esql is not None:
+        return getattr(panel.esql, 'type', 'esql')
+
+    return class_name.replace('Panel', '').lower()
 
 
 def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
@@ -47,10 +68,11 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict:
 
     panels = []
     for index, panel in enumerate(dashboard_config.panels):
+        panel_type = _get_panel_type(panel)
         panel_info = {
             'id': panel.id or f'panel_{index}',
             'title': panel.title or 'Untitled Panel',
-            'type': panel.__class__.__name__.replace('Panel', '').lower(),
+            'type': panel_type,
             'grid': {
                 'x': panel.grid.x,
                 'y': panel.grid.y,

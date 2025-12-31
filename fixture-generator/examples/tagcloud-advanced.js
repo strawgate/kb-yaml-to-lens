@@ -205,3 +205,6 @@ async function generateAllTagclouds() {
 }
 
 runIfMain(generateAllTagclouds, import.meta.url);
+
+// Export for auto-discovery by generate-all.js
+export { generateAllTagclouds };

@@ -104,7 +104,7 @@ Defines the main container for a list of links. It inherits from the [Base Panel
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration). | N/A | Yes |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration-grid). | N/A | Yes |
 | `links` | `Links` object | Configuration for the links panel. | N/A | Yes |
 
 **Links Object Configuration:**
