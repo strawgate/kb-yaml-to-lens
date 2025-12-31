@@ -101,7 +101,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // Start the LSP server
     await compiler.start();
 
-    previewPanel = new PreviewPanel(compiler);
+    previewPanel = new PreviewPanel(compiler, context);
     gridEditorPanel = new GridEditorPanel(context);
 
     // Setup file watching for auto-compile
