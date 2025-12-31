@@ -23,8 +23,8 @@ jobs:
           COVERAGE=$(python -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered'])")
           echo "Current coverage: ${COVERAGE}%"
 
-          # Set threshold (matches pyproject.toml default when uncommented)
-          THRESHOLD=80
+          # Set threshold to current baseline coverage
+          THRESHOLD=81.56
 
           # Compare coverage to threshold
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
