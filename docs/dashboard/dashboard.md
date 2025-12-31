@@ -10,8 +10,8 @@ A minimal dashboard requires a `name` and at least one panel.
 dashboards:
   - name: "Simple Log Dashboard"
     panels:
-      - type: markdown
-        content: "Welcome to the dashboard!"
+      - markdown:
+          content: "Welcome to the dashboard!"
         grid:
           x: 0
           y: 0
@@ -52,26 +52,24 @@ dashboards:
         field: "user.geo.region_name"
         width: "medium"
     panels:
-      - type: markdown
-        content: "### Key Performance Indicators"
+      - markdown:
+          content: "### Key Performance Indicators"
         grid: { x: 0, y: 0, w: 12, h: 2 }
-      - type: lens
-        title: "Total Requests"
-        data_view: "apm-traces-*"
-        chart:
+      - lens:
           type: metric
           metrics:
             - type: count
+          data_view: "apm-traces-*"
+        title: "Total Requests"
         grid: { x: 0, y: 2, w: 4, h: 4 }
-      - type: lens
-        title: "Requests by Response Code"
-        data_view: "apm-traces-*"
-        chart:
+      - lens:
           type: bar
           x_axis:
             field: "http.response.status_code"
           metrics:
             - type: count
+          data_view: "apm-traces-*"
+        title: "Requests by Response Code"
         grid: { x: 4, y: 2, w: 8, h: 4 }
 ```
 
@@ -91,7 +89,7 @@ The main object defining the dashboard.
 | `query` | `Query` object | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None` | No |
 | `filters` | `list of Filter objects` | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `controls` | `list of Control objects` | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md). | `[]` (empty list) | No |
-| `panels` | `list of Panel objects` | A list of panels defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
+| `panels` | `list of Panel objects` | A list of Panel objects defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
 
 ### Dashboard Settings (`settings`)
 
