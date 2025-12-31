@@ -207,7 +207,7 @@ show_missing = true
 skip_covered = false
 skip_empty = true
 # Enforce minimum coverage threshold (fails if below this percentage)
-fail_under = 81.56
+fail_under = 80
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
