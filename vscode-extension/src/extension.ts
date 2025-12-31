@@ -3,6 +3,7 @@ import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
+import * as fs from 'fs';
 
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
@@ -39,12 +40,12 @@ function hasDashboardsKey(uri: string): boolean {
             // Document not open - need to read from disk
             // Note: This is a fallback. In practice, the YAML extension will have
             // opened the document before calling this contributor.
-            const fs = require('fs');
             content = fs.readFileSync(parsedUri.fsPath, 'utf-8');
         }
 
         // Check for 'dashboards:' at root level (start of line, no indentation)
-        // Handles optional YAML document separator (---)
+        // This regex matches 'dashboards:' only when it appears at column 0 (no leading spaces/tabs)
+        // The /m flag enables multiline mode so ^ matches the start of any line
         return /^dashboards\s*:/m.test(content);
     } catch (error) {
         // If we can't access the document, don't apply the schema
