@@ -9,7 +9,7 @@ _For those who see patterns across the timeline:_
 ```text
 Lines that rise and bars that fall,
 Area charts that show it all.
-X-axis marching through the time,
+X-axis marching slowly through time,
 Y-axis tracking every climb.
 
 When incidents spike at 2 AM,
@@ -20,7 +20,7 @@ Percentage mode for ratio scores.
 Dimensions set the horizontal stage,
 Metrics show what happens, page by page.
 Break it down by service, host, or zone—
-No pattern goes by, unknown.
+No pattern ever goes unknown.
 
 From request counts to error rates,
 Your time series sits and waits.
