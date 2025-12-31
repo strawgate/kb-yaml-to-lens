@@ -43,14 +43,16 @@ dashboards:
       - title: "Total Processed Events"
         grid: { x: 0, y: 0, w: 16, h: 3 }
         esql:
-          type: metric # Specifies an ESQLMetricChart
+          type: metric
           query: |
             FROM logs-*
             | STATS total_events = COUNT(*)
           primary:
             field: "total_events"
-            # Label can be inferred from field if not provided
 ```
+
+!!! tip "Advanced: Query Reuse with YAML Anchors"
+    ES|QL queries can also be defined as arrays, enabling reuse patterns with YAML anchors. This lets you define base queries once and extend them across multiple panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
 
 **Minimal ESQL Pie Chart:**
 
