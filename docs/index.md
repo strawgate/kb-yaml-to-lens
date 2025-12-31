@@ -21,6 +21,7 @@ graph LR
 - **YAML-based Definition** – Define dashboards, panels, filters, and queries in simple, readable YAML.
 - **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+.
 - **Rich Panel Support** – Support for Lens (metric, pie, XY charts), Markdown, Links, Image, and Search panels.
+- **Color Customization** – Choose from color-blind safe palettes or assign specific colors to data values.
 - **Interactive Controls** – Add options lists, range sliders, and time sliders with chaining support.
 - **Flexible Filtering** – Use a comprehensive filter DSL (exists, phrase, range) or raw KQL/Lucene/ESQL queries.
 - **Direct Upload** – Compile and upload to Kibana in one step, with support for authentication and API keys.
@@ -94,6 +95,38 @@ dashboards:
           - type: count
             label: Total Documents
 ```
+
+#### Example 3: Chart with Custom Colors
+
+Here's a pie chart with custom color assignments for HTTP status codes:
+
+```yaml
+dashboards:
+-
+  name: Status Monitoring
+  panels:
+    - title: HTTP Response Codes
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      lens:
+        type: pie
+        data_view: "logs-*"
+        slice_by:
+          - field: "http.response.status_code"
+            type: values
+        metric:
+          aggregation: count
+        color:
+          palette: 'eui_amsterdam_color_blind'
+          assignments:
+            - values: ['200', '201']
+              color: '#00BF6F'  # Green for success
+            - values: ['404']
+              color: '#FFA500'  # Orange for not found
+            - values: ['500', '502', '503']
+              color: '#BD271E'  # Red for errors
+```
+
+For more color examples, see the [Color Palette Example](examples/index.md#color-palette-example).
 
 ### Programmatic Alternative
 

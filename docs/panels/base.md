@@ -146,6 +146,8 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 
 ## Color Mapping Configuration
 
+> **Quick Reference**: Want to customize chart colors? Jump to [Color Mapping Examples](#color-mapping-examples) or see the complete [Color Palette Examples YAML file](../examples/color-palette-examples.yaml).
+
 Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. This allows you to control how colors are assigned to different data values or categories in your visualizations.
 
 ### ColorMapping Object

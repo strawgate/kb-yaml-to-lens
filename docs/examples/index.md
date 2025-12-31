@@ -43,6 +43,18 @@ Shows how to configure dimensions in Lens visualizations:
 
 **Use this when:** You're building complex charts with multiple breakdowns and groupings.
 
+### [Color Palette Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
+
+Demonstrates color customization for charts including:
+
+- Custom color palettes (color-blind safe, Elastic brand, grayscale, legacy)
+- Manual color assignments to specific values
+- Multi-value color grouping
+- Per-chart color configuration
+- Color assignments for pie, line, bar, and area charts
+
+**Use this when:** You need to customize chart colors for branding, accessibility, or visual clarity.
+
 ### [Filters Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
 
 Comprehensive filter demonstrations including:
