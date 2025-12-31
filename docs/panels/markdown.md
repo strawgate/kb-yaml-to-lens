@@ -17,15 +17,15 @@ And metrics need context to prevail,
 You write instructions, notes, and more,
 To help users understand the score.
 
-"## Welcome to the Dashboard!"
-"Please follow these steps, move forward!"
-Font size twelve or maybe more,
-Links in new tabs, or the same as before.
+"## Welcome to this Dashboard space!"
+"Please follow these steps with grace!"
+Font size twelve or twenty-four,
+Open a new tab, or replace this bore.
 
 From setup guides to troubleshooting tips,
 Important warnings, helpful quips,
 Your markdown keeps the team aligned,
-With documentation well-designed!
+Thanks to documentation found in-line!
 ```
 
 ---

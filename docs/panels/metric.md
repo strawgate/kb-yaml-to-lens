@@ -10,17 +10,17 @@ _For those who distill chaos into a single number:_
 One number to rule them all,
 One metric standing proud and tall.
 From millions of logs, a truth extracted,
-A KPI perfectly compacted.
+A KPI that comes perfectly compacted.
 
 When executives ask "How are we doing?"
-Your metric chart saves us from our undoing.
+Your metric chart stops their stewing.
 No need for graphs or tables wide,
 Just one big number, full of pride.
 
 Primary, secondary, maximum too,
 These metrics tell the story true.
 COUNT the users, SUM the sales,
-AVERAGE the latency when the system fails.
+AVERAGE the latency before the system fails.
 
 So here's to metrics, bold and bright,
 That make our dashboards such a sight!

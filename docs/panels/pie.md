@@ -13,12 +13,12 @@ Round and round the data goes,
 Each slice sized by what it shows.
 
 Who's got the biggest piece of pie?
-Just look—the answer's standing high.
+Just look—it catches every eye.
 Donut hole? Small, medium, large?
 Pick your style; you're in charge.
 
 "Inside" or "auto" for the labels,
-"Percent" shown right there on the table.
+"Percent" values—crisp and stable.
 Legend positioned left or right,
 Colors keeping categories bright.
 
