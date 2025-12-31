@@ -140,9 +140,6 @@ Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/
 ## Requirements
 
 - Python 3.12+
-- PyYAML 6.0.3+
-- Pydantic 2.12+
-- beartype 0.22+
 
 ## License
 
