@@ -36,6 +36,7 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
 
     In pygls v2, params can be passed as:
     - Plain dicts (from internal requests)
+    - namedtuples (from pygls.protocol.Object)
     - LSPObject instances (from external LSP clients like vscode-languageclient)
     - cattrs-structured objects (from some LSP requests)
 
@@ -45,65 +46,41 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
     Returns:
         Dictionary representation of the params
     """
-    import logging
-    logger = logging.getLogger(__name__)
-
-    # Log extensive debug information
-    logger.error(f"DEBUG: params type: {type(params)}")
-    logger.error(f"DEBUG: params type name: {type(params).__name__}")
-    logger.error(f"DEBUG: params type module: {type(params).__module__}")
-    logger.error(f"DEBUG: params repr: {repr(params)}")
-    logger.error(f"DEBUG: params dir: {dir(params)}")
-    logger.error(f"DEBUG: hasattr __dict__: {hasattr(params, '__dict__')}")
-    logger.error(f"DEBUG: hasattr keys: {hasattr(params, 'keys')}")
-    logger.error(f"DEBUG: hasattr values: {hasattr(params, 'values')}")
-    logger.error(f"DEBUG: hasattr items: {hasattr(params, 'items')}")
-
-    if hasattr(params, '__dict__'):
-        logger.error(f"DEBUG: params.__dict__: {params.__dict__}")
-
     # Already a dict - fast path
     if isinstance(params, dict):
         if not all(isinstance(key, str) for key in params):  # pyright: ignore[reportUnknownVariableType]
             msg = 'Params dictionary keys must be strings'
             raise TypeError(msg)
-        logger.error(f"DEBUG: returning params as-is (already dict)")
         return params  # pyright: ignore[reportUnknownVariableType]
 
-    # Try cattrs.unstructure first (handles attrs classes and some LSP types)
+    # Check if it's a namedtuple (has _asdict method)
+    # This handles pygls.protocol.Object and other namedtuples
+    if hasattr(params, '_asdict') and callable(params._asdict):  # pyright: ignore[reportAny]
+        return params._asdict()  # pyright: ignore[reportAny]
+
+    # Try cattrs.unstructure (handles attrs classes and some LSP types)
     unstructured = cattrs.unstructure(params)  # pyright: ignore[reportAny]
-    logger.error(f"DEBUG: cattrs.unstructure result type: {type(unstructured)}")
-    logger.error(f"DEBUG: cattrs.unstructure result: {repr(unstructured)}")
     if isinstance(unstructured, dict):
-        logger.error(f"DEBUG: returning cattrs.unstructure result")
         return unstructured  # pyright: ignore[reportUnknownVariableType]
 
-    # Try vars() to extract instance variables (works for LSPObject and plain objects)
-    # This is more reliable than __dict__ for some object types
+    # Try vars() to extract instance variables (works for plain objects with __dict__)
     try:
         params_dict = vars(params)  # pyright: ignore[reportAny]
-        logger.error(f"DEBUG: vars(params) result type: {type(params_dict)}")
-        logger.error(f"DEBUG: vars(params) result: {repr(params_dict)}")
         if isinstance(params_dict, dict):
-            logger.error(f"DEBUG: returning vars(params) result")
             return params_dict  # pyright: ignore[reportAny]
-    except TypeError as e:
+    except TypeError:
         # vars() failed, object doesn't have __dict__
-        logger.error(f"DEBUG: vars(params) failed with TypeError: {e}")
+        pass
 
     # Last resort: try to convert to dict if it has dict-like methods
     if hasattr(params, 'keys') and hasattr(params, 'values'):
-        logger.error(f"DEBUG: trying dict(params)")
         try:
-            result = dict(params)  # pyright: ignore[reportAny]
-            logger.error(f"DEBUG: dict(params) result: {repr(result)}")
-            return result
-        except Exception as e:
-            logger.error(f"DEBUG: dict(params) failed with: {e}")
+            return dict(params)  # pyright: ignore[reportAny]
+        except Exception:
+            pass
 
     # If all else fails, raise an informative error
     msg = f'Unable to convert params of type {type(params).__name__} to dict'
-    logger.error(f"DEBUG: raising TypeError: {msg}")
     raise TypeError(msg)
 
 
