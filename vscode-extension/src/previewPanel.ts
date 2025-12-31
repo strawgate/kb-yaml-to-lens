@@ -186,9 +186,24 @@ export class PreviewPanel {
                         background: var(--vscode-list-hoverBackground);
                         border-color: var(--vscode-focusBorder);
                     }
+                    .panel-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        margin-bottom: 4px;
+                    }
                     .panel-icon {
                         font-size: 16px;
-                        margin-bottom: 4px;
+                        flex-shrink: 0;
+                    }
+                    .panel-type-label {
+                        font-size: 9px;
+                        color: var(--vscode-descriptionForeground);
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                     .panel-title {
                         font-weight: 600;
@@ -198,44 +213,11 @@ export class PreviewPanel {
                         text-overflow: ellipsis;
                         margin-bottom: 2px;
                     }
-                    .panel-type-label {
-                        font-size: 10px;
-                        color: var(--vscode-descriptionForeground);
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                    }
                     .panel-size {
                         font-size: 9px;
                         color: var(--vscode-descriptionForeground);
                         font-family: monospace;
                         margin-top: auto;
-                    }
-                    .layout-legend {
-                        margin-top: 15px;
-                        padding: 12px;
-                        background: var(--vscode-textCodeBlock-background);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 4px;
-                    }
-                    .legend-title {
-                        font-size: 12px;
-                        font-weight: 600;
-                        margin-bottom: 8px;
-                        color: var(--vscode-descriptionForeground);
-                    }
-                    .legend-items {
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 12px;
-                    }
-                    .legend-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        font-size: 11px;
-                    }
-                    .legend-icon {
-                        font-size: 14px;
                     }
                 </style>
             </head>
@@ -257,11 +239,6 @@ export class PreviewPanel {
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Dashboard Layout</div>
-                    ${layoutHtml}
-                </div>
-
-                <div class="section">
                     <div class="section-title">Dashboard Information</div>
                     <div class="info-grid">
                         <div class="info-label">Type:</div>
@@ -271,6 +248,11 @@ export class PreviewPanel {
                         <div class="info-label">Version:</div>
                         <div class="info-value">${escapeHtml(dashboardData.version || 'N/A')}</div>
                     </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Dashboard Layout</div>
+                    ${layoutHtml}
                 </div>
 
                 <div class="section">
@@ -387,7 +369,6 @@ export class PreviewPanel {
 
         // Generate panel HTML
         let panelsHtml = '';
-        const usedTypes = new Set<string>();
 
         for (const panel of gridInfo.panels) {
             const left = (panel.grid.x / GRID_COLUMNS) * 100;
@@ -397,27 +378,15 @@ export class PreviewPanel {
 
             const icon = this.getChartTypeIcon(panel.type);
             const typeLabel = this.getChartTypeLabel(panel.type);
-            usedTypes.add(panel.type.toLowerCase());
 
             panelsHtml += `
                 <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${typeLabel})">
-                    <span class="panel-icon">${icon}</span>
+                    <div class="panel-header">
+                        <span class="panel-icon">${icon}</span>
+                        <span class="panel-type-label">${escapeHtml(typeLabel)}</span>
+                    </div>
                     <span class="panel-title">${escapeHtml(panel.title || 'Untitled')}</span>
-                    <span class="panel-type-label">${escapeHtml(typeLabel)}</span>
                     <span class="panel-size">${panel.grid.w}x${panel.grid.h}</span>
-                </div>
-            `;
-        }
-
-        // Generate legend for used types
-        let legendItems = '';
-        for (const type of usedTypes) {
-            const icon = this.getChartTypeIcon(type);
-            const label = this.getChartTypeLabel(type);
-            legendItems += `
-                <div class="legend-item">
-                    <span class="legend-icon">${icon}</span>
-                    <span>${escapeHtml(label)}</span>
                 </div>
             `;
         }
@@ -425,12 +394,6 @@ export class PreviewPanel {
         return `
             <div class="layout-container" style="height: ${containerHeight}px; width: ${containerWidth}px; max-width: 100%;">
                 ${panelsHtml}
-            </div>
-            <div class="layout-legend">
-                <div class="legend-title">Panel Types</div>
-                <div class="legend-items">
-                    ${legendItems}
-                </div>
             </div>
         `;
     }
