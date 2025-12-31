@@ -92,9 +92,16 @@ nav:
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
           - Chart Panels:
-              - Metric Charts: panels/metric.md
-              - Pie Charts: panels/pie.md
-              - XY Charts: panels/xy.md
+              - Getting Started:
+                  - Lens Panels: panels/lens.md
+                  - ESQL Panels: panels/esql.md
+              - Chart Types:
+                  - Datatable Charts: panels/datatable.md
+                  - Gauge Charts: panels/gauge.md
+                  - Metric Charts: panels/metric.md
+                  - Pie Charts: panels/pie.md
+                  - Tag Cloud Charts: panels/tagcloud.md
+                  - XY Charts: panels/xy.md
           - Image Panels: panels/image.md
           - Search Panels: panels/search.md
       - Dashboard Controls: controls/config.md
