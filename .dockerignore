@@ -1,0 +1,62 @@
+# Git
+.git
+.github
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.venv
+venv
+.pytest_cache
+.ruff_cache
+.mypy_cache
+htmlcov
+.coverage
+coverage.json
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Documentation
+docs
+mkdocs.yml
+.markdownlint.jsonc
+
+# Tests
+tests
+inputs
+output
+
+# Node.js (for extension)
+node_modules
+vscode-extension
+
+# Fixture generator
+fixture-generator
+
+# Other project files
+.yamllint
+.yamlfix.toml
+Makefile
+CONTRIBUTING.md
+CLAUDE.md
+CODE_STYLE.md
+CODERABBIT.md
+*.md
+!README.md
+
+# CI/CD
+.github

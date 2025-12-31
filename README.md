@@ -18,15 +18,38 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 
 ## Quick Start
 
-### Installation
+### Installation Options
+
+#### Option 1: Using uv (Recommended for Development)
 
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
-
-To install the project dependencies, run:
 
 ```bash
 uv sync
 ```
+
+#### Option 2: Using Docker
+
+Run the compiler in a container without installing Python or dependencies:
+
+```bash
+# Pull the pre-built image
+docker pull ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest
+
+# Or build locally
+make docker-build
+```
+
+#### Option 3: Standalone Binary
+
+Download a platform-specific binary from the [releases page](https://github.com/strawgate/kb-yaml-to-lens/releases):
+
+- Linux (x64): `kb-dashboard-linux-x64`
+- macOS (Intel): `kb-dashboard-darwin-x64`
+- macOS (Apple Silicon): `kb-dashboard-darwin-arm64`
+- Windows (x64): `kb-dashboard-windows-x64.exe`
+
+No Python installation required!
 
 ### Compile Your First Dashboard
 
@@ -48,14 +71,54 @@ dashboards:
 
 1. Compile to NDJSON:
 
+**Using uv:**
+
 ```bash
 uv run kb-dashboard compile --input-dir inputs --output-dir output
 ```
 
+**Using Docker:**
+
+```bash
+docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
+  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+  compile --input-dir /inputs --output-dir /output
+```
+
+**Using standalone binary:**
+
+```bash
+./kb-dashboard-linux-x64 compile --input-dir inputs --output-dir output
+```
+
 1. (Optional) Upload directly to Kibana:
+
+**Using uv:**
 
 ```bash
 uv run kb-dashboard compile \
+  --input-dir inputs \
+  --output-dir output \
+  --upload \
+  --kibana-url http://localhost:5601 \
+  --kibana-username elastic \
+  --kibana-password changeme
+```
+
+**Using Docker:**
+
+```bash
+docker run --rm -v $(pwd)/inputs:/inputs \
+  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+  compile --input-dir /inputs --upload \
+  --kibana-url http://host.docker.internal:5601 \
+  --kibana-username elastic --kibana-password changeme
+```
+
+**Using standalone binary:**
+
+```bash
+./kb-dashboard-linux-x64 compile \
   --input-dir inputs \
   --output-dir output \
   --upload \

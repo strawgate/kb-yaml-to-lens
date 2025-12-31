@@ -1,6 +1,6 @@
 
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e
+.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test build-binary
 
 help:
 	@echo "Dependency Management:"
@@ -47,6 +47,14 @@ help:
 	@echo "  docs-serve    - Start local documentation server"
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
+	@echo ""
+	@echo "Docker:"
+	@echo "  docker-build  - Build Docker image for the compiler"
+	@echo "  docker-run    - Run Docker container with sample inputs"
+	@echo "  docker-test   - Test Docker image with smoke test"
+	@echo ""
+	@echo "Binary Distribution:"
+	@echo "  build-binary  - Build standalone binary for current platform"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean up cache and temporary files"
@@ -206,3 +214,26 @@ docs-build-quiet:
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
 	uv run --group docs mkdocs gh-deploy --force
+
+# Docker commands
+docker-build:
+	@echo "Building Docker image..."
+	docker build -t kb-dashboard-compiler:latest .
+
+docker-run:
+	@echo "Running Docker container..."
+	@echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
+	docker run --rm -v $(PWD)/inputs:/inputs -v $(PWD)/output:/output \
+		kb-dashboard-compiler:latest compile --input-dir /inputs --output-dir /output
+
+docker-test:
+	@echo "Testing Docker image..."
+	docker run --rm kb-dashboard-compiler:latest --help
+
+# Binary build command
+build-binary:
+	@echo "Building standalone binary..."
+	@echo "Installing PyInstaller..."
+	@uv pip install pyinstaller
+	@echo "Building binary..."
+	@uv run python build_binaries.py
