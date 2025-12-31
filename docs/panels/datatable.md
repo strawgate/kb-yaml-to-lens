@@ -15,17 +15,17 @@ Row after row, your data's domain.
 Sort ascending, descending too,
 Filter down to just a few.
 Columns wide or columns tight,
-Pagination keeps the load just right.
+Pages of data that just feel right.
 
 Metrics summed at bottom's end,
 Summary rows, your data's friend.
 From service names to error codes,
-Each cell tells tales the table holds.
+Each cell tells a tale until it folds.
 
 Left-align text and right-align numbers,
 No visual tricks, no chart encumbers.
 Just pure data, clean and true—
-The datatable works hard for you.
+A dream come true for someone like you.
 
 So here's to rows and columns straight,
 To tables that enumerate:

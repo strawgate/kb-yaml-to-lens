@@ -19,13 +19,13 @@ Watch the colored needle change.
 
 A goal line drawn across the way—
 "You're almost there!" the markers say.
-Arc or bullet, circle, bar:
+Arc or bullet, circle or bar:
 The gauge reveals just where you are.
 
 CPU usage, quota met,
-Performance targets? No sweat.
+Performance targets? Not a sweat.
 Not just data, but direction clear—
-The gauge tracks progress through the year.
+The gauge tracks progress throughout the year.
 ```
 
 ---

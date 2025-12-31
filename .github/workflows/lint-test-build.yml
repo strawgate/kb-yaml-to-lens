@@ -1,0 +1,135 @@
+---
+name: Checks
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  # Python Linting (ruff check + ruff format)
+  lint-python:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run ruff check (make lint-check)
+        run: make lint-check
+      - name: Run ruff format check (make format-check)
+        run: make format-check
+
+  # Markdown Linting
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run markdownlint (make lint-markdown-check)
+        run: make lint-markdown-check
+
+  # YAML Linting
+  lint-yaml:
+    name: Lint YAML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run yamllint (make lint-yaml-check)
+        run: make lint-yaml-check
+
+  # Python Type Checking
+  typecheck-python:
+    name: Type Check Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run basedpyright (make typecheck)
+        run: make typecheck
+
+  # Python Unit Tests
+  test-python:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run pytest (make test)
+        run: make test
+
+  # CLI Smoke Tests
+  test-python-cli:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run smoke tests (make test-smoke)
+        run: make test-smoke
+
+  # Documentation Link Validation
+  test-markdown-links:
+    name: Documentation Link Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Check documentation links (make test-links)
+        run: make test-links
+
+  # Documentation Build (with strict mode)
+  build-docs:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Build documentation (make docs-build-quiet)
+        run: make docs-build-quiet
+
+  # VSCode Extension Tests (Python)
+  test-vscode-extension-python:
+    name: VSCode Extension (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run Python tests for extension (make test-extension-python)
+        run: make test-extension-python
+
+  # VSCode Extension Tests (TypeScript)
+  test-vscode-extension-typescript:
+    name: VSCode Extension (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vscode-extension/package-lock.json
+      - name: Run TypeScript tests for extension (make test-extension-typescript)
+        run: make test-extension-typescript
