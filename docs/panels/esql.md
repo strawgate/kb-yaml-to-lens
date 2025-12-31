@@ -51,8 +51,8 @@ dashboards:
             field: "total_events"
 ```
 
-!!! tip "Query Reuse with YAML Anchors"
-    ES|QL queries can also be defined as arrays, enabling powerful reuse patterns with YAML anchors. This lets you define a base query once and extend it across multiple panels. See [ES|QL Query Reuse with YAML Anchors](../queries/config.md#esql-query-reuse-with-yaml-anchors) for patterns and examples.
+!!! tip "Advanced: Query Reuse with YAML Anchors"
+    ES|QL queries can also be defined as arrays, enabling reuse patterns with YAML anchors. This lets you define base queries once and extend them across multiple panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
 
 **Minimal ESQL Pie Chart:**
 
