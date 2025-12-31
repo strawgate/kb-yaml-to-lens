@@ -26,14 +26,93 @@ graph LR
 - **Direct Upload** – Compile and upload to Kibana in one step, with support for authentication and API keys.
 - **Screenshot Export** – Generate high-quality PNG screenshots of your dashboards programmatically.
 
-## Documentation Sections
+## Getting Started
 
-### Getting Started
+### Installation
 
-New users should begin here to learn the basics:
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
-- **[Quickstart Guide](quickstart.md)** – Step-by-step guide for creating and compiling your first dashboard.
-- **[CLI Reference](CLI.md)** – Detailed documentation of the `kb-dashboard` command-line tool.
+```bash
+# For development (includes testing, linting, type checking)
+uv sync --group dev
+
+# For building documentation
+uv sync --group dev --group docs
+
+# For runtime usage only
+uv sync
+```
+
+For more information, see the [uv documentation](https://docs.astral.sh/uv/).
+
+### Your First Dashboard
+
+A basic dashboard YAML file has the following structure:
+
+```yaml
+dashboards:
+-
+  name: Your Dashboard Title
+  description: An optional description
+  panels:
+    - # Your panel definitions go here
+```
+
+#### Example 1: Simple Markdown Panel
+
+Here's a dashboard with a single markdown panel:
+
+```yaml
+dashboards:
+-
+  name: My First Dashboard
+  description: A simple dashboard with a markdown panel
+  panels:
+    - markdown:
+        content: |
+          # Hello, Kibana!
+
+          This is my first markdown panel.
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+```
+
+#### Example 2: Simple Lens Metric Panel
+
+Here's a dashboard with a single Lens metric panel displaying a count:
+
+```yaml
+dashboards:
+-
+  name: Metric Dashboard
+  description: A dashboard with a single metric panel
+  panels:
+    - type: lens
+      grid: { x: 0, y: 0, w: 24, h: 15 }
+      index_pattern: your-index-pattern-*
+      chart:
+        type: metric
+        metrics:
+          - type: count
+            label: Total Documents
+```
+
+### Programmatic Alternative
+
+While this guide focuses on YAML, you can also create dashboards entirely in Python code! This approach offers:
+
+- Dynamic dashboard generation based on runtime data
+- Type safety with Pydantic models
+- Reusable dashboard templates and components
+- Integration with existing Python workflows
+
+See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patterns.
+
+## Next Steps
+
+### Learn More
+
+- **[CLI Reference](CLI.md)** – Detailed documentation of the `kb-dashboard` command-line tool for compiling and uploading dashboards.
+- **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples covering various use cases.
 
 ### User Guide
 
@@ -43,7 +122,6 @@ Reference documentation for building dashboards in YAML:
 - **[Panel Types](panels/base.md)** – Available panel types (Markdown, Charts, Images, Links, etc.).
 - **[Dashboard Controls](controls/config.md)** – Interactive filtering controls.
 - **[Filters & Queries](filters/config.md)** – Data filtering and query configuration.
-- **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples.
 
 ### Developer Guide
 
@@ -55,6 +133,10 @@ Advanced documentation for contributors and programmatic usage:
 - **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new capabilities.
 - **[Kibana Architecture Reference](kibana-architecture.md)** – Understanding Kibana's internal structure.
 - **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** – Generating test fixtures from live Kibana instances.
+
+### More Examples
+
+Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/inputs) and [`tests/dashboards/scenarios/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/tests/dashboards/scenarios) directories on GitHub for more complex examples.
 
 ## Requirements
 

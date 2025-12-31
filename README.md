@@ -1,6 +1,5 @@
 <img width="1600" height="714" alt="project-banner-smaller" src="https://github.com/user-attachments/assets/2cf8c18b-32e1-4b32-9a15-41f0d0d657f7" />
 
-
 # YAML ➤ Lens
 
 Making Dashboards in Kibana is so much fun! Sometimes though, it's nice to build dashboards and visualizations without clicking and clacking in a web browser.
@@ -68,8 +67,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 
 ## Documentation
 
-- **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with API reference
-- **[Quickstart Guide](docs/quickstart.md)** – Step-by-step guide for creating your first dashboard
+- **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with getting started guide and API reference
 - **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
 - **[Architecture](docs/architecture.md)** – Technical design and data flow overview
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities

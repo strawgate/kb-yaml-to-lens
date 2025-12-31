@@ -168,6 +168,6 @@ Run `make ci` (or `make check`) locally before pushing.
 | Resource | Location |
 | -------- | -------- |
 | Architecture details | `docs/architecture.md` |
-| Quickstart guide | `docs/quickstart.md` |
+| Getting started guide | `docs/index.md` (includes installation and first dashboard tutorial) |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |

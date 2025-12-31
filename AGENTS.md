@@ -223,6 +223,6 @@ Code Rabbit will review your PR and provide feedback on the changes you made. Co
 | ---------- | ---------- |
 | Component AGENTS.md files | `src/dashboard_compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
 | Architecture details | `docs/architecture.md` |
-| Quickstart guide | `docs/quickstart.md` |
+| Getting started guide | `docs/index.md` (includes installation and first dashboard tutorial) |
 | Contributing guide | `CONTRIBUTING.md` |
 | CLI documentation | `docs/CLI.md` |
