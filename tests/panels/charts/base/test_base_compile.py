@@ -24,7 +24,7 @@ def test_compile_color_mapping_with_assignments() -> None:
         assignments=[
             ColorAssignment(value='foo', color='#FF0000'),
             ColorAssignment(values=['bar', 'baz'], color='#00FF00'),
-        ]
+        ],
     )
     result = compile_color_mapping(config)
     assert result.paletteId == 'custom_palette'
