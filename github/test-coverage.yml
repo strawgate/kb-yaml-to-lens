@@ -59,7 +59,7 @@ jobs:
             let threshold = 80; // Default fallback
             try {
               const toml = fs.readFileSync('pyproject.toml', 'utf8');
-              const thresholdMatch = toml.match(/fail_under\s*=\s*([\d.]+)/);
+              const thresholdMatch = toml.match(/^[^#\n]*fail_under\s*=\s*([\d.]+)/m);
               if (thresholdMatch) {
                 threshold = parseFloat(thresholdMatch[1]);
               }
@@ -67,7 +67,7 @@ jobs:
               console.warn('Could not extract threshold from pyproject.toml, using default:', error.message);
             }
 
-            const meetsThreshold = percent >= threshold;
+            const meetsThreshold = parseFloat(percent) >= threshold;
             const statusIcon = meetsThreshold ? '✅' : '❌';
 
             const body = `### ${statusIcon} Test Coverage Report
