@@ -84,7 +84,7 @@ The extension provides the following commands (accessible via Command Palette - 
 
 ### Workflow
 
-1. Open a YAML dashboard file (e.g., `inputs/aerospike-cluster/metrics-cluster.yaml`)
+1. Open a YAML dashboard file (e.g., `my-dashboard.yaml`)
 2. The extension activates automatically for YAML files
 3. Save the file (Ctrl+S) - it will automatically compile if `compileOnSave` is enabled
 4. Run **YAML Dashboard: Preview Dashboard** to see the compiled output
