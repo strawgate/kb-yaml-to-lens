@@ -115,7 +115,7 @@ Advanced documentation for contributors and programmatic usage:
 - **[Architecture Overview](architecture.md)** – Technical design and data flow
 - **[Programmatic Usage](programmatic-usage.md)** – Using the Python API directly
 - **[API Reference](api/index.md)** – Auto-generated Python API documentation
-- **[Contributing Guide](../CONTRIBUTING.md)** – How to contribute and add new capabilities
+- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new capabilities
 - **[Kibana Architecture Reference](kibana-architecture.md)** – Understanding Kibana's internal structure
 - **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** – Generating test fixtures from live Kibana instances
 

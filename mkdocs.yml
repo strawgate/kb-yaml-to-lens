@@ -115,7 +115,6 @@ nav:
           - Controls API: api/controls.md
           - Filters API: api/filters.md
           - Queries API: api/queries.md
-      - Contributing: ../CONTRIBUTING.md
       - Advanced Topics:
           - Kibana Architecture Reference: kibana-architecture.md
           - Fixture Generator Guide: kibana-fixture-generator-guide.md
