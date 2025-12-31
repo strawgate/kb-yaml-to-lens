@@ -123,7 +123,7 @@ test-extension-typescript:
 test-extension-e2e:
 	@echo "Running Extension E2E Tests..."
 	@uv sync --group dev
-	@. .venv/bin/activate && cd vscode-extension && xvfb-run -a npm test
+	@. .venv/bin/activate && cd vscode-extension && npm install && xvfb-run -a npm test
 
 inspector:
 	@echo "Running MCP Inspector..."
