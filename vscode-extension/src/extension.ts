@@ -3,6 +3,7 @@ import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
+import { ConfigService } from './configService';
 
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
@@ -150,6 +151,68 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('yamlDashboard.editLayout', createDashboardCommand(async (filePath, dashboardIndex) => {
             await gridEditorPanel.show(filePath, dashboardIndex);
+        }))
+    );
+
+    // Register open in Kibana command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.openInKibana', createDashboardCommand(async (filePath, dashboardIndex) => {
+            try {
+                // Get Kibana configuration
+                const kibanaUrl = ConfigService.getKibanaUrl();
+                const username = ConfigService.getKibanaUsername();
+                const password = ConfigService.getKibanaPassword();
+                const apiKey = ConfigService.getKibanaApiKey();
+                const sslVerify = ConfigService.getKibanaSslVerify();
+                const browserType = ConfigService.getKibanaBrowserType();
+
+                // Validate configuration
+                if (!kibanaUrl) {
+                    vscode.window.showErrorMessage('Kibana URL not configured. Please set yamlDashboard.kibana.url in settings.');
+                    return;
+                }
+
+                // Show progress
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: 'Opening dashboard in Kibana...',
+                    cancellable: false
+                }, async (progress) => {
+                    progress.report({ message: 'Uploading to Kibana...' });
+
+                    // Upload and get dashboard URL
+                    const { dashboardUrl, dashboardId } = await compiler.uploadToKibana(
+                        filePath,
+                        dashboardIndex,
+                        kibanaUrl,
+                        username,
+                        password,
+                        apiKey,
+                        sslVerify
+                    );
+
+                    progress.report({ message: 'Opening browser...' });
+
+                    // Open in browser based on user preference
+                    const uri = vscode.Uri.parse(dashboardUrl);
+
+                    if (browserType === 'simple') {
+                        // Open in VS Code's simple browser
+                        await vscode.commands.executeCommand('simpleBrowser.show', dashboardUrl);
+                    } else {
+                        // Open in external browser
+                        await vscode.env.openExternal(uri);
+                    }
+
+                    vscode.window.showInformationMessage(
+                        `Dashboard opened in Kibana (ID: ${dashboardId})`
+                    );
+                });
+            } catch (error) {
+                vscode.window.showErrorMessage(
+                    `Failed to open in Kibana: ${error instanceof Error ? error.message : String(error)}`
+                );
+            }
         }))
     );
 }

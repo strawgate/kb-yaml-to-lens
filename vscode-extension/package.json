@@ -43,6 +43,11 @@
         "command": "yamlDashboard.editLayout",
         "title": "Edit Dashboard Layout",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.openInKibana",
+        "title": "Open in Kibana",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -57,6 +62,41 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically compile dashboard when YAML file is saved"
+        },
+        "yamlDashboard.kibana.url": {
+          "type": "string",
+          "default": "http://localhost:5601",
+          "description": "Kibana base URL for uploading dashboards"
+        },
+        "yamlDashboard.kibana.username": {
+          "type": "string",
+          "default": "",
+          "description": "Kibana username for basic authentication (optional, not encrypted)"
+        },
+        "yamlDashboard.kibana.password": {
+          "type": "string",
+          "default": "",
+          "description": "Kibana password for basic authentication (optional, not encrypted - use API key instead)"
+        },
+        "yamlDashboard.kibana.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Kibana API key for authentication (recommended, not encrypted)"
+        },
+        "yamlDashboard.kibana.sslVerify": {
+          "type": "boolean",
+          "default": true,
+          "description": "Verify SSL certificates when connecting to Kibana"
+        },
+        "yamlDashboard.kibana.browserType": {
+          "type": "string",
+          "enum": ["external", "simple"],
+          "default": "external",
+          "enumDescriptions": [
+            "Open in system default browser",
+            "Open in VS Code's built-in simple browser"
+          ],
+          "description": "Browser type to use when opening Kibana dashboards"
         }
       }
     },
@@ -70,6 +110,11 @@
         {
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.compile",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.openInKibana",
           "group": "navigation"
         }
       ],

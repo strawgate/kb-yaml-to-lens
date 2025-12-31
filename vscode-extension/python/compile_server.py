@@ -4,6 +4,7 @@ This implementation uses the Language Server Protocol with pygls v2 to provide
 dashboard compilation services to the VS Code extension.
 """
 
+import asyncio
 import sys
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ if src_path.exists() and str(src_path) not in sys.path:
 
 try:
     from dashboard_compiler.dashboard_compiler import load, render
+    from dashboard_compiler.kibana_client import KibanaClient
 except ImportError as e:
     msg = (
         f'Failed to import dashboard_compiler. Make sure the dashboard_compiler '
@@ -234,6 +236,88 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
     """
     file_path = params.text_document.uri
     ls.protocol.notify('dashboard/fileChanged', {'uri': file_path})
+
+
+@server.feature('dashboard/uploadToKibana')
+def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Upload a compiled dashboard to Kibana.
+
+    Args:
+        params: Object containing:
+            - path: YAML file path
+            - dashboard_index: Dashboard index to upload
+            - kibana_url: Kibana base URL
+            - username: Optional username
+            - password: Optional password
+            - api_key: Optional API key
+            - ssl_verify: Whether to verify SSL
+
+    Returns:
+        Dictionary with success status and dashboard URL or error
+    """
+    params_dict = _params_to_dict(params)
+
+    path = params_dict.get('path')
+    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    kibana_url = params_dict.get('kibana_url')
+    username = params_dict.get('username')
+    password = params_dict.get('password')
+    api_key = params_dict.get('api_key')
+    ssl_verify = params_dict.get('ssl_verify', True)
+
+    if not path or not kibana_url:
+        return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
+
+    try:
+        # Compile the dashboard first
+        compile_result = _compile_dashboard(path, dashboard_index)
+        if not compile_result['success']:
+            return compile_result
+
+        # Create NDJSON content
+        import json
+        import tempfile
+
+        ndjson_content = json.dumps(compile_result['data'])
+
+        # Create temporary file for upload
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.ndjson', delete=False) as f:
+            f.write(ndjson_content)
+            temp_path = Path(f.name)
+
+        try:
+            # Create Kibana client
+            client = KibanaClient(
+                url=kibana_url,
+                username=username if username else None,
+                password=password if password else None,
+                api_key=api_key if api_key else None,
+                ssl_verify=ssl_verify,
+            )
+
+            # Upload to Kibana
+            result = asyncio.run(client.upload_ndjson(temp_path, overwrite=True))
+
+            if result.success:
+                # Extract dashboard ID
+                dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+
+                if dashboard_ids:
+                    dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                    return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
+
+                return {'success': False, 'error': 'No dashboard found in upload results'}
+
+            error_messages = [str(err) for err in result.errors]
+            return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
+
+        finally:
+            # Clean up temp file
+            if temp_path.exists():
+                temp_path.unlink()
+
+    except Exception as e:
+        return {'success': False, 'error': f'Upload error: {e!s}'}
 
 
 if __name__ == '__main__':
