@@ -38,23 +38,22 @@ When details matter, datatable never fails!
 ## Minimal Configuration Example
 
 ```yaml
-dashboard:
-  name: "Service Status Dashboard"
-  panels:
-    - type: charts
-      title: "Service Health Table"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
-      chart:
-        type: datatable
-        data_view: "metrics-*"
-        metrics:
-          - id: "service-count"
-            field: "service.name"
-            aggregation: count
-        rows:
-          - id: "service-breakdown"
-            type: values
-            field: "service.name"
+dashboards:
+  - name: "Service Status Dashboard"
+    panels:
+      - lens:
+          type: datatable
+          data_view: "metrics-*"
+          metrics:
+            - id: "service-count"
+              field: "service.name"
+              aggregation: count
+          rows:
+            - id: "service-breakdown"
+              type: values
+              field: "service.name"
+        title: "Service Health Table"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
 ```
 
 ## Full Configuration Options
@@ -131,51 +130,50 @@ Control the visual appearance of the datatable:
 This example demonstrates a datatable with custom column configurations, sorting, and pagination:
 
 ```yaml
-dashboard:
-  name: "Service Performance Dashboard"
-  panels:
-    - type: charts
-      title: "Top Services by Request Count"
-      grid: { x: 0, y: 0, w: 12, h: 8 }
-      chart:
-        type: datatable
-        data_view: "apm-*"
-        metrics:
-          - id: "request-count"
-            field: "transaction.name"
-            aggregation: count
-          - id: "avg-duration"
-            field: "transaction.duration.us"
-            aggregation: average
-        rows:
-          - id: "service-name"
-            type: values
-            field: "service.name"
-            size: 50
-        columns:
-          - column_id: "service-name"
-            width: 250
-            alignment: left
-        metric_columns:
-          - column_id: "request-count"
-            width: 150
-            alignment: right
-            summary_row: sum
-            summary_label: "Total Requests"
-          - column_id: "avg-duration"
-            width: 150
-            alignment: right
-            summary_row: avg
-            summary_label: "Overall Avg"
-        sorting:
-          column_id: "request-count"
-          direction: desc
-        paging:
-          enabled: true
-          page_size: 25
-        appearance:
-          row_height: single
-          density: compact
+dashboards:
+  - name: "Service Performance Dashboard"
+    panels:
+      - lens:
+          type: datatable
+          data_view: "apm-*"
+          metrics:
+            - id: "request-count"
+              field: "transaction.name"
+              aggregation: count
+            - id: "avg-duration"
+              field: "transaction.duration.us"
+              aggregation: average
+          rows:
+            - id: "service-name"
+              type: values
+              field: "service.name"
+              size: 50
+          columns:
+            - column_id: "service-name"
+              width: 250
+              alignment: left
+          metric_columns:
+            - column_id: "request-count"
+              width: 150
+              alignment: right
+              summary_row: sum
+              summary_label: "Total Requests"
+            - column_id: "avg-duration"
+              width: 150
+              alignment: right
+              summary_row: avg
+              summary_label: "Overall Avg"
+          sorting:
+            column_id: "request-count"
+            direction: desc
+          paging:
+            enabled: true
+            page_size: 25
+          appearance:
+            row_height: single
+            density: compact
+        title: "Top Services by Request Count"
+        grid: { x: 0, y: 0, w: 12, h: 8 }
 ```
 
 ## ESQL Datatable Chart
@@ -183,29 +181,27 @@ dashboard:
 The ESQL variant supports the same configuration options but uses ESQL metrics and dimensions instead of Lens metrics and dimensions:
 
 ```yaml
-dashboard:
-  name: "ESQL Service Dashboard"
-  panels:
-    - type: charts
-      title: "Service Statistics"
-      grid: { x: 0, y: 0, w: 12, h: 6 }
-      esql:
-        query: |
-          FROM metrics-*
-          | STATS count = COUNT(*), avg_cpu = AVG(system.cpu.total.norm.pct) BY service.name
-      chart:
-        type: datatable
-        metrics:
-          - id: "count"
-            field: "count"
-          - id: "avg-cpu"
-            field: "avg_cpu"
-        rows:
-          - id: "service"
-            field: "service.name"
-        sorting:
-          column_id: "count"
-          direction: desc
+dashboards:
+  - name: "ESQL Service Dashboard"
+    panels:
+      - esql:
+          query: |
+            FROM metrics-*
+            | STATS count = COUNT(*), avg_cpu = AVG(system.cpu.total.norm.pct) BY service.name
+          type: datatable
+          metrics:
+            - id: "count"
+              field: "count"
+            - id: "avg-cpu"
+              field: "avg_cpu"
+          rows:
+            - id: "service"
+              field: "service.name"
+          sorting:
+            column_id: "count"
+            direction: desc
+        title: "Service Statistics"
+        grid: { x: 0, y: 0, w: 12, h: 6 }
 ```
 
 ## Tips and Best Practices
