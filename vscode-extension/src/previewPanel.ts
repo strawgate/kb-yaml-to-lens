@@ -70,6 +70,7 @@ export class PreviewPanel {
         const fileName = path.basename(filePath);
         const ndjson = JSON.stringify(dashboard);
         const layoutHtml = this.generateLayoutHtml(gridInfo);
+        const jsonFieldsHtml = this.generateJsonFieldsHtml(dashboardData);
 
         return `
             <!DOCTYPE html>
@@ -222,6 +223,41 @@ export class PreviewPanel {
                         font-family: monospace;
                         margin-top: auto;
                     }
+                    .collapsible-section {
+                        margin-bottom: 20px;
+                    }
+                    .collapsible-header {
+                        cursor: pointer;
+                        user-select: none;
+                        padding: 10px;
+                        background: var(--vscode-editor-selectionBackground);
+                        border: 1px solid var(--vscode-panel-border);
+                        border-radius: 3px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    .collapsible-header:hover {
+                        background: var(--vscode-list-hoverBackground);
+                    }
+                    .collapsible-arrow {
+                        font-size: 12px;
+                        transition: transform 0.2s;
+                    }
+                    .collapsible-arrow.expanded {
+                        transform: rotate(90deg);
+                    }
+                    .collapsible-content {
+                        display: none;
+                        margin-top: 10px;
+                    }
+                    .collapsible-content.expanded {
+                        display: block;
+                    }
+                    .json-field-section pre {
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }
                 </style>
             </head>
             <body>
@@ -258,6 +294,8 @@ export class PreviewPanel {
                     ${layoutHtml}
                 </div>
 
+                ${jsonFieldsHtml}
+
                 <div class="section">
                     <div class="section-title">Compiled NDJSON Output</div>
                     <pre><code>${escapeHtml(JSON.stringify(dashboard, null, 2))}</code></pre>
@@ -265,6 +303,15 @@ export class PreviewPanel {
 
                 <script>
                     const ndjsonData = ${JSON.stringify(ndjson)};
+
+                    function toggleCollapsible(id) {
+                        const content = document.getElementById(id);
+                        const arrow = document.getElementById(id + '-arrow');
+                        if (content && arrow) {
+                            content.classList.toggle('expanded');
+                            arrow.classList.toggle('expanded');
+                        }
+                    }
 
                     function copyToClipboard() {
                         navigator.clipboard.writeText(ndjsonData).then(() => {
@@ -349,6 +396,89 @@ export class PreviewPanel {
             'esqltagcloud': 'ES|QL Cloud',
         };
         return labels[type.toLowerCase()] || type;
+    }
+
+    private generateJsonFieldsHtml(dashboardData: Record<string, unknown>): string {
+        const sections: Array<{ id: string; title: string; json: string | null }> = [];
+
+        // Extract panelsJSON
+        const panelsJSON = this.getNestedProperty(dashboardData, 'attributes.panelsJSON');
+        if (panelsJSON && typeof panelsJSON === 'string') {
+            sections.push({
+                id: 'panels-json',
+                title: 'Panels JSON',
+                json: panelsJSON,
+            });
+        }
+
+        // Extract optionsJSON
+        const optionsJSON = this.getNestedProperty(dashboardData, 'attributes.optionsJSON');
+        if (optionsJSON && typeof optionsJSON === 'string') {
+            sections.push({
+                id: 'options-json',
+                title: 'Options JSON',
+                json: optionsJSON,
+            });
+        }
+
+        // Extract controlGroupInput.panelsJSON (controls)
+        const controlsJSON = this.getNestedProperty(dashboardData, 'attributes.controlGroupInput.panelsJSON');
+        if (controlsJSON && typeof controlsJSON === 'string') {
+            sections.push({
+                id: 'controls-json',
+                title: 'Controls JSON',
+                json: controlsJSON,
+            });
+        }
+
+        if (sections.length === 0) {
+            return '';
+        }
+
+        let html = '<div class="section"><div class="section-title">Dashboard JSON Fields</div>';
+
+        for (const section of sections) {
+            if (section.json === null) {
+                continue;
+            }
+
+            let formattedJson: string;
+            try {
+                const parsed = JSON.parse(section.json);
+                formattedJson = JSON.stringify(parsed, null, 2);
+            } catch {
+                formattedJson = section.json;
+            }
+
+            html += `
+                <div class="collapsible-section json-field-section">
+                    <div class="collapsible-header" onclick="toggleCollapsible('${section.id}')">
+                        <span class="collapsible-arrow" id="${section.id}-arrow">▶</span>
+                        <span>${escapeHtml(section.title)}</span>
+                    </div>
+                    <div class="collapsible-content" id="${section.id}">
+                        <pre><code>${escapeHtml(formattedJson)}</code></pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    private getNestedProperty(obj: Record<string, unknown>, path: string): unknown {
+        const parts = path.split('.');
+        let current: unknown = obj;
+
+        for (const part of parts) {
+            if (current === null || current === undefined || typeof current !== 'object') {
+                return undefined;
+            }
+            current = (current as Record<string, unknown>)[part];
+        }
+
+        return current;
     }
 
     private generateLayoutHtml(gridInfo: DashboardGridInfo): string {
