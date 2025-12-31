@@ -139,11 +139,10 @@ class KibanaClient:
             data = aiohttp.FormData()
 
             if isinstance(ndjson_data, Path):
-                # Read from file
                 with ndjson_data.open('rb') as f:
-                    data.add_field('file', f, filename=ndjson_data.name, content_type='application/ndjson')
+                    content = f.read()
+                data.add_field('file', content, filename=ndjson_data.name, content_type='application/ndjson')
             else:
-                # Use string content directly
                 data.add_field('file', ndjson_data.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
 
             async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:

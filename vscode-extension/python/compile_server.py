@@ -300,7 +300,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     api_key = params_dict.get('api_key')
     ssl_verify = params_dict.get('ssl_verify', True)
 
-    if not path or not kibana_url:
+    if path is None or path == '' or kibana_url is None or kibana_url == '':
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
 
     try:
@@ -335,7 +335,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
             # Extract dashboard ID
             dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
-            if dashboard_ids:
+            if len(dashboard_ids) > 0:
                 dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                 logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
                 return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
