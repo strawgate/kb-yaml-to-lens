@@ -292,9 +292,13 @@ export class DashboardCompilerLSP {
             throw new Error(result.error || 'Upload failed');
         }
 
+        if (!result.dashboard_url || !result.dashboard_id) {
+            throw new Error('Upload succeeded but dashboard URL/ID not returned');
+        }
+
         return {
-            dashboardUrl: result.dashboard_url!,
-            dashboardId: result.dashboard_id!
+            dashboardUrl: result.dashboard_url,
+            dashboardId: result.dashboard_id
         };
     }
 

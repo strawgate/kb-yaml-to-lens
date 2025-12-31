@@ -4,13 +4,17 @@ This implementation uses the Language Server Protocol with pygls v2 to provide
 dashboard compilation services to the VS Code extension.
 """
 
-import asyncio
+import json
+import logging
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
+
+logger = logging.getLogger(__name__)
 
 # Add the project source directory to the path
 repo_root = Path(__file__).parent.parent.parent
@@ -271,7 +275,7 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
 
 
 @server.feature('dashboard/uploadToKibana')
-def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Upload a compiled dashboard to Kibana.
 
     Args:
@@ -300,56 +304,63 @@ def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[r
     if not path or not kibana_url:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
 
+    temp_path = None
     try:
         # Compile the dashboard first
+        logger.info(f'Compiling dashboard from {path} (index {dashboard_index})')
         compile_result = _compile_dashboard(path, dashboard_index)
         if not compile_result['success']:
+            logger.error(f'Compilation failed: {compile_result.get("error")}')
             return compile_result
 
         # Create NDJSON content
-        import json
-        import tempfile
-
         ndjson_content = json.dumps(compile_result['data'])
+        logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
 
         # Create temporary file for upload
         with tempfile.NamedTemporaryFile(mode='w', suffix='.ndjson', delete=False) as f:
             f.write(ndjson_content)
             temp_path = Path(f.name)
 
-        try:
-            # Create Kibana client
-            client = KibanaClient(
-                url=kibana_url,
-                username=username if username else None,
-                password=password if password else None,
-                api_key=api_key if api_key else None,
-                ssl_verify=ssl_verify,
-            )
+        # Create Kibana client
+        logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
+        client = KibanaClient(
+            url=kibana_url,
+            username=username if username else None,
+            password=password if password else None,
+            api_key=api_key if api_key else None,
+            ssl_verify=ssl_verify,
+        )
 
-            # Upload to Kibana
-            result = asyncio.run(client.upload_ndjson(temp_path, overwrite=True))
+        # Upload to Kibana
+        result = await client.upload_ndjson(temp_path, overwrite=True)
+        logger.debug(
+            f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
+        )
 
-            if result.success:
-                # Extract dashboard ID
-                dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+        if result.success:
+            # Extract dashboard ID
+            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
-                if dashboard_ids:
-                    dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                    return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
+            if dashboard_ids:
+                dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
+                return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
 
-                return {'success': False, 'error': 'No dashboard found in upload results'}
+            logger.error('No dashboard found in upload results')
+            return {'success': False, 'error': 'No dashboard found in upload results'}
 
-            error_messages = [str(err) for err in result.errors]
-            return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
-
-        finally:
-            # Clean up temp file
-            if temp_path.exists():
-                temp_path.unlink()
+        error_messages = [str(err) for err in result.errors]
+        logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
+        return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
 
     except Exception as e:
+        logger.exception('Upload error occurred')
         return {'success': False, 'error': f'Upload error: {e!s}'}
+    finally:
+        # Clean up temp file
+        if temp_path is not None and temp_path.exists():
+            temp_path.unlink()
 
 
 if __name__ == '__main__':
