@@ -1,0 +1,31 @@
+---
+name: Tidy PR Comments
+on:
+  issue_comment:
+    types:
+      - created
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+jobs:
+  tidy:
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/tidy')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Tidy PR comments
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |-
+          # Split repository into owner and repo
+          OWNER=$(.github/scripts/gh-parse-repo.sh "$REPOSITORY" owner)
+          REPO=$(.github/scripts/gh-parse-repo.sh "$REPOSITORY" repo)
+
+          echo "Minimizing outdated comments for PR #${PR_NUMBER}..."
+          .github/scripts/gh-minimize-outdated-comments.sh "$OWNER" "$REPO" "$PR_NUMBER"
