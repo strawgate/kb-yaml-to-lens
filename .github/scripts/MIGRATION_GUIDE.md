@@ -66,7 +66,7 @@ run: |
   echo "✅ Proceeding with work..."
 ```
 
-**Lines saved**: 28 → 7 (75% reduction)
+**Lines saved**: 32 → 8 (75% reduction)
 
 ---
 
