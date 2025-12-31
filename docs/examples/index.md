@@ -48,12 +48,14 @@ Shows how to configure dimensions in Lens visualizations:
 Demonstrates color customization for charts including:
 
 - Custom color palettes (color-blind safe, Elastic brand, grayscale, legacy)
-- Manual color assignments to specific values
-- Multi-value color grouping
+- **Advanced:** Manual color assignments to specific values
+- **Advanced:** Multi-value color grouping
 - Per-chart color configuration
-- Color assignments for pie, line, bar, and area charts
+- **Advanced:** Color assignments for pie, line, bar, and area charts
 
 **Use this when:** You need to customize chart colors for branding, accessibility, or visual clarity.
+
+**Note:** Manual color assignments are an advanced topic. See the [Advanced Topics](../index.md#advanced-topics) section of the getting started guide for an introduction.
 
 ### [Filters Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
 

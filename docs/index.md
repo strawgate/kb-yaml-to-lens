@@ -21,7 +21,7 @@ graph LR
 - **YAML-based Definition** – Define dashboards, panels, filters, and queries in simple, readable YAML.
 - **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+.
 - **Rich Panel Support** – Support for Lens (metric, pie, XY charts), Markdown, Links, Image, and Search panels.
-- **Color Customization** – Choose from color-blind safe palettes or assign specific colors to data values.
+- **Color Palettes** – Choose from color-blind safe, brand, and other built-in color palettes.
 - **Interactive Controls** – Add options lists, range sliders, and time sliders with chaining support.
 - **Flexible Filtering** – Use a comprehensive filter DSL (exists, phrase, range) or raw KQL/Lucene/ESQL queries.
 - **Direct Upload** – Compile and upload to Kibana in one step, with support for authentication and API keys.
@@ -96,9 +96,24 @@ dashboards:
             label: Total Documents
 ```
 
-#### Example 3: Chart with Custom Colors
+### Programmatic Alternative
 
-Here's a pie chart with custom color assignments for HTTP status codes:
+While this guide focuses on YAML, you can also create dashboards entirely in Python code! This approach offers:
+
+- Dynamic dashboard generation based on runtime data
+- Type safety with Pydantic models
+- Reusable dashboard templates and components
+- Integration with existing Python workflows
+
+See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patterns.
+
+## Advanced Topics
+
+### Custom Color Assignments
+
+While the compiler includes several color palettes for basic color customization, you can also manually assign specific colors to individual data values. This is useful for semantic coloring (e.g., green for success, red for errors) or brand-specific requirements.
+
+#### Example: HTTP Status Code Coloring
 
 ```yaml
 dashboards:
@@ -126,18 +141,7 @@ dashboards:
               color: '#BD271E'  # Red for errors
 ```
 
-For more color examples, see the [Color Palette Example](examples/index.md#color-palette-example).
-
-### Programmatic Alternative
-
-While this guide focuses on YAML, you can also create dashboards entirely in Python code! This approach offers:
-
-- Dynamic dashboard generation based on runtime data
-- Type safety with Pydantic models
-- Reusable dashboard templates and components
-- Integration with existing Python workflows
-
-See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patterns.
+For more color assignment examples, see the [Color Palette Example](examples/index.md#color-palette-example).
 
 ## Next Steps
 
