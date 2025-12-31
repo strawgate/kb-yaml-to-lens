@@ -10,7 +10,6 @@ import yaml
 markdown_files = [
     'README.md',
     'docs/index.md',
-    'docs/quickstart.md',
     'docs/panels/base.md',
     'docs/panels/esql.md',
     'docs/panels/image.md',
