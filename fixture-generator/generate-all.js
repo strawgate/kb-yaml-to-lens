@@ -53,17 +53,20 @@ async function loadGenerator(filename) {
 function formatName(generatorName) {
   // Convert generateMetricBasic -> Metric (Basic)
   // Convert generateXYChartStackedBar -> XY Chart (Stacked Bar)
+  // Convert generatePieChartNestedLegend -> Pie Chart (Nested Legend)
   return generatorName
     .replace(/^generate/, '')
-    .replace(/([A-Z])/g, ' $1')
+    // Insert space before uppercase letters that follow lowercase letters
+    // This keeps consecutive capitals together (XY stays as XY, not X Y)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
     .trim()
-    .replace(/^(\w+)(.*)/, (_, first, rest) => {
-      const formatted = first + rest;
-      const parts = formatted.split(' ');
-      if (parts.length > 1) {
-        return `${parts[0]} (${parts.slice(1).join(' ')})`;
+    .replace(/^([^(]+?)(\s.+)?$/, (_, first, rest) => {
+      // Split into main type and variant
+      // e.g., "XY Chart Stacked Bar" -> "XY Chart (Stacked Bar)"
+      if (rest) {
+        return `${first} (${rest.trim()})`;
       }
-      return formatted;
+      return first;
     });
 }
 
@@ -81,8 +84,6 @@ async function generateAll() {
 
       await fn();
 
-      // Check if the generator produced both variants by looking at its name or behavior
-      // For now, we'll just log the successful generation
       console.log(`✓ Generated ${displayName}`);
     } catch (err) {
       console.error(`✗ Failed to generate ${filename}:`, err.message);

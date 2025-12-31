@@ -82,7 +82,7 @@ Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQ
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | --------------------------------------------------------------------------- | -------------- | -------- |
-| `query` | `string` or `list[string]` | The ESQL query string, or an array of query parts to concatenate. | N/A | Yes |
+| `query` | `string` or `list[string]` | The ESQL query string, or an array of query parts to concatenate. Array parts are joined with the pipe operator (`\|`). Nested arrays (from YAML anchor expansion) are automatically flattened. | N/A | Yes |
 
 **Usage Example (Panel Level - String Format):**
 
@@ -110,10 +110,10 @@ panels:
       - LIMIT 10
 ```
 
-When using the array format, query parts are automatically joined with the ES|QL pipe operator (`|`). This enables powerful query reuse patterns with YAML anchors.
+When using the array format, query parts are automatically joined with the ES|QL pipe operator (`|`). Nested arrays produced by YAML anchor expansion are automatically flattened before joining, allowing flexible composition of query components. This enables powerful query reuse patterns with YAML anchors.
 
 !!! tip "Advanced: ES|QL Query Reuse with YAML Anchors"
-    You can use YAML anchors to create reusable ES|QL query components, reducing duplication when multiple panels query similar data. This pattern lets you define base queries, filters, or complete "view-like" abstractions once and reference them across panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
+    You can use YAML anchors (`&` and `*`) to create reusable ES|QL query components, reducing duplication when multiple panels query similar data. This pattern lets you define base queries, filters, or complete "view-like" abstractions once and reference them across panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
 
 ## Query Scope
 

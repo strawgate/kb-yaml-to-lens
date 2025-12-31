@@ -137,6 +137,9 @@ async def test_esql_deeply_nested_arrays() -> None:
     assert isinstance(esql_query.root, str)
     assert esql_query.root == expected_esql
 
+    kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
+    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-* | WHERE env == "prod" | WHERE status >= 400 | STATS errors = COUNT()'})
+
 
 async def test_esql_multiple_anchor_references() -> None:
     """Test ESQL with multiple anchor references in the same query."""
@@ -160,6 +163,9 @@ async def test_esql_multiple_anchor_references() -> None:
 
     assert isinstance(esql_query.root, str)
     assert esql_query.root == expected_esql
+
+    kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
+    assert kbn_query.model_dump() == snapshot({'esql': 'FROM metrics-* | WHERE host.name IS NOT NULL | STATS avg = AVG(cpu.pct)'})
 
 
 # YAML Integration Tests - Test actual YAML parsing behavior
