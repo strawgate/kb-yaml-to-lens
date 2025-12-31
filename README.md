@@ -16,6 +16,11 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 - **Direct Upload** – Optional direct upload to Kibana with authentication support
 - **Screenshot Export** – Generate PNG screenshots of dashboards with custom time ranges using Kibana's Reporting API
 
+## Prerequisites
+
+- **Python 3.12+**
+- **[uv](https://github.com/astral-sh/uv)** (recommended for dependency management)
+
 ## Quick Start
 
 ### Installation
@@ -92,7 +97,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 Compile YAML files to NDJSON format:
 
 ```bash
-kb-dashboard compile [OPTIONS]
+uv run kb-dashboard compile [OPTIONS]
 ```
 
 **Options:**
@@ -114,7 +119,7 @@ kb-dashboard compile [OPTIONS]
 Generate a PNG screenshot of a Kibana dashboard using the Kibana Reporting API:
 
 ```bash
-kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
+uv run kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
 ```
 
 **Required Options:**
@@ -139,26 +144,46 @@ kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTION
 
 ```bash
 # Screenshot with default settings
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 
 # Screenshot with custom time range (absolute)
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
   --time-from "2024-01-01T00:00:00Z" --time-to "2024-12-31T23:59:59Z"
 
 # Screenshot with relative time range
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
   --time-from "now-7d" --time-to "now"
 
 # Screenshot with custom dimensions (4K)
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
   --width 3840 --height 2160
 
 # Screenshot with API key authentication
 export KIBANA_API_KEY="your-api-key"
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 ```
 
 **Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
+
+## Troubleshooting
+
+### Connection Refused
+
+- Verify Kibana is running: `curl http://localhost:5601/api/status`
+- Check the Kibana URL is correct
+- Ensure there are no firewall rules blocking the connection
+
+### Authentication Failed
+
+- Verify your credentials are correct
+- Check that the user has appropriate permissions
+- For API keys, ensure the key hasn't expired
+
+### Upload Errors
+
+- Check the Kibana logs for detailed error messages
+- Verify the NDJSON format is valid
+- Use `--no-overwrite` if you want to preserve existing objects
 
 ## License
 
