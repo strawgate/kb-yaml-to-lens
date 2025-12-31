@@ -153,12 +153,8 @@ refusing to allow a GitHub App to create or update workflow `.github/workflows/*
 
 Copilot is extremely dumb and needs to be spoon-fed the exact change you want made. Do not give co-pilot options, do not rely on its expertise, do not trust its output.
 
-1. **Use @copilot** - Copilot (copilot-swe-agent[bot]) has full filesystem access and can modify workflows
-2. **Provide exact specifications** - Since Copilot requires very specific instructions, provide:
-   - Exact file path (e.g., `.github/workflows/claude-on-mention.yml`)
-   - Exact line numbers or context to modify
-   - Exact text to add/change/remove
-   - Clear explanation of the desired behavior
+1. Make the exact workflow file you want in a `github/` folder. Do not attempt to modify existing workflow files.
+2. In your PR, indicate that you need a maintainer or Copilot to move the file into `.github/` as a new workflow file or a replacement for an existing workflow file.
 
 ---
 
@@ -202,6 +198,7 @@ gh api graphql -f query='
 - No unrelated changes or plan files
 - All static checks pass (component-specific)
 - Self-review completed
+- The repository's Pull Request Template is located at `.github/pull_request_template.md` and should be the basis for your initial PR body
 
 ### Self Code Review Checklist
 
