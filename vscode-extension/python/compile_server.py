@@ -319,9 +319,9 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
         client = KibanaClient(
             url=kibana_url,
-            username=username if username else None,
-            password=password if password else None,
-            api_key=api_key if api_key else None,
+            username=username if (username is not None and username != '') else None,
+            password=password if (password is not None and password != '') else None,
+            api_key=api_key if (api_key is not None and api_key != '') else None,
             ssl_verify=ssl_verify,
         )
 
