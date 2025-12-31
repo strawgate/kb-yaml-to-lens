@@ -52,7 +52,7 @@ class LensFiltersDimension(BaseLensDimension):
     Filters dimensions are used for filtering data based on a field.
     """
 
-    type: Literal['filters']
+    type: Literal['filters'] = 'filters'
 
     filters: list[LensFiltersDimensionFilter] = Field(default=...)
     """The filters to use for the dimension."""
@@ -80,7 +80,7 @@ class LensIntervalsDimension(BaseLensDimension):
     Intervals dimensions are used for aggregating data based on numeric ranges.
     """
 
-    type: Literal['intervals']
+    type: Literal['intervals'] = 'intervals'
 
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
@@ -105,7 +105,7 @@ class LensTopValuesDimension(BaseLensDimension):
     Top values dimensions are used for aggregating data based on unique values of a field.
     """
 
-    type: Literal['values']
+    type: Literal['values'] = 'values'
 
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
@@ -144,7 +144,7 @@ class LensDateHistogramDimension(BaseLensDimension):
     Date histogram dimensions are used for aggregating data into buckets based on numeric ranges.
     """
 
-    type: Literal['date_histogram']
+    type: Literal['date_histogram'] = 'date_histogram'
 
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""

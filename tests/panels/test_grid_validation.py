@@ -152,3 +152,80 @@ def test_overlaps_with_separated_diagonal() -> None:
     grid2 = Grid(x=20, y=20, w=10, h=10)
     assert grid1.overlaps_with(grid2) is False
     assert grid2.overlaps_with(grid1) is False
+
+
+def test_grid_verbose_syntax() -> None:
+    """Test that verbose parameter names work correctly."""
+    grid = Grid.model_validate({'from_left': 0, 'from_top': 5, 'width': 24, 'height': 15})
+    assert grid.x == 0
+    assert grid.y == 5
+    assert grid.w == 24
+    assert grid.h == 15
+
+
+def test_grid_mixed_syntax() -> None:
+    """Test that mixing shorthand and verbose parameter names works."""
+    grid = Grid.model_validate({'x': 10, 'from_top': 0, 'width': 20, 'h': 12})
+    assert grid.x == 10
+    assert grid.y == 0
+    assert grid.w == 20
+    assert grid.h == 12
+
+
+def test_grid_verbose_negative_from_left() -> None:
+    """Test that negative from_left raises validation error."""
+    with pytest.raises(ValidationError) as exc_info:
+        _ = Grid.model_validate({'from_left': -1, 'from_top': 0, 'width': 24, 'height': 15})
+    assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+
+
+def test_grid_verbose_negative_from_top() -> None:
+    """Test that negative from_top raises validation error."""
+    with pytest.raises(ValidationError) as exc_info:
+        _ = Grid.model_validate({'from_left': 0, 'from_top': -5, 'width': 24, 'height': 15})
+    assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+
+
+def test_grid_verbose_zero_width() -> None:
+    """Test that zero width raises validation error with verbose syntax."""
+    with pytest.raises(ValidationError) as exc_info:
+        _ = Grid.model_validate({'from_left': 0, 'from_top': 0, 'width': 0, 'height': 15})
+    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+
+
+def test_grid_verbose_zero_height() -> None:
+    """Test that zero height raises validation error with verbose syntax."""
+    with pytest.raises(ValidationError) as exc_info:
+        _ = Grid.model_validate({'from_left': 0, 'from_top': 0, 'width': 24, 'height': 0})
+    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+
+
+def test_grid_verbose_exceeds_kibana_width() -> None:
+    """Test that panel extending beyond Kibana grid width raises error with verbose syntax."""
+    with pytest.raises(ValidationError) as exc_info:
+        _ = Grid.model_validate({'from_left': 30, 'from_top': 0, 'width': 24, 'height': 15})
+    error_msg = str(exc_info.value)
+    assert 'Panel extends beyond standard Kibana grid width (48 units)' in error_msg
+    assert 'x=30 + w=24 = 54' in error_msg
+
+
+def test_grid_verbose_at_kibana_width_boundary() -> None:
+    """Test that panel exactly at Kibana grid width boundary works with verbose syntax."""
+    grid = Grid.model_validate({'from_left': 24, 'from_top': 0, 'width': 24, 'height': 15})
+    assert grid.x == 24
+    assert grid.w == 24
+    assert grid.x + grid.w == 48
+
+
+def test_grid_serialization_uses_shorthand() -> None:
+    """Test that serialization uses shorthand field names, not verbose aliases."""
+    grid = Grid.model_validate({'from_left': 5, 'from_top': 10, 'width': 20, 'height': 15})
+    serialized = grid.model_dump()
+    assert 'x' in serialized
+    assert 'y' in serialized
+    assert 'w' in serialized
+    assert 'h' in serialized
+    assert 'from_left' not in serialized
+    assert 'from_top' not in serialized
+    assert 'width' not in serialized
+    assert 'height' not in serialized

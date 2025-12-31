@@ -157,9 +157,7 @@ panel = LensPanel(
     lens=LensGaugePanelConfig(
         type='gauge',
         data_view='sales-*',
-        metric=LensSumAggregatedMetric(
-            aggregation='sum', field='revenue', label='Current Revenue'
-        ),
+        metric=LensSumAggregatedMetric(field='revenue', label='Current Revenue'),
         minimum=LensOtherAggregatedMetric(aggregation='min', field='revenue'),
         maximum=LensOtherAggregatedMetric(aggregation='max', field='revenue'),
         goal=LensOtherAggregatedMetric(aggregation='average', field='revenue_target'),

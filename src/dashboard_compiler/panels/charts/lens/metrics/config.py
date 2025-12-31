@@ -87,7 +87,7 @@ class LensCountAggregatedMetric(BaseLensMetric):
     Count metrics are used to count the number of documents in a data view.
     """
 
-    aggregation: Literal['count', 'unique_count']
+    aggregation: Literal['count', 'unique_count'] = 'count'
 
     field: str | None = Field(default=None)
     """The field to count. If not provided, the count will be of all documents in the data view."""
@@ -102,7 +102,7 @@ class LensSumAggregatedMetric(BaseLensMetric):
     Sum metrics are used to sum the values of a field.
     """
 
-    aggregation: Literal['sum']
+    aggregation: Literal['sum'] = 'sum'
 
     field: str = Field(...)
 
