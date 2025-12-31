@@ -107,42 +107,6 @@ While this guide focuses on YAML, you can also create dashboards entirely in Pyt
 
 See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patterns.
 
-## Advanced Topics
-
-### Custom Color Assignments
-
-While the compiler includes several color palettes for basic color customization, you can also manually assign specific colors to individual data values. This is useful for semantic coloring (e.g., green for success, red for errors) or brand-specific requirements.
-
-#### Example: HTTP Status Code Coloring
-
-```yaml
-dashboards:
--
-  name: Status Monitoring
-  panels:
-    - title: HTTP Response Codes
-      grid: { x: 0, y: 0, w: 24, h: 15 }
-      lens:
-        type: pie
-        data_view: "logs-*"
-        slice_by:
-          - field: "http.response.status_code"
-            type: values
-        metric:
-          aggregation: count
-        color:
-          palette: 'eui_amsterdam_color_blind'
-          assignments:
-            - values: ['200', '201']
-              color: '#00BF6F'  # Green for success
-            - values: ['404']
-              color: '#FFA500'  # Orange for not found
-            - values: ['500', '502', '503']
-              color: '#BD271E'  # Red for errors
-```
-
-For more color assignment examples, see the [Color Palette Example](examples/index.md#color-palette-example).
-
 ## Next Steps
 
 ### Learn More

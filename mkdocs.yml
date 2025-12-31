@@ -105,6 +105,7 @@ nav:
           - Filters: filters/config.md
           - Queries: queries/config.md
       - Advanced Topics:
+          - Custom Color Assignments: advanced/color-assignments.md
           - ES|QL "views": advanced/esql-views.md
   - Developer Guide:
       - Architecture Overview: architecture.md

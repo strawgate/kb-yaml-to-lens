@@ -55,7 +55,7 @@ Demonstrates color customization for charts including:
 
 **Use this when:** You need to customize chart colors for branding, accessibility, or visual clarity.
 
-**Note:** Manual color assignments are an advanced topic. See the [Advanced Topics](../index.md#advanced-topics) section of the getting started guide for an introduction.
+**Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../advanced/color-assignments.md) guide for an introduction.
 
 ### [Filters Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
 
