@@ -13,7 +13,7 @@ from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 if TYPE_CHECKING:
     from .datatable.view import KbnDatatableVisualizationState
     from .gauge.view import KbnGaugeVisualizationState
-    from .metric.view import KbnMetricVisualizationState
+    from .metric.view import KbnESQLMetricVisualizationState, KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     KbnVisualizationStateTypes = (
         KbnPieVisualizationState
         | KbnMetricVisualizationState
+        | KbnESQLMetricVisualizationState
         | KbnGaugeVisualizationState
         | KbnXYVisualizationState
         | KbnDatatableVisualizationState
@@ -106,9 +107,10 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
-    # index: str
+    index: str
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
+    allColumns: list[KbnESQLColumnTypes]
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):

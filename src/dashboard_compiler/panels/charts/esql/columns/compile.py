@@ -4,6 +4,7 @@ from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTy
 from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLFieldDimensionColumn,
     KbnESQLFieldMetricColumn,
+    KbnESQLMetaType,
     KbnESQLMetricColumnTypes,
     KbnESQLStaticValueColumn,
 )
@@ -36,6 +37,7 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
         columnId=metric_id,
+        meta=KbnESQLMetaType(type='number'),
         inMetricDimension=True,
     )
 

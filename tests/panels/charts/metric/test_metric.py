@@ -17,14 +17,16 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
     if chart_type == 'lens':
         lens_chart = LensMetricChart.model_validate(config)
         _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
-    else:  # esql
-        esql_chart = ESQLMetricChart.model_validate(config)
-        _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
+        assert kbn_state_visualization is not None
+        assert len(kbn_state_visualization.layers) > 0
+        kbn_state_visualization_layer = kbn_state_visualization.layers[0]
+        return kbn_state_visualization_layer.model_dump()
 
+    # esql
+    esql_chart = ESQLMetricChart.model_validate(config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
     assert kbn_state_visualization is not None
-    assert len(kbn_state_visualization.layers) > 0
-    kbn_state_visualization_layer = kbn_state_visualization.layers[0]
-    return kbn_state_visualization_layer.model_dump()
+    return kbn_state_visualization.model_dump()
 
 
 def test_compile_metric_chart_primary_only_lens() -> None:
@@ -70,17 +72,13 @@ def test_compile_metric_chart_primary_only_esql() -> None:
     result = compile_metric_chart_snapshot(config, 'esql')
 
     # Verify the result matches the expected snapshot
+    # Note: ES|QL metrics use flat structure without colorMapping
     assert result == snapshot(
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'showBar': False,
         }
     )
 
@@ -138,17 +136,13 @@ def test_compile_metric_chart_primary_and_secondary_esql() -> None:
     result = compile_metric_chart_snapshot(config, 'esql')
 
     # Verify the result matches the expected snapshot
+    # Note: ES|QL metrics use flat structure without colorMapping
     assert result == snapshot(
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'showBar': False,
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
         }
     )
@@ -217,17 +211,13 @@ def test_compile_metric_chart_primary_secondary_breakdown_esql() -> None:
     result = compile_metric_chart_snapshot(config, 'esql')
 
     # Verify the result matches the expected snapshot
+    # Note: ES|QL metrics use flat structure without colorMapping
     assert result == snapshot(
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'showBar': False,
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
         }

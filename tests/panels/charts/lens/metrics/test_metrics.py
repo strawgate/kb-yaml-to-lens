@@ -293,6 +293,7 @@ async def test_compile_esql_metric_count() -> None:
         {
             'fieldName': 'count(*)',
             'columnId': 'ac345678-90ab-cdef-1234-567890abcdef',
+            'meta': {'type': 'number'},
             'inMetricDimension': True,
         }
     )

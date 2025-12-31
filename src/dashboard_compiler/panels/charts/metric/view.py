@@ -3,7 +3,7 @@ from typing import Annotated, Literal
 from pydantic import Field
 
 from dashboard_compiler.panels.charts.base import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
-from dashboard_compiler.shared.view import OmitIfNone
+from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
 class KbnMetricStateVisualizationLayer(KbnBaseStateVisualizationLayer):
@@ -54,3 +54,35 @@ class KbnMetricVisualizationState(KbnBaseStateVisualization):
         Kibana type definition: `MetricVisualizationState` in
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/metric/types.ts
     """
+
+
+class KbnESQLMetricVisualizationState(BaseVwModel):
+    """View model for ES|QL metric visualization state.
+
+    ES|QL metric visualizations use a flat structure without layers array or colorMapping,
+    unlike Lens-based metrics which wrap everything in a layers array.
+
+    This model represents the structure used when the datasource is textBased (ES|QL queries).
+
+    See Also:
+        Kibana type definition: `MetricVisualizationState` in
+        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/metric/types.ts
+    """
+
+    layerId: str = Field(...)
+    """The ID of the layer containing the metric data."""
+
+    layerType: Literal['data'] = 'data'
+    """Always 'data' for metric layers."""
+
+    metricAccessor: str = Field(...)
+    """Field accessor ID for the primary metric value to display."""
+
+    showBar: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    """Whether to display a sparkline bar chart below the metric."""
+
+    secondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Field accessor ID for a secondary comparison metric."""
+
+    breakdownByAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Field accessor ID for breaking down the metric into multiple values."""
