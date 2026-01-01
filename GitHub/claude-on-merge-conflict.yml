@@ -93,10 +93,7 @@ jobs:
         6. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
 
         # COMMUNICATING WITH THE PR
-        After resolving conflicts, post a comment to the PR by calling:
-        ```
-        gh pr comment "${{ github.event.pull_request.number }}" --body "Resolved merge conflicts with ${{ github.event.pull_request.base.ref }}. [Details of how conflicts were resolved]"
-        ```
+        After resolving conflicts, post a comment to the PR explaining the resolution.
 
         # IMPORTANT NOTES
         - Preserve the intent of both the PR changes and the base branch changes
@@ -116,7 +113,7 @@ jobs:
         In these cases:
         1. Document what you tried and why it's complex
         2. Post a detailed comment explaining the conflict and potential approaches
-        3. Request manual intervention using `make gh-post-pr-comment`
+        3. Request manual intervention
         4. Do NOT push incomplete or uncertain resolutions
 
         # AVAILABLE TOOLS
