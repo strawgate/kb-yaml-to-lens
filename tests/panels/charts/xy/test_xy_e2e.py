@@ -9,7 +9,7 @@ from dashboard_compiler.dashboard_compiler import load, render
 from tests.conftest import de_json_kbn_dashboard
 
 
-async def test_esql_line_chart_e2e(tmp_path: Path) -> None:
+def test_esql_line_chart_e2e(tmp_path: Path) -> None:
     """Test ES|QL line chart end-to-end compilation from YAML.
 
     This test verifies the full compilation pipeline from YAML to Kibana dashboard JSON
@@ -88,7 +88,7 @@ dashboards:
     assert query_state['esql'] == 'FROM logs-* | STATS count() BY @timestamp'
 
 
-async def test_esql_bar_chart_e2e(tmp_path: Path) -> None:
+def test_esql_bar_chart_e2e(tmp_path: Path) -> None:
     """Test ES|QL bar chart end-to-end compilation from YAML with stacked mode and breakdown."""
     yaml_content = """---
 dashboards:
@@ -164,7 +164,7 @@ dashboards:
     assert query_state['esql'] == 'FROM metrics-* | STATS count() BY @timestamp, aerospike.namespace.name'
 
 
-async def test_esql_area_chart_e2e(tmp_path: Path) -> None:
+def test_esql_area_chart_e2e(tmp_path: Path) -> None:
     """Test ES|QL area chart end-to-end compilation from YAML with metrics and breakdown."""
     yaml_content = """---
 dashboards:
