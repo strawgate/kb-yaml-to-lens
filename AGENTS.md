@@ -174,7 +174,16 @@ make gh-get-review-threads strawgate kb-yaml-to-lens 456
 make gh-get-review-threads strawgate kb-yaml-to-lens 456 "coderabbitai[bot]"
 
 # Resolve a thread (after fixing the issue)
-make gh-resolve-review-thread "THREAD_ID"
+make gh-resolve-review-thread strawgate kb-yaml-to-lens 456 "THREAD_ID"
+
+# Resolve a thread with a comment (e.g., to explain why you didn't fix it)
+make gh-resolve-review-thread strawgate kb-yaml-to-lens 456 "THREAD_ID" "@coderabbitai - This is already handled correctly."
+
+# The script will automatically:
+# - Post your comment as a reply to the thread (if provided)
+# - Resolve the thread
+# - Check if all threads from that review are resolved
+# - Minimize the review if all threads are resolved
 
 # Get latest review from specific author
 make gh-get-latest-review strawgate kb-yaml-to-lens 456 "coderabbitai[bot]"

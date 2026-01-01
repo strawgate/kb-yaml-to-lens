@@ -58,7 +58,7 @@ help:
 	@echo ""
 	@echo "GitHub Workflow Helpers:"
 	@echo "  gh-get-review-threads        - Get PR review threads (OWNER REPO PR [AUTHOR])"
-	@echo "  gh-resolve-review-thread     - Resolve review thread (THREAD_ID)"
+	@echo "  gh-resolve-review-thread     - Resolve review thread (OWNER REPO PR THREAD_ID [COMMENT])"
 	@echo "  gh-get-latest-review         - Get latest review from author (OWNER REPO PR AUTHOR)"
 	@echo "  gh-check-latest-review       - Check if review is latest (OWNER REPO PR AUTHOR REVIEW_ID)"
 	@echo "  gh-get-comments-since        - Get comments since timestamp (OWNER REPO ISSUE SINCE [AUTHOR])"

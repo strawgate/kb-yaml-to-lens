@@ -39,7 +39,7 @@ jobs:
         # GITHUB HELPER COMMANDS
         You have access to these helper commands via `make` for complex operations:
         - `make gh-get-review-threads OWNER REPO PR_NUMBER [AUTHOR]` - Get review threads
-        - `make gh-resolve-review-thread THREAD_ID` - Resolve a review thread
+        - `make gh-resolve-review-thread OWNER REPO PR_NUMBER THREAD_ID [COMMENT]` - Resolve a review thread (optionally with a comment)
         - `make gh-get-latest-review OWNER REPO PR_NUMBER AUTHOR` - Get latest review
         - `make gh-check-latest-review OWNER REPO PR_NUMBER AUTHOR REVIEW_ID` - Check if review is latest
         - `make gh-get-comments-since OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR]` - Get comments since timestamp
@@ -49,8 +49,11 @@ jobs:
         For simple operations, use `gh` CLI directly:
         - `gh pr view PR_NUMBER --json field1,field2` - Get PR info
         - `gh pr comment PR_NUMBER --body "text"` or `gh issue comment ISSUE_NUMBER --body "text"` - Post comments
-        - `gh issue create --repo OWNER/REPO --title "title" --body "body" --label "label"` - Create issues
         - `gh issue close ISSUE_NUMBER --repo OWNER/REPO` - Close issues
+
+        # IMPORTANT RESTRICTIONS
+        **DO NOT create GitHub issues.** This workflow is for assisting with existing issues/PRs.
+        If you identify work that needs to be done, mention it in your response instead of creating issues.
 
         # YOUR TASK
         Address the request from the user. Follow the development workflow:
@@ -60,6 +63,6 @@ jobs:
         4. Run `make check` to verify (lint + test)
         5. If working on a PR and addressing review feedback, resolve the review threads after making fixes
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:gh-*,gh:pr:*,gh:issue:*)
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

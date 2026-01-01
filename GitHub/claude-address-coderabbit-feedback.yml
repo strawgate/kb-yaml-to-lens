@@ -52,11 +52,19 @@ jobs:
         **Option A: Fix the code**
         1. Read the file to understand the context
         2. Make the appropriate code change
-        3. Resolve the thread: `make gh-resolve-review-thread "THREAD_ID"`
+        3. Resolve the thread: `make gh-resolve-review-thread "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "THREAD_ID"`
 
         **Option B: Explain why you won't fix it**
-        1. Post a comment tagging @coderabbitai explaining your reasoning
-        2. Resolve the thread: `make gh-resolve-review-thread "THREAD_ID"`
+        1. Resolve the thread with a comment explaining your reasoning:
+           ```bash
+           make gh-resolve-review-thread "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "THREAD_ID" "@coderabbitai - [your explanation]"
+           ```
+
+        The script will automatically:
+        - Post your comment as a reply to the thread
+        - Resolve the thread
+        - Check if all threads from that review are resolved
+        - Minimize the review if all threads are resolved
 
         Use Option B when:
         - CodeRabbit's suggestion is incorrect or would make things worse
