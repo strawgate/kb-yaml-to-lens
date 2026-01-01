@@ -63,6 +63,6 @@ jobs:
         4. Run `make check` to verify (lint + test)
         5. If working on a PR and addressing review feedback, resolve the review threads after making fixes
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
+      allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

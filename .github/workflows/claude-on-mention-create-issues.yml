@@ -48,6 +48,6 @@ jobs:
         - Provide detailed descriptions with context
         - Add appropriate labels (bug, enhancement, documentation, etc.) using multiple --label flags
         - Reference related issues or PRs when relevant
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
+      allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

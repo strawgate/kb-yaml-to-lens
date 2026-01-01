@@ -17,7 +17,7 @@ jobs:
     if: |
       github.event.review.user.login == 'coderabbitai[bot]' &&
       (github.event.review.state == 'commented' || github.event.review.state == 'changes_requested') &&
-      !github.event.pull_request.draft
+      !github.event.pull_request.draft && !github.event.pull_request.closed_at
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
@@ -94,6 +94,6 @@ jobs:
         - Resolve ALL threads (either by fixing or explaining)
         - Don't mention @coderabbitai unless explaining why you won't fix something
         - Focus on fixing real issues, not perfecting code
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*)
+      allowed-tools: mcp__repository-summary,mcp__code-search,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
