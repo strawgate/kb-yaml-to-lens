@@ -24,7 +24,7 @@ dashboards:
       - type: esql_query
         variable_name: status_code
         variable_type: values
-        esql_query: FROM logs-* | STATS count BY http.response.status_code
+        esql_query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
         title: HTTP Status Code
         width: medium
         single_select: false
@@ -33,7 +33,7 @@ dashboards:
       - type: esql_query
         variable_name: host
         variable_type: values
-        esql_query: FROM logs-* | WHERE environment == ?environment | STATS count BY host.name
+        esql_query: FROM logs-* | WHERE environment == ?environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT 20
         title: Host Name
         width: large
 

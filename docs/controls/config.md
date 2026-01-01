@@ -178,9 +178,11 @@ controls:
   - type: esql_query
     variable_name: status_code
     variable_type: values
-    esql_query: FROM logs-* | STATS count BY http.response.status_code
+    esql_query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
     title: HTTP Status Code
 ```
+
+**Important**: ES|QL control queries **must return exactly one column** containing the values to display in the control. Use `KEEP` to select only the field column after aggregation.
 
 **Using ES|QL Variables in Panels:**
 
