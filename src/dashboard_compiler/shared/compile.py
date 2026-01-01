@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import Any, TypeVar
 
 T = TypeVar('T')
 V = TypeVar('V')
@@ -53,3 +53,55 @@ def return_if_equals(var: V | None, equals: V, is_false: T, is_true: T, is_none:
     if var is None:
         return is_none
     return is_true if var == equals else is_false
+
+
+def extract_metrics_from_config(config: Any) -> list[Any]:
+    """Extract metrics from either 'metric' or 'metrics' attribute.
+
+    Args:
+        config: Object with either 'metric' or 'metrics' attribute
+
+    Returns:
+        List of metric configs
+
+    Raises:
+        ValueError: If neither metric nor metrics is provided
+
+    """
+    if hasattr(config, 'metric') and config.metric:
+        return [config.metric]
+    if hasattr(config, 'metrics') and config.metrics:
+        return config.metrics
+    msg = "Either 'metric' or 'metrics' must be provided"
+    raise ValueError(msg)
+
+
+def normalize_static_metric(value: Any, static_value_class: type) -> Any:
+    """Convert numeric values to StaticValue, keep metric configs as-is.
+
+    Args:
+        value: Value to normalize (number or metric config)
+        static_value_class: StaticValue class (LensStaticValue or ESQLStaticValue)
+
+    Returns:
+        StaticValue instance if input is numeric, otherwise original value
+
+    """
+    if isinstance(value, (int, float)):
+        return static_value_class(value=value)
+    return value
+
+
+def split_dimensions(all_dimension_ids: list[str]) -> tuple[list[str], list[str] | None]:
+    """Split dimensions into primary (first) and secondary (rest).
+
+    Args:
+        all_dimension_ids: All dimension IDs
+
+    Returns:
+        Tuple of (primary_ids, secondary_ids or None)
+
+    """
+    primary = [all_dimension_ids[0]] if all_dimension_ids else []
+    secondary = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
+    return primary, secondary

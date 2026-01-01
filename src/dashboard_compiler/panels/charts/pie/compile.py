@@ -16,7 +16,8 @@ from dashboard_compiler.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from dashboard_compiler.shared.config import random_id_generator
+from dashboard_compiler.shared.compile import extract_metrics_from_config, split_dimensions
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_pie_chart_visualization_state(  # noqa: PLR0913
@@ -114,16 +115,9 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
         tuple[str, dict[str, KbnLensColumnTypes], KbnPieVisualizationState]: The layer ID and the compiled visualization state.
 
     """
-    layer_id = lens_pie_chart.id or random_id_generator()
+    layer_id = get_layer_id(lens_pie_chart)
 
-    metric_configs = []
-    if lens_pie_chart.metric:
-        metric_configs = [lens_pie_chart.metric]
-    elif lens_pie_chart.metrics:
-        metric_configs = lens_pie_chart.metrics
-    else:
-        msg = "Either 'metric' or 'metrics' must be provided"
-        raise ValueError(msg)
+    metric_configs = extract_metrics_from_config(lens_pie_chart)
 
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
@@ -135,8 +129,7 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
     slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.slice_by, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
 
-    primary_dimension_ids = [all_dimension_ids[0]] if all_dimension_ids else []
-    secondary_dimension_ids = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
+    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim_id in zip(lens_pie_chart.slice_by, all_dimension_ids, strict=True):
@@ -173,16 +166,9 @@ def compile_esql_pie_chart(
         tuple[str, list[KbnESQLMetricColumnTypes], KbnESQLDimensionColumnTypes]: The layer ID and the compiled visualization state.
 
     """
-    layer_id = esql_pie_chart.id or random_id_generator()
+    layer_id = get_layer_id(esql_pie_chart)
 
-    metric_configs = []
-    if esql_pie_chart.metric:
-        metric_configs = [esql_pie_chart.metric]
-    elif esql_pie_chart.metrics:
-        metric_configs = esql_pie_chart.metrics
-    else:
-        msg = "Either 'metric' or 'metrics' must be provided"
-        raise ValueError(msg)
+    metric_configs = extract_metrics_from_config(esql_pie_chart)
 
     metrics = [compile_esql_metric(m) for m in metric_configs]
     metric_ids = [m.columnId for m in metrics]
@@ -190,8 +176,7 @@ def compile_esql_pie_chart(
     dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.slice_by)
     all_dimension_ids = [d.columnId for d in dimensions]
 
-    primary_dimension_ids = [all_dimension_ids[0]] if all_dimension_ids else []
-    secondary_dimension_ids = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
+    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim in zip(esql_pie_chart.slice_by, dimensions, strict=True):
