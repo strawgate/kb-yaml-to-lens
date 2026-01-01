@@ -1,4 +1,8 @@
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, overload
+
+if TYPE_CHECKING:
+    from dashboard_compiler.panels.charts.esql.columns.config import ESQLMetricTypes, ESQLStaticValue
+    from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes, LensStaticValue
 
 T = TypeVar('T')
 V = TypeVar('V')
@@ -68,12 +72,28 @@ def extract_metrics_from_config(config: Any) -> list[Any]:
         ValueError: If neither metric nor metrics is provided
 
     """
-    if hasattr(config, 'metric') and config.metric:
+    if hasattr(config, 'metric') and config.metric is not None:
         return [config.metric]
-    if hasattr(config, 'metrics') and config.metrics:
+    if hasattr(config, 'metrics') and config.metrics is not None and len(config.metrics) > 0:
         return config.metrics
     msg = "Either 'metric' or 'metrics' must be provided"
     raise ValueError(msg)
+
+
+@overload
+def normalize_static_metric(value: int | float, static_value_class: type['LensStaticValue']) -> 'LensStaticValue': ...
+
+
+@overload
+def normalize_static_metric(value: int | float, static_value_class: type['ESQLStaticValue']) -> 'ESQLStaticValue': ...
+
+
+@overload
+def normalize_static_metric(value: 'LensMetricTypes', static_value_class: type['LensStaticValue']) -> 'LensMetricTypes': ...
+
+
+@overload
+def normalize_static_metric(value: 'ESQLMetricTypes', static_value_class: type['ESQLStaticValue']) -> 'ESQLMetricTypes': ...
 
 
 def normalize_static_metric(value: Any, static_value_class: type) -> Any:
@@ -102,6 +122,6 @@ def split_dimensions(all_dimension_ids: list[str]) -> tuple[list[str], list[str]
         Tuple of (primary_ids, secondary_ids or None)
 
     """
-    primary = [all_dimension_ids[0]] if all_dimension_ids else []
+    primary = [all_dimension_ids[0]] if len(all_dimension_ids) > 0 else []
     secondary = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
     return primary, secondary

@@ -60,7 +60,8 @@ def get_layer_id(chart_config: object) -> str:
         Layer ID string (from config.id or randomly generated)
 
     """
-    return getattr(chart_config, 'id', None) or random_id_generator()
+    config_id = getattr(chart_config, 'id', None)
+    return config_id if config_id is not None else random_id_generator()
 
 
 class Sort(BaseCfgModel):
