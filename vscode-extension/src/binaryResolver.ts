@@ -45,7 +45,15 @@ export class BinaryResolver {
             platformName = 'linux';
         }
 
-        const archName = arch === 'x64' ? 'x64' : 'arm64';
+        let archName: string;
+        if (arch === 'x64') {
+            archName = 'x64';
+        } else if (arch === 'arm64') {
+            archName = 'arm64';
+        } else {
+            throw new Error(`Unsupported architecture: ${arch}`);
+        }
+
         return `${platformName}-${archName}`;
     }
 
@@ -146,7 +154,7 @@ export class BinaryResolver {
             return {
                 executable: binaryPath,
                 args: [],
-                cwd: process.cwd(), // Binary is self-contained, cwd doesn't matter
+                cwd: this.extensionPath,
                 isBundled: true
             };
         }

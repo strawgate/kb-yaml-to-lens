@@ -28,6 +28,7 @@ The `BinaryResolver` class (`src/binaryResolver.ts`) intelligently chooses the L
 2. **Python Script** (development fallback): `python/compile_server.py`
 
 Platform directories:
+
 - `bin/linux-x64/` - Linux x86_64
 - `bin/darwin-x64/` - macOS Intel
 - `bin/darwin-arm64/` - macOS Apple Silicon
@@ -76,14 +77,15 @@ Creates `yaml-dashboard-compiler-{version}.vsix` (works on all platforms, requir
 After building binaries, package for specific platforms:
 
 ```bash
-# Package for specific platform
-npm run package:platform linux-x64
-npm run package:platform darwin-x64
-npm run package:platform darwin-arm64
-npm run package:platform win32-x64
+# Package for specific platforms
+npm run package:linux
+npm run package:macos-x64
+npm run package:macos-arm64
+npm run package:windows
 ```
 
 Creates platform-specific VSIX files:
+
 - `yaml-dashboard-compiler-{version}@linux-x64.vsix`
 - `yaml-dashboard-compiler-{version}@darwin-x64.vsix`
 - `yaml-dashboard-compiler-{version}@darwin-arm64.vsix`
@@ -174,7 +176,7 @@ package:
 
 ## Directory Structure
 
-```
+```text
 vscode-extension/
 ├── bin/                      # Bundled binaries (included in VSIX)
 │   ├── linux-x64/

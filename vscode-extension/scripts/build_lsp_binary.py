@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build standalone LSP server binary using PyInstaller."""
 
+import os
 import platform
 import shutil
 import subprocess
@@ -14,7 +15,15 @@ def get_platform_name() -> str:
     """Get platform name for binary naming (e.g., 'linux-x64', 'darwin-arm64')."""
     system = platform.system().lower()
     machine = platform.machine().lower()
-    arch = 'x64' if machine in ('x86_64', 'amd64') else 'arm64' if machine in ('aarch64', 'arm64') else machine
+
+    if machine in ('x86_64', 'amd64'):
+        arch = 'x64'
+    elif machine in ('aarch64', 'arm64'):
+        arch = 'arm64'
+    else:
+        msg = f'Unsupported architecture: {machine}'
+        raise ValueError(msg)
+
     return f'{system}-{arch}'
 
 
@@ -39,14 +48,25 @@ def main() -> None:
 
     # Build with PyInstaller
     compile_server = VSCODE_ROOT / 'python' / 'compile_server.py'
-    subprocess.run(
+    dashboard_compiler_src = PROJECT_ROOT / 'src' / 'dashboard_compiler'
+
+    # Find pyinstaller executable
+    pyinstaller_path = shutil.which('pyinstaller')
+    if not pyinstaller_path:
+        msg = 'pyinstaller not found in PATH. Install with: pip install pyinstaller'
+        raise RuntimeError(msg)
+
+    # PyInstaller uses OS-specific path separators: ':' on Unix, ';' on Windows
+    subprocess.run(  # noqa: S603
         [
-            'pyinstaller',
-            '--name', binary_name,
+            pyinstaller_path,
+            '--name',
+            binary_name,
             '--onefile',
             '--clean',
             '--noconfirm',
-            '--add-data', f'{PROJECT_ROOT / "src" / "dashboard_compiler"}:dashboard_compiler',
+            '--add-data',
+            f'{dashboard_compiler_src}{os.pathsep}dashboard_compiler',
             str(compile_server),
         ],
         check=True,
