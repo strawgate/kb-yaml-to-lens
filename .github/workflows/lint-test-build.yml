@@ -63,6 +63,7 @@ jobs:
   test-python-coverage:
     name: Test Python Code Coverage
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     permissions:
       contents: write
       pull-requests: write
