@@ -59,7 +59,7 @@ def return_if_equals(var: V | None, equals: V, is_false: T, is_true: T, is_none:
     return is_true if var == equals else is_false
 
 
-def extract_metrics_from_config(config: Any) -> list[Any]:
+def extract_metrics_from_config(config: Any) -> list[Any]:  # pyright: ignore[reportAny]
     """Extract metrics from either 'metric' or 'metrics' attribute.
 
     Args:
@@ -72,10 +72,10 @@ def extract_metrics_from_config(config: Any) -> list[Any]:
         ValueError: If neither metric nor metrics is provided
 
     """
-    if hasattr(config, 'metric') and config.metric is not None:
-        return [config.metric]
-    if hasattr(config, 'metrics') and config.metrics is not None and len(config.metrics) > 0:
-        return config.metrics
+    if hasattr(config, 'metric') and config.metric is not None:  # pyright: ignore[reportAny]
+        return [config.metric]  # pyright: ignore[reportAny]
+    if hasattr(config, 'metrics') and config.metrics is not None and len(config.metrics) > 0:  # pyright: ignore[reportAny]
+        return config.metrics  # pyright: ignore[reportAny]
     msg = "Either 'metric' or 'metrics' must be provided"
     raise ValueError(msg)
 
@@ -96,7 +96,7 @@ def normalize_static_metric(value: 'LensMetricTypes', static_value_class: type['
 def normalize_static_metric(value: 'ESQLMetricTypes', static_value_class: type['ESQLStaticValue']) -> 'ESQLMetricTypes': ...
 
 
-def normalize_static_metric(value: Any, static_value_class: type) -> Any:
+def normalize_static_metric(value: Any, static_value_class: type) -> Any:  # pyright: ignore[reportAny]
     """Convert numeric values to StaticValue, keep metric configs as-is.
 
     Args:
@@ -108,8 +108,8 @@ def normalize_static_metric(value: Any, static_value_class: type) -> Any:
 
     """
     if isinstance(value, (int, float)):
-        return static_value_class(value=value)
-    return value
+        return static_value_class(value=value)  # pyright: ignore[reportAny]
+    return value  # pyright: ignore[reportAny]
 
 
 def split_dimensions(all_dimension_ids: list[str]) -> tuple[list[str], list[str] | None]:

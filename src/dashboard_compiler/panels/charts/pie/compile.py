@@ -121,8 +121,8 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
 
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
-    for metric_config in metric_configs:
-        metric_id, metric = compile_lens_metric(metric=metric_config)
+    for metric_config in metric_configs:  # pyright: ignore[reportAny]
+        metric_id, metric = compile_lens_metric(metric=metric_config)  # pyright: ignore[reportAny]
         kbn_metric_column_by_id[metric_id] = metric
         metric_ids.append(metric_id)
 
@@ -170,7 +170,7 @@ def compile_esql_pie_chart(
 
     metric_configs = extract_metrics_from_config(esql_pie_chart)
 
-    metrics = [compile_esql_metric(m) for m in metric_configs]
+    metrics = [compile_esql_metric(m) for m in metric_configs]  # pyright: ignore[reportAny]
     metric_ids = [m.columnId for m in metrics]
 
     dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.slice_by)
