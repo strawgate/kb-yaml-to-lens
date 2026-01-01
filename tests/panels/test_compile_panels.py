@@ -75,4 +75,4 @@ class TestCompileDashboardPanel:
         panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), grid=Grid(x=0, y=0, w=12, h=4))
 
         with pytest.raises(NotImplementedError, match='Panel type SearchPanel is not yet supported'):
-            compile_dashboard_panel(panel)
+            _ = compile_dashboard_panel(panel)

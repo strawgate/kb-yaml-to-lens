@@ -44,19 +44,19 @@ class TestGetPanelType:
         """Test that an error is raised for a dict with unknown keys."""
         panel_dict = {'unknown': 'value', 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
         with pytest.raises(ValueError, match='Cannot determine panel type from dict with keys'):
-            get_panel_type(panel_dict)
+            _ = get_panel_type(panel_dict)
 
     def test_raises_error_for_empty_dict(self) -> None:
         """Test that an error is raised for an empty dict."""
         panel_dict: dict[str, object] = {}
         with pytest.raises(ValueError, match='Cannot determine panel type from dict with keys'):
-            get_panel_type(panel_dict)
+            _ = get_panel_type(panel_dict)
 
     def test_identifies_panel_from_object_with_markdown_attr(self) -> None:
         """Test that panel type is identified from an object with markdown attribute."""
 
         class MockPanel:
-            markdown = 'Some content'
+            markdown: str = 'Some content'
 
         assert get_panel_type(MockPanel()) == 'markdown'
 
@@ -64,7 +64,7 @@ class TestGetPanelType:
         """Test that panel type is identified from an object with search attribute."""
 
         class MockPanel:
-            search = 'search-id'
+            search: str = 'search-id'
 
         assert get_panel_type(MockPanel()) == 'search'
 
@@ -72,7 +72,7 @@ class TestGetPanelType:
         """Test that panel type is identified from an object with links_config attribute."""
 
         class MockPanel:
-            links_config: ClassVar = []
+            links_config: ClassVar[list[object]] = []
 
         assert get_panel_type(MockPanel()) == 'links'
 
@@ -80,7 +80,7 @@ class TestGetPanelType:
         """Test that panel type is identified from an object with image attribute."""
 
         class MockPanel:
-            image = 'https://example.com/image.png'
+            image: str = 'https://example.com/image.png'
 
         assert get_panel_type(MockPanel()) == 'image'
 
@@ -88,7 +88,7 @@ class TestGetPanelType:
         """Test that panel type is identified from an object with lens attribute."""
 
         class MockPanel:
-            lens: ClassVar = {}
+            lens: ClassVar[dict[str, object]] = {}
 
         assert get_panel_type(MockPanel()) == 'lens'
 
@@ -96,7 +96,7 @@ class TestGetPanelType:
         """Test that panel type is identified from an object with esql attribute."""
 
         class MockPanel:
-            esql: ClassVar = {}
+            esql: ClassVar[dict[str, object]] = {}
 
         assert get_panel_type(MockPanel()) == 'esql'
 
@@ -104,7 +104,7 @@ class TestGetPanelType:
         """Test that an error is raised for an object without panel attributes."""
 
         class MockPanel:
-            unknown = 'value'
+            unknown: str = 'value'
 
         with pytest.raises(ValueError, match='Cannot determine panel type from object'):
-            get_panel_type(MockPanel())
+            _ = get_panel_type(MockPanel())

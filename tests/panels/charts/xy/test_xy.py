@@ -299,14 +299,14 @@ async def test_bar_percentage_chart() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.layerType == 'data'
-    assert layer.seriesType == 'bar_percentage_stacked'  # pyright: ignore[reportAttributeAccessIssue]
+    assert layer.seriesType == 'bar_percentage_stacked'
 
     esql_chart = ESQLBarChart(**esql_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.layerType == 'data'
-    assert layer.seriesType == 'bar_percentage_stacked'  # pyright: ignore[reportAttributeAccessIssue]
+    assert layer.seriesType == 'bar_percentage_stacked'
 
 
 async def test_area_percentage_chart() -> None:
@@ -395,14 +395,14 @@ async def test_area_unstacked_chart() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.layerType == 'data'
-    assert layer.seriesType == 'area_unstacked'  # pyright: ignore[reportAttributeAccessIssue]
+    assert layer.seriesType == 'area_unstacked'
 
     esql_chart = ESQLAreaChart(**esql_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.layerType == 'data'
-    assert layer.seriesType == 'area_unstacked'  # pyright: ignore[reportAttributeAccessIssue]
+    assert layer.seriesType == 'area_unstacked'
 
 
 async def test_reference_line_single() -> None:
