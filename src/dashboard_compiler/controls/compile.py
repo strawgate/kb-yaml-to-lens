@@ -32,7 +32,6 @@ from dashboard_compiler.controls.view import (
     KbnTimeSliderControlExplicitInput,
     SearchTechnique,
 )
-from dashboard_compiler.shared.compile import return_if, return_if_equals
 from dashboard_compiler.shared.defaults import default_false, default_if_none
 from dashboard_compiler.shared.id_utils import generate_id
 
@@ -258,26 +257,17 @@ def compile_control_group(*, control_settings: ControlSettings, controls: Sequen
     # - apply_global_filters: True  → ignoreFilters: False  (respect filters)
     # - apply_global_filters: False → ignoreFilters: True   (ignore filters)
     ignore_parent_settings_json = KbnIgnoreParentSettingsJson(
-        ignoreFilters=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
-        ignoreQuery=return_if(var=control_settings.apply_global_filters, is_true=False, is_false=True, default=False),
-        ignoreTimerange=return_if(var=control_settings.apply_global_timerange, is_true=False, is_false=True, default=False),
-        ignoreValidations=return_if(var=control_settings.ignore_zero_results, is_true=True, is_false=False, default=False),
+        ignoreFilters=control_settings.apply_global_filters is False,
+        ignoreQuery=control_settings.apply_global_filters is False,
+        ignoreTimerange=control_settings.apply_global_timerange is False,
+        ignoreValidations=control_settings.ignore_zero_results is True,
     )
 
     return KbnControlGroupInput(
-        chainingSystem=return_if(
-            var=control_settings.chain_controls,
-            is_false=ChainingSystemEnum.NONE,
-            is_true=ChainingSystemEnum.HIERARCHICAL,
-            default=ChainingSystemEnum.HIERARCHICAL,
-        ),
-        controlStyle=return_if_equals(
-            var=control_settings.label_position,
-            equals='inline',
-            is_true=ControlStyleEnum.ONE_LINE,
-            is_false=ControlStyleEnum.TWO_LINE,
-            is_none=ControlStyleEnum.ONE_LINE,
-        ),
+        chainingSystem=ChainingSystemEnum.NONE if control_settings.chain_controls is False else ChainingSystemEnum.HIERARCHICAL,
+        controlStyle=ControlStyleEnum.TWO_LINE
+        if control_settings.label_position == 'above'
+        else ControlStyleEnum.ONE_LINE,
         ignoreParentSettingsJSON=ignore_parent_settings_json,
         panelsJSON=panels_json,
         showApplySelections=control_settings.click_to_apply or False,
