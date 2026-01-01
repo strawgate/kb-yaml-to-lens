@@ -1,6 +1,8 @@
 """Test panel compilation functions."""
 
 import pytest
+from dirty_equals import IsUUID
+from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.compile import compile_dashboard_panel, get_panel_type_name
 from dashboard_compiler.panels.config import Grid
@@ -44,31 +46,50 @@ class TestCompileDashboardPanel:
         )
         _references, kbn_panel = compile_dashboard_panel(panel)
 
-        result = kbn_panel.model_dump(by_alias=True)
-        assert 'gridData' in result
-        assert result['gridData']['x'] == 0
-        assert result['gridData']['y'] == 0
-        assert result['gridData']['w'] == 12
-        assert result['gridData']['h'] == 4
-        assert 'embeddableConfig' in result
-        assert result['embeddableConfig']['attributes']['layout'] == 'horizontal'
-        assert len(result['embeddableConfig']['attributes']['links']) == 1
-        assert result['embeddableConfig']['attributes']['links'][0]['label'] == 'Example'
-        assert result['embeddableConfig']['attributes']['links'][0]['destination'] == 'https://example.com'
+        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+            {
+                'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
+                'embeddableConfig': {
+                    'enhancements': {},
+                    'attributes': {
+                        'layout': 'horizontal',
+                        'links': [
+                            {
+                                'id': IsUUID,
+                                'order': 0,
+                                'label': 'Example',
+                                'type': 'externalLink',
+                                'destination': 'https://example.com',
+                            }
+                        ],
+                    },
+                },
+                'panelIndex': IsUUID,
+                'type': 'links',
+            }
+        )
 
     def test_compiles_image_panel(self) -> None:
         """Test that an ImagePanel is compiled correctly."""
         panel = ImagePanel(image=ImagePanelConfig(from_url='https://example.com/image.png'), grid=Grid(x=0, y=0, w=12, h=4))
         _references, kbn_panel = compile_dashboard_panel(panel)
 
-        result = kbn_panel.model_dump(by_alias=True)
-        assert 'gridData' in result
-        assert result['gridData']['x'] == 0
-        assert result['gridData']['y'] == 0
-        assert result['gridData']['w'] == 12
-        assert result['gridData']['h'] == 4
-        assert 'embeddableConfig' in result
-        assert result['embeddableConfig']['imageConfig']['src']['url'] == 'https://example.com/image.png'
+        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+            {
+                'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
+                'embeddableConfig': {
+                    'enhancements': {'dynamicActions': {'events': []}},
+                    'imageConfig': {
+                        'altText': '',
+                        'backgroundColor': '',
+                        'sizing': {'objectFit': 'contain'},
+                        'src': {'type': 'url', 'url': 'https://example.com/image.png'},
+                    },
+                },
+                'panelIndex': IsUUID,
+                'type': 'image',
+            }
+        )
 
     def test_raises_not_implemented_for_search_panel(self) -> None:
         """Test that SearchPanel compilation raises NotImplementedError."""

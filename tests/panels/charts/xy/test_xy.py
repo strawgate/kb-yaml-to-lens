@@ -298,15 +298,45 @@ async def test_bar_percentage_chart() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    assert layer.layerType == 'data'
-    assert layer.seriesType == 'bar_percentage_stacked'
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'bar_percentage_stacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
 
     esql_chart = ESQLBarChart(**esql_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    assert layer.layerType == 'data'
-    assert layer.seriesType == 'bar_percentage_stacked'
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'bar_percentage_stacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
 
 
 async def test_area_percentage_chart() -> None:
@@ -394,15 +424,45 @@ async def test_area_unstacked_chart() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    assert layer.layerType == 'data'
-    assert layer.seriesType == 'area_unstacked'
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'area_unstacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
 
     esql_chart = ESQLAreaChart(**esql_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
-    assert layer.layerType == 'data'
-    assert layer.seriesType == 'area_unstacked'
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'area_unstacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
 
 
 async def test_reference_line_single() -> None:
