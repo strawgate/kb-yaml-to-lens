@@ -7,8 +7,8 @@ This directory contains updated GitHub workflow files that use the helper script
 ### tidy-pr.yml
 
 **Original size:** 110 lines
-**New size:** 28 lines
-**Reduction:** ~75%
+**New size:** 32 lines
+**Reduction:** ~71%
 
 Simplified workflow that uses `gh-minimize-outdated-comments.sh` to minimize all but the most recent comment from each author on a PR.
 
@@ -22,8 +22,8 @@ Simplified workflow that uses `gh-minimize-outdated-comments.sh` to minimize all
 ### claude-address-coderabbit-feedback.yml
 
 **Original size:** 222 lines
-**New size:** 140 lines
-**Reduction:** 37%
+**New size:** 136 lines
+**Reduction:** 39%
 
 Refactored workflow that uses helper scripts for common GitHub API operations:
 
@@ -59,7 +59,7 @@ Workflow that generates daily project manager reports. Updated to use:
 ### claude-on-mention-create-issues.yml
 
 **Original size:** 55 lines
-**New size:** 55 lines
+**New size:** 53 lines
 **Changes:** Updated prompt to reference helper scripts
 
 Workflow for creating issues via @claude-issue mentions. Updated prompt to document:
@@ -74,7 +74,7 @@ Workflow for creating issues via @claude-issue mentions. Updated prompt to docum
 ### claude-on-mention-assist.yml
 
 **Original size:** 50 lines
-**New size:** 66 lines
+**New size:** 60 lines
 **Changes:** Added helper script documentation to prompt
 
 Workflow for @claude mentions. Updated prompt to document all available GitHub helpers:
@@ -97,7 +97,7 @@ Workflow for @claude mentions. Updated prompt to document all available GitHub h
 ### claude-on-merge-conflict.yml
 
 **Original size:** 103 lines
-**New size:** 109 lines
+**New size:** 110 lines
 **Changes:** Updated to use helper scripts
 
 Workflow for automatic merge conflict resolution. Updated to use:
@@ -112,7 +112,7 @@ Workflow for automatic merge conflict resolution. Updated to use:
 ### claude-on-open-or-label.yml
 
 **Original size:** 118 lines
-**New size:** 118 lines
+**New size:** 117 lines
 **Changes:** No changes (workflow doesn't make direct GitHub API calls)
 
 Issue triage workflow. This workflow doesn't make GitHub API calls directly in the workflow file, so no changes were needed. Claude will use the helper scripts when appropriate based on its allowed-tools configuration.

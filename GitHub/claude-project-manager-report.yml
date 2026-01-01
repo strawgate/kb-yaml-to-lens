@@ -4,7 +4,7 @@ on:
   schedule:
     # Run daily at 9 AM UTC (adjust as needed)
     - cron: 0 9 * * *
-  workflow_dispatch: null  # Allow manual triggering
+  workflow_dispatch:  # Allow manual triggering
 permissions:
   contents: read
   issues: write
@@ -72,6 +72,7 @@ jobs:
             echo "  New PRs: $NEW_PRS"
             echo "  Merged PRs: $MERGED_PRS"
             echo "  Total: $TOTAL_ACTIVITY"
+            # Threshold: require at least 3 activity items to justify a new PM report
             if [ $TOTAL_ACTIVITY -lt 3 ]; then
               echo "Not enough activity to create new PM issue"
               echo "has_activity=false" >> $GITHUB_OUTPUT
