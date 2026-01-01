@@ -35,7 +35,7 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
     for assignment in color_config.assignments:
         values_to_assign = [assignment.value] if assignment.value is not None else (assignment.values or [])
 
-        if values_to_assign:
+        if len(values_to_assign) > 0:
             kbn_assignments.append(
                 KbnLayerColorMappingAssignment(
                     rule=KbnLayerColorMappingRule(
