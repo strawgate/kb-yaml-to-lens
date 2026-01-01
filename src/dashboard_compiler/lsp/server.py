@@ -15,6 +15,7 @@ from pygls.lsp.server import LanguageServer
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient
+from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
 
 logger = logging.getLogger(__name__)
 
@@ -143,26 +144,6 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[rep
         return {'success': True, 'data': dashboard_list}
 
 
-def _get_panel_type(panel: Any) -> str:  # pyright: ignore[reportAny]
-    """Extract the panel type, including chart type for Lens/ESQL panels.
-
-    Args:
-        panel: The panel object to extract type from
-
-    Returns:
-        The panel type string (e.g., 'pie', 'bar', 'markdown', 'search')
-    """
-    class_name = panel.__class__.__name__
-
-    if hasattr(panel, 'lens') and panel.lens is not None:
-        return getattr(panel.lens, 'type', 'lens')
-
-    if hasattr(panel, 'esql') and panel.esql is not None:
-        return getattr(panel.esql, 'type', 'esql')
-
-    return class_name.replace('Panel', '').lower()
-
-
 @server.feature('dashboard/getGridLayout')
 def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """Get grid layout information from a YAML dashboard file.
@@ -181,36 +162,7 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
-        dashboards = load(path)  # pyright: ignore[reportAny]
-        if len(dashboards) == 0:
-            return {'success': False, 'error': 'No dashboards found in YAML file'}
-
-        if dashboard_index < 0 or dashboard_index >= len(dashboards):
-            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'}
-
-        dashboard_config = dashboards[dashboard_index]
-
-        panels = []
-        for index, panel in enumerate(dashboard_config.panels):
-            panel_type = _get_panel_type(panel)
-            panel_info = {
-                'id': panel.id or f'panel_{index}',
-                'title': panel.title or 'Untitled Panel',
-                'type': panel_type,
-                'grid': {
-                    'x': panel.grid.x,
-                    'y': panel.grid.y,
-                    'w': panel.grid.w,
-                    'h': panel.grid.h,
-                },
-            }
-            panels.append(panel_info)
-
-        result = {
-            'title': dashboard_config.name or 'Untitled Dashboard',
-            'description': dashboard_config.description or '',
-            'panels': panels,
-        }
+        result = extract_grid_layout(path, dashboard_index)
     except Exception as e:
         return {'success': False, 'error': str(e)}
     else:

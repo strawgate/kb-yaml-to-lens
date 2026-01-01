@@ -202,6 +202,17 @@ reportCallIssue = false
 reportMissingImports = false
 
 [[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/lsp"
+# LSP server code deals with dynamic pygls types
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnnecessaryComparison = false
+reportUnnecessaryTypeIgnoreComment = false
+reportUnusedCallResult = false
+
+[[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"
 
 [tool.coverage.run]

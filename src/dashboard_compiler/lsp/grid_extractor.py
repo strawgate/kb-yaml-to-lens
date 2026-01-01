@@ -10,26 +10,7 @@ import sys
 from typing import Any
 
 from dashboard_compiler.dashboard_compiler import load
-
-
-def _get_panel_type(panel: Any) -> str:
-    """Extract the panel type, including chart type for Lens/ESQL panels.
-
-    Args:
-        panel: The panel object to extract type from
-
-    Returns:
-        The panel type string (e.g., 'pie', 'bar', 'markdown', 'search')
-    """
-    class_name = panel.__class__.__name__
-
-    if hasattr(panel, 'lens') and panel.lens is not None:
-        return getattr(panel.lens, 'type', 'lens')
-
-    if hasattr(panel, 'esql') and panel.esql is not None:
-        return getattr(panel.esql, 'type', 'esql')
-
-    return class_name.replace('Panel', '').lower()
+from dashboard_compiler.lsp.utils import get_panel_type
 
 
 def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -55,7 +36,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
 
     panels = []
     for index, panel in enumerate(dashboard_config.panels):
-        panel_type = _get_panel_type(panel)
+        panel_type = get_panel_type(panel)
         panel_info = {
             'id': panel.id or f'panel_{index}',
             'title': panel.title or 'Untitled Panel',
