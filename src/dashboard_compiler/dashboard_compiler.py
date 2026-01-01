@@ -1,6 +1,7 @@
 """Provides functions to load, render, and dump YAML-to-Lens Dashboards."""
 
 from pathlib import Path
+from typing import Any, cast
 
 import yaml
 
@@ -22,15 +23,27 @@ def load(path: str) -> list[Dashboard]:
     load_path = Path(path)
 
     with load_path.open() as file:
-        # yaml.safe_load returns Any, so we ignore the type check
-        config = yaml.safe_load(file)  # pyright: ignore[reportAny]
+        config = cast(object, yaml.safe_load(file))
 
-    dashboards_data = config.get('dashboards', [])  # pyright: ignore[reportAny]
+    if not isinstance(config, dict):
+        msg = f"YAML file must contain a dictionary: {path}"
+        raise TypeError(msg)
+
+    # Cast to dict[str, Any] to allow typed access
+    config_dict = cast(dict[str, Any], config)
+
+    dashboards_data = cast(object, config_dict.get('dashboards', []))
     if not isinstance(dashboards_data, list):
         msg = f"'dashboards' must be a list in YAML file: {path}"
         raise TypeError(msg)
 
-    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
+    # Cast to list[object] to avoid reportAny on iteration variable
+    dashboards_list = cast(list[object], dashboards_data)
+
+    return [
+        Dashboard(**cast(dict[str, Any], dashboard_data))  # pyright: ignore[reportAny]
+        for dashboard_data in dashboards_list
+    ]
 
 
 def render(dashboard: Dashboard) -> KbnDashboard:

@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, TypedDict
+from typing import Any, ClassVar, TypedDict, cast
 
 import aiohttp
 import prison
@@ -147,7 +147,7 @@ class KibanaClient:
 
             async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                 response.raise_for_status()
-                json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+                json_response = cast(dict[str, Any], await response.json())
                 return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
@@ -216,7 +216,7 @@ class KibanaClient:
             'locatorParams': locator_params,
         }
 
-        rison_params: str = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        rison_params: str = cast(str, prison.dumps(job_params))  # pyright: ignore[reportUnknownMemberType]
 
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
         params: dict[str, str] = {'jobParams': rison_params}
@@ -229,7 +229,7 @@ class KibanaClient:
             session.post(endpoint, params=params, headers=headers, auth=auth) as response,
         ):
             response.raise_for_status()
-            result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            result = cast(dict[str, Any], await response.json())
             job_path: str | None = result.get('path')
             if job_path is None:
                 msg = f'Kibana reporting API did not return a job path. Response: {result}'
