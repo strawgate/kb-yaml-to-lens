@@ -28,7 +28,7 @@ from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_m
 from dashboard_compiler.shared.config import get_layer_id
 
 
-def compile_lens_datatable_chart(
+def compile_lens_datatable_chart(  # noqa: PLR0915
     lens_datatable_chart: LensDatatableChart,
 ) -> tuple[str, dict[str, KbnLensColumnTypes], KbnDatatableVisualizationState]:
     """Compile a LensDatatableChart config object into a Kibana Lens Datatable visualization state.
@@ -48,9 +48,11 @@ def compile_lens_datatable_chart(
     column_order: list[str] = []
 
     # Compile metrics first (for dimension compilation to reference)
+    primary_metric_ids: list[str] = []
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_datatable_chart.metrics:
         metric_result = compile_lens_metric(metric)
+        primary_metric_ids.append(metric_result.primary_id)
         kbn_metric_columns_by_id[metric_result.primary_id] = metric_result.primary_column
         kbn_metric_columns_by_id.update(metric_result.helper_columns)
 
@@ -73,10 +75,11 @@ def compile_lens_datatable_chart(
             kbn_columns_by_id[rows_by_id] = compiled_rows_by
             column_order.append(rows_by_id)
 
-    # Add metrics to kbn_columns_by_id AFTER dimensions (preserves insertion order)
-    for metric_id, compiled_metric in kbn_metric_columns_by_id.items():
-        kbn_columns_by_id[metric_id] = compiled_metric
-        column_order.append(metric_id)
+    # Add primary metrics to column_order AFTER dimensions (preserves insertion order)
+    column_order.extend(primary_metric_ids)
+
+    # Add all metric columns (primary + helpers) to kbn_columns_by_id
+    kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
     # Build column states
     column_states: list[KbnDatatableColumnState] = []
