@@ -156,3 +156,18 @@ See `.github/scripts/README.md` for comprehensive documentation on all helper sc
 - Input/output formats
 - Error handling
 - Local testing instructions
+
+### Usage in Claude Workflows
+
+Claude workflows invoke these scripts via `make` commands and process their output:
+
+```bash
+# Example: Get PR information and use it
+PR_BRANCH=$(make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef)
+echo "Working on branch: $PR_BRANCH"
+
+# Example: Post a comment after completing a task
+make gh-post-pr-comment strawgate kb-yaml-to-lens 456 "✅ Task completed successfully"
+```
+
+Claude should call the `make` commands directly and reason through their output, not write complex shell scripts wrapping them

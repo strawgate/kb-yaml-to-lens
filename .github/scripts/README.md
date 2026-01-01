@@ -142,21 +142,6 @@ gh-close-issue-with-comment.sh OWNER REPO ISSUE_NUMBER COMMENT
 gh-close-issue-with-comment.sh strawgate kb-yaml-to-lens 123 "Closing as completed"
 ```
 
-### Utility Scripts
-
-#### `gh-parse-repo.sh`
-
-Parse repository owner and name from `OWNER/REPO` format.
-
-```bash
-gh-parse-repo.sh REPOSITORY [owner|repo|both]
-
-# Examples:
-gh-parse-repo.sh strawgate/kb-yaml-to-lens           # Output: strawgate kb-yaml-to-lens
-gh-parse-repo.sh strawgate/kb-yaml-to-lens owner     # Output: strawgate
-gh-parse-repo.sh strawgate/kb-yaml-to-lens repo      # Output: kb-yaml-to-lens
-```
-
 ## Usage in Workflows
 
 ### Before (Duplicated Logic)

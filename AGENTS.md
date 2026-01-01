@@ -211,9 +211,24 @@ See `.github/scripts/README.md` for complete documentation of all helper scripts
 - **Review Management**: `gh-get-review-threads.sh`, `gh-resolve-review-thread.sh`, `gh-get-latest-review.sh`, `gh-check-latest-review.sh`
 - **Comment Management**: `gh-get-comments-since.sh`, `gh-minimize-outdated-comments.sh`, `gh-post-pr-comment.sh`
 - **PR/Issue Management**: `gh-get-pr-info.sh`, `gh-create-issue-report.sh`, `gh-close-issue-with-comment.sh`
-- **Utilities**: `gh-parse-repo.sh`
 
 **Note**: All scripts require `GITHUB_TOKEN` environment variable and can be tested locally.
+
+### Usage Pattern for Claude Workflows
+
+Claude workflows should call these helpers via `make` commands and reason through their output:
+
+```bash
+# Get PR information and process it
+PR_BRANCH=$(make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef)
+echo "Working on branch: $PR_BRANCH"
+
+# Get review threads and analyze them
+THREADS=$(make gh-get-review-threads strawgate kb-yaml-to-lens 456 "coderabbitai[bot]")
+# Process the JSON output with jq or analyze it
+```
+
+Claude should **not** write complex shell scripts - instead, use the `make` commands directly and reason through their output in separate steps.
 
 ---
 
