@@ -42,6 +42,7 @@ jobs:
   resolve-conflicts:
     needs: check-conflicts
     if: needs.check-conflicts.outputs.has_conflicts == 'true'
+    timeout-minutes: 30
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
@@ -81,8 +82,18 @@ jobs:
         1. Run `make lint` to ensure code style is correct
         2. Run `make test` to ensure tests pass
         3. If tests or linting fail, fix the issues
-        4. Commit the resolution: `git commit -m "Resolve merge conflicts with ${{ github.event.pull_request.base.ref }}"`
-        5. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
+        4. **SAFETY CHECK** - Do NOT auto-push if any of these conditions apply:
+           - Conflicts involve significant logic changes (not just formatting/imports)
+           - Multiple files have complex conflicts requiring careful integration
+           - Test suite shows unexpected failures after resolution
+           - You're uncertain about the correct resolution approach
+           - Conflicts touch critical paths (auth, data handling, security)
+           **In these cases**: Post a comment explaining the situation and request manual review
+        5. If safe to proceed, commit: `git commit -m "Resolve merge conflicts with ${{ github.event.pull_request.base.ref }}"`
+        6. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
+
+        # COMMUNICATING WITH THE PR
+        After resolving conflicts, post a comment to the PR explaining the resolution.
 
         # IMPORTANT NOTES
         - Preserve the intent of both the PR changes and the base branch changes
@@ -91,12 +102,27 @@ jobs:
         - After pushing, comment on the PR explaining how you resolved the conflicts
         - If conflicts are too complex or risky to auto-resolve, explain why and request manual intervention
 
+        # WHEN NOT TO AUTO-RESOLVE
+        Do NOT automatically commit and push if:
+        - The conflicts involve critical logic changes that could introduce subtle bugs
+        - Multiple files have complex, interrelated conflicts
+        - You're uncertain about the correct resolution approach
+        - Tests fail after resolution and you can't easily fix them
+        - The conflict resolution would be better reviewed by a human first
+
+        In these cases:
+        1. Document what you tried and why it's complex
+        2. Post a detailed comment explaining the conflict and potential approaches
+        3. Request manual intervention
+        4. Do NOT push incomplete or uncertain resolutions
+
         # AVAILABLE TOOLS
         You have access to:
         - Git commands for conflict resolution
         - Make commands for linting and testing
         - MCP tools for searching code and understanding context
-        - GitHub API via gh cli for commenting on the PR
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:api:*)
+        - GitHub helper scripts via `make gh-*` commands
+        - GitHub CLI for posting PR comments
+      allowed-tools: mcp__repository-summary,mcp__code-search,Bash(make:*,git:*,gh:pr:comment:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
