@@ -82,6 +82,8 @@ Output: `dist/kb-dashboard-{platform}-{arch}[.exe]`
 
 ### Automated via GitHub Actions
 
+**Prerequisites**: The GitHub Actions workflows must first be installed. See [github/README.md](../github/README.md) for installation instructions.
+
 Create and push a version tag to trigger automated builds and publishing:
 
 ```bash

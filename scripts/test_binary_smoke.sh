@@ -3,14 +3,32 @@
 
 set -e
 
-BINARY_PATH="${BINARY_PATH:-dist/kb-dashboard-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/')}"
+# Detect platform matching build_binaries.py logic
+SYSTEM=$(uname -s | tr '[:upper:]' '[:lower:]')
+MACHINE=$(uname -m | tr '[:upper:]' '[:lower:]')
+
+# Normalize OS name (match Python's platform.system().lower())
+case "$SYSTEM" in
+  msys*|mingw*|cygwin*) SYSTEM="windows" ;;
+  darwin*) SYSTEM="darwin" ;;
+  linux*) SYSTEM="linux" ;;
+esac
+
+# Normalize architecture (match build_binaries.py)
+case "$MACHINE" in
+  x86_64|amd64) ARCH="x64" ;;
+  aarch64|arm64) ARCH="arm64" ;;
+  *) ARCH="$MACHINE" ;;
+esac
+
+BINARY_NAME="kb-dashboard-${SYSTEM}-${ARCH}"
+if [ "$SYSTEM" = "windows" ]; then
+  BINARY_NAME="${BINARY_NAME}.exe"
+fi
+
+BINARY_PATH="${BINARY_PATH:-dist/$BINARY_NAME}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-# Add .exe extension for Windows
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-  BINARY_PATH="${BINARY_PATH}.exe"
-fi
 
 if [ ! -f "$BINARY_PATH" ]; then
   echo "✗ Binary not found at $BINARY_PATH"

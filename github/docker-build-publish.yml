@@ -5,11 +5,6 @@ on:
     tags:
       - v*
   workflow_dispatch:
-    inputs:
-      tag:
-        description: Docker image tag (e.g., v1.0.0)
-        required: true
-        default: latest
 permissions:
   contents: read
   packages: write
@@ -17,6 +12,8 @@ jobs:
   build-and-publish:
     name: Build and Publish Multi-arch Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,6 +61,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull Docker image
-        run: docker pull ghcr.io/${{ github.repository }}/kb-dashboard-compiler:latest
+        run: |
+          TAG=$(echo "${{ needs.build-and-publish.outputs.image-tag }}" | head -n1)
+          docker pull "$TAG"
       - name: Run smoke tests
-        run: IMAGE_NAME=ghcr.io/${{ github.repository }}/kb-dashboard-compiler:latest make test-docker-smoke
+        run: |
+          TAG=$(echo "${{ needs.build-and-publish.outputs.image-tag }}" | head -n1)
+          IMAGE_NAME="$TAG" make test-docker-smoke

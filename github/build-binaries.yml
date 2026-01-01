@@ -21,12 +21,16 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux-x64
+            ext: ''
           - os: macos-13
             platform: darwin-x64
+            ext: ''
           - os: macos-latest
             platform: darwin-arm64
+            ext: ''
           - os: windows-latest
             platform: windows-x64
+            ext: '.exe'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,8 +49,8 @@ jobs:
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kb-dashboard-${{ matrix.platform }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
-          path: dist/kb-dashboard-${{ matrix.platform }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          name: kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
+          path: dist/kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
           retention-days: 7
   create-release:
     name: Create GitHub Release

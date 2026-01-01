@@ -3,9 +3,9 @@
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
-DOCKER_IMAGE_TAG := latest
+DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
-GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest
+GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
 all: ci
 
