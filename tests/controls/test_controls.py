@@ -392,3 +392,127 @@ async def test_custom_control_settings() -> None:
             'showApplySelections': True,
         }
     )
+
+
+async def test_esql_static_values_control() -> None:
+    """Test ES|QL control with static values."""
+    config = {
+        'type': 'esql_static',
+        'variable_name': 'environment',
+        'variable_type': 'values',
+        'available_options': ['production', 'staging', 'development'],
+        'title': 'Environment',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'environment',
+                'variableType': 'values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Environment',
+                'selectedOptions': [],
+                'availableOptions': ['production', 'staging', 'development'],
+            },
+        }
+    )
+
+
+async def test_esql_static_values_control_with_single_select() -> None:
+    """Test ES|QL control with static values and single select."""
+    config = {
+        'type': 'esql_static',
+        'variable_name': 'status',
+        'variable_type': 'values',
+        'available_options': ['200', '404', '500'],
+        'title': 'HTTP Status',
+        'single_select': True,
+        'width': 'small',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'small',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'status',
+                'variableType': 'values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'HTTP Status',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'availableOptions': ['200', '404', '500'],
+            },
+        }
+    )
+
+
+async def test_esql_query_control() -> None:
+    """Test ES|QL control with query-driven values."""
+    config = {
+        'type': 'esql_query',
+        'variable_name': 'status_code',
+        'variable_type': 'values',
+        'esql_query': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
+        'title': 'Status Code',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'status_code',
+                'variableType': 'values',
+                'esqlQuery': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
+                'controlType': 'VALUES_FROM_QUERY',
+                'title': 'Status Code',
+                'selectedOptions': [],
+            },
+        }
+    )
+
+
+async def test_esql_query_control_with_single_select() -> None:
+    """Test ES|QL control with query-driven values and single select."""
+    config = {
+        'type': 'esql_query',
+        'variable_name': 'host_name',
+        'variable_type': 'values',
+        'esql_query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+        'title': 'Host Name',
+        'single_select': True,
+        'width': 'large',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'large',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'host_name',
+                'variableType': 'values',
+                'esqlQuery': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+                'controlType': 'VALUES_FROM_QUERY',
+                'title': 'Host Name',
+                'selectedOptions': [],
+                'singleSelect': True,
+            },
+        }
+    )

@@ -3,7 +3,16 @@
 from collections.abc import Sequence
 
 from dashboard_compiler.controls import ControlTypes
-from dashboard_compiler.controls.config import ControlSettings, MatchTechnique, OptionsListControl, RangeSliderControl, TimeSliderControl
+from dashboard_compiler.controls.config import (
+    ControlSettings,
+    ESQLQueryControl,
+    ESQLStaticValuesControl,
+    MatchTechnique,
+    OptionsListControl,
+    RangeSliderControl,
+    TimeSliderControl,
+)
+from dashboard_compiler.controls.types import EsqlControlType
 from dashboard_compiler.controls.view import (
     KBN_DEFAULT_CONTROL_WIDTH,
     ChainingSystemEnum,
@@ -12,6 +21,8 @@ from dashboard_compiler.controls.view import (
     KbnControlPanelsJson,
     KbnControlSort,
     KbnControlTypes,
+    KbnESQLControl,
+    KbnESQLControlExplicitInput,
     KbnIgnoreParentSettingsJson,
     KbnOptionsListControl,
     KbnOptionsListControlExplicitInput,
@@ -114,6 +125,68 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
     )
 
 
+def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl) -> KbnESQLControl:
+    """Compile an ESQLStaticValuesControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (ESQLStaticValuesControl): The ESQLStaticValuesControl object to compile.
+
+    Returns:
+        KbnESQLControl: The compiled Kibana ES|QL control view model.
+
+    """
+    stable_id = generate_id(control.id)
+
+    return KbnESQLControl(
+        grow=False,
+        order=order,
+        width=default_if_none(control.width, 'medium'),
+        explicitInput=KbnESQLControlExplicitInput(
+            id=stable_id,
+            variableName=control.variable_name,
+            variableType=control.variable_type,
+            esqlQuery='',
+            controlType=EsqlControlType.STATIC_VALUES.value,
+            title=control.title,
+            selectedOptions=[],
+            singleSelect=control.single_select or None,
+            availableOptions=control.available_options,
+        ),
+    )
+
+
+def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnESQLControl:
+    """Compile an ESQLQueryControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (ESQLQueryControl): The ESQLQueryControl object to compile.
+
+    Returns:
+        KbnESQLControl: The compiled Kibana ES|QL control view model.
+
+    """
+    stable_id = generate_id(control.id)
+
+    return KbnESQLControl(
+        grow=False,
+        order=order,
+        width=default_if_none(control.width, 'medium'),
+        explicitInput=KbnESQLControlExplicitInput(
+            id=stable_id,
+            variableName=control.variable_name,
+            variableType=control.variable_type,
+            esqlQuery=control.esql_query,
+            controlType=EsqlControlType.VALUES_FROM_QUERY.value,
+            title=control.title,
+            selectedOptions=[],
+            singleSelect=control.single_select or None,
+            availableOptions=None,
+        ),
+    )
+
+
 def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     """Compile a single control into its Kibana view model representation.
 
@@ -131,8 +204,14 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, TimeSliderControl):
         return compile_time_slider_control(order, control=control)
 
-    if isinstance(control, RangeSliderControl):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
+
+    if isinstance(control, ESQLStaticValuesControl):
+        return compile_esql_static_control(order, control=control)
+
+    if isinstance(control, ESQLQueryControl):  # pyright: ignore[reportUnnecessaryIsInstance]
+        return compile_esql_query_control(order, control=control)
 
     # Explicit check to satisfy exhaustive checking pattern
     msg = f'Unknown control type: {type(control).__name__}'
