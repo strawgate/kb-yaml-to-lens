@@ -86,24 +86,32 @@ def compile_lens_gauge_chart(
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
 
     # Compile primary metric
-    metric_id, metric_column = compile_lens_metric(lens_gauge_chart.metric)
-    kbn_columns_by_id[metric_id] = metric_column
+    metric_result = compile_lens_metric(lens_gauge_chart.metric)
+    kbn_columns_by_id[metric_result.primary_id] = metric_result.primary_column
+    kbn_columns_by_id.update(metric_result.helper_columns)
+    metric_id = metric_result.primary_id
 
     # Compile optional min/max/goal - handle both static values and metrics
     if lens_gauge_chart.minimum is not None:
         minimum_metric = normalize_static_metric(lens_gauge_chart.minimum, LensStaticValue)
-        min_id, min_column = compile_lens_metric(minimum_metric)
-        kbn_columns_by_id[min_id] = min_column
+        min_result = compile_lens_metric(minimum_metric)
+        kbn_columns_by_id[min_result.primary_id] = min_result.primary_column
+        kbn_columns_by_id.update(min_result.helper_columns)
+        min_id = min_result.primary_id
 
     if lens_gauge_chart.maximum is not None:
         maximum_metric = normalize_static_metric(lens_gauge_chart.maximum, LensStaticValue)
-        max_id, max_column = compile_lens_metric(maximum_metric)
-        kbn_columns_by_id[max_id] = max_column
+        max_result = compile_lens_metric(maximum_metric)
+        kbn_columns_by_id[max_result.primary_id] = max_result.primary_column
+        kbn_columns_by_id.update(max_result.helper_columns)
+        max_id = max_result.primary_id
 
     if lens_gauge_chart.goal is not None:
         goal_metric = normalize_static_metric(lens_gauge_chart.goal, LensStaticValue)
-        goal_id, goal_column = compile_lens_metric(goal_metric)
-        kbn_columns_by_id[goal_id] = goal_column
+        goal_result = compile_lens_metric(goal_metric)
+        kbn_columns_by_id[goal_result.primary_id] = goal_result.primary_column
+        kbn_columns_by_id.update(goal_result.helper_columns)
+        goal_id = goal_result.primary_id
 
     layer_id = get_layer_id(lens_gauge_chart)
 

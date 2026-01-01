@@ -338,9 +338,10 @@ def compile_lens_xy_chart(
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_xy_chart.metrics:
-        metric_id, kbn_metric = compile_lens_metric(metric=metric)
-        metric_ids.append(metric_id)
-        kbn_metric_columns[metric_id] = kbn_metric
+        metric_result = compile_lens_metric(metric=metric)
+        metric_ids.append(metric_result.primary_id)
+        kbn_metric_columns[metric_result.primary_id] = metric_result.primary_column
+        kbn_metric_columns.update(metric_result.helper_columns)
 
     kbn_dimension_columns = compile_lens_dimensions(
         dimensions=lens_xy_chart.dimensions,

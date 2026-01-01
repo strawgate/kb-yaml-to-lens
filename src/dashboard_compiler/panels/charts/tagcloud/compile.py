@@ -70,8 +70,10 @@ def compile_lens_tagcloud_chart(
     layer_id = get_layer_id(chart)
 
     # Compile metric first
-    metric_id, metric_column = compile_lens_metric(metric=chart.metric)
-    kbn_metric_column_by_id = {metric_id: metric_column}
+    metric_result = compile_lens_metric(metric=chart.metric)
+    kbn_metric_column_by_id = {metric_result.primary_id: metric_result.primary_column}
+    kbn_metric_column_by_id.update(metric_result.helper_columns)
+    metric_id = metric_result.primary_id
 
     # Compile tags dimension (pass metrics for proper ordering)
     tags_columns = compile_lens_dimensions(dimensions=[chart.tags], kbn_metric_column_by_id=kbn_metric_column_by_id)
