@@ -111,6 +111,7 @@ nav:
   - Developer Guide:
       - Architecture Overview: architecture.md
       - Programmatic Usage: programmatic-usage.md
+      - PyPI Publishing: pypi-publishing.md
       - API Reference:
           - api/index.md
           - Dashboard API: api/dashboard.md
