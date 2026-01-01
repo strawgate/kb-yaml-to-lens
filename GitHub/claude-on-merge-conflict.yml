@@ -82,8 +82,15 @@ jobs:
         1. Run `make lint` to ensure code style is correct
         2. Run `make test` to ensure tests pass
         3. If tests or linting fail, fix the issues
-        4. Commit the resolution: `git commit -m "Resolve merge conflicts with ${{ github.event.pull_request.base.ref }}"`
-        5. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
+        4. **SAFETY CHECK** - Do NOT auto-push if any of these conditions apply:
+           - Conflicts involve significant logic changes (not just formatting/imports)
+           - Multiple files have complex conflicts requiring careful integration
+           - Test suite shows unexpected failures after resolution
+           - You're uncertain about the correct resolution approach
+           - Conflicts touch critical paths (auth, data handling, security)
+           **In these cases**: Post a comment explaining the situation and request manual review
+        5. If safe to proceed, commit: `git commit -m "Resolve merge conflicts with ${{ github.event.pull_request.base.ref }}"`
+        6. Push the changes: `git push origin ${{ github.event.pull_request.head.ref }}`
 
         # COMMUNICATING WITH THE PR
         After resolving conflicts, post a comment to the PR by calling:
