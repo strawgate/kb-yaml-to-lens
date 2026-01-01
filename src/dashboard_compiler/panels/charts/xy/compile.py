@@ -36,7 +36,7 @@ from dashboard_compiler.panels.charts.xy.view import (
     XYReferenceLineLayerConfig,
     YConfig,
 )
-from dashboard_compiler.shared.config import random_id_generator
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -95,7 +95,7 @@ def compile_lens_reference_line_layer(
             - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
     # Generate a primary layer ID for the data view reference and visualization layer
-    primary_layer_id = random_id_generator()
+    primary_layer_id = get_layer_id(layer)
 
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
     accessor_ids: list[str] = []
@@ -129,7 +129,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
         tuple[str, KbnLensStaticValueColumn, YConfig]: The accessor ID, static value column, and Y config.
     """
     # Generate accessor ID
-    accessor_id = ref_line.id if ref_line.id is not None else random_id_generator()
+    accessor_id = get_layer_id(ref_line)
 
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):
@@ -333,7 +333,7 @@ def compile_lens_xy_chart(
     Returns:
         tuple[str, dict[str, KbnLensColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    layer_id = lens_xy_chart.id or random_id_generator()
+    layer_id = get_layer_id(lens_xy_chart)
 
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
@@ -383,7 +383,7 @@ def compile_esql_xy_chart(
     Returns:
         tuple[str, list[KbnESQLColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    layer_id = esql_xy_chart.id or random_id_generator()
+    layer_id = get_layer_id(esql_xy_chart)
 
     metrics = [compile_esql_metric(esql_xy_chart.metrics[0])]  # For now just handle first metric
     metric_ids = [metric.columnId for metric in metrics]

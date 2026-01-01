@@ -24,7 +24,7 @@ from dashboard_compiler.panels.charts.metric.view import (
     KbnMetricStateVisualizationLayer,
     KbnMetricVisualizationState,
 )
-from dashboard_compiler.shared.config import random_id_generator
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_metric_chart_visualization_state(
@@ -96,7 +96,7 @@ def compile_lens_metric_chart(
         )
         kbn_columns_by_id[breakdown_dimension_id] = breakdown_dimension
 
-    layer_id = lens_metric_chart.id or random_id_generator()
+    layer_id = get_layer_id(lens_metric_chart)
 
     return (
         layer_id,
@@ -126,7 +126,7 @@ def compile_esql_metric_chart(
             - kbn_state_visualization (KbnESQLMetricVisualizationState): The compiled visualization state.
 
     """
-    layer_id = esql_metric_chart.id or random_id_generator()
+    layer_id = get_layer_id(esql_metric_chart)
 
     kbn_columns: list[KbnESQLColumnTypes]
 
