@@ -1,5 +1,7 @@
 """Tests for filter type discrimination utilities and filter validation."""
 
+from typing import Any, cast
+
 import pytest
 
 from dashboard_compiler.filters.config import (
@@ -104,7 +106,7 @@ class TestGetFilterTypeFromObject:
     def test_raises_error_for_string_input(self) -> None:
         """Test that get_filter_type raises ValueError for string input."""
         with pytest.raises(ValueError, match='Cannot determine filter type from object'):
-            _ = get_filter_type('not a filter')  # type: ignore[arg-type]
+            _ = get_filter_type(cast('Any', 'not a filter'))
 
 
 class TestGetFilterTypeFromDict:

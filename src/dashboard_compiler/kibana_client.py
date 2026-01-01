@@ -59,6 +59,14 @@ class KibanaSavedObjectsResponse(BaseModel):
     errors: list[SavedObjectError] = Field(default_factory=list, description='List of errors encountered during import')
 
 
+class KibanaReportingJobResponse(BaseModel):
+    """Response from Kibana reporting job creation API."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    path: str = Field(..., description='Path to poll for job completion')
+
+
 class KibanaClient:
     """Client for interacting with Kibana's Saved Objects API."""
 
@@ -147,7 +155,7 @@ class KibanaClient:
 
             async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                 response.raise_for_status()
-                json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+                json_response = await response.json()  # pyright: ignore[reportAny]
                 return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
@@ -216,10 +224,13 @@ class KibanaClient:
             'locatorParams': locator_params,
         }
 
-        rison_params: str = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        rison_result = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if not isinstance(rison_result, str):
+            msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
+            raise TypeError(msg)
 
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
-        params: dict[str, str] = {'jobParams': rison_params}
+        params: dict[str, str] = {'jobParams': rison_result}
 
         headers, auth = self._get_auth_headers_and_auth()
 
@@ -229,12 +240,9 @@ class KibanaClient:
             session.post(endpoint, params=params, headers=headers, auth=auth) as response,
         ):
             response.raise_for_status()
-            result: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
-            job_path: str | None = result.get('path')
-            if job_path is None:
-                msg = f'Kibana reporting API did not return a job path. Response: {result}'
-                raise ValueError(msg)
-            return job_path
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            job_response = KibanaReportingJobResponse.model_validate(json_response)
+            return job_response.path
 
     async def wait_for_job_completion(
         self,

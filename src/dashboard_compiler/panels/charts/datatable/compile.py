@@ -19,7 +19,10 @@ from dashboard_compiler.panels.charts.datatable.view import (
     KbnDatatableVisualizationState,
 )
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
+from dashboard_compiler.panels.charts.lens.columns.view import (
+    KbnLensColumnTypes,
+    KbnLensMetricColumnTypes,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.shared.config import get_layer_id
@@ -45,7 +48,7 @@ def compile_lens_datatable_chart(
     column_order: list[str] = []
 
     # Compile metrics first (for dimension compilation to reference)
-    kbn_metric_columns_by_id: dict[str, KbnLensColumnTypes] = {}
+    kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_datatable_chart.metrics:
         metric_id, compiled_metric = compile_lens_metric(metric)
         kbn_metric_columns_by_id[metric_id] = compiled_metric
@@ -54,7 +57,7 @@ def compile_lens_datatable_chart(
     for row in lens_datatable_chart.rows:
         row_id, compiled_row = compile_lens_dimension(
             dimension=row,
-            kbn_metric_column_by_id=kbn_metric_columns_by_id,  # pyright: ignore[reportArgumentType]
+            kbn_metric_column_by_id=kbn_metric_columns_by_id,
         )
         kbn_columns_by_id[row_id] = compiled_row
         column_order.append(row_id)
@@ -64,7 +67,7 @@ def compile_lens_datatable_chart(
         for rows_by_dim in lens_datatable_chart.rows_by:
             rows_by_id, compiled_rows_by = compile_lens_dimension(
                 dimension=rows_by_dim,
-                kbn_metric_column_by_id=kbn_metric_columns_by_id,  # pyright: ignore[reportArgumentType]
+                kbn_metric_column_by_id=kbn_metric_columns_by_id,
             )
             kbn_columns_by_id[rows_by_id] = compiled_rows_by
             column_order.append(rows_by_id)

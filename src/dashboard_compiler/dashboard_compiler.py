@@ -7,6 +7,7 @@ import yaml
 from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
+from dashboard_compiler.loader import DashboardConfig
 
 
 def load(path: str) -> list[Dashboard]:
@@ -22,15 +23,10 @@ def load(path: str) -> list[Dashboard]:
     load_path = Path(path)
 
     with load_path.open() as file:
-        # yaml.safe_load returns Any, so we ignore the type check
-        config = yaml.safe_load(file)  # pyright: ignore[reportAny]
+        config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
-    dashboards_data = config.get('dashboards', [])  # pyright: ignore[reportAny]
-    if not isinstance(dashboards_data, list):
-        msg = f"'dashboards' must be a list in YAML file: {path}"
-        raise TypeError(msg)
-
-    return [Dashboard(**dashboard_data) for dashboard_data in dashboards_data]  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
+    config = DashboardConfig.model_validate(config_data)
+    return config.dashboards
 
 
 def render(dashboard: Dashboard) -> KbnDashboard:

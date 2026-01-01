@@ -57,7 +57,7 @@ def create_error_table(errors: list[SavedObjectError]) -> Table:
 
 def _extract_error_message(error: SavedObjectError) -> str:
     if error.error:
-        message: str | None = error.error.get('message')  # type: ignore[assignment]
+        message: str | None = error.error.get('message')
         if message:
             return message
     if error.message:
