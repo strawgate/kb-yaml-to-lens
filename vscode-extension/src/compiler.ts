@@ -60,11 +60,24 @@ interface GridLayoutResult {
     error?: string;
 }
 
+// Matches Python LSP server response format
+interface UploadResult {
+    success: boolean;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    dashboard_url?: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    dashboard_id?: string;
+    error?: string;
+}
+
 export class DashboardCompilerLSP {
     private client: LanguageClient | null = null;
     private outputChannel: vscode.OutputChannel;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(
+        private context: vscode.ExtensionContext,
+        private configService: ConfigService
+    ) {
         this.outputChannel = vscode.window.createOutputChannel('Dashboard Compiler LSP');
     }
 
@@ -79,7 +92,7 @@ export class DashboardCompilerLSP {
      * @returns Absolute path to Python executable or 'python' for system Python
      */
     private resolvePythonPath(): string {
-        const configuredPath = ConfigService.getPythonPath();
+        const configuredPath = this.configService.getPythonPath();
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
         // Check explicitly configured Python path
@@ -235,6 +248,62 @@ export class DashboardCompilerLSP {
         }
 
         return result.data || { title: '', description: '', panels: [] };
+    }
+
+    /**
+     * Upload a compiled dashboard to Kibana.
+     *
+     * @param filePath Path to the YAML file
+     * @param dashboardIndex Index of the dashboard to upload
+     * @param kibanaUrl Kibana base URL
+     * @param username Optional username for basic auth
+     * @param password Optional password for basic auth
+     * @param apiKey Optional API key for auth
+     * @param sslVerify Whether to verify SSL certificates
+     * @returns Object containing dashboard URL and ID
+     */
+    async uploadToKibana(
+        filePath: string,
+        dashboardIndex: number,
+        kibanaUrl: string,
+        username: string,
+        password: string,
+        apiKey: string,
+        sslVerify: boolean
+    ): Promise<{ dashboardUrl: string; dashboardId: string }> {
+        if (!this.client) {
+            throw new Error('LSP client not started');
+        }
+
+        const result = await this.client.sendRequest<UploadResult>(
+            'dashboard/uploadToKibana',
+            {
+                path: filePath,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                dashboard_index: dashboardIndex,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                kibana_url: kibanaUrl,
+                username: username || undefined,
+                password: password || undefined,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                api_key: apiKey || undefined,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                ssl_verify: sslVerify
+            }
+        );
+
+        if (!result.success) {
+            throw new Error(result.error || 'Upload failed');
+        }
+
+        if (!result.dashboard_url || !result.dashboard_id) {
+            throw new Error('Upload succeeded but dashboard URL/ID not returned');
+        }
+
+        return {
+            dashboardUrl: result.dashboard_url,
+            dashboardId: result.dashboard_id
+        };
     }
 
     /**

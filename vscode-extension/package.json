@@ -52,6 +52,31 @@
         "command": "yamlDashboard.editLayout",
         "title": "Edit Dashboard Layout",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.openInKibana",
+        "title": "Open in Kibana",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.setKibanaUsername",
+        "title": "Set Kibana Username",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.setKibanaPassword",
+        "title": "Set Kibana Password",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.setKibanaApiKey",
+        "title": "Set Kibana API Key",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.clearKibanaCredentials",
+        "title": "Clear Kibana Credentials",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -66,6 +91,31 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically compile dashboard when YAML file is saved"
+        },
+        "yamlDashboard.kibana.url": {
+          "type": "string",
+          "default": "http://localhost:5601",
+          "description": "Kibana base URL for uploading dashboards"
+        },
+        "yamlDashboard.kibana.sslVerify": {
+          "type": "boolean",
+          "default": true,
+          "description": "Verify SSL certificates when connecting to Kibana"
+        },
+        "yamlDashboard.kibana.browserType": {
+          "type": "string",
+          "enum": ["external", "simple"],
+          "default": "external",
+          "enumDescriptions": [
+            "Open in system default browser",
+            "Open in VS Code's built-in simple browser"
+          ],
+          "description": "Browser type to use when opening Kibana dashboards"
+        },
+        "yamlDashboard.kibana.uploadOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically upload dashboard to Kibana when YAML file is saved (requires Kibana URL and credentials to be configured)"
         }
       }
     },
@@ -79,6 +129,11 @@
         {
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.compile",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.openInKibana",
           "group": "navigation"
         }
       ],

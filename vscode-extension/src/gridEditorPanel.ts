@@ -28,7 +28,10 @@ export class GridEditorPanel {
     private currentDashboardIndex: number = 0;
     private extensionPath: string;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(
+        private context: vscode.ExtensionContext,
+        private configService: ConfigService
+    ) {
         this.extensionPath = context.extensionPath;
     }
 
@@ -91,7 +94,7 @@ export class GridEditorPanel {
     }
 
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        const pythonPath = ConfigService.getPythonPath();
+        const pythonPath = this.configService.getPythonPath();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
 
         return new Promise((resolve, reject) => {
@@ -146,7 +149,7 @@ export class GridEditorPanel {
             return;
         }
 
-        const pythonPath = ConfigService.getPythonPath();
+        const pythonPath = this.configService.getPythonPath();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_updater.py');
 
         return new Promise((resolve, reject) => {

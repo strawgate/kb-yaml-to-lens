@@ -112,13 +112,13 @@ class KibanaClient:
 
     async def upload_ndjson(
         self,
-        ndjson_path: Path,
+        ndjson_data: Path | str,
         overwrite: bool = True,
     ) -> KibanaSavedObjectsResponse:
-        """Upload an NDJSON file to Kibana using the Saved Objects Import API.
+        """Upload NDJSON data to Kibana using the Saved Objects Import API.
 
         Args:
-            ndjson_path: Path to the NDJSON file containing saved objects
+            ndjson_data: Either a Path to an NDJSON file or a string containing NDJSON content
             overwrite: Whether to overwrite existing objects with the same IDs
 
         Returns:
@@ -136,14 +136,19 @@ class KibanaClient:
 
         connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
         async with aiohttp.ClientSession(connector=connector) as session:
-            with ndjson_path.open('rb') as f:
-                data = aiohttp.FormData()
-                data.add_field('file', f, filename=ndjson_path.name, content_type='application/ndjson')
+            data = aiohttp.FormData()
 
-                async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
-                    response.raise_for_status()
-                    json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
-                    return KibanaSavedObjectsResponse.model_validate(json_response)
+            if isinstance(ndjson_data, Path):
+                with ndjson_data.open('rb') as f:
+                    content = f.read()
+                data.add_field('file', content, filename=ndjson_data.name, content_type='application/ndjson')
+            else:
+                data.add_field('file', ndjson_data.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
+
+            async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
+                response.raise_for_status()
+                json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+                return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
