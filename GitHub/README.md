@@ -73,7 +73,3 @@ See `.github/scripts/README.md` for comprehensive documentation on all helper sc
 - Input/output formats
 - Error handling
 - Local testing instructions
-
-## Migration Guide
-
-For detailed step-by-step instructions on migrating other workflows, see `.github/scripts/MIGRATION_GUIDE.md`.
