@@ -250,5 +250,18 @@ class TestCompileLensChartState:
         state, _references = compile_lens_chart_state(query=None, filters=None, charts=[bar_chart, ref_line])
         assert state is not None
         assert state.visualization is not None
-        # Verify that reference lines were merged - should have more than just the base layer
-        assert len(state.visualization.layers) > 1  # type: ignore[attr-defined]
+        # Verify that reference lines were merged - should have both data layer and reference line layer
+        assert len(state.visualization.layers) == 2  # type: ignore[attr-defined]
+
+        # Check first layer is the bar chart data layer
+        data_layer = state.visualization.layers[0]  # type: ignore[attr-defined]
+        assert data_layer.seriesType == 'bar_stacked'  # type: ignore[attr-defined]
+        assert data_layer.xAccessor == 'dim1'  # type: ignore[attr-defined]
+        assert data_layer.accessors == ['metric1']  # type: ignore[attr-defined]
+
+        # Check second layer is the reference line layer
+        ref_layer = state.visualization.layers[1]  # type: ignore[attr-defined]
+        assert ref_layer.layerType == 'referenceLine'  # type: ignore[attr-defined]
+        assert ref_layer.accessors == ['ref1']  # type: ignore[attr-defined]
+        assert len(ref_layer.yConfig) == 1  # type: ignore[attr-defined]
+        assert ref_layer.yConfig[0].forAccessor == 'ref1'  # type: ignore[attr-defined]

@@ -1,5 +1,7 @@
 """Tests for color mapping compilation utilities."""
 
+from inline_snapshot import snapshot
+
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.base.config import ColorAssignment, ColorMapping
 
@@ -10,19 +12,27 @@ class TestCompileColorMapping:
     def test_compiles_default_color_mapping_when_none_provided(self) -> None:
         """Test that compile_color_mapping creates default mapping when None is provided."""
         result = compile_color_mapping(None)
-        assert result.paletteId == 'eui_amsterdam_color_blind'
-        assert result.colorMode == {'type': 'categorical'}
-        assert len(result.assignments) == 0
-        assert len(result.specialAssignments) == 1
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
 
     def test_compiles_empty_color_mapping(self) -> None:
         """Test that compile_color_mapping handles empty ColorMapping."""
         color_config = ColorMapping()
         result = compile_color_mapping(color_config)
-        assert result.paletteId == 'eui_amsterdam_color_blind'
-        assert result.colorMode == {'type': 'categorical'}
-        assert len(result.assignments) == 0
-        assert len(result.specialAssignments) == 1
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
 
     def test_compiles_color_mapping_with_custom_palette(self) -> None:
         """Test that compile_color_mapping preserves custom palette."""
@@ -38,9 +48,20 @@ class TestCompileColorMapping:
             ]
         )
         result = compile_color_mapping(color_config)
-        assert len(result.assignments) == 1
-        assert result.assignments[0].rule.values == ['Error']
-        assert result.assignments[0].color.colorCode == '#FF0000'
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [
+                    {
+                        'rule': {'type': 'matchExactly', 'values': ['Error']},
+                        'color': {'type': 'colorCode', 'colorCode': '#FF0000'},
+                        'touched': False,
+                    }
+                ],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
 
     def test_compiles_color_mapping_with_multiple_values_assignment(self) -> None:
         """Test that compile_color_mapping handles multiple values assignment."""
@@ -50,9 +71,20 @@ class TestCompileColorMapping:
             ]
         )
         result = compile_color_mapping(color_config)
-        assert len(result.assignments) == 1
-        assert result.assignments[0].rule.values == ['Error', 'Critical']
-        assert result.assignments[0].color.colorCode == '#FF0000'
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [
+                    {
+                        'rule': {'type': 'matchExactly', 'values': ['Error', 'Critical']},
+                        'color': {'type': 'colorCode', 'colorCode': '#FF0000'},
+                        'touched': False,
+                    }
+                ],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
 
     def test_compiles_color_mapping_with_multiple_assignments(self) -> None:
         """Test that compile_color_mapping handles multiple color assignments."""
@@ -64,13 +96,30 @@ class TestCompileColorMapping:
             ]
         )
         result = compile_color_mapping(color_config)
-        assert len(result.assignments) == 3
-        assert result.assignments[0].rule.values == ['Error']
-        assert result.assignments[0].color.colorCode == '#FF0000'
-        assert result.assignments[1].rule.values == ['Warning']
-        assert result.assignments[1].color.colorCode == '#FFA500'
-        assert result.assignments[2].rule.values == ['Info']
-        assert result.assignments[2].color.colorCode == '#0000FF'
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [
+                    {
+                        'rule': {'type': 'matchExactly', 'values': ['Error']},
+                        'color': {'type': 'colorCode', 'colorCode': '#FF0000'},
+                        'touched': False,
+                    },
+                    {
+                        'rule': {'type': 'matchExactly', 'values': ['Warning']},
+                        'color': {'type': 'colorCode', 'colorCode': '#FFA500'},
+                        'touched': False,
+                    },
+                    {
+                        'rule': {'type': 'matchExactly', 'values': ['Info']},
+                        'color': {'type': 'colorCode', 'colorCode': '#0000FF'},
+                        'touched': False,
+                    },
+                ],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
 
     def test_value_takes_precedence_over_values(self) -> None:
         """Test that single value takes precedence when both value and values are provided."""
@@ -91,16 +140,30 @@ class TestCompileColorMapping:
             ]
         )
         result = compile_color_mapping(color_config)
-        assignment = result.assignments[0]
-        assert assignment.rule.type == 'matchExactly'
-        assert assignment.color.type == 'colorCode'
-        assert assignment.touched is False
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [
+                    {
+                        'rule': {'type': 'matchExactly', 'values': ['Test']},
+                        'color': {'type': 'colorCode', 'colorCode': '#123456'},
+                        'touched': False,
+                    }
+                ],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
 
     def test_special_assignments_always_present(self) -> None:
         """Test that special assignments are always present in the result."""
         color_config = ColorMapping()
         result = compile_color_mapping(color_config)
-        assert len(result.specialAssignments) == 1
-        assert result.specialAssignments[0].rule.type == 'other'
-        assert result.specialAssignments[0].color.type == 'loop'
-        assert result.specialAssignments[0].touched is False
+        assert result.model_dump() == snapshot(
+            {
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+            }
+        )
