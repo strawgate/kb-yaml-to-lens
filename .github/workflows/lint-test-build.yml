@@ -94,10 +94,10 @@ jobs:
           echo "Coverage Vars: ${{ tojson(steps.coverage_comment.outputs) }}"
       - name: Enforce minimum Overall coverage does not decrease
         if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
-        run: echo "Overall codebase coverage decreased by ${{ steps.coverage_comment.outputs.diff_total_percent_covered * 100 }}%." && exit 1
+        run: echo "Overall codebase coverage decreased by ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}." && exit 1
       - name: Enforce minimum PR coverage of 90%
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
-        run: echo "This PR's coverage is ${{ steps.coverage_comment.outputs.diff_total_percent_covered * 100 }}% below the minimum of 90%." && exit 1
+        run: echo "This PR's coverage is ${{ steps.coverage_comment.outputs.diff_total_percent_covered }} below the minimum of 0.90" && exit 1
   test-python-cli:
     name: Test Python CLI
     runs-on: ubuntu-latest
