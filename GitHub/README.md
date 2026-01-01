@@ -42,7 +42,7 @@ Refactored workflow that uses helper scripts for common GitHub API operations:
 ### claude-project-manager-report.yml
 
 **Original size:** 208 lines
-**New size:** 211 lines
+**New size:** 212 lines
 **Changes:** Updated to use helper scripts
 
 Workflow that generates daily project manager reports. Updated to use:

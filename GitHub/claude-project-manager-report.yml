@@ -201,7 +201,7 @@ jobs:
           "project-manager"
         ```
         Use clear markdown formatting in the issue body with:
-        - Issue/PR references using  # number syntax
+        - Issue/PR references using `#number` format
         - Bulleted lists for action items
         - Clear section headers
         - Checkboxes [ ] for actionable items
