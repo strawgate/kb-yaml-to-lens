@@ -184,7 +184,7 @@ class ESQLQueryControl(BaseControl):
     variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
     """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
 
-    esql_query: str = Field(...)
+    esql_query: str = Field(..., min_length=1)
     """The ES|QL query that returns the available values for this control."""
 
     title: str = Field(...)

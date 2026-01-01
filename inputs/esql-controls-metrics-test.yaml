@@ -29,7 +29,7 @@ dashboards:
       - type: esql_query
         variable_name: agent_version
         variable_type: values
-        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version | SORT agent.version | KEEP agent.version
+        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version | SORT agent.version | KEEP agent.version | LIMIT 20
         title: Agent Version
         width: medium
 

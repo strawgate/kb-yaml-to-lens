@@ -10,13 +10,13 @@ dashboards:
     controls:
       # Static values ES|QL control
       - type: esql_static
-        variable_name: environment
+        variable_name: service_environment
         variable_type: values
         available_options:
           - production
           - staging
           - development
-        title: Environment
+        title: Service Environment
         width: medium
         single_select: true
 
@@ -33,7 +33,7 @@ dashboards:
       - type: esql_query
         variable_name: host
         variable_type: values
-        esql_query: FROM logs-* | WHERE environment == ?environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT 20
+        esql_query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT 20
         title: Host Name
         width: large
 
@@ -49,7 +49,7 @@ dashboards:
             id: metric_total_requests
           query:
             - FROM logs-*
-            - WHERE environment == ?environment
+            - WHERE service.environment == ?service_environment
             - WHERE http.response.status_code IN (?status_code)
             - STATS total_requests = COUNT(*)
 
@@ -67,7 +67,7 @@ dashboards:
             id: metric_count
           query:
             - FROM logs-*
-            - WHERE environment == ?environment
+            - WHERE service.environment == ?service_environment
             - WHERE http.response.status_code IN (?status_code)
             - STATS count = COUNT(*) BY http.response.status_code
 
@@ -79,7 +79,7 @@ dashboards:
           type: datatable
           query:
             - FROM logs-*
-            - WHERE environment == ?environment
+            - WHERE service.environment == ?service_environment
             - WHERE http.response.status_code IN (?status_code)
             - WHERE host.name == ?host
             - KEEP @timestamp, host.name, http.response.status_code, url.path
