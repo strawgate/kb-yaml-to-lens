@@ -1,0 +1,52 @@
+# Git and GitHub
+.git
+.github
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.venv
+venv
+.pytest_cache
+.ruff_cache
+.mypy_cache
+htmlcov
+.coverage
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Documentation
+docs
+mkdocs.yml
+.markdownlint.jsonc
+*.md
+!README.md
+
+# Tests
+tests
+inputs
+output
+
+# Other components
+node_modules
+vscode-extension
+fixture-generator
+
+# Config files
+.yamllint
+.yamlfix.toml
+Makefile
