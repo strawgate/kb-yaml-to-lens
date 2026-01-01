@@ -41,7 +41,7 @@ jobs:
 
         # Getting Started
         1. Read the issue description carefully to understand the request
-        2. Get issue  #${{ github.event.issue.number }} details from the GitHub repository: ${{ github.repository }}
+        2. Get issue #${{ github.event.issue.number }} details from the GitHub repository: ${{ github.repository }}
         3. Use the search_issues and search_pull_requests tools to find related issues and pull requests
         4. Search the codebase to identify related classes, methods, docs, tests, etc. that are relevant to the issue
 
@@ -65,7 +65,7 @@ jobs:
         You may not be able to do all of these things, sometimes you may find that all you can do is provide in-depth context of the
         issue and related items. That's perfectly acceptable and expected. Your performance is judged by how accurate your findings
         are, do the investigation required to have high confidence in your findings and recommendations. "I don't know" or "I'm unable
-         to recommend a course of action" is better than a bad or wrong answer.
+        to recommend a course of action" is better than a bad or wrong answer.
         When formulating your response, you will never "bury the lede", you will always provide a clear and concise tl;dr as the first
          thing in your response. As your response grows in length you can organize the more detailed parts of your response collapsible
           sections using <details> and <summary> tags. You shouldn't put everything in collapsible sections, especially if the response
