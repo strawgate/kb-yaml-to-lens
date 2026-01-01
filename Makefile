@@ -1,6 +1,7 @@
 
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary
 
-.PHONY: help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary
+all: ci
 
 help:
 	@echo "Dependency Management:"
@@ -31,7 +32,8 @@ help:
 	@echo "Testing:"
 	@echo "  test-all                 - Run ALL tests (unit, smoke, extension)"
 	@echo "  test                     - Run Python unit tests"
-	@echo "  test-coverage            - Run tests with coverage report"
+	@echo "  test-coverage            - Run tests with coverage (HTML + terminal + JSON)"
+	@echo "  coverage-report          - Open HTML coverage report in browser"
 	@echo "  test-links               - Check documentation links"
 	@echo "  test-smoke               - Run smoke tests"
 	@echo "  test-extension           - Run all VSCode extension tests"
@@ -95,11 +97,25 @@ test:
 
 test-coverage:
 	@echo "Running pytest with coverage..."
-	uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+	@uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+	@echo ""
+	@echo "✓ Coverage report generated:"
+	@echo "  • HTML report: htmlcov/index.html"
+	@echo "  • JSON report: coverage.json"
+	@echo ""
+	@echo "Run 'make coverage-report' to open the HTML report in your browser"
+
+coverage-report:
+	@echo "Opening coverage report..."
+	@if [ ! -f htmlcov/index.html ]; then \
+		echo "Error: Coverage report not found. Run 'make test-coverage' first."; \
+		exit 1; \
+	fi
+	@python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
 
 test-links:
 	@echo "Checking documentation links..."
-	uv run pytest --check-links docs/ README.md CONTRIBUTING.md
+	@uv run pytest --check-links docs/ README.md CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
 
 test-extension:
 	@echo "Running VSCode extension tests..."
@@ -117,7 +133,7 @@ test-extension-typescript:
 test-extension-e2e:
 	@echo "Running Extension E2E Tests..."
 	@uv sync --group dev
-	@. .venv/bin/activate && cd vscode-extension && xvfb-run -a npm test
+	@. .venv/bin/activate && cd vscode-extension && npm install && xvfb-run -a npm test
 
 inspector:
 	@echo "Running MCP Inspector..."

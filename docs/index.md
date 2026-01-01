@@ -21,6 +21,7 @@ graph LR
 - **YAML-based Definition** – Define dashboards, panels, filters, and queries in simple, readable YAML.
 - **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+.
 - **Rich Panel Support** – Support for Lens (metric, pie, XY charts), Markdown, Links, Image, and Search panels.
+- **Color Palettes** – Choose from color-blind safe, brand, and other built-in color palettes.
 - **Interactive Controls** – Add options lists, range sliders, and time sliders with chaining support.
 - **Flexible Filtering** – Use a comprehensive filter DSL (exists, phrase, range) or raw KQL/Lucene/ESQL queries.
 - **Direct Upload** – Compile and upload to Kibana in one step, with support for authentication and API keys.
@@ -72,7 +73,7 @@ dashboards:
           # Hello, Kibana!
 
           This is my first markdown panel.
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
 ```
 
 #### Example 2: Simple Lens Metric Panel
@@ -86,7 +87,7 @@ dashboards:
   description: A dashboard with a single metric panel
   panels:
     - type: lens
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
       index_pattern: your-index-pattern-*
       chart:
         type: metric
@@ -111,6 +112,7 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 ### Learn More
 
 - **[CLI Reference](CLI.md)** – Detailed documentation of the `kb-dashboard` command-line tool for compiling and uploading dashboards.
+- **[VS Code Extension](vscode-extension.md)** – Live compilation, preview, and visual grid editing in Visual Studio Code.
 - **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples covering various use cases.
 
 ### User Guide
@@ -140,9 +142,6 @@ Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/
 ## Requirements
 
 - Python 3.12+
-- PyYAML 6.0+
-- Pydantic 2.11.3+
-- beartype 0.20.2+
 
 ## License
 

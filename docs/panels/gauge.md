@@ -19,13 +19,13 @@ Watch the colored needle change.
 
 A goal line drawn across the way—
 "You're almost there!" the markers say.
-Arc or bullet, circle, bar:
+Arc or bullet, circle or bar:
 The gauge reveals just where you are.
 
 CPU usage, quota met,
-Performance targets? No sweat.
+Performance targets? Not a sweat.
 Not just data, but direction clear—
-The gauge tracks progress through the year.
+The gauge tracks progress throughout the year.
 ```
 
 ---
@@ -68,6 +68,31 @@ dashboards:
             color_mode: palette
         title: "Response Time"
         grid: { x: 0, y: 0, w: 4, h: 3 }
+```
+
+## ES|QL Gauge Chart
+
+The ES|QL variant supports the same configuration options but uses ES|QL queries and metrics instead of Lens data views:
+
+```yaml
+dashboards:
+  - name: "ES|QL Performance Dashboard"
+    panels:
+      - esql:
+          type: gauge
+          query: |
+            FROM metrics-*
+            | STATS avg_cpu = AVG(system.cpu.total.pct)
+          metric:
+            field: "avg_cpu"
+          minimum: 0
+          maximum: 100
+          goal: 80
+          appearance:
+            shape: arc
+            color_mode: palette
+        title: "Average CPU Usage"
+        grid: { x: 0, y: 0, w: 6, h: 4 }
 ```
 
 ## Full Configuration Options

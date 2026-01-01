@@ -16,16 +16,35 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 - **Direct Upload** – Optional direct upload to Kibana with authentication support
 - **Screenshot Export** – Generate PNG screenshots of dashboards with custom time ranges using Kibana's Reporting API
 
+## Prerequisites
+
+- **Python 3.12+**
+- **[uv](https://github.com/astral-sh/uv)** (recommended for dependency management)
+
 ## Quick Start
 
 ### Installation Options
 
 #### Option 1: Using uv (Recommended for Development)
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
+
+**For basic usage (compiling dashboards):**
 
 ```bash
 uv sync
+```
+
+**For development (includes testing, linting, type checking):**
+
+```bash
+uv sync --group dev
+```
+
+Or simply use the convenience command:
+
+```bash
+make install
 ```
 
 #### Option 2: Using Docker
@@ -61,7 +80,7 @@ dashboards:
   description: A simple dashboard with markdown
   panels:
     - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
       markdown:
         content: |
           # Welcome to Kibana!
@@ -143,7 +162,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 Compile YAML files to NDJSON format:
 
 ```bash
-kb-dashboard compile [OPTIONS]
+uv run kb-dashboard compile [OPTIONS]
 ```
 
 **Options:**
@@ -165,7 +184,7 @@ kb-dashboard compile [OPTIONS]
 Generate a PNG screenshot of a Kibana dashboard using the Kibana Reporting API:
 
 ```bash
-kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
+uv run kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
 ```
 
 **Required Options:**
@@ -190,23 +209,23 @@ kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTION
 
 ```bash
 # Screenshot with default settings
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 
 # Screenshot with custom time range (absolute)
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
   --time-from "2024-01-01T00:00:00Z" --time-to "2024-12-31T23:59:59Z"
 
 # Screenshot with relative time range
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
   --time-from "now-7d" --time-to "now"
 
 # Screenshot with custom dimensions (4K)
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
   --width 3840 --height 2160
 
 # Screenshot with API key authentication
 export KIBANA_API_KEY="your-api-key"
-kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
+uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
 ```
 
 **Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
