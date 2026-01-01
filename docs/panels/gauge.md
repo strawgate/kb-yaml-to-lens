@@ -70,6 +70,31 @@ dashboards:
         grid: { x: 0, y: 0, w: 4, h: 3 }
 ```
 
+## ES|QL Gauge Chart
+
+The ES|QL variant supports the same configuration options but uses ES|QL queries and metrics instead of Lens data views:
+
+```yaml
+dashboards:
+  - name: "ES|QL Performance Dashboard"
+    panels:
+      - esql:
+          type: gauge
+          query: |
+            FROM metrics-*
+            | STATS avg_cpu = AVG(system.cpu.total.pct)
+          metric:
+            field: "avg_cpu"
+          minimum: 0
+          maximum: 100
+          goal: 80
+          appearance:
+            shape: arc
+            color_mode: palette
+        title: "Average CPU Usage"
+        grid: { x: 0, y: 0, w: 6, h: 4 }
+```
+
 ## Full Configuration Options
 
 ### Lens Gauge Chart
