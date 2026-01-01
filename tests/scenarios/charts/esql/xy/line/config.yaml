@@ -1,0 +1,19 @@
+---
+dashboards:
+  - name: '[Metrics Aerospike] Overview Yaml'
+    description: A dashboard for Aerospike Metrics
+    controls:
+      - type: options
+        label: Aerospike Namespace
+        data_view: metrics-*
+        field: aerospike.namespace
+    panels:
+      - title: Panel Title
+        grid: {x: 0, y: 0, w: 48, h: 16}
+        esql:
+          type: line
+          query: "FROM logs-* | STATS count() BY @timestamp"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: count()

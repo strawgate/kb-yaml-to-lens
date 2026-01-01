@@ -1,0 +1,17 @@
+---
+dashboards:
+  - name: ES|QL Area Chart Example
+    description: Dashboard with ES|QL area chart
+    panels:
+      - title: Traffic Over Time
+        grid: {x: 0, y: 0, w: 24, h: 16}
+        esql:
+          type: area
+          mode: stacked
+          query: "FROM metrics-* | STATS avg(system.cpu.total.pct) BY @timestamp, host.name"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: avg(system.cpu.total.pct)
+          breakdown:
+            field: host.name

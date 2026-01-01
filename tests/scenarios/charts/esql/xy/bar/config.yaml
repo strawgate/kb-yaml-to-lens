@@ -1,0 +1,17 @@
+---
+dashboards:
+  - name: ES|QL Bar Chart Example
+    description: Dashboard with ES|QL bar chart
+    panels:
+      - title: Request Count by Status
+        grid: {x: 0, y: 0, w: 24, h: 16}
+        esql:
+          type: bar
+          mode: stacked
+          query: "FROM logs-* | STATS count() BY @timestamp, http.response.status_code"
+          dimensions:
+            - field: "@timestamp"
+          metrics:
+            - field: count()
+          breakdown:
+            field: http.response.status_code
