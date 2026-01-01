@@ -36,7 +36,7 @@ from dashboard_compiler.panels.charts.xy.view import (
     XYReferenceLineLayerConfig,
     YConfig,
 )
-from dashboard_compiler.shared.config import get_layer_id, random_id_generator
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -95,7 +95,7 @@ def compile_lens_reference_line_layer(
             - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
     # Generate a primary layer ID for the data view reference and visualization layer
-    primary_layer_id = random_id_generator()
+    primary_layer_id = get_layer_id(layer)
 
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
     accessor_ids: list[str] = []
