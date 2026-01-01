@@ -1,14 +1,13 @@
 """Provides functions to load, render, and dump YAML-to-Lens Dashboards."""
 
 from pathlib import Path
-from typing import Any
 
 import yaml
 
 from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
-from dashboard_compiler.shared import ensure_dict, ensure_list
+from dashboard_compiler.loader import DashboardConfig
 
 
 def load(path: str) -> list[Dashboard]:
@@ -24,18 +23,10 @@ def load(path: str) -> list[Dashboard]:
     load_path = Path(path)
 
     with load_path.open() as file:
-        config: Any = yaml.safe_load(file)  # pyright: ignore[reportAny]
+        config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
-    config_dict = ensure_dict(config, f'YAML file {path}')
-    dashboards_data: Any = config_dict.get('dashboards', [])  # pyright: ignore[reportAny]
-    dashboards_list = ensure_list(dashboards_data, f"'dashboards' key in {path}")
-
-    dashboards: list[Dashboard] = []
-    for i, dashboard_data in enumerate(dashboards_list):  # pyright: ignore[reportAny]
-        dashboard_dict = ensure_dict(dashboard_data, f'Dashboard entry {i} in {path}')
-        dashboards.append(Dashboard(**dashboard_dict))  # pyright: ignore[reportAny]
-
-    return dashboards
+    config = DashboardConfig.model_validate(config_data)
+    return config.dashboards
 
 
 def render(dashboard: Dashboard) -> KbnDashboard:

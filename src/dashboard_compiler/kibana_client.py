@@ -9,8 +9,6 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Field
 
-from dashboard_compiler.shared import ensure_dict, ensure_str
-
 logger = logging.getLogger(__name__)
 
 HTTP_OK = 200
@@ -59,6 +57,14 @@ class KibanaSavedObjectsResponse(BaseModel):
         default_factory=list, alias='successResults', description='List of successfully imported objects'
     )
     errors: list[SavedObjectError] = Field(default_factory=list, description='List of errors encountered during import')
+
+
+class KibanaReportingJobResponse(BaseModel):
+    """Response from Kibana reporting job creation API."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    path: str = Field(..., description='Path to poll for job completion')
 
 
 class KibanaClient:
@@ -149,9 +155,8 @@ class KibanaClient:
 
             async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                 response.raise_for_status()
-                json_response: Any = await response.json()  # pyright: ignore[reportAny]
-                json_dict = ensure_dict(json_response, 'Kibana saved objects API response')
-                return KibanaSavedObjectsResponse.model_validate(json_dict)
+                json_response = await response.json()  # pyright: ignore[reportAny]
+                return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
@@ -219,11 +224,13 @@ class KibanaClient:
             'locatorParams': locator_params,
         }
 
-        rison_result: Any = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        rison_params = ensure_str(rison_result, 'prison.dumps result')
+        rison_result = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if not isinstance(rison_result, str):
+            msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
+            raise TypeError(msg)
 
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
-        params: dict[str, str] = {'jobParams': rison_params}
+        params: dict[str, str] = {'jobParams': rison_result}
 
         headers, auth = self._get_auth_headers_and_auth()
 
@@ -233,10 +240,9 @@ class KibanaClient:
             session.post(endpoint, params=params, headers=headers, auth=auth) as response,
         ):
             response.raise_for_status()
-            result: Any = await response.json()  # pyright: ignore[reportAny]
-            result_dict = ensure_dict(result, 'Kibana reporting API response')
-            job_path: Any = result_dict.get('path')
-            return ensure_str(job_path, 'Kibana reporting API job path')
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            job_response = KibanaReportingJobResponse.model_validate(json_response)
+            return job_response.path
 
     async def wait_for_job_completion(
         self,
