@@ -1,8 +1,8 @@
 """Tests for query type discrimination utilities."""
 
-import pytest
-
 from typing import Any, cast
+
+import pytest
 
 from dashboard_compiler.queries.config import ESQLQuery, KqlQuery, LuceneQuery
 from dashboard_compiler.queries.types import get_query_type
@@ -74,9 +74,9 @@ class TestGetQueryTypeFromObject:
     def test_raises_value_error_for_string_input(self) -> None:
         """Test that get_query_type raises ValueError for string input."""
         with pytest.raises(ValueError, match='Cannot determine query type from object'):
-            _ = get_query_type(cast(Any, 'not a query'))
+            _ = get_query_type(cast('Any', 'not a query'))
 
     def test_raises_value_error_for_none_input(self) -> None:
         """Test that get_query_type raises ValueError for None input."""
         with pytest.raises(ValueError, match='Cannot determine query type from object'):
-            _ = get_query_type(cast(Any, None))
+            _ = get_query_type(cast('Any', None))

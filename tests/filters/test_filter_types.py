@@ -106,7 +106,7 @@ class TestGetFilterTypeFromObject:
     def test_raises_error_for_string_input(self) -> None:
         """Test that get_filter_type raises ValueError for string input."""
         with pytest.raises(ValueError, match='Cannot determine filter type from object'):
-            _ = get_filter_type(cast(Any, 'not a filter'))
+            _ = get_filter_type(cast('Any', 'not a filter'))
 
 
 class TestGetFilterTypeFromDict:

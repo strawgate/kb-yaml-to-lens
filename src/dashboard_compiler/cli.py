@@ -57,7 +57,6 @@ def create_error_table(errors: list[SavedObjectError]) -> Table:
 
 def _extract_error_message(error: SavedObjectError) -> str:
     if error.error:
-        assert isinstance(error.error, dict)
         message: str | None = error.error.get('message')
         if message:
             return message
