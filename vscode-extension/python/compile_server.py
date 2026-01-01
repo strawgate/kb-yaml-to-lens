@@ -4,12 +4,16 @@ This implementation uses the Language Server Protocol with pygls v2 to provide
 dashboard compilation services to the VS Code extension.
 """
 
+import json
+import logging
 import sys
 from pathlib import Path
 from typing import Any
 
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
+
+logger = logging.getLogger(__name__)
 
 # Add the project source directory to the path
 repo_root = Path(__file__).parent.parent.parent
@@ -19,6 +23,7 @@ if src_path.exists() and str(src_path) not in sys.path:
 
 try:
     from dashboard_compiler.dashboard_compiler import load, render
+    from dashboard_compiler.kibana_client import KibanaClient
 except ImportError as e:
     msg = (
         f'Failed to import dashboard_compiler. Make sure the dashboard_compiler '
@@ -266,6 +271,85 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
     """
     file_path = params.text_document.uri
     ls.protocol.notify('dashboard/fileChanged', {'uri': file_path})
+
+
+@server.feature('dashboard/uploadToKibana')
+async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Upload a compiled dashboard to Kibana.
+
+    Args:
+        params: Object containing:
+            - path: YAML file path
+            - dashboard_index: Dashboard index to upload
+            - kibana_url: Kibana base URL
+            - username: Optional username
+            - password: Optional password
+            - api_key: Optional API key
+            - ssl_verify: Whether to verify SSL
+
+    Returns:
+        Dictionary with success status and dashboard URL or error
+    """
+    params_dict = _params_to_dict(params)
+
+    path = params_dict.get('path')
+    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    kibana_url = params_dict.get('kibana_url')
+    username = params_dict.get('username')
+    password = params_dict.get('password')
+    api_key = params_dict.get('api_key')
+    ssl_verify = params_dict.get('ssl_verify', True)
+
+    if path is None or path == '' or kibana_url is None or kibana_url == '':
+        return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
+
+    try:
+        # Compile the dashboard first
+        logger.info(f'Compiling dashboard from {path} (index {dashboard_index})')
+        compile_result = _compile_dashboard(path, dashboard_index)
+        if compile_result['success'] is not True:
+            logger.error(f'Compilation failed: {compile_result.get("error")}')
+            return compile_result
+
+        # Create NDJSON content
+        ndjson_content = json.dumps(compile_result['data'])
+        logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
+
+        # Create Kibana client
+        logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
+        client = KibanaClient(
+            url=kibana_url,
+            username=username if (username is not None and username != '') else None,
+            password=password if (password is not None and password != '') else None,
+            api_key=api_key if (api_key is not None and api_key != '') else None,
+            ssl_verify=ssl_verify,
+        )
+
+        # Upload to Kibana
+        result = await client.upload_ndjson(ndjson_content, overwrite=True)
+        logger.debug(
+            f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
+        )
+
+        if result.success is True:
+            # Extract dashboard ID
+            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+
+            if len(dashboard_ids) > 0:
+                dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
+                return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
+
+            logger.error('No dashboard found in upload results')
+            return {'success': False, 'error': 'No dashboard found in upload results'}
+
+        error_messages = [str(err) for err in result.errors]
+        logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
+        return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
+
+    except Exception as e:
+        logger.exception('Upload error occurred')
+        return {'success': False, 'error': f'Upload error: {e!s}'}
 
 
 if __name__ == '__main__':

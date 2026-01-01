@@ -10,6 +10,8 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 - **Live Preview**: View your compiled dashboard in a side-by-side preview panel with live reload functionality
 - **Visual Grid Layout Editor**: Drag and drop panels to rearrange them, resize panels interactively, with automatic YAML updates
 - **Export to NDJSON**: Copy or download compiled dashboards as NDJSON for direct import into Kibana
+- **Open in Kibana**: Upload dashboards directly to Kibana and open them in your browser with one command
+- **Secure Credential Storage**: Kibana credentials stored encrypted using VS Code's SecretStorage API (OS keychain)
 - **Error Reporting**: Clear error messages when compilation fails
 - **Python Integration**: Leverages the existing `dashboard_compiler` Python package
 
@@ -86,6 +88,19 @@ Configure the extension in VS Code settings:
 
 - **`yamlDashboard.compileOnSave`**: Enable/disable automatic compilation on save (default: `true`)
 
+- **`yamlDashboard.kibana.url`**: Kibana base URL for uploading dashboards (default: `http://localhost:5601`)
+
+- **`yamlDashboard.kibana.sslVerify`**: Verify SSL certificates when connecting to Kibana (default: `true`)
+
+- **`yamlDashboard.kibana.browserType`**: Browser to use when opening Kibana dashboards (default: `external`)
+  - `external`: Open in system default browser
+  - `simple`: Open in VS Code's built-in simple browser
+
+- **`yamlDashboard.kibana.uploadOnSave`**: Automatically upload dashboard to Kibana when YAML file is saved (default: `false`)
+  - Requires Kibana URL and credentials to be configured
+  - Shows subtle status messages in the status bar
+  - Errors are displayed in the status bar (no intrusive popups)
+
 ## Usage
 
 ### Commands
@@ -96,6 +111,11 @@ The extension provides the following commands (accessible via Command Palette - 
 - **YAML Dashboard: Preview Dashboard** - Open preview panel for the current YAML file
 - **YAML Dashboard: Edit Dashboard Layout** - Open visual grid layout editor for drag-and-drop panel positioning
 - **YAML Dashboard: Export Dashboard to NDJSON** - Copy compiled NDJSON to clipboard
+- **YAML Dashboard: Open in Kibana** - Upload dashboard to Kibana and open it in your browser
+- **YAML Dashboard: Set Kibana Username** - Store Kibana username securely
+- **YAML Dashboard: Set Kibana Password** - Store Kibana password securely
+- **YAML Dashboard: Set Kibana API Key** - Store Kibana API key securely (recommended)
+- **YAML Dashboard: Clear Kibana Credentials** - Remove all stored Kibana credentials
 
 ### Keyboard Shortcuts
 
@@ -162,6 +182,7 @@ The extension provides comprehensive code snippets to speed up dashboard creatio
    - Use "Show Grid Lines" and "Snap to Grid" options for easier alignment
 7. The preview updates automatically when you save changes
 8. Use the "Copy NDJSON" button in the preview to export for Kibana
+9. **(Optional)** Enable `yamlDashboard.kibana.uploadOnSave` to automatically upload to Kibana on every save
 
 ## Preview Panel
 
@@ -175,7 +196,32 @@ The preview panel shows:
 - **Dashboard Information**: Type, ID, version
 - **Compiled Output**: Pretty-printed JSON view of the compiled dashboard
 
-## Importing to Kibana
+## Uploading to Kibana
+
+### Option 1: Direct Upload (Recommended)
+
+The extension can upload dashboards directly to Kibana and open them in your browser:
+
+1. **Configure Kibana URL** (one-time setup):
+   - Open VS Code settings
+   - Set `yamlDashboard.kibana.url` to your Kibana instance (e.g., `https://my-kibana.example.com`)
+
+2. **Set Kibana credentials** (one-time setup):
+   - Open Command Palette (Ctrl+Shift+P)
+   - Run **"YAML Dashboard: Set Kibana API Key"** (recommended)
+     - Or use **"Set Kibana Username"** and **"Set Kibana Password"** for basic auth
+   - Credentials are stored securely using your OS keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service)
+
+3. **Upload and open dashboard**:
+   - Open a YAML dashboard file
+   - Run **"YAML Dashboard: Open in Kibana"** from the Command Palette or right-click menu
+   - The dashboard is compiled, uploaded, and opened in your browser automatically
+
+**Security Note**: Credentials are encrypted and stored in your operating system's secure credential storage. They are never stored in plaintext or synced to the cloud.
+
+### Option 2: Manual Import
+
+If you prefer manual import or don't have direct Kibana access:
 
 1. Use the "Copy NDJSON for Kibana Import" button in the preview
 2. In Kibana, navigate to: **Stack Management → Saved Objects → Import**
@@ -224,6 +270,27 @@ The preview panel shows:
 - Use absolute path in settings: `"yamlDashboard.pythonPath": "/full/path/to/python"`
 - For virtual environments, use the venv Python: `"yamlDashboard.pythonPath": "/path/to/venv/bin/python"`
 - For conda: `"yamlDashboard.pythonPath": "/path/to/conda/envs/yourenv/bin/python"`
+
+### Kibana upload issues
+
+**Problem**: "Failed to open in Kibana" or authentication errors
+
+**Solutions**:
+
+- Verify Kibana URL is correct in settings (including http/https protocol)
+- Check credentials are set using the credential commands
+- For self-signed certificates, set `yamlDashboard.kibana.sslVerify` to `false` (not recommended for production)
+- Verify Kibana is accessible from your machine (try opening the URL in a browser)
+- For API key issues, ensure the key has permissions to create saved objects
+- Check the Output panel (View → Output → YAML Dashboard Compiler) for detailed error messages
+
+**Problem**: Credentials not persisting
+
+**Solutions**:
+
+- Credentials are stored in OS keychain - ensure your keychain is unlocked
+- On Linux, ensure `libsecret` is installed for credential storage
+- Try clearing and re-setting credentials using the "Clear Kibana Credentials" command
 
 ## Architecture
 

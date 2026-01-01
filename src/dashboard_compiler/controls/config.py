@@ -5,10 +5,11 @@ from typing import Annotated, Literal, Self
 
 from pydantic import Field, model_validator
 
+from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type ControlTypes = Annotated[
-    RangeSliderControl | OptionsListControl | TimeSliderControl,
+    RangeSliderControl | OptionsListControl | TimeSliderControl | ESQLStaticValuesControl | ESQLQueryControl,
     Field(discriminator='type'),
 ]
 
@@ -141,3 +142,53 @@ class TimeSliderControl(BaseControl):
             raise ValueError(msg)
 
         return self
+
+
+class ESQLStaticValuesControl(BaseControl):
+    """Represents an ES|QL control with static values.
+
+    This control allows users to select from a predefined list of values
+    to filter ES|QL visualizations via variables.
+    """
+
+    type: Literal['esql_static'] = 'esql_static'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    available_options: list[str] = Field(...)
+    """The static list of available values for this control."""
+
+    title: str = Field(...)
+    """Display title for the control."""
+
+    single_select: bool = Field(default=False)
+    """If true, only allow single selection from the options."""
+
+
+class ESQLQueryControl(BaseControl):
+    """Represents an ES|QL control with query-driven values.
+
+    This control dynamically fetches available values from an ES|QL query
+    to filter ES|QL visualizations via variables.
+    """
+
+    type: Literal['esql_query'] = 'esql_query'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    esql_query: str = Field(..., min_length=1)
+    """The ES|QL query that returns the available values for this control."""
+
+    title: str = Field(...)
+    """Display title for the control."""
+
+    single_select: bool = Field(default=False)
+    """If true, only allow single selection from the options."""

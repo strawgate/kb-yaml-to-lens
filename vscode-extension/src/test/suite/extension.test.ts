@@ -65,6 +65,11 @@ suite('Extension Test Suite', () => {
         const commands = await vscode.commands.getCommands(true);
         assert.ok(commands.includes('yamlDashboard.compile'), 'yamlDashboard.compile command missing');
         assert.ok(commands.includes('yamlDashboard.preview'), 'yamlDashboard.preview command missing');
+        assert.ok(commands.includes('yamlDashboard.openInKibana'), 'yamlDashboard.openInKibana command missing');
+        assert.ok(commands.includes('yamlDashboard.setKibanaUsername'), 'yamlDashboard.setKibanaUsername command missing');
+        assert.ok(commands.includes('yamlDashboard.setKibanaPassword'), 'yamlDashboard.setKibanaPassword command missing');
+        assert.ok(commands.includes('yamlDashboard.setKibanaApiKey'), 'yamlDashboard.setKibanaApiKey command missing');
+        assert.ok(commands.includes('yamlDashboard.clearKibanaCredentials'), 'yamlDashboard.clearKibanaCredentials command missing');
     });
 
     test('Should get dashboards from YAML file', async () => {
