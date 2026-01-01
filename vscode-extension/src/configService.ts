@@ -49,16 +49,43 @@ export class ConfigService {
     }
 
     /**
+     * Gets a credential from secure storage.
+     * @param key The secret key to retrieve
+     * @returns The credential value, or empty string if not set
+     */
+    private async getCredential(key: string): Promise<string> {
+        try {
+            return await this.secrets.get(key) ?? '';
+        } catch (error) {
+            console.error('Failed to retrieve credential:', error);
+            return '';
+        }
+    }
+
+    /**
+     * Sets a credential in secure storage.
+     * @param key The secret key to store
+     * @param value The credential value to store
+     * @param description Human-readable description for error messages
+     */
+    private async setCredential(key: string, value: string, description: string): Promise<void> {
+        try {
+            if (value) {
+                await this.secrets.store(key, value);
+            } else {
+                await this.secrets.delete(key);
+            }
+        } catch (error) {
+            throw new Error(`Failed to store ${description}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
+    /**
      * Gets the Kibana username from secure storage.
      * @returns The configured Kibana username, or empty string if not set
      */
     async getKibanaUsername(): Promise<string> {
-        try {
-            return await this.secrets.get(ConfigService.SECRET_KEYS.username) ?? '';
-        } catch (error) {
-            console.error('Failed to retrieve Kibana username:', error);
-            return '';
-        }
+        return this.getCredential(ConfigService.SECRET_KEYS.username);
     }
 
     /**
@@ -66,15 +93,7 @@ export class ConfigService {
      * @param username The username to store
      */
     async setKibanaUsername(username: string): Promise<void> {
-        try {
-            if (username) {
-                await this.secrets.store(ConfigService.SECRET_KEYS.username, username);
-            } else {
-                await this.secrets.delete(ConfigService.SECRET_KEYS.username);
-            }
-        } catch (error) {
-            throw new Error(`Failed to store Kibana username: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
+        return this.setCredential(ConfigService.SECRET_KEYS.username, username, 'Kibana username');
     }
 
     /**
@@ -82,12 +101,7 @@ export class ConfigService {
      * @returns The configured Kibana password, or empty string if not set
      */
     async getKibanaPassword(): Promise<string> {
-        try {
-            return await this.secrets.get(ConfigService.SECRET_KEYS.password) ?? '';
-        } catch (error) {
-            console.error('Failed to retrieve Kibana password:', error);
-            return '';
-        }
+        return this.getCredential(ConfigService.SECRET_KEYS.password);
     }
 
     /**
@@ -95,15 +109,7 @@ export class ConfigService {
      * @param password The password to store
      */
     async setKibanaPassword(password: string): Promise<void> {
-        try {
-            if (password) {
-                await this.secrets.store(ConfigService.SECRET_KEYS.password, password);
-            } else {
-                await this.secrets.delete(ConfigService.SECRET_KEYS.password);
-            }
-        } catch (error) {
-            throw new Error(`Failed to store Kibana password: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
+        return this.setCredential(ConfigService.SECRET_KEYS.password, password, 'Kibana password');
     }
 
     /**
@@ -111,12 +117,7 @@ export class ConfigService {
      * @returns The configured Kibana API key, or empty string if not set
      */
     async getKibanaApiKey(): Promise<string> {
-        try {
-            return await this.secrets.get(ConfigService.SECRET_KEYS.apiKey) ?? '';
-        } catch (error) {
-            console.error('Failed to retrieve Kibana API key:', error);
-            return '';
-        }
+        return this.getCredential(ConfigService.SECRET_KEYS.apiKey);
     }
 
     /**
@@ -124,15 +125,7 @@ export class ConfigService {
      * @param apiKey The API key to store
      */
     async setKibanaApiKey(apiKey: string): Promise<void> {
-        try {
-            if (apiKey) {
-                await this.secrets.store(ConfigService.SECRET_KEYS.apiKey, apiKey);
-            } else {
-                await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
-            }
-        } catch (error) {
-            throw new Error(`Failed to store Kibana API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
+        return this.setCredential(ConfigService.SECRET_KEYS.apiKey, apiKey, 'Kibana API key');
     }
 
     /**

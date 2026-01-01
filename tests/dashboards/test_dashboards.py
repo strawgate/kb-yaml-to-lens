@@ -113,10 +113,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
 
     gen = deterministic_id_generator()
     with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
     ):
         kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
@@ -283,10 +280,7 @@ async def test_dashboard_with_one_query() -> None:
 
     gen = deterministic_id_generator()
     with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
     ):
         kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
@@ -354,10 +348,7 @@ async def test_dashboard_with_one_filter() -> None:
 
     gen = deterministic_id_generator()
     with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
     ):
         kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
@@ -461,10 +452,7 @@ async def test_dashboard_with_custom_options() -> None:
 
     gen = deterministic_id_generator()
     with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
     ):
         kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
@@ -558,10 +546,7 @@ async def test_dashboard_with_default_options() -> None:
 
     gen = deterministic_id_generator()
     with (
-        patch('dashboard_compiler.panels.charts.metric.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.pie.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.xy.compile.random_id_generator', side_effect=lambda: next(gen)),
-        patch('dashboard_compiler.panels.charts.esql.columns.compile.random_id_generator', side_effect=lambda: next(gen)),
+        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
     ):
         kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 

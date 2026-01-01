@@ -82,6 +82,24 @@ export class DashboardCompilerLSP {
     }
 
     /**
+     * Check LSP result for success and throw error if failed.
+     *
+     * @param result LSP result object with success/error fields
+     * @param defaultError Default error message if result.error is not provided
+     * @returns The data from the result
+     * @throws Error if result.success is false
+     */
+    private checkLspResult<T extends { success: boolean; data?: unknown; error?: string }>(
+        result: T,
+        defaultError: string
+    ): T['data'] {
+        if (!result.success) {
+            throw new Error(result.error || defaultError);
+        }
+        return result.data;
+    }
+
+    /**
      * Resolve the Python path to use for the LSP server.
      *
      * Resolution order:
@@ -195,11 +213,7 @@ export class DashboardCompilerLSP {
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Compilation failed');
-        }
-
-        return result.data as CompiledDashboard;
+        return this.checkLspResult(result, 'Compilation failed') as CompiledDashboard;
     }
 
     /**
@@ -218,11 +232,7 @@ export class DashboardCompilerLSP {
             { path: filePath }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to get dashboards');
-        }
-
-        return result.data || [];
+        return (this.checkLspResult(result, 'Failed to get dashboards') || []) as DashboardInfo[];
     }
 
     /**
@@ -243,11 +253,7 @@ export class DashboardCompilerLSP {
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to get grid layout');
-        }
-
-        return result.data || { title: '', description: '', panels: [] };
+        return (this.checkLspResult(result, 'Failed to get grid layout') || { title: '', description: '', panels: [] }) as DashboardGridInfo;
     }
 
     /**
@@ -292,9 +298,7 @@ export class DashboardCompilerLSP {
             }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Upload failed');
-        }
+        this.checkLspResult(result, 'Upload failed');
 
         if (!result.dashboard_url || !result.dashboard_id) {
             throw new Error('Upload succeeded but dashboard URL/ID not returned');
