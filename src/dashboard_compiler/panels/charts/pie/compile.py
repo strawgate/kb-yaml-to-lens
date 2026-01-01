@@ -122,10 +122,10 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
     for metric_config in metric_configs:  # pyright: ignore[reportAny]
-        metric_result = compile_lens_metric(metric=metric_config)  # pyright: ignore[reportAny]
-        kbn_metric_column_by_id[metric_result.primary_id] = metric_result.primary_column
-        kbn_metric_column_by_id.update(metric_result.helper_columns)
-        metric_ids.append(metric_result.primary_id)
+        metric_id, metric_column, helper_columns = compile_lens_metric(metric=metric_config)  # pyright: ignore[reportAny]
+        kbn_metric_column_by_id[metric_id] = metric_column
+        kbn_metric_column_by_id.update(helper_columns)
+        metric_ids.append(metric_id)
 
     slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.slice_by, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
