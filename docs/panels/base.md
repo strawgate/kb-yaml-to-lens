@@ -146,7 +146,9 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 
 ## Color Mapping Configuration
 
-Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. This allows you to control how colors are assigned to different data values or categories in your visualizations.
+> **Quick Reference**: Want to customize chart colors? See [Color Mapping Examples](#color-mapping-examples) below for palette selection, or the [Custom Color Assignments](../advanced/color-assignments.md) guide for manual color assignments.
+
+Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. You can select from built-in color palettes or manually assign specific colors to data values.
 
 ### ColorMapping Object
 
@@ -165,7 +167,9 @@ The `palette` field accepts the following palette IDs:
 * `'elastic_brand'` - Elastic brand colors
 * `'gray'` - Grayscale palette
 
-#### ColorAssignment Object
+#### ColorAssignment Object (Advanced)
+
+Manual color assignments are an advanced feature. For an introduction and examples, see the [Custom Color Assignments](../advanced/color-assignments.md) guide.
 
 | YAML Key | Data Type | Description | Required |
 | -------- | --------- | ----------- | -------- |
@@ -198,7 +202,9 @@ dashboards:
             palette: 'elastic_brand'  # Use Elastic brand colors
 ```
 
-#### Example 2: Manual Color Assignments
+#### Example 2: Manual Color Assignments (Advanced)
+
+For a detailed introduction to color assignments, see the [Custom Color Assignments](../advanced/color-assignments.md) guide.
 
 ```yaml
 dashboards:
