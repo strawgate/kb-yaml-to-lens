@@ -38,7 +38,7 @@ dashboards:
 
     # Write YAML to temporary file
     yaml_file = tmp_path / 'esql_line_chart.yaml'
-    _ = yaml_file.write_text(yaml_content)
+    yaml_file.write_text(yaml_content)
 
     # Load and compile the dashboard
     dashboards = load(str(yaml_file))
@@ -110,7 +110,7 @@ dashboards:
 
     # Write YAML to temporary file
     yaml_file = tmp_path / 'esql_bar_chart.yaml'
-    _ = yaml_file.write_text(yaml_content)
+    yaml_file.write_text(yaml_content)
 
     # Load and compile the dashboard
     dashboards = load(str(yaml_file))
@@ -185,7 +185,7 @@ dashboards:
 
     # Write YAML to temporary file
     yaml_file = tmp_path / 'esql_area_chart.yaml'
-    _ = yaml_file.write_text(yaml_content)
+    yaml_file.write_text(yaml_content)
 
     # Load and compile the dashboard
     dashboards = load(str(yaml_file))
