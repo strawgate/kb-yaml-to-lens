@@ -15,7 +15,7 @@ from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_m
 from dashboard_compiler.shared.config import random_id_generator
 
 if TYPE_CHECKING:
-    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
 
 
 def compile_heatmap_chart_visualization_state(
@@ -87,12 +87,12 @@ def compile_lens_heatmap_chart(
 
     # Compile value metric first (dimensions may reference it)
     value_id, value_column = compile_lens_metric(lens_heatmap_chart.value)
-    kbn_metric_columns_by_id: dict[str, KbnLensColumnTypes] = {value_id: value_column}
+    kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {value_id: value_column}
 
     # Compile X-axis dimension (required)
     x_id, x_column = compile_lens_dimension(
         lens_heatmap_chart.x_axis,
-        kbn_metric_column_by_id=kbn_metric_columns_by_id,  # pyright: ignore[reportArgumentType]
+        kbn_metric_column_by_id=kbn_metric_columns_by_id,
     )
     kbn_columns_by_id[x_id] = x_column
 
@@ -101,7 +101,7 @@ def compile_lens_heatmap_chart(
     if lens_heatmap_chart.y_axis is not None:
         y_id, y_column = compile_lens_dimension(
             lens_heatmap_chart.y_axis,
-            kbn_metric_column_by_id=kbn_metric_columns_by_id,  # pyright: ignore[reportArgumentType]
+            kbn_metric_column_by_id=kbn_metric_columns_by_id,
         )
         kbn_columns_by_id[y_id] = y_column
 
