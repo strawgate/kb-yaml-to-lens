@@ -38,8 +38,7 @@ def compile_heatmap_chart_visualization_state(
         KbnHeatmapVisualizationState: The compiled visualization state.
 
     """
-    # Compile grid configuration if provided
-    grid_config = None
+    # Compile grid configuration (always present, use defaults if not provided)
     if chart.grid_config is not None:
         gc = chart.grid_config
         grid_config = KbnHeatmapGridConfig(
@@ -49,14 +48,17 @@ def compile_heatmap_chart_visualization_state(
             isYAxisLabelVisible=gc.is_y_axis_label_visible if gc.is_y_axis_label_visible is not None else False,
             isYAxisTitleVisible=gc.is_y_axis_title_visible if gc.is_y_axis_title_visible is not None else False,
         )
+    else:
+        grid_config = KbnHeatmapGridConfig()
 
-    # Compile legend configuration if provided
-    legend = None
+    # Compile legend configuration (always present, use defaults if not provided)
     if chart.legend is not None:
         legend = KbnHeatmapLegendConfig(
             isVisible=chart.legend.is_visible if chart.legend.is_visible is not None else True,
             position=chart.legend.position if chart.legend.position is not None else 'right',
         )
+    else:
+        legend = KbnHeatmapLegendConfig()
 
     return KbnHeatmapVisualizationState(
         layerId=layer_id,

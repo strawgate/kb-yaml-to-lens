@@ -84,8 +84,8 @@ class KbnHeatmapVisualizationState(BaseVwModel):
     valueAccessor: str = Field(...)
     """Field accessor ID for the metric that determines cell color intensity."""
 
-    gridConfig: Annotated[KbnHeatmapGridConfig | None, OmitIfNone()] = Field(default=None)
-    """Grid configuration controlling cell and axis label visibility."""
+    gridConfig: KbnHeatmapGridConfig = Field(default_factory=KbnHeatmapGridConfig)
+    """Grid configuration controlling cell and axis label visibility. Always present with defaults."""
 
-    legend: Annotated[KbnHeatmapLegendConfig | None, OmitIfNone()] = Field(default=None)
-    """Legend configuration controlling visibility and position."""
+    legend: KbnHeatmapLegendConfig = Field(default_factory=KbnHeatmapLegendConfig)
+    """Legend configuration controlling visibility and position. Always present with defaults."""
