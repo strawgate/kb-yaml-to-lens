@@ -134,6 +134,14 @@ export class ConfigService {
     }
 
     /**
+     * Gets the Kibana upload on save setting.
+     * @returns True if upload on save is enabled, false otherwise
+     */
+    getKibanaUploadOnSave(): boolean {
+        return ConfigService.get<boolean>('kibana.uploadOnSave', false);
+    }
+
+    /**
      * Gets a configuration value with a default fallback.
      * @param key The configuration key
      * @param defaultValue The default value if not set

@@ -15,6 +15,7 @@ export function setupFileWatcher(
         }
 
         const compileOnSave = configService.getCompileOnSave();
+        const uploadOnSave = configService.getKibanaUploadOnSave();
 
         if (compileOnSave) {
             try {
@@ -31,6 +32,47 @@ export function setupFileWatcher(
                 vscode.window.setStatusBarMessage('$(check) Dashboard compiled', 3000);
             } catch (error) {
                 vscode.window.showErrorMessage(`Compilation failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+
+        // Upload to Kibana if enabled
+        if (uploadOnSave) {
+            try {
+                // Get Kibana configuration
+                const kibanaUrl = configService.getKibanaUrl();
+                const username = await configService.getKibanaUsername();
+                const password = await configService.getKibanaPassword();
+                const apiKey = await configService.getKibanaApiKey();
+                const sslVerify = configService.getKibanaSslVerify();
+
+                // Skip if no URL or credentials configured
+                if (!kibanaUrl || kibanaUrl === 'http://localhost:5601') {
+                    return;
+                }
+                if (!username && !password && !apiKey) {
+                    return;
+                }
+
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Window,
+                    title: 'Uploading to Kibana...'
+                }, async () => {
+                    const { dashboardId } = await compiler.uploadToKibana(
+                        document.fileName,
+                        0, // Default to first dashboard
+                        kibanaUrl,
+                        username,
+                        password,
+                        apiKey,
+                        sslVerify
+                    );
+
+                    // Show subtle success message in status bar
+                    vscode.window.setStatusBarMessage(`$(cloud-upload) Uploaded to Kibana (ID: ${dashboardId})`, 5000);
+                });
+            } catch (error) {
+                // Silent failure - just show in status bar, don't interrupt workflow
+                vscode.window.setStatusBarMessage(`$(error) Kibana upload failed: ${error instanceof Error ? error.message : String(error)}`, 5000);
             }
         }
     });
