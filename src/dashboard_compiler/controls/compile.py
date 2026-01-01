@@ -33,8 +33,8 @@ from dashboard_compiler.controls.view import (
     SearchTechnique,
 )
 from dashboard_compiler.shared.compile import return_if, return_if_equals
+from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false, default_if_none
-from dashboard_compiler.shared.id_utils import generate_id
 
 
 def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
@@ -53,7 +53,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
         MatchTechnique.EXACT: SearchTechnique.EXACT,
     }
-    stable_id = generate_id(control.id)
+    stable_id = get_layer_id(control)
 
     return KbnOptionsListControl(
         grow=default_false(control.fill_width),
@@ -84,7 +84,7 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
-    stable_id = generate_id(control.id)
+    stable_id = get_layer_id(control)
 
     return KbnRangeSliderControl(
         grow=default_false(control.fill_width),
@@ -111,7 +111,7 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
         KbnTimeSliderControl: The compiled Kibana time slider control view model.
 
     """
-    stable_id = generate_id(control.id)
+    stable_id = get_layer_id(control)
 
     return KbnTimeSliderControl(
         grow=True,
@@ -136,7 +136,7 @@ def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl)
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = generate_id(control.id)
+    stable_id = get_layer_id(control)
 
     return KbnESQLControl(
         grow=False,
@@ -167,7 +167,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = generate_id(control.id)
+    stable_id = get_layer_id(control)
 
     return KbnESQLControl(
         grow=False,

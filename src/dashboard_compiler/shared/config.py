@@ -50,6 +50,20 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     return str(guid)
 
 
+def get_layer_id(chart_config: object) -> str:
+    """Get layer ID from chart config or generate random ID.
+
+    Args:
+        chart_config: Chart configuration object with optional 'id' attribute
+
+    Returns:
+        Layer ID string (from config.id or randomly generated)
+
+    """
+    config_id = getattr(chart_config, 'id', None)
+    return config_id if config_id is not None else random_id_generator()
+
+
 class Sort(BaseCfgModel):
     """Represents a sort configuration in the Config schema."""
 
