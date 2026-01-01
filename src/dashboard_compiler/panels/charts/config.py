@@ -6,6 +6,7 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.charts.datatable import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge import ESQLGaugeChart, LensGaugeChart
+from dashboard_compiler.panels.charts.heatmap import ESQLHeatmapChart, LensHeatmapChart
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
 from dashboard_compiler.panels.charts.tagcloud import ESQLTagcloudChart, LensTagcloudChart
@@ -27,10 +28,18 @@ type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
 type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
-type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart
+type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart | LensHeatmapChart
 
 type ESQLChartTypes = (
-    ESQLMetricChart | ESQLGaugeChart | ESQLPieChart | ESQLBarChart | ESQLAreaChart | ESQLLineChart | ESQLDatatableChart | ESQLTagcloudChart
+    ESQLMetricChart
+    | ESQLGaugeChart
+    | ESQLHeatmapChart
+    | ESQLPieChart
+    | ESQLBarChart
+    | ESQLAreaChart
+    | ESQLLineChart
+    | ESQLDatatableChart
+    | ESQLTagcloudChart
 )
 
 
@@ -57,6 +66,10 @@ class LensMetricPanelConfig(LensMetricChart, LensPanelFieldsMixin):
 
 class LensGaugePanelConfig(LensGaugeChart, LensPanelFieldsMixin):
     """Configuration for a Lens gauge panel."""
+
+
+class LensHeatmapPanelConfig(LensHeatmapChart, LensPanelFieldsMixin):
+    """Configuration for a Lens heatmap panel."""
 
 
 class LensPiePanelConfig(LensPieChart, LensPanelFieldsMixin):
@@ -86,6 +99,7 @@ class LensDatatablePanelConfig(LensDatatableChart, LensPanelFieldsMixin):
 type LensPanelConfig = Annotated[
     Annotated[LensMetricPanelConfig, Tag('metric')]
     | Annotated[LensGaugePanelConfig, Tag('gauge')]
+    | Annotated[LensHeatmapPanelConfig, Tag('heatmap')]
     | Annotated[LensPiePanelConfig, Tag('pie')]
     | Annotated[LensLinePanelConfig, Tag('line')]
     | Annotated[LensBarPanelConfig, Tag('bar')]
@@ -109,6 +123,10 @@ class ESQLMetricPanelConfig(ESQLMetricChart, ESQLPanelFieldsMixin):
 
 class ESQLGaugePanelConfig(ESQLGaugeChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL gauge panel."""
+
+
+class ESQLHeatmapPanelConfig(ESQLHeatmapChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL heatmap panel."""
 
 
 class ESQLPiePanelConfig(ESQLPieChart, ESQLPanelFieldsMixin):
@@ -138,6 +156,7 @@ class ESQLDatatablePanelConfig(ESQLDatatableChart, ESQLPanelFieldsMixin):
 type ESQLPanelConfig = Annotated[
     Annotated[ESQLMetricPanelConfig, Tag('metric')]
     | Annotated[ESQLGaugePanelConfig, Tag('gauge')]
+    | Annotated[ESQLHeatmapPanelConfig, Tag('heatmap')]
     | Annotated[ESQLPiePanelConfig, Tag('pie')]
     | Annotated[ESQLLinePanelConfig, Tag('line')]
     | Annotated[ESQLBarPanelConfig, Tag('bar')]

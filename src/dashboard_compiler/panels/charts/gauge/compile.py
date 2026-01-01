@@ -9,7 +9,8 @@ from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGa
 from dashboard_compiler.panels.charts.gauge.view import KbnGaugeVisualizationState
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.lens.metrics.config import LensStaticValue
-from dashboard_compiler.shared.config import random_id_generator
+from dashboard_compiler.shared.compile import normalize_static_metric
+from dashboard_compiler.shared.config import get_layer_id
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
@@ -90,32 +91,21 @@ def compile_lens_gauge_chart(
 
     # Compile optional min/max/goal - handle both static values and metrics
     if lens_gauge_chart.minimum is not None:
-        # Convert raw numbers to LensStaticValue objects
-        minimum_metric = (
-            LensStaticValue(value=lens_gauge_chart.minimum)
-            if isinstance(lens_gauge_chart.minimum, (int, float))
-            else lens_gauge_chart.minimum
-        )
+        minimum_metric = normalize_static_metric(lens_gauge_chart.minimum, LensStaticValue)
         min_id, min_column = compile_lens_metric(minimum_metric)
         kbn_columns_by_id[min_id] = min_column
 
     if lens_gauge_chart.maximum is not None:
-        maximum_metric = (
-            LensStaticValue(value=lens_gauge_chart.maximum)
-            if isinstance(lens_gauge_chart.maximum, (int, float))
-            else lens_gauge_chart.maximum
-        )
+        maximum_metric = normalize_static_metric(lens_gauge_chart.maximum, LensStaticValue)
         max_id, max_column = compile_lens_metric(maximum_metric)
         kbn_columns_by_id[max_id] = max_column
 
     if lens_gauge_chart.goal is not None:
-        goal_metric = (
-            LensStaticValue(value=lens_gauge_chart.goal) if isinstance(lens_gauge_chart.goal, (int, float)) else lens_gauge_chart.goal
-        )
+        goal_metric = normalize_static_metric(lens_gauge_chart.goal, LensStaticValue)
         goal_id, goal_column = compile_lens_metric(goal_metric)
         kbn_columns_by_id[goal_id] = goal_column
 
-    layer_id = lens_gauge_chart.id or random_id_generator()
+    layer_id = get_layer_id(lens_gauge_chart)
 
     return (
         layer_id,
@@ -146,7 +136,7 @@ def compile_esql_gauge_chart(
             - kbn_state_visualization (KbnGaugeVisualizationState): The compiled visualization state.
 
     """
-    layer_id = esql_gauge_chart.id or random_id_generator()
+    layer_id = get_layer_id(esql_gauge_chart)
 
     kbn_columns: list[KbnESQLColumnTypes] = []
 
@@ -158,31 +148,21 @@ def compile_esql_gauge_chart(
     # Compile optional min/max/goal - handle both static values and metrics
     min_id: str | None = None
     if esql_gauge_chart.minimum is not None:
-        minimum_metric = (
-            ESQLStaticValue(value=esql_gauge_chart.minimum)
-            if isinstance(esql_gauge_chart.minimum, (int, float))
-            else esql_gauge_chart.minimum
-        )
+        minimum_metric = normalize_static_metric(esql_gauge_chart.minimum, ESQLStaticValue)
         min_column = compile_esql_metric(minimum_metric)
         min_id = min_column.columnId
         kbn_columns.append(min_column)
 
     max_id: str | None = None
     if esql_gauge_chart.maximum is not None:
-        maximum_metric = (
-            ESQLStaticValue(value=esql_gauge_chart.maximum)
-            if isinstance(esql_gauge_chart.maximum, (int, float))
-            else esql_gauge_chart.maximum
-        )
+        maximum_metric = normalize_static_metric(esql_gauge_chart.maximum, ESQLStaticValue)
         max_column = compile_esql_metric(maximum_metric)
         max_id = max_column.columnId
         kbn_columns.append(max_column)
 
     goal_id: str | None = None
     if esql_gauge_chart.goal is not None:
-        goal_metric = (
-            ESQLStaticValue(value=esql_gauge_chart.goal) if isinstance(esql_gauge_chart.goal, (int, float)) else esql_gauge_chart.goal
-        )
+        goal_metric = normalize_static_metric(esql_gauge_chart.goal, ESQLStaticValue)
         goal_column = compile_esql_metric(goal_metric)
         goal_id = goal_column.columnId
         kbn_columns.append(goal_column)

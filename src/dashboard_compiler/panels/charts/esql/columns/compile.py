@@ -7,7 +7,7 @@ from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLMetricColumnTypes,
     KbnESQLStaticValueColumn,
 )
-from dashboard_compiler.shared.config import random_id_generator, stable_id_generator
+from dashboard_compiler.shared.config import get_layer_id, stable_id_generator
 
 
 def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
@@ -63,7 +63,7 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
         KbnESQLFieldDimensionColumn: The compiled Kibana view model.
 
     """
-    dimension_id = dimension.id or random_id_generator()
+    dimension_id = get_layer_id(dimension)
 
     return KbnESQLFieldDimensionColumn(
         fieldName=dimension.field,
