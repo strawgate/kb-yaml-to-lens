@@ -165,6 +165,32 @@ uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.pn
 
 **Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
 
+## Troubleshooting
+
+### Connection Refused
+
+If you get a connection refused error:
+
+- Verify Kibana is running: `curl http://localhost:5601/api/status`
+- Check the Kibana URL is correct
+- Ensure there are no firewall rules blocking the connection
+
+### Authentication Failed
+
+If you get authentication errors:
+
+- Verify your credentials are correct
+- Check that the user has appropriate permissions
+- For API keys, ensure the key hasn't expired
+
+### Upload Errors
+
+If objects fail to upload:
+
+- Check the Kibana logs for detailed error messages
+- Verify the NDJSON format is valid
+- Use `--no-overwrite` if you want to preserve existing objects
+
 ## License
 
 MIT
