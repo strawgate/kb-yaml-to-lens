@@ -21,6 +21,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensLineChart,
     LensReferenceLineLayer,
 )
+from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig, XYReferenceLineLayerConfig
 
 
 class TestChartTypeToKbnTypeLens:
@@ -251,17 +252,21 @@ class TestCompileLensChartState:
         assert state is not None
         assert state.visualization is not None
         # Verify that reference lines were merged - should have both data layer and reference line layer
-        assert len(state.visualization.layers) == 2  # type: ignore[attr-defined]
+        layers = state.visualization.layers
+        assert len(layers) == 2
 
         # Check first layer is the bar chart data layer
-        data_layer = state.visualization.layers[0]  # type: ignore[attr-defined]
-        assert data_layer.seriesType == 'bar_stacked'  # type: ignore[attr-defined]
-        assert data_layer.xAccessor == 'dim1'  # type: ignore[attr-defined]
-        assert data_layer.accessors == ['metric1']  # type: ignore[attr-defined]
+        data_layer = layers[0]
+        assert isinstance(data_layer, XYDataLayerConfig)
+        assert data_layer.seriesType == 'bar_stacked'
+        assert data_layer.xAccessor == 'dim1'
+        assert data_layer.accessors == ['metric1']
 
         # Check second layer is the reference line layer
-        ref_layer = state.visualization.layers[1]  # type: ignore[attr-defined]
-        assert ref_layer.layerType == 'referenceLine'  # type: ignore[attr-defined]
-        assert ref_layer.accessors == ['ref1']  # type: ignore[attr-defined]
-        assert len(ref_layer.yConfig) == 1  # type: ignore[attr-defined]
-        assert ref_layer.yConfig[0].forAccessor == 'ref1'  # type: ignore[attr-defined]
+        ref_layer = layers[1]
+        assert isinstance(ref_layer, XYReferenceLineLayerConfig)
+        assert ref_layer.layerType == 'referenceLine'
+        assert ref_layer.accessors == ['ref1']
+        assert ref_layer.yConfig is not None
+        assert len(ref_layer.yConfig) == 1
+        assert ref_layer.yConfig[0].forAccessor == 'ref1'
