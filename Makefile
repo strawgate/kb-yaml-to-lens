@@ -1,6 +1,6 @@
 
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: ci
 
@@ -11,6 +11,7 @@ help:
 	@echo "  update-deps   - Update dependencies"
 	@echo ""
 	@echo "CI and Development Workflow:"
+	@echo "  all           - Run all CI checks (default target)"
 	@echo "  ci            - Run all CI checks (compact output on success)"
 	@echo "  check         - Same as 'ci' - validate everything before committing"
 	@echo "  fix           - Auto-fix all linting issues (compact output)"
@@ -54,6 +55,15 @@ help:
 	@echo "Cleaning:"
 	@echo "  clean         - Clean up cache and temporary files"
 	@echo "  clean-full    - Clean up all including virtual environment"
+	@echo ""
+	@echo "GitHub Workflow Helpers:"
+	@echo "  gh-get-review-threads        - Get PR review threads (OWNER REPO PR [AUTHOR])"
+	@echo "  gh-resolve-review-thread     - Resolve review thread (OWNER REPO PR THREAD_ID [COMMENT])"
+	@echo "  gh-get-latest-review         - Get latest review from author (OWNER REPO PR AUTHOR)"
+	@echo "  gh-check-latest-review       - Check if review is latest (OWNER REPO PR AUTHOR REVIEW_ID)"
+	@echo "  gh-get-comments-since        - Get comments since timestamp (OWNER REPO ISSUE SINCE [AUTHOR])"
+	@echo "  gh-minimize-outdated-comments - Minimize outdated PR comments (OWNER REPO PR)"
+	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
 	@echo ""
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
@@ -223,3 +233,30 @@ docs-build-quiet:
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
 	uv run --group docs mkdocs gh-deploy --force
+
+# GitHub Workflow Helper Commands
+# These wrap the scripts in .github/scripts/ for easier use
+
+gh-get-review-threads:
+	@.github/scripts/gh-get-review-threads.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-resolve-review-thread:
+	@.github/scripts/gh-resolve-review-thread.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-get-latest-review:
+	@.github/scripts/gh-get-latest-review.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-check-latest-review:
+	@.github/scripts/gh-check-latest-review.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-get-comments-since:
+	@.github/scripts/gh-get-comments-since.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-minimize-outdated-comments:
+	@.github/scripts/gh-minimize-outdated-comments.sh $(filter-out $@,$(MAKECMDGOALS))
+
+gh-check-repo-activity:
+	@.github/scripts/gh-check-repo-activity.sh $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:
