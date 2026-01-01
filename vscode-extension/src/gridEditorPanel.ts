@@ -3,6 +3,7 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 import { ConfigService } from './configService';
+import { BinaryResolver } from './binaryResolver';
 
 interface PanelGridInfo {
     id: string;
@@ -94,7 +95,8 @@ export class GridEditorPanel {
     }
 
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        const pythonPath = this.configService.getPythonPath();
+        const resolver = new BinaryResolver(this.extensionPath, this.configService);
+        const pythonPath = resolver.resolvePythonForScripts();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
 
         return new Promise((resolve, reject) => {
@@ -149,7 +151,8 @@ export class GridEditorPanel {
             return;
         }
 
-        const pythonPath = this.configService.getPythonPath();
+        const resolver = new BinaryResolver(this.extensionPath, this.configService);
+        const pythonPath = resolver.resolvePythonForScripts();
         const scriptPath = path.join(this.extensionPath, 'python', 'grid_updater.py');
 
         return new Promise((resolve, reject) => {
