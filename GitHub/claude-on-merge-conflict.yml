@@ -42,6 +42,7 @@ jobs:
   resolve-conflicts:
     needs: check-conflicts
     if: needs.check-conflicts.outputs.has_conflicts == 'true'
+    timeout-minutes: 30
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
@@ -96,6 +97,20 @@ jobs:
         - Do not simply accept one side blindly - understand why both changes were made
         - After pushing, comment on the PR explaining how you resolved the conflicts
         - If conflicts are too complex or risky to auto-resolve, explain why and request manual intervention
+
+        # WHEN NOT TO AUTO-RESOLVE
+        Do NOT automatically commit and push if:
+        - The conflicts involve critical logic changes that could introduce subtle bugs
+        - Multiple files have complex, interrelated conflicts
+        - You're uncertain about the correct resolution approach
+        - Tests fail after resolution and you can't easily fix them
+        - The conflict resolution would be better reviewed by a human first
+
+        In these cases:
+        1. Document what you tried and why it's complex
+        2. Post a detailed comment explaining the conflict and potential approaches
+        3. Request manual intervention using `make gh-post-pr-comment`
+        4. Do NOT push incomplete or uncertain resolutions
 
         # AVAILABLE TOOLS
         You have access to:

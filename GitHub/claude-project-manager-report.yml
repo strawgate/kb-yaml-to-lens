@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for git log
       - name: Check for recent activity
         id: check
         env:
@@ -47,14 +49,12 @@ jobs:
             # Check for new issues (excluding PM issues)
             NEW_ISSUES=$(gh issue list \
               --search "created:>=$ISSUE_CREATED -label:project-manager" \
-              --limit 100 \
               --json number \
               --jq 'length')
 
             # Check for new PRs
             NEW_PRS=$(gh pr list \
               --search "created:>=$ISSUE_CREATED" \
-              --limit 100 \
               --json number \
               --jq 'length')
 
@@ -62,7 +62,6 @@ jobs:
             MERGED_PRS=$(gh pr list \
               --search "merged:>=$ISSUE_CREATED" \
               --state merged \
-              --limit 100 \
               --json number \
               --jq 'length')
             TOTAL_ACTIVITY=$((COMMIT_COUNT + NEW_ISSUES + NEW_PRS + MERGED_PRS))
