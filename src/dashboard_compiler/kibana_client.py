@@ -9,6 +9,8 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Field
 
+from dashboard_compiler.shared import ensure_dict, ensure_str
+
 logger = logging.getLogger(__name__)
 
 HTTP_OK = 200
@@ -148,11 +150,8 @@ class KibanaClient:
             async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
                 response.raise_for_status()
                 json_response: Any = await response.json()  # pyright: ignore[reportAny]
-                if not isinstance(json_response, dict):
-                    msg = f'Expected JSON object from Kibana API, got {type(json_response).__name__}'
-                    raise TypeError(msg)
-                # json_response is narrowed to dict but dict values are still Any
-                return KibanaSavedObjectsResponse.model_validate(json_response)
+                json_dict = ensure_dict(json_response, 'Kibana saved objects API response')
+                return KibanaSavedObjectsResponse.model_validate(json_dict)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
@@ -221,10 +220,7 @@ class KibanaClient:
         }
 
         rison_result: Any = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        if not isinstance(rison_result, str):
-            msg = f'Expected string from prison.dumps, got {type(rison_result).__name__}'  # pyright: ignore[reportUnknownArgumentType]
-            raise TypeError(msg)
-        rison_params: str = rison_result
+        rison_params = ensure_str(rison_result, 'prison.dumps result')
 
         endpoint = f'{self.url}/api/reporting/generate/pngV2'
         params: dict[str, str] = {'jobParams': rison_params}
@@ -238,14 +234,9 @@ class KibanaClient:
         ):
             response.raise_for_status()
             result: Any = await response.json()  # pyright: ignore[reportAny]
-            if not isinstance(result, dict):
-                msg = f'Expected JSON object from Kibana reporting API, got {type(result).__name__}'  # pyright: ignore[reportAny]
-                raise TypeError(msg)
-            job_path: Any = result.get('path')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-            if not isinstance(job_path, str):
-                msg = f'Kibana reporting API did not return a valid job path. Response: {result}'
-                raise TypeError(msg)
-            return job_path
+            result_dict = ensure_dict(result, 'Kibana reporting API response')
+            job_path: Any = result_dict.get('path')
+            return ensure_str(job_path, 'Kibana reporting API job path')
 
     async def wait_for_job_completion(
         self,

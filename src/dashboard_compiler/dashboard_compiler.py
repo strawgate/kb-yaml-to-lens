@@ -8,6 +8,7 @@ import yaml
 from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
+from dashboard_compiler.shared import ensure_dict, ensure_list
 
 
 def load(path: str) -> list[Dashboard]:
@@ -25,21 +26,14 @@ def load(path: str) -> list[Dashboard]:
     with load_path.open() as file:
         config: Any = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
-    if not isinstance(config, dict):
-        msg = f'YAML file must contain a dictionary: {path}'
-        raise TypeError(msg)
-
-    dashboards_data: Any = config.get('dashboards', [])  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-    if not isinstance(dashboards_data, list):
-        msg = f"'dashboards' must be a list in YAML file: {path}"
-        raise TypeError(msg)
+    config_dict = ensure_dict(config, f'YAML file {path}')
+    dashboards_data: Any = config_dict.get('dashboards', [])
+    dashboards_list = ensure_list(dashboards_data, f"'dashboards' key in {path}")
 
     dashboards: list[Dashboard] = []
-    for dashboard_data in dashboards_data:  # pyright: ignore[reportUnknownVariableType]
-        if not isinstance(dashboard_data, dict):
-            msg = f'Each dashboard entry must be a dictionary in YAML file: {path}'
-            raise TypeError(msg)
-        dashboards.append(Dashboard(**dashboard_data))  # pyright: ignore[reportUnknownArgumentType]
+    for i, dashboard_data in enumerate(dashboards_list):
+        dashboard_dict = ensure_dict(dashboard_data, f'Dashboard entry {i} in {path}')
+        dashboards.append(Dashboard(**dashboard_dict))  # pyright: ignore[reportUnknownArgumentType]
 
     return dashboards
 
