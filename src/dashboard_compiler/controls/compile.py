@@ -139,7 +139,7 @@ def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl)
     stable_id = generate_id(control.id)
 
     return KbnESQLControl(
-        grow=default_false(False),
+        grow=False,
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
@@ -170,7 +170,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
     stable_id = generate_id(control.id)
 
     return KbnESQLControl(
-        grow=default_false(False),
+        grow=False,
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(

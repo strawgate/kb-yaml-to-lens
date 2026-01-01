@@ -5,6 +5,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import Field, model_validator
 
+from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type ControlTypes = Annotated[
@@ -155,7 +156,7 @@ class ESQLStaticValuesControl(BaseControl):
     variable_name: str = Field(...)
     """The name of the ES|QL variable (e.g., 'status_code')."""
 
-    variable_type: str = Field(default='values')
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
     """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
 
     available_options: list[str] = Field(...)
@@ -180,7 +181,7 @@ class ESQLQueryControl(BaseControl):
     variable_name: str = Field(...)
     """The name of the ES|QL variable (e.g., 'status_code')."""
 
-    variable_type: str = Field(default='values')
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
     """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
 
     esql_query: str = Field(...)

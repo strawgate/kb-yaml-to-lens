@@ -2,40 +2,40 @@
 dashboards:
   - name: '[ES|QL] Controls Example'
     description: Example dashboard demonstrating ES|QL controls with static and query-driven values
-    controls:
-      settings:
+    settings:
+      controls:
         chain_controls: true
         label_position: inline
 
-      controls:
-        # Static values ES|QL control
-        - type: esql_static
-          variable_name: environment
-          variable_type: values
-          available_options:
-            - production
-            - staging
-            - development
-          title: Environment
-          width: medium
-          single_select: true
+    controls:
+      # Static values ES|QL control
+      - type: esql_static
+        variable_name: environment
+        variable_type: values
+        available_options:
+          - production
+          - staging
+          - development
+        title: Environment
+        width: medium
+        single_select: true
 
-        # Query-driven ES|QL control
-        - type: esql_query
-          variable_name: status_code
-          variable_type: values
-          esql_query: FROM logs-* | STATS count BY http.response.status_code
-          title: HTTP Status Code
-          width: medium
-          single_select: false
+      # Query-driven ES|QL control
+      - type: esql_query
+        variable_name: status_code
+        variable_type: values
+        esql_query: FROM logs-* | STATS count BY http.response.status_code
+        title: HTTP Status Code
+        width: medium
+        single_select: false
 
-        # Another query-driven control using the first variable
-        - type: esql_query
-          variable_name: host
-          variable_type: values
-          esql_query: FROM logs-* | WHERE environment == ?environment | STATS count BY host.name
-          title: Host Name
-          width: large
+      # Another query-driven control using the first variable
+      - type: esql_query
+        variable_name: host
+        variable_type: values
+        esql_query: FROM logs-* | WHERE environment == ?environment | STATS count BY host.name
+        title: Host Name
+        width: large
 
     panels:
       # ES|QL Metric using variables
@@ -44,16 +44,37 @@ dashboards:
         grid: {x: 0, y: 0, w: 12, h: 8}
         esql:
           type: metric
+          primary:
+            field: total_requests
+            id: metric_total_requests
           query:
             - FROM logs-*
             - WHERE environment == ?environment
             - WHERE http.response.status_code IN (?status_code)
             - STATS total_requests = COUNT(*)
 
+      # ES|QL Pie chart showing status code distribution
+      - title: Status Code Distribution
+        description: Distribution of HTTP status codes
+        grid: {x: 12, y: 0, w: 12, h: 8}
+        esql:
+          type: pie
+          slice_by:
+            - field: http.response.status_code
+              id: dim_status_code
+          metric:
+            field: count
+            id: metric_count
+          query:
+            - FROM logs-*
+            - WHERE environment == ?environment
+            - WHERE http.response.status_code IN (?status_code)
+            - STATS count = COUNT(*) BY http.response.status_code
+
       # ES|QL Table showing filtered data
       - title: Request Details
         description: Detailed request log filtered by controls
-        grid: {x: 12, y: 0, w: 36, h: 16}
+        grid: {x: 24, y: 0, w: 24, h: 8}
         esql:
           type: datatable
           query:
@@ -63,21 +84,3 @@ dashboards:
             - WHERE host.name == ?host
             - KEEP @timestamp, host.name, http.response.status_code, url.path
             - LIMIT 100
-
-      # ES|QL XY chart showing trends
-      - title: Requests Over Time by Status Code
-        description: Time series of requests broken down by status code
-        grid: {x: 0, y: 8, w: 48, h: 16}
-        esql:
-          type: xy
-          x_axis:
-            type: date_histogram
-            field: '@timestamp'
-            interval: auto
-          breakdown:
-            field: http.response.status_code
-          query:
-            - FROM logs-*
-            - WHERE environment == ?environment
-            - WHERE http.response.status_code IN (?status_code)
-            - STATS count = COUNT(*) BY @timestamp, http.response.status_code
