@@ -11,7 +11,6 @@ The project uses **GitHub Actions with PyPI Trusted Publishing** for secure, tok
 - **Automated Publishing** - Triggered automatically on GitHub releases
 - **Trusted Publishing** - No API tokens to manage or rotate
 - **OIDC Authentication** - Secure authentication via GitHub OIDC tokens
-- **Test Environment** - TestPyPI workflow for pre-release testing
 
 ## Package Configuration
 
@@ -21,9 +20,7 @@ The package is configured in `pyproject.toml`:
 - **Build backend**: `uv_build`
 - **CLI entry point**: `kb-dashboard`
 
-## Publishing Workflows
-
-### Production PyPI
+## Publishing Workflow
 
 **Workflow**: `.github/workflows/publish-to-pypi.yml`
 
@@ -35,14 +32,6 @@ The package is configured in `pyproject.toml`:
 2. Set up Python environment with uv
 3. Build package: `uv build`
 4. Publish to PyPI: `uv publish`
-
-### TestPyPI (Testing)
-
-**Workflow**: `.github/workflows/publish-to-testpypi.yml`
-
-**Trigger**: Git tags matching `test-v*` pattern
-
-**Steps**: Same as production, but publishes to TestPyPI
 
 ## Setup Instructions
 
@@ -72,19 +61,7 @@ The first time you publish, PyPI will automatically create the project using thi
 
 This ensures manual approval before publishing to PyPI.
 
-### 3. Optional: Configure TestPyPI
-
-For testing before production releases:
-
-1. Go to <https://test.pypi.org/manage/account/publishing/>
-2. Add pending publisher with same settings:
-   - **Workflow name**: `publish-to-testpypi.yml`
-   - **Environment name**: `testpypi`
-3. Create `testpypi` GitHub environment
-
 ## Publishing a Release
-
-### Production Release
 
 1. Update version in `pyproject.toml` (if needed)
 2. Commit and push changes
@@ -99,20 +76,6 @@ For testing before production releases:
 5. The workflow triggers automatically
 6. Approve the deployment (if protection rules are configured)
 7. Package publishes to PyPI
-
-### Test Release (TestPyPI)
-
-To test the publishing process before production:
-
-1. Create a test tag:
-
-   ```bash
-   git tag test-v0.1.0
-   git push origin test-v0.1.0
-   ```
-
-2. The TestPyPI workflow triggers automatically
-3. Package publishes to TestPyPI
 
 ## Verification
 
