@@ -13,6 +13,7 @@ from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 if TYPE_CHECKING:
     from .datatable.view import KbnDatatableVisualizationState
     from .gauge.view import KbnGaugeVisualizationState
+    from .heatmap.view import KbnHeatmapVisualizationState
     from .metric.view import KbnESQLMetricVisualizationState, KbnMetricVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
         | KbnMetricVisualizationState
         | KbnESQLMetricVisualizationState
         | KbnGaugeVisualizationState
+        | KbnHeatmapVisualizationState
         | KbnXYVisualizationState
         | KbnDatatableVisualizationState
         | KbnTagcloudVisualizationState
@@ -176,6 +178,7 @@ class KbnVisualizationTypeEnum(StrEnum):
     PIE = 'lnsPie'
     METRIC = 'lnsMetric'
     GAUGE = 'lnsGauge'
+    HEATMAP = 'lnsHeatmap'
     DATATABLE = 'lnsDatatable'
     TAGCLOUD = 'lnsTagcloud'
 
