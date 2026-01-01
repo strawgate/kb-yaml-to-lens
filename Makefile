@@ -1,5 +1,5 @@
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke
 
 all: ci
 
@@ -51,13 +51,15 @@ help:
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "Docker:"
-	@echo "  docker-build   - Build Docker image for the compiler"
-	@echo "  docker-run     - Run Docker container with sample inputs"
-	@echo "  docker-test    - Test Docker image with smoke test"
-	@echo "  docker-publish - Publish multi-arch Docker image to GHCR"
+	@echo "  docker-build       - Build Docker image for the compiler"
+	@echo "  docker-run         - Run Docker container with sample inputs"
+	@echo "  docker-test        - Test Docker image with basic help command"
+	@echo "  docker-publish     - Publish multi-arch Docker image to GHCR"
+	@echo "  test-docker-smoke  - Run comprehensive smoke tests on Docker image"
 	@echo ""
 	@echo "Binary Distribution:"
-	@echo "  build-binary   - Build standalone binary for current platform"
+	@echo "  build-binary       - Build standalone binary for current platform"
+	@echo "  test-binary-smoke  - Run comprehensive smoke tests on binary"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean up cache and temporary files"
@@ -259,3 +261,13 @@ build-binary:
 	@echo "Building standalone binary..."
 	@uv pip install pyinstaller
 	@uv run python scripts/build_binaries.py
+
+# Docker smoke tests
+test-docker-smoke:
+	@echo "Running Docker smoke tests..."
+	@bash scripts/test_docker_smoke.sh
+
+# Binary smoke tests
+test-binary-smoke:
+	@echo "Running binary smoke tests..."
+	@bash scripts/test_binary_smoke.sh

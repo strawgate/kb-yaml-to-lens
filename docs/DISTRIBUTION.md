@@ -64,14 +64,16 @@ kb-dashboard compile --input-dir inputs --output-dir output
 ### Docker
 
 ```bash
-make docker-build  # Build image
-make docker-test   # Test image
+make docker-build      # Build image
+make docker-test       # Basic test (help command)
+make test-docker-smoke # Comprehensive smoke tests
 ```
 
 ### Binaries
 
 ```bash
-make build-binary  # Builds for current platform
+make build-binary      # Builds for current platform
+make test-binary-smoke # Run smoke tests on binary
 ```
 
 Output: `dist/kb-dashboard-{platform}-{arch}[.exe]`
@@ -80,19 +82,27 @@ Output: `dist/kb-dashboard-{platform}-{arch}[.exe]`
 
 ### Automated via GitHub Actions
 
-Create and push a version tag:
+Create and push a version tag to trigger automated builds and publishing:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-This triggers the workflow to:
+This automatically:
 
-1. Build multi-arch Docker images
-2. Publish to GitHub Container Registry
-3. Build binaries for all platforms
-4. Create GitHub Release with binaries
+1. **Docker**: Builds multi-arch images (amd64, arm64) and publishes to GHCR
+2. **Binaries**: Builds for Linux, macOS (Intel/ARM), and Windows
+3. **Testing**: Runs smoke tests on all artifacts before publishing
+4. **Release**: Creates GitHub release with binaries attached
+
+### Manual Workflow Trigger
+
+You can also trigger builds manually via GitHub Actions UI:
+
+- Go to Actions > "Build and Publish Docker Image" or "Build and Publish Binaries"
+- Click "Run workflow"
+- Specify the tag/version
 
 ### Manual Publishing
 
