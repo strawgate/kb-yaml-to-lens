@@ -278,6 +278,67 @@ async def test_area_chart() -> None:
     )
 
 
+async def test_bar_percentage_chart() -> None:
+    """Test bar percentage chart."""
+    lens_config = {
+        'type': 'bar',
+        'mode': 'percentage',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp'}],
+        'metrics': [{'aggregation': 'count'}],
+    }
+    esql_config = {
+        'type': 'bar',
+        'mode': 'percentage',
+        'dimensions': [{'field': '@timestamp'}],
+        'metrics': [{'field': 'count(*)'}],
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'bar_percentage_stacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    esql_chart = ESQLBarChart(**esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'bar_percentage_stacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+
 async def test_area_percentage_chart() -> None:
     """Test area percentage chart."""
     lens_config = {
@@ -333,6 +394,67 @@ async def test_area_percentage_chart() -> None:
             'position': 'top',
             'showGridlines': False,
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+
+async def test_area_unstacked_chart() -> None:
+    """Test area unstacked chart."""
+    lens_config = {
+        'type': 'area',
+        'mode': 'unstacked',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp'}],
+        'metrics': [{'aggregation': 'count'}],
+    }
+    esql_config = {
+        'type': 'area',
+        'mode': 'unstacked',
+        'dimensions': [{'field': '@timestamp'}],
+        'metrics': [{'field': 'count(*)'}],
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'area_unstacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+        }
+    )
+
+    esql_chart = ESQLAreaChart(**esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'accessors': [IsUUID],
+            'layerType': 'data',
+            'seriesType': 'area_unstacked',
+            'xAccessor': IsUUID,
+            'position': 'top',
+            'showGridlines': False,
             'colorMapping': {
                 'assignments': [],
                 'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
