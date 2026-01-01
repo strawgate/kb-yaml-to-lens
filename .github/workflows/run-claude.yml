@@ -68,17 +68,6 @@ jobs:
               "code-search": {
                 "type": "http",
                 "url": "https://public-code-search.fastmcp.app/mcp"
-              },
-              "github-research": {
-                "type": "stdio",
-                "command": "uvx",
-                "args": [
-                  "github-research-mcp"
-                ],
-                "env": {
-                  "DISABLE_SUMMARIES": "true",
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-                }
               }
             }
           }
