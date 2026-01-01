@@ -432,3 +432,66 @@ def test_compile_query_dsl_filter() -> None:
             query={'match_phrase': {'status': 'active'}},
         )
     )
+
+
+def test_compile_range_filter_with_lte() -> None:
+    """Test the compilation of a range filter with lte operator."""
+    config = {'field': '@timestamp', 'lte': '2023-12-31T23:59:59.999Z'}
+    result = compile_filter_snapshot(config)
+
+    assert result == snapshot(
+        IsPartialDict(
+            meta={
+                'disabled': False,
+                'negate': False,
+                'alias': None,
+                'key': '@timestamp',
+                'field': '@timestamp',
+                'params': {'lte': '2023-12-31T23:59:59.999Z'},
+                'type': 'range',
+            },
+            query={'range': {'@timestamp': {'lte': '2023-12-31T23:59:59.999Z'}}},
+        )
+    )
+
+
+def test_compile_range_filter_with_gt() -> None:
+    """Test the compilation of a range filter with gt operator."""
+    config = {'field': 'count', 'gt': '100'}
+    result = compile_filter_snapshot(config)
+
+    assert result == snapshot(
+        IsPartialDict(
+            meta={
+                'disabled': False,
+                'negate': False,
+                'alias': None,
+                'key': 'count',
+                'field': 'count',
+                'params': {'gt': '100'},
+                'type': 'range',
+            },
+            query={'range': {'count': {'gt': '100'}}},
+        )
+    )
+
+
+def test_compile_range_filter_with_all_operators() -> None:
+    """Test the compilation of a range filter with all range operators."""
+    config = {'field': 'count', 'gte': '10', 'lte': '100', 'gt': '5', 'lt': '200'}
+    result = compile_filter_snapshot(config)
+
+    assert result == snapshot(
+        IsPartialDict(
+            meta={
+                'disabled': False,
+                'negate': False,
+                'alias': None,
+                'key': 'count',
+                'field': 'count',
+                'params': {'gte': '10', 'lte': '100', 'gt': '5', 'lt': '200'},
+                'type': 'range',
+            },
+            query={'range': {'count': {'gte': '10', 'lte': '100', 'gt': '5', 'lt': '200'}}},
+        )
+    )
