@@ -57,6 +57,26 @@
         "command": "yamlDashboard.openInKibana",
         "title": "Open in Kibana",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.setKibanaUsername",
+        "title": "Set Kibana Username",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.setKibanaPassword",
+        "title": "Set Kibana Password",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.setKibanaApiKey",
+        "title": "Set Kibana API Key",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.clearKibanaCredentials",
+        "title": "Clear Kibana Credentials",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -76,21 +96,6 @@
           "type": "string",
           "default": "http://localhost:5601",
           "description": "Kibana base URL for uploading dashboards"
-        },
-        "yamlDashboard.kibana.username": {
-          "type": "string",
-          "default": "",
-          "description": "Kibana username for basic authentication (optional, not encrypted)"
-        },
-        "yamlDashboard.kibana.password": {
-          "type": "string",
-          "default": "",
-          "description": "Kibana password for basic authentication (optional, not encrypted - use API key instead)"
-        },
-        "yamlDashboard.kibana.apiKey": {
-          "type": "string",
-          "default": "",
-          "description": "Kibana API key for authentication (recommended, not encrypted)"
         },
         "yamlDashboard.kibana.sslVerify": {
           "type": "boolean",

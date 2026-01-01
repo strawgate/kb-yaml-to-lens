@@ -3,73 +3,134 @@ import * as vscode from 'vscode';
 /**
  * Service for accessing extension configuration settings.
  * Provides type-safe access to yamlDashboard configuration with default values.
+ *
+ * Credentials (username, password, API key) are stored securely using VS Code's
+ * SecretStorage API, which encrypts them using the OS keychain (macOS Keychain,
+ * Windows Credential Manager, or Linux Secret Service).
  */
 export class ConfigService {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private static readonly CONFIG_SECTION = 'yamlDashboard';
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private static readonly SECRET_KEYS = {
+        username: 'yamlDashboard.kibana.username',
+        password: 'yamlDashboard.kibana.password',
+        apiKey: 'yamlDashboard.kibana.apiKey'
+    };
+
+    private readonly secrets: vscode.SecretStorage;
+
+    constructor(context: vscode.ExtensionContext) {
+        this.secrets = context.secrets;
+    }
 
     /**
      * Gets the Python path setting.
      * @returns The configured Python path, or 'python' as default
      */
-    static getPythonPath(): string {
-        return this.get<string>('pythonPath', 'python');
+    getPythonPath(): string {
+        return ConfigService.get<string>('pythonPath', 'python');
     }
 
     /**
      * Gets the compile on save setting.
      * @returns True if compile on save is enabled, false otherwise
      */
-    static getCompileOnSave(): boolean {
-        return this.get<boolean>('compileOnSave', true);
+    getCompileOnSave(): boolean {
+        return ConfigService.get<boolean>('compileOnSave', true);
     }
 
     /**
      * Gets the Kibana URL setting.
      * @returns The configured Kibana URL
      */
-    static getKibanaUrl(): string {
-        return this.get<string>('kibana.url', 'http://localhost:5601');
+    getKibanaUrl(): string {
+        return ConfigService.get<string>('kibana.url', 'http://localhost:5601');
     }
 
     /**
-     * Gets the Kibana username setting.
-     * @returns The configured Kibana username
+     * Gets the Kibana username from secure storage.
+     * @returns The configured Kibana username, or empty string if not set
      */
-    static getKibanaUsername(): string {
-        return this.get<string>('kibana.username', '');
+    async getKibanaUsername(): Promise<string> {
+        return await this.secrets.get(ConfigService.SECRET_KEYS.username) ?? '';
     }
 
     /**
-     * Gets the Kibana password setting.
-     * @returns The configured Kibana password
+     * Sets the Kibana username in secure storage.
+     * @param username The username to store
      */
-    static getKibanaPassword(): string {
-        return this.get<string>('kibana.password', '');
+    async setKibanaUsername(username: string): Promise<void> {
+        if (username) {
+            await this.secrets.store(ConfigService.SECRET_KEYS.username, username);
+        } else {
+            await this.secrets.delete(ConfigService.SECRET_KEYS.username);
+        }
     }
 
     /**
-     * Gets the Kibana API key setting.
-     * @returns The configured Kibana API key
+     * Gets the Kibana password from secure storage.
+     * @returns The configured Kibana password, or empty string if not set
      */
-    static getKibanaApiKey(): string {
-        return this.get<string>('kibana.apiKey', '');
+    async getKibanaPassword(): Promise<string> {
+        return await this.secrets.get(ConfigService.SECRET_KEYS.password) ?? '';
+    }
+
+    /**
+     * Sets the Kibana password in secure storage.
+     * @param password The password to store
+     */
+    async setKibanaPassword(password: string): Promise<void> {
+        if (password) {
+            await this.secrets.store(ConfigService.SECRET_KEYS.password, password);
+        } else {
+            await this.secrets.delete(ConfigService.SECRET_KEYS.password);
+        }
+    }
+
+    /**
+     * Gets the Kibana API key from secure storage.
+     * @returns The configured Kibana API key, or empty string if not set
+     */
+    async getKibanaApiKey(): Promise<string> {
+        return await this.secrets.get(ConfigService.SECRET_KEYS.apiKey) ?? '';
+    }
+
+    /**
+     * Sets the Kibana API key in secure storage.
+     * @param apiKey The API key to store
+     */
+    async setKibanaApiKey(apiKey: string): Promise<void> {
+        if (apiKey) {
+            await this.secrets.store(ConfigService.SECRET_KEYS.apiKey, apiKey);
+        } else {
+            await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
+        }
+    }
+
+    /**
+     * Clears all stored Kibana credentials.
+     */
+    async clearKibanaCredentials(): Promise<void> {
+        await this.secrets.delete(ConfigService.SECRET_KEYS.username);
+        await this.secrets.delete(ConfigService.SECRET_KEYS.password);
+        await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
     }
 
     /**
      * Gets the Kibana SSL verify setting.
      * @returns True if SSL verification is enabled, false otherwise
      */
-    static getKibanaSslVerify(): boolean {
-        return this.get<boolean>('kibana.sslVerify', true);
+    getKibanaSslVerify(): boolean {
+        return ConfigService.get<boolean>('kibana.sslVerify', true);
     }
 
     /**
      * Gets the Kibana browser type setting.
      * @returns The browser type ('external' or 'simple')
      */
-    static getKibanaBrowserType(): 'external' | 'simple' {
-        return this.get<'external' | 'simple'>('kibana.browserType', 'external');
+    getKibanaBrowserType(): 'external' | 'simple' {
+        return ConfigService.get<'external' | 'simple'>('kibana.browserType', 'external');
     }
 
     /**

@@ -73,7 +73,10 @@ export class DashboardCompilerLSP {
     private client: LanguageClient | null = null;
     private outputChannel: vscode.OutputChannel;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(
+        private context: vscode.ExtensionContext,
+        private configService: ConfigService
+    ) {
         this.outputChannel = vscode.window.createOutputChannel('Dashboard Compiler LSP');
     }
 
@@ -88,7 +91,7 @@ export class DashboardCompilerLSP {
      * @returns Absolute path to Python executable or 'python' for system Python
      */
     private resolvePythonPath(): string {
-        const configuredPath = ConfigService.getPythonPath();
+        const configuredPath = this.configService.getPythonPath();
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
         // Check explicitly configured Python path
