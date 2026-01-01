@@ -16,6 +16,8 @@ from dashboard_compiler.panels.charts.datatable.compile import compile_esql_data
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge.compile import compile_esql_gauge_chart, compile_lens_gauge_chart
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
+from dashboard_compiler.panels.charts.heatmap.compile import compile_esql_heatmap_chart, compile_lens_heatmap_chart
+from dashboard_compiler.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
 from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
@@ -62,11 +64,12 @@ if TYPE_CHECKING:
 CHART_TYPE_TO_KBN_TYPE_MAP = {
     'metric': KbnVisualizationTypeEnum.METRIC,
     'gauge': KbnVisualizationTypeEnum.GAUGE,
+    'heatmap': KbnVisualizationTypeEnum.HEATMAP,
     'pie': KbnVisualizationTypeEnum.PIE,
 }
 
 
-def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:
+def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
     if isinstance(chart, (LensPieChart, ESQLPieChart)):
         return KbnVisualizationTypeEnum.PIE
@@ -78,6 +81,8 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
         return KbnVisualizationTypeEnum.DATATABLE
     if isinstance(chart, (LensGaugeChart, ESQLGaugeChart)):
         return KbnVisualizationTypeEnum.GAUGE
+    if isinstance(chart, (LensHeatmapChart, ESQLHeatmapChart)):
+        return KbnVisualizationTypeEnum.HEATMAP
     if isinstance(chart, (LensTagcloudChart, ESQLTagcloudChart)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return KbnVisualizationTypeEnum.TAGCLOUD
 
@@ -85,7 +90,7 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
     raise NotImplementedError(msg)
 
 
-def compile_lens_chart_state(
+def compile_lens_chart_state(  # noqa: PLR0912
     query: LegacyQueryTypes | None,
     filters: list[FilterTypes] | None,
     charts: Sequence[LensChartTypes],
@@ -117,6 +122,8 @@ def compile_lens_chart_state(
             layer_id, lens_columns_by_id, visualization_state = compile_lens_datatable_chart(chart)
         elif isinstance(chart, LensGaugeChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_gauge_chart(chart)
+        elif isinstance(chart, LensHeatmapChart):
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_heatmap_chart(chart)
         elif isinstance(chart, LensTagcloudChart):
             layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
         elif isinstance(chart, LensReferenceLineLayer):  # pyright: ignore[reportUnnecessaryIsInstance]
@@ -197,6 +204,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
         layer_id, esql_columns, visualization_state = compile_esql_metric_chart(chart)
     elif isinstance(chart, ESQLGaugeChart):
         layer_id, esql_columns, visualization_state = compile_esql_gauge_chart(chart)
+    elif isinstance(chart, ESQLHeatmapChart):
+        layer_id, esql_columns, visualization_state = compile_esql_heatmap_chart(chart)
     elif isinstance(chart, ESQLPieChart):
         layer_id, esql_columns, visualization_state = compile_esql_pie_chart(chart)
     elif isinstance(chart, ESQLDatatableChart):
