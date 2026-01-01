@@ -63,6 +63,7 @@ help:
 	@echo "  gh-check-latest-review       - Check if review is latest (OWNER REPO PR AUTHOR REVIEW_ID)"
 	@echo "  gh-get-comments-since        - Get comments since timestamp (OWNER REPO ISSUE SINCE [AUTHOR])"
 	@echo "  gh-minimize-outdated-comments - Minimize outdated PR comments (OWNER REPO PR)"
+	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
 	@echo ""
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"

@@ -30,7 +30,17 @@ PR_NUMBER="${3:?PR number required}"
 AUTHOR="${4:?Author required}"
 CURRENT_REVIEW_ID="${5:?Current review ID required}"
 
+# Verify prerequisites
+command -v jq >/dev/null 2>&1 || { echo "Error: jq is required but not installed" >&2; exit 1; }
+command -v gh >/dev/null 2>&1 || { echo "Error: gh CLI is required but not installed" >&2; exit 1; }
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Verify helper script exists
+if [ ! -x "$SCRIPT_DIR/gh-get-latest-review.sh" ]; then
+  echo "Error: gh-get-latest-review.sh not found or not executable" >&2
+  exit 1
+fi
 
 LATEST_REVIEW=$("$SCRIPT_DIR/gh-get-latest-review.sh" "$OWNER" "$REPO" "$PR_NUMBER" "$AUTHOR")
 

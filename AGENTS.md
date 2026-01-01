@@ -239,8 +239,8 @@ gh pr list --state open
 Claude workflows should call these helpers via `make` commands and reason through their output:
 
 ```bash
-# Get PR information and process it
-PR_BRANCH=$(make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef)
+# Get PR information using gh CLI directly
+PR_BRANCH=$(gh pr view 456 --json headRefName --jq '.headRefName')
 echo "Working on branch: $PR_BRANCH"
 
 # Get review threads and analyze them

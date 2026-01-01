@@ -3,6 +3,9 @@ set -euo pipefail
 
 # Check for repository activity since a given timestamp
 #
+# Note: Activity counts are capped at 100 items per category (issues, PRs, merged PRs).
+# For repositories with >100 items in any category, counts will be understated.
+#
 # Usage: gh-check-repo-activity.sh OWNER REPO SINCE_TIMESTAMP [THRESHOLD]
 #
 # Arguments:
@@ -52,7 +55,6 @@ NEW_PRS=$(gh pr list \
 MERGED_PRS=$(gh pr list \
   --repo "$OWNER/$REPO" \
   --search "merged:>=$SINCE_TIMESTAMP" \
-  --state merged \
   --limit 100 \
   --json number \
   --jq 'length')
