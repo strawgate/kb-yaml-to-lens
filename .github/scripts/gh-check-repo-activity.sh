@@ -26,6 +26,9 @@ REPO="${2:?Error: REPO required}"
 SINCE_TIMESTAMP="${3:?Error: SINCE_TIMESTAMP required}"
 THRESHOLD="${4:-3}"  # Default threshold is 3
 
+# Verify prerequisites
+command -v gh >/dev/null 2>&1 || { echo "Error: gh CLI is required but not installed" >&2; exit 1; }
+
 # Validate ISO 8601 timestamp format (basic validation)
 if [[ ! "$SINCE_TIMESTAMP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
   echo "Error: SINCE_TIMESTAMP must be in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)" >&2

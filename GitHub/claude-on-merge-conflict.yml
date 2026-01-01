@@ -122,6 +122,7 @@ jobs:
         - Make commands for linting and testing
         - MCP tools for searching code and understanding context
         - GitHub helper scripts via `make gh-*` commands
-      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*)
+        - GitHub CLI for posting PR comments
+      allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,Bash(make:*,git:*,gh:pr:comment:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
