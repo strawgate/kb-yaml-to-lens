@@ -96,6 +96,11 @@ Configure the extension in VS Code settings:
   - `external`: Open in system default browser
   - `simple`: Open in VS Code's built-in simple browser
 
+- **`yamlDashboard.kibana.uploadOnSave`**: Automatically upload dashboard to Kibana when YAML file is saved (default: `false`)
+  - Requires Kibana URL and credentials to be configured
+  - Shows subtle status messages in the status bar
+  - Errors are displayed in the status bar (no intrusive popups)
+
 ## Usage
 
 ### Commands
@@ -177,6 +182,7 @@ The extension provides comprehensive code snippets to speed up dashboard creatio
    - Use "Show Grid Lines" and "Snap to Grid" options for easier alignment
 7. The preview updates automatically when you save changes
 8. Use the "Copy NDJSON" button in the preview to export for Kibana
+9. **(Optional)** Enable `yamlDashboard.kibana.uploadOnSave` to automatically upload to Kibana on every save
 
 ## Preview Panel
 
