@@ -5,6 +5,8 @@ to specific types with proper error handling. These utilities are particularly
 useful when working with external data sources like YAML files or JSON APIs.
 """
 
+# pyright: reportAny=false, reportUnknownVariableType=false
+
 from typing import Any, TypeGuard
 
 

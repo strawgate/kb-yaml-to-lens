@@ -27,13 +27,13 @@ def load(path: str) -> list[Dashboard]:
         config: Any = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
     config_dict = ensure_dict(config, f'YAML file {path}')
-    dashboards_data: Any = config_dict.get('dashboards', [])
+    dashboards_data: Any = config_dict.get('dashboards', [])  # pyright: ignore[reportAny]
     dashboards_list = ensure_list(dashboards_data, f"'dashboards' key in {path}")
 
     dashboards: list[Dashboard] = []
-    for i, dashboard_data in enumerate(dashboards_list):
+    for i, dashboard_data in enumerate(dashboards_list):  # pyright: ignore[reportAny]
         dashboard_dict = ensure_dict(dashboard_data, f'Dashboard entry {i} in {path}')
-        dashboards.append(Dashboard(**dashboard_dict))  # pyright: ignore[reportUnknownArgumentType]
+        dashboards.append(Dashboard(**dashboard_dict))  # pyright: ignore[reportAny]
 
     return dashboards
 
