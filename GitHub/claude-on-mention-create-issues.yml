@@ -36,14 +36,17 @@ jobs:
         Address the user's request by creating one or more GitHub issues.
 
         # Creating GitHub Issues
-        Create issues by calling the make command:
+        Create issues using the gh CLI:
         ```
-        make gh-create-issue-report "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "Issue title" "Issue description" "label1,label2"
+        gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" \
+          --title "Issue title" \
+          --body "Issue description" \
+          --label "label1" --label "label2"
         ```
         When creating issues:
         - Use clear, descriptive titles
         - Provide detailed descriptions with context
-        - Add appropriate labels (bug, enhancement, documentation, etc.) as a comma-separated list
+        - Add appropriate labels (bug, enhancement, documentation, etc.) using multiple --label flags
         - Reference related issues or PRs when relevant
       allowed-tools: mcp__repository-summary,mcp__code-search,mcp__github-research,WebSearch,WebFetch,Bash(make:gh-*,gh:issue:*)
     secrets:

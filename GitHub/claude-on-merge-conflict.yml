@@ -87,7 +87,7 @@ jobs:
         # COMMUNICATING WITH THE PR
         After resolving conflicts, post a comment to the PR by calling:
         ```
-        make gh-post-pr-comment "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "Resolved merge conflicts with ${{ github.event.pull_request.base.ref }}. [Details of how conflicts were resolved]"
+        gh pr comment "${{ github.event.pull_request.number }}" --body "Resolved merge conflicts with ${{ github.event.pull_request.base.ref }}. [Details of how conflicts were resolved]"
         ```
 
         # IMPORTANT NOTES

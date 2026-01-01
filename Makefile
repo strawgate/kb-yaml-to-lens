@@ -1,6 +1,6 @@
 
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-get-pr-info gh-post-pr-comment gh-create-issue-report gh-close-issue-with-comment
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: ci
 
@@ -254,17 +254,8 @@ gh-get-comments-since:
 gh-minimize-outdated-comments:
 	@.github/scripts/gh-minimize-outdated-comments.sh $(filter-out $@,$(MAKECMDGOALS))
 
-gh-get-pr-info:
-	@.github/scripts/gh-get-pr-info.sh $(filter-out $@,$(MAKECMDGOALS))
-
-gh-post-pr-comment:
-	@.github/scripts/gh-post-pr-comment.sh $(filter-out $@,$(MAKECMDGOALS))
-
-gh-create-issue-report:
-	@.github/scripts/gh-create-issue-report.sh $(filter-out $@,$(MAKECMDGOALS))
-
-gh-close-issue-with-comment:
-	@.github/scripts/gh-close-issue-with-comment.sh $(filter-out $@,$(MAKECMDGOALS))
+gh-check-repo-activity:
+	@.github/scripts/gh-check-repo-activity.sh $(filter-out $@,$(MAKECMDGOALS))
 
 %:
 	@:

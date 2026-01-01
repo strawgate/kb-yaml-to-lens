@@ -160,21 +160,11 @@ Copilot is extremely dumb and needs to be spoon-fed the exact change you want ma
 
 ## GitHub Workflow Helper Scripts
 
-The repository provides reusable helper scripts in `.github/scripts/` for common GitHub API operations. These scripts can be used directly or via `make` commands.
+The repository provides reusable helper scripts in `.github/scripts/` for complex GitHub API operations. For simple operations, use the `gh` CLI directly.
 
-### Common Operations
+### Helper Scripts for Complex Operations
 
-#### Getting PR Information
-
-```bash
-# Using make (recommended)
-make gh-get-pr-info strawgate kb-yaml-to-lens 456
-make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef
-
-# Direct script usage
-.github/scripts/gh-get-pr-info.sh strawgate kb-yaml-to-lens 456
-.github/scripts/gh-get-pr-info.sh strawgate kb-yaml-to-lens 456 isDraft
-```
+Use `make` commands for operations that require complex GraphQL queries or multi-step logic:
 
 #### Managing PR Review Threads
 
@@ -185,32 +175,62 @@ make gh-get-review-threads strawgate kb-yaml-to-lens 456 "coderabbitai[bot]"
 
 # Resolve a thread (after fixing the issue)
 make gh-resolve-review-thread "THREAD_ID"
+
+# Get latest review from specific author
+make gh-get-latest-review strawgate kb-yaml-to-lens 456 "coderabbitai[bot]"
+
+# Check if review is latest
+make gh-check-latest-review strawgate kb-yaml-to-lens 456 "coderabbitai[bot]" "12345"
 ```
 
-#### Posting Comments
+#### Managing Comments
 
 ```bash
-# Post a comment to PR or issue
-make gh-post-pr-comment strawgate kb-yaml-to-lens 456 "Comment text here"
+# Get comments since timestamp
+make gh-get-comments-since strawgate kb-yaml-to-lens 456 "2025-12-30T09:00:00Z"
+
+# Minimize outdated comments
+make gh-minimize-outdated-comments strawgate kb-yaml-to-lens 456
 ```
 
-#### Managing Issues
+#### Checking Repository Activity
 
 ```bash
-# Create an issue with labels
-make gh-create-issue-report strawgate kb-yaml-to-lens "Issue Title" "Description" "bug,help-wanted"
+# Check for activity since timestamp (default threshold: 3)
+make gh-check-repo-activity strawgate kb-yaml-to-lens "2025-12-30T09:00:00Z"
 
-# Close an issue with a comment
-make gh-close-issue-with-comment strawgate kb-yaml-to-lens 123 "Closing comment"
+# With custom threshold
+make gh-check-repo-activity strawgate kb-yaml-to-lens "2025-12-30T09:00:00Z" 5
+```
+
+### Using gh CLI for Simple Operations
+
+For simple GitHub operations, use the `gh` CLI directly:
+
+```bash
+# Get PR information
+gh pr view 456 --json headRefName,baseRefName,author
+
+# Post comments
+gh pr comment 456 --body "Comment text"
+gh issue comment 123 --body "Comment text"
+
+# Create issues
+gh issue create --repo strawgate/kb-yaml-to-lens --title "Title" --body "Description" --label "bug"
+
+# Close issues
+gh issue close 123 --repo strawgate/kb-yaml-to-lens
+
+# List issues/PRs
+gh issue list --label "bug" --state open
+gh pr list --state open
 ```
 
 ### Available Helper Scripts
 
-See `.github/scripts/README.md` for complete documentation of all helper scripts:
-
 - **Review Management**: `gh-get-review-threads.sh`, `gh-resolve-review-thread.sh`, `gh-get-latest-review.sh`, `gh-check-latest-review.sh`
-- **Comment Management**: `gh-get-comments-since.sh`, `gh-minimize-outdated-comments.sh`, `gh-post-pr-comment.sh`
-- **PR/Issue Management**: `gh-get-pr-info.sh`, `gh-create-issue-report.sh`, `gh-close-issue-with-comment.sh`
+- **Comment Management**: `gh-get-comments-since.sh`, `gh-minimize-outdated-comments.sh`
+- **Activity Checking**: `gh-check-repo-activity.sh`
 
 **Note**: All scripts require `GITHUB_TOKEN` environment variable and can be tested locally.
 

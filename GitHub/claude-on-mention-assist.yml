@@ -37,15 +37,20 @@ jobs:
         - Search codebase and related repositories
 
         # GITHUB HELPER COMMANDS
-        You have access to these helper commands via `make`:
-        - `make gh-get-pr-info OWNER REPO PR_NUMBER [FIELD]` - Get PR information
-        - `make gh-post-pr-comment OWNER REPO PR_NUMBER "comment text"` - Post PR comment
-        - `make gh-create-issue-report OWNER REPO "title" "body" "labels"` - Create issue
-        - `make gh-close-issue-with-comment OWNER REPO ISSUE_NUMBER "comment"` - Close issue with comment
+        You have access to these helper commands via `make` for complex operations:
         - `make gh-get-review-threads OWNER REPO PR_NUMBER [AUTHOR]` - Get review threads
         - `make gh-resolve-review-thread THREAD_ID` - Resolve a review thread
-        - `make gh-get-latest-review OWNER REPO PR_NUMBER` - Get latest review
-        - `make gh-check-latest-review OWNER REPO PR_NUMBER REVIEW_ID` - Check if review is latest
+        - `make gh-get-latest-review OWNER REPO PR_NUMBER AUTHOR` - Get latest review
+        - `make gh-check-latest-review OWNER REPO PR_NUMBER AUTHOR REVIEW_ID` - Check if review is latest
+        - `make gh-get-comments-since OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR]` - Get comments since timestamp
+        - `make gh-minimize-outdated-comments OWNER REPO PR_NUMBER` - Minimize outdated comments
+        - `make gh-check-repo-activity OWNER REPO SINCE_TIMESTAMP [THRESHOLD]` - Check repo activity
+
+        For simple operations, use `gh` CLI directly:
+        - `gh pr view PR_NUMBER --json field1,field2` - Get PR info
+        - `gh pr comment PR_NUMBER --body "text"` or `gh issue comment ISSUE_NUMBER --body "text"` - Post comments
+        - `gh issue create --repo OWNER/REPO --title "title" --body "body" --label "label"` - Create issues
+        - `gh issue close ISSUE_NUMBER --repo OWNER/REPO` - Close issues
 
         # YOUR TASK
         Address the request from the user. Follow the development workflow:
