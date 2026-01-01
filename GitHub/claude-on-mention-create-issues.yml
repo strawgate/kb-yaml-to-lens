@@ -36,12 +36,9 @@ jobs:
         Address the user's request by creating one or more GitHub issues.
 
         # Creating GitHub Issues
-        Use the `make gh-create-issue-report` helper command to create issues:
-        ```bash
-        make gh-create-issue-report "${{ github.repository_owner }}" "${{ github.event.repository.name }}" \
-          "Issue title" \
-          "Issue description" \
-          "label1,label2"
+        Create issues by calling the make command:
+        ```
+        make gh-create-issue-report "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "Issue title" "Issue description" "label1,label2"
         ```
         When creating issues:
         - Use clear, descriptive titles

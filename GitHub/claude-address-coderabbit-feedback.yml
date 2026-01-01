@@ -40,37 +40,19 @@ jobs:
         # GETTING STARTED
 
         ## STEP 1: Check for newer reviews
-        Before doing any work, verify this is the most recent CodeRabbit review:
-        ```bash
-        set -euo pipefail
-        OWNER="${{ github.repository_owner }}"
-        REPO="${{ github.event.repository.name }}"
-        PR_NUMBER=${{ github.event.pull_request.number }}
-        CURRENT_REVIEW_ID="${{ github.event.review.id }}"
-        AUTHOR="coderabbitai[bot]"
-
-        # Check if this is the latest review using make command
-        if ! make gh-check-latest-review "$OWNER" "$REPO" "$PR_NUMBER" "$AUTHOR" "$CURRENT_REVIEW_ID"; then
-          echo "⚠️ A newer CodeRabbit review exists"
-          echo "⚠️ Current review ID: $CURRENT_REVIEW_ID"
-          echo "⚠️ Skipping this run - the newer review will be or is being processed"
-          exit 0
-        fi
-        echo "✅ This is the most recent CodeRabbit review, proceeding with work..."
+        Before doing any work, verify this is the most recent CodeRabbit review by calling:
         ```
+        make gh-check-latest-review "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]" "${{ github.event.review.id }}"
+        ```
+        If this command exits with non-zero status, a newer CodeRabbit review exists - skip this run as the newer review will be or is being processed.
+        If it exits with zero status, this is the most recent CodeRabbit review, proceed with work.
 
         ## STEP 2: Fetch all review threads
-        1. Fetch review threads using make command:
-           ```bash
-           OWNER="${{ github.repository_owner }}"
-           REPO="${{ github.event.repository.name }}"
-           PR_NUMBER=${{ github.event.pull_request.number }}
-           AUTHOR="coderabbitai[bot]"
-
-           # Get all unresolved review threads from CodeRabbit
-           THREADS=$(make gh-get-review-threads "$OWNER" "$REPO" "$PR_NUMBER" "$AUTHOR")
-           ```
-        2. The threads are already filtered to unresolved threads from the specified author
+        Fetch review threads using the make command:
+        ```
+        make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]"
+        ```
+        This returns JSON with all unresolved review threads from CodeRabbit. Parse the JSON to get thread IDs, file paths, and comments.
 
         # ADDRESSING FEEDBACK
         For each unresolved CodeRabbit comment:
@@ -81,35 +63,30 @@ jobs:
         5. Fix any failures caused by your changes
 
         # BEFORE COMPLETING: Check for additional feedback
-        Before you finish and post your summary comment:
-        ```bash
-        OWNER="${{ github.repository_owner }}"
-        REPO="${{ github.event.repository.name }}"
-        PR_NUMBER=${{ github.event.pull_request.number }}
-        CURRENT_REVIEW_ID="${{ github.event.review.id }}"
-
-        # Check again for newer CodeRabbit reviews that arrived while you were working
-        AUTHOR="coderabbitai[bot]"
-        if ! make gh-check-latest-review "$OWNER" "$REPO" "$PR_NUMBER" "$AUTHOR" "$CURRENT_REVIEW_ID"; then
-          # Get the latest review ID
-          LATEST_REVIEW_ID=$(make gh-get-latest-review "$OWNER" "$REPO" "$PR_NUMBER" "$AUTHOR" | jq -r '.databaseId')
-          echo "⚠️ New CodeRabbit review arrived during this run (ID: $LATEST_REVIEW_ID)"
-          echo "📋 Fetching additional feedback..."
-
-          # Fetch the new review threads and address them too
-          NEW_THREADS=$(make gh-get-review-threads "$OWNER" "$REPO" "$PR_NUMBER" "$AUTHOR")
-
-          # Address the new feedback before completing
-          echo "✅ Addressing new feedback that arrived during this run..."
-        fi
+        Before you finish and post your summary comment, check again for newer CodeRabbit reviews:
         ```
-        If new feedback was found, address it before posting your final summary.
+        make gh-check-latest-review "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]" "${{ github.event.review.id }}"
+        ```
+        If this exits with non-zero status, a new CodeRabbit review arrived during your work:
+        1. Get the latest review ID:
+           ```
+           make gh-get-latest-review "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]"
+           ```
+           Parse the JSON output to extract the `.databaseId` field.
+        2. Fetch the new review threads:
+           ```
+           make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]"
+           ```
+        3. Address the new feedback before posting your final summary.
+
+        If no new feedback was found, proceed with posting your final summary.
 
         # RESOLVING THREADS
-        After successfully addressing a comment, use the make command:
-        ```bash
+        After successfully addressing a comment, resolve the thread by calling:
+        ```
         make gh-resolve-review-thread "THREAD_ID"
         ```
+        Replace THREAD_ID with the actual thread ID from the review threads JSON.
 
         # REPORTING
         After all changes (including any new feedback found), comment on the PR with a summary:

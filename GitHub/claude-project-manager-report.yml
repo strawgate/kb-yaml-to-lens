@@ -193,12 +193,9 @@ jobs:
         Based on the current project state, what should maintainers focus on?
 
         # OUTPUT FORMAT
-        Create a GitHub issue with your findings using the make command helper:
-        ```bash
-        make gh-create-issue-report "${{ github.repository_owner }}" "${{ github.event.repository.name }}" \
-          "📊 Project Manager Report - $(date +%Y-%m-%d)" \
-          "YOUR_REPORT_HERE" \
-          "project-manager"
+        Create a GitHub issue with your findings by calling:
+        ```
+        make gh-create-issue-report "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "📊 Project Manager Report - $(date +%Y-%m-%d)" "YOUR_REPORT_HERE" "project-manager"
         ```
         Use clear markdown formatting in the issue body with:
         - Issue/PR references using `#number` format
