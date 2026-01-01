@@ -25,7 +25,7 @@ The extension uses a **hybrid distribution strategy**:
 The `BinaryResolver` class (`src/binaryResolver.ts`) intelligently chooses the LSP server:
 
 1. **Bundled Binary** (production): `bin/{platform}-{arch}/dashboard-compiler-lsp`
-2. **Python Script** (development fallback): `python/compile_server.py`
+2. **Python Module** (development fallback): `dashboard_compiler.lsp.server` module (via `kb-dashboard-lsp` entry point)
 
 Platform directories:
 
@@ -56,7 +56,7 @@ This creates `bin/{platform}-{arch}/dashboard-compiler-lsp` for your current pla
 To build for all platforms, run the build script on each platform:
 
 - **Linux x64**: Run on Ubuntu/Linux → creates `bin/linux-x64/dashboard-compiler-lsp`
-- **macOS Intel**: Run on macOS Intel (GitHub Actions: macos-13) → creates `bin/darwin-x64/dashboard-compiler-lsp`
+- **macOS Intel**: Run on macOS Intel (GitHub Actions: macos-14) → creates `bin/darwin-x64/dashboard-compiler-lsp`
 - **macOS ARM64**: Run on macOS ARM64 (GitHub Actions: macos-14) → creates `bin/darwin-arm64/dashboard-compiler-lsp`
 - **Windows x64**: Run on Windows → creates `bin/win32-x64/dashboard-compiler-lsp.exe`
 
@@ -116,7 +116,7 @@ build-binaries:
       include:
         - os: ubuntu-latest
           platform: linux-x64
-        - os: macos-13
+        - os: macos-14
           platform: darwin-x64
         - os: macos-14
           platform: darwin-arm64
@@ -166,7 +166,13 @@ package:
       run: |
         cd vscode-extension
         npm install
-        npm run package:platform ${{ matrix.platform }}
+        # Map platform to package script
+        case "${{ matrix.platform }}" in
+          linux-x64) npm run package:linux ;;
+          darwin-x64) npm run package:macos-x64 ;;
+          darwin-arm64) npm run package:macos-arm64 ;;
+          win32-x64) npm run package:windows ;;
+        esac
     - name: Upload VSIX
       uses: actions/upload-artifact@v4
       with:
@@ -187,10 +193,6 @@ vscode-extension/
 │   │   └── dashboard-compiler-lsp
 │   └── win32-x64/
 │       └── dashboard-compiler-lsp.exe
-├── python/                   # Python scripts (included in VSIX)
-│   ├── compile_server.py     # LSP server (fallback)
-│   ├── grid_extractor.py
-│   └── grid_updater.py
 ├── scripts/                  # Build scripts (excluded from VSIX)
 │   └── build_lsp_binary.py
 ├── src/                      # TypeScript source (excluded from VSIX)
@@ -198,6 +200,11 @@ vscode-extension/
 │   ├── compiler.ts
 │   └── ...
 └── out/                      # Compiled JS (included in VSIX)
+
+Note: LSP server and grid scripts are now part of the `dashboard_compiler` package:
+- `src/dashboard_compiler/lsp/server.py` - LSP server (bundled in binary or run via Python)
+- `src/dashboard_compiler/lsp/grid_extractor.py` - Grid extraction utility
+- `src/dashboard_compiler/lsp/grid_updater.py` - Grid update utility
 ```
 
 ## Troubleshooting
@@ -207,7 +214,7 @@ vscode-extension/
 If extension falls back to Python in production:
 
 1. Check binary exists: `ls vscode-extension/bin/{platform}-{arch}/dashboard-compiler-lsp`
-2. Check binary is executable (Unix): `file vscode-extension/bin/{platform}/dashboard-compiler-lsp`
+2. Check binary is executable (Unix): `file vscode-extension/bin/{platform}-{arch}/dashboard-compiler-lsp`
 3. Verify `.vscodeignore` doesn't exclude `bin/`
 
 ### Python Not Found in Development

@@ -491,12 +491,16 @@ dependencies = [
     { name = "beartype" },
     { name = "click" },
     { name = "humanize" },
-    { name = "lsprotocol" },
     { name = "prison" },
     { name = "pydantic" },
-    { name = "pygls" },
     { name = "pyyaml" },
     { name = "rich-click" },
+]
+
+[package.optional-dependencies]
+lsp = [
+    { name = "lsprotocol" },
+    { name = "pygls" },
 ]
 
 [package.dev-dependencies]
@@ -532,13 +536,14 @@ requires-dist = [
     { name = "beartype", specifier = ">=0.22" },
     { name = "click", specifier = ">=8.3" },
     { name = "humanize", specifier = ">=4.15" },
-    { name = "lsprotocol", specifier = ">=2024.0.0" },
+    { name = "lsprotocol", marker = "extra == 'lsp'", specifier = ">=2024.0.0" },
     { name = "prison", specifier = ">=0.2.1" },
     { name = "pydantic", specifier = ">=2.12" },
-    { name = "pygls", specifier = ">=2.0.0" },
+    { name = "pygls", marker = "extra == 'lsp'", specifier = ">=2.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rich-click", specifier = ">=1.9.0" },
 ]
+provides-extras = ["lsp"]
 
 [package.metadata.requires-dev]
 build = [{ name = "pyinstaller", specifier = ">=6.0" }]

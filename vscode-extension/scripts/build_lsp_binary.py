@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Build standalone LSP server binary using PyInstaller."""
 
-import os
 import platform
 import shutil
 import subprocess
@@ -46,17 +45,15 @@ def main() -> None:
         if path.exists():
             shutil.rmtree(path)
 
-    # Build with PyInstaller
-    compile_server = VSCODE_ROOT / 'python' / 'compile_server.py'
-    dashboard_compiler_src = PROJECT_ROOT / 'src' / 'dashboard_compiler'
-
+    # Build with PyInstaller using the module entry point
     # Find pyinstaller executable
     pyinstaller_path = shutil.which('pyinstaller')
-    if not pyinstaller_path:
+    if pyinstaller_path is None:
         msg = 'pyinstaller not found in PATH. Install with: pip install pyinstaller'
         raise RuntimeError(msg)
 
-    # PyInstaller uses OS-specific path separators: ':' on Unix, ';' on Windows
+    # PyInstaller can bundle Python modules directly using -m flag
+    # This uses the kb-dashboard-lsp entry point from pyproject.toml
     subprocess.run(  # noqa: S603
         [
             pyinstaller_path,
@@ -65,9 +62,8 @@ def main() -> None:
             '--onefile',
             '--clean',
             '--noconfirm',
-            '--add-data',
-            f'{dashboard_compiler_src}{os.pathsep}dashboard_compiler',
-            str(compile_server),
+            '-m',
+            'dashboard_compiler.lsp.server',
         ],
         check=True,
         cwd=VSCODE_ROOT,
@@ -76,7 +72,7 @@ def main() -> None:
     # Move binary to bin/{platform}/
     binary_path = VSCODE_ROOT / 'dist' / binary_name
     target_path = output_dir / binary_name
-    shutil.move(str(binary_path), str(target_path))
+    shutil.move(binary_path, target_path)
 
     # Clean build artifacts
     for d in ['build', 'dist']:
