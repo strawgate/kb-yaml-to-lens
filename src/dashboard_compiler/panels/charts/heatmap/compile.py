@@ -1,7 +1,5 @@
 """Compilation logic for heatmap chart visualizations."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
@@ -24,7 +22,7 @@ def compile_heatmap_chart_visualization_state(
     layer_id: str,
     x_accessor_id: str,
     value_accessor_id: str,
-    chart: LensHeatmapChart | ESQLHeatmapChart,
+    chart: 'LensHeatmapChart | ESQLHeatmapChart',
     y_accessor_id: str | None = None,
 ) -> KbnHeatmapVisualizationState:
     """Compile a heatmap chart config object into a Kibana Lens Heatmap visualization state.
@@ -71,8 +69,8 @@ def compile_heatmap_chart_visualization_state(
 
 
 def compile_lens_heatmap_chart(
-    lens_heatmap_chart: LensHeatmapChart,
-) -> tuple[str, dict[str, KbnLensColumnTypes], KbnHeatmapVisualizationState]:
+    lens_heatmap_chart: 'LensHeatmapChart',
+) -> 'tuple[str, dict[str, KbnLensColumnTypes], KbnHeatmapVisualizationState]':
     """Compile a LensHeatmapChart config object into a Kibana Lens Heatmap visualization state.
 
     Args:
@@ -85,11 +83,11 @@ def compile_lens_heatmap_chart(
             - kbn_state_visualization (KbnHeatmapVisualizationState): The compiled visualization state.
 
     """
-    kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
+    kbn_columns_by_id: 'dict[str, KbnLensColumnTypes]' = {}  # noqa: UP037
 
     # Compile value metric first (dimensions may reference it)
     value_id, value_column = compile_lens_metric(lens_heatmap_chart.value)
-    kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {value_id: value_column}
+    kbn_metric_columns_by_id: 'dict[str, KbnLensMetricColumnTypes]' = {value_id: value_column}  # noqa: UP037
 
     # Compile X-axis dimension (required)
     x_id, x_column = compile_lens_dimension(
@@ -126,8 +124,8 @@ def compile_lens_heatmap_chart(
 
 
 def compile_esql_heatmap_chart(
-    esql_heatmap_chart: ESQLHeatmapChart,
-) -> tuple[str, list[KbnESQLColumnTypes], KbnHeatmapVisualizationState]:
+    esql_heatmap_chart: 'ESQLHeatmapChart',
+) -> 'tuple[str, list[KbnESQLColumnTypes], KbnHeatmapVisualizationState]':
     """Compile an ESQL HeatmapChart config object into a Kibana Lens Heatmap visualization state.
 
     Args:
@@ -142,7 +140,7 @@ def compile_esql_heatmap_chart(
     """
     layer_id = esql_heatmap_chart.id if esql_heatmap_chart.id is not None else random_id_generator()
 
-    kbn_columns: list[KbnESQLColumnTypes] = []
+    kbn_columns: 'list[KbnESQLColumnTypes]' = []  # noqa: UP037
 
     # Compile X-axis dimension (required)
     x_column = compile_esql_dimension(esql_heatmap_chart.x_axis)
