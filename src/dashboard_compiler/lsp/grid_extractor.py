@@ -38,8 +38,8 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
     for index, panel in enumerate(dashboard_config.panels):
         panel_type = get_panel_type(panel)
         panel_info = {
-            'id': panel.id or f'panel_{index}',
-            'title': panel.title or 'Untitled Panel',
+            'id': panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
+            'title': panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
             'type': panel_type,
             'grid': {
                 'x': panel.grid.x,
@@ -50,9 +50,14 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
         }
         panels.append(panel_info)
 
+    title = dashboard_config.name if (dashboard_config.name is not None and len(dashboard_config.name) > 0) else 'Untitled Dashboard'
+    description = (
+        dashboard_config.description if (dashboard_config.description is not None and len(dashboard_config.description) > 0) else ''
+    )
+
     return {
-        'title': dashboard_config.name or 'Untitled Dashboard',
-        'description': dashboard_config.description or '',
+        'title': title,
+        'description': description,
         'panels': panels,
     }
 

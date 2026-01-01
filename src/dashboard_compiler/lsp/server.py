@@ -135,7 +135,11 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[rep
     try:
         dashboards = load(path)  # pyright: ignore[reportAny]
         dashboard_list = [
-            {'index': i, 'title': dashboard.name or f'Dashboard {i + 1}', 'description': dashboard.description or ''}
+            {
+                'index': i,
+                'title': dashboard.name if (dashboard.name is not None and len(dashboard.name) > 0) else f'Dashboard {i + 1}',
+                'description': dashboard.description if (dashboard.description is not None and len(dashboard.description) > 0) else '',
+            }
             for i, dashboard in enumerate(dashboards)
         ]
     except Exception as e:
@@ -256,9 +260,9 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
         client = KibanaClient(
             url=kibana_url,
-            username=username if (username is not None and username != '') else None,
-            password=password if (password is not None and password != '') else None,
-            api_key=api_key if (api_key is not None and api_key != '') else None,
+            username=username if (username is not None and len(username) > 0) else None,
+            password=password if (password is not None and len(password) > 0) else None,
+            api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
             ssl_verify=ssl_verify,
         )
 
