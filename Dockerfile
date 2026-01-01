@@ -23,18 +23,22 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install uv for fast dependency management
-RUN pip install --no-cache-dir uv
+RUN pip install --no-cache-dir uv==0.9.18
 
 # Copy project files
 COPY pyproject.toml /app/
 COPY README.md /app/
 COPY src/ /app/src/
 
-# Install dependencies using uv
-RUN uv pip install --system --no-cache .
+# Install dependencies using uv and create directories
+RUN uv pip install --system --no-cache . && \
+    mkdir -p /inputs /output && \
+    addgroup --system --gid 1001 appuser && \
+    adduser --system --uid 1001 --gid 1001 appuser && \
+    chown -R appuser:appuser /inputs /output /app
 
-# Create default input/output directories
-RUN mkdir -p /inputs /output
+# Switch to non-root user
+USER appuser
 
 # Set environment variables for default paths
 ENV INPUT_DIR=/inputs

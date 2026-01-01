@@ -1,6 +1,12 @@
 
 .PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke
 
+# Docker configuration
+DOCKER_IMAGE_NAME := kb-dashboard-compiler
+DOCKER_IMAGE_TAG := latest
+DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest
+
 all: ci
 
 help:
@@ -237,29 +243,36 @@ docs-deploy:
 # Docker commands
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t kb-dashboard-compiler:latest .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-run:
 	@echo "Running Docker container..."
+	@mkdir -p $(PWD)/inputs $(PWD)/output
 	@echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
 	docker run --rm -v $(PWD)/inputs:/inputs -v $(PWD)/output:/output \
-		kb-dashboard-compiler:latest compile --input-dir /inputs --output-dir /output
+		$(DOCKER_IMAGE) compile --input-dir /inputs --output-dir /output
 
 docker-test:
 	@echo "Testing Docker image..."
-	docker run --rm kb-dashboard-compiler:latest --help
+	docker run --rm $(DOCKER_IMAGE) --help
 
 docker-publish:
 	@echo "Publishing Docker image to GHCR..."
+	@if [ "$(CONFIRM_PUBLISH)" != "yes" ]; then \
+		echo "Error: Set CONFIRM_PUBLISH=yes to confirm publishing to GHCR"; \
+		echo "Usage: make docker-publish CONFIRM_PUBLISH=yes"; \
+		exit 1; \
+	fi
+	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. Install with: docker buildx install" && exit 1)
 	docker buildx build \
 		--platform linux/amd64,linux/arm64 \
-		-t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+		-t $(GHCR_REGISTRY) \
 		--push .
 
 # Binary build command
 build-binary:
 	@echo "Building standalone binary..."
-	@uv pip install pyinstaller
+	@uv sync --group build
 	@uv run python scripts/build_binaries.py
 
 # Docker smoke tests

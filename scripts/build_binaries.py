@@ -28,7 +28,8 @@ def main() -> None:
 
     # Clean previous builds
     for d in ['build', 'dist']:
-        if (path := PROJECT_ROOT / d).exists():
+        path = PROJECT_ROOT / d
+        if path.exists() is True:
             shutil.rmtree(path)
 
     # Build with PyInstaller
