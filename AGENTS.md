@@ -158,38 +158,6 @@ Copilot is extremely dumb and needs to be spoon-fed the exact change you want ma
 
 ---
 
-## Resolving PR Review Threads
-
-You can resolve review threads via GitHub GraphQL API. **Only resolve after making code changes that address the feedback.**
-
-```bash
-# Get review threads
-gh api graphql -f query='
-  query {
-    repository(owner: "OWNER", name: "REPO") {
-      pullRequest(number: PR_NUMBER) {
-        reviewThreads(first: 100) {
-          nodes { id isResolved path line
-            comments(first: 10) { nodes { body author { login } } }
-          }
-        }
-      }
-    }
-  }' -f owner=OWNER -f name=REPO -F number=PR_NUMBER
-
-# Resolve a thread (after fixing the issue)
-gh api graphql -f query='
-  mutation {
-    resolveReviewThread(input: {threadId: "THREAD_ID"}) {
-      thread { id isResolved }
-    }
-  }'
-```
-
-**Note**: Claude will NOT add comments or reviews to PRs. It can only resolve threads after making code changes.
-
----
-
 ## Pull Request Standards
 
 ### Requirements

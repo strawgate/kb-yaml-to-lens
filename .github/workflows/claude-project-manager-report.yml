@@ -4,7 +4,7 @@ on:
   schedule:
     # Run daily at 9 AM UTC (adjust as needed)
     - cron: 0 9 * * *
-  workflow_dispatch: null  # Allow manual triggering
+  workflow_dispatch:  # Allow manual triggering
 permissions:
   contents: read
   issues: write
@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for git log
       - name: Check for recent activity
         id: check
         env:
@@ -47,14 +49,12 @@ jobs:
             # Check for new issues (excluding PM issues)
             NEW_ISSUES=$(gh issue list \
               --search "created:>=$ISSUE_CREATED -label:project-manager" \
-              --limit 100 \
               --json number \
               --jq 'length')
 
             # Check for new PRs
             NEW_PRS=$(gh pr list \
               --search "created:>=$ISSUE_CREATED" \
-              --limit 100 \
               --json number \
               --jq 'length')
 
@@ -62,7 +62,6 @@ jobs:
             MERGED_PRS=$(gh pr list \
               --search "merged:>=$ISSUE_CREATED" \
               --state merged \
-              --limit 100 \
               --json number \
               --jq 'length')
             TOTAL_ACTIVITY=$((COMMIT_COUNT + NEW_ISSUES + NEW_PRS + MERGED_PRS))
@@ -72,6 +71,7 @@ jobs:
             echo "  New PRs: $NEW_PRS"
             echo "  Merged PRs: $MERGED_PRS"
             echo "  Total: $TOTAL_ACTIVITY"
+            # Threshold: require at least 3 activity items to justify a new PM report
             if [ $TOTAL_ACTIVITY -lt 3 ]; then
               echo "Not enough activity to create new PM issue"
               echo "has_activity=false" >> $GITHUB_OUTPUT
@@ -94,9 +94,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.event.repository.name }}"
           LAST_ISSUE="${{ needs.check-activity.outputs.last_pm_issue }}"
+          COMMENT="Closing this PM report. New daily report has been generated."
+
           echo "Closing previous PM issue #$LAST_ISSUE"
-          gh issue close "$LAST_ISSUE" --comment "Closing this PM report. New daily report has been generated."
+          gh issue comment "$LAST_ISSUE" --repo "$OWNER/$REPO" --body "$COMMENT"
+          gh issue close "$LAST_ISSUE" --repo "$OWNER/$REPO"
   project-manager-review:
     needs:
       - check-activity
@@ -188,20 +193,20 @@ jobs:
         Based on the current project state, what should maintainers focus on?
 
         # OUTPUT FORMAT
-        Create a GitHub issue with your findings using this command:
-        ```bash
-        gh issue create \
+        Create a GitHub issue with your findings by calling:
+        ```
+        gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" \
           --title "📊 Project Manager Report - $(date +%Y-%m-%d)" \
-          --label "project-manager" \
-          --body "YOUR_REPORT_HERE"
+          --body "YOUR_REPORT_HERE" \
+          --label "project-manager"
         ```
         Use clear markdown formatting in the issue body with:
-        - Issue/PR references using  # number syntax
+        - Issue/PR references using `#number` format
         - Bulleted lists for action items
         - Clear section headers
         - Checkboxes [ ] for actionable items
         - Emojis for visual organization
-      allowed-tools: mcp__github-research,Bash(git:*,gh:issue:*)
+      allowed-tools: Bash(git:*,gh:issue:*,make:*)
       track-progress: false
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
