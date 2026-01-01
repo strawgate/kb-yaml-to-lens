@@ -162,12 +162,18 @@ See `.github/scripts/README.md` for comprehensive documentation on all helper sc
 Claude workflows invoke these scripts via `make` commands and process their output:
 
 ```bash
-# Example: Get PR information and use it
+# ✅ Claude should do this - call make commands and use output
 PR_BRANCH=$(make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef)
 echo "Working on branch: $PR_BRANCH"
 
-# Example: Post a comment after completing a task
+# Get review threads and analyze them in separate steps
+THREADS=$(make gh-get-review-threads strawgate kb-yaml-to-lens 456 "coderabbitai[bot]")
+# Then reason through the JSON output
+
+# Post a comment after completing a task
 make gh-post-pr-comment strawgate kb-yaml-to-lens 456 "✅ Task completed successfully"
+
+# ❌ Claude should NOT do this - write complex shell scripts wrapping make commands
 ```
 
-Claude should call the `make` commands directly and reason through their output, not write complex shell scripts wrapping them
+**Important**: Claude should call the `make` commands directly and reason through their output in separate steps, not write complex shell scripts wrapping them

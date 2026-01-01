@@ -189,6 +189,24 @@ export GITHUB_TOKEN="your_token_here"
 .github/scripts/gh-check-latest-review.sh strawgate kb-yaml-to-lens 426 "coderabbitai[bot]" 12345
 ```
 
+## Usage Pattern for Claude Workflows
+
+Claude workflows should call these helpers via `make` commands and reason through their output:
+
+```bash
+# ✅ Claude should do this
+PR_BRANCH=$(make gh-get-pr-info strawgate kb-yaml-to-lens 456 headRef)
+echo "Working on branch: $PR_BRANCH"
+
+# Get review threads and analyze them
+THREADS=$(make gh-get-review-threads strawgate kb-yaml-to-lens 456 "coderabbitai[bot]")
+# Process the JSON output with jq or analyze it
+
+# ❌ Claude should NOT write complex shell scripts wrapping these commands
+```
+
+Claude should **not** write complex shell scripts - instead, use the `make` commands directly and reason through their output in separate steps.
+
 ## Updating Workflows
 
 To use these scripts in workflows, @copilot can update workflow files (Claude cannot due to GitHub App permissions).
