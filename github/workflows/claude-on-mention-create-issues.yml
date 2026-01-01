@@ -52,19 +52,16 @@ jobs:
         # BEFORE FINISHING
         Check for new comments created after your run started:
         - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
-        - Check for new comments from the trigger user (${{ github.event.comment.user.login || github.event.review.user.login }}):
+        - Use the make command to check for new comments from the trigger user:
           ```bash
-          ISSUE_NUM=${{ github.event.issue.number || github.event.pull_request.number }}
-          TRIGGER_USER="${{ github.event.comment.user.login || github.event.review.user.login }}"
-          START_TIME="${{ github.event.comment.created_at || github.event.review.submitted_at }}"
-
-          # Get new comments from trigger user
-          NEW_COMMENTS=$(gh api "/repos/${{ github.repository }}/issues/$ISSUE_NUM/comments" | \
-            jq -r --arg since "$START_TIME" --arg user "$TRIGGER_USER" \
-            'map(select(.created_at > $since and .user.login == $user)) |
-             if length > 0 then .[] | "[\(.created_at)] @\(.user.login): \(.body)" else empty end')
+          make gh-get-comments-since \
+            $(echo "${{ github.repository }}" | cut -d/ -f1) \
+            $(echo "${{ github.repository }}" | cut -d/ -f2) \
+            ${{ github.event.issue.number || github.event.pull_request.number }} \
+            "${{ github.event.comment.created_at || github.event.review.submitted_at }}" \
+            "${{ github.event.comment.user.login || github.event.review.user.login }}"
           ```
-        - If NEW_COMMENTS is not empty, read the feedback and incorporate it before completing
+        - If the command returns any comments, read the feedback and incorporate it before completing
         - Repeat this check periodically (but set a reasonable limit to prevent infinite loops - max 3 checks)
       allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
     secrets:
