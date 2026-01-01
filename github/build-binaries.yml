@@ -5,11 +5,6 @@ on:
     tags:
       - v*
   workflow_dispatch:
-    inputs:
-      tag:
-        description: Release tag (e.g., v1.0.0)
-        required: true
-        default: v1.0.0
 permissions:
   contents: write
 jobs:
@@ -67,7 +62,11 @@ jobs:
       - name: Prepare release binaries
         run: |
           mkdir -p release
-          find artifacts -type f -exec mv {} release/ \;
+          for artifact_dir in artifacts/kb-dashboard-*; do
+            if [ -d "$artifact_dir" ]; then
+              cp -r "$artifact_dir"/* release/
+            fi
+          done
           ls -lh release/
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
