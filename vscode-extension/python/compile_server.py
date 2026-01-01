@@ -307,7 +307,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         # Compile the dashboard first
         logger.info(f'Compiling dashboard from {path} (index {dashboard_index})')
         compile_result = _compile_dashboard(path, dashboard_index)
-        if not compile_result['success']:
+        if compile_result['success'] is not True:
             logger.error(f'Compilation failed: {compile_result.get("error")}')
             return compile_result
 
@@ -331,7 +331,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
             f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
         )
 
-        if result.success:
+        if result.success is True:
             # Extract dashboard ID
             dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
