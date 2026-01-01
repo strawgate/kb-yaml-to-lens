@@ -93,17 +93,17 @@ echo "$RESOLVE_RESULT"
 if [ -n "$REVIEW_ID" ] && [ "$REVIEW_ID" != "null" ]; then
   echo "Checking if all threads from review are resolved..." >&2
 
-  UNRESOLVED_COUNT=$(echo "$REVIEW_DATA" | jq --arg reviewId "$REVIEW_ID" '
+  UNRESOLVED_COUNT=$(echo "$REVIEW_DATA" | jq --arg reviewId "$REVIEW_ID" --arg threadId "$THREAD_ID" '
     map(select(
       .comments.nodes[0].pullRequestReview.id == $reviewId and
       .isResolved == false and
-      .id != "'"$THREAD_ID"'"
+      .id != $threadId
     )) | length
   ')
 
   if [ "$UNRESOLVED_COUNT" = "0" ]; then
     echo "All threads from this review are now resolved. Minimizing review..." >&2
-    gh api graphql -f query='
+    if gh api graphql -f query='
       mutation($subjectId: ID!) {
         minimizeComment(input: {
           subjectId: $subjectId,
@@ -113,10 +113,11 @@ if [ -n "$REVIEW_ID" ] && [ "$REVIEW_ID" != "null" ]; then
             isMinimized
           }
         }
-      }' -f subjectId="$REVIEW_ID" --silent || {
-        echo "Warning: Failed to minimize review $REVIEW_ID" >&2
-      }
-    echo "Review minimized successfully" >&2
+      }' -f subjectId="$REVIEW_ID" --silent; then
+      echo "Review minimized successfully" >&2
+    else
+      echo "Warning: Failed to minimize review $REVIEW_ID" >&2
+    fi
   else
     echo "Review still has $UNRESOLVED_COUNT unresolved thread(s)" >&2
   fi
