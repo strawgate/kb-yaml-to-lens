@@ -79,7 +79,8 @@ make ci
 **Verify Your Work:**
 
 - Run component-specific tests before committing
-- Ensure all checks pass (lint, typecheck, tests)
+- Ensure all checks pass (lint, typecheck, tests, coverage)
+- Ensure new code meets 90% coverage requirement
 - Test the actual functionality, not just that it compiles
 
 **Be Honest:**
@@ -205,8 +206,9 @@ gh api graphql -f query='
 - [ ] Solves the stated problem, with specific reference to the body of the related issue
 - [ ] Code is complete, well-written, and follows existing patterns in codebase
 - [ ] Tests added/updated as needed
+- [ ] New code has at least 90% coverage
 - [ ] Documentation is still accurate after the changes
-- [ ] All checks pass (linting + typecheck + tests) - run `make ci` to verify all checks pass
+- [ ] All checks pass (linting + typecheck + tests + coverage) - run `make ci` to verify all checks pass
 
 ### Code Rabbit will review your PR
 
