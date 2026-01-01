@@ -17,9 +17,12 @@ def compile_heatmap_chart_snapshot(config: dict[str, Any], chart_type: str = 'le
     if chart_type == 'lens':
         lens_chart = LensHeatmapChart.model_validate(config)
         _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_heatmap_chart(lens_heatmap_chart=lens_chart)
-    else:  # esql
+    elif chart_type == 'esql':
         esql_chart = ESQLHeatmapChart.model_validate(config)
         _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_heatmap_chart(esql_heatmap_chart=esql_chart)
+    else:
+        msg = f"Invalid chart_type: {chart_type}. Expected 'lens' or 'esql'."
+        raise ValueError(msg)
 
     assert kbn_state_visualization is not None
     return kbn_state_visualization.model_dump(mode='json', exclude_none=False)
