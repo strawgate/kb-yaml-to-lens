@@ -2,8 +2,8 @@
 
 A Visual Studio Code extension that provides live compilation, preview, and visual editing for Kibana YAML dashboards. This extension makes it fast and easy to work with YAML dashboard files by automatically compiling them on save and providing a live preview with interactive layout editing.
 
-## Features
-
+- **Auto-complete and Validation** – Schema-based auto-complete, validation, and hover documentation for YAML dashboard files (powered by Red Hat YAML extension)
+- **Code Snippets** – Pre-built snippets for all panel types, controls, and layouts - just start typing a prefix like `panel-lens-metric` and press Tab
 - **Auto-compile on Save** – Automatically compiles your YAML dashboard files whenever you save them
 - **Live Preview Panel** – View your compiled dashboard in a side-by-side preview panel with live reload
 - **Visual Grid Layout Editor** – Drag and drop panels to rearrange them, resize panels interactively, with automatic YAML updates
@@ -14,10 +14,10 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 ## Installation
 
 ### Prerequisites
-
 - **Python 3.12 or higher** – The extension requires Python with the dashboard compiler package
 - **dashboard_compiler package** – Must be installed and available in your Python environment
 - **VS Code 1.85.0 or higher**
+- **Red Hat YAML extension** – Automatically installed as a dependency for schema-based features
 
 ### Building and Installing
 
