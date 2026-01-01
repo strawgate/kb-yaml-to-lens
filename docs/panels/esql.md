@@ -90,7 +90,7 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-grid). | N/A | Yes |
 | `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../queries/config.md#esql-query). | N/A | Yes |
-| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This will be one of [ESQL Metric Chart](#esql-metric-chart-charttype-metric) or [ESQL Pie Chart](#esql-pie-chart-charttype-pie). | N/A | Yes |
+| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This can be [ESQL Metric Chart](#esql-metric-chart-charttype-metric), [ESQL Pie Chart](#esql-pie-chart-charttype-pie), [ESQL Bar Chart](#esql-bar-chart-charttype-bar), [ESQL Line Chart](#esql-line-chart-charttype-line), or [ESQL Area Chart](#esql-area-chart-charttype-area). | N/A | Yes |
 
 ---
 
@@ -152,6 +152,100 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 
 ---
 
+## ESQL Bar Chart (`chart.type: bar`)
+
+Displays bar chart visualizations with data sourced from an ESQL query. Supports stacked, unstacked, and percentage modes. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['bar']` | Specifies the chart type as an ESQL Bar visualization. | `bar` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `mode` | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for bar charts. | `'stacked'` | No |
+| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine the X-axis. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `metrics` | `list of ESQLMetric` objects | One or more metrics that determine the Y-axis values. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
+| `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
+| `legend` | `XYLegend` object | Formatting options for the chart legend. See [XY Legend](#xy-legend-formatting-legend-field). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
+
+**Example (ESQL Bar Chart):**
+
+```yaml
+# Within an ESQLPanel's 'chart' field:
+# type: bar
+# mode: stacked
+# dimensions:
+#   - field: "@timestamp"  # Column from ESQL: ... | STATS ... BY @timestamp = BUCKET(@timestamp, 1 hour)
+# metrics:
+#   - field: "event_count"  # Column from ESQL: ... | STATS event_count = COUNT(*)
+# breakdown:
+#   field: "event.category"  # Column from ESQL: ... BY event.category
+```
+
+---
+
+## ESQL Line Chart (`chart.type: line`)
+
+Displays line chart visualizations with data sourced from an ESQL query. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['line']` | Specifies the chart type as an ESQL Line visualization. | `line` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine the X-axis. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `metrics` | `list of ESQLMetric` objects | One or more metrics that determine the Y-axis values. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
+| `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
+| `legend` | `XYLegend` object | Formatting options for the chart legend. See [XY Legend](#xy-legend-formatting-legend-field). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
+
+**Example (ESQL Line Chart):**
+
+```yaml
+# Within an ESQLPanel's 'chart' field:
+# type: line
+# dimensions:
+#   - field: "@timestamp"  # Column from ESQL: ... | STATS ... BY @timestamp = BUCKET(@timestamp, 1 hour)
+# metrics:
+#   - field: "avg_response_time"  # Column from ESQL: ... | STATS avg_response_time = AVG(response.time)
+# breakdown:
+#   field: "service.name"  # Column from ESQL: ... BY service.name
+```
+
+---
+
+## ESQL Area Chart (`chart.type: area`)
+
+Displays area chart visualizations with data sourced from an ESQL query. Supports stacked, unstacked, and percentage modes. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['area']` | Specifies the chart type as an ESQL Area visualization. | `area` | Yes |
+| `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
+| `mode` | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for area charts. | `'stacked'` | No |
+| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine the X-axis. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `metrics` | `list of ESQLMetric` objects | One or more metrics that determine the Y-axis values. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
+| `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
+| `legend` | `XYLegend` object | Formatting options for the chart legend. See [XY Legend](#xy-legend-formatting-legend-field). | `None` | No |
+| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
+
+**Example (ESQL Area Chart):**
+
+```yaml
+# Within an ESQLPanel's 'chart' field:
+# type: area
+# mode: stacked
+# dimensions:
+#   - field: "@timestamp"  # Column from ESQL: ... | STATS ... BY @timestamp = BUCKET(@timestamp, 1 hour)
+# metrics:
+#   - field: "bytes_total"  # Column from ESQL: ... | STATS bytes_total = SUM(bytes)
+# breakdown:
+#   field: "host.name"  # Column from ESQL: ... BY host.name
+```
+
+---
+
 ## ESQL Columns
 
 For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metric`, `slice_by` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
@@ -208,6 +302,56 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
 | `palette` | `string` | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default` | Yes |
+
+---
+
+## XY Chart Specific Formatting (Shared with Lens)
+
+ESQL XY Charts (bar, line, area) share the same formatting options for appearance and legend as Lens XY Charts.
+
+### XY Chart Appearance Formatting (`appearance` field)
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------- | ------------------------ | -------------------------------------------------------- | ------- | -------- |
+| `x_axis` | `AxisConfig \| None` | Configuration for the X-axis (horizontal axis). | `None` | No |
+| `y_left_axis` | `AxisConfig \| None` | Configuration for the left Y-axis (primary vertical axis). | `None` | No |
+| `y_right_axis` | `AxisConfig \| None` | Configuration for the right Y-axis (secondary vertical axis). | `None` | No |
+| `series` | `list[XYSeries] \| None` | Per-series visual configuration (axis assignment, colors). | `None` | No |
+
+#### AxisConfig Options
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| -------- | ------------------------------------------------ | ---------------------------------------------- | ------- | -------- |
+| `title` | `str \| None` | Custom title for the axis. | `None` | No |
+| `scale` | `Literal['linear', 'log', 'sqrt', 'time'] \| None` | Scale type for the axis. | `None` | No |
+| `extent` | `AxisExtent \| None` | Axis bounds/range configuration. | `None` | No |
+
+#### AxisExtent Options
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ------------- | -------------------------------------------- | --------------------------------------------------------- | ------- | -------- |
+| `mode` | `Literal['full', 'data_bounds', 'custom']` | Extent mode: 'full' (entire range), 'data_bounds' (fit to data), 'custom' (manual bounds). | N/A | Yes |
+| `min` | `float \| None` | Minimum bound (required when mode is 'custom'). | `None` | Conditional |
+| `max` | `float \| None` | Maximum bound (required when mode is 'custom'). | `None` | Conditional |
+| `enforce` | `bool \| None` | Whether to enforce the bounds strictly. | `None` | No |
+| `nice_values` | `bool \| None` | Whether to round bounds to nice values. | `None` | No |
+
+#### XYSeries Options
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------- | ------------------------------------------------- | ------------------------------------------------------------ | ------- | -------- |
+| `metric_id` | `str` | ID of the metric this series configuration applies to. | N/A | Yes |
+| `axis` | `Literal['left', 'right'] \| None` | Which Y-axis this series is assigned to (for dual-axis charts). | `None` | No |
+| `color` | `str \| None` | Hex color code for the series (e.g., '#2196F3'). | `None` | No |
+
+### XY Legend Formatting (`legend` field)
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------- | ------- | -------- |
+| `visible` | `bool \| None` | Whether the legend is visible. | `None` | No |
+| `position` | `Literal['top', 'bottom', 'left', 'right'] \| None` | Position of the legend (Kibana defaults to 'right'). | `None` | No |
+
+---
 
 ## Related Documentation
 
