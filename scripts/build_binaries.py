@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent
+PROJECT_ROOT = Path(__file__).parent.parent
 
 
 def get_platform_name() -> str:

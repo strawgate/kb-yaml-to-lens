@@ -242,4 +242,4 @@ docker-publish:
 build-binary:
 	@echo "Building standalone binary..."
 	@uv pip install pyinstaller
-	@uv run python build_binaries.py
+	@uv run python scripts/build_binaries.py
