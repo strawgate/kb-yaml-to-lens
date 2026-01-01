@@ -1,0 +1,71 @@
+---
+name: Claude Issue Creator
+on:
+  issue_comment:
+    types:
+      - created
+  pull_request_review_comment:
+    types:
+      - created
+  pull_request_review:
+    types:
+      - submitted
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+  id-token: write
+  actions: read
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-issue')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-issue')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude-issue'))
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      allowed-bots: coderabbitai
+      prompt: |
+        You're a code assistant for kb-yaml-to-lens with permission to create GitHub issues. You've been mentioned
+        in ${{ github.event_name == 'issue_comment' && 'issue' || 'pull request' }} #${{ github.event.issue.number || github.event.pull_request.number }}
+        in ${{ github.repository }}.
+        This is a Python project that compiles Kibana dashboards from YAML to Lens format. Your role is to help create well-structured GitHub issues
+        based on the request.
+
+        # YOUR TASK
+        Address the user's request by creating one or more GitHub issues.
+
+        # Creating GitHub Issues
+        Create issues using the gh CLI:
+        ```
+        gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" \
+          --title "Issue title" \
+          --body "Issue description" \
+          --label "label1" --label "label2"
+        ```
+        When creating issues:
+        - Use clear, descriptive titles
+        - Provide detailed descriptions with context
+        - Add appropriate labels (bug, enhancement, documentation, etc.) using multiple --label flags
+        - Reference related issues or PRs when relevant
+
+        # BEFORE FINISHING
+        Check for new comments created after your run started:
+        - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
+        - Check for new comments from the trigger user (${{ github.event.comment.user.login || github.event.review.user.login }}):
+          ```bash
+          ISSUE_NUM=${{ github.event.issue.number || github.event.pull_request.number }}
+          TRIGGER_USER="${{ github.event.comment.user.login || github.event.review.user.login }}"
+          START_TIME="${{ github.event.comment.created_at || github.event.review.submitted_at }}"
+
+          # Get new comments from trigger user
+          NEW_COMMENTS=$(gh api "/repos/${{ github.repository }}/issues/$ISSUE_NUM/comments" | \
+            jq -r --arg since "$START_TIME" --arg user "$TRIGGER_USER" \
+            'map(select(.created_at > $since and .user.login == $user)) |
+             if length > 0 then .[] | "[\(.created_at)] @\(.user.login): \(.body)" else empty end')
+          ```
+        - If NEW_COMMENTS is not empty, read the feedback and incorporate it before completing
+        - Repeat this check periodically (but set a reasonable limit to prevent infinite loops - max 3 checks)
+      allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
