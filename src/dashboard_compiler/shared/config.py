@@ -3,7 +3,7 @@
 import hashlib
 import uuid
 from collections.abc import Sequence
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field
 
@@ -14,6 +14,47 @@ MAX_BYTES_LENGTH = 16  # UUIDs are 128 bits (16 bytes)
 
 class BaseCfgModel(BaseModel):
     """Base configuration model for the dashboard compiler."""
+
+    @property
+    def minimum_version(self) -> tuple[int, int, int]:
+        """Get the minimum Kibana version required for this config and its children.
+
+        This property recursively checks all child models and returns the highest
+        version requirement found. Override `_own_minimum_version()` in subclasses
+        to declare version requirements for specific features.
+
+        Returns:
+            Tuple of (major, minor, patch) representing the minimum Kibana version.
+
+        """
+        max_version = self._own_minimum_version()
+
+        # Check all fields for nested BaseCfgModel instances
+        field_value: Any
+        for field_value in self.__dict__.values():  # pyright: ignore[reportAny]
+            if isinstance(field_value, BaseCfgModel):
+                child_version = field_value.minimum_version
+                max_version = max(max_version, child_version)
+            elif isinstance(field_value, list):
+                item: Any
+                for item in field_value:  # pyright: ignore[reportUnknownVariableType]
+                    if isinstance(item, BaseCfgModel):
+                        child_version = item.minimum_version
+                        max_version = max(max_version, child_version)
+
+        return max_version
+
+    def _own_minimum_version(self) -> tuple[int, int, int]:
+        """Return the minimum Kibana version required by this specific config class.
+
+        Override this method in subclasses to declare version requirements.
+        The default implementation returns the baseline version (8.8.0).
+
+        Returns:
+            Tuple of (major, minor, patch) representing the minimum Kibana version.
+
+        """
+        return (8, 8, 0)
 
 
 def random_id_generator() -> str:

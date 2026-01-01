@@ -1,7 +1,7 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import Annotated, Literal, Self
+from typing import Annotated, Literal, Self, override
 
 from pydantic import Field, model_validator
 
@@ -168,6 +168,11 @@ class ESQLStaticValuesControl(BaseControl):
     single_select: bool = Field(default=False)
     """If true, only allow single selection from the options."""
 
+    @override
+    def _own_minimum_version(self) -> tuple[int, int, int]:
+        """ES|QL controls require Kibana 8.19.0+."""
+        return (8, 19, 0)
+
 
 class ESQLQueryControl(BaseControl):
     """Represents an ES|QL control with query-driven values.
@@ -192,3 +197,8 @@ class ESQLQueryControl(BaseControl):
 
     single_select: bool = Field(default=False)
     """If true, only allow single selection from the options."""
+
+    @override
+    def _own_minimum_version(self) -> tuple[int, int, int]:
+        """ES|QL controls require Kibana 8.19.0+."""
+        return (8, 19, 0)

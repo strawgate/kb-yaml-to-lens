@@ -78,9 +78,13 @@ def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
 
     references, attributes = compile_dashboard_attributes(dashboard)
 
+    # Calculate minimum Kibana version based on features used
+    min_version = dashboard.minimum_version
+    core_migration_version = f'{min_version[0]}.{min_version[1]}.{min_version[2]}'
+
     return KbnDashboard(
         attributes=attributes,
-        coreMigrationVersion=CORE_MIGRATION_VERSION,
+        coreMigrationVersion=core_migration_version,
         created_at='2023-10-01T00:00:00Z',
         created_by='admin',
         id=kbn_dashboard_id,

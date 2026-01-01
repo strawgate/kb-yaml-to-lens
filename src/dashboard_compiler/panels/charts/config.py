@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, override
 
 from pydantic import Discriminator, Field, Tag
 
@@ -115,6 +115,11 @@ class ESQLPanelFieldsMixin(BaseCfgModel):
 
     query: 'ESQLQueryTypes' = Field(...)
     """The ES|QL query to execute."""
+
+    @override
+    def _own_minimum_version(self) -> tuple[int, int, int]:
+        """ES|QL charts require Kibana 8.13.0+ (GA for text-based datasource)."""
+        return (8, 13, 0)
 
 
 class ESQLMetricPanelConfig(ESQLMetricChart, ESQLPanelFieldsMixin):
