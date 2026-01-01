@@ -27,7 +27,7 @@ jobs:
             The CI/CD pipeline failed on the main branch.
 
             **Workflow Run:** [{{workflow}} #{{runNumber}}]({{runUrl}})
-            **Commit:** {{sha}} by @{{sender}}
+            **Commit:** {{sha}} by `@{{sender}}`
             **Branch:** {{ref}}
             **Event:** {{eventName}}
             **Triggered:** {{date}}
