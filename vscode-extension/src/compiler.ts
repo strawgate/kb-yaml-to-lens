@@ -60,6 +60,7 @@ interface GridLayoutResult {
     error?: string;
 }
 
+// Matches Python LSP server response format
 interface UploadResult {
     success: boolean;
     // eslint-disable-next-line @typescript-eslint/naming-convention

@@ -46,10 +46,13 @@ export function setupFileWatcher(
                 const sslVerify = configService.getKibanaSslVerify();
 
                 // Skip if no URL or credentials configured
-                if (!kibanaUrl || kibanaUrl === 'http://localhost:5601') {
+                if (!kibanaUrl || kibanaUrl.includes('localhost') || kibanaUrl.includes('127.0.0.1')) {
                     return;
                 }
-                if (!username && !password && !apiKey) {
+                // Need either API key OR both username and password
+                const hasApiKey = apiKey && apiKey.length > 0;
+                const hasBasicAuth = username && username.length > 0 && password && password.length > 0;
+                if (!hasApiKey && !hasBasicAuth) {
                     return;
                 }
 

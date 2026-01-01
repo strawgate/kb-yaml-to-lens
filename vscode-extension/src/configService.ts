@@ -53,7 +53,12 @@ export class ConfigService {
      * @returns The configured Kibana username, or empty string if not set
      */
     async getKibanaUsername(): Promise<string> {
-        return await this.secrets.get(ConfigService.SECRET_KEYS.username) ?? '';
+        try {
+            return await this.secrets.get(ConfigService.SECRET_KEYS.username) ?? '';
+        } catch (error) {
+            console.error('Failed to retrieve Kibana username:', error);
+            return '';
+        }
     }
 
     /**
@@ -61,10 +66,14 @@ export class ConfigService {
      * @param username The username to store
      */
     async setKibanaUsername(username: string): Promise<void> {
-        if (username) {
-            await this.secrets.store(ConfigService.SECRET_KEYS.username, username);
-        } else {
-            await this.secrets.delete(ConfigService.SECRET_KEYS.username);
+        try {
+            if (username) {
+                await this.secrets.store(ConfigService.SECRET_KEYS.username, username);
+            } else {
+                await this.secrets.delete(ConfigService.SECRET_KEYS.username);
+            }
+        } catch (error) {
+            throw new Error(`Failed to store Kibana username: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -73,7 +82,12 @@ export class ConfigService {
      * @returns The configured Kibana password, or empty string if not set
      */
     async getKibanaPassword(): Promise<string> {
-        return await this.secrets.get(ConfigService.SECRET_KEYS.password) ?? '';
+        try {
+            return await this.secrets.get(ConfigService.SECRET_KEYS.password) ?? '';
+        } catch (error) {
+            console.error('Failed to retrieve Kibana password:', error);
+            return '';
+        }
     }
 
     /**
@@ -81,10 +95,14 @@ export class ConfigService {
      * @param password The password to store
      */
     async setKibanaPassword(password: string): Promise<void> {
-        if (password) {
-            await this.secrets.store(ConfigService.SECRET_KEYS.password, password);
-        } else {
-            await this.secrets.delete(ConfigService.SECRET_KEYS.password);
+        try {
+            if (password) {
+                await this.secrets.store(ConfigService.SECRET_KEYS.password, password);
+            } else {
+                await this.secrets.delete(ConfigService.SECRET_KEYS.password);
+            }
+        } catch (error) {
+            throw new Error(`Failed to store Kibana password: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -93,7 +111,12 @@ export class ConfigService {
      * @returns The configured Kibana API key, or empty string if not set
      */
     async getKibanaApiKey(): Promise<string> {
-        return await this.secrets.get(ConfigService.SECRET_KEYS.apiKey) ?? '';
+        try {
+            return await this.secrets.get(ConfigService.SECRET_KEYS.apiKey) ?? '';
+        } catch (error) {
+            console.error('Failed to retrieve Kibana API key:', error);
+            return '';
+        }
     }
 
     /**
@@ -101,10 +124,14 @@ export class ConfigService {
      * @param apiKey The API key to store
      */
     async setKibanaApiKey(apiKey: string): Promise<void> {
-        if (apiKey) {
-            await this.secrets.store(ConfigService.SECRET_KEYS.apiKey, apiKey);
-        } else {
-            await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
+        try {
+            if (apiKey) {
+                await this.secrets.store(ConfigService.SECRET_KEYS.apiKey, apiKey);
+            } else {
+                await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
+            }
+        } catch (error) {
+            throw new Error(`Failed to store Kibana API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -112,9 +139,13 @@ export class ConfigService {
      * Clears all stored Kibana credentials.
      */
     async clearKibanaCredentials(): Promise<void> {
-        await this.secrets.delete(ConfigService.SECRET_KEYS.username);
-        await this.secrets.delete(ConfigService.SECRET_KEYS.password);
-        await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
+        try {
+            await this.secrets.delete(ConfigService.SECRET_KEYS.username);
+            await this.secrets.delete(ConfigService.SECRET_KEYS.password);
+            await this.secrets.delete(ConfigService.SECRET_KEYS.apiKey);
+        } catch (error) {
+            throw new Error(`Failed to clear Kibana credentials: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
     }
 
     /**
