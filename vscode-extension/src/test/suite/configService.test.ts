@@ -5,6 +5,7 @@ import { ConfigService } from '../../configService';
 suite('ConfigService Test Suite', () => {
     let configService: ConfigService;
     let mockContext: vscode.ExtensionContext;
+    let secretsStore: Map<string, string>;
 
     suiteSetup(async () => {
         // Get the extension and activate it
@@ -15,17 +16,20 @@ suite('ConfigService Test Suite', () => {
             await extension.activate();
         }
 
+        // Create in-memory secrets store for testing
+        secretsStore = new Map<string, string>();
+
         // Create mock context for testing
         mockContext = {
             secrets: {
                 store: async (key: string, value: string) => {
-                    await vscode.workspace.getConfiguration().update(`test.${key}`, value, vscode.ConfigurationTarget.Global);
+                    secretsStore.set(key, value);
                 },
                 get: async (key: string) => {
-                    return vscode.workspace.getConfiguration().get<string>(`test.${key}`);
+                    return secretsStore.get(key);
                 },
                 delete: async (key: string) => {
-                    await vscode.workspace.getConfiguration().update(`test.${key}`, undefined, vscode.ConfigurationTarget.Global);
+                    secretsStore.delete(key);
                 }
             }
         } as unknown as vscode.ExtensionContext;
