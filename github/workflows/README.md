@@ -48,9 +48,17 @@ After merging, test the feature by:
 The workflows now include:
 
 - Workflow start time tracking using `${{ github.event.comment.created_at || github.event.review.submitted_at }}`
-- Instructions to poll GitHub API for new comments using `gh api` and `jq`
-- Filtering for comments from the trigger user only
-- Timestamp comparison to find comments created after the workflow started
+- Instructions to poll for new comments using the `make gh-get-comments-since` command:
+
+  ```bash
+  make gh-get-comments-since OWNER REPO ISSUE_NUMBER TIMESTAMP AUTHOR
+  ```
+
+  This command:
+  - Queries the GitHub API for comments on the issue/PR
+  - Filters for comments created after the specified timestamp
+  - Optionally filters for comments from a specific author
+  - Returns matching comments in a format Claude can process
 - Max 3 polling iterations to prevent infinite loops
 
 This addresses issue #441 by allowing Claude to incorporate late-arriving feedback without requiring multiple @claude mentions.
