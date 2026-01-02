@@ -4,7 +4,7 @@ on:
   schedule:
     # Run daily at 9 AM UTC (adjust as needed)
     - cron: 0 9 * * *
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch: null  # Allow manual triggering
 permissions:
   contents: read
   issues: write
@@ -98,7 +98,6 @@ jobs:
           REPO="${{ github.event.repository.name }}"
           LAST_ISSUE="${{ needs.check-activity.outputs.last_pm_issue }}"
           COMMENT="Closing this PM report. New daily report has been generated."
-
           echo "Closing previous PM issue #$LAST_ISSUE"
           gh issue comment "$LAST_ISSUE" --repo "$OWNER/$REPO" --body "$COMMENT"
           gh issue close "$LAST_ISSUE" --repo "$OWNER/$REPO"

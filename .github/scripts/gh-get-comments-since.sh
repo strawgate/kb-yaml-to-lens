@@ -18,6 +18,11 @@ set -euo pipefail
 #
 # Output:
 #   JSON array of comments created after the timestamp
+#
+# Notes:
+#   - Automatically detects whether the issue number is a PR or issue
+#   - For PRs: fetches both conversation comments AND inline review comments
+#   - For issues: fetches only conversation comments
 
 OWNER="${1:?Owner required}"
 REPO="${2:?Repo required}"
@@ -32,6 +37,22 @@ fi
 
 AUTHOR_FILTER="${5:-}"
 
-# Combine jq operations into a single invocation
-gh api "/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER/comments?since=$SINCE_TIMESTAMP" | \
-jq --arg author "$AUTHOR_FILTER" 'if $author != "" then map(select(.user.login == $author)) else . end'
+# Auto-detect if this is a PR by checking the pull_request field
+IS_PR=$(gh api "/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER" --jq 'if .pull_request then "true" else "false" end')
+
+if [[ "$IS_PR" == "true" ]]; then
+  # For PRs: fetch both issue comments AND PR review comments, then merge and sort
+  ISSUE_COMMENTS=$(gh api "/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER/comments?since=$SINCE_TIMESTAMP")
+  PR_REVIEW_COMMENTS=$(gh api "/repos/$OWNER/$REPO/pulls/$ISSUE_NUMBER/comments?since=$SINCE_TIMESTAMP")
+
+  # Merge both arrays, sort by created_at, and apply author filter
+  jq --arg author "$AUTHOR_FILTER" -s '
+    (.[0] + .[1]) |
+    sort_by(.created_at) |
+    if $author != "" then map(select(.user.login == $author)) else . end
+  ' <(echo "$ISSUE_COMMENTS") <(echo "$PR_REVIEW_COMMENTS")
+else
+  # For issues: only fetch issue comments
+  gh api "/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER/comments?since=$SINCE_TIMESTAMP" | \
+  jq --arg author "$AUTHOR_FILTER" 'if $author != "" then map(select(.user.login == $author)) else . end'
+fi
