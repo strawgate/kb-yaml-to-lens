@@ -24,6 +24,7 @@ dependencies = [
     "pygls>=2.0.0",
     "lsprotocol>=2024.0.0",
     "prison>=0.2.1",
+    "elasticsearch>=8.16.2",
 ]
 
 [project.scripts]
@@ -189,6 +190,7 @@ reportAny = false
 reportArgumentType = false
 reportCallIssue = false
 reportMissingImports = false
+reportUnusedCallResult = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"
