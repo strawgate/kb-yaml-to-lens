@@ -42,7 +42,6 @@ jobs:
   resolve-conflicts:
     needs: check-conflicts
     if: needs.check-conflicts.outputs.has_conflicts == 'true'
-    timeout-minutes: 30
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
