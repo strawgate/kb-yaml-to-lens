@@ -114,9 +114,17 @@ export class BinaryResolver {
 
         // Check explicitly configured Python path
         if (configuredPath !== 'python') {
-            const resolvedPath = workspaceRoot && !path.isAbsolute(configuredPath)
-                ? path.join(workspaceRoot, configuredPath)
-                : configuredPath;
+            let resolvedPath: string;
+            if (!path.isAbsolute(configuredPath)) {
+                if (workspaceRoot) {
+                    resolvedPath = path.join(workspaceRoot, configuredPath);
+                } else {
+                    outputChannel?.appendLine(`Warning: No workspace open, resolving relative path against extension: ${configuredPath}`);
+                    resolvedPath = path.join(this.extensionPath, configuredPath);
+                }
+            } else {
+                resolvedPath = configuredPath;
+            }
 
             if (fs.existsSync(resolvedPath)) {
                 outputChannel?.appendLine(`Using configured Python: ${resolvedPath}`);
