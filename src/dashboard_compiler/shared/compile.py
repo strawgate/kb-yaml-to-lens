@@ -64,7 +64,7 @@ class HasMetricOrMetrics(Protocol):
     """Protocol for objects that have either a single 'metric' or a list of 'metrics'."""
 
     @property
-    def metric(self) -> Any:
+    def metric(self) -> Any:  # pyright: ignore[reportAny]
         """The single metric configuration."""
         ...
 
@@ -87,8 +87,8 @@ def extract_metrics_from_config(config: HasMetricOrMetrics) -> list[Any]:
         ValueError: If neither metric nor metrics is provided
 
     """
-    if hasattr(config, 'metric') and config.metric is not None:
-        return [config.metric]
+    if hasattr(config, 'metric') and config.metric is not None:  # pyright: ignore[reportAny]
+        return [config.metric]  # pyright: ignore[reportAny]
     if hasattr(config, 'metrics') and config.metrics is not None and len(config.metrics) > 0:
         return config.metrics
     msg = "Either 'metric' or 'metrics' must be provided"
