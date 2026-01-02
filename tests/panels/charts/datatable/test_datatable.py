@@ -251,3 +251,133 @@ def test_compile_datatable_chart_with_rows_esql() -> None:
             'layerType': 'data',
         }
     )
+
+
+def test_compile_datatable_chart_with_rows_by_lens() -> None:
+    """Test the compilation of a datatable chart with rows_by (split metrics by) (Lens)."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'aerospike.namespace.name',
+                'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+                'aggregation': 'count',
+            }
+        ],
+        'rows': [
+            {
+                'type': 'values',
+                'field': 'agent.name',
+                'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+            }
+        ],
+        'rows_by': [
+            {
+                'type': 'values',
+                'field': 'host.name',
+                'id': 'split-by-host',
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'columns': [
+                {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172', 'isTransposed': False, 'isMetric': False},
+                {'columnId': 'split-by-host', 'isTransposed': False, 'isMetric': False},
+                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
+            ],
+            'layerId': IsUUID,
+            'layerType': 'data',
+        }
+    )
+
+
+def test_compile_datatable_chart_with_rows_by_esql() -> None:
+    """Test the compilation of a datatable chart with rows_by (split metrics by) (ESQL)."""
+    config = {
+        'type': 'datatable',
+        'metrics': [
+            {
+                'field': 'count(aerospike.namespace)',
+                'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            }
+        ],
+        'rows': [
+            {
+                'field': 'agent.name',
+                'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+            }
+        ],
+        'rows_by': [
+            {
+                'field': 'host.name',
+                'id': 'split-by-host',
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'columns': [
+                {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172', 'isTransposed': False, 'isMetric': False},
+                {'columnId': 'split-by-host', 'isTransposed': False, 'isMetric': False},
+                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
+            ],
+            'layerId': IsUUID,
+            'layerType': 'data',
+        }
+    )
+
+
+def test_compile_datatable_chart_with_row_column_config_lens() -> None:
+    """Test the compilation of a datatable chart with row column configurations (Lens)."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'aerospike.namespace.name',
+                'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+                'aggregation': 'count',
+            }
+        ],
+        'rows': [
+            {
+                'type': 'values',
+                'field': 'agent.name',
+                'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+            }
+        ],
+        'columns': [
+            {
+                'column_id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+                'width': 150,
+                'alignment': 'left',
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'columns': [
+                {
+                    'alignment': 'left',
+                    'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+                    'isTransposed': False,
+                    'isMetric': False,
+                    'width': 150,
+                },
+                {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
+            ],
+            'layerId': IsUUID,
+            'layerType': 'data',
+        }
+    )

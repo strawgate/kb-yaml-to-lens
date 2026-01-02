@@ -8,6 +8,7 @@ from dashboard_compiler.panels.charts.compile import (
 )
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
+from dashboard_compiler.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieChart
 from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
@@ -198,6 +199,31 @@ class TestChartTypeToKbnTypeLens:
         result = chart_type_to_kbn_type_lens(chart)
         assert result == KbnVisualizationTypeEnum.GAUGE
 
+    def test_identifies_lens_heatmap_chart(self) -> None:
+        """Test that LensHeatmapChart is identified correctly."""
+        chart = LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'metrics-*',
+                'x_axis': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'x1'},
+                'value': {'aggregation': 'count', 'id': 'metric1'},
+            }
+        )
+        result = chart_type_to_kbn_type_lens(chart)
+        assert result == KbnVisualizationTypeEnum.HEATMAP
+
+    def test_identifies_esql_heatmap_chart(self) -> None:
+        """Test that ESQLHeatmapChart is identified correctly."""
+        chart = ESQLHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'x_axis': {'field': '@timestamp', 'id': 'x1'},
+                'value': {'field': 'count(*)', 'id': 'metric1'},
+            }
+        )
+        result = chart_type_to_kbn_type_lens(chart)
+        assert result == KbnVisualizationTypeEnum.HEATMAP
+
     def test_identifies_lens_tagcloud_chart(self) -> None:
         """Test that LensTagcloudChart is identified correctly."""
         chart = LensTagcloudChart.model_validate(
@@ -231,6 +257,94 @@ class TestCompileLensChartState:
         """Test that compile_lens_chart_state raises ValueError when no charts are provided."""
         with pytest.raises(ValueError, match='At least one chart must be provided'):
             _ = compile_lens_chart_state(query=None, filters=None, charts=[])
+
+    def test_compiles_metric_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a metric chart."""
+        metric_chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count', 'id': 'metric1'},
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[metric_chart])
+        assert state is not None
+        assert state.visualization is not None
+        assert len(references) == 1
+        assert references[0].type == 'index-pattern'
+
+    def test_compiles_datatable_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a datatable chart."""
+        datatable_chart = LensDatatableChart.model_validate(
+            {
+                'type': 'datatable',
+                'data_view': 'metrics-*',
+                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[datatable_chart])
+        assert state is not None
+        assert state.visualization is not None
+        assert len(references) == 1
+
+    def test_compiles_gauge_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a gauge chart."""
+        gauge_chart = LensGaugeChart.model_validate(
+            {
+                'type': 'gauge',
+                'data_view': 'metrics-*',
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[gauge_chart])
+        assert state is not None
+        assert state.visualization is not None
+        assert len(references) == 1
+
+    def test_compiles_heatmap_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a heatmap chart."""
+        heatmap_chart = LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'metrics-*',
+                'x_axis': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'x1'},
+                'value': {'aggregation': 'count', 'id': 'metric1'},
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[heatmap_chart])
+        assert state is not None
+        assert state.visualization is not None
+        assert len(references) == 1
+
+    def test_compiles_tagcloud_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a tagcloud chart."""
+        tagcloud_chart = LensTagcloudChart.model_validate(
+            {
+                'type': 'tagcloud',
+                'data_view': 'metrics-*',
+                'tags': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[tagcloud_chart])
+        assert state is not None
+        assert state.visualization is not None
+        assert len(references) == 1
+
+    def test_compiles_pie_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a pie chart."""
+        pie_chart = LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'metrics-*',
+                'slice_by': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[pie_chart])
+        assert state is not None
+        assert state.visualization is not None
+        assert len(references) == 1
 
     def test_compiles_chart_with_reference_line_layer(self) -> None:
         """Test that compile_lens_chart_state merges reference line layers into XY visualization."""
