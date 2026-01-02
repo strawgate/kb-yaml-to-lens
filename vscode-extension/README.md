@@ -17,8 +17,18 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 ## Requirements
 
+### For Users (Platform-Specific VSIX)
+
+- VS Code 1.85.0 or higher
+- Red Hat YAML extension (automatically installed as a dependency)
+- **No Python required** for basic features - LSP server bundled as binary
+- **Grid Layout Editor**: Requires Python 3.12+ with `dashboard_compiler` package installed
+  - Grid editing scripts (`grid_extractor.py`, `grid_updater.py`) are not bundled and require Python
+
+### For Developers
+
 - Python 3.12 or higher
-- The `dashboard_compiler` package must be installed and available in your Python environment
+- The `dashboard_compiler` package installed in your Python environment
 - VS Code 1.85.0 or higher
 - Red Hat YAML extension (automatically installed as a dependency)
 

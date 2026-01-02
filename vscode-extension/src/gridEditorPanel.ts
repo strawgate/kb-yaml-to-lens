@@ -3,6 +3,7 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 import { ConfigService } from './configService';
+import { BinaryResolver } from './binaryResolver';
 
 interface PanelGridInfo {
     id: string;
@@ -94,11 +95,11 @@ export class GridEditorPanel {
     }
 
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        const pythonPath = this.configService.getPythonPath();
-        const scriptPath = path.join(this.extensionPath, 'python', 'grid_extractor.py');
+        const resolver = new BinaryResolver(this.extensionPath, this.configService);
+        const pythonPath = resolver.resolvePythonForScripts();
 
         return new Promise((resolve, reject) => {
-            const process = spawn(pythonPath, [scriptPath, dashboardPath, dashboardIndex.toString()], {
+            const process = spawn(pythonPath, ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()], {
                 cwd: path.join(this.extensionPath, '..')
             });
 
@@ -149,13 +150,13 @@ export class GridEditorPanel {
             return;
         }
 
-        const pythonPath = this.configService.getPythonPath();
-        const scriptPath = path.join(this.extensionPath, 'python', 'grid_updater.py');
+        const resolver = new BinaryResolver(this.extensionPath, this.configService);
+        const pythonPath = resolver.resolvePythonForScripts();
 
         return new Promise((resolve, reject) => {
             const process = spawn(
                 pythonPath,
-                [scriptPath, this.currentDashboardPath!, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
+                ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath!, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
                 {
                     cwd: path.join(this.extensionPath, '..')
                 }

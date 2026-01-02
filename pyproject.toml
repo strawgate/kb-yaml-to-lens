@@ -21,13 +21,18 @@ dependencies = [
     "click>=8.3",
     "rich-click>=1.9.0",
     "aiohttp>=3.13",
+    "prison>=0.2.1",
+]
+
+[project.optional-dependencies]
+lsp = [
     "pygls>=2.0.0",
     "lsprotocol>=2024.0.0",
-    "prison>=0.2.1",
 ]
 
 [project.scripts]
 kb-dashboard = "dashboard_compiler.cli:cli"
+kb-dashboard-lsp = "dashboard_compiler.lsp.server:main"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
@@ -149,6 +154,12 @@ ignore = [
 "src/dashboard_compiler/**/config.py" = [
     "TC001", # Pydantic config models rely on runtime imports for type evaluation
 ]
+"src/dashboard_compiler/lsp/grid_*.py" = [
+    "PLR2004", # Allow magic numbers (CLI arg counts)
+    "PLR0911", # Allow many return statements in grid_updater
+    "PLR0912", # Allow many branches in grid_updater
+    "PLR0915", # Allow many statements in grid_updater
+]
 
 [tool.ruff.format]
 quote-style = "single" 
@@ -189,6 +200,23 @@ reportAny = false
 reportArgumentType = false
 reportCallIssue = false
 reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/lsp"
+# LSP server code deals with dynamic pygls types
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnnecessaryComparison = false
+reportUnnecessaryTypeIgnoreComment = false
+reportUnusedCallResult = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"

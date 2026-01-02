@@ -160,7 +160,12 @@
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
     "lint": "eslint src --ext ts",
-    "package": "vsce package"
+    "build-lsp-binary": "python3 scripts/build_lsp_binary.py",
+    "package": "vsce package",
+    "package:linux": "npm run package-bundle && vsce package --target linux-x64",
+    "package:macos-x64": "npm run package-bundle && vsce package --target darwin-x64",
+    "package:macos-arm64": "npm run package-bundle && vsce package --target darwin-arm64",
+    "package:windows": "npm run package-bundle && vsce package --target win32-x64"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"

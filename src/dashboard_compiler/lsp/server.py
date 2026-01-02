@@ -6,30 +6,18 @@ dashboard compilation services to the VS Code extension.
 
 import json
 import logging
-import sys
-from pathlib import Path
 from typing import Any
 
 from lsprotocol import types
+from pydantic import BaseModel
 from pygls.lsp.server import LanguageServer
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import load, render
+from dashboard_compiler.kibana_client import KibanaClient
+from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
+
 logger = logging.getLogger(__name__)
-
-# Add the project source directory to the path
-repo_root = Path(__file__).parent.parent.parent
-src_path = repo_root / 'src'
-if src_path.exists() and str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
-
-try:
-    from dashboard_compiler.dashboard_compiler import load, render
-    from dashboard_compiler.kibana_client import KibanaClient
-except ImportError as e:
-    msg = (
-        f'Failed to import dashboard_compiler. Make sure the dashboard_compiler '
-        f'package is installed or the src directory exists at {src_path}'
-    )
-    raise ImportError(msg) from e
 
 # Initialize the language server
 server = LanguageServer('dashboard-compiler', 'v0.1')
@@ -56,7 +44,8 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
 
     # pygls.protocol.Object is a namedtuple with _asdict() method
     if hasattr(params, '_asdict') and callable(params._asdict):  # pyright: ignore[reportAny]
-        return params._asdict()  # pyright: ignore[reportAny]
+        result: dict[str, Any] = params._asdict()  # pyright: ignore[reportAny,reportAssignmentType]
+        return result
 
     # If we get here, we received an unexpected type
     msg = f'Unable to convert params of type {type(params).__name__} to dict'
@@ -146,33 +135,17 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[rep
     try:
         dashboards = load(path)  # pyright: ignore[reportAny]
         dashboard_list = [
-            {'index': i, 'title': dashboard.name or f'Dashboard {i + 1}', 'description': dashboard.description or ''}
+            {
+                'index': i,
+                'title': dashboard.name if (dashboard.name is not None and len(dashboard.name) > 0) else f'Dashboard {i + 1}',
+                'description': dashboard.description if (dashboard.description is not None and len(dashboard.description) > 0) else '',
+            }
             for i, dashboard in enumerate(dashboards)
         ]
     except Exception as e:
         return {'success': False, 'error': str(e)}
     else:
         return {'success': True, 'data': dashboard_list}
-
-
-def _get_panel_type(panel: Any) -> str:  # pyright: ignore[reportAny]
-    """Extract the panel type, including chart type for Lens/ESQL panels.
-
-    Args:
-        panel: The panel object to extract type from
-
-    Returns:
-        The panel type string (e.g., 'pie', 'bar', 'markdown', 'search')
-    """
-    class_name = panel.__class__.__name__
-
-    if hasattr(panel, 'lens') and panel.lens is not None:
-        return getattr(panel.lens, 'type', 'lens')
-
-    if hasattr(panel, 'esql') and panel.esql is not None:
-        return getattr(panel.esql, 'type', 'esql')
-
-    return class_name.replace('Panel', '').lower()
 
 
 @server.feature('dashboard/getGridLayout')
@@ -193,36 +166,7 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
-        dashboards = load(path)  # pyright: ignore[reportAny]
-        if len(dashboards) == 0:
-            return {'success': False, 'error': 'No dashboards found in YAML file'}
-
-        if dashboard_index < 0 or dashboard_index >= len(dashboards):
-            return {'success': False, 'error': f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'}
-
-        dashboard_config = dashboards[dashboard_index]
-
-        panels = []
-        for index, panel in enumerate(dashboard_config.panels):
-            panel_type = _get_panel_type(panel)
-            panel_info = {
-                'id': panel.id or f'panel_{index}',
-                'title': panel.title or 'Untitled Panel',
-                'type': panel_type,
-                'grid': {
-                    'x': panel.grid.x,
-                    'y': panel.grid.y,
-                    'w': panel.grid.w,
-                    'h': panel.grid.h,
-                },
-            }
-            panels.append(panel_info)
-
-        result = {
-            'title': dashboard_config.name or 'Untitled Dashboard',
-            'description': dashboard_config.description or '',
-            'panels': panels,
-        }
+        result = extract_grid_layout(path, dashboard_index)
     except Exception as e:
         return {'success': False, 'error': str(e)}
     else:
@@ -245,9 +189,6 @@ def get_schema_custom(_params: Any) -> dict[str, Any]:  # pyright: ignore[report
         Dictionary with success status and schema data or error message
     """
     try:
-        from pydantic import BaseModel
-
-        from dashboard_compiler.dashboard.config import Dashboard
 
         class DashboardsRoot(BaseModel):
             """Root structure for dashboard YAML files."""
@@ -300,7 +241,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     api_key = params_dict.get('api_key')
     ssl_verify = params_dict.get('ssl_verify', True)
 
-    if path is None or path == '' or kibana_url is None or kibana_url == '':
+    if path is None or len(path) == 0 or kibana_url is None or len(kibana_url) == 0:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
 
     try:
@@ -319,9 +260,9 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
         client = KibanaClient(
             url=kibana_url,
-            username=username if (username is not None and username != '') else None,
-            password=password if (password is not None and password != '') else None,
-            api_key=api_key if (api_key is not None and api_key != '') else None,
+            username=username if (username is not None and len(username) > 0) else None,
+            password=password if (password is not None and len(password) > 0) else None,
+            api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
             ssl_verify=ssl_verify,
         )
 
@@ -352,5 +293,10 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         return {'success': False, 'error': f'Upload error: {e!s}'}
 
 
-if __name__ == '__main__':
+def main() -> None:
+    """Entry point for LSP server."""
     server.start_io()
+
+
+if __name__ == '__main__':
+    main()
