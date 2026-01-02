@@ -267,7 +267,7 @@ The output is a complete Lens visualization configuration containing:
 cp fixture-generator/output/heatmap.json tests/fixtures/
 
 # Copy all fixtures
-cp fixture-generator/output/*.json tests/scenarios/
+cp fixture-generator/output/*.json tests/fixtures/
 ```
 
 **How to Use in Tests:**
