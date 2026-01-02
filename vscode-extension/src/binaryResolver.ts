@@ -84,7 +84,7 @@ export class BinaryResolver {
         }
 
         // On Windows, all files are "executable" if they exist
-        if (os.platform() === 'win32') {
+        if (process.platform === 'win32') {
             return true;
         }
 
@@ -93,7 +93,9 @@ export class BinaryResolver {
             fs.accessSync(filePath, fs.constants.X_OK);
             return true;
         } catch (error) {
-            // File exists but isn't executable - this is expected for some files
+            // File exists but isn't executable - expected for some files (e.g., non-bundled binaries)
+            // Debug logging to aid troubleshooting in development
+            console.debug(`File not executable: ${filePath}`, error);
             return false;
         }
     }
