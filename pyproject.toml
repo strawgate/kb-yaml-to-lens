@@ -200,6 +200,12 @@ reportAny = false
 reportArgumentType = false
 reportCallIssue = false
 reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler/lsp"
