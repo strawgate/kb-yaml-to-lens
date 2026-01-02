@@ -66,7 +66,7 @@ jobs:
            - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
            - Use the make command to check for new comments from the trigger user:
              ```bash
-             ${{ github.event.pull_request && 'make gh-get-comments-since --pr' || 'make gh-get-comments-since' }} \
+             ${{ (github.event.issue.pull_request || github.event.pull_request) && 'make gh-get-comments-since --pr' || 'make gh-get-comments-since' }} \
                $(echo "${{ github.repository }}" | cut -d/ -f1) \
                $(echo "${{ github.repository }}" | cut -d/ -f2) \
                ${{ github.event.issue.number || github.event.pull_request.number }} \
