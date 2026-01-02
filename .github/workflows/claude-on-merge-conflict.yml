@@ -109,7 +109,6 @@ jobs:
         - You're uncertain about the correct resolution approach
         - Tests fail after resolution and you can't easily fix them
         - The conflict resolution would be better reviewed by a human first
-
         In these cases:
         1. Document what you tried and why it's complex
         2. Post a detailed comment explaining the conflict and potential approaches

@@ -321,7 +321,7 @@ npm run package      # Create .vsix package
 ### Testing
 
 1. Press F5 in VS Code to launch Extension Development Host
-2. Open a test YAML file (e.g., `tests/scenarios/one-pie-chart/config.yaml`)
+2. Open a test YAML file (e.g., `inputs/esql-controls-example.yaml`)
 3. Test the commands and preview functionality
 
 ### Contributing

@@ -137,7 +137,7 @@ Advanced documentation for contributors and programmatic usage:
 
 ### More Examples
 
-Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/inputs) and [`tests/scenarios/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/tests/scenarios) directories on GitHub for more complex examples.
+Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/inputs) directory on GitHub for more complex examples.
 
 ## Requirements
 
