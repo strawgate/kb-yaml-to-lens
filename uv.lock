@@ -545,7 +545,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.13" },
     { name = "beartype", specifier = ">=0.22" },
     { name = "click", specifier = ">=8.3" },
-    { name = "elasticsearch", specifier = ">=8.16" },
+    { name = "elasticsearch", specifier = ">=8.16.2" },
     { name = "humanize", specifier = ">=4.15" },
     { name = "lsprotocol", specifier = ">=2024.0.0" },
     { name = "prison", specifier = ">=0.2.1" },
