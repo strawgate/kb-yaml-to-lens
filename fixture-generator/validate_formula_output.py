@@ -7,6 +7,7 @@ against our Python compiler's output to ensure we're generating the correct stru
 
 import json
 import sys
+import traceback
 from pathlib import Path
 
 # Add parent directory to path to import from src
@@ -25,7 +26,7 @@ class LensMetricHolder(BaseCfgModel):
 
 def load_fixture(fixture_path: Path) -> dict:
     """Load a Kibana fixture JSON file."""
-    with fixture_path.open() as f:
+    with fixture_path.open(encoding='utf-8') as f:
         return json.load(f)
 
 
@@ -86,7 +87,12 @@ def test_simple_arithmetic() -> bool:
 
     print(f'Kibana formula: {kibana_formula}')
     print(f'Our formula: {our_formula}')
-    print(f'Formula match: {kibana_formula == our_formula}')
+    formula_match = kibana_formula == our_formula
+    print(f'Formula match: {formula_match}')
+
+    if not formula_match:
+        print('\n❌ MISMATCH: Formulas do not match!')
+        return False
 
     print(f'\nKibana references: {kibana_columns["metric_formula_accessor"]["references"]}')
     our_references = primary_column.model_dump().get('references', [])
@@ -133,8 +139,17 @@ def test_field_aggregations() -> bool:
 
     _metric_id, primary_column, helper_columns = compile_lens_metric(metric=metric_holder.metric)
 
+    kibana_formula = kibana_columns['metric_formula_accessor']['params']['formula']
     our_formula = primary_column.params.formula
-    print(f'\nOur formula: {our_formula}')
+    print(f'\nKibana formula: {kibana_formula}')
+    print(f'Our formula: {our_formula}')
+    formula_match = kibana_formula == our_formula
+    print(f'Formula match: {formula_match}')
+
+    if not formula_match:
+        print('\n❌ MISMATCH: Formulas do not match!')
+        return False
+
     print(f'Our helper columns: {len(helper_columns)}')
 
     if len(kibana_columns['metric_formula_accessor']['references']) == 0 and len(helper_columns) > 0:
@@ -152,8 +167,6 @@ def main() -> int:
         results.append(('Simple Arithmetic', test_simple_arithmetic()))
     except Exception as e:
         print(f'\n❌ Simple Arithmetic test failed: {e}')
-        import traceback
-
         traceback.print_exc()
         results.append(('Simple Arithmetic', False))
 
@@ -161,8 +174,6 @@ def main() -> int:
         results.append(('Field Aggregations', test_field_aggregations()))
     except Exception as e:
         print(f'\n❌ Field Aggregations test failed: {e}')
-        import traceback
-
         traceback.print_exc()
         results.append(('Field Aggregations', False))
 
