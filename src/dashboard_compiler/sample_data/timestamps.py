@@ -69,9 +69,9 @@ def transform_timestamp(doc: dict[str, Any], transform: TimestampTransform) -> d
     if transform.field not in doc:
         return doc
 
-    ts_value = doc[transform.field]
+    ts_value = doc[transform.field]  # pyright: ignore[reportAny]
     if not isinstance(ts_value, str):
-        msg = f'Timestamp field {transform.field} must be a string, got {type(ts_value).__name__}'
+        msg = f'Timestamp field {transform.field} must be a string, got {type(ts_value).__name__}'  # pyright: ignore[reportAny]
         raise TypeError(msg)
     original_ts = parse_timestamp(ts_value)
 
