@@ -105,6 +105,24 @@ def test_simple_arithmetic() -> bool:
         print(f'\n❌ MISMATCH: Reference count differs - Kibana: {len(kibana_refs)}, Ours: {len(our_references)}')
         return False
 
+    # Check reference IDs match (if both have references)
+    if len(kibana_refs) > 0:
+        kibana_ref_set = set(kibana_refs)
+        our_ref_set = set(our_references)
+        if kibana_ref_set != our_ref_set:
+            print('\n❌ MISMATCH: Reference IDs differ')
+            print(f'  Kibana only: {kibana_ref_set - our_ref_set}')
+            print(f'  Ours only: {our_ref_set - kibana_ref_set}')
+            return False
+
+        # Verify helper column keys match references
+        helper_keys = set(helper_columns.keys())
+        if helper_keys != our_ref_set:
+            print('\n❌ MISMATCH: Helper column keys do not match references')
+            print(f'  Helper keys: {helper_keys}')
+            print(f'  References: {our_ref_set}')
+            return False
+
     return True
 
 
@@ -164,6 +182,24 @@ def test_field_aggregations() -> bool:
     if len(kibana_refs) != len(our_references):
         print(f'\n❌ MISMATCH: Reference count differs - Kibana: {len(kibana_refs)}, Ours: {len(our_references)}')
         return False
+
+    # Check reference IDs match (if both have references)
+    if len(kibana_refs) > 0:
+        kibana_ref_set = set(kibana_refs)
+        our_ref_set = set(our_references)
+        if kibana_ref_set != our_ref_set:
+            print('\n❌ MISMATCH: Reference IDs differ')
+            print(f'  Kibana only: {kibana_ref_set - our_ref_set}')
+            print(f'  Ours only: {our_ref_set - kibana_ref_set}')
+            return False
+
+        # Verify helper column keys match references
+        helper_keys = set(helper_columns.keys())
+        if helper_keys != our_ref_set:
+            print('\n❌ MISMATCH: Helper column keys do not match references')
+            print(f'  Helper keys: {helper_keys}')
+            print(f'  References: {our_ref_set}')
+            return False
 
     return True
 
