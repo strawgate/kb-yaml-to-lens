@@ -2,12 +2,13 @@
 
 from typing import Any
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
-from dashboard_compiler.panels.links.config import LinksPanel
+from dashboard_compiler.panels.links.config import LinksPanel, get_link_type
 
 
 def compile_links_panel_snapshot(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -204,3 +205,25 @@ def test_compile_links_panel_dashboard_link_inverted_options() -> None:
             'enhancements': {},
         }
     )
+
+
+def test_get_link_type_raises_error_for_invalid_dict() -> None:
+    """Test that get_link_type raises ValueError for dict without url or dashboard keys."""
+    invalid_dict = {'label': 'Test', 'id': '123'}
+    with pytest.raises(ValueError, match='Cannot determine link type from dict with keys'):
+        _ = get_link_type(invalid_dict)
+
+
+def test_get_link_type_raises_error_for_invalid_object() -> None:
+    """Test that get_link_type raises ValueError for object without url or dashboard attributes."""
+
+    class InvalidLink:
+        """Invalid link type for testing."""
+
+        def __init__(self) -> None:
+            """Initialize invalid link."""
+            self.label: str = 'test'
+
+    invalid_obj = InvalidLink()
+    with pytest.raises(ValueError, match='Cannot determine link type from object'):
+        _ = get_link_type(invalid_obj)
