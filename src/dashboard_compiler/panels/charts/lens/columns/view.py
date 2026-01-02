@@ -16,7 +16,7 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensCustomInvervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn
+type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn | KbnLensFormulaColumn | KbnLensMathColumn
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -293,3 +293,55 @@ class KbnLensCustomInvervalsDimensionColumn(KbnLensBaseDimensionColumn):
     scale: Literal['ordinal'] = Field(default='ordinal')
     isBucketed: Literal[True] = Field(default=True)
     params: KbnLensCustomInvervalsDimensionColumnParams
+
+
+class KbnLensFormulaParams(BaseVwModel):
+    """Parameters for formula columns."""
+
+    formula: str
+    """The human-readable formula string (for display purposes)."""
+
+    isFormulaBroken: Literal[False] = False
+    """Whether the formula is broken (always False for compiled formulas)."""
+
+    format: Annotated[KbnLensMetricFormat | None, OmitIfNone()] = Field(default=None)
+    """Optional format for the formula result."""
+
+
+class KbnLensFormulaColumn(KbnLensBaseColumn):
+    """Represents a formula column in Lens.
+
+    Formula columns are the user-facing representation of formulas in Kibana.
+    They reference math columns which contain the actual computation logic.
+    """
+
+    operationType: Literal['formula'] = 'formula'
+    dataType: Literal['number'] = 'number'
+    isBucketed: Literal[False] = False
+    scale: Literal['ratio'] = 'ratio'
+    params: KbnLensFormulaParams
+    references: list[str]
+    """List of referenced column IDs (typically the math column)."""
+
+
+class KbnLensMathParams(BaseVwModel):
+    """Parameters for math columns containing tinymathAst."""
+
+    tinymathAst: dict[str, object]
+    """The TinymathAST structure representing the mathematical expression."""
+
+
+class KbnLensMathColumn(KbnLensBaseColumn):
+    """Represents a math operation column in Lens.
+
+    Math columns contain the actual computation logic via tinymathAst.
+    They are helper columns referenced by formula columns.
+    """
+
+    operationType: Literal['math'] = 'math'
+    dataType: Literal['number'] = 'number'
+    isBucketed: Literal[False] = False
+    scale: Literal['ratio'] = 'ratio'
+    params: KbnLensMathParams
+    references: list[str]
+    """List of referenced column IDs (aggregation columns)."""

@@ -12,6 +12,15 @@ dashboards:
           id: mkf49fm-obm8-dlll-hmmmmmmk-hc2nf59ki6f  # Fixed ID for testing
           data_view: metrics-*
           primary:
-            formula: count(kql='status:error') / count() * 100
+            formula:
+              multiply:
+                left:
+                  divide:
+                    left:
+                      count:
+                        filter: 'status:error'
+                    right:
+                      count: {}
+                right: 100
             id: jhaclfo-nn2o-dhnoo-kfmj-kkdij62nhib1  # Fixed ID for testing
             label: Error Rate %
