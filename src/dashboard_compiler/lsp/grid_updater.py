@@ -74,7 +74,7 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
                 panel_found = True
                 break
 
-    if not panel_found:
+    if panel_found is False:
         return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
 
     # Save the updated dashboard
@@ -107,7 +107,7 @@ if __name__ == '__main__':
         new_grid = json.loads(grid_json)
         result = update_panel_grid(yaml_path, panel_id, new_grid, dashboard_index)
         print(json.dumps(result))
-        if not result.get('success'):
+        if result.get('success') is not True:
             sys.exit(1)
     except json.JSONDecodeError as e:
         print(json.dumps({'error': f'Invalid grid JSON: {e}'}))
