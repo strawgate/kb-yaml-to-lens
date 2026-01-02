@@ -2,7 +2,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base import KbnBaseStateVisualization, KbnLayerColorMapping
+from dashboard_compiler.panels.charts.base.view import KbnBaseStateVisualization, KbnLayerColorMapping
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
