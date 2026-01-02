@@ -241,7 +241,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     api_key = params_dict.get('api_key')
     ssl_verify = params_dict.get('ssl_verify', True)
 
-    if path is None or path == '' or kibana_url is None or kibana_url == '':
+    if path is None or len(path) == 0 or kibana_url is None or len(kibana_url) == 0:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
 
     try:
