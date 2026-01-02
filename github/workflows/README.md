@@ -51,19 +51,19 @@ The workflows now include:
 - Instructions to poll for new comments using the `make gh-get-comments-since` command:
 
   ```bash
-  make gh-get-comments-since [--pr] OWNER REPO ISSUE_NUMBER TIMESTAMP AUTHOR
+  make gh-get-comments-since OWNER REPO ISSUE_NUMBER TIMESTAMP AUTHOR
   ```
 
   This command:
-  - When `--pr` flag is provided (for pull requests):
+  - **Automatically detects** whether the issue number is a pull request or issue
+  - For pull requests:
     - Fetches both conversation comments AND inline review comments
     - Merges and sorts both types chronologically
-  - When `--pr` flag is omitted (for issues):
+  - For issues:
     - Only fetches conversation comments
   - Filters for comments created after the specified timestamp
   - Optionally filters for comments from a specific author
   - Returns matching comments in a format Claude can process
 - Max 3 polling iterations to prevent infinite loops
-- **Conditional checking**: Workflows automatically use `--pr` flag when triggered on a pull request to capture both conversation and inline review comments
 
 This addresses issue #441 by allowing Claude to incorporate late-arriving feedback without requiring multiple @claude mentions.

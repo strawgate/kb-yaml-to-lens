@@ -54,14 +54,14 @@ jobs:
         - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
         - Use the make command to check for new comments from the trigger user:
           ```bash
-          ${{ (github.event.issue.pull_request || github.event.pull_request) && 'make gh-get-comments-since --pr' || 'make gh-get-comments-since' }} \
+          make gh-get-comments-since \
             $(echo "${{ github.repository }}" | cut -d/ -f1) \
             $(echo "${{ github.repository }}" | cut -d/ -f2) \
             ${{ github.event.issue.number || github.event.pull_request.number }} \
             "${{ github.event.comment.created_at || github.event.review.submitted_at }}" \
             "${{ github.event.comment.user.login || github.event.review.user.login }}"
           ```
-        - **Note**: When triggered on a PR, this checks both conversation comments AND inline review comments
+        - **Note**: This automatically detects PRs vs issues and fetches the appropriate comments (for PRs: both conversation and inline review comments)
         - If the command returns any comments, read the feedback and incorporate it before completing
         - Repeat this check periodically (but set a reasonable limit to prevent infinite loops - max 3 checks)
       allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)

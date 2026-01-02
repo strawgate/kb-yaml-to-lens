@@ -4,10 +4,9 @@ set -euo pipefail
 # Get PR/issue comments created after a specific timestamp
 #
 # Usage:
-#   gh-get-comments-since.sh [--pr] OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR_FILTER]
+#   gh-get-comments-since.sh OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR_FILTER]
 #
 # Arguments:
-#   --pr            - Optional: also fetch PR review comments (for PRs only)
 #   OWNER           - Repository owner
 #   REPO            - Repository name
 #   ISSUE_NUMBER    - Issue or PR number
@@ -19,13 +18,11 @@ set -euo pipefail
 #
 # Output:
 #   JSON array of comments created after the timestamp
-
-# Check for --pr flag
-IS_PR=false
-if [[ "${1:-}" == "--pr" ]]; then
-  IS_PR=true
-  shift
-fi
+#
+# Notes:
+#   - Automatically detects whether the issue number is a PR or issue
+#   - For PRs: fetches both conversation comments AND inline review comments
+#   - For issues: fetches only conversation comments
 
 OWNER="${1:?Owner required}"
 REPO="${2:?Repo required}"
@@ -40,7 +37,10 @@ fi
 
 AUTHOR_FILTER="${5:-}"
 
-if [[ "$IS_PR" == true ]]; then
+# Auto-detect if this is a PR by checking the pull_request field
+IS_PR=$(gh api "/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER" --jq 'if .pull_request then "true" else "false" end')
+
+if [[ "$IS_PR" == "true" ]]; then
   # For PRs: fetch both issue comments AND PR review comments, then merge and sort
   ISSUE_COMMENTS=$(gh api "/repos/$OWNER/$REPO/issues/$ISSUE_NUMBER/comments?since=$SINCE_TIMESTAMP")
   PR_REVIEW_COMMENTS=$(gh api "/repos/$OWNER/$REPO/pulls/$ISSUE_NUMBER/comments?since=$SINCE_TIMESTAMP")

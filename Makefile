@@ -77,7 +77,7 @@ help:
 	@echo "  gh-resolve-review-thread     - Resolve review thread (OWNER REPO PR THREAD_ID [COMMENT])"
 	@echo "  gh-get-latest-review         - Get latest review from author (OWNER REPO PR AUTHOR)"
 	@echo "  gh-check-latest-review       - Check if review is latest (OWNER REPO PR AUTHOR REVIEW_ID)"
-	@echo "  gh-get-comments-since        - Get comments since timestamp ([--pr] OWNER REPO ISSUE SINCE [AUTHOR])"
+	@echo "  gh-get-comments-since        - Get comments since timestamp (OWNER REPO ISSUE SINCE [AUTHOR])"
 	@echo "  gh-minimize-outdated-comments - Minimize outdated PR comments (OWNER REPO PR)"
 	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
 	@echo ""
