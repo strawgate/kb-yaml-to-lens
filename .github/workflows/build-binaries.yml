@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - v*
-  workflow_dispatch:
+  workflow_dispatch: null
 permissions:
   contents: write
 jobs:
@@ -25,7 +25,7 @@ jobs:
             ext: ''
           - os: windows-latest
             platform: windows-x64
-            ext: '.exe'
+            ext: .exe
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

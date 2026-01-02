@@ -38,7 +38,6 @@ jobs:
         - `make gh-get-latest-review OWNER REPO PR_NUMBER AUTHOR` - Get latest review
         - `make gh-check-latest-review OWNER REPO PR_NUMBER AUTHOR REVIEW_ID` - Check if review is latest
         - `make gh-get-comments-since OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR]` - Get comments since timestamp
-
         For simple operations, use `gh` CLI directly:
         - `gh pr view PR_NUMBER --json field1,field2` - Get PR info
         - `gh pr comment PR_NUMBER --body "text"` or `gh issue comment ISSUE_NUMBER --body "text"` - Post comments
