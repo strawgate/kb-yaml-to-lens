@@ -94,12 +94,15 @@ def test_simple_arithmetic() -> bool:
         print('\n❌ MISMATCH: Formulas do not match!')
         return False
 
-    print(f'\nKibana references: {kibana_columns["metric_formula_accessor"]["references"]}')
+    kibana_refs = kibana_columns['metric_formula_accessor']['references']
     our_references = primary_column.model_dump().get('references', [])
+
+    print(f'\nKibana references: {kibana_refs}')
     print(f'Our references: {our_references}')
 
-    if len(kibana_columns['metric_formula_accessor']['references']) == 0 and len(our_references) > 0:
-        print('\n❌ MISMATCH: Kibana uses no helper columns, but we generate helper columns!')
+    # Check reference count mismatch
+    if len(kibana_refs) != len(our_references):
+        print(f'\n❌ MISMATCH: Reference count differs - Kibana: {len(kibana_refs)}, Ours: {len(our_references)}')
         return False
 
     return True
@@ -150,10 +153,16 @@ def test_field_aggregations() -> bool:
         print('\n❌ MISMATCH: Formulas do not match!')
         return False
 
+    kibana_refs = kibana_columns['metric_formula_accessor']['references']
+    our_references = primary_column.model_dump().get('references', [])
+
+    print(f'\nKibana references: {kibana_refs}')
+    print(f'Our references: {our_references}')
     print(f'Our helper columns: {len(helper_columns)}')
 
-    if len(kibana_columns['metric_formula_accessor']['references']) == 0 and len(helper_columns) > 0:
-        print('\n❌ MISMATCH: Kibana uses no helper columns, but we generate helper columns!')
+    # Check reference count mismatch
+    if len(kibana_refs) != len(our_references):
+        print(f'\n❌ MISMATCH: Reference count differs - Kibana: {len(kibana_refs)}, Ours: {len(our_references)}')
         return False
 
     return True
