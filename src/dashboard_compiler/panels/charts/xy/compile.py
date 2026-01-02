@@ -14,6 +14,7 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
+    AreaChartAppearance,
     AxisConfig,
     AxisExtent,
     ESQLAreaChart,
@@ -25,6 +26,8 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensLineChart,
     LensReferenceLineLayer,
     LensXYChartTypes,
+    LineChartAppearance,
+    XYAppearance,
     XYReferenceLine,
     XYReferenceLineValue,
 )
@@ -234,9 +237,9 @@ def compile_xy_chart_visualization_state(
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
-    # Build yConfig from series configuration if provided
+    # Build yConfig from series configuration if provided (only XYAppearance has series)
     y_config: list[YConfig] | None = None
-    if chart.appearance is not None and chart.appearance.series is not None:
+    if chart.appearance is not None and isinstance(chart.appearance, XYAppearance) and chart.appearance.series is not None:
         y_config = []
         for series_cfg in chart.appearance.series:
             # Only create YConfig if at least one property is set
@@ -255,7 +258,7 @@ def compile_xy_chart_visualization_state(
                     )
                 )
 
-    # Build axis configuration from appearance settings
+    # Build axis configuration from appearance settings (only XYAppearance has axis configs)
     x_title = None
     x_scale = None
     y_left_title = None
@@ -266,7 +269,7 @@ def compile_xy_chart_visualization_state(
     y_right_extent = None
     x_extent = None
 
-    if chart.appearance is not None:
+    if chart.appearance is not None and isinstance(chart.appearance, XYAppearance):
         x_title, x_scale, x_extent = _extract_axis_config(chart.appearance.x_axis)
         y_left_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
         y_right_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
@@ -304,6 +307,30 @@ def compile_xy_chart_visualization_state(
         if chart.legend.position is not None:
             legend_position = chart.legend.position
 
+    # Extract fitting function and time series features from line/area chart appearance
+    fitting_function = None
+    emphasize_fitting = None
+    end_value = None
+    curve_type = None
+    fill_opacity = None
+
+    if chart.appearance is not None and isinstance(chart.appearance, LineChartAppearance | AreaChartAppearance):
+        fitting_function = chart.appearance.fitting_function
+        emphasize_fitting = chart.appearance.emphasize_fitting
+        end_value = chart.appearance.end_value
+        curve_type = chart.appearance.curve_type
+
+        if isinstance(chart.appearance, AreaChartAppearance):
+            fill_opacity = chart.appearance.fill_opacity
+
+    # Extract time series features from line/area charts
+    show_current_time_marker = None
+    hide_endzones = None
+
+    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
+        show_current_time_marker = chart.show_current_time_marker
+        hide_endzones = chart.hide_endzones
+
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
         layers=[kbn_layer_visualization],
@@ -319,6 +346,13 @@ def compile_xy_chart_visualization_state(
         yLeftExtent=y_left_extent,
         yRightExtent=y_right_extent,
         axisTitlesVisibilitySettings=axis_titles_visibility,
+        fittingFunction=fitting_function,
+        emphasizeFitting=emphasize_fitting,
+        endValue=end_value,
+        curveType=curve_type,
+        fillOpacity=fill_opacity,
+        showCurrentTimeMarker=show_current_time_marker,
+        hideEndzones=hide_endzones,
     )
 
 

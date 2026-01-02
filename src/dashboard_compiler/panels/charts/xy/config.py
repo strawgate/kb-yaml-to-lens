@@ -148,8 +148,18 @@ class BarChartAppearance(BaseCfgModel):
 class LineChartAppearance(BaseCfgModel):
     """Represents line chart appearance formatting options."""
 
-    fitting_function: Literal['Linear'] | None = Field(default=None, description='The fitting function to apply to line/area charts.')
-    emphasize_fitting: bool | None = Field(default=None, description='If `true`, emphasize the fitting function line. Defaults to `false`.')
+    fitting_function: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
+        default=None,
+        description='The fitting function to apply to line/area charts. Controls how missing data points are interpolated.',
+    )
+    emphasize_fitting: bool | None = Field(
+        default=None,
+        description='If `true`, emphasize the fitting function line. Defaults to `false`.',
+    )
+    end_value: Literal['None', 'Zero', 'Nearest'] | None = Field(
+        default=None,
+        description='How to handle the end value in line/area charts.',
+    )
     curve_type: Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] | None = Field(
         default=None,
         description='The curve type for line/area charts.',
@@ -276,11 +286,31 @@ class BaseXYLineChart(BaseXYChart):
 
     type: Literal['line'] = Field('line', description="The type of XY chart to display. Defaults to 'line'.")
 
+    appearance: LineChartAppearance | XYAppearance | None = Field(
+        None,
+        description='Formatting options for the chart appearance.',
+    )
+
+    show_current_time_marker: bool | None = Field(
+        default=None,
+        description='Whether to show a vertical line at the current time in time series charts.',
+    )
+
+    hide_endzones: bool | None = Field(
+        default=None,
+        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
+    )
+
 
 class BaseXYAreaChart(BaseXYLineChart):
     """Represents an Area chart configuration within a Lens panel."""
 
     type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
+
+    appearance: AreaChartAppearance | LineChartAppearance | XYAppearance | None = Field(
+        None,
+        description='Formatting options for the chart appearance.',
+    )
 
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
         'stacked',
