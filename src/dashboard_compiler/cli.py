@@ -7,12 +7,15 @@ from pathlib import Path
 
 import aiohttp
 import rich_click as click
+from elasticsearch import AsyncElasticsearch
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
+from dashboard_compiler.sample_data.loader import load_sample_data
 
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
@@ -230,7 +233,42 @@ def cli() -> None:
     is_flag=True,
     help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
 )
-def compile_dashboards(  # noqa: PLR0913, PLR0912
+@click.option(
+    '--load-sample-data',
+    is_flag=True,
+    help='Load sample data bundled with dashboards into Elasticsearch.',
+)
+@click.option(
+    '--es-url',
+    type=str,
+    envvar='ELASTICSEARCH_URL',
+    default='http://localhost:9200',
+    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
+)
+@click.option(
+    '--es-username',
+    type=str,
+    envvar='ELASTICSEARCH_USERNAME',
+    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
+)
+@click.option(
+    '--es-password',
+    type=str,
+    envvar='ELASTICSEARCH_PASSWORD',
+    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
+)
+@click.option(
+    '--es-api-key',
+    type=str,
+    envvar='ELASTICSEARCH_API_KEY',
+    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
+)
+@click.option(
+    '--es-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification for Elasticsearch connections.',
+)
+def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     input_dir: Path,
     output_dir: Path,
     output_file: str,
@@ -242,6 +280,12 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
     no_browser: bool,
     overwrite: bool,
     kibana_no_ssl_verify: bool,
+    load_sample_data: bool,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    es_no_ssl_verify: bool,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -280,6 +324,14 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
 
+    if es_api_key is not None and (es_username is not None or es_password is not None):
+        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
+        msg = '--es-username and --es-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_files = get_yaml_files(input_dir)
@@ -289,6 +341,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
 
     ndjson_lines: list[str] = []
     errors: list[str] = []
+    dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]] = []
 
     with Progress(
         SpinnerColumn(),
@@ -310,6 +363,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
                 individual_file = output_dir / f'{filename}.ndjson'
                 write_ndjson(individual_file, compiled_jsons, overwrite=True)
                 ndjson_lines.extend(compiled_jsons)
+
+                dashboards = load(str(yaml_file))
+                dashboards_with_sample_data.append((yaml_file, dashboards))
             elif error is not None:
                 errors.append(error)
 
@@ -347,6 +403,19 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
                 overwrite,
                 not no_browser,
                 ssl_verify=not kibana_no_ssl_verify,
+            )
+        )
+
+    if load_sample_data is True:
+        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...')
+        asyncio.run(
+            load_all_sample_data(
+                dashboards_with_sample_data,
+                es_url,
+                es_username,
+                es_password,
+                es_api_key,
+                ssl_verify=not es_no_ssl_verify,
             )
         )
 
@@ -653,6 +722,85 @@ async def generate_screenshot(  # noqa: PLR0913
     except (OSError, ValueError) as e:
         msg = f'Error generating screenshot: {e}'
         raise click.ClickException(msg) from e
+
+
+async def load_all_sample_data(  # noqa: PLR0913, PLR0912
+    dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]],
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    ssl_verify: bool = True,
+) -> None:
+    """Load sample data from all dashboards into Elasticsearch.
+
+    Args:
+        dashboards_with_sample_data: List of (yaml_file_path, dashboards) tuples
+        es_url: Elasticsearch base URL
+        es_username: Basic auth username
+        es_password: Basic auth password
+        es_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates (default: True)
+
+    Raises:
+        click.ClickException: If sample data loading fails.
+
+    """
+    if es_api_key is not None:
+        es_client = AsyncElasticsearch(
+            es_url,
+            api_key=es_api_key,
+            verify_certs=ssl_verify,
+        )
+    elif es_username is not None and es_password is not None:
+        es_client = AsyncElasticsearch(
+            es_url,
+            basic_auth=(es_username, es_password),
+            verify_certs=ssl_verify,
+        )
+    else:
+        es_client = AsyncElasticsearch(
+            es_url,
+            verify_certs=ssl_verify,
+        )
+
+    try:
+        total_loaded = 0
+        total_errors: list[str] = []
+
+        for yaml_file, dashboards in dashboards_with_sample_data:
+            for dashboard in dashboards:
+                if dashboard.sample_data is None:
+                    continue
+
+                console.print(f'Loading sample data for dashboard: {dashboard.name}')
+
+                result = await load_sample_data(
+                    es_client,
+                    dashboard.sample_data,
+                    base_path=yaml_file.parent,
+                )
+
+                if result.success is True:
+                    console.print(f'[green]{ICON_SUCCESS}[/green] Loaded {result.success_count} document(s) for {dashboard.name}')
+                    total_loaded += result.success_count
+                else:
+                    console.print(f'[red]{ICON_ERROR}[/red] Failed to load sample data for {dashboard.name}')
+                    total_errors.extend(result.errors)
+
+        if total_loaded > 0:
+            console.print(f'\n[green]{ICON_SUCCESS}[/green] Successfully loaded {total_loaded} total document(s)')
+
+        if len(total_errors) > 0:
+            console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(total_errors)} error(s):')
+            for error in total_errors:
+                console.print(f'  [red]•[/red] {error}', style='red')
+
+    except (OSError, ValueError) as e:
+        msg = f'Error loading sample data: {e}'
+        raise click.ClickException(msg) from e
+    finally:
+        await es_client.close()
 
 
 if __name__ == '__main__':
