@@ -159,22 +159,21 @@ export class BinaryResolver {
             };
         }
 
-        // Fallback to Python script
+        // Fallback to Python module
         outputChannel?.appendLine(`Bundled binary not found at ${binaryPath}`);
-        outputChannel?.appendLine('Falling back to Python LSP server');
+        outputChannel?.appendLine('Falling back to Python LSP server module');
 
         const pythonPath = this.resolvePythonPath(outputChannel);
-        const scriptPath = path.join(this.extensionPath, 'python', 'compile_server.py');
 
         // Set cwd to repo root for development (so dashboard_compiler can be imported)
         const cwd = path.join(this.extensionPath, '..');
 
-        outputChannel?.appendLine(`Using local Python LSP server: ${pythonPath} ${scriptPath}`);
+        outputChannel?.appendLine(`Using local Python LSP server: ${pythonPath} -m dashboard_compiler.lsp.server`);
         outputChannel?.appendLine(`Working directory: ${cwd}`);
 
         return {
             executable: pythonPath,
-            args: [scriptPath],
+            args: ['-m', 'dashboard_compiler.lsp.server'],
             cwd,
             isBundled: false
         };

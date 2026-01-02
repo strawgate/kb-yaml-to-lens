@@ -74,6 +74,19 @@ def main() -> None:
     target_path = output_dir / binary_name
     shutil.move(binary_path, target_path)
 
+    # Validate the binary works
+    try:
+        result = subprocess.run(  # noqa: S603
+            [str(target_path), '--version'],
+            capture_output=True,
+            timeout=5,
+            check=False,
+        )
+        if result.returncode != 0:
+            print(f'Warning: Binary validation failed with code {result.returncode}')
+    except subprocess.TimeoutExpired:
+        print('Warning: Binary validation timed out')
+
     # Clean build artifacts
     for d in ['build', 'dist']:
         path = VSCODE_ROOT / d

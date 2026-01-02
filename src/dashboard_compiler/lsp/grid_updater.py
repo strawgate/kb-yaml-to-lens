@@ -26,10 +26,10 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
     """
     # Validate grid coordinates
     required_keys = {'x', 'y', 'w', 'h'}
-    if all(key in new_grid for key in required_keys) is False:
+    if not all(key in new_grid for key in required_keys):
         return {'success': False, 'error': f'Invalid grid coordinates: missing required keys {required_keys}'}
 
-    if all(isinstance(new_grid[key], int) and new_grid[key] >= 0 for key in required_keys) is False:
+    if not all(isinstance(new_grid[key], int) and new_grid[key] >= 0 for key in required_keys):
         return {'success': False, 'error': 'Invalid grid coordinates: all values must be non-negative integers'}
 
     # Load dashboards
