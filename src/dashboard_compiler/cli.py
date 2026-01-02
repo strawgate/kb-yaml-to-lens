@@ -7,6 +7,7 @@ from pathlib import Path
 
 import aiohttp
 import rich_click as click
+from elastic_transport import TransportError
 from elasticsearch import AsyncElasticsearch
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -796,7 +797,7 @@ async def load_all_sample_data(  # noqa: PLR0913, PLR0912
             for error in total_errors:
                 console.print(f'  [red]•[/red] {error}', style='red')
 
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError, TransportError) as e:
         msg = f'Error loading sample data: {e}'
         raise click.ClickException(msg) from e
     finally:

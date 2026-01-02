@@ -230,7 +230,8 @@ async def test_load_sample_data_with_pipeline() -> None:
 
         call_args = mock_bulk.call_args
         actions = call_args[0][1]
-        assert actions[0]['pipeline'] == '_ingest/pipeline'
+        # When bypass_pipeline is False, pipeline key should not be present (ES uses default)
+        assert 'pipeline' not in actions[0]
 
 
 @pytest.mark.asyncio

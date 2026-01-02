@@ -69,14 +69,18 @@ def transform_timestamp(doc: dict[str, Any], transform: TimestampTransform) -> d
     if transform.field not in doc:
         return doc
 
-    original_ts = parse_timestamp(str(doc[transform.field]))
+    ts_value = doc[transform.field]
+    if not isinstance(ts_value, str):
+        msg = f'Timestamp field {transform.field} must be a string, got {type(ts_value).__name__}'
+        raise TypeError(msg)
+    original_ts = parse_timestamp(ts_value)
 
     if transform.strategy == 'shift':
         if transform.offset is None:
             msg = 'offset is required for shift strategy'
             raise ValueError(msg)
         offset = parse_relative_time(transform.offset)
-        new_ts = datetime.now(UTC) - offset + (original_ts - original_ts)
+        new_ts = original_ts + offset
     elif transform.strategy == 'now_minus':
         if transform.range_start is None or transform.range_end is None:
             msg = 'range_start and range_end are required for now_minus strategy'

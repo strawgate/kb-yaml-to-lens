@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from elastic_transport import TransportError
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 
@@ -97,7 +98,7 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
         for raw_line in f:
             line = raw_line.strip()
             if len(line) > 0:
-                documents.append(json.loads(line))
+                documents.append(json.loads(line))  # pyright: ignore[reportAny]
     return documents
 
 
@@ -112,11 +113,11 @@ def _read_json_array(file_path: Path) -> list[dict[str, Any]]:
 
     """
     with file_path.open('r') as f:
-        data = json.load(f)
+        data = json.load(f)  # pyright: ignore[reportAny]
         if not isinstance(data, list):
-            msg = f'Expected JSON array in {file_path}, got {type(data).__name__}'
+            msg = f'Expected JSON array in {file_path}, got {type(data).__name__}'  # pyright: ignore[reportAny]
             raise TypeError(msg)
-        return data
+        return data  # pyright: ignore[reportUnknownVariableType]
 
 
 async def load_sample_data(
@@ -144,14 +145,10 @@ async def load_sample_data(
         if sample_data.create_index_template is True and sample_data.index_template is not None:
             await _create_index_template(es_client, index_name, sample_data.index_template)
 
-        actions = [
-            {
-                '_index': index_name,
-                '_source': doc,
-                'pipeline': None if sample_data.bypass_pipeline is True else '_ingest/pipeline',
-            }
-            for doc in transformed_docs
-        ]
+        if sample_data.bypass_pipeline is True:
+            actions = [{'_index': index_name, '_source': doc, 'pipeline': None} for doc in transformed_docs]
+        else:
+            actions = [{'_index': index_name, '_source': doc} for doc in transformed_docs]
 
         success_count, failed_count = await async_bulk(
             es_client,
@@ -162,7 +159,7 @@ async def load_sample_data(
         error_messages = [] if failed_count == 0 else [f'{failed_count} document(s) failed to index']
         return SampleDataLoadResult(success_count, error_messages)
 
-    except (ValueError, OSError, json.JSONDecodeError) as e:
+    except (ValueError, OSError, json.JSONDecodeError, TransportError) as e:
         return SampleDataLoadResult(0, [str(e)])
 
 
@@ -180,7 +177,7 @@ async def _create_index_template(
 
     """
     template_name = f'{index_name}-template'
-    await es_client.indices.put_index_template(
+    _ = await es_client.indices.put_index_template(
         name=template_name,
         index_patterns=[f'{index_name}*'],
         template=template_config,
