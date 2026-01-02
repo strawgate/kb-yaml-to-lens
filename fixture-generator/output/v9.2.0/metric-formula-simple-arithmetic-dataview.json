@@ -1,0 +1,52 @@
+{
+  "title": "Error Rate % (Formula)",
+  "visualizationType": "lnsMetric",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "Error Rate %",
+                "params": {
+                  "formula": "(count(kql='status:error') / count()) * 100"
+                },
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}
