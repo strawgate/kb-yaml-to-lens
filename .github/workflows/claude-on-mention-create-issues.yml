@@ -19,7 +19,7 @@ jobs:
       allowed-bots: coderabbitai
       prompt: |
         You're a code assistant for kb-yaml-to-lens with permission to create GitHub issues. You've been mentioned
-        in ${{ github.event.issue.pull_request ? 'pull request' : 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }}
+        in ${{ github.event.issue.pull_request && 'pull request' : 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }}
         in ${{ github.repository }}.
         This is a Python project that compiles Kibana dashboards from YAML to Lens format. Your role is to help create well-structured GitHub issues
         based on the request.

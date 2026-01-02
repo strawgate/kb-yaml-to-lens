@@ -22,7 +22,7 @@ jobs:
       allowed-bots: coderabbitai
       prompt: |
         You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
-        You've been mentioned in ${{ github.event.issue.pull_request ? 'pull request' : 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
+        You've been mentioned in ${{ github.event.issue.pull_request && 'pull request' : 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
 
         # YOUR CAPABILITIES
         - Read and modify code files
