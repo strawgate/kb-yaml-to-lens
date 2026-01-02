@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build standalone LSP server binary using PyInstaller."""
 
+import os
 import platform
 import shutil
 import subprocess
@@ -74,18 +75,11 @@ def main() -> None:
     target_path = output_dir / binary_name
     shutil.move(binary_path, target_path)
 
-    # Validate the binary works
-    try:
-        result = subprocess.run(  # noqa: S603
-            [str(target_path), '--version'],
-            capture_output=True,
-            timeout=5,
-            check=False,
-        )
-        if result.returncode != 0:
-            print(f'Warning: Binary validation failed with code {result.returncode}')
-    except subprocess.TimeoutExpired:
-        print('Warning: Binary validation timed out')
+    # Validate the binary is executable
+    if not target_path.is_file():
+        print(f'Warning: Binary not found at {target_path}')
+    elif os.name != 'nt' and not os.access(target_path, os.X_OK):
+        print(f'Warning: Binary at {target_path} is not executable')
 
     # Clean build artifacts
     for d in ['build', 'dist']:

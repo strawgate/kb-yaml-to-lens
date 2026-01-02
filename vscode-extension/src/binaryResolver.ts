@@ -33,16 +33,18 @@ export class BinaryResolver {
      * Get platform-specific directory name (e.g., 'linux-x64', 'darwin-arm64').
      */
     private getPlatformDir(): string {
-        const platform = os.platform();
-        const arch = os.arch();
+        const platform = process.platform;
+        const arch = process.arch;
 
         let platformName: string;
         if (platform === 'win32') {
             platformName = 'win32';
         } else if (platform === 'darwin') {
             platformName = 'darwin';
-        } else {
+        } else if (platform === 'linux') {
             platformName = 'linux';
+        } else {
+            throw new Error(`Unsupported platform: ${platform}`);
         }
 
         let archName: string;
@@ -90,7 +92,8 @@ export class BinaryResolver {
         try {
             fs.accessSync(filePath, fs.constants.X_OK);
             return true;
-        } catch {
+        } catch (error) {
+            // File exists but isn't executable - this is expected for some files
             return false;
         }
     }
@@ -165,8 +168,9 @@ export class BinaryResolver {
 
         const pythonPath = this.resolvePythonPath(outputChannel);
 
-        // Set cwd to repo root for development (so dashboard_compiler can be imported)
-        const cwd = path.join(this.extensionPath, '..');
+        // For development, use workspace root so dashboard_compiler can be imported
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        const cwd = workspaceRoot ?? path.dirname(this.extensionPath);
 
         outputChannel?.appendLine(`Using local Python LSP server: ${pythonPath} -m dashboard_compiler.lsp.server`);
         outputChannel?.appendLine(`Working directory: ${cwd}`);
