@@ -61,13 +61,6 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
     from dashboard_compiler.panels.charts.xy.view import XYReferenceLineLayerConfig
 
-CHART_TYPE_TO_KBN_TYPE_MAP = {
-    'metric': KbnVisualizationTypeEnum.METRIC,
-    'gauge': KbnVisualizationTypeEnum.GAUGE,
-    'heatmap': KbnVisualizationTypeEnum.HEATMAP,
-    'pie': KbnVisualizationTypeEnum.PIE,
-}
-
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
