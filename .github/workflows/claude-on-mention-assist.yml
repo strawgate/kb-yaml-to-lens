@@ -4,12 +4,9 @@ on:
   issue_comment:
     types:
       - created
-  pull_request_review_comment:
-    types:
-      - created
-  pull_request_review:
-    types:
-      - submitted
+concurrency:
+  group: claude-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
 permissions:
   contents: write
   pull-requests: write
@@ -19,15 +16,13 @@ permissions:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude') && !contains(github.event.review.body, '@claude-issue'))
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') && !contains(github.event.comment.body, '@claude-issue'))
     uses: ./.github/workflows/run-claude.yml
     with:
       allowed-bots: coderabbitai
       prompt: |
         You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
-        You've been mentioned in ${{ github.event_name == 'issue_comment' && 'issue' || 'pull request' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
+        You've been mentioned in ${{ github.event.issue.pull_request && 'pull request' || 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
 
         # YOUR CAPABILITIES
         - Read and modify code files
@@ -43,9 +38,6 @@ jobs:
         - `make gh-get-latest-review OWNER REPO PR_NUMBER AUTHOR` - Get latest review
         - `make gh-check-latest-review OWNER REPO PR_NUMBER AUTHOR REVIEW_ID` - Check if review is latest
         - `make gh-get-comments-since OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR]` - Get comments since timestamp
-        - `make gh-minimize-outdated-comments OWNER REPO PR_NUMBER` - Minimize outdated comments
-        - `make gh-check-repo-activity OWNER REPO SINCE_TIMESTAMP [THRESHOLD]` - Check repo activity
-
         For simple operations, use `gh` CLI directly:
         - `gh pr view PR_NUMBER --json field1,field2` - Get PR info
         - `gh pr comment PR_NUMBER --body "text"` or `gh issue comment ISSUE_NUMBER --body "text"` - Post comments
@@ -62,6 +54,15 @@ jobs:
         3. Make necessary changes following project patterns
         4. Run `make check` to verify (lint + test)
         5. If working on a PR and addressing review feedback, resolve the review threads after making fixes
+        6. **BEFORE FINISHING**: Check for any new comments that were added after you started working on the issue/PR that might need to be addressed
+           - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
+           - Use the make command to check for new comments from the trigger user:
+             ```bash
+             make gh-get-comments-since ${{ github.repository_owner }} ${{ github.event.repository.name }} \
+               ${{ github.event.issue.number || github.event.pull_request.number }} \
+               "${{ github.event.comment.created_at || github.event.review.submitted_at }}"
+             ```
+           - If the command returns any comments, read the feedback and incorporate it before completing
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
       allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
     secrets:

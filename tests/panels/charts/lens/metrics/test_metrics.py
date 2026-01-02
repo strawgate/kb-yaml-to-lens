@@ -2,6 +2,7 @@
 
 from typing import Any
 
+import pytest
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -296,3 +297,10 @@ async def test_compile_esql_metric_count() -> None:
             'inMetricDimension': True,
         }
     )
+
+
+async def test_compile_lens_formula_metric_raises_not_implemented() -> None:
+    """Test that formula metrics raise NotImplementedError."""
+    metric_holder = LensMetricHolder.model_validate({'metric': {'formula': 'count() / 100'}})
+    with pytest.raises(NotImplementedError, match='Formula metrics are not supported yet'):
+        _ = compile_lens_metric(metric=metric_holder.metric)

@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn
 
 from dashboard_compiler.panels.charts.datatable.config import (
+    DatatableColumnConfig,
     DatatableDensityEnum,
     DatatableMetricColumnConfig,
     DatatableRowHeightEnum,
@@ -26,6 +27,56 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.shared.config import get_layer_id
+
+
+def _build_datatable_column_states(
+    column_order: list[str],
+    metric_columns_ids: set[str],
+    metric_columns_config: list[DatatableMetricColumnConfig] | None,
+    row_columns_config: list[DatatableColumnConfig] | None,
+) -> list[KbnDatatableColumnState]:
+    """Build column states for a datatable visualization.
+
+    Args:
+        column_order: Ordered list of column IDs
+        metric_columns_ids: Set of metric column IDs
+        metric_columns_config: User configuration for metric columns
+        row_columns_config: User configuration for row columns
+
+    Returns:
+        List of compiled column states
+
+    """
+    column_states: list[KbnDatatableColumnState] = []
+    for column_id in column_order:
+        is_metric = column_id in metric_columns_ids
+
+        user_config = None
+        if is_metric and metric_columns_config is not None:
+            user_config = next((c for c in metric_columns_config if c.column_id == column_id), None)
+        elif not is_metric and row_columns_config is not None:
+            user_config = next((c for c in row_columns_config if c.column_id == column_id), None)
+
+        summary_row = None
+        summary_label = None
+        if is_metric and isinstance(user_config, DatatableMetricColumnConfig):
+            summary_row = user_config.summary_row
+            summary_label = user_config.summary_label
+
+        column_state = KbnDatatableColumnState(
+            columnId=column_id,
+            width=user_config.width if user_config is not None else None,
+            hidden=user_config.hidden if user_config is not None and user_config.hidden is True else None,
+            isTransposed=False,
+            isMetric=is_metric,
+            alignment=user_config.alignment if user_config is not None else None,
+            colorMode=user_config.color_mode if user_config is not None else None,
+            summaryRow=summary_row,
+            summaryLabel=summary_label,
+        )
+        column_states.append(column_state)
+
+    return column_states
 
 
 def compile_lens_datatable_chart(
@@ -78,37 +129,12 @@ def compile_lens_datatable_chart(
         column_order.append(metric_id)
 
     # Build column states
-    column_states: list[KbnDatatableColumnState] = []
-    for column_id in column_order:
-        # Determine if this is a metric column or a row column
-        is_metric = column_id in kbn_metric_columns_by_id
-
-        # Find user config for this column
-        user_config = None
-        if is_metric and lens_datatable_chart.metric_columns is not None:
-            user_config = next((c for c in lens_datatable_chart.metric_columns if c.column_id == column_id), None)
-        elif not is_metric and lens_datatable_chart.columns is not None:
-            user_config = next((c for c in lens_datatable_chart.columns if c.column_id == column_id), None)
-
-        # Build column state with summary fields only for metrics
-        summary_row = None
-        summary_label = None
-        if is_metric and isinstance(user_config, DatatableMetricColumnConfig):
-            summary_row = user_config.summary_row
-            summary_label = user_config.summary_label
-
-        column_state = KbnDatatableColumnState(
-            columnId=column_id,
-            width=user_config.width if user_config is not None else None,
-            hidden=user_config.hidden if user_config is not None and user_config.hidden is True else None,
-            isTransposed=False,
-            isMetric=is_metric,
-            alignment=user_config.alignment if user_config is not None else None,
-            colorMode=user_config.color_mode if user_config is not None else None,
-            summaryRow=summary_row,
-            summaryLabel=summary_label,
-        )
-        column_states.append(column_state)
+    column_states = _build_datatable_column_states(
+        column_order=column_order,
+        metric_columns_ids=set(kbn_metric_columns_by_id.keys()),
+        metric_columns_config=lens_datatable_chart.metric_columns,
+        row_columns_config=lens_datatable_chart.columns,
+    )
 
     # Build sorting state
     sorting_state = None
@@ -159,7 +185,7 @@ def compile_lens_datatable_chart(
     return layer_id, kbn_columns_by_id, visualization_state
 
 
-def compile_esql_datatable_chart(  # noqa: PLR0915
+def compile_esql_datatable_chart(
     esql_datatable_chart: ESQLDatatableChart,
 ) -> tuple[str, list[KbnESQLColumnTypes], KbnDatatableVisualizationState]:
     """Compile an ESQL LensDatatableChart config object into a Kibana Lens Datatable visualization state.
@@ -204,40 +230,12 @@ def compile_esql_datatable_chart(  # noqa: PLR0915
     column_order.extend(metric_column_ids)
 
     # Build column states
-    # Track which columns are metrics
-    metric_column_ids_set = set(metric_column_ids)
-
-    column_states: list[KbnDatatableColumnState] = []
-    for column_id in column_order:
-        # Determine if this is a metric column or a row column
-        is_metric = column_id in metric_column_ids_set
-
-        # Find user config for this column
-        user_config = None
-        if is_metric and esql_datatable_chart.metric_columns is not None:
-            user_config = next((c for c in esql_datatable_chart.metric_columns if c.column_id == column_id), None)
-        elif not is_metric and esql_datatable_chart.columns is not None:
-            user_config = next((c for c in esql_datatable_chart.columns if c.column_id == column_id), None)
-
-        # Build column state with summary fields only for metrics
-        summary_row = None
-        summary_label = None
-        if is_metric and isinstance(user_config, DatatableMetricColumnConfig):
-            summary_row = user_config.summary_row
-            summary_label = user_config.summary_label
-
-        column_state = KbnDatatableColumnState(
-            columnId=column_id,
-            width=user_config.width if user_config is not None else None,
-            hidden=user_config.hidden if user_config is not None and user_config.hidden is True else None,
-            isTransposed=False,
-            isMetric=is_metric,
-            alignment=user_config.alignment if user_config is not None else None,
-            colorMode=user_config.color_mode if user_config is not None else None,
-            summaryRow=summary_row,
-            summaryLabel=summary_label,
-        )
-        column_states.append(column_state)
+    column_states = _build_datatable_column_states(
+        column_order=column_order,
+        metric_columns_ids=set(metric_column_ids),
+        metric_columns_config=esql_datatable_chart.metric_columns,
+        row_columns_config=esql_datatable_chart.columns,
+    )
 
     # Build sorting state
     sorting_state = None

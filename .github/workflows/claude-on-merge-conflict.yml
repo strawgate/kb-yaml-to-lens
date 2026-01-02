@@ -42,7 +42,6 @@ jobs:
   resolve-conflicts:
     needs: check-conflicts
     if: needs.check-conflicts.outputs.has_conflicts == 'true'
-    timeout-minutes: 30
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
@@ -109,7 +108,6 @@ jobs:
         - You're uncertain about the correct resolution approach
         - Tests fail after resolution and you can't easily fix them
         - The conflict resolution would be better reviewed by a human first
-
         In these cases:
         1. Document what you tried and why it's complex
         2. Post a detailed comment explaining the conflict and potential approaches
