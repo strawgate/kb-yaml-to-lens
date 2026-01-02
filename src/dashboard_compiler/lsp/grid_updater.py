@@ -26,10 +26,10 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
     """
     # Validate grid coordinates
     required_keys = {'x', 'y', 'w', 'h'}
-    if not all(key in new_grid for key in required_keys):
+    if all(key in new_grid for key in required_keys) is False:
         return {'success': False, 'error': f'Invalid grid coordinates: missing required keys {required_keys}'}
 
-    if not all(isinstance(new_grid[key], int) and new_grid[key] >= 0 for key in required_keys):
+    if all(isinstance(new_grid[key], int) and new_grid[key] >= 0 for key in required_keys) is False:
         return {'success': False, 'error': 'Invalid grid coordinates: all values must be non-negative integers'}
 
     # Load dashboards
@@ -46,36 +46,33 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
 
     dashboard = dashboards[dashboard_index]
 
-    # Find and update the panel
-    panel_found = False
+    # Find the panel
+    found_panel = None
     if panel_id.startswith('panel_'):
-        # Index-based update
+        # Index-based lookup
         try:
             panel_index = int(panel_id.split('_')[1])
             if panel_index < 0 or panel_index >= len(dashboard.panels):
                 return {'success': False, 'error': f'Panel index {panel_index} out of range (0-{len(dashboard.panels) - 1})'}
 
-            panel = dashboard.panels[panel_index]
-            panel.grid.x = new_grid['x']
-            panel.grid.y = new_grid['y']
-            panel.grid.w = new_grid['w']
-            panel.grid.h = new_grid['h']
-            panel_found = True
+            found_panel = dashboard.panels[panel_index]
         except (ValueError, IndexError) as e:
             return {'success': False, 'error': f'Invalid panel ID format: {e}'}
     else:
-        # ID-based update
+        # ID-based lookup
         for panel in dashboard.panels:
             if panel.id == panel_id:
-                panel.grid.x = new_grid['x']
-                panel.grid.y = new_grid['y']
-                panel.grid.w = new_grid['w']
-                panel.grid.h = new_grid['h']
-                panel_found = True
+                found_panel = panel
                 break
 
-    if panel_found is False:
+    if found_panel is None:
         return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
+
+    # Update grid coordinates
+    found_panel.grid.x = new_grid['x']
+    found_panel.grid.y = new_grid['y']
+    found_panel.grid.w = new_grid['w']
+    found_panel.grid.h = new_grid['h']
 
     # Save the updated dashboard
     try:
