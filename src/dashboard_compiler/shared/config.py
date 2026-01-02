@@ -38,13 +38,8 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     # Use SHA-1 for deterministic hashing. While SHA-1 is deprecated for cryptographic
     # use, it's perfect here because we need speed and determinism, not security.
     # Collision risk is acceptable for dashboard IDs.
-    hashed_data = hashlib.sha1(concatenated_values).digest()  # noqa: S324
-
-    # Truncate or pad to 16 bytes (128 bits) if needed
-    if len(hashed_data) > MAX_BYTES_LENGTH:
-        hashed_data = hashed_data[:MAX_BYTES_LENGTH]
-    elif len(hashed_data) < MAX_BYTES_LENGTH:
-        hashed_data = hashed_data.ljust(MAX_BYTES_LENGTH, b'\0')
+    # SHA-1 always produces 20 bytes, so we truncate to 16 bytes (128 bits) for UUID
+    hashed_data = hashlib.sha1(concatenated_values).digest()[:MAX_BYTES_LENGTH]  # noqa: S324
 
     guid = uuid.UUID(bytes=hashed_data)
     return str(guid)
