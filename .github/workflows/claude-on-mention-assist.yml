@@ -43,8 +43,6 @@ jobs:
         - `make gh-get-latest-review OWNER REPO PR_NUMBER AUTHOR` - Get latest review
         - `make gh-check-latest-review OWNER REPO PR_NUMBER AUTHOR REVIEW_ID` - Check if review is latest
         - `make gh-get-comments-since OWNER REPO ISSUE_NUMBER SINCE_TIMESTAMP [AUTHOR]` - Get comments since timestamp
-        - `make gh-minimize-outdated-comments OWNER REPO PR_NUMBER` - Minimize outdated comments
-        - `make gh-check-repo-activity OWNER REPO SINCE_TIMESTAMP [THRESHOLD]` - Check repo activity
 
         For simple operations, use `gh` CLI directly:
         - `gh pr view PR_NUMBER --json field1,field2` - Get PR info
@@ -62,6 +60,18 @@ jobs:
         3. Make necessary changes following project patterns
         4. Run `make check` to verify (lint + test)
         5. If working on a PR and addressing review feedback, resolve the review threads after making fixes
+        6. **BEFORE FINISHING**: Check for any new comments that were added after you started working on the issue/PR that might need to be addressed
+           - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
+           - Use the make command to check for new comments from the trigger user:
+             ```bash
+             make gh-get-comments-since \
+               $(echo "${{ github.repository }}" | cut -d/ -f1) \
+               $(echo "${{ github.repository }}" | cut -d/ -f2) \
+               ${{ github.event.issue.number || github.event.pull_request.number }} \
+               "${{ github.event.comment.created_at || github.event.review.submitted_at }}" \
+               "${{ github.event.comment.user.login || github.event.review.user.login }}"
+             ```
+           - If the command returns any comments, read the feedback and incorporate it before completing
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
       allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
     secrets:
