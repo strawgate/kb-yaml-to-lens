@@ -258,29 +258,21 @@ The output is a complete Lens visualization configuration containing:
 
 **Important:** This is **real Kibana JSON** - exactly what Kibana would generate if you created the same panel in the UI.
 
-### Step 6: Use Fixtures in Tests
+### Step 6: Use Fixtures as Reference
 
-**Copy to Test Fixtures:**
+**The fixture-generator outputs are reference data**, not test fixtures. They show exactly what Kibana generates for specific configurations.
 
-```bash
-# Copy specific fixture
-cp fixture-generator/output/heatmap.json tests/fixtures/
+**How to Use Generated Fixtures:**
 
-# Copy all fixtures
-cp fixture-generator/output/*.json tests/scenarios/
-```
+1. **As Reference for Implementation:**
+   - Compare compiler output against generated fixtures
+   - Verify your YAML-to-JSON compiler produces the same structure
+   - Use to understand Kibana's internal JSON format
 
-**How to Use in Tests:**
-
-1. **Snapshot Testing:**
-   - Place in `tests/__snapshots__/`
-   - Use with `syrupy` in pytest
-   - Compare compiler output against known-good fixture
-
-2. **Validation Testing:**
-   - Load fixture as expected output
-   - Run Python compiler on equivalent YAML config
-   - Deep-compare the results
+2. **For Manual Validation:**
+   - Import generated JSON into Kibana to verify it works
+   - Use as examples when implementing new chart types
+   - Reference when debugging compiler output differences
 
 3. **Regression Testing:**
    - Regenerate fixtures after Kibana updates
