@@ -143,15 +143,30 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         # )
 
     metric_column_params: KbnLensMetricColumnParams
-    metric_filter: KbnQuery | None = None
+    metric_filter: KbnQuery | None
+    default_label: str
+    metric_column_params, metric_filter, default_label = _get_metric_params_and_label(metric, metric_format)
+
     metric_id = metric.id or stable_id_generator([metric.aggregation, metric.field])
 
-    # Generate Kibana-style default labels that match the native Lens editor UX.
-    # Strategy varies by aggregation type to provide user-friendly descriptions:
-    # - Standard aggs: "{Aggregation} of {field}" (e.g., "Average of response_time")
-    # - Percentiles: "{nth} percentile of {field}" (e.g., "95th percentile of latency")
-    # - Percentile rank: "Percentile rank (value) of {field}"
-    # - Count: "Count of records" (field optional)
+    return metric_id, KbnLensFieldMetricColumn(
+        label=metric.label or default_label,
+        customLabel=custom_label,
+        dataType='number',
+        operationType=metric.aggregation,
+        scale='ratio',
+        sourceField=metric.field or '___records___',
+        params=metric_column_params,
+        filter=metric_filter,
+    )
+
+
+def _get_metric_params_and_label(
+    metric: LensMetricTypes, metric_format: KbnLensMetricFormat | None
+) -> tuple[KbnLensMetricColumnParams, KbnQuery | None, str]:
+    """Get the metric column params, filter, and default label for a metric."""
+    metric_column_params: KbnLensMetricColumnParams
+    metric_filter: KbnQuery | None = None
     default_label: str = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field}'
 
     if isinstance(metric, LensCountAggregatedMetric):
@@ -206,13 +221,4 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         msg = f'Unsupported metric type: {type(metric)}'  # pyright: ignore[reportUnreachable]
         raise NotImplementedError(msg)
 
-    return metric_id, KbnLensFieldMetricColumn(
-        label=metric.label or default_label,
-        customLabel=custom_label,
-        dataType='number',
-        operationType=metric.aggregation,
-        scale='ratio',
-        sourceField=metric.field or '___records___',
-        params=metric_column_params,
-        filter=metric_filter,
-    )
+    return metric_column_params, metric_filter, default_label
