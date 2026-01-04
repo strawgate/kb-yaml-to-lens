@@ -245,6 +245,8 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     )
     raise NotImplementedError(msg)
 
+
+
 def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
     """Compile the filters of a Dashboard object into its Kibana view model representation.
 
