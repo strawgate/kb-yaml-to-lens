@@ -243,9 +243,7 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
         f"Supported filter types are: {', '.join(supported_filters)}. "
         f"Please check your filter configuration or refer to the documentation."
     )
-raise NotImplementedError(msg)
-
-
+    raise NotImplementedError(msg)
 
 def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
     """Compile the filters of a Dashboard object into its Kibana view model representation.
