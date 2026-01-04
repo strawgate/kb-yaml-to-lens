@@ -235,16 +235,8 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     if isinstance(filter, OrFilter):  # pyright: ignore[reportUnnecessaryIsInstance]
         return compile_or_filter(or_filter=filter, negate=negate, nested=nested)
 
-    supported_filters = [
-        "ExistsFilter",
-        "PhraseFilter",
-        "PhrasesFilter",
-        "RangeFilter",
-        "CustomFilter",
-        "AndFilter",
-        "OrFilter",
-        "NegateFilter",
-    ]
+    supported_filters = [cls.__name__ for cls in FilterTypes.__args__]
+
 
     msg = (
         f"Filter type '{type(filter).__name__}' is not supported. "
