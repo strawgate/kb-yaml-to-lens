@@ -80,6 +80,7 @@ markdown_extensions:
 nav:
   - User Guide:
       - Getting Started: index.md
+      - Troubleshooting: troubleshooting.md
       - CLI Reference: CLI.md
       - VS Code Extension: vscode-extension.md
       - Complete Examples: examples/index.md
