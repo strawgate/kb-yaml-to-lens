@@ -235,8 +235,24 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     if isinstance(filter, OrFilter):  # pyright: ignore[reportUnnecessaryIsInstance]
         return compile_or_filter(or_filter=filter, negate=negate, nested=nested)
 
-    msg = f'Unimplemented filter type: {type(filter)}'  # pyright: ignore[reportUnreachable]
-    raise NotImplementedError(msg)
+    supported_filters = [
+        "ExistsFilter",
+        "PhraseFilter",
+        "PhrasesFilter",
+        "RangeFilter",
+        "CustomFilter",
+        "AndFilter",
+        "OrFilter",
+        "NegateFilter",
+    ]
+
+    msg = (
+        f"Filter type '{type(filter).__name__}' is not supported. "
+        f"Supported filter types are: {', '.join(supported_filters)}. "
+        f"Please check your filter configuration or refer to the documentation."
+    )
+raise NotImplementedError(msg)
+
 
 
 def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
