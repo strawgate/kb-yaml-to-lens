@@ -38,14 +38,18 @@ if not my_var:  # Ambiguous truthiness check
 
 ### Exhaustive Type Checking Pattern
 
-When handling union types, always use explicit `isinstance` checks with a final error handler. **Never rely on type narrowing alone.**
+When handling union types, always use explicit type checks with a final error handler. **Never rely on type narrowing alone.**
 
-**Why:** When a new type is added to a union, relying on type narrowing means the code silently falls through to a default case. With explicit isinstance checks and a final error, you get a clear runtime error that forces you to handle the new type.
+**Why:** When a new type is added to a union, relying on type narrowing means the code silently falls through to a default case. With explicit type checks and a final error, you get a clear runtime error that forces you to handle the new type.
 
-**✅ Correct pattern:**
+**✅ Correct patterns:**
+
+Both `isinstance` chains and `match` statements (Python 3.10+) are acceptable. Both achieve the same exhaustive checking goal.
+
+#### Pattern 1: isinstance chain (traditional)
 
 ```python
-def handle_panel(panel: PanelTypes) -> str:
+def handle_panel_isinstance(panel: PanelTypes) -> str:
     if isinstance(panel, MarkdownPanel):
         return handle_markdown(panel)
     if isinstance(panel, LinksPanel):
@@ -56,6 +60,22 @@ def handle_panel(panel: PanelTypes) -> str:
     # Explicit error case instead of relying on type narrowing
     msg = f'Unknown panel type: {type(panel).__name__}'
     raise TypeError(msg)
+```
+
+#### Pattern 2: match statement (Python 3.10+)
+
+```python
+def handle_panel_match(panel: PanelTypes) -> str:
+    match panel:
+        case MarkdownPanel():
+            return handle_markdown(panel)
+        case LinksPanel():
+            return handle_links(panel)
+        case LensPanel() | ESQLPanel():
+            return handle_charts(panel)
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            msg = f'Unknown panel type: {type(panel).__name__}'
+            raise TypeError(msg)
 ```
 
 **❌ Incorrect pattern:**
@@ -74,7 +94,12 @@ def handle_panel(panel: PanelTypes) -> str:
 
 **Key principle:** Make adding new types to unions a compile-time or runtime error, not a silent fallthrough.
 
-**Type checker pragmas:** Use `# pyright: ignore[reportUnnecessaryIsInstance]` to document intentional isinstance checks that the type checker considers unnecessary. Do NOT remove these ignores - they document that the pattern is intentional.
+**Type checker pragmas:**
+
+- For `isinstance` chains: Use `# pyright: ignore[reportUnnecessaryIsInstance]` to document intentional isinstance checks that the type checker considers unnecessary
+- For `match` statements: Use `# pyright: ignore[reportUnnecessaryComparison]` on the wildcard case to document that it's intentionally kept for exhaustive checking
+
+Do NOT remove these ignores - they document that the exhaustive checking pattern is intentional.
 
 ---
 

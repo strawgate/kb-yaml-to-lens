@@ -101,27 +101,19 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnB
     match panel:
         case MarkdownPanel():
             references, embeddable_config = compile_markdown_panel_config(panel)
-            return references, KbnMarkdownPanel(
-                panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config
-            )
+            return references, KbnMarkdownPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case LinksPanel():
             references, embeddable_config = compile_links_panel_config(panel)
-            return references, KbnLinksPanel(
-                panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config
-            )
+            return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case ImagePanel():
             references, embeddable_config = compile_image_panel_config(panel)
-            return references, KbnImagePanel(
-                panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config
-            )
+            return references, KbnImagePanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case SearchPanel():
             msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
             raise NotImplementedError(msg)
         case LensPanel() | ESQLPanel():
             references, kbn_panel = compile_charts_panel_config(panel)
-            return references, KbnLensPanel(
-                panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel
-            )
+            return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             # This should never be reached if PanelTypes is exhaustive, but provides a clear error
             msg = f'Unknown panel type: {type(panel).__name__}'
