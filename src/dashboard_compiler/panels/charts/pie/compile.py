@@ -18,6 +18,7 @@ from dashboard_compiler.panels.charts.pie.view import (
 )
 from dashboard_compiler.shared.compile import extract_metrics_from_config, split_dimensions
 from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.defaults import default_false
 
 
 def compile_pie_chart_visualization_state(  # noqa: PLR0913
@@ -93,7 +94,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
-        nestedLegend=nested_legend if nested_legend is not None else False,
+        nestedLegend=default_false(nested_legend),
         layerType='data',
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,
