@@ -158,7 +158,7 @@ async def test_load_sample_data_success() -> None:
         actions = call_args[0][1]
         assert len(actions) == 2
         assert actions[0]['_index'] == 'logs-sample'
-        assert actions[0]['pipeline'] is None
+        assert actions[0]['pipeline'] == '_none'
 
 
 @pytest.mark.asyncio

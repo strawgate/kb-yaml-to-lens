@@ -2,6 +2,7 @@
 
 import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -15,22 +16,15 @@ from dashboard_compiler.sample_data.timestamps import transform_documents
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class SampleDataLoadResult:
     """Result of loading sample data into Elasticsearch."""
 
     success_count: int
+    """Number of successfully indexed documents."""
+
     errors: list[str]
-
-    def __init__(self, success_count: int, errors: list[str]) -> None:
-        """Initialize load result.
-
-        Args:
-            success_count: Number of successfully indexed documents
-            errors: List of error messages
-
-        """
-        self.success_count = success_count
-        self.errors = errors
+    """List of error messages."""
 
     @property
     def success(self) -> bool:
@@ -146,7 +140,7 @@ async def load_sample_data(
             await _create_index_template(es_client, index_name, sample_data.index_template)
 
         if sample_data.bypass_pipeline is True:
-            actions = [{'_index': index_name, '_source': doc, 'pipeline': None} for doc in transformed_docs]
+            actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
         else:
             actions = [{'_index': index_name, '_source': doc} for doc in transformed_docs]
 
