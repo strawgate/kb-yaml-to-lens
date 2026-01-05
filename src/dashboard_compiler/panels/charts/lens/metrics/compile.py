@@ -27,8 +27,8 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensSumAggregatedMetric,
 )
 from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.defaults import default_true
 
 FORMAT_TO_DEFAULT_DECIMALS = {
     'number': 2,
@@ -158,13 +158,13 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field or "records"}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
-            emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
+            emptyAsNull=default_true(metric.exclude_zeros),
         )
 
     elif isinstance(metric, LensSumAggregatedMetric):
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
-            emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
+            emptyAsNull=default_true(metric.exclude_zeros),
         )
 
     elif isinstance(metric, LensPercentileRankAggregatedMetric):
