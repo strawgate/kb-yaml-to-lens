@@ -8,8 +8,8 @@ from dashboard_compiler.panels.compile import compile_dashboard_panels
 from dashboard_compiler.panels.view import KbnSavedObjectMeta, KbnSearchSourceJSON
 from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.defaults import default_false, default_true
 from dashboard_compiler.shared.view import KbnReference
 
 CORE_MIGRATION_VERSION: str = '8.8.0'
@@ -27,11 +27,11 @@ def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOption
 
     """
     return KbnDashboardOptions(
-        useMargins=return_unless(var=settings.margins, is_none=True),
-        syncColors=return_unless(var=settings.sync.colors, is_none=False),
-        syncCursor=return_unless(var=settings.sync.cursor, is_none=True),
-        syncTooltips=return_unless(var=settings.sync.tooltips, is_none=False),
-        hidePanelTitles=not return_unless(var=settings.titles, is_none=True),
+        useMargins=default_true(settings.margins),
+        syncColors=default_false(settings.sync.colors),
+        syncCursor=default_true(settings.sync.cursor),
+        syncTooltips=default_false(settings.sync.tooltips),
+        hidePanelTitles=not default_true(settings.titles),
     )
 
 
