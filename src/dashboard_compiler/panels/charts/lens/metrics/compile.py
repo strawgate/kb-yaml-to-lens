@@ -128,7 +128,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 
     if isinstance(metric, LensFormulaMetric):
-        metric_id = metric.id or stable_id_generator(['formula', metric.label or 'Formula'])
+        metric_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])
 
         return metric_id, KbnLensFormulaColumn(
             label=metric.label or 'Formula',
