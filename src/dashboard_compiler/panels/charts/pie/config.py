@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendVisibleEnum, LegendWidthEnum
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -99,24 +99,52 @@ class LensPieChart(BasePieChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the pie chart."""
 
-    metric: LensMetricTypes | None = Field(default=None)
-    """A metric that determines the size of the slice of the pie chart. Use this for single metric charts."""
-
-    metrics: list[LensMetricTypes] | None = Field(default=None)
-    """Multiple metrics for the pie chart. Use this for multi-metric charts."""
+    metrics: list[LensMetricTypes] = Field(default=...)
+    """Metrics that determine the size of slices. Can specify a single metric or multiple metrics."""
 
     slice_by: list[LensDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
+
+    @field_validator('metrics', mode='before')
+    @classmethod
+    def normalize_single_to_list(cls, v: LensMetricTypes | list[LensMetricTypes]) -> list[LensMetricTypes]:
+        """Normalize single metric to list."""
+        if not isinstance(v, list):
+            return [v]
+        return v
+
+    @field_validator('metrics')
+    @classmethod
+    def validate_metrics_not_empty(cls, v: list[LensMetricTypes]) -> list[LensMetricTypes]:
+        """Ensure metrics list is not empty."""
+        if len(v) == 0:
+            msg = 'At least one metric must be provided'
+            raise ValueError(msg)
+        return v
 
 
 class ESQLPieChart(BasePieChart):
     """Represents a Pie chart configuration within an ES|QL panel."""
 
-    metric: ESQLMetricTypes | None = Field(default=None)
-    """A metric that determines the size of the slice of the pie chart. Use this for single metric charts."""
-
-    metrics: list[ESQLMetricTypes] | None = Field(default=None)
-    """Multiple metrics for the pie chart. Use this for multi-metric charts."""
+    metrics: list[ESQLMetricTypes] = Field(default=...)
+    """Metrics that determine the size of slices. Can specify a single metric or multiple metrics."""
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
+
+    @field_validator('metrics', mode='before')
+    @classmethod
+    def normalize_single_to_list(cls, v: ESQLMetricTypes | list[ESQLMetricTypes]) -> list[ESQLMetricTypes]:
+        """Normalize single metric to list."""
+        if not isinstance(v, list):
+            return [v]
+        return v
+
+    @field_validator('metrics')
+    @classmethod
+    def validate_metrics_not_empty(cls, v: list[ESQLMetricTypes]) -> list[ESQLMetricTypes]:
+        """Ensure metrics list is not empty."""
+        if len(v) == 0:
+            msg = 'At least one metric must be provided'
+            raise ValueError(msg)
+        return v

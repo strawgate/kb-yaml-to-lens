@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar, overload, runtime_checkable
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.config import ESQLMetricTypes, ESQLStaticValue
@@ -57,42 +57,6 @@ def return_if_equals(var: V | None, equals: V, is_false: T, is_true: T, is_none:
     if var is None:
         return is_none
     return is_true if var == equals else is_false
-
-
-@runtime_checkable
-class HasMetricOrMetrics(Protocol):
-    """Protocol for objects that have either a single 'metric' or a list of 'metrics'."""
-
-    @property
-    def metric(self) -> Any:  # pyright: ignore[reportAny]
-        """The single metric configuration."""
-        ...
-
-    @property
-    def metrics(self) -> list[Any] | None:
-        """The list of metric configurations."""
-        ...
-
-
-def extract_metrics_from_config(config: HasMetricOrMetrics) -> list[Any]:
-    """Extract metrics from either 'metric' or 'metrics' attribute.
-
-    Args:
-        config: Object with either 'metric' or 'metrics' attribute
-
-    Returns:
-        List of metric configs
-
-    Raises:
-        ValueError: If neither metric nor metrics is provided
-
-    """
-    if hasattr(config, 'metric') and config.metric is not None:  # pyright: ignore[reportAny]
-        return [config.metric]  # pyright: ignore[reportAny]
-    if hasattr(config, 'metrics') and config.metrics is not None and len(config.metrics) > 0:
-        return config.metrics
-    msg = "Either 'metric' or 'metrics' must be provided"
-    raise ValueError(msg)
 
 
 @overload

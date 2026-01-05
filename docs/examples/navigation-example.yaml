@@ -165,7 +165,7 @@ dashboards:
             - field: log.level
               type: values
               size: 10
-          metric:
+          metrics:
             aggregation: count
   - id: nav-analytics-001
     name: '[Example] Navigation - Analytics Dashboard'
@@ -218,5 +218,5 @@ dashboards:
           tags:
             type: values
             field: tags
-          metric:
+          metrics:
             aggregation: count

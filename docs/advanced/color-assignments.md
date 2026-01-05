@@ -30,7 +30,7 @@ dashboards:
         slice_by:
           - field: "http.response.status_code"
             type: values
-        metric:
+        metrics:
           aggregation: count
         color:
           palette: 'eui_amsterdam_color_blind'

@@ -70,7 +70,7 @@ def compile_lens_tagcloud_chart(
     layer_id = get_layer_id(chart)
 
     # Compile metric first
-    metric_id, metric_column = compile_lens_metric(metric=chart.metric)
+    metric_id, metric_column = compile_lens_metric(metric=chart.metrics)
     kbn_metric_column_by_id = {metric_id: metric_column}
 
     # Compile tags dimension (pass metrics for proper ordering)
@@ -103,7 +103,7 @@ def compile_esql_tagcloud_chart(
     tag_accessor_id = dimensions[0].columnId
 
     # Compile metric
-    metric = compile_esql_metric(chart.metric)
+    metric = compile_esql_metric(chart.metrics)
     metric_id = metric.columnId
 
     kbn_columns: list[KbnESQLColumnTypes] = [*dimensions, metric]

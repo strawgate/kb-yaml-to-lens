@@ -65,7 +65,7 @@ class LensTagcloudChart(BaseTagcloudChart):
     tags: LensDimensionTypes = Field(default=...)
     """The dimension for grouping (terms). This determines the tags shown in the cloud."""
 
-    metric: LensMetricTypes = Field(default=...)
+    metrics: LensMetricTypes = Field(default=...)
     """The metric for sizing. This determines the size of each tag."""
 
 
@@ -75,5 +75,5 @@ class ESQLTagcloudChart(BaseTagcloudChart):
     tags: ESQLDimensionTypes = Field(default=...)
     """The dimension for grouping (terms). This determines the tags shown in the cloud."""
 
-    metric: ESQLMetricTypes = Field(default=...)
+    metrics: ESQLMetricTypes = Field(default=...)
     """The metric for sizing. This determines the size of each tag."""
