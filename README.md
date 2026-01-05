@@ -74,6 +74,8 @@ No Python installation required!
 
 1. Create a YAML dashboard file in `inputs/` directory:
 
+> **Tip:** If the `inputs` directory doesn't exist, create it first with `mkdir inputs`.
+
 ```yaml
 dashboards:
 - name: My First Dashboard
@@ -151,6 +153,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 ## Documentation
 
 - **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with getting started guide and API reference
+- **[Troubleshooting Guide](docs/troubleshooting.md)** – Solutions to common errors
 - **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
 - **[Architecture](docs/architecture.md)** – Technical design and data flow overview
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities
