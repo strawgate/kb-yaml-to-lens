@@ -1,6 +1,11 @@
 """Unit tests for shared compilation utility functions."""
 
-from dashboard_compiler.shared.compile import return_if, return_if_equals, return_unless
+from dashboard_compiler.shared.compile import (
+    return_if,
+    return_if_equals,
+    return_unless,
+    split_dimensions,
+)
 
 
 def test_return_unless_true() -> None:
@@ -77,3 +82,27 @@ def test_return_if_equals_with_empty_string() -> None:
     """Test return_if_equals with empty string to ensure it's not treated as falsy."""
     assert return_if_equals('', '', 'not_empty', 'is_empty', 'is_none') == 'is_empty'
     assert return_if_equals('', 'text', 'not_empty', 'is_empty', 'is_none') == 'not_empty'
+
+
+def test_split_dimensions_with_multiple() -> None:
+    """Test splitting dimensions into primary and secondary."""
+    all_dims = ['dim1', 'dim2', 'dim3']
+    primary, secondary = split_dimensions(all_dims)
+    assert primary == ['dim1']
+    assert secondary == ['dim2', 'dim3']
+
+
+def test_split_dimensions_with_single() -> None:
+    """Test splitting with single dimension."""
+    all_dims = ['dim1']
+    primary, secondary = split_dimensions(all_dims)
+    assert primary == ['dim1']
+    assert secondary is None
+
+
+def test_split_dimensions_with_empty() -> None:
+    """Test splitting with empty list."""
+    all_dims: list[str] = []
+    primary, secondary = split_dimensions(all_dims)
+    assert primary == []
+    assert secondary is None

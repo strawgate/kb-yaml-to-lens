@@ -51,19 +51,21 @@ def get_panel_type_name(panel: PanelTypes) -> str:
         str: The type name for the panel.
 
     """
-    if isinstance(panel, MarkdownPanel):
-        return 'markdown'
-    if isinstance(panel, LinksPanel):
-        return 'links'
-    if isinstance(panel, ImagePanel):
-        return 'image'
-    if isinstance(panel, SearchPanel):
-        return 'search'
-    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
-        return 'charts'
-    # This should never be reached if PanelTypes is exhaustive, but provides a clear error
-    msg = f'Unknown panel type: {type(panel).__name__}'  # pyright: ignore[reportUnreachable]
-    raise TypeError(msg)
+    match panel:
+        case MarkdownPanel():
+            return 'markdown'
+        case LinksPanel():
+            return 'links'
+        case ImagePanel():
+            return 'image'
+        case SearchPanel():
+            return 'search'
+        case LensPanel() | ESQLPanel():
+            return 'charts'
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            # This should never be reached if PanelTypes is exhaustive, but provides a clear error
+            msg = f'Unknown panel type: {type(panel).__name__}'
+            raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
 def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
@@ -96,29 +98,26 @@ def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnB
     """
     panel_index, grid_data = compile_panel_shared(panel)
 
-    if isinstance(panel, MarkdownPanel):
-        references, embeddable_config = compile_markdown_panel_config(panel)
-        return references, KbnMarkdownPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
-
-    if isinstance(panel, LinksPanel):
-        references, embeddable_config = compile_links_panel_config(panel)
-        return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
-
-    if isinstance(panel, ImagePanel):
-        references, embeddable_config = compile_image_panel_config(panel)
-        return references, KbnImagePanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
-
-    if isinstance(panel, SearchPanel):
-        msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
-        raise NotImplementedError(msg)
-
-    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
-        references, kbn_panel = compile_charts_panel_config(panel)
-        return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
-
-    # This should never be reached if PanelTypes is exhaustive, but provides a clear error
-    msg = f'Unknown panel type: {type(panel).__name__}'
-    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+    match panel:
+        case MarkdownPanel():
+            references, embeddable_config = compile_markdown_panel_config(panel)
+            return references, KbnMarkdownPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+        case LinksPanel():
+            references, embeddable_config = compile_links_panel_config(panel)
+            return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+        case ImagePanel():
+            references, embeddable_config = compile_image_panel_config(panel)
+            return references, KbnImagePanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+        case SearchPanel():
+            msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
+            raise NotImplementedError(msg)
+        case LensPanel() | ESQLPanel():
+            references, kbn_panel = compile_charts_panel_config(panel)
+            return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            # This should never be reached if PanelTypes is exhaustive, but provides a clear error
+            msg = f'Unknown panel type: {type(panel).__name__}'
+            raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
 def compile_dashboard_panels(panels: Sequence[PanelTypes]) -> tuple[list[KbnReference], list[KbnBasePanel]]:
