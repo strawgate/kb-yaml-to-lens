@@ -2,9 +2,9 @@
 
 This guide covers building and packaging the VS Code extension with bundled LSP server binaries.
 
-## Quick Start (Development)
+## Quick Start
 
-For development, you don't need to build binaries:
+### Development (No Binary Build Needed)
 
 ```bash
 cd vscode-extension
@@ -13,19 +13,39 @@ npm run compile
 # Press F5 in VS Code to launch Extension Development Host
 ```
 
-## Architecture
+The extension will automatically fall back to using Python + the `dashboard_compiler` package.
 
-The extension uses a **hybrid distribution strategy**:
+### Building LSP Binary (Current Platform)
 
-- **Production (VSIX)**: Bundles platform-specific LSP server binaries for zero-config installation
-- **Development**: Falls back to local Python + `dashboard_compiler` package for easier development
+```bash
+cd vscode-extension
+npm run build-lsp-binary
+```
 
-### Binary Resolution
+Creates `bin/{platform}-{arch}/dashboard-compiler-lsp` for your current platform.
 
-The `BinaryResolver` class (`src/binaryResolver.ts`) intelligently chooses the LSP server:
+**Prerequisites**: Python 3.12+, pyinstaller (`pip install pyinstaller`), dashboard_compiler package installed
 
-1. **Bundled Binary** (production): `bin/{platform}-{arch}/dashboard-compiler-lsp`
-2. **Python Module** (development fallback): `dashboard_compiler.lsp.server` module (via `kb-dashboard-lsp` entry point)
+### Creating Platform-Specific VSIX
+
+```bash
+# Build binary first (see above), then:
+npm run package:linux        # Linux x64
+npm run package:macos-x64    # macOS Intel
+npm run package:macos-arm64  # macOS Apple Silicon
+npm run package:windows      # Windows x64
+```
+
+Creates `yaml-dashboard-compiler-{version}@{platform}.vsix` files ready for distribution.
+
+## How It Works
+
+### Binary Resolution Strategy
+
+The `BinaryResolver` class intelligently chooses the LSP server:
+
+1. **Production**: Bundled binary at `bin/{platform}-{arch}/dashboard-compiler-lsp`
+2. **Development**: Falls back to Python module `dashboard_compiler.lsp.server`
 
 Platform directories:
 
@@ -34,62 +54,24 @@ Platform directories:
 - `bin/darwin-arm64/` - macOS Apple Silicon
 - `bin/win32-x64/` - Windows x86_64
 
-## Building LSP Server Binaries
+### What Gets Bundled
 
-### Prerequisites
+- ✅ **LSP server binary**: Compiled from `src/dashboard_compiler/lsp/server.py` using PyInstaller
+- ✅ **Compiled TypeScript**: JavaScript output in `out/` directory
+- ❌ **Grid scripts**: Not bundled - require Python runtime (used by grid editor feature)
 
-- Python 3.12+
-- `pyinstaller` installed (`pip install pyinstaller`)
-- `dashboard_compiler` package installed
+## Cross-Platform Builds
 
-### Build Binary for Current Platform
+To build for all platforms, run the build script on each target platform:
 
-```bash
-cd vscode-extension
-npm run build-lsp-binary
-```
+| Platform | GitHub Actions Runner | Creates |
+| -------- | --------------------- | ------- |
+| Linux x64 | `ubuntu-latest` | `bin/linux-x64/dashboard-compiler-lsp` |
+| macOS Intel | `macos-13` | `bin/darwin-x64/dashboard-compiler-lsp` |
+| macOS ARM64 | `macos-14` | `bin/darwin-arm64/dashboard-compiler-lsp` |
+| Windows x64 | `windows-latest` | `bin/win32-x64/dashboard-compiler-lsp.exe` |
 
-This creates `bin/{platform}-{arch}/dashboard-compiler-lsp` for your current platform.
-
-### Cross-Platform Builds
-
-To build for all platforms, run the build script on each platform:
-
-- **Linux x64**: Run on Ubuntu/Linux → creates `bin/linux-x64/dashboard-compiler-lsp`
-- **macOS Intel**: Run on macOS Intel (GitHub Actions: macos-14) → creates `bin/darwin-x64/dashboard-compiler-lsp`
-- **macOS ARM64**: Run on macOS ARM64 (GitHub Actions: macos-14) → creates `bin/darwin-arm64/dashboard-compiler-lsp`
-- **Windows x64**: Run on Windows → creates `bin/win32-x64/dashboard-compiler-lsp.exe`
-
-## Packaging the Extension
-
-### Development VSIX (No Binaries)
-
-For testing without binaries:
-
-```bash
-npm run package
-```
-
-Creates `yaml-dashboard-compiler-{version}.vsix` (works on all platforms, requires Python).
-
-### Platform-Specific VSIX (With Binaries)
-
-After building binaries, package for specific platforms:
-
-```bash
-# Package for specific platforms
-npm run package:linux
-npm run package:macos-x64
-npm run package:macos-arm64
-npm run package:windows
-```
-
-Creates platform-specific VSIX files:
-
-- `yaml-dashboard-compiler-{version}@linux-x64.vsix`
-- `yaml-dashboard-compiler-{version}@darwin-x64.vsix`
-- `yaml-dashboard-compiler-{version}@darwin-arm64.vsix`
-- `yaml-dashboard-compiler-{version}@win32-x64.vsix`
+**Note**: PyInstaller can only create binaries for the platform it runs on (no cross-compilation).
 
 ## Publishing to VS Code Marketplace
 
@@ -97,130 +79,46 @@ Creates platform-specific VSIX files:
 # Install vsce if needed
 npm install -g @vscode/vsce
 
-# Publish platform-specific versions
+# Publish all platform-specific versions
 vsce publish --packagePath yaml-dashboard-compiler-{version}@linux-x64.vsix
 vsce publish --packagePath yaml-dashboard-compiler-{version}@darwin-x64.vsix
 vsce publish --packagePath yaml-dashboard-compiler-{version}@darwin-arm64.vsix
 vsce publish --packagePath yaml-dashboard-compiler-{version}@win32-x64.vsix
 ```
 
-VS Code Marketplace will automatically serve the correct VSIX based on the user's platform.
-
-## CI/CD Integration Example
-
-```yaml
-# Build binaries on each platform
-build-binaries:
-  strategy:
-    matrix:
-      include:
-        - os: ubuntu-latest
-          platform: linux-x64
-        - os: macos-14
-          platform: darwin-x64
-        - os: macos-14
-          platform: darwin-arm64
-        - os: windows-latest
-          platform: win32-x64
-  runs-on: ${{ matrix.os }}
-  steps:
-    - uses: actions/checkout@v4
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: |
-        pip install -e .
-        pip install pyinstaller
-    - name: Build LSP binary
-      run: |
-        cd vscode-extension
-        npm run build-lsp-binary
-    - name: Upload binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: lsp-binary-${{ matrix.platform }}
-        path: vscode-extension/bin/
-
-# Package extension for each platform
-package:
-  needs: build-binaries
-  runs-on: ubuntu-latest
-  strategy:
-    matrix:
-      platform: [linux-x64, darwin-x64, darwin-arm64, win32-x64]
-  steps:
-    - uses: actions/checkout@v4
-    - name: Download binaries
-      uses: actions/download-artifact@v4
-      with:
-        pattern: lsp-binary-*
-        path: vscode-extension/bin/
-        merge-multiple: true
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    - name: Package extension
-      run: |
-        cd vscode-extension
-        npm install
-        # Map platform to package script
-        case "${{ matrix.platform }}" in
-          linux-x64) npm run package:linux ;;
-          darwin-x64) npm run package:macos-x64 ;;
-          darwin-arm64) npm run package:macos-arm64 ;;
-          win32-x64) npm run package:windows ;;
-        esac
-    - name: Upload VSIX
-      uses: actions/upload-artifact@v4
-      with:
-        name: vsix-${{ matrix.platform }}
-        path: vscode-extension/*.vsix
-```
-
-## Directory Structure
-
-```text
-vscode-extension/
-├── bin/                      # Bundled binaries (included in VSIX)
-│   ├── linux-x64/
-│   │   └── dashboard-compiler-lsp
-│   ├── darwin-x64/
-│   │   └── dashboard-compiler-lsp
-│   ├── darwin-arm64/
-│   │   └── dashboard-compiler-lsp
-│   └── win32-x64/
-│       └── dashboard-compiler-lsp.exe
-├── scripts/                  # Build scripts (excluded from VSIX)
-│   └── build_lsp_binary.py
-├── src/                      # TypeScript source (excluded from VSIX)
-│   ├── binaryResolver.ts
-│   ├── compiler.ts
-│   └── ...
-└── out/                      # Compiled JS (included in VSIX)
-
-Note: LSP server and grid scripts are now part of the `dashboard_compiler` package:
-- `src/dashboard_compiler/lsp/server.py` - LSP server (bundled in binary or run via Python)
-- `src/dashboard_compiler/lsp/grid_extractor.py` - Grid extraction utility
-- `src/dashboard_compiler/lsp/grid_updater.py` - Grid update utility
-```
+VS Code Marketplace automatically serves the correct VSIX based on the user's platform.
 
 ## Troubleshooting
 
+### Binary Build Fails
+
+#### "pyinstaller not found"
+
+```bash
+pip install pyinstaller
+```
+
+#### "LSP server script not found"
+
+```bash
+# Install dashboard_compiler package
+pip install -e .  # from repository root
+```
+
 ### Binary Not Found in Production
 
-If extension falls back to Python in production:
+If the extension falls back to Python in production:
 
-1. Check binary exists: `ls vscode-extension/bin/{platform}-{arch}/dashboard-compiler-lsp`
-2. Check binary is executable (Unix): `file vscode-extension/bin/{platform}-{arch}/dashboard-compiler-lsp`
-3. Verify `.vscodeignore` doesn't exclude `bin/`
+1. Verify binary exists: `ls bin/{platform}-{arch}/dashboard-compiler-lsp`
+2. Check `.vscodeignore` doesn't exclude `bin/`
+3. Verify binary is executable (Unix): `file bin/{platform}-{arch}/dashboard-compiler-lsp`
 
-### Python Not Found in Development
+### Package Size Too Small
 
-If development fallback fails:
+If the VSIX is ~180kb instead of ~18MB, the binary wasn't included:
 
-1. Check `dashboard_compiler` installed: `python -c "import dashboard_compiler"`
-2. Configure `yamlDashboard.pythonPath` in VS Code settings
-3. Check extension logs: View → Output → "Dashboard Compiler LSP"
+1. Ensure you ran `npm run build-lsp-binary` before packaging
+2. Check that `bin/{platform}-{arch}/dashboard-compiler-lsp` exists
+3. Verify the binary is ~18MB: `ls -lh bin/{platform}-{arch}/dashboard-compiler-lsp`
+
+For more details on the architecture and development workflow, see [README.md](./README.md).

@@ -53,8 +53,13 @@ def main() -> None:
         msg = 'pyinstaller not found in PATH. Install with: pip install pyinstaller'
         raise RuntimeError(msg)
 
-    # PyInstaller can bundle Python modules directly using -m flag
-    # This uses the kb-dashboard-lsp entry point from pyproject.toml
+    # PyInstaller needs a script file path, not a module name
+    # Point to the actual server.py file in the installed package
+    server_script = PROJECT_ROOT / 'src' / 'dashboard_compiler' / 'lsp' / 'server.py'
+    if not server_script.exists():
+        msg = f'LSP server script not found at {server_script}'
+        raise RuntimeError(msg)
+
     subprocess.run(  # noqa: S603
         [
             pyinstaller_path,
@@ -63,8 +68,7 @@ def main() -> None:
             '--onefile',
             '--clean',
             '--noconfirm',
-            '-m',
-            'dashboard_compiler.lsp.server',
+            str(server_script),
         ],
         check=True,
         cwd=VSCODE_ROOT,
