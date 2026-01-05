@@ -325,11 +325,54 @@ These metrics perform an aggregation on a field.
 
 ### Formula Metric
 
-Allows custom calculations using a formula string. _Note: Formula structure is complex and detailed parsing/compilation for its internal operations is not fully covered here but is handled by the compiler._
+Allows custom calculations using Kibana's native formula syntax. Formulas enable complex calculations that combine multiple aggregations, field operations, and mathematical expressions.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
-| --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `formula` | `string` | The formula string (e.g., `count() / unique_count(user.id)`). | N/A | Yes |
+| --------- | ------------------------- | ------------------------------------------------ | ---------------- | -------- |
+| `formula` | `string` | The formula string using Kibana formula syntax. | N/A | Yes |
+| `label` | `string` | A custom display label for the metric. | `"Formula"` | No |
+| `format` | `LensMetricFormatTypes` object | How to format the metric's value. | Default number format | No |
+
+**Example Formulas:**
+
+Simple arithmetic:
+
+```yaml
+primary:
+  formula: "count() / 100"
+  label: "Count Percentage"
+```
+
+Field aggregations:
+
+```yaml
+primary:
+  formula: "max(response.time) - min(response.time)"
+  label: "Response Time Range"
+  format:
+    type: duration
+```
+
+With filters:
+
+```yaml
+primary:
+  formula: "count(kql='status:error') / count() * 100"
+  label: "Error Rate %"
+  format:
+    type: percent
+```
+
+Number formatting:
+
+```yaml
+primary:
+  formula: "average(bytes)"
+  label: "Avg Bytes"
+  format:
+    type: bytes
+    compact: true
+```
 
 ---
 

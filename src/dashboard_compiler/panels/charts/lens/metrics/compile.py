@@ -4,6 +4,8 @@ from humanize import ordinal
 
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensFieldMetricColumn,
+    KbnLensFormulaColumn,
+    KbnLensFormulaColumnParams,
     KbnLensMetricColumnParams,
     KbnLensMetricColumnTypes,
     KbnLensMetricFormat,
@@ -126,21 +128,21 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 
     if isinstance(metric, LensFormulaMetric):
-        msg = f'Formula metrics are not supported yet: {metric}'
-        raise NotImplementedError(msg)
-        # metric_id = metric.id or stable_id_generator(['formula', metric.label, metric.formula])
-        # return metric_id, KbnLensFieldMetricColumn(
-        #     label=metric.label or 'Formula',
-        #     customLabel=custom_label,
-        #     dataType='number',
-        #     operationType='formula',
-        #     scale='ratio',
-        #     sourceField=metric.formula,  # Use formula as the source field
-        #     params=KbnLensMetricColumnParams(
-        #         format=metric_format,
-        #         emptyAsNull=True,
-        #     ),
-        # )
+        metric_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])
+
+        return metric_id, KbnLensFormulaColumn(
+            label=metric.label or 'Formula',
+            customLabel=custom_label,
+            dataType='number',
+            operationType='formula',
+            isBucketed=False,
+            scale='ratio',
+            references=[],
+            params=KbnLensFormulaColumnParams(
+                formula=metric.formula,
+                format=metric_format,
+            ),
+        )
 
     metric_column_params: KbnLensMetricColumnParams
     metric_filter: KbnQuery | None = None
