@@ -47,7 +47,7 @@ def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot: CompileTagcl
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metric': {
+        'metrics': {
             'aggregation': 'count',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -77,7 +77,7 @@ def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot: CompileTagcl
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metric': {
+        'metrics': {
             'field': 'count(*)',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -108,7 +108,7 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: Co
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metric': {
+        'metrics': {
             'aggregation': 'count',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -147,7 +147,7 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: Co
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metric': {
+        'metrics': {
             'field': 'count(*)',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -187,7 +187,7 @@ def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot:
             'field': 'tags',
             'id': 'tag-id-123',
         },
-        'metric': {
+        'metrics': {
             'aggregation': 'count',
             'id': 'metric-id-456',
         },
@@ -221,7 +221,7 @@ def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot: Compi
             'field': 'tags',
             'id': 'tag-id-789',
         },
-        'metric': {
+        'metrics': {
             'aggregation': 'sum',
             'field': 'bytes',
             'id': 'metric-id-abc',
@@ -256,7 +256,7 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: Compile
             'field': 'host.name',
             'id': 'host-dimension',
         },
-        'metric': {
+        'metrics': {
             'field': 'total',
             'id': 'bytes-metric',
         },
@@ -290,7 +290,7 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
             'field': 'user.name',
             'id': 'user-id',
         },
-        'metric': {
+        'metrics': {
             'aggregation': 'count',
             'id': 'count-id',
         },
@@ -330,7 +330,7 @@ def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: Compile
                 'field': 'service.name',
                 'id': 'service-tag',
             },
-            'metric': {
+            'metrics': {
                 'field': 'count(*)',
                 'id': 'service-count',
             },

@@ -3,12 +3,13 @@
 import json
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from dashboard_compiler.controls.compile import compile_control, compile_control_group
-from dashboard_compiler.controls.config import ControlSettings, ControlTypes
+from dashboard_compiler.controls.config import ControlSettings, ControlTypes, TimeSliderControl
 
 if TYPE_CHECKING:
     from dashboard_compiler.controls.view import KbnControlGroupInput, KbnControlTypes
@@ -516,3 +517,13 @@ async def test_esql_query_control_with_single_select() -> None:
             },
         }
     )
+
+
+async def test_time_slider_control_validation_error() -> None:
+    """Test TimeSliderControl raises validation error when start_offset is greater than end_offset."""
+    with pytest.raises(ValidationError, match='start_offset must be less than end_offset'):
+        _ = TimeSliderControl(
+            type='time',
+            start_offset=0.8,
+            end_offset=0.2,
+        )

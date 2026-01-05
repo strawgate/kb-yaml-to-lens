@@ -222,3 +222,63 @@ def test_compile_metric_chart_primary_secondary_breakdown_esql() -> None:
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
         }
     )
+
+
+def test_compile_metric_chart_formula_simple() -> None:
+    """Test the compilation of a metric chart with a simple formula (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'formula': 'count() / 100',
+            'label': 'Count Percentage',
+            'id': 'formula-metric-1',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'metricAccessor': 'formula-metric-1',
+        }
+    )
+
+
+def test_compile_metric_chart_formula_with_fields() -> None:
+    """Test the compilation of a metric chart with a formula using field aggregations (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'formula': "(max(field='response.time') - min(field='response.time')) / average(field='response.time')",
+            'label': 'Response Time Variability',
+            'id': 'formula-metric-2',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    # Verify the result matches the expected snapshot
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'metricAccessor': 'formula-metric-2',
+        }
+    )

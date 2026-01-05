@@ -13,14 +13,14 @@ async def test_basic_pie_chart() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -77,7 +77,7 @@ async def test_basic_donut_chart() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'appearance': {'donut': 'medium'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -85,7 +85,7 @@ async def test_basic_donut_chart() -> None:
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'appearance': {'donut': 'medium'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -143,7 +143,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -151,7 +151,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -209,7 +209,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'visible': 'show', 'width': 'large', 'truncate_labels': 0},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -217,7 +217,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'visible': 'show', 'width': 'large', 'truncate_labels': 0},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -279,7 +279,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
             {'type': 'values', 'field': 'region', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
@@ -289,7 +289,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace, region',
-        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [
             {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
             {'field': 'region', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
@@ -425,7 +425,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
         ],
@@ -434,7 +434,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
-        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [
             {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
         ],
@@ -495,7 +495,7 @@ async def test_pie_chart_with_nested_legend() -> None:
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
-        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'slice_by': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
             {'type': 'values', 'field': 'host.name', 'id': '7f456789-abcd-1234-5678-90abcdef1234'},

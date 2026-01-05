@@ -98,10 +98,12 @@ async def test_dashboard_with_one_pie_chart() -> None:
                                     'id': '439aa452-8525-4644-8d5b-42d66f8b41fd',
                                 }
                             ],
-                            'metric': {
-                                'aggregation': 'count',
-                                'id': 'fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33',
-                            },
+                            'metrics': [
+                                {
+                                    'aggregation': 'count',
+                                    'id': 'fadbe80d-a574-4ab6-80c0-3bfe4c4e6d33',
+                                }
+                            ],
                         },
                     }
                 ],

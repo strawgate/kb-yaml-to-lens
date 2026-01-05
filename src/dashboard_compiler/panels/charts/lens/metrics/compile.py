@@ -4,6 +4,8 @@ from humanize import ordinal
 
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensFieldMetricColumn,
+    KbnLensFormulaColumn,
+    KbnLensFormulaColumnParams,
     KbnLensMetricColumnParams,
     KbnLensMetricColumnTypes,
     KbnLensMetricFormat,
@@ -27,8 +29,8 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensSumAggregatedMetric,
 )
 from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.defaults import default_true
 
 FORMAT_TO_DEFAULT_DECIMALS = {
     'number': 2,
@@ -126,21 +128,21 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 
     if isinstance(metric, LensFormulaMetric):
-        msg = f'Formula metrics are not supported yet: {metric}'
-        raise NotImplementedError(msg)
-        # metric_id = metric.id or stable_id_generator(['formula', metric.label, metric.formula])
-        # return metric_id, KbnLensFieldMetricColumn(
-        #     label=metric.label or 'Formula',
-        #     customLabel=custom_label,
-        #     dataType='number',
-        #     operationType='formula',
-        #     scale='ratio',
-        #     sourceField=metric.formula,  # Use formula as the source field
-        #     params=KbnLensMetricColumnParams(
-        #         format=metric_format,
-        #         emptyAsNull=True,
-        #     ),
-        # )
+        metric_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])
+
+        return metric_id, KbnLensFormulaColumn(
+            label=metric.label or 'Formula',
+            customLabel=custom_label,
+            dataType='number',
+            operationType='formula',
+            isBucketed=False,
+            scale='ratio',
+            references=[],
+            params=KbnLensFormulaColumnParams(
+                formula=metric.formula,
+                format=metric_format,
+            ),
+        )
 
     metric_column_params: KbnLensMetricColumnParams
     metric_filter: KbnQuery | None = None
@@ -158,13 +160,13 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         default_label = f'{AGG_TO_FRIENDLY_TITLE[metric.aggregation]} of {metric.field or "records"}'
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
-            emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
+            emptyAsNull=default_true(metric.exclude_zeros),
         )
 
     elif isinstance(metric, LensSumAggregatedMetric):
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
-            emptyAsNull=return_unless(var=metric.exclude_zeros, is_none=True),
+            emptyAsNull=default_true(metric.exclude_zeros),
         )
 
     elif isinstance(metric, LensPercentileRankAggregatedMetric):

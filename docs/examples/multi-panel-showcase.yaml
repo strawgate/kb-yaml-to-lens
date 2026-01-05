@@ -60,8 +60,8 @@ dashboards:
             - field: log.level
               type: values
               size: 10
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
       - title: Events Over Time
         description: Line chart showing time series data
         grid:
@@ -125,5 +125,5 @@ dashboards:
           tags:
             type: values
             field: tags
-          metric:
+          metrics:
             aggregation: count

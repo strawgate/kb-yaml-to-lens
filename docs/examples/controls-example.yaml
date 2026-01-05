@@ -102,8 +102,8 @@ dashboards:
             - field: service.name
               type: values
               size: 8
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
       - title: Top URLs (Filtered)
         description: Most frequently accessed URLs
         grid:

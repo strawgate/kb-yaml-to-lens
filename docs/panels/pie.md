@@ -44,9 +44,9 @@ dashboards:
           slice_by:
             - field: "source"
               type: values
-          metric:
-            aggregation: sum
-            field: visits
+          metrics:
+            - aggregation: sum
+              field: visits
 ```
 
 ## Example with Custom Colors
@@ -63,8 +63,8 @@ dashboards:
           slice_by:
             - field: "http.response.status_code"
               type: values
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
           color:
             palette: 'eui_amsterdam_color_blind'
             assignments:
@@ -84,8 +84,7 @@ dashboards:
 | ----------------- | ---------------------------------- | ---------------------------------------------------------------------------- | ------- | -------- |
 | `type` | `Literal['pie']` | Specifies the chart type as pie. | `'pie'` | No |
 | `data_view` | `string` | The data view that determines the data for the pie chart. | N/A | Yes |
-| `metric` | `LensMetricTypes \| None` | A metric for single metric charts (size of slices). | `None` | No |
-| `metrics` | `list[LensMetricTypes] \| None` | Multiple metrics for multi-metric charts. | `None` | No |
+| `metrics` | `list[LensMetricTypes]` | Metrics for sizing the slices. | N/A | Yes |
 | `slice_by` | `list[LensDimensionTypes]` | Dimensions that determine the slices (first is primary, rest are secondary). | N/A | Yes |
 | `appearance` | `PieChartAppearance \| None` | Chart appearance options (e.g., donut size). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText \| None` | Formatting options for titles and text. | `None` | No |
@@ -120,8 +119,7 @@ dashboards:
 | YAML Key | Data Type | Description | Default | Required |
 | ----------------- | ----------------------------------- | ---------------------------------------------------------------------------- | ------- | -------- |
 | `type` | `Literal['pie']` | Specifies the chart type as pie. | `'pie'` | No |
-| `metric` | `ESQLMetricTypes \| None` | A metric for single metric charts (size of slices). | `None` | No |
-| `metrics` | `list[ESQLMetricTypes] \| None` | Multiple metrics for multi-metric charts. | `None` | No |
+| `metrics` | `list[ESQLMetricTypes]` | Metrics for sizing the slices. | N/A | Yes |
 | `slice_by` | `list[ESQLDimensionTypes]` | Dimensions that determine the slices (first is primary, rest are secondary). | N/A | Yes |
 | `esql` | `string` | The ES\|QL query that determines the data for the pie chart. | N/A | Yes |
 | `appearance` | `PieChartAppearance \| None` | Chart appearance options (e.g., donut size). | `None` | No |
@@ -153,7 +151,7 @@ panel = LensPanel(
         type='pie',
         data_view='logs-*',
         slice_by=[LensTopValuesDimension(field='status')],
-        metric=LensCountAggregatedMetric(),
+        metrics=[LensCountAggregatedMetric()],
     ),
 )
 ```

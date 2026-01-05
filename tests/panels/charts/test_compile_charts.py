@@ -231,7 +231,7 @@ class TestChartTypeToKbnTypeLens:
                 'type': 'tagcloud',
                 'data_view': 'metrics-*',
                 'tags': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
-                'metric': {'aggregation': 'count', 'id': 'metric1'},
+                'metrics': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -243,7 +243,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'tagcloud',
                 'tags': {'field': 'tag', 'id': 'tags1'},
-                'metric': {'field': 'count(*)', 'id': 'metric1'},
+                'metrics': {'field': 'count(*)', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -323,7 +323,7 @@ class TestCompileLensChartState:
                 'type': 'tagcloud',
                 'data_view': 'metrics-*',
                 'tags': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
-                'metric': {'aggregation': 'count', 'id': 'metric1'},
+                'metrics': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[tagcloud_chart])

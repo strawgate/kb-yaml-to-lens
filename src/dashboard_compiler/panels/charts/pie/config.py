@@ -99,11 +99,8 @@ class LensPieChart(BasePieChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the pie chart."""
 
-    metric: LensMetricTypes | None = Field(default=None)
-    """A metric that determines the size of the slice of the pie chart. Use this for single metric charts."""
-
-    metrics: list[LensMetricTypes] | None = Field(default=None)
-    """Multiple metrics for the pie chart. Use this for multi-metric charts."""
+    metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
+    """Metrics that determine the size of slices."""
 
     slice_by: list[LensDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
@@ -112,11 +109,8 @@ class LensPieChart(BasePieChart):
 class ESQLPieChart(BasePieChart):
     """Represents a Pie chart configuration within an ES|QL panel."""
 
-    metric: ESQLMetricTypes | None = Field(default=None)
-    """A metric that determines the size of the slice of the pie chart. Use this for single metric charts."""
-
-    metrics: list[ESQLMetricTypes] | None = Field(default=None)
-    """Multiple metrics for the pie chart. Use this for multi-metric charts."""
+    metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
+    """Metrics that determine the size of slices."""
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
