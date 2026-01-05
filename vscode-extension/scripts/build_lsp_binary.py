@@ -30,7 +30,7 @@ def get_platform_name() -> str:
 def main() -> None:
     """Build standalone LSP server binary for current platform."""
     platform_name = get_platform_name()
-    binary_name = 'dashboard-compiler-lsp'
+    binary_name = 'kb-dashboard-compiler-lsp'
     if platform.system() == 'Windows':
         binary_name += '.exe'
 

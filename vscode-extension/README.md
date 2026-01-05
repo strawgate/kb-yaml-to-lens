@@ -1,4 +1,4 @@
-# YAML Dashboard Compiler - VS Code Extension
+# Kibana Dashboard Compiler - VS Code Extension
 
 A VS Code extension that provides live compilation and preview for Kibana YAML dashboards. This extension makes it fast and easy to edit and work with YAML dashboard files by automatically compiling them on save and providing a live preview.
 
@@ -19,12 +19,11 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 - VS Code 1.85.0 or higher
 - Red Hat YAML extension (automatically installed)
-- **No Python required** - LSP server bundled as binary in platform-specific VSIX
+- **No Python required** - The extension includes a bundled binary for the LSP server
 
 ### For Developers
 
-- Python 3.12+
-- `dashboard_compiler` package installed
+- Python 3.12+ with `dashboard_compiler` package installed (only needed for local development)
 - VS Code 1.85.0 or higher
 
 ## Installation
@@ -56,9 +55,9 @@ pip install -e .
 
 ### Extension Configuration
 
-Configure in VS Code settings:
+Configure in VS Code settings (File → Preferences → Settings, search for "Kibana Dashboard"):
 
-- **`yamlDashboard.pythonPath`**: Python interpreter path (default: `python`)
+- **`yamlDashboard.pythonPath`**: Python interpreter path (optional - only needed for development; bundled binary is used by default)
 - **`yamlDashboard.compileOnSave`**: Auto-compile on save (default: `true`)
 - **`yamlDashboard.kibana.url`**: Kibana URL for uploads (default: `http://localhost:5601`)
 - **`yamlDashboard.kibana.sslVerify`**: Verify SSL certificates (default: `true`)
@@ -138,23 +137,26 @@ Credentials are stored securely in your OS keychain (macOS Keychain, Windows Cre
 
 ### Extension Issues
 
-#### Python server not starting
+#### LSP server not starting
 
-- Verify `dashboard_compiler` is installed: `python -c "import dashboard_compiler"`
-- Check Python path in extension settings
-- View Output panel (View → Output → "YAML Dashboard Compiler") for logs
+Most users won't encounter this issue since the bundled binary works automatically. If you see issues:
+
+- **End users**: Try reinstalling the extension or downloading a fresh VSIX for your platform
+- **Developers**: Verify `dashboard_compiler` is installed: `python -c "import dashboard_compiler"`
+- Check the Output panel (View → Output → "Kibana Dashboard Compiler") for detailed logs
+- The extension will automatically fall back to Python if the bundled binary isn't available
 
 #### Compilation errors
 
-- Check YAML syntax
-- Review error message in preview panel
-- Test manually: `python -c "from dashboard_compiler.dashboard_compiler import load; load('your_file.yaml')"`
+- Check YAML syntax using the built-in validation (Red Hat YAML extension)
+- Review error message in preview panel or Output panel
+- Ensure your YAML follows the dashboard schema
 
 #### Preview not updating
 
-- Ensure `yamlDashboard.compileOnSave` is enabled
-- Try manual "Preview Dashboard" command
-- Close and reopen preview panel
+- Ensure `yamlDashboard.compileOnSave` is enabled in settings
+- Try running the "Preview Dashboard" command manually (Ctrl+Shift+P)
+- Close and reopen the preview panel
 
 ### Kibana Upload Issues
 

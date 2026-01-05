@@ -22,7 +22,7 @@ cd vscode-extension
 npm run build-lsp-binary
 ```
 
-Creates `bin/{platform}-{arch}/dashboard-compiler-lsp` for your current platform.
+Creates `bin/{platform}-{arch}/kb-dashboard-compiler-lsp` for your current platform.
 
 **Prerequisites**: Python 3.12+, pyinstaller (`pip install pyinstaller`), dashboard_compiler package installed
 
@@ -36,7 +36,7 @@ npm run package:macos-arm64  # macOS Apple Silicon
 npm run package:windows      # Windows x64
 ```
 
-Creates `yaml-dashboard-compiler-{version}@{platform}.vsix` files ready for distribution.
+Creates `kb-dashboard-compiler-{version}@{platform}.vsix` files ready for distribution.
 
 ## How It Works
 
@@ -44,7 +44,7 @@ Creates `yaml-dashboard-compiler-{version}@{platform}.vsix` files ready for dist
 
 The `BinaryResolver` class intelligently chooses the LSP server:
 
-1. **Production**: Bundled binary at `bin/{platform}-{arch}/dashboard-compiler-lsp`
+1. **Production**: Bundled binary at `bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
 2. **Development**: Falls back to Python module `dashboard_compiler.lsp.server`
 
 Platform directories:
@@ -66,10 +66,10 @@ To build for all platforms, run the build script on each target platform:
 
 | Platform | GitHub Actions Runner | Creates |
 | -------- | --------------------- | ------- |
-| Linux x64 | `ubuntu-latest` | `bin/linux-x64/dashboard-compiler-lsp` |
-| macOS Intel | `macos-13` | `bin/darwin-x64/dashboard-compiler-lsp` |
-| macOS ARM64 | `macos-14` | `bin/darwin-arm64/dashboard-compiler-lsp` |
-| Windows x64 | `windows-latest` | `bin/win32-x64/dashboard-compiler-lsp.exe` |
+| Linux x64 | `ubuntu-latest` | `bin/linux-x64/kb-dashboard-compiler-lsp` |
+| macOS Intel | `macos-13` | `bin/darwin-x64/kb-dashboard-compiler-lsp` |
+| macOS ARM64 | `macos-14` | `bin/darwin-arm64/kb-dashboard-compiler-lsp` |
+| Windows x64 | `windows-latest` | `bin/win32-x64/kb-dashboard-compiler-lsp.exe` |
 
 **Note**: PyInstaller can only create binaries for the platform it runs on (no cross-compilation).
 
@@ -80,10 +80,10 @@ To build for all platforms, run the build script on each target platform:
 npm install -g @vscode/vsce
 
 # Publish all platform-specific versions
-vsce publish --packagePath yaml-dashboard-compiler-{version}@linux-x64.vsix
-vsce publish --packagePath yaml-dashboard-compiler-{version}@darwin-x64.vsix
-vsce publish --packagePath yaml-dashboard-compiler-{version}@darwin-arm64.vsix
-vsce publish --packagePath yaml-dashboard-compiler-{version}@win32-x64.vsix
+vsce publish --packagePath kb-dashboard-compiler-{version}@linux-x64.vsix
+vsce publish --packagePath kb-dashboard-compiler-{version}@darwin-x64.vsix
+vsce publish --packagePath kb-dashboard-compiler-{version}@darwin-arm64.vsix
+vsce publish --packagePath kb-dashboard-compiler-{version}@win32-x64.vsix
 ```
 
 VS Code Marketplace automatically serves the correct VSIX based on the user's platform.
@@ -109,16 +109,16 @@ pip install -e .  # from repository root
 
 If the extension falls back to Python in production:
 
-1. Verify binary exists: `ls bin/{platform}-{arch}/dashboard-compiler-lsp`
+1. Verify binary exists: `ls bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
 2. Check `.vscodeignore` doesn't exclude `bin/`
-3. Verify binary is executable (Unix): `file bin/{platform}-{arch}/dashboard-compiler-lsp`
+3. Verify binary is executable (Unix): `file bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
 
 ### Package Size Too Small
 
 If the VSIX is ~180kb instead of ~18MB, the binary wasn't included:
 
 1. Ensure you ran `npm run build-lsp-binary` before packaging
-2. Check that `bin/{platform}-{arch}/dashboard-compiler-lsp` exists
-3. Verify the binary is ~18MB: `ls -lh bin/{platform}-{arch}/dashboard-compiler-lsp`
+2. Check that `bin/{platform}-{arch}/kb-dashboard-compiler-lsp` exists
+3. Verify the binary is ~18MB: `ls -lh bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
 
 For more details on the architecture and development workflow, see [README.md](./README.md).

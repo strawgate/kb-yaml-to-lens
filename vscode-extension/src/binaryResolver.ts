@@ -63,7 +63,7 @@ export class BinaryResolver {
      * Get the platform-specific binary name.
      */
     private getBinaryName(): string {
-        return process.platform === 'win32' ? 'dashboard-compiler-lsp.exe' : 'dashboard-compiler-lsp';
+        return process.platform === 'win32' ? 'kb-dashboard-compiler-lsp.exe' : 'kb-dashboard-compiler-lsp';
     }
 
     /**
@@ -155,7 +155,7 @@ export class BinaryResolver {
      * Resolve LSP server configuration.
      *
      * Resolution order:
-     * 1. Bundled binary in bin/{platform}-{arch}/dashboard-compiler-lsp
+     * 1. Bundled binary in bin/{platform}-{arch}/kb-dashboard-compiler-lsp
      * 2. Python script (development fallback)
      */
     resolveLSPServer(outputChannel?: vscode.OutputChannel): BinaryResolverResult {

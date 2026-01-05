@@ -1,6 +1,6 @@
 {
-  "name": "yaml-dashboard-compiler",
-  "displayName": "YAML Dashboard Compiler",
+  "name": "kb-dashboard-compiler",
+  "displayName": "Kibana Dashboard Compiler",
   "description": "Compile and preview Kibana YAML dashboards with live reload",
   "version": "0.1.0",
   "publisher": "strawgate",
@@ -80,12 +80,12 @@
       }
     ],
     "configuration": {
-      "title": "YAML Dashboard Compiler",
+      "title": "Kibana Dashboard Compiler",
       "properties": {
         "yamlDashboard.pythonPath": {
           "type": "string",
           "default": "python",
-          "description": "Path to Python interpreter (must have dashboard_compiler package installed)"
+          "description": "Path to Python interpreter (optional - only needed for development; bundled binary is used by default)"
         },
         "yamlDashboard.compileOnSave": {
           "type": "boolean",
