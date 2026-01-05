@@ -145,7 +145,7 @@ test-extension-typescript:
 
 test-extension-e2e:
 	@echo "Running Extension E2E Tests..."
-	@uv sync --group dev
+	@uv sync --group dev --extra lsp
 	@. .venv/bin/activate && cd vscode-extension && npm install && xvfb-run -a npm test
 
 inspector:
