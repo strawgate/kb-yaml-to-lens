@@ -12,8 +12,8 @@ from dashboard_compiler.panels.links.view import (
     KbnWebLink,
     KbnWebLinkOptions,
 )
-from dashboard_compiler.shared.compile import return_unless
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.defaults import default_true
 from dashboard_compiler.shared.view import KbnReference
 
 
@@ -36,9 +36,9 @@ def compile_dashboard_link(order: int, *, link: DashboardLink) -> tuple[KbnRefer
 
     options: KbnDashboardLinkOptions | None = (
         KbnDashboardLinkOptions(
-            openInNewTab=return_unless(var=link.new_tab, is_none=True),
-            useCurrentDateRange=return_unless(var=link.with_time, is_none=True),
-            useCurrentFilters=return_unless(var=link.with_filters, is_none=True),
+            openInNewTab=default_true(link.new_tab),
+            useCurrentDateRange=default_true(link.with_time),
+            useCurrentFilters=default_true(link.with_filters),
         )
         if has_options
         else None
@@ -80,8 +80,8 @@ def compile_url_link(order: int, *, link: UrlLink) -> KbnWebLink:
 
     options: KbnWebLinkOptions | None = (
         KbnWebLinkOptions(
-            openInNewTab=return_unless(var=link.new_tab, is_none=True),
-            encodeUrl=return_unless(var=link.encode, is_none=True),
+            openInNewTab=default_true(link.new_tab),
+            encodeUrl=default_true(link.encode),
         )
         if has_options
         else None
