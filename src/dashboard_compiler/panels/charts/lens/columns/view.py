@@ -16,7 +16,7 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensCustomInvervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn
+type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn | KbnLensFormulaColumn
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -132,6 +132,45 @@ class KbnLensStaticValueColumn(KbnLensBaseColumn):
 
     references: list[str] = Field(default_factory=list)
     """List of referenced column IDs (typically empty for static values)."""
+
+
+class KbnLensFormulaColumnParams(BaseVwModel):
+    """Parameters for formula columns."""
+
+    formula: str
+    """The raw formula string to be evaluated."""
+
+    isFormulaBroken: bool = False
+    """Whether the formula has syntax errors."""
+
+    format: Annotated[KbnLensMetricFormat | None, OmitIfNone()] = Field(default=None)
+    """Optional format for the formula result."""
+
+
+class KbnLensFormulaColumn(KbnLensBaseColumn):
+    """Represents a formula Lens column.
+
+    Formula columns allow for custom calculations using Kibana's formula syntax.
+    Kibana parses the formula string and generates the necessary AST internally.
+    """
+
+    operationType: Literal['formula']
+    """Always 'formula' for formula columns."""
+
+    dataType: Literal['number']
+    """Data type is always 'number' for formulas."""
+
+    isBucketed: Literal[False] = False
+    """Formulas are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for formula results."""
+
+    params: KbnLensFormulaColumnParams
+    """Parameters containing the formula string."""
+
+    references: list[str] = Field(default_factory=list)
+    """List of referenced column IDs (typically empty for raw formulas)."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):

@@ -11,6 +11,7 @@ from dashboard_compiler.panels.charts.heatmap.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.shared.config import random_id_generator
+from dashboard_compiler.shared.defaults import default_false, default_true
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -42,11 +43,11 @@ def compile_heatmap_chart_visualization_state(
     if chart.grid_config is not None:
         gc = chart.grid_config
         grid_config = KbnHeatmapGridConfig(
-            isCellLabelVisible=gc.is_cell_label_visible if gc.is_cell_label_visible is not None else False,
-            isXAxisLabelVisible=gc.is_x_axis_label_visible if gc.is_x_axis_label_visible is not None else False,
-            isXAxisTitleVisible=gc.is_x_axis_title_visible if gc.is_x_axis_title_visible is not None else False,
-            isYAxisLabelVisible=gc.is_y_axis_label_visible if gc.is_y_axis_label_visible is not None else False,
-            isYAxisTitleVisible=gc.is_y_axis_title_visible if gc.is_y_axis_title_visible is not None else False,
+            isCellLabelVisible=default_false(gc.is_cell_label_visible),
+            isXAxisLabelVisible=default_false(gc.is_x_axis_label_visible),
+            isXAxisTitleVisible=default_false(gc.is_x_axis_title_visible),
+            isYAxisLabelVisible=default_false(gc.is_y_axis_label_visible),
+            isYAxisTitleVisible=default_false(gc.is_y_axis_title_visible),
         )
     else:
         grid_config = KbnHeatmapGridConfig()
@@ -54,7 +55,7 @@ def compile_heatmap_chart_visualization_state(
     # Compile legend configuration (always present, use defaults if not provided)
     if chart.legend is not None:
         legend = KbnHeatmapLegendConfig(
-            isVisible=chart.legend.is_visible if chart.legend.is_visible is not None else True,
+            isVisible=default_true(chart.legend.is_visible),
             position=chart.legend.position if chart.legend.position is not None else 'right',
         )
     else:

@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -299,8 +298,63 @@ async def test_compile_esql_metric_count() -> None:
     )
 
 
-async def test_compile_lens_formula_metric_raises_not_implemented() -> None:
-    """Test that formula metrics raise NotImplementedError."""
-    metric_holder = LensMetricHolder.model_validate({'metric': {'formula': 'count() / 100'}})
-    with pytest.raises(NotImplementedError, match='Formula metrics are not supported yet'):
-        _ = compile_lens_metric(metric=metric_holder.metric)
+async def test_compile_lens_formula_metric_simple() -> None:
+    """Test the compilation of a simple formula metric."""
+    result = compile_metric_snapshot({'formula': 'count() / 100', 'label': 'Count Percentage'})
+    assert result == snapshot(
+        {
+            'label': 'Count Percentage',
+            'customLabel': True,
+            'dataType': 'number',
+            'operationType': 'formula',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'references': [],
+            'params': {'formula': 'count() / 100', 'isFormulaBroken': False},
+        }
+    )
+
+
+async def test_compile_lens_formula_metric_with_fields() -> None:
+    """Test the compilation of a formula metric using field aggregations."""
+    result = compile_metric_snapshot(
+        {
+            'formula': "(max(field='response.time') - min(field='response.time')) / average(field='response.time')",
+            'label': 'Response Time Variability',
+        }
+    )
+    assert result == snapshot(
+        {
+            'label': 'Response Time Variability',
+            'customLabel': True,
+            'dataType': 'number',
+            'operationType': 'formula',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'references': [],
+            'params': {
+                'formula': "(max(field='response.time') - min(field='response.time')) / average(field='response.time')",
+                'isFormulaBroken': False,
+            },
+        }
+    )
+
+
+async def test_compile_lens_formula_metric_with_format() -> None:
+    """Test the compilation of a formula metric with number format."""
+    result = compile_metric_snapshot({'formula': 'count(kql="status:error") / count() * 100', 'format': {'type': 'percent'}})
+    assert result == snapshot(
+        {
+            'label': 'Formula',
+            'dataType': 'number',
+            'operationType': 'formula',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'references': [],
+            'params': {
+                'formula': 'count(kql="status:error") / count() * 100',
+                'isFormulaBroken': False,
+                'format': {'id': 'percent', 'params': {'decimals': 2}},
+            },
+        }
+    )

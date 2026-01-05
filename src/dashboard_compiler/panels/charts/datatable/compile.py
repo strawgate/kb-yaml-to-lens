@@ -6,10 +6,13 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn
 
 from dashboard_compiler.panels.charts.datatable.config import (
+    DatatableAppearance,
     DatatableColumnConfig,
     DatatableDensityEnum,
     DatatableMetricColumnConfig,
+    DatatablePagingConfig,
     DatatableRowHeightEnum,
+    DatatableSortingConfig,
     ESQLDatatableChart,
     LensDatatableChart,
 )
@@ -27,6 +30,67 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.shared.config import get_layer_id
+
+
+def _build_datatable_visualization_state(
+    column_states: list[KbnDatatableColumnState],
+    layer_id: str,
+    sorting: DatatableSortingConfig | None,
+    paging: DatatablePagingConfig | None,
+    appearance: DatatableAppearance | None,
+) -> KbnDatatableVisualizationState:
+    """Build the visualization state for a datatable.
+
+    Args:
+        column_states: List of compiled column states
+        layer_id: The layer ID
+        sorting: Optional sorting configuration
+        paging: Optional paging configuration
+        appearance: Optional appearance configuration
+
+    Returns:
+        The compiled visualization state
+
+    """
+    sorting_state = None
+    if sorting is not None:
+        sorting_state = KbnDatatableSortingState(
+            columnId=sorting.column_id,
+            direction=sorting.direction,
+        )
+
+    paging_state = None
+    if paging is not None:
+        paging_state = KbnDatatablePagingState(
+            size=paging.page_size,
+            enabled=paging.enabled,
+        )
+
+    row_height_value = None
+    header_row_height_value = None
+    row_height_lines = None
+    header_row_height_lines = None
+    density_value = None
+
+    if appearance is not None:
+        row_height_value = None if appearance.row_height == DatatableRowHeightEnum.AUTO else appearance.row_height
+        header_row_height_value = None if appearance.header_row_height == DatatableRowHeightEnum.AUTO else appearance.header_row_height
+        density_value = None if appearance.density == DatatableDensityEnum.NORMAL else appearance.density
+        row_height_lines = appearance.row_height_lines
+        header_row_height_lines = appearance.header_row_height_lines
+
+    return KbnDatatableVisualizationState(
+        columns=column_states,
+        layerId=layer_id,
+        layerType='data',
+        sorting=sorting_state,
+        rowHeight=row_height_value,
+        headerRowHeight=header_row_height_value,
+        rowHeightLines=row_height_lines,
+        headerRowHeightLines=header_row_height_lines,
+        paging=paging_state,
+        density=density_value,
+    )
 
 
 def _build_datatable_column_states(
@@ -136,50 +200,12 @@ def compile_lens_datatable_chart(
         row_columns_config=lens_datatable_chart.columns,
     )
 
-    # Build sorting state
-    sorting_state = None
-    if lens_datatable_chart.sorting is not None:
-        sorting_state = KbnDatatableSortingState(
-            columnId=lens_datatable_chart.sorting.column_id,
-            direction=lens_datatable_chart.sorting.direction,
-        )
-
-    # Build paging state
-    paging_state = None
-    if lens_datatable_chart.paging is not None:
-        paging_state = KbnDatatablePagingState(
-            size=lens_datatable_chart.paging.page_size,
-            enabled=lens_datatable_chart.paging.enabled,
-        )
-
-    # Build visualization state
-    # Extract appearance settings if provided, otherwise use defaults
-    appearance = lens_datatable_chart.appearance
-    row_height_value = None
-    header_row_height_value = None
-    row_height_lines = None
-    header_row_height_lines = None
-    density_value = None
-
-    if appearance is not None:
-        # Omit default values (auto for row heights, normal for density) to match Kibana defaults
-        row_height_value = None if appearance.row_height == DatatableRowHeightEnum.AUTO else appearance.row_height
-        header_row_height_value = None if appearance.header_row_height == DatatableRowHeightEnum.AUTO else appearance.header_row_height
-        density_value = None if appearance.density == DatatableDensityEnum.NORMAL else appearance.density
-        row_height_lines = appearance.row_height_lines
-        header_row_height_lines = appearance.header_row_height_lines
-
-    visualization_state = KbnDatatableVisualizationState(
-        columns=column_states,
-        layerId=layer_id,
-        layerType='data',
-        sorting=sorting_state,
-        rowHeight=row_height_value,
-        headerRowHeight=header_row_height_value,
-        rowHeightLines=row_height_lines,
-        headerRowHeightLines=header_row_height_lines,
-        paging=paging_state,
-        density=density_value,
+    visualization_state = _build_datatable_visualization_state(
+        column_states=column_states,
+        layer_id=layer_id,
+        sorting=lens_datatable_chart.sorting,
+        paging=lens_datatable_chart.paging,
+        appearance=lens_datatable_chart.appearance,
     )
 
     return layer_id, kbn_columns_by_id, visualization_state
@@ -237,50 +263,12 @@ def compile_esql_datatable_chart(
         row_columns_config=esql_datatable_chart.columns,
     )
 
-    # Build sorting state
-    sorting_state = None
-    if esql_datatable_chart.sorting is not None:
-        sorting_state = KbnDatatableSortingState(
-            columnId=esql_datatable_chart.sorting.column_id,
-            direction=esql_datatable_chart.sorting.direction,
-        )
-
-    # Build paging state
-    paging_state = None
-    if esql_datatable_chart.paging is not None:
-        paging_state = KbnDatatablePagingState(
-            size=esql_datatable_chart.paging.page_size,
-            enabled=esql_datatable_chart.paging.enabled,
-        )
-
-    # Build visualization state
-    # Extract appearance settings if provided, otherwise use defaults
-    appearance = esql_datatable_chart.appearance
-    row_height_value = None
-    header_row_height_value = None
-    row_height_lines = None
-    header_row_height_lines = None
-    density_value = None
-
-    if appearance is not None:
-        # Omit default values (auto for row heights, normal for density) to match Kibana defaults
-        row_height_value = None if appearance.row_height == DatatableRowHeightEnum.AUTO else appearance.row_height
-        header_row_height_value = None if appearance.header_row_height == DatatableRowHeightEnum.AUTO else appearance.header_row_height
-        density_value = None if appearance.density == DatatableDensityEnum.NORMAL else appearance.density
-        row_height_lines = appearance.row_height_lines
-        header_row_height_lines = appearance.header_row_height_lines
-
-    visualization_state = KbnDatatableVisualizationState(
-        columns=column_states,
-        layerId=layer_id,
-        layerType='data',
-        sorting=sorting_state,
-        rowHeight=row_height_value,
-        headerRowHeight=header_row_height_value,
-        rowHeightLines=row_height_lines,
-        headerRowHeightLines=header_row_height_lines,
-        paging=paging_state,
-        density=density_value,
+    visualization_state = _build_datatable_visualization_state(
+        column_states=column_states,
+        layer_id=layer_id,
+        sorting=esql_datatable_chart.sorting,
+        paging=esql_datatable_chart.paging,
+        appearance=esql_datatable_chart.appearance,
     )
 
     return layer_id, kbn_columns, visualization_state

@@ -46,6 +46,26 @@ dashboards:
             field: revenue
 ```
 
+## Formula Metric Example
+
+Formula metrics allow you to create custom calculations using Kibana's formula syntax:
+
+```yaml
+dashboards:
+  - name: "Error Monitoring"
+    panels:
+      - title: "Error Rate"
+        grid: { x: 0, y: 0, w: 12, h: 2 }
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            formula: "count(kql='status:error') / count() * 100"
+            label: "Error Rate %"
+            format:
+              type: percent
+```
+
 ## Full Configuration Options
 
 ### Lens Metric Chart
@@ -117,6 +137,34 @@ panel = LensPanel(
         type='metric',
         data_view='logs-*',
         primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
+    ),
+)
+```
+
+### Formula Metric Example
+
+```python
+from dashboard_compiler.panels.charts.config import (
+    LensMetricPanelConfig,
+    LensPanel,
+)
+from dashboard_compiler.panels.charts.lens.metrics.config import (
+    LensFormulaMetric,
+    LensMetricFormat,
+)
+from dashboard_compiler.panels.config import Grid
+
+panel = LensPanel(
+    title='Error Rate',
+    grid=Grid(x=0, y=0, w=24, h=15),
+    lens=LensMetricPanelConfig(
+        type='metric',
+        data_view='logs-*',
+        primary=LensFormulaMetric(
+            formula="count(kql='status:error') / count() * 100",
+            label='Error Rate %',
+            format=LensMetricFormat(type='percent'),
+        ),
     ),
 )
 ```
