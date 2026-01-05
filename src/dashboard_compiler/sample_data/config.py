@@ -14,17 +14,12 @@ class TimestampTransform(BaseCfgModel):
     field: str = Field(default='@timestamp')
     """Name of the timestamp field to transform."""
 
-    strategy: Literal['shift', 'now_minus', 'absolute'] = Field(...)
-    """Transformation strategy for timestamps."""
+    strategy: Literal['max_to_now', 'absolute'] = Field(default='max_to_now')
+    """Transformation strategy for timestamps.
 
-    offset: str | None = Field(default=None)
-    """Offset for shift strategy (e.g., '24h', '7d', 'now-1w')."""
-
-    range_start: str | None = Field(default=None)
-    """Start of time range for now_minus strategy (e.g., 'now-24h')."""
-
-    range_end: str | None = Field(default=None)
-    """End of time range for now_minus strategy (e.g., 'now')."""
+    - max_to_now: Shift all timestamps so the maximum timestamp becomes 'now'
+    - absolute: Keep timestamps as-is
+    """
 
 
 class SampleData(BaseCfgModel):

@@ -44,39 +44,32 @@ def test_sample_data_with_timestamp_transform() -> None:
         index_pattern='logs-*',
         documents=[{'@timestamp': '2024-01-01T00:00:00Z'}],
         timestamp_transform=TimestampTransform(
-            strategy='shift',
-            offset='24h',
+            strategy='max_to_now',
         ),
     )
 
     assert config.timestamp_transform is not None
-    assert config.timestamp_transform.strategy == 'shift'
-    assert config.timestamp_transform.offset == '24h'
+    assert config.timestamp_transform.strategy == 'max_to_now'
 
 
-def test_timestamp_transform_shift() -> None:
-    """Test TimestampTransform with shift strategy."""
+def test_timestamp_transform_max_to_now() -> None:
+    """Test TimestampTransform with max_to_now strategy."""
     transform = TimestampTransform(
-        strategy='shift',
-        offset='7d',
+        strategy='max_to_now',
     )
 
-    assert transform.strategy == 'shift'
-    assert transform.offset == '7d'
+    assert transform.strategy == 'max_to_now'
     assert transform.field == '@timestamp'
 
 
-def test_timestamp_transform_now_minus() -> None:
-    """Test TimestampTransform with now_minus strategy."""
+def test_timestamp_transform_absolute() -> None:
+    """Test TimestampTransform with absolute strategy."""
     transform = TimestampTransform(
-        strategy='now_minus',
-        range_start='now-24h',
-        range_end='now',
+        strategy='absolute',
     )
 
-    assert transform.strategy == 'now_minus'
-    assert transform.range_start == 'now-24h'
-    assert transform.range_end == 'now'
+    assert transform.strategy == 'absolute'
+    assert transform.field == '@timestamp'
 
 
 def test_sample_data_with_pipeline_bypass() -> None:

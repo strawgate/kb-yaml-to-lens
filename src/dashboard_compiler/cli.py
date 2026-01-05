@@ -234,42 +234,7 @@ def cli() -> None:
     is_flag=True,
     help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
 )
-@click.option(
-    '--load-sample-data',
-    is_flag=True,
-    help='Load sample data bundled with dashboards into Elasticsearch.',
-)
-@click.option(
-    '--es-url',
-    type=str,
-    envvar='ELASTICSEARCH_URL',
-    default='http://localhost:9200',
-    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
-)
-@click.option(
-    '--es-username',
-    type=str,
-    envvar='ELASTICSEARCH_USERNAME',
-    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
-)
-@click.option(
-    '--es-password',
-    type=str,
-    envvar='ELASTICSEARCH_PASSWORD',
-    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
-)
-@click.option(
-    '--es-api-key',
-    type=str,
-    envvar='ELASTICSEARCH_API_KEY',
-    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
-)
-@click.option(
-    '--es-no-ssl-verify',
-    is_flag=True,
-    help='Disable SSL certificate verification for Elasticsearch connections.',
-)
-def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
+def compile_dashboards(  # noqa: PLR0913, PLR0912
     input_dir: Path,
     output_dir: Path,
     output_file: str,
@@ -281,12 +246,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     no_browser: bool,
     overwrite: bool,
     kibana_no_ssl_verify: bool,
-    load_sample_data: bool,
-    es_url: str,
-    es_username: str | None,
-    es_password: str | None,
-    es_api_key: str | None,
-    es_no_ssl_verify: bool,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -325,14 +284,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
         msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
         raise click.UsageError(msg)
 
-    if es_api_key is not None and (es_username is not None or es_password is not None):
-        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
-        raise click.UsageError(msg)
-
-    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
-        msg = '--es-username and --es-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
-
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_files = get_yaml_files(input_dir)
@@ -342,7 +293,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     ndjson_lines: list[str] = []
     errors: list[str] = []
-    dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]] = []
 
     with Progress(
         SpinnerColumn(),
@@ -364,9 +314,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
                 individual_file = output_dir / f'{filename}.ndjson'
                 write_ndjson(individual_file, compiled_jsons, overwrite=True)
                 ndjson_lines.extend(compiled_jsons)
-
-                dashboards = load(str(yaml_file))
-                dashboards_with_sample_data.append((yaml_file, dashboards))
             elif error is not None:
                 errors.append(error)
 
@@ -404,19 +351,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
                 overwrite,
                 not no_browser,
                 ssl_verify=not kibana_no_ssl_verify,
-            )
-        )
-
-    if load_sample_data is True:
-        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...')
-        asyncio.run(
-            load_all_sample_data(
-                dashboards_with_sample_data,
-                es_url,
-                es_username,
-                es_password,
-                es_api_key,
-                ssl_verify=not es_no_ssl_verify,
             )
         )
 
@@ -481,6 +415,115 @@ async def upload_to_kibana(  # noqa: PLR0913
     except (OSError, ValueError) as e:
         msg = f'Error uploading to Kibana: {e}'
         raise click.ClickException(msg) from e
+
+
+@cli.command('load-sample-data')
+@click.option(
+    '--input-dir',
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=DEFAULT_INPUT_DIR,
+    help='Directory containing YAML dashboard files with sample data.',
+)
+@click.option(
+    '--es-url',
+    type=str,
+    envvar='ELASTICSEARCH_URL',
+    default='http://localhost:9200',
+    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
+)
+@click.option(
+    '--es-username',
+    type=str,
+    envvar='ELASTICSEARCH_USERNAME',
+    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
+)
+@click.option(
+    '--es-password',
+    type=str,
+    envvar='ELASTICSEARCH_PASSWORD',
+    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
+)
+@click.option(
+    '--es-api-key',
+    type=str,
+    envvar='ELASTICSEARCH_API_KEY',
+    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
+)
+@click.option(
+    '--es-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification for Elasticsearch connections.',
+)
+def load_sample_data_command(  # noqa: PLR0913
+    input_dir: Path,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    es_no_ssl_verify: bool,
+) -> None:
+    r"""Load sample data bundled with dashboards into Elasticsearch.
+
+    This command scans the input directory for YAML dashboard configurations
+    that include sample data, and loads that data into Elasticsearch. The
+    sample data will be automatically transformed so the maximum timestamp
+    becomes "now", making the data appear as if it just happened.
+
+    \b
+    Examples:
+        # Load sample data from default directory
+        kb-dashboard load-sample-data
+
+        # Load with custom input directory
+        kb-dashboard load-sample-data --input-dir ./dashboards
+
+        # Load with Elasticsearch authentication
+        kb-dashboard load-sample-data --es-url https://es.example.com \\
+            --es-username admin --es-password secret
+
+        # Use API key (recommended)
+        kb-dashboard load-sample-data --es-url https://es.example.com \\
+            --es-api-key "your-api-key-here"
+    """
+    if es_api_key is not None and (es_username is not None or es_password is not None):
+        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
+        msg = '--es-username and --es-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
+    yaml_files = get_yaml_files(input_dir)
+    if len(yaml_files) == 0:
+        console.print('[yellow]No YAML files found.[/yellow]')
+        return
+
+    dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]] = []
+
+    for yaml_file in yaml_files:
+        dashboards = load(str(yaml_file))
+        for dashboard in dashboards:
+            if dashboard.sample_data is not None:
+                dashboards_with_sample_data.append((yaml_file, dashboards))
+                break
+
+    if len(dashboards_with_sample_data) == 0:
+        console.print('[yellow]No dashboards with sample data found.[/yellow]')
+        return
+
+    console.print(f'Found {len(dashboards_with_sample_data)} dashboard(s) with sample data')
+    console.print(f'[blue]{ICON_UPLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...\n')
+
+    asyncio.run(
+        load_all_sample_data(
+            dashboards_with_sample_data,
+            es_url,
+            es_username,
+            es_password,
+            es_api_key,
+            ssl_verify=not es_no_ssl_verify,
+        )
+    )
 
 
 @cli.command('screenshot')

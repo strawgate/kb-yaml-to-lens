@@ -117,7 +117,7 @@ def _read_json_array(file_path: Path) -> list[dict[str, Any]]:
         if not isinstance(data, list):
             msg = f'Expected JSON array in {file_path}, got {type(data).__name__}'  # pyright: ignore[reportAny]
             raise TypeError(msg)
-        return data  # pyright: ignore[reportUnknownVariableType]
+        return data
 
 
 async def load_sample_data(

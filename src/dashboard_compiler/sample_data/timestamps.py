@@ -1,41 +1,9 @@
 """Timestamp transformation utilities for sample data."""
 
-import re
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from dashboard_compiler.sample_data.config import TimestampTransform
-
-
-def parse_relative_time(expr: str) -> timedelta:
-    """Parse relative time expressions into timedelta.
-
-    Args:
-        expr: Time expression like '24h', '7d', '1w', '30m'
-
-    Returns:
-        Corresponding timedelta object
-
-    Raises:
-        ValueError: If expression format is invalid
-
-    """
-    match = re.match(r'^(\d+)([mhdw])$', expr)
-    if match is None:
-        msg = f'Invalid time expression: {expr}. Expected format: <number><unit> (e.g., 24h, 7d, 1w, 30m)'
-        raise ValueError(msg)
-
-    value = int(match.group(1))
-    unit = match.group(2)
-
-    units = {
-        'm': 'minutes',
-        'h': 'hours',
-        'd': 'days',
-        'w': 'weeks',
-    }
-
-    return timedelta(**{units[unit]: value})
 
 
 def parse_timestamp(ts_str: str) -> datetime:
@@ -52,58 +20,35 @@ def parse_timestamp(ts_str: str) -> datetime:
     return datetime.fromisoformat(ts_str_normalized)
 
 
-def transform_timestamp(doc: dict[str, Any], transform: TimestampTransform) -> dict[str, Any]:
-    """Apply timestamp transformation to a document.
+def find_max_timestamp(documents: list[dict[str, Any]], field: str) -> datetime | None:
+    """Find the maximum timestamp in a list of documents.
 
     Args:
-        doc: Document dictionary containing timestamp field
-        transform: Transformation configuration
+        documents: List of document dictionaries
+        field: Name of the timestamp field
 
     Returns:
-        Document with transformed timestamp
-
-    Raises:
-        ValueError: If timestamp field is missing or transformation fails
+        Maximum timestamp found, or None if no valid timestamps exist
 
     """
-    if transform.field not in doc:
-        return doc
+    max_ts: datetime | None = None
 
-    ts_value = doc[transform.field]  # pyright: ignore[reportAny]
-    if not isinstance(ts_value, str):
-        msg = f'Timestamp field {transform.field} must be a string, got {type(ts_value).__name__}'  # pyright: ignore[reportAny]
-        raise TypeError(msg)
-    original_ts = parse_timestamp(ts_value)
+    for doc in documents:
+        if field not in doc:
+            continue
 
-    if transform.strategy == 'shift':
-        if transform.offset is None:
-            msg = 'offset is required for shift strategy'
-            raise ValueError(msg)
-        offset = parse_relative_time(transform.offset)
-        new_ts = original_ts + offset
-    elif transform.strategy == 'now_minus':
-        if transform.range_start is None or transform.range_end is None:
-            msg = 'range_start and range_end are required for now_minus strategy'
-            raise ValueError(msg)
+        ts_value = doc[field]  # pyright: ignore[reportAny]
+        if not isinstance(ts_value, str):
+            continue
 
-        start_offset = parse_relative_time(transform.range_start.replace('now-', ''))
-        end_offset_str = transform.range_end.replace('now-', '').replace('now', '0m')
-        end_offset = parse_relative_time(end_offset_str) if end_offset_str != '0m' else timedelta(0)
+        try:
+            ts = parse_timestamp(ts_value)
+            if max_ts is None or ts > max_ts:
+                max_ts = ts
+        except (ValueError, TypeError):
+            continue
 
-        range_start = datetime.now(UTC) - start_offset
-        range_end = datetime.now(UTC) - end_offset
-        range_duration = range_end - range_start
-
-        time_offset = original_ts - original_ts.replace(hour=0, minute=0, second=0, microsecond=0)
-        new_ts = range_start + (time_offset % range_duration)
-    elif transform.strategy == 'absolute':
-        new_ts = original_ts
-    else:
-        msg = f'Unknown transformation strategy: {transform.strategy}'
-        raise ValueError(msg)
-
-    doc[transform.field] = new_ts.isoformat().replace('+00:00', 'Z')
-    return doc
+    return max_ts
 
 
 def transform_documents(
@@ -123,4 +68,31 @@ def transform_documents(
     if transform is None:
         return documents
 
-    return [transform_timestamp(doc.copy(), transform) for doc in documents]
+    if transform.strategy == 'absolute':
+        return documents
+
+    if transform.strategy == 'max_to_now':
+        max_ts = find_max_timestamp(documents, transform.field)
+        if max_ts is None:
+            return documents
+
+        now = datetime.now(UTC)
+        shift_offset = now - max_ts
+
+        transformed = []
+        for doc in documents:
+            doc_copy = doc.copy()
+            if transform.field in doc_copy:
+                ts_value = doc_copy[transform.field]  # pyright: ignore[reportAny]
+                if isinstance(ts_value, str):
+                    try:
+                        original_ts = parse_timestamp(ts_value)
+                        new_ts = original_ts + shift_offset
+                        doc_copy[transform.field] = new_ts.isoformat().replace('+00:00', 'Z')
+                    except (ValueError, TypeError):
+                        pass
+            transformed.append(doc_copy)
+        return transformed
+
+    msg = f'Unknown transformation strategy: {transform.strategy}'
+    raise ValueError(msg)

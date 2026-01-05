@@ -8,11 +8,10 @@ dashboards:
       format: ndjson
       bypass_pipeline: true
 
-      # Transform timestamps to last 24 hours
+      # Transform timestamps so the maximum timestamp becomes 'now'
       timestamp_transform:
         field: '@timestamp'
-        strategy: shift
-        offset: 24h
+        strategy: max_to_now
 
       # Sample log documents
       documents:
