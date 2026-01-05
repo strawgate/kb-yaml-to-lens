@@ -347,7 +347,7 @@ Field aggregations:
 
 ```yaml
 primary:
-  formula: "max(field='response.time') - min(field='response.time')"
+  formula: "max(response.time) - min(response.time)"
   label: "Response Time Range"
   format:
     type: duration
@@ -367,7 +367,7 @@ Number formatting:
 
 ```yaml
 primary:
-  formula: "average(field='bytes')"
+  formula: "average(bytes)"
   label: "Avg Bytes"
   format:
     type: bytes
