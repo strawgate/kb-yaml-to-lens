@@ -166,7 +166,7 @@ dashboards:
               type: values
               size: 10
           metrics:
-            aggregation: count
+            - aggregation: count
   - id: nav-analytics-001
     name: '[Example] Navigation - Analytics Dashboard'
     description: Advanced analytics with multiple visualizations

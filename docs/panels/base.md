@@ -196,8 +196,8 @@ dashboards:
             - field: "region"
               type: values
           metrics:
-            aggregation: sum
-            field: revenue
+            - aggregation: sum
+              field: revenue
           color:
             palette: 'elastic_brand'  # Use Elastic brand colors
 ```
@@ -219,7 +219,7 @@ dashboards:
             - field: "http.response.status_code"
               type: values
           metrics:
-            aggregation: count
+            - aggregation: count
           color:
             palette: 'eui_amsterdam_color_blind'
             assignments:

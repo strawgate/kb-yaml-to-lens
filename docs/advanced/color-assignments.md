@@ -31,7 +31,7 @@ dashboards:
           - field: "http.response.status_code"
             type: values
         metrics:
-          aggregation: count
+          - aggregation: count
         color:
           palette: 'eui_amsterdam_color_blind'
           assignments:

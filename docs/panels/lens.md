@@ -65,8 +65,8 @@ dashboards:
           type: pie # Specifies a LensPieChart
           data_view: "weblogs-*"
           metrics:
-            aggregation: "count"
-            label: "Sessions"
+            - aggregation: "count"
+              label: "Sessions"
           slice_by:
             - type: values
               field: "source.medium"

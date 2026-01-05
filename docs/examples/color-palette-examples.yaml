@@ -14,7 +14,7 @@ dashboards:
             - field: http.response.status_code
               type: values
           metrics:
-            aggregation: count
+            - aggregation: count
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -111,7 +111,7 @@ dashboards:
             - field: document.type
               type: values
           metrics:
-            aggregation: count
+            - aggregation: count
           color:
             palette: gray
 
@@ -125,7 +125,7 @@ dashboards:
             - field: log.level
               type: values
           metrics:
-            aggregation: count
+            - aggregation: count
           color:
             palette: eui_amsterdam_color_blind
             assignments:

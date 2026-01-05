@@ -103,7 +103,7 @@ dashboards:
               type: values
               size: 8
           metrics:
-            aggregation: count
+            - aggregation: count
       - title: Top URLs (Filtered)
         description: Most frequently accessed URLs
         grid:

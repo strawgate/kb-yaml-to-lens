@@ -49,7 +49,7 @@ dashboards:
             - *logs_source
             - STATS count = COUNT() BY http.response.status_code
           metrics:
-            field: count
+            - field: count
           slice_by:
             - field: http.response.status_code
 
@@ -154,7 +154,7 @@ dashboards:
             - SORT count DESC
             - LIMIT 10
           metrics:
-            field: count
+            - field: count
           slice_by:
             - field: url.path
 ```

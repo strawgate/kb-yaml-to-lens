@@ -61,7 +61,7 @@ dashboards:
               type: values
               size: 10
           metrics:
-            aggregation: count
+            - aggregation: count
       - title: Events Over Time
         description: Line chart showing time series data
         grid:

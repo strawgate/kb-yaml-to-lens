@@ -2,12 +2,10 @@
 dashboards:
   - name: '[ES|QL] Agent Metrics Test'
     description: Test dashboard for ES|QL controls using metrics-* index with agent fields
-
     settings:
       controls:
         chain_controls: true
         label_position: inline
-
     controls:
       # Control 1: Agent Name (query-driven)
       - type: esql_query
@@ -21,7 +19,8 @@ dashboards:
       - type: esql_query
         variable_name: agent_id
         variable_type: values
-        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) | STATS count = COUNT(*) BY agent.id | SORT count DESC | KEEP agent.id | LIMIT 20
+        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) | STATS count = COUNT(*) BY agent.id | SORT count DESC | KEEP agent.id
+          | LIMIT 20
         title: Agent ID
         width: medium
 
@@ -29,10 +28,10 @@ dashboards:
       - type: esql_query
         variable_name: agent_version
         variable_type: values
-        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version | SORT agent.version | KEEP agent.version | LIMIT 20
+        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version |
+          SORT agent.version | KEEP agent.version | LIMIT 20
         title: Agent Version
         width: medium
-
     panels:
       # Panel 1: Total Events Metric
       - title: Total Agent Events

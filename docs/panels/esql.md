@@ -70,7 +70,7 @@ dashboards:
             | ORDER event_count DESC
             | LIMIT 5
           metrics:
-            field: "event_count"
+            - field: "event_count"
           slice_by:
             - field: "event.category"
 ```
