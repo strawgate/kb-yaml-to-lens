@@ -163,7 +163,7 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
 
 
 class LensFormulaMetric(BaseLensMetric):
-    r"""Represents a formula metric configuration within a Lens chart.
+    """Represents a formula metric configuration within a Lens chart.
 
     Formula metrics allow for custom calculations using Kibana's formula syntax.
     The formula string is passed directly to Kibana, which handles parsing and
@@ -172,7 +172,7 @@ class LensFormulaMetric(BaseLensMetric):
     Example formulas:
     - Simple arithmetic: "count() / 100"
     - Field aggregations: "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
-    - With filters: "count(kql=\"status:error\") / count() * 100"
+    - With filters: "count(kql='status:error') / count() * 100"
     """
 
     formula: str = Field(...)
