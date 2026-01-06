@@ -224,7 +224,7 @@ class KibanaClient:
             'locatorParams': locator_params,
         }
 
-        rison_result = prison.dumps(job_params)
+        rison_result = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if not isinstance(rison_result, str):
             msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
