@@ -82,13 +82,14 @@ class Size(BaseCfgModel):
     """Panel size configuration.
 
     Determines the width and height of a panel on the dashboard grid.
+    Accepts semantic values ('whole', 'half', etc.) or integers.
     """
 
-    w: int | SemanticWidth = Field(default=GRID_WIDTH_HALF, validation_alias=AliasChoices('w', 'width'))
-    """The width of the panel in grid units. Defaults to 24 (half width)."""
+    w: int = Field(default=GRID_WIDTH_HALF, validation_alias=AliasChoices('w', 'width'))
+    """The width of the panel in grid units. Defaults to 24 (half width). Accepts semantic values or integers."""
 
-    h: int | SemanticHeight = Field(default=12, validation_alias=AliasChoices('h', 'height'))
-    """The height of the panel in grid units. Defaults to 12."""
+    h: int = Field(default=12, validation_alias=AliasChoices('h', 'height'))
+    """The height of the panel in grid units. Defaults to 12. Accepts semantic values or integers."""
 
     @field_validator('w', mode='before')
     @classmethod

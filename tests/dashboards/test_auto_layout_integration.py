@@ -36,6 +36,7 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.w == 24
         assert dashboard.panels[0].grid.h == 12
 
@@ -50,8 +51,11 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.w == 12
+        assert dashboard.panels[1].grid is not None
         assert dashboard.panels[1].grid.w == 24
+        assert dashboard.panels[2].grid is not None
         assert dashboard.panels[2].grid.w == 48
 
     def test_four_panels_form_grid(self) -> None:
@@ -61,12 +65,16 @@ class TestAutoLayoutIntegration:
             panels=[MarkdownPanel(title=f'Panel {i}', markdown={'content': f'Test {i}'}) for i in range(4)],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.x == 0
         assert dashboard.panels[0].grid.y == 0
+        assert dashboard.panels[1].grid is not None
         assert dashboard.panels[1].grid.x == 24
         assert dashboard.panels[1].grid.y == 0
+        assert dashboard.panels[2].grid is not None
         assert dashboard.panels[2].grid.x == 0
         assert dashboard.panels[2].grid.y == 12
+        assert dashboard.panels[3].grid is not None
         assert dashboard.panels[3].grid.x == 24
         assert dashboard.panels[3].grid.y == 12
 
@@ -86,10 +94,13 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.x == 0
         assert dashboard.panels[0].grid.y == 0
+        assert dashboard.panels[1].grid is not None
         assert dashboard.panels[1].grid.x == 24
         assert dashboard.panels[1].grid.y == 0
+        assert dashboard.panels[2].grid is not None
         assert dashboard.panels[2].grid.x == 24
         assert dashboard.panels[2].grid.y == 12
 
@@ -106,6 +117,7 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.x == 10
         assert dashboard.panels[0].grid.y == 5
         assert dashboard.panels[0].grid.w == 20
@@ -126,11 +138,14 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.x == 0
         assert dashboard.panels[0].grid.y == 0
         assert dashboard.panels[0].grid.w == 48
+        assert dashboard.panels[1].grid is not None
         assert dashboard.panels[1].grid.x == 0
         assert dashboard.panels[1].grid.y == 8
+        assert dashboard.panels[2].grid is not None
         assert dashboard.panels[2].grid.x == 24
         assert dashboard.panels[2].grid.y == 8
 
@@ -179,10 +194,13 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.w == 16
         assert dashboard.panels[0].grid.x == 0
+        assert dashboard.panels[1].grid is not None
         assert dashboard.panels[1].grid.w == 16
         assert dashboard.panels[1].grid.x == 16
+        assert dashboard.panels[2].grid is not None
         assert dashboard.panels[2].grid.w == 16
         assert dashboard.panels[2].grid.x == 32
 
@@ -200,6 +218,7 @@ class TestAutoLayoutIntegration:
             ],
         )
 
+        assert dashboard.panels[0].grid is not None
         assert dashboard.panels[0].grid.x == 5
         assert dashboard.panels[0].grid.y == 3
         assert dashboard.panels[0].grid.w == 20
@@ -220,6 +239,7 @@ class TestAutoLayoutIntegration:
         )
 
         for i, panel in enumerate(dashboard.panels):
+            assert panel.grid is not None
             assert panel.grid.x == i * 6
             assert panel.grid.y == 0
             assert panel.grid.w == 6

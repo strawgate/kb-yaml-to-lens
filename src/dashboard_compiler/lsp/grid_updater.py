@@ -68,6 +68,9 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
     if found_panel is None:
         return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
 
+    if found_panel.grid is None:
+        return {'success': False, 'error': f'Panel {panel_id} has no grid information'}
+
     # Update grid coordinates
     found_panel.grid.x = new_grid['x']
     found_panel.grid.y = new_grid['y']

@@ -78,6 +78,10 @@ def compile_panel_shared(panel: PanelTypes) -> tuple[str, KbnGridData]:
         tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
 
     """
+    if panel.grid is None:
+        msg = f'Panel "{panel.title}" has no grid information'
+        raise ValueError(msg)
+
     panel_type = get_panel_type_name(panel)
     panel_index = panel.id or stable_id_generator(values=[panel_type, panel.title, str(panel.grid)])
 

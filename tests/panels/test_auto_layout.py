@@ -97,7 +97,7 @@ class TestAutoLayoutEngine:
     def test_invalid_algorithm_raises_error(self) -> None:
         """Test that invalid algorithm raises ValueError."""
         engine = AutoLayoutEngine(algorithm='up-left')
-        engine.algorithm = 'invalid'  # type: ignore[assignment]
+        engine.algorithm = 'invalid'  # type: ignore[assignment] # pyright: ignore[reportAttributeAccessIssue]
         with pytest.raises(ValueError, match='Unknown packing algorithm'):
             _ = engine.compute_positions([(0, 24, 12)])
 

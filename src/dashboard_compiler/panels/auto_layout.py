@@ -27,8 +27,8 @@ class AutoLayoutEngine:
             grid_width: The width of the grid in units.
 
         """
-        self.algorithm = algorithm
-        self.grid_width = grid_width
+        self.algorithm: PackingAlgorithm = algorithm
+        self.grid_width: int = grid_width
         self.occupied: set[tuple[int, int]] = set()
 
     def compute_positions(self, panels: list[tuple[int, int, int]]) -> list[tuple[int, int]]:

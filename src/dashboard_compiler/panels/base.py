@@ -38,7 +38,7 @@ class BasePanel(BaseCfgModel):
 
     @model_validator(mode='before')
     @classmethod
-    def resolve_grid_to_size_position(cls, data: dict) -> dict:
+    def resolve_grid_to_size_position(cls, data: object) -> object:
         """Convert legacy grid field to size and position fields.
 
         If grid is specified, it takes precedence and populates size/position.
@@ -48,28 +48,24 @@ class BasePanel(BaseCfgModel):
             return data
 
         grid = data.get('grid')
-        if grid is not None:
-            if 'size' not in data:
-                data['size'] = {}
-            if 'position' not in data:
-                data['position'] = {}
+        if grid is None:
+            return data
 
-            if isinstance(grid, dict):
-                if isinstance(data['size'], dict):
-                    data['size']['w'] = grid.get('w')
-                    data['size']['h'] = grid.get('h')
+        if 'size' not in data:
+            data['size'] = {}
+        if 'position' not in data:
+            data['position'] = {}
 
-                if isinstance(data['position'], dict):
-                    data['position']['x'] = grid.get('x')
-                    data['position']['y'] = grid.get('y')
-            elif isinstance(grid, Grid):
-                if isinstance(data['size'], dict):
-                    data['size']['w'] = grid.w
-                    data['size']['h'] = grid.h
-
-                if isinstance(data['position'], dict):
-                    data['position']['x'] = grid.x
-                    data['position']['y'] = grid.y
+        if isinstance(grid, dict):
+            data['size']['w'] = grid.get('w')
+            data['size']['h'] = grid.get('h')
+            data['position']['x'] = grid.get('x')
+            data['position']['y'] = grid.get('y')
+        elif isinstance(grid, Grid):
+            data['size']['w'] = grid.w
+            data['size']['h'] = grid.h
+            data['position']['x'] = grid.x
+            data['position']['y'] = grid.y
 
         return data
 

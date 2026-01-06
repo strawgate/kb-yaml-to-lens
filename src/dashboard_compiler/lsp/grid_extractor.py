@@ -36,6 +36,10 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
 
     panels = []
     for index, panel in enumerate(dashboard_config.panels):
+        if panel.grid is None:
+            msg = f'Panel at index {index} has no grid information'
+            raise ValueError(msg)
+
         panel_type = get_panel_type(panel)
         panel_info = {
             'id': panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
