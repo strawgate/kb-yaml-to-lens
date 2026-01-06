@@ -1,6 +1,8 @@
 """Configuration models for different types of queries used in Kibana dashboards."""
 
-from pydantic import Field, field_validator
+from typing import Annotated
+
+from pydantic import BeforeValidator, Field, WithJsonSchema
 
 from dashboard_compiler.shared.config import BaseCfgModel
 from dashboard_compiler.shared.model import BaseRootCfgModel
@@ -29,6 +31,39 @@ class LuceneQuery(BaseCfgModel):
     """The Lucene query string to apply."""
 
 
+def _normalize_esql_query(value: QueryPart) -> str:
+    """Normalize the query to a string by flattening and concatenating list elements with pipes."""
+    if isinstance(value, list):
+        flattened = _flatten_query_parts(value)
+        return ' | '.join(flattened)
+    return value
+
+
+# Type alias that accepts QueryPart input but validates to str
+# The schema allows both strings and recursive arrays (for YAML anchor expansion)
+NormalizedQuery = Annotated[
+    str,
+    BeforeValidator(_normalize_esql_query),
+    WithJsonSchema(
+        {
+            'anyOf': [
+                {'type': 'string'},
+                {
+                    'type': 'array',
+                    'items': {
+                        'anyOf': [
+                            {'type': 'string'},
+                            {'type': 'array', 'items': {}},  # Recursive arrays
+                        ],
+                    },
+                },
+            ],
+        },
+        mode='validation',
+    ),
+]
+
+
 class ESQLQuery(BaseRootCfgModel):
     """Represents an ESQL (Elasticsearch Query Language) query configuration.
 
@@ -53,16 +88,7 @@ class ESQLQuery(BaseRootCfgModel):
         # Results in: FROM logs-* | WHERE @timestamp > NOW() - 1h | STATS count = COUNT()
     """
 
-    root: str = Field(...)
-
-    @field_validator('root', mode='before')
-    @classmethod
-    def normalize_query(cls, value: QueryPart) -> str:
-        """Normalize the query to a string by flattening and concatenating list elements with pipes."""
-        if isinstance(value, list):
-            flattened = _flatten_query_parts(value)
-            return ' | '.join(flattened)
-        return value
+    root: NormalizedQuery = Field(...)
 
 
 def _flatten_query_parts(parts: list[QueryPart]) -> list[str]:

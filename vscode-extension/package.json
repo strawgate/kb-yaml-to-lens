@@ -1,6 +1,6 @@
 {
-  "name": "yaml-dashboard-compiler",
-  "displayName": "YAML Dashboard Compiler",
+  "name": "kb-dashboard-compiler",
+  "displayName": "Kibana Dashboard Compiler",
   "description": "Compile and preview Kibana YAML dashboards with live reload",
   "version": "0.1.0",
   "publisher": "strawgate",
@@ -80,12 +80,12 @@
       }
     ],
     "configuration": {
-      "title": "YAML Dashboard Compiler",
+      "title": "Kibana Dashboard Compiler",
       "properties": {
         "yamlDashboard.pythonPath": {
           "type": "string",
           "default": "python",
-          "description": "Path to Python interpreter (must have dashboard_compiler package installed)"
+          "description": "Path to Python interpreter (optional - only needed for development; bundled binary is used by default)"
         },
         "yamlDashboard.compileOnSave": {
           "type": "boolean",
@@ -160,7 +160,12 @@
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
     "lint": "eslint src --ext ts",
-    "package": "vsce package"
+    "build-lsp-binary": "python3 scripts/build_lsp_binary.py",
+    "package": "vsce package",
+    "package:linux": "npm run package-bundle && vsce package --target linux-x64",
+    "package:macos-x64": "npm run package-bundle && vsce package --target darwin-x64",
+    "package:macos-arm64": "npm run package-bundle && vsce package --target darwin-arm64",
+    "package:windows": "npm run package-bundle && vsce package --target win32-x64"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"

@@ -1,5 +1,5 @@
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-python test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -44,7 +44,6 @@ help:
 	@echo "  test-links               - Check documentation links"
 	@echo "  test-smoke               - Run smoke tests"
 	@echo "  test-extension           - Run all VSCode extension tests"
-	@echo "  test-extension-python    - Run Python tests for extension"
 	@echo "  test-extension-typescript - Run TypeScript tests for extension"
 	@echo "  test-extension-e2e       - Run E2E tests for extension (headless)"
 	@echo ""
@@ -106,7 +105,7 @@ lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
-test-all: test test-smoke test-links test-extension-python test-extension-typescript
+test-all: test test-smoke test-links test-extension-typescript
 	@echo "✓ All tests passed"
 
 test:
@@ -139,10 +138,6 @@ test-extension:
 	@echo "Running VSCode extension tests..."
 	cd vscode-extension && npm install && npm test
 
-test-extension-python:
-	@echo "Running Python tests for VSCode extension..."
-	@uv run python -m pytest vscode-extension/python/test_*.py -o addopts="" --tb=line --no-header -q
-
 test-extension-typescript:
 	@echo "Running TypeScript tests for VSCode extension..."
 	# Using npm install for local development flexibility (vs npm ci in CI)
@@ -150,7 +145,7 @@ test-extension-typescript:
 
 test-extension-e2e:
 	@echo "Running Extension E2E Tests..."
-	@uv sync --group dev
+	@uv sync --group dev --extra lsp
 	@. .venv/bin/activate && cd vscode-extension && npm install && xvfb-run -a npm test
 
 inspector:
