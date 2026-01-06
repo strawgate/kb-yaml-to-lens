@@ -4,10 +4,12 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from mkdocs.config.defaults import MkDocsConfig
+
 log = logging.getLogger('mkdocs.plugins.llms_txt')
 
 
-def on_post_build(config: dict[str, Any], **_kwargs: Any) -> None:
+def on_post_build(config: MkDocsConfig, **_kwargs: Any) -> None:
     """Generate llms.txt files after the build completes."""
     site_dir = Path(config['site_dir'])
 
@@ -81,41 +83,35 @@ def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: li
 
 
 def generate_llms_full_txt(site_dir: Path, config: dict[str, Any]) -> None:
-    """Generate the llms-full.txt file with complete user guide content."""
+    """Generate the llms-full.txt file with complete documentation content."""
     docs_dir = Path(config.get('docs_dir', 'docs'))
 
     # Extract files from navigation structure
     nav = config.get('nav', [])
-    user_guide_files = []
 
-    # Find User Guide section and extract files
-    for section in nav:
-        if isinstance(section, dict) and 'User Guide' in section:
-            user_guide_files = extract_files_from_nav(section['User Guide'])
-            break
+    # Extract all files from navigation (all sections)
+    all_files = extract_files_from_nav(nav)
 
-    # If no User Guide section found, extract all files from navigation
-    if not user_guide_files:
-        log.warning('User Guide section not found in navigation, using all files')
-        user_guide_files = extract_files_from_nav(nav)
-
-    log.info(f'Extracted {len(user_guide_files)} files from navigation')
+    log.info(f'Extracted {len(all_files)} files from navigation')
 
     output = []
 
     # Add header
-    output.append('# Dashboard Compiler - Complete User Guide\n\n')
-    output.append('> This file contains all user guide documentation for the Dashboard Compiler project.\n\n')
+    output.append('# Dashboard Compiler - Complete Documentation\n\n')
+    output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
     output.append('---\n\n')
 
     # Concatenate all files
-    for file_path in user_guide_files:
+    for file_path in all_files:
         path = docs_dir / file_path
-        if not path.exists():
+        try:
+            content = path.read_text(encoding='utf-8')
+        except FileNotFoundError:
             log.warning(f'{file_path} not found, skipping...')
             continue
-
-        content = path.read_text()
+        except OSError as e:
+            log.warning(f'Failed to read {file_path}: {e}, skipping...')
+            continue
 
         # Add file separator
         output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
