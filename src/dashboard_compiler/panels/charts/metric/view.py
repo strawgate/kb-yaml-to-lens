@@ -2,7 +2,6 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from dashboard_compiler.panels.charts.base.view import KbnBaseStateVisualizationLayer
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -16,40 +15,6 @@ class KbnSecondaryTrendNone(BaseVwModel):
 
     type: Literal['none'] = 'none'
     """Type indicating no trend should be displayed."""
-
-
-class KbnMetricStateVisualizationLayer(KbnBaseStateVisualizationLayer):
-    """View model for metric visualization layer configuration.
-
-    Represents a data layer in a metric visualization, which displays key performance indicators
-    (KPIs) as large numbers with optional sparklines and comparison values. Defines which metrics
-    to display, breakdowns, and visualization options.
-
-    This model represents the compiled structure sent to Kibana for configuring metric
-    visualization layers.
-
-    See Also:
-        Kibana type definition: Related layer types in
-        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/metric/types.ts
-    """
-
-    layerType: Literal['data'] = 'data'
-    """Always 'data' for metric layers."""
-
-    metricAccessor: str = Field(...)
-    """Field accessor ID for the primary metric value to display."""
-
-    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """Field accessor ID for the maximum value metric (used for sparkline scale)."""
-
-    showBar: Annotated[bool | None, OmitIfNone()] = Field(default=None)
-    """Whether to display a sparkline bar chart below the metric."""
-
-    secondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """Field accessor ID for a secondary comparison metric."""
-
-    breakdownByAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """Field accessor ID for breaking down the metric into multiple values."""
 
 
 class KbnMetricVisualizationState(BaseVwModel):

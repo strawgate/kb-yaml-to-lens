@@ -46,7 +46,6 @@ def compile_metric_chart_visualization_state(
     """
     return KbnMetricVisualizationState(
         layerId=layer_id,
-        layerType='data',
         metricAccessor=primary_metric_id,
         secondaryTrend=KbnSecondaryTrendNone(),
         secondaryLabelPosition='before',
@@ -149,7 +148,6 @@ def compile_esql_metric_chart(
         kbn_columns,
         KbnESQLMetricVisualizationState(
             layerId=layer_id,
-            layerType='data',
             metricAccessor=primary_metric_id,
             showBar=False,
             secondaryMetricAccessor=secondary_metric_id,
