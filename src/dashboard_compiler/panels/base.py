@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.config import Grid, Position, Size
@@ -38,18 +40,19 @@ class BasePanel(BaseCfgModel):
 
     @model_validator(mode='before')
     @classmethod
-    def resolve_grid_to_size_position(cls, data: object) -> object:
+    def resolve_grid_to_size_position(cls, data: dict[str, Any] | Any) -> dict[str, Any] | Any:
         """Convert legacy grid field to size and position fields.
 
         If grid is specified, it takes precedence and populates size/position.
         This maintains backward compatibility.
         """
         if not isinstance(data, dict):
-            return data
+            return data  # pyright: ignore[reportAny]
 
-        grid = data.get('grid')
+        # Type narrowed to dict[str, Any] after isinstance check
+        grid: Any = data.get('grid')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if grid is None:
-            return data
+            return data  # pyright: ignore[reportUnknownVariableType]
 
         if 'size' not in data:
             data['size'] = {}
@@ -57,17 +60,17 @@ class BasePanel(BaseCfgModel):
             data['position'] = {}
 
         if isinstance(grid, dict):
-            data['size']['w'] = grid.get('w')
-            data['size']['h'] = grid.get('h')
-            data['position']['x'] = grid.get('x')
-            data['position']['y'] = grid.get('y')
+            data['size']['w'] = grid.get('w')  # pyright: ignore[reportUnknownMemberType]
+            data['size']['h'] = grid.get('h')  # pyright: ignore[reportUnknownMemberType]
+            data['position']['x'] = grid.get('x')  # pyright: ignore[reportUnknownMemberType]
+            data['position']['y'] = grid.get('y')  # pyright: ignore[reportUnknownMemberType]
         elif isinstance(grid, Grid):
             data['size']['w'] = grid.w
             data['size']['h'] = grid.h
             data['position']['x'] = grid.x
             data['position']['y'] = grid.y
 
-        return data
+        return data  # pyright: ignore[reportUnknownVariableType]
 
     @model_validator(mode='after')
     def compute_grid_from_size_position(self) -> 'BasePanel':
