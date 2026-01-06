@@ -48,35 +48,7 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 
 ## Code Conventions
 
-> For detailed code style guidelines (explicit boolean checks, exhaustive type checking patterns, Pydantic conventions, line length, documentation requirements), see **[CODE_STYLE.md](../../CODE_STYLE.md)** at the repository root.
-
-### Quick Reference
-
-**Explicit Boolean Comparisons:**
-
-- Use `if x is not None:` instead of `if x:`
-- Use `if len(items) > 0:` instead of `if items:`
-
-**Exhaustive Type Checking:**
-
-- Always use isinstance chains with a final error handler
-- Never rely on type narrowing alone for union types
-
-**Pydantic Models:**
-
-- Inherit from `BaseCfgModel` or `BaseVwModel` - they set common configuration
-- Use attribute docstrings for field descriptions
-- View models may narrow types in subclasses
-
-**Leverage Pydantic's Features:**
-
-- Work with validated model attributes, not raw dictionaries
-- Use `mode='after'` validators for business logic (the common case)
-- Only use `mode='before'` for raw input transformation or migrations
-- Never import inside validators - place imports at module level
-- Field annotations should reflect runtime type after validation
-
-See [CODE_STYLE.md](../../CODE_STYLE.md) for detailed explanations and examples.
+@../../CODE_STYLE.md
 
 ### Documentation Updates
 
