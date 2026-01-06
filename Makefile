@@ -7,6 +7,9 @@ DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
+# YAML linting exclusions
+YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml"
+
 all: ci
 
 help:
@@ -188,12 +191,12 @@ lint-markdown-check:
 # Auto-fix YAML issues
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix .
+	uv run yamlfix $(YAMLFIX_EXCLUDE) .
 
 # Check YAML without fixing
 lint-yaml-check:
-	@echo "Running yamllint..."
-	@uv run yamllint . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamllint . && exit 1)
+	@echo "Running yamlfix --check..."
+	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check $(YAMLFIX_EXCLUDE) . && exit 1)
 
 typecheck:
 	@echo "Running type checking..."
