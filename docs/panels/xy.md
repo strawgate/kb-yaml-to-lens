@@ -215,7 +215,7 @@ For line charts (`type: line`), `LineChartAppearance` extends `XYAppearance` (in
 | `fitting_function` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | The fitting function for interpolating missing data points. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
 | `emphasize_fitting` | `bool \| None` | If `true`, visually emphasize fitted vs actual data points. | `None` | No |
 | `end_value` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end value in line/area charts. Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
-| `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. | `None` | No |
+| `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. Options: 'linear' (straight lines), 'monotone-x' (smooth monotonic curve), 'cardinal' (cardinal spline), 'catmull-rom' (Catmull-Rom spline), 'natural' (natural cubic spline), 'step' (step function), 'step-after' (step after each point), 'step-before' (step before each point). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
 
 **Example**:
 

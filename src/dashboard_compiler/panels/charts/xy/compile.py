@@ -172,6 +172,36 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
     return accessor_id, static_value_column, y_config
 
 
+def _map_curve_type_to_kibana(curve_type: str | None) -> str | None:
+    """Map user-friendly curve type values to Kibana's expected format.
+
+    Kibana expects uppercase curve type constants like 'LINEAR', 'CURVE_MONOTONE_X', etc.
+    This function converts our lowercase, hyphenated values to the Kibana format.
+
+    Args:
+        curve_type: The curve type from config (e.g., 'monotone-x', 'linear').
+
+    Returns:
+        The Kibana-formatted curve type (e.g., 'CURVE_MONOTONE_X', 'LINEAR') or None.
+    """
+    if curve_type is None:
+        return None
+
+    # Mapping from config values to Kibana constants
+    curve_type_mapping = {
+        'linear': 'LINEAR',
+        'monotone-x': 'CURVE_MONOTONE_X',
+        'step-after': 'CURVE_STEP_AFTER',
+        'step-before': 'CURVE_STEP_BEFORE',
+        'cardinal': 'CURVE_CARDINAL',
+        'catmull-rom': 'CURVE_CATMULL_ROM',
+        'natural': 'CURVE_NATURAL',
+        'step': 'CURVE_STEP',
+    }
+
+    return curve_type_mapping.get(curve_type, curve_type)
+
+
 def _extract_chart_type_specific_appearance(
     chart: LensXYChartTypes | ESQLXYChartTypes,
 ) -> tuple[
@@ -207,7 +237,7 @@ def _extract_chart_type_specific_appearance(
         fitting_function = chart.appearance.fitting_function
         emphasize_fitting = chart.appearance.emphasize_fitting
         end_value = chart.appearance.end_value
-        curve_type = chart.appearance.curve_type
+        curve_type = _map_curve_type_to_kibana(chart.appearance.curve_type)
 
         if isinstance(chart.appearance, AreaChartAppearance):
             fill_opacity = chart.appearance.fill_opacity

@@ -1028,9 +1028,42 @@ async def test_line_chart_with_all_advanced_features() -> None:
     assert kbn_state_visualization.fittingFunction == 'Average'
     assert kbn_state_visualization.emphasizeFitting is True
     assert kbn_state_visualization.endValue == 'Nearest'
-    assert kbn_state_visualization.curveType == 'monotone-x'
+    assert kbn_state_visualization.curveType == 'CURVE_MONOTONE_X'  # Mapped from 'monotone-x' to Kibana format
     assert kbn_state_visualization.showCurrentTimeMarker is True
     assert kbn_state_visualization.hideEndzones is True
+
+
+async def test_curve_type_mapping() -> None:
+    """Test that curve types are correctly mapped from config to Kibana format."""
+    # Test all supported curve type mappings
+    curve_type_tests = [
+        ('linear', 'LINEAR'),
+        ('monotone-x', 'CURVE_MONOTONE_X'),
+        ('step-after', 'CURVE_STEP_AFTER'),
+        ('step-before', 'CURVE_STEP_BEFORE'),
+        ('cardinal', 'CURVE_CARDINAL'),
+        ('catmull-rom', 'CURVE_CATMULL_ROM'),
+        ('natural', 'CURVE_NATURAL'),
+        ('step', 'CURVE_STEP'),
+    ]
+
+    for config_value, expected_kibana_value in curve_type_tests:
+        lens_config = {
+            'type': 'line',
+            'data_view': 'metrics-*',
+            'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            'appearance': {
+                'curve_type': config_value,
+            },
+        }
+
+        lens_chart = LensLineChart.model_validate(lens_config)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+        assert kbn_state_visualization.curveType == expected_kibana_value, (
+            f'Expected {config_value} to map to {expected_kibana_value}, got {kbn_state_visualization.curveType}'
+        )
 
 
 async def test_esql_line_chart_with_advanced_features() -> None:
