@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import urllib.parse
 import webbrowser
 from pathlib import Path
 
@@ -34,6 +35,8 @@ ICON_ERROR = '✗'
 ICON_WARNING = '⚠'
 ICON_UPLOAD = '📤'
 ICON_BROWSER = '🌐'
+
+MAX_GITHUB_ISSUE_URL_LENGTH = 8000
 
 
 def create_error_table(errors: list[SavedObjectError]) -> Table:
@@ -146,7 +149,8 @@ def cli() -> None:
         1. Compile dashboards:     kb-dashboard compile
         2. Compile and upload:     kb-dashboard compile --upload
         3. Take a screenshot:      kb-dashboard screenshot --dashboard-id ID --output file.png
-        4. Disassemble dashboard:  kb-dashboard disassemble dashboard.ndjson -o output_dir
+        4. Export for issue:       kb-dashboard export-for-issue --dashboard-id ID
+        5. Disassemble dashboard:  kb-dashboard disassemble dashboard.ndjson -o output_dir
 
     \b
     Authentication:
@@ -654,6 +658,198 @@ async def generate_screenshot(  # noqa: PLR0913
         raise click.ClickException(msg) from e
     except (OSError, ValueError) as e:
         msg = f'Error generating screenshot: {e}'
+        raise click.ClickException(msg) from e
+
+
+@cli.command('export-for-issue')
+@click.option(
+    '--dashboard-id',
+    required=True,
+    help='Kibana dashboard ID to export. Find this in the dashboard URL.',
+)
+@click.option(
+    '--kibana-url',
+    type=str,
+    envvar='KIBANA_URL',
+    default='http://localhost:5601',
+    help='Kibana base URL. Example: https://kibana.example.com (env: KIBANA_URL)',
+)
+@click.option(
+    '--kibana-username',
+    type=str,
+    envvar='KIBANA_USERNAME',
+    help=(
+        'Kibana username for basic authentication. Must be used with --kibana-password. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
+    ),
+)
+@click.option(
+    '--kibana-password',
+    type=str,
+    envvar='KIBANA_PASSWORD',
+    help=(
+        'Kibana password for basic authentication. Must be used with --kibana-username. '
+        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
+    ),
+)
+@click.option(
+    '--kibana-api-key',
+    type=str,
+    envvar='KIBANA_API_KEY',
+    help=(
+        'Kibana API key for authentication (recommended for production). '
+        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
+    ),
+)
+@click.option(
+    '--no-browser',
+    is_flag=True,
+    help='Do not open browser automatically with pre-filled issue.',
+)
+@click.option(
+    '--kibana-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
+)
+def export_for_issue(  # noqa: PLR0913
+    dashboard_id: str,
+    kibana_url: str,
+    kibana_username: str | None,
+    kibana_password: str | None,
+    kibana_api_key: str | None,
+    no_browser: bool,
+    kibana_no_ssl_verify: bool,
+) -> None:
+    r"""Export a dashboard from Kibana and create a pre-filled GitHub issue.
+
+    This command downloads a dashboard's JSON from Kibana and generates a GitHub
+    issue URL with the dashboard JSON pre-filled in the body. You can then submit
+    the issue to request support for compiling the dashboard from YAML.
+
+    \b
+    Examples:
+        # Export dashboard and open pre-filled issue in browser
+        kb-dashboard export-for-issue --dashboard-id my-dashboard-id
+
+        # Export with API key authentication
+        kb-dashboard export-for-issue --dashboard-id my-dashboard-id \
+            --kibana-api-key "your-api-key"
+
+        # Export and print URL without opening browser
+        kb-dashboard export-for-issue --dashboard-id my-dashboard-id --no-browser
+    """
+    if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
+        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
+        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
+    asyncio.run(
+        _export_dashboard_for_issue(
+            dashboard_id=dashboard_id,
+            kibana_url=kibana_url,
+            kibana_username=kibana_username,
+            kibana_password=kibana_password,
+            kibana_api_key=kibana_api_key,
+            open_browser=not no_browser,
+            ssl_verify=not kibana_no_ssl_verify,
+        )
+    )
+
+
+async def _export_dashboard_for_issue(  # noqa: PLR0913
+    dashboard_id: str,
+    kibana_url: str,
+    kibana_username: str | None,
+    kibana_password: str | None,
+    kibana_api_key: str | None,
+    open_browser: bool,
+    ssl_verify: bool,
+) -> None:
+    """Export dashboard and generate GitHub issue URL.
+
+    Args:
+        dashboard_id: The dashboard ID to export
+        kibana_url: Kibana base URL
+        kibana_username: Basic auth username
+        kibana_password: Basic auth password
+        kibana_api_key: API key for authentication
+        open_browser: Whether to open browser with pre-filled issue
+        ssl_verify: Whether to verify SSL certificates
+
+    Raises:
+        click.ClickException: If export fails
+
+    """
+    client = KibanaClient(
+        url=kibana_url,
+        username=kibana_username,
+        password=kibana_password,
+        api_key=kibana_api_key,
+        ssl_verify=ssl_verify,
+    )
+
+    try:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn('[progress.description]{task.description}'),
+            console=console,
+        ) as progress:
+            task = progress.add_task(f'Exporting dashboard: {dashboard_id}...', total=None)
+
+            ndjson_data = await client.export_dashboard(dashboard_id)
+
+            progress.update(task, description='Dashboard exported successfully')
+
+        repo_url = 'https://github.com/strawgate/kb-yaml-to-lens'
+        issue_title = f'Dashboard support request: {dashboard_id}'
+        issue_body = f"""## Dashboard Export Request
+
+I'd like to compile this dashboard using kb-yaml-to-lens.
+
+### Dashboard ID
+`{dashboard_id}`
+
+### Exported Dashboard JSON
+
+```json
+{ndjson_data}
+```
+
+### Additional Context
+
+"""
+
+        encoded_title = urllib.parse.quote(issue_title)
+        encoded_body = urllib.parse.quote(issue_body)
+
+        issue_url = f'{repo_url}/issues/new?title={encoded_title}&body={encoded_body}'
+
+        if len(issue_url) > MAX_GITHUB_ISSUE_URL_LENGTH:
+            msg = (
+                f'[yellow]{ICON_WARNING}[/yellow] URL is very long ({len(issue_url)} chars). '
+                'Some browsers may truncate it. Consider copying the NDJSON manually.'
+            )
+            console.print(msg)
+
+        console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard exported successfully')
+        console.print(f'  Dashboard ID: {dashboard_id}')
+        console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
+        console.print()
+        console.print('[blue]GitHub Issue URL:[/blue]')
+        console.print(f'  {issue_url}')
+
+        if open_browser is True:
+            console.print(f'\n[blue]{ICON_BROWSER}[/blue] Opening pre-filled issue in browser...')
+            _ = webbrowser.open_new_tab(issue_url)
+
+    except aiohttp.ClientError as e:
+        msg = f'Error communicating with Kibana: {e}'
+        raise click.ClickException(msg) from e
+    except (OSError, ValueError) as e:
+        msg = f'Error exporting dashboard: {e}'
         raise click.ClickException(msg) from e
 
 
