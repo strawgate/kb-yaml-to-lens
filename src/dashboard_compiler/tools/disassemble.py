@@ -73,9 +73,9 @@ def _parse_json_field(field: str | dict[str, Any] | list[Any] | None) -> dict[st
         return None
     if isinstance(field, str):
         return json.loads(field)
-    if isinstance(field, (dict, list)):
+    if isinstance(field, (dict, list)):  # pyright: ignore[reportUnnecessaryIsInstance]
         return field
-    msg = f'Unsupported field type in _parse_json_field: {type(field).__name__}'
+    msg = f'Unsupported field type in _parse_json_field: {type(field).__name__}'  # pyright: ignore[reportUnreachable]
     raise TypeError(msg)
 
 
