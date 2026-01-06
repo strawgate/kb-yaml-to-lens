@@ -16,7 +16,7 @@ from dashboard_compiler.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from dashboard_compiler.shared.compile import extract_metrics_from_config, split_dimensions
+from dashboard_compiler.shared.compile import split_dimensions
 from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false
 
@@ -118,12 +118,10 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
     """
     layer_id = get_layer_id(lens_pie_chart)
 
-    metric_configs = extract_metrics_from_config(lens_pie_chart)
-
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
-    for metric_config in metric_configs:  # pyright: ignore[reportAny]
-        metric_id, metric = compile_lens_metric(metric=metric_config)  # pyright: ignore[reportAny]
+    for metric_config in lens_pie_chart.metrics:
+        metric_id, metric = compile_lens_metric(metric=metric_config)
         kbn_metric_column_by_id[metric_id] = metric
         metric_ids.append(metric_id)
 
@@ -169,9 +167,7 @@ def compile_esql_pie_chart(
     """
     layer_id = get_layer_id(esql_pie_chart)
 
-    metric_configs = extract_metrics_from_config(esql_pie_chart)
-
-    metrics = [compile_esql_metric(m) for m in metric_configs]  # pyright: ignore[reportAny]
+    metrics = [compile_esql_metric(m) for m in esql_pie_chart.metrics]
     metric_ids = [m.columnId for m in metrics]
 
     dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.slice_by)

@@ -165,8 +165,8 @@ dashboards:
             - field: log.level
               type: values
               size: 10
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
   - id: nav-analytics-001
     name: '[Example] Navigation - Analytics Dashboard'
     description: Advanced analytics with multiple visualizations
@@ -218,5 +218,5 @@ dashboards:
           tags:
             type: values
             field: tags
-          metric:
+          metrics:
             aggregation: count

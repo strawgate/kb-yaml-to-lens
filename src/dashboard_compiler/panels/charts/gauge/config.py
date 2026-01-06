@@ -69,6 +69,11 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
     goal: LensMetricTypes | int | float | None = Field(default=None)
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
+    @property
+    def metrics(self) -> list[LensMetricTypes]:
+        """Provide metrics accessor for consistency with other chart types."""
+        return [self.metric]
+
 
 class ESQLGaugeChart(BaseChart, BaseGaugeChart):
     """Represents a Gauge chart configuration within an ESQL panel.
@@ -88,3 +93,8 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
 
     goal: ESQLMetricTypes | int | float | None = Field(default=None)
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
+
+    @property
+    def metrics(self) -> list[ESQLMetricTypes]:
+        """Provide metrics accessor for consistency with other chart types."""
+        return [self.metric]

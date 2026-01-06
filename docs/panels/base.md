@@ -195,9 +195,9 @@ dashboards:
           slice_by:
             - field: "region"
               type: values
-          metric:
-            aggregation: sum
-            field: revenue
+          metrics:
+            - aggregation: sum
+              field: revenue
           color:
             palette: 'elastic_brand'  # Use Elastic brand colors
 ```
@@ -218,8 +218,8 @@ dashboards:
           slice_by:
             - field: "http.response.status_code"
               type: values
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
           color:
             palette: 'eui_amsterdam_color_blind'
             assignments:
