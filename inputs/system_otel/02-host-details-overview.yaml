@@ -126,5 +126,6 @@ dashboards:
           metrics:
             - aggregation: average
               field: metrics.system.filesystem.utilization
+              label: Disk Usage
               format:
                 type: percent

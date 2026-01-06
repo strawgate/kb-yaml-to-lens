@@ -154,3 +154,4 @@ dashboards:
           metrics:
             - aggregation: average
               field: metrics.system.disk.operations
+              label: Operations
