@@ -27,7 +27,16 @@ jobs:
         run: npm ci
 
       - name: Package and Publish to OpenVSX
+        id: publish
         uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          packagePath: ./vscode-extension
+          packagePath: .
+
+      - name: Upload VSIX on failure
+        if: failure() && steps.publish.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-vsix
+          path: vscode-extension/*.vsix
+          retention-days: 7
