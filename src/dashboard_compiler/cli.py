@@ -658,7 +658,7 @@ async def generate_screenshot(  # noqa: PLR0913
 
 
 @cli.command('disassemble')
-@click.argument('input', type=click.Path(exists=True, path_type=Path), required=False)
+@click.argument('input_file', type=click.Path(exists=True, path_type=Path), required=False)
 @click.option(
     '-o',
     '--output',
@@ -666,7 +666,7 @@ async def generate_screenshot(  # noqa: PLR0913
     required=True,
     help='Output directory for component files.',
 )
-def disassemble(input: Path | None, output: Path) -> None:
+def disassemble(input_file: Path | None, output: Path) -> None:
     r"""Disassemble a Kibana dashboard NDJSON file into components.
 
     This command breaks down a Kibana dashboard JSON file (in NDJSON format)
@@ -694,12 +694,12 @@ def disassemble(input: Path | None, output: Path) -> None:
             kb-dashboard disassemble -o output_dir
     """
     try:
-        if input is None:
+        if input_file is None:
             import sys
 
             content = sys.stdin.read()
         else:
-            content = input.read_text(encoding='utf-8')
+            content = input_file.read_text(encoding='utf-8')
 
         dashboard = parse_ndjson(content)
         components = disassemble_dashboard(dashboard, output)

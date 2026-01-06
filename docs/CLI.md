@@ -213,7 +213,7 @@ kb-dashboard compile \
 # Download a dashboard from Kibana
 curl -u elastic:changeme http://localhost:5601/api/saved_objects/dashboard/my-dashboard-id > dashboard.ndjson
 
-# Disassemble it into component parts
+# Disassemble it into components
 kb-dashboard disassemble dashboard.ndjson -o dashboard_parts/
 
 # Now you can feed individual parts to an LLM for conversion

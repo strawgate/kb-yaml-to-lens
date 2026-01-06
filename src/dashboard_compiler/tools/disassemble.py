@@ -146,7 +146,10 @@ def disassemble_dashboard(dashboard: dict[str, Any], output_dir: Path) -> dict[s
                 continue
             panel_id = panel.get('panelIndex', f'panel_{i}')
             panel_type = panel.get('type', 'unknown')
-            filename = f'{i:03d}_{panel_id}_{panel_type}.json'
+            # Sanitize panel_id and panel_type for filesystem safety
+            safe_panel_id = str(panel_id).replace('/', '_').replace('\\', '_')
+            safe_panel_type = str(panel_type).replace('/', '_').replace('\\', '_')
+            filename = f'{i:03d}_{safe_panel_id}_{safe_panel_type}.json'
             _write_json_file(panels_dir / filename, panel)
             panel_count += 1
 
