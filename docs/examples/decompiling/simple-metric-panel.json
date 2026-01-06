@@ -1,0 +1,57 @@
+{
+  "version": "9.2.0",
+  "type": "lens",
+  "gridData": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 15
+  },
+  "panelIndex": "panel-1",
+  "embeddableConfig": {
+    "attributes": {
+      "title": "Total Documents",
+      "description": "Count of all documents in the index",
+      "visualizationType": "lnsMetric",
+      "state": {
+        "datasourceStates": {
+          "formBased": {
+            "layers": {
+              "layer1": {
+                "columns": {
+                  "col1": {
+                    "dataType": "number",
+                    "isBucketed": false,
+                    "label": "Count",
+                    "operationType": "count",
+                    "scale": "ratio",
+                    "sourceField": "___records___"
+                  }
+                },
+                "columnOrder": ["col1"],
+                "incompleteColumns": {}
+              }
+            }
+          }
+        },
+        "visualization": {
+          "layerId": "layer1",
+          "layerType": "data",
+          "metricAccessor": "col1"
+        },
+        "query": {
+          "query": "",
+          "language": "kuery"
+        },
+        "filters": []
+      },
+      "references": [
+        {
+          "type": "index-pattern",
+          "id": "logs-*",
+          "name": "indexpattern-datasource-layer-layer1"
+        }
+      ]
+    }
+  }
+}

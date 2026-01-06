@@ -1,0 +1,50 @@
+---
+dashboards:
+  - name: Sample Data Example Dashboard
+    description: Dashboard demonstrating sample data bundling with timestamp transformation
+    sample_data:
+      source: inline
+      index_pattern: logs-sample-*
+
+      # Sample log documents (timestamps automatically transformed to make max timestamp 'now')
+      documents:
+        - '@timestamp': '2024-01-01T00:00:00Z'
+          message: Application started successfully
+          level: info
+          service: web-api
+          host: server-01
+        - '@timestamp': '2024-01-01T01:15:30Z'
+          message: Database connection established
+          level: info
+          service: web-api
+          host: server-01
+        - '@timestamp': '2024-01-01T02:30:45Z'
+          message: 'Warning: High memory usage detected'
+          level: warn
+          service: web-api
+          host: server-01
+        - '@timestamp': '2024-01-01T03:45:00Z'
+          message: 'Error: Failed to connect to external API'
+          level: error
+          service: web-api
+          host: server-01
+        - '@timestamp': '2024-01-01T04:00:00Z'
+          message: Connection retry successful
+          level: info
+          service: web-api
+          host: server-01
+    panels:
+      - title: Total Log Count
+        grid: {x: 0, y: 0, w: 12, h: 8}
+        esql:
+          type: metric
+          query:
+            - FROM logs-sample-*
+            - STATS count = COUNT(*)
+      - title: Logs by Level
+        grid: {x: 12, y: 0, w: 12, h: 8}
+        esql:
+          type: pie
+          query:
+            - FROM logs-sample-*
+            - STATS count = COUNT(*) BY level
