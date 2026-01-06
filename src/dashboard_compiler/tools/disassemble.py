@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
-"""Disassemble a Kibana dashboard JSON into component parts.
+"""Disassemble a Kibana dashboard JSON into components.
 
-This tool reads a Kibana dashboard JSON file (in NDJSON format) and breaks it
-down into separate files for easier processing by LLMs. This allows for
-incremental conversion of large dashboards to YAML format instead of requiring
-one-shot conversion of the entire dashboard.
+This module provides functionality to break down Kibana dashboard JSON files
+(in NDJSON format) into separate files for easier processing by LLMs. This
+enables incremental conversion of large dashboards to YAML format.
 
 The dashboard is split into:
 - metadata.json: Dashboard metadata (id, title, description, version, timestamps)
@@ -15,9 +13,7 @@ The dashboard is split into:
 - panels/: Directory containing individual panel JSON files
 """
 
-import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -29,13 +25,12 @@ def parse_ndjson(content: str) -> dict[str, Any]:
         content: NDJSON content (newline-delimited JSON objects)
 
     Returns:
-        The dashboard object (should be the first object with type='dashboard')
+        The dashboard object (first object with type='dashboard')
 
     Raises:
         ValueError: If no dashboard object is found
     """
-    lines = content.strip().split('\n')
-    for line in lines:
+    for line in content.strip().split('\n'):
         if len(line.strip()) == 0:
             continue
         obj = json.loads(line)
@@ -79,17 +74,21 @@ def _parse_json_field(field: str | dict[str, Any] | list[Any] | None) -> dict[st
     raise TypeError(msg)
 
 
-def disassemble_dashboard(dashboard: dict[str, Any], output_dir: Path) -> None:
+def disassemble_dashboard(dashboard: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     """Disassemble a dashboard into component parts.
 
     Args:
         dashboard: The dashboard object to disassemble
         output_dir: Directory where component files will be written
+
+    Returns:
+        Dictionary indicating which components were written
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
     attributes = dashboard.get('attributes', {})
 
+    # Write metadata
     metadata = {
         'id': dashboard.get('id'),
         'type': dashboard.get('type'),
@@ -106,30 +105,42 @@ def disassemble_dashboard(dashboard: dict[str, Any], output_dir: Path) -> None:
     }
     _write_json_file(output_dir / 'metadata.json', metadata)
 
+    components: dict[str, Any] = {'metadata': True}
+
+    # Write options if present
     options = _parse_json_field(attributes.get('optionsJSON'))
     if options is not None:
         _write_json_file(output_dir / 'options.json', options)
+        components['options'] = True
 
+    # Write controls if present
     control_group_input = attributes.get('controlGroupInput')
     if control_group_input is not None:
         _write_json_file(output_dir / 'controls.json', control_group_input)
+        components['controls'] = True
 
+    # Write filters if present
     kbn_saved_object_meta = attributes.get('kibanaSavedObjectMeta', {})
     search_source = _parse_json_field(kbn_saved_object_meta.get('searchSourceJSON'))
     if search_source is not None and isinstance(search_source, dict):
         filters = search_source.get('filter', [])
         if len(filters) > 0:
             _write_json_file(output_dir / 'filters.json', filters)
+            components['filters'] = True
 
+    # Write references if present
     references = dashboard.get('references', [])
     if len(references) > 0:
         _write_json_file(output_dir / 'references.json', references)
+        components['references'] = True
 
+    # Write panels if present
     panels = _parse_json_field(attributes.get('panelsJSON'))
     if panels is not None and isinstance(panels, list) and len(panels) > 0:
         panels_dir = output_dir / 'panels'
         panels_dir.mkdir(exist_ok=True)
 
+        panel_count = 0
         for i, panel in enumerate(panels):
             if not isinstance(panel, dict):
                 continue
@@ -137,81 +148,8 @@ def disassemble_dashboard(dashboard: dict[str, Any], output_dir: Path) -> None:
             panel_type = panel.get('type', 'unknown')
             filename = f'{i:03d}_{panel_id}_{panel_type}.json'
             _write_json_file(panels_dir / filename, panel)
+            panel_count += 1
 
+        components['panels'] = panel_count
 
-def main() -> int:
-    """Run the dashboard disassembly tool.
-
-    Returns:
-        Exit code (0 for success, non-zero for failure)
-    """
-    parser = argparse.ArgumentParser(
-        description='Disassemble a Kibana dashboard JSON into component parts',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Disassemble a dashboard NDJSON file
-  python -m dashboard_compiler.tools.disassemble dashboard.ndjson -o output_dir
-
-  # Read from stdin
-  cat dashboard.ndjson | python -m dashboard_compiler.tools.disassemble -o output_dir
-        """,
-    )
-
-    _ = parser.add_argument(
-        'input',
-        nargs='?',
-        help='Path to the dashboard NDJSON file (use - or omit for stdin)',
-    )
-    _ = parser.add_argument(
-        '-o',
-        '--output',
-        required=True,
-        help='Output directory for component files',
-    )
-
-    args = parser.parse_args()
-
-    try:
-        if args.input is None or args.input == '-':
-            content = sys.stdin.read()
-        else:
-            input_path = Path(args.input)
-            if not input_path.exists():
-                print(f'Error: Input file not found: {input_path}', file=sys.stderr)
-                return 1
-            content = input_path.read_text(encoding='utf-8')
-
-        dashboard = parse_ndjson(content)
-        output_dir = Path(args.output)
-        disassemble_dashboard(dashboard, output_dir)
-
-        print(f'Dashboard disassembled successfully to: {output_dir}')
-        print('  - metadata.json: Dashboard metadata')
-
-        if (output_dir / 'options.json').exists():
-            print('  - options.json: Dashboard options')
-
-        if (output_dir / 'controls.json').exists():
-            print('  - controls.json: Control group configuration')
-
-        if (output_dir / 'filters.json').exists():
-            print('  - filters.json: Dashboard-level filters')
-
-        if (output_dir / 'references.json').exists():
-            print('  - references.json: Data view references')
-
-        panels_dir = output_dir / 'panels'
-        if panels_dir.exists():
-            panel_count = len(list(panels_dir.glob('*.json')))
-            print(f'  - panels/: {panel_count} panel files')
-
-    except Exception as e:
-        print(f'Error: {e}', file=sys.stderr)
-        return 1
-    else:
-        return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+    return components

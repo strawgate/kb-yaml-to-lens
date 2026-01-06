@@ -74,7 +74,7 @@ def test_disassemble_dashboard_metadata(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     metadata_file = tmp_path / 'metadata.json'
     assert metadata_file.exists()
@@ -105,7 +105,7 @@ def test_disassemble_dashboard_options(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     options_file = tmp_path / 'options.json'
     assert options_file.exists()
@@ -129,7 +129,7 @@ def test_disassemble_dashboard_options_as_object(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     options_file = tmp_path / 'options.json'
     assert options_file.exists()
@@ -160,7 +160,7 @@ def test_disassemble_dashboard_controls(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     controls_file = tmp_path / 'controls.json'
     assert controls_file.exists()
@@ -193,7 +193,7 @@ def test_disassemble_dashboard_filters(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     filters_file = tmp_path / 'filters.json'
     assert filters_file.exists()
@@ -221,7 +221,7 @@ def test_disassemble_dashboard_no_filters(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     filters_file = tmp_path / 'filters.json'
     assert not filters_file.exists()
@@ -247,7 +247,7 @@ def test_disassemble_dashboard_references(tmp_path: Path) -> None:
         ],
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     references_file = tmp_path / 'references.json'
     assert references_file.exists()
@@ -267,7 +267,7 @@ def test_disassemble_dashboard_no_references(tmp_path: Path) -> None:
         'references': [],
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     references_file = tmp_path / 'references.json'
     assert not references_file.exists()
@@ -297,7 +297,7 @@ def test_disassemble_dashboard_panels(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     panels_dir = tmp_path / 'panels'
     assert panels_dir.exists()
@@ -330,7 +330,7 @@ def test_disassemble_dashboard_panels_as_object(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     panels_dir = tmp_path / 'panels'
     assert panels_dir.exists()
@@ -350,7 +350,7 @@ def test_disassemble_dashboard_no_panels(tmp_path: Path) -> None:
         },
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     panels_dir = tmp_path / 'panels'
     assert not panels_dir.exists()
@@ -391,7 +391,7 @@ def test_disassemble_dashboard_complete(tmp_path: Path) -> None:
         'references': [{'type': 'index-pattern', 'id': 'logs-*'}],
     }
 
-    disassemble_dashboard(dashboard, tmp_path)
+    _ = disassemble_dashboard(dashboard, tmp_path)
 
     assert (tmp_path / 'metadata.json').exists()
     assert (tmp_path / 'options.json').exists()
