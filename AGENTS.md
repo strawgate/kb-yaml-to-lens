@@ -30,10 +30,10 @@ We try to make all common commands available via `make` commands.
 
 | Command | Purpose |
 | --------- | --------- |
-| `make install` | Install all dependencies |
-| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests) |
-| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML) |
-| `make lint-all-check` | Check all linting without fixing |
+| `make install` | Install all dependencies (Python + Node.js + Extension) |
+| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests including extension) |
+| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML + Extension) |
+| `make lint-all-check` | Check all linting without fixing (Python + Markdown + YAML + Extension) |
 | `make test-all` | Run all tests (unit + smoke + extension) |
 | `make test` | Run Python unit tests only |
 | `make typecheck` | Run type checking with basedpyright |

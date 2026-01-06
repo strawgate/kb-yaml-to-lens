@@ -10,26 +10,29 @@
 
 | Command | Purpose |
 | ------- | ------- |
-| `npm install` | Install dependencies |
+| `make install-extension` | Install dependencies |
 | `npm run compile` | Build TypeScript |
 | `npm run watch` | Watch mode for development |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run tests |
+| `make lint-extension` | Run ESLint (auto-fix) |
+| `make lint-extension-check` | Run ESLint (check only) |
+| `make test-extension-typescript` | Run tests |
+| `make build-extension` | Build for publishing |
 | `npm run package` | Create .vsix package |
 
 ### Development Workflow
 
 ```bash
-# First time setup
-npm install
+# First time setup (from repository root)
+make install
 
 # Development
+cd vscode-extension
 npm run watch  # Start watch mode
 # Press F5 in VS Code to launch Extension Development Host
 
 # Before committing (from repository root)
-make fix  # Auto-fix all linting issues
-make ci   # Run all CI checks (linting + typecheck + tests)
+make fix  # Auto-fix all linting issues (includes extension)
+make ci   # Run all CI checks (linting + typecheck + tests, includes extension)
 ```
 
 ---
@@ -233,11 +236,12 @@ Tests are located in `src/test/`:
 Before claiming work is complete:
 
 - [ ] TypeScript compiles without errors (`npm run compile`)
-- [ ] ESLint passes (`npm run lint`)
+- [ ] ESLint passes (`make lint-extension-check` from repository root)
 - [ ] Extension loads in Development Host (press F5)
 - [ ] All commands work as expected
 - [ ] No console errors in Extension Host
 - [ ] Python server starts and responds correctly
+- [ ] All CI checks pass (`make ci` from repository root)
 
 ### Working with Python Server
 
