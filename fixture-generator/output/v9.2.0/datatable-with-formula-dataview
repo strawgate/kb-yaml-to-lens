@@ -1,0 +1,81 @@
+{
+  "title": "Host Performance Summary",
+  "visualizationType": "lnsDatatable",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "metrics-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessor_breakdown_0",
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "params": {},
+                "customLabel": true
+              },
+              "metric_formula_accessor_breakdown_0": {
+                "label": "Top 5 values of host.name",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "host.name",
+                "isBucketed": true,
+                "params": {
+                  "size": 5,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "columns": [
+        {
+          "columnId": "metric_formula_accessor"
+        },
+        {
+          "columnId": "metric_formula_accessor_breakdown_0"
+        }
+      ]
+    },
+    "adHocDataViews": {
+      "metrics-*": {}
+    }
+  }
+}
