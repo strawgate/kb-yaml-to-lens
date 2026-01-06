@@ -48,6 +48,23 @@ kb-dashboard screenshot --dashboard-id <id> --output <file.png>
 
 This will use Kibana's Reporting API to take a screenshot.
 
+### Disassemble Dashboards
+
+Break down a Kibana dashboard JSON into component parts for easier LLM-based conversion:
+
+```bash
+python -m dashboard_compiler.tools.disassemble dashboard.ndjson -o output_dir
+```
+
+This will extract the dashboard into separate files:
+
+- `metadata.json` - Dashboard metadata (id, title, description, version)
+- `options.json` - Dashboard display options
+- `controls.json` - Control group configuration
+- `filters.json` - Dashboard-level filters
+- `references.json` - Data view references
+- `panels/` - Individual panel JSON files
+
 ## Configuration
 
 ### Environment Variables
@@ -120,6 +137,32 @@ Generate a PNG screenshot of a Kibana dashboard.
 - `--kibana-api-key KEY` - Kibana API key
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
 
+### `dashboard_compiler.tools.disassemble`
+
+Disassemble a Kibana dashboard JSON into component parts for easier LLM processing.
+
+**Usage:**
+
+```bash
+python -m dashboard_compiler.tools.disassemble [input] -o <output_dir>
+```
+
+**Arguments:**
+
+- `input` - Path to the dashboard NDJSON file (use `-` or omit for stdin)
+- `-o, --output` - Output directory for component files (required)
+
+**Output Structure:**
+
+The tool creates the following files in the output directory:
+
+- `metadata.json` - Dashboard metadata including id, title, description, version, and timestamps
+- `options.json` - Dashboard display options (margins, color sync, cursor sync, etc.)
+- `controls.json` - Control group configuration with control panels
+- `filters.json` - Dashboard-level filters (only created if filters exist)
+- `references.json` - Data view and index pattern references
+- `panels/` - Directory containing individual panel JSON files, named as `NNN_panelId_type.json`
+
 ## Examples
 
 ### Compile only
@@ -162,6 +205,26 @@ kb-dashboard compile \
 kb-dashboard compile \
   --upload \
   --no-browser
+```
+
+### Disassemble a dashboard for LLM conversion
+
+```bash
+# Download a dashboard from Kibana
+curl -u elastic:changeme http://localhost:5601/api/saved_objects/dashboard/my-dashboard-id > dashboard.ndjson
+
+# Disassemble it into component parts
+python -m dashboard_compiler.tools.disassemble dashboard.ndjson -o dashboard_parts/
+
+# Now you can feed individual parts to an LLM for conversion
+cat dashboard_parts/panels/000_panel-1_lens.json | llm "Convert this Kibana panel to our YAML schema"
+```
+
+### Disassemble from stdin
+
+```bash
+curl -u elastic:changeme http://localhost:5601/api/saved_objects/dashboard/my-id | \
+  python -m dashboard_compiler.tools.disassemble -o output/
 ```
 
 ## Makefile Shortcuts
