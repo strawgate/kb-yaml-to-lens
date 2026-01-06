@@ -59,11 +59,11 @@ dashboards:
             - STATS BY cache_size = TO_STRING(resource.attributes.host.cpu.cache.l2.size), family = resource.attributes.host.cpu.family, model_id
               = resource.attributes.host.cpu.model.id, model_name = resource.attributes.host.cpu.model.name, stepping = resource.attributes.host.cpu.stepping,
               vendor_id = resource.attributes.host.cpu.vendor.id
-            - EVAL str = CONCAT("host.cpu.cache.l2.size:", cache_size, "|", "host.cpu.family:",family, "|", "host.cpu.model.id:",model_id, "|",
-              "host.cpu.model.name:",model_name, "|", "host.cpu.stepping:",stepping, "|", "host.cpu.vendor.id:",vendor_id)
+            - EVAL str = CONCAT("host.cpu.cache.l2.size$", cache_size, "|", "host.cpu.family$",family, "|", "host.cpu.model.id$",model_id, "|",
+              "host.cpu.model.name$",model_name, "|", "host.cpu.stepping$",stepping, "|", "host.cpu.vendor.id$",vendor_id)
             - EVAL arr = SPLIT(str, "|")
             - MV_EXPAND arr
-            - EVAL pairs = SPLIT(arr, ":")
+            - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
       - title: Operating System Metadata
@@ -92,11 +92,12 @@ dashboards:
             - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
             - LIMIT 1
             - STATS BY resource.attributes.cloud.account.id, resource.attributes.cloud.instance.id, resource.attributes.cloud.platform, resource.attributes.cloud.provider
-            - EVAL str = CONCAT("cloud.account.id:",resource.attributes.cloud.account.id, "|", "cloud.instance.id:",resource.attributes.cloud.instance.id,
-              "|", "cloud.platform:",resource.attributes.cloud.platform, "|", "cloud.provider:",resource.attributes.cloud.provider)
+            - EVAL str = CONCAT("cloud.account.id$",COALESCE(resource.attributes.cloud.account.id, ""), "|", "cloud.instance.id$",COALESCE(resource.attributes.cloud.instance.id,
+              ""), "|", "cloud.platform$",COALESCE(resource.attributes.cloud.platform, ""), "|", "cloud.provider$",COALESCE(resource.attributes.cloud.provider,
+              ""))
             - EVAL arr = SPLIT(str, "|")
             - MV_EXPAND arr
-            - EVAL pairs = SPLIT(arr, ":")
+            - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
       - title: Kubernetes Metadata
@@ -109,9 +110,5 @@ dashboards:
             - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
             - LIMIT 1
             - STATS BY resource.attributes.k8s.cluster.name
-            - EVAL str = CONCAT("k8s.cluster.name:", resource.attributes.k8s.cluster.name)
-            - EVAL arr = SPLIT(str, "|")
-            - MV_EXPAND arr
-            - EVAL pairs = SPLIT(arr, ":")
-            - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
+            - EVAL `Resource Attribute` = "k8s.cluster.name", `Value` = resource.attributes.k8s.cluster.name
             - KEEP `Resource Attribute`, `Value`
