@@ -84,7 +84,6 @@ nav:
       - Getting Started: index.md
       - CLI Reference: CLI.md
       - VS Code Extension: vscode-extension.md
-      - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
       - Complete Examples: examples/index.md
       - Dashboard Configuration: dashboard/dashboard.md
       - Panel Types:
@@ -109,6 +108,7 @@ nav:
           - Filters: filters/config.md
           - Queries: queries/config.md
       - Advanced Topics:
+          - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
           - Custom Color Assignments: advanced/color-assignments.md
           - ES|QL "views": advanced/esql-views.md
   - Developer Guide:
