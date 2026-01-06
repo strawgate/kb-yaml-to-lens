@@ -1,0 +1,64 @@
+---
+dashboards:
+  - name: '[OTel] Hosts Overview'
+    description: ''
+    filters:
+      - exists: resource.attributes.host.name
+      - field: data_stream.dataset
+        equals: hostmetricsreceiver.otel
+    panels:
+      - title: Number of Hosts
+        grid: {x: 0, y: 0, w: 48, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: resource.attributes.host.name
+            label: Total Hosts
+      - title: Hosts by OS
+        grid: {x: 0, y: 4, w: 48, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          breakdown:
+            field: resource.attributes.os.type
+            label: OS Type
+            size: 5
+          primary:
+            aggregation: unique_count
+            field: resource.attributes.host.name
+            label: Hosts
+      - title: Host Performance Summary
+        grid: {x: 0, y: 8, w: 48, h: 25}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          rows:
+            - id: hostname
+              type: values
+              field: host.name
+              size: 100
+          metrics:
+            - id: cpu-util
+              formula: "1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:\
+                \ wait'))"
+              label: CPU %
+              format:
+                type: percent
+                decimals: 1
+            - id: mem-util
+              formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              label: Memory %
+              format:
+                type: percent
+                decimals: 1
+            - id: norm-load
+              formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              label: Normalized Load
+              format:
+                type: percent
+                decimals: 1
+          paging:
+            enabled: true
+            page_size: 20
