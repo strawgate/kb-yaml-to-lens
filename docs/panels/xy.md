@@ -105,10 +105,12 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
+| `show_current_time_marker` | `bool \| None` | Whether to show a vertical line at the current time in time series charts. | `None` | No |
+| `hide_endzones` | `bool \| None` | Whether to hide end zones in time series charts (areas where data is incomplete). | `None` | No |
 
 ### Lens Area Chart
 
@@ -120,10 +122,12 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `AreaChartAppearance \| LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
+| `show_current_time_marker` | `bool \| None` | Whether to show a vertical line at the current time in time series charts. | `None` | No |
+| `hide_endzones` | `bool \| None` | Whether to hide end zones in time series charts (areas where data is incomplete). | `None` | No |
 
 #### XYLegend Options
 
@@ -208,8 +212,9 @@ For line charts (`type: line`), the following additional appearance options are 
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
-| `fitting_function` | `Literal['Linear'] \| None` | The fitting function to apply to line charts for smoothing. | `None` | No |
-| `emphasize_fitting` | `bool \| None` | If `true`, emphasize the fitting function line. | `false` | No |
+| `fitting_function` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | The fitting function for interpolating missing data points. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
+| `emphasize_fitting` | `bool \| None` | If `true`, visually emphasize fitted vs actual data points. | `None` | No |
+| `end_value` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end value in line/area charts. Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
 | `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. | `None` | No |
 
 **Example**:
@@ -219,8 +224,9 @@ chart:
   type: line
   data_view: "metrics-*"
   appearance:
-    fitting_function: Linear
+    fitting_function: Average
     emphasize_fitting: true
+    end_value: Zero
     curve_type: monotone-x
     series:
       - metric_id: "response_time"
@@ -416,6 +422,34 @@ dashboards:
                 color: "#4CAF50"
               - metric_id: "outbound"
                 color: "#FF9800"
+```
+
+### Advanced Line Chart with Time Series Features
+
+Use fitting functions, time markers, and end value handling for time series visualizations:
+
+```yaml
+dashboards:
+  - name: "Time Series Analytics"
+    panels:
+      - title: "CPU Usage with Interpolation"
+        grid: { x: 0, y: 0, w: 48, h: 12 }
+        lens:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: average
+              field: "system.cpu.usage"
+          appearance:
+            fitting_function: Average
+            emphasize_fitting: true
+            end_value: Zero
+            curve_type: monotone-x
+          show_current_time_marker: true
+          hide_endzones: true
 ```
 
 ## Programmatic Usage (Python)
