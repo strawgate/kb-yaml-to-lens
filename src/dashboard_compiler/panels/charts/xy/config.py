@@ -139,14 +139,20 @@ class XYAppearance(BaseCfgModel):
     """Per-series visual configuration (axis assignment, colors, line styles, etc.)."""
 
 
-class BarChartAppearance(BaseCfgModel):
-    """Represents bar chart appearance formatting options."""
+class BarChartAppearance(XYAppearance):
+    """Represents bar chart appearance formatting options.
+
+    Extends XYAppearance to include bar-specific options.
+    """
 
     min_bar_height: float | None = Field(default=None, description='The minimum height for bars in bar charts.')
 
 
-class LineChartAppearance(BaseCfgModel):
-    """Represents line chart appearance formatting options."""
+class LineChartAppearance(XYAppearance):
+    """Represents line chart appearance formatting options.
+
+    Extends XYAppearance to include line-specific options.
+    """
 
     fitting_function: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
         default=None,
@@ -195,11 +201,6 @@ class XYSeries(BaseCfgModel):
 
 class BaseXYChart(BaseChart):
     """Base model for defining XY chart objects."""
-
-    appearance: XYAppearance | None = Field(
-        None,
-        description='Formatting options for the chart appearance.',
-    )
 
     titles_and_text: XYTitlesAndText | None = Field(
         None,
@@ -275,6 +276,11 @@ class BaseXYBarChart(BaseXYChart):
 
     type: Literal['bar'] = Field('bar', description="The type of XY chart to display. Defaults to 'bar'.")
 
+    appearance: BarChartAppearance | XYAppearance | None = Field(
+        None,
+        description='Formatting options for the chart appearance.',
+    )
+
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
         'stacked',
         description="The stacking mode for bar and area charts. Defaults to 'stacked'.",
@@ -307,9 +313,9 @@ class BaseXYAreaChart(BaseXYLineChart):
 
     type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
 
-    appearance: AreaChartAppearance | LineChartAppearance | XYAppearance | None = Field(
+    appearance: AreaChartAppearance | XYAppearance | None = Field(
         None,
-        description='Formatting options for the chart appearance.',
+        description='Formatting options for the chart appearance. AreaChartAppearance includes all line chart options plus fill_opacity.',
     )
 
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(

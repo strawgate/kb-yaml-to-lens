@@ -1056,3 +1056,49 @@ async def test_esql_line_chart_with_advanced_features() -> None:
     assert kbn_state_visualization.emphasizeFitting is False
     assert kbn_state_visualization.showCurrentTimeMarker is True
     assert kbn_state_visualization.hideEndzones is False
+
+
+async def test_bar_chart_with_min_bar_height() -> None:
+    """Test bar chart with min_bar_height configuration."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'min_bar_height': 5.0,
+        },
+    }
+
+    lens_chart = LensBarChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify min_bar_height is compiled
+    assert kbn_state_visualization.minBarHeight == 5.0
+
+
+async def test_bar_chart_with_min_bar_height_and_axis_config() -> None:
+    """Test bar chart with min_bar_height and axis configuration."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'min_bar_height': 3.5,
+            'y_left_axis': {
+                'title': 'Count',
+                'scale': 'linear',
+            },
+        },
+    }
+
+    lens_chart = LensBarChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify min_bar_height and axis config are compiled
+    assert kbn_state_visualization.minBarHeight == 3.5
+    assert kbn_state_visualization.yLeftTitle == 'Count'
+    assert kbn_state_visualization.yLeftScale == 'linear'

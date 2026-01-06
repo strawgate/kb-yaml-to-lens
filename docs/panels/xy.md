@@ -91,7 +91,7 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `BarChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. BarChartAppearance includes all XYAppearance options plus min_bar_height. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
@@ -105,7 +105,7 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. LineChartAppearance includes all XYAppearance options plus line-specific options (fitting_function, emphasize_fitting, end_value, curve_type). | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
@@ -122,7 +122,7 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `AreaChartAppearance \| LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `AreaChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. AreaChartAppearance includes all LineChartAppearance options (which includes all XYAppearance options) plus fill_opacity. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
@@ -187,7 +187,7 @@ Configures per-series visual styling and axis assignment. Used to customize indi
 
 #### Bar Chart Specific Appearance
 
-For bar charts (`type: bar`), the following additional appearance options are available:
+For bar charts (`type: bar`), `BarChartAppearance` extends `XYAppearance` (includes all axis config and series options) and adds the following bar-specific options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | -------------------------------------------- | ------- | -------- |
@@ -208,7 +208,7 @@ chart:
 
 #### Line Chart Specific Appearance
 
-For line charts (`type: line`), the following additional appearance options are available:
+For line charts (`type: line`), `LineChartAppearance` extends `XYAppearance` (includes all axis config and series options) and adds the following line-specific options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
@@ -236,7 +236,7 @@ chart:
 
 #### Area Chart Specific Appearance
 
-For area charts (`type: area`), all line chart appearance options are available, plus:
+For area charts (`type: area`), `AreaChartAppearance` extends `LineChartAppearance` (which includes all `XYAppearance` and line-specific options) and adds:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | ------------------------------------------------------ | ------- | -------- |

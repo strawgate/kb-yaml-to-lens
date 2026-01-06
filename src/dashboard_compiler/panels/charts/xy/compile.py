@@ -17,6 +17,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     AreaChartAppearance,
     AxisConfig,
     AxisExtent,
+    BarChartAppearance,
     ESQLAreaChart,
     ESQLBarChart,
     ESQLLineChart,
@@ -27,7 +28,6 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
     LensXYChartTypes,
     LineChartAppearance,
-    XYAppearance,
     XYReferenceLine,
     XYReferenceLineValue,
 )
@@ -172,6 +172,67 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
     return accessor_id, static_value_column, y_config
 
 
+def _extract_chart_type_specific_appearance(
+    chart: LensXYChartTypes | ESQLXYChartTypes,
+) -> tuple[
+    str | None,  # fitting_function
+    bool | None,  # emphasize_fitting
+    str | None,  # end_value
+    str | None,  # curve_type
+    float | None,  # fill_opacity
+    float | None,  # min_bar_height
+    bool | None,  # show_current_time_marker
+    bool | None,  # hide_endzones
+]:
+    """Extract chart-type-specific appearance properties.
+
+    Args:
+        chart: The XY chart configuration.
+
+    Returns:
+        Tuple of (fitting_function, emphasize_fitting, end_value, curve_type, fill_opacity,
+                 min_bar_height, show_current_time_marker, hide_endzones).
+    """
+    fitting_function = None
+    emphasize_fitting = None
+    end_value = None
+    curve_type = None
+    fill_opacity = None
+    min_bar_height = None
+    show_current_time_marker = None
+    hide_endzones = None
+
+    # Extract line/area chart appearance
+    if chart.appearance is not None and isinstance(chart.appearance, LineChartAppearance | AreaChartAppearance):
+        fitting_function = chart.appearance.fitting_function
+        emphasize_fitting = chart.appearance.emphasize_fitting
+        end_value = chart.appearance.end_value
+        curve_type = chart.appearance.curve_type
+
+        if isinstance(chart.appearance, AreaChartAppearance):
+            fill_opacity = chart.appearance.fill_opacity
+
+    # Extract bar chart appearance
+    if chart.appearance is not None and isinstance(chart.appearance, BarChartAppearance):
+        min_bar_height = chart.appearance.min_bar_height
+
+    # Extract time series features from line/area charts
+    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
+        show_current_time_marker = chart.show_current_time_marker
+        hide_endzones = chart.hide_endzones
+
+    return (
+        fitting_function,
+        emphasize_fitting,
+        end_value,
+        curve_type,
+        fill_opacity,
+        min_bar_height,
+        show_current_time_marker,
+        hide_endzones,
+    )
+
+
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     """Determine the Kibana series type based on the chart configuration.
 
@@ -237,9 +298,9 @@ def compile_xy_chart_visualization_state(
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
-    # Build yConfig from series configuration if provided (only XYAppearance has series)
+    # Build yConfig from series configuration if provided
     y_config: list[YConfig] | None = None
-    if chart.appearance is not None and isinstance(chart.appearance, XYAppearance) and chart.appearance.series is not None:
+    if chart.appearance is not None and chart.appearance.series is not None:
         y_config = []
         for series_cfg in chart.appearance.series:
             # Only create YConfig if at least one property is set
@@ -258,7 +319,7 @@ def compile_xy_chart_visualization_state(
                     )
                 )
 
-    # Build axis configuration from appearance settings (only XYAppearance has axis configs)
+    # Build axis configuration from appearance settings
     x_title = None
     x_scale = None
     y_left_title = None
@@ -269,7 +330,7 @@ def compile_xy_chart_visualization_state(
     y_right_extent = None
     x_extent = None
 
-    if chart.appearance is not None and isinstance(chart.appearance, XYAppearance):
+    if chart.appearance is not None:
         x_title, x_scale, x_extent = _extract_axis_config(chart.appearance.x_axis)
         y_left_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
         y_right_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
@@ -307,29 +368,17 @@ def compile_xy_chart_visualization_state(
         if chart.legend.position is not None:
             legend_position = chart.legend.position
 
-    # Extract fitting function and time series features from line/area chart appearance
-    fitting_function = None
-    emphasize_fitting = None
-    end_value = None
-    curve_type = None
-    fill_opacity = None
-
-    if chart.appearance is not None and isinstance(chart.appearance, LineChartAppearance | AreaChartAppearance):
-        fitting_function = chart.appearance.fitting_function
-        emphasize_fitting = chart.appearance.emphasize_fitting
-        end_value = chart.appearance.end_value
-        curve_type = chart.appearance.curve_type
-
-        if isinstance(chart.appearance, AreaChartAppearance):
-            fill_opacity = chart.appearance.fill_opacity
-
-    # Extract time series features from line/area charts
-    show_current_time_marker = None
-    hide_endzones = None
-
-    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
-        show_current_time_marker = chart.show_current_time_marker
-        hide_endzones = chart.hide_endzones
+    # Extract chart-type-specific appearance properties
+    (
+        fitting_function,
+        emphasize_fitting,
+        end_value,
+        curve_type,
+        fill_opacity,
+        min_bar_height,
+        show_current_time_marker,
+        hide_endzones,
+    ) = _extract_chart_type_specific_appearance(chart)
 
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
@@ -351,6 +400,7 @@ def compile_xy_chart_visualization_state(
         endValue=end_value,
         curveType=curve_type,
         fillOpacity=fill_opacity,
+        minBarHeight=min_bar_height,
         showCurrentTimeMarker=show_current_time_marker,
         hideEndzones=hide_endzones,
     )
