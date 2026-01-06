@@ -5,8 +5,6 @@
  * dashboard compilation services to the VS Code extension.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
 import {
     LanguageClient,
@@ -14,6 +12,7 @@ import {
     ServerOptions,
 } from 'vscode-languageclient/node';
 import { ConfigService } from './configService';
+import { BinaryResolver } from './binaryResolver';
 
 // Interface for the compiled dashboard result
 export type CompiledDashboard = unknown;
@@ -81,86 +80,21 @@ export class DashboardCompilerLSP {
         this.outputChannel = vscode.window.createOutputChannel('Dashboard Compiler LSP');
     }
 
-    /**
-     * Check LSP result for success and throw error if failed.
-     *
-     * @param result LSP result object with success/error fields
-     * @param defaultError Default error message if result.error is not provided
-     * @returns The data from the result
-     * @throws Error if result.success is false
-     */
-    private checkLspResult<T extends { success: boolean; data?: unknown; error?: string }>(
-        result: T,
-        defaultError: string
-    ): T['data'] {
-        if (!result.success) {
-            throw new Error(result.error || defaultError);
-        }
-        return result.data;
-    }
-
-    /**
-     * Resolve the Python path to use for the LSP server.
-     *
-     * Resolution order:
-     * 1. Configured pythonPath setting (relative paths resolved to workspace)
-     * 2. Workspace .venv/bin/python (or .venv/Scripts/python.exe on Windows)
-     * 3. System 'python' command
-     *
-     * @returns Absolute path to Python executable or 'python' for system Python
-     */
-    private resolvePythonPath(): string {
-        const configuredPath = this.configService.getPythonPath();
-        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-
-        // Check explicitly configured Python path
-        if (configuredPath !== 'python') {
-            const resolvedPath = workspaceRoot && !path.isAbsolute(configuredPath)
-                ? path.join(workspaceRoot, configuredPath)
-                : configuredPath;
-
-            if (fs.existsSync(resolvedPath)) {
-                this.outputChannel.appendLine(`Using configured Python: ${resolvedPath}`);
-                return resolvedPath;
-            }
-
-            this.outputChannel.appendLine(`Warning: Configured Python not found: ${resolvedPath}`);
-        }
-
-        // Auto-detect workspace virtual environment
-        if (workspaceRoot) {
-            const venvPython = process.platform === 'win32'
-                ? path.join(workspaceRoot, '.venv', 'Scripts', 'python.exe')
-                : path.join(workspaceRoot, '.venv', 'bin', 'python');
-
-            if (fs.existsSync(venvPython)) {
-                this.outputChannel.appendLine(`Using workspace venv: ${venvPython}`);
-                return venvPython;
-            }
-        }
-
-        // Fallback to system Python
-        this.outputChannel.appendLine('Using system Python: python');
-        return 'python';
-    }
-
     async start(): Promise<void> {
         if (this.client) {
             return; // Already started
         }
 
-        const pythonPath = this.resolvePythonPath();
+        // Resolve LSP server (bundled binary or Python script)
+        const resolver = new BinaryResolver(this.context.extensionPath, this.configService);
+        const config = resolver.resolveLSPServer(this.outputChannel);
 
-        // Path to the LSP server script
-        const extensionPath = this.context.extensionPath;
-        const serverScript = path.join(extensionPath, 'python', 'compile_server.py');
-
-        // Server options - how to start the Python LSP server
+        // Server options - how to start the LSP server
         const serverOptions: ServerOptions = {
-            command: pythonPath,
-            args: [serverScript],
+            command: config.executable,
+            args: config.args,
             options: {
-                cwd: path.join(extensionPath, '..'), // Set cwd to repo root
+                cwd: config.cwd,
             },
         };
 
@@ -213,7 +147,11 @@ export class DashboardCompilerLSP {
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
-        return this.checkLspResult(result, 'Compilation failed') as CompiledDashboard;
+        if (!result.success) {
+            throw new Error(result.error || 'Compilation failed');
+        }
+
+        return result.data as CompiledDashboard;
     }
 
     /**
@@ -232,7 +170,11 @@ export class DashboardCompilerLSP {
             { path: filePath }
         );
 
-        return (this.checkLspResult(result, 'Failed to get dashboards') || []) as DashboardInfo[];
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to get dashboards');
+        }
+
+        return result.data || [];
     }
 
     /**
@@ -253,7 +195,11 @@ export class DashboardCompilerLSP {
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
-        return (this.checkLspResult(result, 'Failed to get grid layout') || { title: '', description: '', panels: [] }) as DashboardGridInfo;
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to get grid layout');
+        }
+
+        return result.data || { title: '', description: '', panels: [] };
     }
 
     /**
@@ -298,7 +244,9 @@ export class DashboardCompilerLSP {
             }
         );
 
-        this.checkLspResult(result, 'Upload failed');
+        if (!result.success) {
+            throw new Error(result.error || 'Upload failed');
+        }
 
         if (!result.dashboard_url || !result.dashboard_id) {
             throw new Error('Upload succeeded but dashboard URL/ID not returned');

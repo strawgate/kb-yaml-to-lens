@@ -50,7 +50,7 @@ class TestKibanaClient:
             url='http://localhost:5601',
             api_key='my-api-key',
         )
-        headers, auth = client._get_auth_headers_and_auth()  # pyright: ignore[reportPrivateUsage]
+        headers, auth = client._get_auth_headers_and_auth()
         assert headers == {
             'kbn-xsrf': 'true',
             'Authorization': 'ApiKey my-api-key',
@@ -64,7 +64,7 @@ class TestKibanaClient:
             username='admin',
             password='password',  # noqa: S106
         )
-        headers, auth = client._get_auth_headers_and_auth()  # pyright: ignore[reportPrivateUsage]
+        headers, auth = client._get_auth_headers_and_auth()
         assert headers == {'kbn-xsrf': 'true'}
         assert auth is not None
         assert auth.login == 'admin'  # pyright: ignore[reportUnknownMemberType]
@@ -73,7 +73,7 @@ class TestKibanaClient:
     def test_get_auth_headers_and_auth_no_auth(self) -> None:
         """Test auth headers generation without authentication."""
         client = KibanaClient(url='http://localhost:5601')
-        headers, auth = client._get_auth_headers_and_auth()  # pyright: ignore[reportPrivateUsage]
+        headers, auth = client._get_auth_headers_and_auth()
         assert headers == {'kbn-xsrf': 'true'}
         assert auth is None
 

@@ -41,8 +41,8 @@ dashboards:
             - field: aerospike.namespace
               type: values
               size: 5
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
       - title: Free Memory by Node
         description: A chart showing the minimum free memory by node
         grid: {x: 16, y: 6, w: 32, h: 16}
