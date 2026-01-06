@@ -16,12 +16,12 @@ suite('Extension Test Suite', () => {
     });
 
     test('Extension should be present', () => {
-        const extension = vscode.extensions.getExtension('strawgate.yaml-dashboard-compiler');
+        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension, 'Extension should be present');
     });
 
     test('Extension should activate', async () => {
-        const extension = vscode.extensions.getExtension('strawgate.yaml-dashboard-compiler');
+        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension);
 
         // Find the .venv path relative to this test file or the repo root
@@ -57,7 +57,7 @@ suite('Extension Test Suite', () => {
     });
 
     test('Should register commands', async () => {
-        const extension = vscode.extensions.getExtension('strawgate.yaml-dashboard-compiler');
+        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         if (!extension?.isActive) {
             await extension?.activate();
         }
@@ -75,7 +75,7 @@ suite('Extension Test Suite', () => {
     test('Should get dashboards from YAML file', async () => {
         // This test specifically verifies the getDashboards custom request works
         // which was failing with AttributeError: 'Object' object has no attribute 'get'
-        const extension = vscode.extensions.getExtension('strawgate.yaml-dashboard-compiler');
+        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension);
 
         if (!extension.isActive) {
