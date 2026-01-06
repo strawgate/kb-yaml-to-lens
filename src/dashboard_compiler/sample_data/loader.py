@@ -65,13 +65,7 @@ def read_documents(sample_data: SampleData, base_path: Path | None = None) -> li
             msg = f'Sample data file not found: {file_path}'
             raise ValueError(msg)
 
-        if sample_data.format == 'ndjson':
-            return _read_ndjson(file_path)
-        if sample_data.format == 'json_array':
-            return _read_json_array(file_path)
-
-        msg = f'Unsupported format: {sample_data.format}'
-        raise ValueError(msg)
+        return _read_ndjson(file_path)
 
     msg = f'Invalid source: {sample_data.source}'
     raise ValueError(msg)
@@ -94,24 +88,6 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
             if len(line) > 0:
                 documents.append(json.loads(line))  # pyright: ignore[reportAny]
     return documents
-
-
-def _read_json_array(file_path: Path) -> list[dict[str, Any]]:
-    """Read JSON array file.
-
-    Args:
-        file_path: Path to JSON file
-
-    Returns:
-        List of parsed JSON documents
-
-    """
-    with file_path.open('r') as f:
-        data = json.load(f)  # pyright: ignore[reportAny]
-        if not isinstance(data, list):
-            msg = f'Expected JSON array in {file_path}, got {type(data).__name__}'  # pyright: ignore[reportAny]
-            raise TypeError(msg)
-        return data
 
 
 async def load_sample_data(
@@ -139,10 +115,7 @@ async def load_sample_data(
         if sample_data.create_index_template is True and sample_data.index_template is not None:
             await _create_index_template(es_client, index_name, sample_data.index_template)
 
-        if sample_data.bypass_pipeline is True:
-            actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
-        else:
-            actions = [{'_index': index_name, '_source': doc} for doc in transformed_docs]
+        actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
 
         success_count, failed_count = await async_bulk(
             es_client,

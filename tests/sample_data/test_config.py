@@ -34,7 +34,6 @@ def test_sample_data_file() -> None:
     assert config.source == 'file'
     assert config.index_pattern == 'metrics-*'
     assert config.file_path == Path('sample.ndjson')
-    assert config.format == 'ndjson'
 
 
 def test_sample_data_with_timestamp_transform() -> None:
@@ -44,44 +43,32 @@ def test_sample_data_with_timestamp_transform() -> None:
         index_pattern='logs-*',
         documents=[{'@timestamp': '2024-01-01T00:00:00Z'}],
         timestamp_transform=TimestampTransform(
-            strategy='max_to_now',
+            enabled=True,
         ),
     )
 
     assert config.timestamp_transform is not None
-    assert config.timestamp_transform.strategy == 'max_to_now'
+    assert config.timestamp_transform.enabled is True
 
 
-def test_timestamp_transform_max_to_now() -> None:
-    """Test TimestampTransform with max_to_now strategy."""
+def test_timestamp_transform_enabled() -> None:
+    """Test TimestampTransform with transformation enabled."""
     transform = TimestampTransform(
-        strategy='max_to_now',
+        enabled=True,
     )
 
-    assert transform.strategy == 'max_to_now'
+    assert transform.enabled is True
     assert transform.field == '@timestamp'
 
 
-def test_timestamp_transform_absolute() -> None:
-    """Test TimestampTransform with absolute strategy."""
+def test_timestamp_transform_disabled() -> None:
+    """Test TimestampTransform with transformation disabled."""
     transform = TimestampTransform(
-        strategy='absolute',
+        enabled=False,
     )
 
-    assert transform.strategy == 'absolute'
+    assert transform.enabled is False
     assert transform.field == '@timestamp'
-
-
-def test_sample_data_with_pipeline_bypass() -> None:
-    """Test SampleData with pipeline bypass enabled."""
-    config = SampleData(
-        source='inline',
-        index_pattern='logs-*',
-        documents=[],
-        bypass_pipeline=True,
-    )
-
-    assert config.bypass_pipeline is True
 
 
 def test_sample_data_with_index_template() -> None:
@@ -123,9 +110,7 @@ def test_sample_data_model_dump() -> None:
             'index_pattern': 'logs-*',
             'documents': [{'@timestamp': '2024-01-01T00:00:00Z'}],
             'file_path': None,
-            'format': 'ndjson',
             'timestamp_transform': None,
-            'bypass_pipeline': True,
             'create_index_template': False,
             'index_template': None,
         }

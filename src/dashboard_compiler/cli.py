@@ -36,6 +36,7 @@ ICON_SUCCESS = '✓'
 ICON_ERROR = '✗'
 ICON_WARNING = '⚠'
 ICON_UPLOAD = '📤'
+ICON_DOWNLOAD = '📥'
 ICON_BROWSER = '🌐'
 
 
@@ -526,6 +527,123 @@ def load_sample_data_command(  # noqa: PLR0913
     )
 
 
+@cli.command('extract-sample-data')
+@click.option(
+    '--index',
+    type=str,
+    required=True,
+    help='Elasticsearch index pattern to extract data from (e.g., logs-*, metrics-*).',
+)
+@click.option(
+    '--output',
+    type=click.Path(path_type=Path),
+    required=True,
+    help='Path where the NDJSON file will be saved.',
+)
+@click.option(
+    '--query',
+    type=str,
+    default='*',
+    help='Elasticsearch query to filter documents (default: * for all documents).',
+)
+@click.option(
+    '--max-docs',
+    type=int,
+    default=1000,
+    help='Maximum number of documents to extract (default: 1000).',
+)
+@click.option(
+    '--es-url',
+    type=str,
+    envvar='ELASTICSEARCH_URL',
+    default='http://localhost:9200',
+    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
+)
+@click.option(
+    '--es-username',
+    type=str,
+    envvar='ELASTICSEARCH_USERNAME',
+    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
+)
+@click.option(
+    '--es-password',
+    type=str,
+    envvar='ELASTICSEARCH_PASSWORD',
+    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
+)
+@click.option(
+    '--es-api-key',
+    type=str,
+    envvar='ELASTICSEARCH_API_KEY',
+    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
+)
+@click.option(
+    '--es-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification for Elasticsearch connections.',
+)
+def extract_sample_data_command(  # noqa: PLR0913
+    index: str,
+    output: Path,
+    query: str,
+    max_docs: int,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    es_no_ssl_verify: bool,
+) -> None:
+    r"""Extract data from Elasticsearch to NDJSON format.
+
+    This command queries Elasticsearch and exports the results to an NDJSON file
+    that can be used as sample data for dashboards. Each line in the output file
+    is a separate JSON document.
+
+    \b
+    Examples:
+        # Extract logs data
+        kb-dashboard extract-sample-data --index logs-* --output sample-logs.ndjson
+
+        # Extract with custom query
+        kb-dashboard extract-sample-data --index metrics-* --output sample-metrics.ndjson \
+            --query 'host.name:server01'
+
+        # Extract limited number of documents
+        kb-dashboard extract-sample-data --index logs-* --output sample.ndjson --max-docs 100
+
+        # With authentication
+        kb-dashboard extract-sample-data --index logs-* --output sample.ndjson \
+            --es-url https://es.example.com --es-api-key "your-api-key"
+    """
+    if es_api_key is not None and (es_username is not None or es_password is not None):
+        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
+        msg = '--es-username and --es-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch at {es_url}...')
+    console.print(f'Index: {index}')
+    console.print(f'Query: {query}')
+    console.print(f'Max docs: {max_docs}')
+    console.print(f'Output: {output}\n')
+
+    asyncio.run(
+        extract_data(
+            index,
+            output,
+            query,
+            max_docs,
+            es_url,
+            es_username,
+            es_password,
+            es_api_key,
+            ssl_verify=not es_no_ssl_verify,
+        )
+    )
+
+
 @cli.command('screenshot')
 @click.option(
     '--dashboard-id',
@@ -766,6 +884,84 @@ async def generate_screenshot(  # noqa: PLR0913
     except (OSError, ValueError) as e:
         msg = f'Error generating screenshot: {e}'
         raise click.ClickException(msg) from e
+
+
+async def extract_data(  # noqa: PLR0913
+    index: str,
+    output: Path,
+    query: str,
+    max_docs: int,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    ssl_verify: bool = True,
+) -> None:
+    """Extract data from Elasticsearch to NDJSON file.
+
+    Args:
+        index: Elasticsearch index pattern to query
+        output: Path where NDJSON file will be saved
+        query: Elasticsearch query string
+        max_docs: Maximum number of documents to extract
+        es_url: Elasticsearch base URL
+        es_username: Basic auth username
+        es_password: Basic auth password
+        es_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates (default: True)
+
+    Raises:
+        click.ClickException: If extraction fails.
+
+    """
+    import json
+
+    if es_api_key is not None:
+        es_client = AsyncElasticsearch(
+            es_url,
+            api_key=es_api_key,
+            verify_certs=ssl_verify,
+        )
+    elif es_username is not None and es_password is not None:
+        es_client = AsyncElasticsearch(
+            es_url,
+            basic_auth=(es_username, es_password),
+            verify_certs=ssl_verify,
+        )
+    else:
+        es_client = AsyncElasticsearch(
+            es_url,
+            verify_certs=ssl_verify,
+        )
+
+    try:
+        response = await es_client.search(
+            index=index,
+            query={'query_string': {'query': query}},
+            size=max_docs,
+            sort=['@timestamp:desc'],
+        )
+
+        hits = response['hits']['hits']  # pyright: ignore[reportAny]
+        doc_count = len(hits)  # pyright: ignore[reportAny]
+
+        if doc_count == 0:
+            console.print('[yellow]No documents found matching the query.[/yellow]')
+            return
+
+        with output.open('w') as f:
+            for hit in hits:  # pyright: ignore[reportAny]
+                source = hit['_source']  # pyright: ignore[reportAny]
+                _ = f.write(json.dumps(source))
+                _ = f.write('\n')
+
+        console.print(f'\n[green]{ICON_SUCCESS}[/green] Successfully extracted {doc_count} document(s) to {output}')
+
+    except (OSError, ValueError, TransportError) as e:
+        msg = f'Error extracting data: {e}'
+        raise click.ClickException(msg) from e
+    finally:
+        await es_client.close()
 
 
 async def load_all_sample_data(  # noqa: PLR0913, PLR0912

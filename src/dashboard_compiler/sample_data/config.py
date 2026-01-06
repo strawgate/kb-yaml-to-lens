@@ -14,11 +14,10 @@ class TimestampTransform(BaseCfgModel):
     field: str = Field(default='@timestamp')
     """Name of the timestamp field to transform."""
 
-    strategy: Literal['max_to_now', 'absolute'] = Field(default='max_to_now')
-    """Transformation strategy for timestamps.
+    enabled: bool = Field(default=True)
+    """Whether to apply timestamp transformation.
 
-    - max_to_now: Shift all timestamps so the maximum timestamp becomes 'now'
-    - absolute: Keep timestamps as-is
+    When enabled, shifts all timestamps so the maximum becomes 'now'.
     """
 
 
@@ -37,14 +36,8 @@ class SampleData(BaseCfgModel):
     file_path: Path | None = Field(default=None)
     """Path to NDJSON file with sample data (when source='file')."""
 
-    format: Literal['ndjson', 'json_array'] = Field(default='ndjson')
-    """Format of sample data."""
-
     timestamp_transform: TimestampTransform | None = Field(default=None)
     """Optional timestamp transformation to apply."""
-
-    bypass_pipeline: bool = Field(default=True)
-    """Whether to bypass ingest pipeline during data loading."""
 
     create_index_template: bool = Field(default=False)
     """Whether to create an index template for sample data."""

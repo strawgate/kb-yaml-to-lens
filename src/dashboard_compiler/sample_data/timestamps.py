@@ -65,34 +65,27 @@ def transform_documents(
         List of documents with transformed timestamps
 
     """
-    if transform is None:
+    if transform is None or not transform.enabled:
         return documents
 
-    if transform.strategy == 'absolute':
+    max_ts = find_max_timestamp(documents, transform.field)
+    if max_ts is None:
         return documents
 
-    if transform.strategy == 'max_to_now':
-        max_ts = find_max_timestamp(documents, transform.field)
-        if max_ts is None:
-            return documents
+    now = datetime.now(UTC)
+    shift_offset = now - max_ts
 
-        now = datetime.now(UTC)
-        shift_offset = now - max_ts
-
-        transformed = []
-        for doc in documents:
-            doc_copy = doc.copy()
-            if transform.field in doc_copy:
-                ts_value = doc_copy[transform.field]  # pyright: ignore[reportAny]
-                if isinstance(ts_value, str):
-                    try:
-                        original_ts = parse_timestamp(ts_value)
-                        new_ts = original_ts + shift_offset
-                        doc_copy[transform.field] = new_ts.isoformat().replace('+00:00', 'Z')
-                    except (ValueError, TypeError):
-                        pass
-            transformed.append(doc_copy)
-        return transformed
-
-    msg = f'Unknown transformation strategy: {transform.strategy}'
-    raise ValueError(msg)
+    transformed = []
+    for doc in documents:
+        doc_copy = doc.copy()
+        if transform.field in doc_copy:
+            ts_value = doc_copy[transform.field]  # pyright: ignore[reportAny]
+            if isinstance(ts_value, str):
+                try:
+                    original_ts = parse_timestamp(ts_value)
+                    new_ts = original_ts + shift_offset
+                    doc_copy[transform.field] = new_ts.isoformat().replace('+00:00', 'Z')
+                except (ValueError, TypeError):
+                    pass
+        transformed.append(doc_copy)
+    return transformed

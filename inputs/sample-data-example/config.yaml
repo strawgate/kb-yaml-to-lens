@@ -5,13 +5,11 @@ dashboards:
     sample_data:
       source: inline
       index_pattern: logs-sample-*
-      format: ndjson
-      bypass_pipeline: true
 
       # Transform timestamps so the maximum timestamp becomes 'now'
       timestamp_transform:
         field: '@timestamp'
-        strategy: max_to_now
+        enabled: true
 
       # Sample log documents
       documents:

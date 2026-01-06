@@ -1,6 +1,5 @@
 """Tests for sample data loader."""
 
-import json
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
@@ -65,7 +64,6 @@ def test_read_documents_ndjson(tmp_path: Path) -> None:
         source='file',
         index_pattern='logs-*',
         file_path=ndjson_file,
-        format='ndjson',
     )
 
     documents = read_documents(sample_data)
@@ -73,32 +71,6 @@ def test_read_documents_ndjson(tmp_path: Path) -> None:
     assert len(documents) == 2
     assert documents[0]['message'] == 'line1'
     assert documents[1]['message'] == 'line2'
-
-
-def test_read_documents_json_array(tmp_path: Path) -> None:
-    """Test reading JSON array file."""
-    json_file = tmp_path / 'sample.json'
-    json_file.write_text(
-        json.dumps(
-            [
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'item1'},
-                {'@timestamp': '2024-01-01T01:00:00Z', 'message': 'item2'},
-            ]
-        )
-    )
-
-    sample_data = SampleData(
-        source='file',
-        index_pattern='logs-*',
-        file_path=json_file,
-        format='json_array',
-    )
-
-    documents = read_documents(sample_data)
-
-    assert len(documents) == 2
-    assert documents[0]['message'] == 'item1'
-    assert documents[1]['message'] == 'item2'
 
 
 def test_read_documents_file_not_found() -> None:
@@ -199,7 +171,7 @@ async def test_load_sample_data_with_timestamp_transform() -> None:
                 {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
             ],
             timestamp_transform=TimestampTransform(
-                strategy='absolute',
+                enabled=False,
             ),
         )
 
@@ -207,31 +179,6 @@ async def test_load_sample_data_with_timestamp_transform() -> None:
 
         assert result.success is True
         mock_bulk.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_load_sample_data_with_pipeline() -> None:
-    """Test loading sample data without pipeline bypass."""
-    mock_es_client = AsyncMock()
-
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        mock_bulk.return_value = (1, 0)
-
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[{'@timestamp': '2024-01-01T00:00:00Z'}],
-            bypass_pipeline=False,
-        )
-
-        result = await load_sample_data(mock_es_client, sample_data)
-
-        assert result.success is True
-
-        call_args = mock_bulk.call_args
-        actions = call_args[0][1]
-        # When bypass_pipeline is False, pipeline key should not be present (ES uses default)
-        assert 'pipeline' not in actions[0]
 
 
 @pytest.mark.asyncio

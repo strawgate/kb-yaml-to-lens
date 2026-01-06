@@ -2,8 +2,6 @@
 
 from datetime import UTC, datetime
 
-import pytest
-
 from dashboard_compiler.sample_data.config import TimestampTransform
 from dashboard_compiler.sample_data.timestamps import (
     find_max_timestamp,
@@ -84,14 +82,14 @@ def test_find_max_timestamp_no_valid_timestamps() -> None:
     assert max_ts is None
 
 
-def test_transform_documents_max_to_now() -> None:
-    """Test max_to_now transformation strategy."""
+def test_transform_documents_enabled() -> None:
+    """Test timestamp transformation when enabled."""
     documents = [
         {'@timestamp': '2024-01-01T09:01:00Z', 'message': 'first'},
         {'@timestamp': '2024-01-01T09:02:00Z', 'message': 'second'},
         {'@timestamp': '2024-01-01T09:03:00Z', 'message': 'third'},
     ]
-    transform = TimestampTransform(strategy='max_to_now')
+    transform = TimestampTransform(enabled=True)
 
     result = transform_documents(documents, transform)
 
@@ -112,13 +110,13 @@ def test_transform_documents_max_to_now() -> None:
     assert time_diff_from_now < 2
 
 
-def test_transform_documents_absolute() -> None:
-    """Test absolute transformation strategy (no changes)."""
+def test_transform_documents_disabled() -> None:
+    """Test transformation disabled (no changes)."""
     original_ts = '2024-01-01T12:00:00Z'
     documents = [
         {'@timestamp': original_ts, 'message': 'test'},
     ]
-    transform = TimestampTransform(strategy='absolute')
+    transform = TimestampTransform(enabled=False)
 
     result = transform_documents(documents, transform)
 
@@ -143,7 +141,7 @@ def test_transform_documents_missing_timestamps() -> None:
         {'message': 'no_ts'},
         {'@timestamp': '2024-01-01T03:00:00Z', 'message': 'has_ts'},
     ]
-    transform = TimestampTransform(strategy='max_to_now')
+    transform = TimestampTransform(enabled=True)
 
     result = transform_documents(documents, transform)
 
@@ -159,7 +157,7 @@ def test_transform_documents_custom_field() -> None:
         {'event_time': '2024-01-01T10:00:00Z', 'message': 'doc1'},
         {'event_time': '2024-01-01T11:00:00Z', 'message': 'doc2'},
     ]
-    transform = TimestampTransform(field='event_time', strategy='max_to_now')
+    transform = TimestampTransform(field='event_time', enabled=True)
 
     result = transform_documents(documents, transform)
 
@@ -173,19 +171,8 @@ def test_transform_documents_preserves_original() -> None:
     """Test that transformation doesn't modify original documents."""
     original_doc = {'@timestamp': '2024-01-01T12:00:00Z', 'message': 'test'}
     documents = [original_doc]
-    transform = TimestampTransform(strategy='max_to_now')
+    transform = TimestampTransform(enabled=True)
 
     _ = transform_documents(documents, transform)
 
     assert original_doc['@timestamp'] == '2024-01-01T12:00:00Z'
-
-
-def test_transform_documents_invalid_strategy() -> None:
-    """Test that unknown strategy raises error."""
-    documents = [{'@timestamp': '2024-01-01T12:00:00Z'}]
-    transform = TimestampTransform(strategy='max_to_now')
-
-    transform = transform.model_copy(update={'strategy': 'unknown'})  # type: ignore[dict-item]
-
-    with pytest.raises(ValueError, match='Unknown transformation strategy'):
-        transform_documents(documents, transform)
