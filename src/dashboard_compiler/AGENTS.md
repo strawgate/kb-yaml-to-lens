@@ -68,10 +68,11 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 - Use attribute docstrings for field descriptions
 - View models may narrow types in subclasses
 
-**Pydantic Validators:**
+**Leverage Pydantic's Features:**
 
-- Strongly prefer `mode='after'` validators - work with validated attributes, not dicts
-- Only use `mode='before'` for raw input transformation or data migrations
+- Work with validated model attributes, not raw dictionaries
+- Use `mode='after'` validators for business logic (the common case)
+- Only use `mode='before'` for raw input transformation or migrations
 - Never import inside validators - place imports at module level
 - Field annotations should reflect runtime type after validation
 

@@ -149,24 +149,15 @@ View models (`BaseVwModel`) have special behaviors:
 - May narrow types in subclasses (e.g., `str` → `Literal['value']`)
 - basedpyright's `reportIncompatibleVariableOverride = false` allows type narrowing
 
-#### Pydantic Validator Patterns
+#### Leverage Pydantic's Features
 
-**Strongly prefer `mode='after'` validators over `mode='before'` validators.**
+**Core Principle: Take advantage of Pydantic's validation and type safety. Avoid manual dictionary manipulation.**
 
-**✅ Use `mode='after'` for:**
+Pydantic is designed to give you type-safe, validated objects. Work with those objects directly instead of falling back to dict operations.
 
-- Working with validated model attributes (the common case)
-- Cross-field validation that reads multiple attributes
-- Business logic that depends on fully validated data
+##### Working with Validated Data
 
-**Benefits:**
-
-- Access typed, validated attributes directly instead of raw dicts
-- Cleaner, more readable code
-- Type checker understands the types
-- No dict manipulation needed
-
-**Example:**
+**✅ Preferred - Use validated attributes:**
 
 ```python
 from pydantic import model_validator
@@ -182,44 +173,76 @@ class Dashboard(BaseCfgModel):
         if not self.auto_layout:
             return self
 
-        # Work with validated Panel objects, not dicts
+        # Work with validated Panel objects
         for panel in self.panels:
             if panel.position.x is not None:  # Type-safe attribute access
-                # ... positioning logic
+                # ... positioning logic using panel.width, panel.height, etc.
         return self
 ```
 
-**❌ Use `mode='before'` only for:**
-
-- Raw input transformation (e.g., converting formats, normalizing keys)
-- Data migrations (e.g., handling renamed fields)
-- Working with data that cannot be validated yet
-
-**Example of appropriate `mode='before'` use:**
+**❌ Avoid - Manual dict manipulation:**
 
 ```python
 @model_validator(mode='before')
 @classmethod
-def migrate_legacy_field(cls, data: dict[str, Any]) -> dict[str, Any]:
-    """Migrate deprecated 'old_name' field to 'new_name'."""
-    if 'old_name' in data and 'new_name' not in data:
-        data['new_name'] = data.pop('old_name')
+def apply_auto_layout(cls, data: dict[str, Any]) -> dict[str, Any]:
+    """Apply auto-layout to panels if enabled."""
+    if not data.get('auto_layout'):
+        return data
+
+    # Manually manipulating dicts defeats the purpose of Pydantic
+    for panel_dict in data.get('panels', []):
+        if 'position' in panel_dict and panel_dict['position'].get('x') is not None:
+            # No type safety, harder to read, easy to make mistakes
+            # ...
     return data
 ```
 
-**Key Principles:**
+##### When to Use Each Validator Mode
 
-- Never import inside validators - place all imports at module level
-- Never manipulate dicts when you could access validated attributes
-- Field type annotations should reflect the actual runtime type after validation
-- All generic types must include type arguments: `dict[str, Any]`, `list[Panel]`
+**Use `mode='after'` (the default and preferred choice):**
 
-**Type annotation consistency:**
+- Working with validated model attributes (most validators)
+- Cross-field validation that reads multiple attributes
+- Business logic that depends on fully validated data
+- Any time you need type-safe access to model fields
 
-If a `mode='before'` validator converts a field to a specific type, the field annotation should reflect that final type:
+**Use `mode='before'` only when necessary:**
+
+- Raw input transformation before validation (e.g., converting date strings, normalizing keys)
+- Data migrations (e.g., handling renamed fields from legacy schemas)
+- Preprocessing data that can't be validated in its raw form
+
+##### Best Practices
+
+**Module-level imports:**
 
 ```python
-# ✅ Correct - annotation matches runtime type after validation
+# ✅ Correct - imports at module level
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from some_module import SomeType
+
+class MyModel(BaseCfgModel):
+    @model_validator(mode='after')
+    def validate_something(self) -> Self:
+        # Use SomeType here
+        ...
+
+# ❌ Incorrect - importing inside validator
+class MyModel(BaseCfgModel):
+    @model_validator(mode='after')
+    def validate_something(self) -> Self:
+        from some_module import SomeType  # Don't do this
+        ...
+```
+
+**Type annotations match runtime types:**
+
+Field annotations should reflect the actual type after validation completes:
+
+```python
+# ✅ Correct - annotation matches runtime type
 w: int = Field(...)
 
 @field_validator('w', mode='before')
@@ -228,8 +251,20 @@ def resolve_width(cls, value: int | SemanticWidth) -> int:
     """Convert semantic width to pixels."""
     return resolve_semantic_width(value)
 
-# ❌ Incorrect - annotation is union but validator always returns int
-w: int | SemanticWidth = Field(...)  # Misleading - always int at runtime
+# ❌ Incorrect - annotation includes types that never exist at runtime
+w: int | SemanticWidth = Field(...)  # Misleading - always int after validation
+```
+
+**Generic types always have arguments:**
+
+```python
+# ✅ Correct - specific type arguments
+panels: list[Panel]
+metadata: dict[str, Any]
+
+# ❌ Incorrect - bare generic types
+panels: list  # Missing type argument
+metadata: dict  # Missing type arguments
 ```
 
 ---
@@ -341,7 +376,7 @@ data_view and esql FROM statements should always target either `logs-*` or `metr
 | **Empty checks** | `if len(items) > 0:` | `if items:` |
 | **Union handling** | isinstance chain + final error | Type narrowing alone |
 | **Pydantic models** | Inherit from BaseCfgModel | Duplicate model_config |
-| **Validators** | Use `mode='after'` | Use `mode='before'` by default |
+| **Validators** | Work with validated attributes | Manipulate dicts manually |
 | **Field docs** | Attribute docstrings | Inline comments |
 | **Line length** | 140 chars max | No limit |
 
