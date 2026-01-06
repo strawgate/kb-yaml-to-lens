@@ -2,13 +2,14 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
-log = logging.getLogger("mkdocs.plugins.llms_txt")
+log = logging.getLogger('mkdocs.plugins.llms_txt')
 
 
-def on_post_build(config, **kwargs):
+def on_post_build(config: dict[str, Any], **_kwargs: Any) -> None:
     """Generate llms.txt files after the build completes."""
-    site_dir = Path(config["site_dir"])
+    site_dir = Path(config['site_dir'])
 
     # Generate llms.txt (navigation file)
     generate_llms_txt(site_dir, config)
@@ -16,16 +17,18 @@ def on_post_build(config, **kwargs):
     # Generate llms-full.txt (full content file)
     generate_llms_full_txt(site_dir, config)
 
-    log.info("Generated llms.txt and llms-full.txt")
+    log.info('Generated llms.txt and llms-full.txt')
 
 
-def generate_llms_txt(site_dir: Path, config: dict) -> None:
+def generate_llms_txt(site_dir: Path, config: dict[str, Any]) -> None:
     """Generate the llms.txt navigation file."""
-    site_url = config.get("site_url", "").rstrip("/")
+    site_url = config.get('site_url', '').rstrip('/')
 
     content = f"""# Dashboard Compiler
 
-> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format. Python compiler, TypeScript VS Code extension, and JavaScript fixture generator for creating and managing Kibana dashboards.
+> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format. Python compiler,
+> TypeScript VS Code extension, and JavaScript fixture generator for creating and managing Kibana
+> dashboards.
 
 ## Getting Started
 
@@ -55,64 +58,71 @@ def generate_llms_txt(site_dir: Path, config: dict) -> None:
 - [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
 """
 
-    output_path = site_dir / "llms.txt"
+    output_path = site_dir / 'llms.txt'
     output_path.write_text(content)
-    log.info(f"Generated {output_path} ({len(content)} characters)")
+    log.info(f'Generated {output_path} ({len(content)} characters)')
 
 
-def generate_llms_full_txt(site_dir: Path, config: dict) -> None:
+def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
+    """Recursively extract file paths from MkDocs navigation structure."""
+    if files is None:
+        files = []
+
+    if isinstance(nav_item, str):
+        files.append(nav_item)
+    elif isinstance(nav_item, dict):
+        for value in nav_item.values():
+            extract_files_from_nav(value, files)
+    elif isinstance(nav_item, list):
+        for item in nav_item:
+            extract_files_from_nav(item, files)
+
+    return files
+
+
+def generate_llms_full_txt(site_dir: Path, config: dict[str, Any]) -> None:
     """Generate the llms-full.txt file with complete user guide content."""
-    docs_dir = Path(config.get("docs_dir", "docs"))
+    docs_dir = Path(config.get('docs_dir', 'docs'))
 
-    # User guide files in order of importance
-    user_guide_files = [
-        "index.md",
-        "CLI.md",
-        "vscode-extension.md",
-        "dashboard/dashboard.md",
-        "panels/base.md",
-        "panels/lens.md",
-        "panels/metric.md",
-        "panels/pie.md",
-        "panels/xy.md",
-        "panels/gauge.md",
-        "panels/datatable.md",
-        "panels/markdown.md",
-        "panels/links.md",
-        "panels/image.md",
-        "panels/search.md",
-        "panels/tagcloud.md",
-        "panels/esql.md",
-        "controls/config.md",
-        "filters/config.md",
-        "queries/config.md",
-        "advanced/color-assignments.md",
-        "advanced/esql-views.md",
-        "examples/index.md",
-    ]
+    # Extract files from navigation structure
+    nav = config.get('nav', [])
+    user_guide_files = []
+
+    # Find User Guide section and extract files
+    for section in nav:
+        if isinstance(section, dict) and 'User Guide' in section:
+            user_guide_files = extract_files_from_nav(section['User Guide'])
+            break
+
+    # If no User Guide section found, extract all files from navigation
+    if not user_guide_files:
+        log.warning('User Guide section not found in navigation, using all files')
+        user_guide_files = extract_files_from_nav(nav)
+
+    log.info(f'Extracted {len(user_guide_files)} files from navigation')
 
     output = []
 
     # Add header
-    output.append("# Dashboard Compiler - Complete User Guide\n\n")
-    output.append("> This file contains all user guide documentation for the Dashboard Compiler project.\n\n")
-    output.append("---\n\n")
+    output.append('# Dashboard Compiler - Complete User Guide\n\n')
+    output.append('> This file contains all user guide documentation for the Dashboard Compiler project.\n\n')
+    output.append('---\n\n')
 
     # Concatenate all files
     for file_path in user_guide_files:
         path = docs_dir / file_path
         if not path.exists():
-            log.warning(f"{file_path} not found, skipping...")
+            log.warning(f'{file_path} not found, skipping...')
             continue
 
         content = path.read_text()
 
         # Add file separator
-        output.append(f"\n\n---\n# Source: {file_path}\n---\n\n")
+        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
         output.append(content)
 
     # Write output
-    output_path = site_dir / "llms-full.txt"
-    full_content = "".join(output)
+    output_path = site_dir / 'llms-full.txt'
+    full_content = ''.join(output)
     output_path.write_text(full_content)
-    log.info(f"Generated {output_path} ({len(full_content)} characters)")
+    log.info(f'Generated {output_path} ({len(full_content)} characters)')
