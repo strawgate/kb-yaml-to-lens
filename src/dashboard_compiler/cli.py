@@ -886,6 +886,33 @@ async def generate_screenshot(  # noqa: PLR0913
         raise click.ClickException(msg) from e
 
 
+def _create_es_client(
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    ssl_verify: bool,
+) -> AsyncElasticsearch:
+    """Create an AsyncElasticsearch client with the given credentials.
+
+    Args:
+        es_url: Elasticsearch base URL
+        es_username: Basic auth username
+        es_password: Basic auth password
+        es_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates
+
+    Returns:
+        Configured AsyncElasticsearch client
+
+    """
+    if es_api_key is not None:
+        return AsyncElasticsearch(es_url, api_key=es_api_key, verify_certs=ssl_verify)
+    if es_username is not None and es_password is not None:
+        return AsyncElasticsearch(es_url, basic_auth=(es_username, es_password), verify_certs=ssl_verify)
+    return AsyncElasticsearch(es_url, verify_certs=ssl_verify)
+
+
 async def extract_data(  # noqa: PLR0913
     index: str,
     output: Path,
@@ -916,23 +943,7 @@ async def extract_data(  # noqa: PLR0913
     """
     import json
 
-    if es_api_key is not None:
-        es_client = AsyncElasticsearch(
-            es_url,
-            api_key=es_api_key,
-            verify_certs=ssl_verify,
-        )
-    elif es_username is not None and es_password is not None:
-        es_client = AsyncElasticsearch(
-            es_url,
-            basic_auth=(es_username, es_password),
-            verify_certs=ssl_verify,
-        )
-    else:
-        es_client = AsyncElasticsearch(
-            es_url,
-            verify_certs=ssl_verify,
-        )
+    es_client = _create_es_client(es_url, es_username, es_password, es_api_key, ssl_verify)
 
     try:
         response = await es_client.search(
@@ -964,7 +975,7 @@ async def extract_data(  # noqa: PLR0913
         await es_client.close()
 
 
-async def load_all_sample_data(  # noqa: PLR0913, PLR0912
+async def load_all_sample_data(  # noqa: PLR0913
     dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]],
     es_url: str,
     es_username: str | None,
@@ -986,23 +997,7 @@ async def load_all_sample_data(  # noqa: PLR0913, PLR0912
         click.ClickException: If sample data loading fails.
 
     """
-    if es_api_key is not None:
-        es_client = AsyncElasticsearch(
-            es_url,
-            api_key=es_api_key,
-            verify_certs=ssl_verify,
-        )
-    elif es_username is not None and es_password is not None:
-        es_client = AsyncElasticsearch(
-            es_url,
-            basic_auth=(es_username, es_password),
-            verify_certs=ssl_verify,
-        )
-    else:
-        es_client = AsyncElasticsearch(
-            es_url,
-            verify_certs=ssl_verify,
-        )
+    es_client = _create_es_client(es_url, es_username, es_password, es_api_key, ssl_verify)
 
     try:
         total_loaded = 0

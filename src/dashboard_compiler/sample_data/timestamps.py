@@ -65,7 +65,7 @@ def transform_documents(
         List of documents with transformed timestamps
 
     """
-    if transform is None or not transform.enabled:
+    if transform is None or transform.enabled is False:
         return documents
 
     max_ts = find_max_timestamp(documents, transform.field)

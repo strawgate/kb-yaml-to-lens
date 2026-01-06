@@ -117,14 +117,31 @@ async def load_sample_data(
 
         actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
 
-        success_count, failed_count = await async_bulk(
+        success_count, failed_items = await async_bulk(
             es_client,
             actions,
             raise_on_error=False,
         )
 
-        error_messages = [] if failed_count == 0 else [f'{failed_count} document(s) failed to index']
-        return SampleDataLoadResult(success_count, error_messages)
+        error_messages = []
+        if isinstance(failed_items, list) and len(failed_items) > 0:
+            for item in failed_items:  # pyright: ignore[reportAny]
+                if isinstance(item, dict):
+                    # Extract error details from failed item
+                    error_info = item.get('index', {}).get('error', {})
+                    if isinstance(error_info, dict):
+                        error_type = error_info.get('type', 'unknown')
+                        error_reason = error_info.get('reason', 'unknown reason')
+                        error_messages.append(f'{error_type}: {error_reason}')
+                    else:
+                        error_messages.append(str(item))  # pyright: ignore[reportUnknownArgumentType]
+                else:
+                    error_messages.append(str(item))  # pyright: ignore[reportAny]
+        elif isinstance(failed_items, int) and failed_items > 0:
+            # Fallback for when we get a count instead of items
+            error_messages.append(f'{failed_items} document(s) failed to index')
+
+        return SampleDataLoadResult(success_count, error_messages)  # pyright: ignore[reportUnknownArgumentType]
 
     except (ValueError, OSError, json.JSONDecodeError, TransportError) as e:
         return SampleDataLoadResult(0, [str(e)])

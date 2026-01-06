@@ -33,24 +33,24 @@ def test_read_documents_inline() -> None:
 
 def test_read_documents_inline_missing_documents() -> None:
     """Test reading inline documents when documents field is None."""
-    sample_data = SampleData(
-        source='inline',
-        index_pattern='logs-*',
-    )
+    from pydantic import ValidationError
 
-    with pytest.raises(ValueError, match='documents field is required'):
-        read_documents(sample_data)
+    with pytest.raises(ValidationError, match='documents is required when source is inline'):
+        SampleData(
+            source='inline',
+            index_pattern='logs-*',
+        )
 
 
 def test_read_documents_file_missing_path() -> None:
     """Test reading from file when file_path is None."""
-    sample_data = SampleData(
-        source='file',
-        index_pattern='logs-*',
-    )
+    from pydantic import ValidationError
 
-    with pytest.raises(ValueError, match='file_path field is required'):
-        read_documents(sample_data)
+    with pytest.raises(ValidationError, match='file_path is required when source is file'):
+        SampleData(
+            source='file',
+            index_pattern='logs-*',
+        )
 
 
 def test_read_documents_ndjson(tmp_path: Path) -> None:

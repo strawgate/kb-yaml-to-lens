@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
@@ -44,3 +44,14 @@ class SampleData(BaseCfgModel):
 
     index_template: dict[str, Any] | None = Field(default=None)
     """Index template configuration (mappings, settings)."""
+
+    @model_validator(mode='after')
+    def validate_source_fields(self) -> 'SampleData':
+        """Validate that source-specific fields are provided."""
+        if self.source == 'inline' and self.documents is None:
+            msg = 'documents is required when source is inline'
+            raise ValueError(msg)
+        if self.source == 'file' and self.file_path is None:
+            msg = 'file_path is required when source is file'
+            raise ValueError(msg)
+        return self
