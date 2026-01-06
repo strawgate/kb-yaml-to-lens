@@ -125,18 +125,18 @@ async def load_sample_data(
             for item in failed_items:  # pyright: ignore[reportAny]
                 if isinstance(item, dict):
                     # Extract error details from failed item
-                    error_info = item.get('index', {}).get('error', {})
+                    error_info = item.get('index', {}).get('error', {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
                     if isinstance(error_info, dict):
-                        error_type = error_info.get('type', 'unknown')
-                        error_reason = error_info.get('reason', 'unknown reason')
-                        error_messages.append(f'{error_type}: {error_reason}')
+                        error_type = error_info.get('type', 'unknown')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                        error_reason = error_info.get('reason', 'unknown reason')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                        error_messages.append(f'{error_type}: {error_reason}')  # pyright: ignore[reportUnknownMemberType]
                     else:
-                        error_messages.append(str(item))  # pyright: ignore[reportUnknownArgumentType]
+                        error_messages.append(str(item))  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
                 else:
-                    error_messages.append(str(item))  # pyright: ignore[reportAny]
+                    error_messages.append(str(item))  # pyright: ignore[reportAny, reportUnknownMemberType]
         elif isinstance(failed_items, int) and failed_items > 0:
             # Fallback for when we get a count instead of items
-            error_messages.append(f'{failed_items} document(s) failed to index')
+            error_messages.append(f'{failed_items} document(s) failed to index')  # pyright: ignore[reportUnknownMemberType]
 
         return SampleDataLoadResult(success_count, error_messages)  # pyright: ignore[reportUnknownArgumentType]
 

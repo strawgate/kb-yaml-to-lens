@@ -36,8 +36,8 @@ class SampleData(BaseCfgModel):
     file_path: Path | None = Field(default=None)
     """Path to NDJSON file with sample data (when source='file')."""
 
-    timestamp_transform: TimestampTransform | None = Field(default=None)
-    """Optional timestamp transformation to apply."""
+    timestamp_transform: TimestampTransform | None = Field(default_factory=TimestampTransform)
+    """Timestamp transformation configuration. Enabled by default to shift max timestamp to 'now'."""
 
     create_index_template: bool = Field(default=False)
     """Whether to create an index template for sample data."""

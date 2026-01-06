@@ -87,5 +87,5 @@ def transform_documents(
                     doc_copy[transform.field] = new_ts.isoformat().replace('+00:00', 'Z')
                 except (ValueError, TypeError):
                     pass
-        transformed.append(doc_copy)
-    return transformed
+        transformed.append(doc_copy)  # pyright: ignore[reportUnknownMemberType]
+    return transformed  # pyright: ignore[reportUnknownVariableType]

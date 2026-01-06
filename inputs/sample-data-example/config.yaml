@@ -6,12 +6,7 @@ dashboards:
       source: inline
       index_pattern: logs-sample-*
 
-      # Transform timestamps so the maximum timestamp becomes 'now'
-      timestamp_transform:
-        field: '@timestamp'
-        enabled: true
-
-      # Sample log documents
+      # Sample log documents (timestamps automatically transformed to make max timestamp 'now')
       documents:
         - '@timestamp': '2024-01-01T00:00:00Z'
           message: Application started successfully

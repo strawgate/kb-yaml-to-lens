@@ -36,7 +36,7 @@ def test_read_documents_inline_missing_documents() -> None:
     from pydantic import ValidationError
 
     with pytest.raises(ValidationError, match='documents is required when source is inline'):
-        SampleData(
+        _ = SampleData(
             source='inline',
             index_pattern='logs-*',
         )
@@ -47,7 +47,7 @@ def test_read_documents_file_missing_path() -> None:
     from pydantic import ValidationError
 
     with pytest.raises(ValidationError, match='file_path is required when source is file'):
-        SampleData(
+        _ = SampleData(
             source='file',
             index_pattern='logs-*',
         )
@@ -56,7 +56,7 @@ def test_read_documents_file_missing_path() -> None:
 def test_read_documents_ndjson(tmp_path: Path) -> None:
     """Test reading NDJSON file."""
     ndjson_file = tmp_path / 'sample.ndjson'
-    ndjson_file.write_text(
+    _ = ndjson_file.write_text(
         '{"@timestamp": "2024-01-01T00:00:00Z", "message": "line1"}\n{"@timestamp": "2024-01-01T01:00:00Z", "message": "line2"}\n'
     )
 
@@ -82,13 +82,13 @@ def test_read_documents_file_not_found() -> None:
     )
 
     with pytest.raises(ValueError, match='Sample data file not found'):
-        read_documents(sample_data)
+        _ = read_documents(sample_data)
 
 
 def test_read_documents_relative_path(tmp_path: Path) -> None:
     """Test reading file with relative path."""
     ndjson_file = tmp_path / 'sample.ndjson'
-    ndjson_file.write_text('{"@timestamp": "2024-01-01T00:00:00Z"}\n')
+    _ = ndjson_file.write_text('{"@timestamp": "2024-01-01T00:00:00Z"}\n')
 
     sample_data = SampleData(
         source='file',

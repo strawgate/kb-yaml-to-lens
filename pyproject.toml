@@ -190,12 +190,9 @@ reportAny = false
 reportArgumentType = false
 reportCallIssue = false
 reportMissingImports = false
-reportUnusedCallResult = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"
-reportUnknownMemberType = false
-reportUnknownVariableType = false
 
 [tool.coverage.run]
 source = ["src/dashboard_compiler"]

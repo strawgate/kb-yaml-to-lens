@@ -21,6 +21,9 @@ def test_sample_data_inline() -> None:
     assert config.index_pattern == 'logs-*'
     assert config.documents is not None
     assert len(config.documents) == 1
+    # timestamp_transform is enabled by default
+    assert config.timestamp_transform is not None
+    assert config.timestamp_transform.enabled is True
 
 
 def test_sample_data_file() -> None:
@@ -110,7 +113,7 @@ def test_sample_data_model_dump() -> None:
             'index_pattern': 'logs-*',
             'documents': [{'@timestamp': '2024-01-01T00:00:00Z'}],
             'file_path': None,
-            'timestamp_transform': None,
+            'timestamp_transform': {'field': '@timestamp', 'enabled': True},
             'create_index_template': False,
             'index_template': None,
         }
