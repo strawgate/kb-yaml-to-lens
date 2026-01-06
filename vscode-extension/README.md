@@ -28,7 +28,15 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 ## Installation
 
-### From Marketplace (Coming Soon)
+### From OpenVSX Registry (Cursor and VS Code Forks)
+
+1. Open your IDE's Extensions view (Ctrl+Shift+X)
+2. Search for "Kibana Dashboard Compiler"
+3. Click Install
+
+Note: Cursor and other VS Code forks use the [OpenVSX Registry](https://open-vsx.org/) instead of the VS Code Marketplace.
+
+### From VS Code Marketplace (Coming Soon)
 
 Install directly from the VS Code Extensions marketplace.
 
