@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { runTests, download, resolveCliArgsFromVSCodeExecutablePath } from '@vscode/test-electron';
-import * as child_process from 'child_process';
+import { spawnSync } from 'child_process';
 
 async function main() {
     try {
@@ -11,7 +11,7 @@ async function main() {
         const [cliPath, ...cliCommonArguments] =
             resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
 
-        const installResult = child_process.spawnSync(
+        const installResult = spawnSync(
             cliPath,
             [...cliCommonArguments, '--install-extension', 'redhat.vscode-yaml', '--force'],
             { encoding: 'utf-8', stdio: 'inherit' }

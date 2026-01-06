@@ -1,11 +1,14 @@
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check lint-extension lint-extension-check build-extension install-extension inspector docs-serve docs-build docs-deploy test-extension test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
 DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
+
+# YAML linting exclusions
+YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml"
 
 all: ci
 
@@ -22,8 +25,8 @@ help:
 	@echo "  fix           - Auto-fix all linting issues (compact output)"
 	@echo ""
 	@echo "Linting (individual commands):"
-	@echo "  lint-all          - Auto-fix ALL linting issues (Python, Markdown, YAML)"
-	@echo "  lint-all-check    - Check ALL linting (Python, Markdown, YAML) without fixing"
+	@echo "  lint-all          - Auto-fix ALL linting issues (Python, Markdown, YAML, Extension)"
+	@echo "  lint-all-check    - Check ALL linting (Python, Markdown, YAML, Extension) without fixing"
 	@echo "  lint              - Auto-fix Python linting issues (ruff check --fix)"
 	@echo "  lint-check        - Check Python linting without fixing"
 	@echo "  format            - Auto-format Python code (ruff format)"
@@ -32,6 +35,8 @@ help:
 	@echo "  lint-markdown-check - Check markdown without fixing"
 	@echo "  lint-yaml         - Auto-fix YAML linting issues"
 	@echo "  lint-yaml-check   - Check YAML without fixing"
+	@echo "  lint-extension    - Auto-fix TypeScript/Extension linting issues"
+	@echo "  lint-extension-check - Check TypeScript/Extension linting without fixing"
 	@echo ""
 	@echo "Type Checking:"
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
@@ -46,6 +51,10 @@ help:
 	@echo "  test-extension           - Run all VSCode extension tests"
 	@echo "  test-extension-typescript - Run TypeScript tests for extension"
 	@echo "  test-extension-e2e       - Run E2E tests for extension (headless)"
+	@echo ""
+	@echo "VS Code Extension:"
+	@echo "  install-extension    - Install extension dependencies"
+	@echo "  build-extension      - Build extension for publishing"
 	@echo ""
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
@@ -83,7 +92,7 @@ help:
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
 
-install:
+install: install-extension
 	@echo "Running uv sync..."
 	uv sync --group dev
 	@echo "Installing markdownlint-cli..."
@@ -98,10 +107,10 @@ check: ci
 fix: lint-all
 
 # Linting meta-commands
-lint-all: lint format lint-markdown lint-yaml
+lint-all: lint format lint-markdown lint-yaml lint-extension
 	@echo "✓ All linting complete (with auto-fix)"
 
-lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
+lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check lint-extension-check
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
@@ -148,6 +157,24 @@ test-extension-e2e:
 	@uv sync --group dev --extra lsp
 	@. .venv/bin/activate && cd vscode-extension && npm install && xvfb-run -a npm test
 
+# VS Code Extension build and dependency management
+install-extension:
+	@echo "Installing VSCode extension dependencies..."
+	@cd vscode-extension && npm ci
+
+build-extension:
+	@echo "Building VSCode extension..."
+	@cd vscode-extension && npm run vscode:prepublish
+
+# Extension linting
+lint-extension:
+	@echo "Running ESLint on VSCode extension (auto-fix)..."
+	@cd vscode-extension && npm run lint -- --fix 2>/dev/null || npm run lint
+
+lint-extension-check:
+	@echo "Running ESLint on VSCode extension..."
+	@cd vscode-extension && npm run compile > /dev/null && npm run lint
+
 inspector:
 	@echo "Running MCP Inspector..."
 	npx @modelcontextprotocol/inspector
@@ -188,12 +215,12 @@ lint-markdown-check:
 # Auto-fix YAML issues
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix .
+	uv run yamlfix $(YAMLFIX_EXCLUDE) .
 
 # Check YAML without fixing
 lint-yaml-check:
-	@echo "Running yamllint..."
-	@uv run yamllint . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamllint . && exit 1)
+	@echo "Running yamlfix --check..."
+	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check $(YAMLFIX_EXCLUDE) . && exit 1)
 
 typecheck:
 	@echo "Running type checking..."

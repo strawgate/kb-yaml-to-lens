@@ -4,3 +4,6 @@
 line_length = 140
 sequence_style = "block_style"
 none_representation = "null"
+
+# Note: Exclusions are handled via CLI --exclude flags in Makefile
+# This allows yamlfix to run on entire repo while skipping build directories
