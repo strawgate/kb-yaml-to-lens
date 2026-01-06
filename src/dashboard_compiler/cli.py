@@ -35,6 +35,8 @@ ICON_WARNING = '⚠'
 ICON_UPLOAD = '📤'
 ICON_BROWSER = '🌐'
 
+MAX_GITHUB_ISSUE_URL_LENGTH = 8000
+
 
 def create_error_table(errors: list[SavedObjectError]) -> Table:
     """Create a Rich table to display errors.
@@ -822,6 +824,13 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
         encoded_body = urllib.parse.quote(issue_body)
 
         issue_url = f'{repo_url}/issues/new?title={encoded_title}&body={encoded_body}'
+
+        if len(issue_url) > MAX_GITHUB_ISSUE_URL_LENGTH:
+            msg = (
+                f'[yellow]{ICON_WARNING}[/yellow] URL is very long ({len(issue_url)} chars). '
+                'Some browsers may truncate it. Consider copying the NDJSON manually.'
+            )
+            console.print(msg)
 
         console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard exported successfully')
         console.print(f'  Dashboard ID: {dashboard_id}')

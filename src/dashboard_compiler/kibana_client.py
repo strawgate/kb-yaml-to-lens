@@ -365,6 +365,7 @@ class KibanaClient:
                     'id': dashboard_id,
                 },
             ],
+            'includeReferencesDeep': True,
         }
 
         connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
