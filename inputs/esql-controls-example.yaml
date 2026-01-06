@@ -32,8 +32,7 @@ dashboards:
       - type: esql_query
         variable_name: host
         variable_type: values
-        esql_query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT
-          20
+        esql_query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT 20
         title: Host Name
         width: large
     panels:
