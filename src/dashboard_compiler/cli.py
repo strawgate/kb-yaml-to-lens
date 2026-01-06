@@ -513,7 +513,7 @@ def load_sample_data_command(  # noqa: PLR0913
         return
 
     console.print(f'Found {len(dashboards_with_sample_data)} dashboard(s) with sample data')
-    console.print(f'[blue]{ICON_UPLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...\n')
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...\n')
 
     asyncio.run(
         load_all_sample_data(

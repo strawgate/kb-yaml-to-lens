@@ -47,16 +47,13 @@ def read_documents(sample_data: SampleData, base_path: Path | None = None) -> li
 
     """
     if sample_data.source == 'inline':
-        if sample_data.documents is None:
-            msg = 'documents field is required when source is inline'
-            raise ValueError(msg)
+        # model_validator ensures documents is not None when source is 'inline'
+        assert sample_data.documents is not None  # noqa: S101
         return sample_data.documents
 
     if sample_data.source == 'file':
-        if sample_data.file_path is None:
-            msg = 'file_path field is required when source is file'
-            raise ValueError(msg)
-
+        # model_validator ensures file_path is not None when source is 'file'
+        assert sample_data.file_path is not None  # noqa: S101
         file_path = sample_data.file_path
         if base_path is not None and not file_path.is_absolute():
             file_path = base_path / file_path
