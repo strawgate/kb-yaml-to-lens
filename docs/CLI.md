@@ -48,6 +48,16 @@ kb-dashboard screenshot --dashboard-id <id> --output <file.png>
 
 This will use Kibana's Reporting API to take a screenshot.
 
+### Export Dashboard for Issue
+
+Export a dashboard from Kibana and create a pre-filled GitHub issue:
+
+```bash
+kb-dashboard export-for-issue --dashboard-id <id>
+```
+
+This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard JSON.
+
 ### Disassemble Dashboards
 
 Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
@@ -137,6 +147,20 @@ Generate a PNG screenshot of a Kibana dashboard.
 - `--kibana-api-key KEY` - Kibana API key
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
 
+### `kb-dashboard export-for-issue`
+
+Export a dashboard from Kibana and create a pre-filled GitHub issue for requesting compilation support.
+
+**Options:**
+
+- `--dashboard-id TEXT` - Kibana dashboard ID to export (required)
+- `--kibana-url URL` - Kibana base URL (default: `http://localhost:5601`)
+- `--kibana-username USER` - Kibana username
+- `--kibana-password PASS` - Kibana password
+- `--kibana-api-key KEY` - Kibana API key
+- `--no-browser` - Do not open browser automatically
+- `--kibana-no-ssl-verify` - Disable SSL certificate verification
+
 ### `kb-dashboard disassemble`
 
 Disassemble a Kibana dashboard NDJSON file into components for easier LLM processing.
@@ -204,6 +228,19 @@ kb-dashboard compile \
 ```bash
 kb-dashboard compile \
   --upload \
+  --no-browser
+```
+
+### Export dashboard for GitHub issue
+
+```bash
+# Export dashboard and open pre-filled issue in browser
+kb-dashboard export-for-issue --dashboard-id my-dashboard-id
+
+# Export with API key and don't open browser
+kb-dashboard export-for-issue \
+  --dashboard-id my-dashboard-id \
+  --kibana-api-key "your-api-key" \
   --no-browser
 ```
 
