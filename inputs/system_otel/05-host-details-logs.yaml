@@ -1,7 +1,8 @@
 ---
 dashboards:
-  - name: '[OTel] Host Details - Logs'
-    description: 'Host log messages from OpenTelemetry logs collection'
+  - id: otel-host-details-logs
+    name: '[OTel] Host Details - Logs'
+    description: Host log messages from OpenTelemetry logs collection
     filters:
       - exists: resource.attributes.host.name
     controls:
@@ -12,20 +13,20 @@ dashboards:
     panels:
       - title: Navigation Links
         grid: {x: 0, y: 0, w: 48, h: 2}
-        description: 'Links to related dashboards (update URLs after importing to Kibana)'
+        description: Links to related dashboards
         links:
           layout: horizontal
           links:
             - label: Hosts Overview
-              url: '#'
+              dashboard: otel-hosts-overview
             - label: Host Overview
-              url: '#'
+              dashboard: otel-host-details-overview
             - label: Host Metrics
-              url: '#'
+              dashboard: otel-host-details-metrics
             - label: Host Metadata
-              url: '#'
+              dashboard: otel-host-details-metadata
             - label: Host Logs
-              url: '#'
+              dashboard: otel-host-details-logs
       - title: Logs
         grid: {x: 0, y: 2, w: 48, h: 56}
         esql:

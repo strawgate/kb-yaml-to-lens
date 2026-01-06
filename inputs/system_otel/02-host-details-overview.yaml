@@ -1,7 +1,8 @@
 ---
 dashboards:
-  - name: '[OTel] Host Details - Overview'
-    description: 'Detailed overview of host resource utilization and performance metrics'
+  - id: otel-host-details-overview
+    name: '[OTel] Host Details - Overview'
+    description: Detailed overview of host resource utilization and performance metrics
     filters:
       - exists: resource.attributes.host.name
       - field: data_stream.dataset
@@ -14,16 +15,20 @@ dashboards:
     panels:
       - title: Navigation Links
         grid: {x: 0, y: 0, w: 48, h: 3}
-        description: 'Links to related dashboards (update URLs after importing to Kibana)'
+        description: Links to related dashboards
         links:
           layout: horizontal
           links:
             - label: Hosts Overview
-              url: '#'
+              dashboard: otel-hosts-overview
             - label: Host Overview
-              url: '#'
+              dashboard: otel-host-details-overview
             - label: Host Metrics
-              url: '#'
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
       - title: CPU Utilization
         grid: {x: 0, y: 3, w: 12, h: 5}
         lens:

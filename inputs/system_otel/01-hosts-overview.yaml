@@ -1,7 +1,8 @@
 ---
 dashboards:
-  - name: '[OTel] Hosts Overview'
-    description: 'Overview of all OpenTelemetry-monitored hosts with key performance metrics'
+  - id: otel-hosts-overview
+    name: '[OTel] Hosts Overview'
+    description: Overview of all OpenTelemetry-monitored hosts with key performance metrics
     filters:
       - exists: resource.attributes.host.name
       - field: data_stream.dataset

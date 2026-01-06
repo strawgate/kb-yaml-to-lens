@@ -1,6 +1,7 @@
 ---
 dashboards:
-  - name: '[OTel] Host Details - Metrics'
+  - id: otel-host-details-metrics
+    name: '[OTel] Host Details - Metrics'
     description: Detailed system metrics for OpenTelemetry hosts
     filters:
       - exists: resource.attributes.host.name
@@ -14,16 +15,20 @@ dashboards:
     panels:
       - title: Navigation Links
         grid: {x: 0, y: 0, w: 48, h: 3}
-        description: 'Links to related dashboards (update URLs after importing to Kibana)'
+        description: Links to related dashboards
         links:
           layout: horizontal
           links:
             - label: Hosts Overview
-              url: '#'
+              dashboard: otel-hosts-overview
             - label: Host Overview
-              url: '#'
+              dashboard: otel-host-details-overview
             - label: Host Metrics
-              url: '#'
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
       - title: CPU Section
         grid: {x: 0, y: 3, w: 48, h: 2}
         markdown:
