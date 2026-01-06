@@ -1,0 +1,95 @@
+{
+  "visualization": {
+    "layers": [
+      {
+        "layerId": "6f9f7958-d0c2-451c-93cb-d8e6268b5bd4",
+        "accessors": [
+          "96e4d4d3-9c4c-58ee-27a8-d1cf53d7e76d"
+        ],
+        "layerType": "data",
+        "seriesType": "bar_stacked",
+        "xAccessor": "547ac39c-577e-5c55-9b27-927ae8a47fe8",
+        "position": "top",
+        "showGridlines": false,
+        "colorMapping": {
+          "assignments": [],
+          "specialAssignments": [
+            {
+              "rule": {
+                "type": "other"
+              },
+              "color": {
+                "type": "loop"
+              },
+              "touched": false
+            }
+          ],
+          "paletteId": "eui_amsterdam_color_blind",
+          "colorMode": {
+            "type": "categorical"
+          }
+        }
+      }
+    ],
+    "preferredSeriesType": "bar_stacked",
+    "legend": {
+      "isVisible": true,
+      "position": "right"
+    },
+    "valueLabels": "hide",
+    "minBarHeight": 5.0
+  },
+  "query": {
+    "query": "",
+    "language": "kuery"
+  },
+  "filters": [],
+  "datasourceStates": {
+    "formBased": {
+      "layers": {
+        "6f9f7958-d0c2-451c-93cb-d8e6268b5bd4": {
+          "columns": {
+            "547ac39c-577e-5c55-9b27-927ae8a47fe8": {
+              "label": "@timestamp",
+              "dataType": "date",
+              "operationType": "date_histogram",
+              "isBucketed": true,
+              "scale": "interval",
+              "params": {
+                "interval": "auto",
+                "includeEmptyRows": true,
+                "dropPartials": false
+              },
+              "sourceField": "@timestamp"
+            },
+            "96e4d4d3-9c4c-58ee-27a8-d1cf53d7e76d": {
+              "label": "Count of records",
+              "dataType": "number",
+              "operationType": "count",
+              "isBucketed": false,
+              "scale": "ratio",
+              "sourceField": "___records___",
+              "params": {
+                "emptyAsNull": true
+              }
+            }
+          },
+          "columnOrder": [
+            "547ac39c-577e-5c55-9b27-927ae8a47fe8",
+            "96e4d4d3-9c4c-58ee-27a8-d1cf53d7e76d"
+          ],
+          "incompleteColumns": {},
+          "sampling": 1
+        }
+      }
+    },
+    "indexpattern": {
+      "layers": {}
+    },
+    "textBased": {
+      "layers": {}
+    }
+  },
+  "internalReferences": [],
+  "adHocDataViews": {}
+}
