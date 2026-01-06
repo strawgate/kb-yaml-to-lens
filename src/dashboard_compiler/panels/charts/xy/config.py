@@ -232,6 +232,18 @@ class LensXYChartMixin(BaseCfgModel):
 
         return self
 
+    @model_validator(mode='after')
+    def validate_has_metrics(self) -> Self:
+        """Validate that XY chart has at least one metric.
+
+        Kibana requires XY charts to have at least one metric to plot.
+        Without metrics, the chart will be blank.
+        """
+        if len(self.metrics) == 0:
+            msg = 'XY chart must have at least one metric'
+            raise ValueError(msg)
+        return self
+
 
 class ESQLXYChartMixin(BaseCfgModel):
     """Shared fields for ESQL-based XY charts."""
@@ -257,6 +269,18 @@ class ESQLXYChartMixin(BaseCfgModel):
         """Add a metric to the ESQL Chart."""
         self.metrics.append(esql_metric)
 
+        return self
+
+    @model_validator(mode='after')
+    def validate_has_metrics(self) -> Self:
+        """Validate that XY chart has at least one metric.
+
+        Kibana requires XY charts to have at least one metric to plot.
+        Without metrics, the chart will be blank.
+        """
+        if len(self.metrics) == 0:
+            msg = 'XY chart must have at least one metric'
+            raise ValueError(msg)
         return self
 
 
