@@ -168,7 +168,7 @@ install-extension:
 build-extension:
 	@cd vscode-extension && $(MAKE) package
 
-# Extension linting (kept for backward compatibility, but prefer component Makefile)
+# Extension linting
 lint-extension:
 	@cd vscode-extension && $(MAKE) fix
 

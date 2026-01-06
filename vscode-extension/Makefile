@@ -1,10 +1,11 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help install ci check fix test test-unit compile watch lint lint-check package clean
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package clean
 
 help:
 	@echo "VSCode Extension Commands:"
+	@echo "  all           - Default target (alias for ci)"
 	@echo "  install       - Install npm dependencies"
 	@echo "  ci            - Run all CI checks (compile + lint + test)"
 	@echo "  check         - Alias for ci"
@@ -22,6 +23,8 @@ install:
 	@echo "Installing VSCode extension dependencies..."
 	npm ci
 
+all: ci
+
 ci: compile lint test-unit
 	@echo "✓ VSCode extension CI checks passed"
 
@@ -37,7 +40,7 @@ test:
 
 test-unit:
 	@echo "Running TypeScript tests for VSCode extension..."
-	npm run compile > /dev/null 2>&1 && npm run test:unit
+	npm run compile && npm run test:unit
 
 compile:
 	@echo "Compiling TypeScript..."
@@ -49,7 +52,7 @@ watch:
 
 lint:
 	@echo "Running ESLint..."
-	npm run compile > /dev/null && npm run lint
+	npm run compile && npm run lint
 
 lint-check: lint
 
