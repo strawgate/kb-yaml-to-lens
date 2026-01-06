@@ -56,7 +56,6 @@ dev = [
     "pytest-check-links>=0.9.0",
     "dirty-equals>=0.8.0",
     "pytest-examples>=0.0.18",
-    "yamllint>=1.35",
     "yamlfix>=1.17.0",
     "pygls>=2.0.0",
     "lsprotocol>=2024.0.0",
