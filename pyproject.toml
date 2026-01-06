@@ -57,6 +57,8 @@ dev = [
     "pytest-examples>=0.0.18",
     "yamllint>=1.35",
     "yamlfix>=1.17.0",
+    "pygls>=2.0.0",
+    "lsprotocol>=2024.0.0",
 ]
 docs = [
     "mkdocs>=1.6.0",
@@ -217,6 +219,14 @@ reportUnknownArgumentType = false
 reportUnnecessaryComparison = false
 reportUnnecessaryTypeIgnoreComment = false
 reportUnusedCallResult = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/tools"
+# Tools code deals with unstructured JSON data from Kibana
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"
