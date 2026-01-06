@@ -26,6 +26,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Verify build
+        run: npm run vscode:prepublish
+
       - name: Package and Publish to OpenVSX
         id: publish
         uses: HaaLeo/publish-vscode-extension@v2
