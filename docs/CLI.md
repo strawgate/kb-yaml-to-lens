@@ -48,6 +48,33 @@ kb-dashboard screenshot --dashboard-id <id> --output <file.png>
 
 This will use Kibana's Reporting API to take a screenshot.
 
+### Export Dashboard for Issue
+
+Export a dashboard from Kibana and create a pre-filled GitHub issue:
+
+```bash
+kb-dashboard export-for-issue --dashboard-id <id>
+```
+
+This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard JSON.
+
+### Disassemble Dashboards
+
+Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
+
+```bash
+kb-dashboard disassemble dashboard.ndjson -o output_dir
+```
+
+This will extract the dashboard into separate files:
+
+- `metadata.json` - Dashboard metadata (id, title, description, version)
+- `options.json` - Dashboard display options
+- `controls.json` - Control group configuration
+- `filters.json` - Dashboard-level filters
+- `references.json` - Data view references
+- `panels/` - Individual panel JSON files
+
 ## Configuration
 
 ### Environment Variables
@@ -120,6 +147,46 @@ Generate a PNG screenshot of a Kibana dashboard.
 - `--kibana-api-key KEY` - Kibana API key
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
 
+### `kb-dashboard export-for-issue`
+
+Export a dashboard from Kibana and create a pre-filled GitHub issue for requesting compilation support.
+
+**Options:**
+
+- `--dashboard-id TEXT` - Kibana dashboard ID to export (required)
+- `--kibana-url URL` - Kibana base URL (default: `http://localhost:5601`)
+- `--kibana-username USER` - Kibana username
+- `--kibana-password PASS` - Kibana password
+- `--kibana-api-key KEY` - Kibana API key
+- `--no-browser` - Do not open browser automatically
+- `--kibana-no-ssl-verify` - Disable SSL certificate verification
+
+### `kb-dashboard disassemble`
+
+Disassemble a Kibana dashboard NDJSON file into components for easier LLM processing.
+
+**Usage:**
+
+```bash
+kb-dashboard disassemble [input] -o <output_dir>
+```
+
+**Arguments:**
+
+- `input` - Path to the dashboard NDJSON file (optional, reads from stdin if omitted)
+- `-o, --output` - Output directory for component files (required)
+
+**Output Structure:**
+
+The tool creates the following files in the output directory:
+
+- `metadata.json` - Dashboard metadata including id, title, description, version, and timestamps
+- `options.json` - Dashboard display options (margins, color sync, cursor sync, etc.)
+- `controls.json` - Control group configuration with control panels
+- `filters.json` - Dashboard-level filters (only created if filters exist)
+- `references.json` - Data view and index pattern references
+- `panels/` - Directory containing individual panel JSON files, named as `NNN_panelId_type.json`
+
 ## Examples
 
 ### Compile only
@@ -162,6 +229,39 @@ kb-dashboard compile \
 kb-dashboard compile \
   --upload \
   --no-browser
+```
+
+### Export dashboard for GitHub issue
+
+```bash
+# Export dashboard and open pre-filled issue in browser
+kb-dashboard export-for-issue --dashboard-id my-dashboard-id
+
+# Export with API key and don't open browser
+kb-dashboard export-for-issue \
+  --dashboard-id my-dashboard-id \
+  --kibana-api-key "your-api-key" \
+  --no-browser
+```
+
+### Disassemble a dashboard for LLM conversion
+
+```bash
+# Download a dashboard from Kibana
+curl -u elastic:changeme http://localhost:5601/api/saved_objects/dashboard/my-dashboard-id > dashboard.ndjson
+
+# Disassemble it into components
+kb-dashboard disassemble dashboard.ndjson -o dashboard_parts/
+
+# Now you can feed individual parts to an LLM for conversion
+cat dashboard_parts/panels/000_panel-1_lens.json | llm "Convert this Kibana panel to our YAML schema"
+```
+
+### Disassemble from stdin
+
+```bash
+curl -u elastic:changeme http://localhost:5601/api/saved_objects/dashboard/my-id | \
+  kb-dashboard disassemble -o output/
 ```
 
 ## Makefile Shortcuts
