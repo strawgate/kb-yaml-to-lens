@@ -67,7 +67,7 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
     """View model for ES|QL metric visualization state.
 
     ES|QL metric visualizations use a flat structure without layers array or colorMapping,
-    unlike Lens-based metrics which wrap everything in a layers array.
+    similar to standard Lens metrics.
 
     This model represents the structure used when the datasource is textBased (ES|QL queries).
 
