@@ -20,7 +20,7 @@ This section provides real-world YAML dashboard examples demonstrating various f
 
 ## Available Examples
 
-### [Controls Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)
+### [Controls Example](controls-example.yaml)
 
 Demonstrates the use of dashboard controls including:
 
@@ -32,7 +32,7 @@ Demonstrates the use of dashboard controls including:
 
 **Use this when:** You need interactive filtering capabilities on your dashboard.
 
-### [Dimensions Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/dimensions-example.yaml)
+### [Dimensions Example](dimensions-example.yaml)
 
 Shows how to configure dimensions in Lens visualizations:
 
@@ -43,7 +43,7 @@ Shows how to configure dimensions in Lens visualizations:
 
 **Use this when:** You're building complex charts with multiple breakdowns and groupings.
 
-### [Color Palette Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
+### [Color Palette Example](color-palette-examples.yaml)
 
 Demonstrates color customization for charts including:
 
@@ -57,7 +57,7 @@ Demonstrates color customization for charts including:
 
 **Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../advanced/color-assignments.md) guide for an introduction.
 
-### [Filters Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
+### [Filters Example](filters-example.yaml)
 
 Comprehensive filter demonstrations including:
 
@@ -70,7 +70,7 @@ Comprehensive filter demonstrations including:
 
 **Use this when:** You need to pre-filter data or provide context-specific views.
 
-### [Multi-Panel Showcase](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/multi-panel-showcase.yaml)
+### [Multi-Panel Showcase](multi-panel-showcase.yaml)
 
 A complete dashboard featuring multiple panel types:
 
@@ -84,7 +84,7 @@ A complete dashboard featuring multiple panel types:
 
 **Use this when:** You want to see how different panel types work together in a single dashboard.
 
-### [Navigation Example](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/navigation-example.yaml)
+### [Navigation Example](navigation-example.yaml)
 
 Demonstrates dashboard navigation features:
 
@@ -95,7 +95,7 @@ Demonstrates dashboard navigation features:
 
 **Use this when:** You're building a suite of interconnected dashboards.
 
-### [Aerospike Monitoring Examples](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/aerospike/)
+### [Aerospike Monitoring Examples](aerospike/)
 
 Real-world monitoring dashboards for Aerospike database:
 
