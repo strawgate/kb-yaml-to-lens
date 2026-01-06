@@ -43,9 +43,9 @@ jobs:
           packagePath: .
 
       - name: Upload VSIX on failure
-        if: failure() && steps.publish.outcome == 'failure'
+        if: steps.publish.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: extension-vsix
-          path: vscode-extension/*.vsix
+          path: '*.vsix'
           retention-days: 7
