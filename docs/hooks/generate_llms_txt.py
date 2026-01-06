@@ -61,8 +61,12 @@ def generate_llms_txt(site_dir: Path, config: dict[str, Any]) -> None:
 """
 
     output_path = site_dir / 'llms.txt'
-    output_path.write_text(content)
-    log.info(f'Generated {output_path} ({len(content)} characters)')
+    try:
+        output_path.write_text(content, encoding='utf-8')
+        log.info(f'Generated {output_path} ({len(content)} characters)')
+    except OSError:
+        log.exception(f'Failed to write {output_path}')
+        raise
 
 
 def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
@@ -120,5 +124,9 @@ def generate_llms_full_txt(site_dir: Path, config: dict[str, Any]) -> None:
     # Write output
     output_path = site_dir / 'llms-full.txt'
     full_content = ''.join(output)
-    output_path.write_text(full_content)
-    log.info(f'Generated {output_path} ({len(full_content)} characters)')
+    try:
+        output_path.write_text(full_content, encoding='utf-8')
+        log.info(f'Generated {output_path} ({len(full_content)} characters)')
+    except OSError:
+        log.exception(f'Failed to write {output_path}')
+        raise
