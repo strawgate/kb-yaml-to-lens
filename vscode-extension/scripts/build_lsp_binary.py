@@ -43,7 +43,7 @@ def main() -> None:
     # Clean previous builds
     for d in ['build', 'dist']:
         path = VSCODE_ROOT / d
-        if path.exists():
+        if path.exists() is True:
             shutil.rmtree(path)
 
     # Build with PyInstaller using the module entry point
@@ -56,7 +56,7 @@ def main() -> None:
     # PyInstaller needs a script file path, not a module name
     # Point to the actual server.py file in the installed package
     server_script = PROJECT_ROOT / 'src' / 'dashboard_compiler' / 'lsp' / 'server.py'
-    if not server_script.exists():
+    if server_script.exists() is False:
         msg = f'LSP server script not found at {server_script}'
         raise RuntimeError(msg)
 
@@ -80,15 +80,15 @@ def main() -> None:
     shutil.move(binary_path, target_path)
 
     # Validate the binary is executable
-    if not target_path.is_file():
+    if target_path.is_file() is False:
         print(f'Warning: Binary not found at {target_path}')
-    elif platform.system() != 'Windows' and not os.access(target_path, os.X_OK):
+    elif platform.system() != 'Windows' and os.access(target_path, os.X_OK) is False:
         print(f'Warning: Binary at {target_path} is not executable')
 
     # Clean build artifacts
     for d in ['build', 'dist']:
         path = VSCODE_ROOT / d
-        if path.exists():
+        if path.exists() is True:
             shutil.rmtree(path)
 
     # Report success
