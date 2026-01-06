@@ -2,7 +2,6 @@
 dashboards:
   - name: '[Heatmap] Agent Metrics Example'
     description: Example dashboard demonstrating heatmap visualizations with agent metrics
-
     panels:
       # Panel 1: ES|QL Heatmap - Agent Name vs Agent Version
       - title: Agent Events Heatmap (Name x Version)

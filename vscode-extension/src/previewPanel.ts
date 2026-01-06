@@ -520,9 +520,8 @@ export class PreviewPanel {
                 <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${typeLabel})">
                     <div class="panel-header">
                         <span class="panel-icon">${icon}</span>
-                        <span class="panel-type-label">${escapeHtml(typeLabel)}</span>
+                        <span class="panel-type-label">${escapeHtml(typeLabel)}: ${escapeHtml(panel.title || 'Untitled')}</span>
                     </div>
-                    <span class="panel-title">${escapeHtml(panel.title || 'Untitled')}</span>
                     <span class="panel-size">${panel.grid.w}x${panel.grid.h}</span>
                 </div>
             `;

@@ -339,3 +339,39 @@ class KibanaClient:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with output_path.open('wb') as f:
             _ = f.write(screenshot_data)
+
+    async def export_dashboard(self, dashboard_id: str) -> str:
+        """Export a dashboard from Kibana using the Saved Objects Export API.
+
+        Args:
+            dashboard_id: The ID of the dashboard to export
+
+        Returns:
+            NDJSON string containing the dashboard and all its dependent objects
+
+        Raises:
+            aiohttp.ClientError: If the request fails
+
+        """
+        endpoint = f'{self.url}/api/saved_objects/_export'
+
+        headers, auth = self._get_auth_headers_and_auth()
+        headers['Content-Type'] = 'application/json'
+
+        request_body = {
+            'objects': [
+                {
+                    'type': 'dashboard',
+                    'id': dashboard_id,
+                },
+            ],
+            'includeReferencesDeep': True,
+        }
+
+        connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
+        async with (
+            aiohttp.ClientSession(connector=connector) as session,
+            session.post(endpoint, json=request_body, headers=headers, auth=auth) as response,
+        ):
+            response.raise_for_status()
+            return await response.text()

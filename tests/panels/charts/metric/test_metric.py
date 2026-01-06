@@ -18,9 +18,7 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
         lens_chart = LensMetricChart.model_validate(config)
         _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
         assert kbn_state_visualization is not None
-        assert len(kbn_state_visualization.layers) > 0
-        kbn_state_visualization_layer = kbn_state_visualization.layers[0]
-        return kbn_state_visualization_layer.model_dump()
+        return kbn_state_visualization.model_dump()
 
     # esql
     esql_chart = ESQLMetricChart.model_validate(config)
@@ -48,13 +46,9 @@ def test_compile_metric_chart_primary_only_lens() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
         }
     )
 
@@ -107,13 +101,9 @@ def test_compile_metric_chart_primary_and_secondary_lens() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
         }
     )
@@ -177,13 +167,9 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
         }
@@ -243,13 +229,9 @@ def test_compile_metric_chart_formula_simple() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': 'formula-metric-1',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
         }
     )
 
@@ -273,12 +255,99 @@ def test_compile_metric_chart_formula_with_fields() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': 'formula-metric-2',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
         }
     )
+
+
+def test_compile_metric_chart_column_order_without_breakdown() -> None:
+    """Test that kbn_columns_by_id contains only metrics when no breakdown is present (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'aerospike.namespace.name',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'aggregation': 'count',
+        },
+        'secondary': {
+            'field': 'aerospike.node.name',
+            'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+            'aggregation': 'unique_count',
+        },
+    }
+
+    lens_chart = LensMetricChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+
+    # Verify columnOrder contains only metric IDs
+    column_ids = list(kbn_columns_by_id.keys())
+    assert column_ids == ['156e3e91-7bb6-406f-8ae5-cb409747953b', 'a1ec5883-19b2-4ab9-b027-a13d6074128b']
+
+
+def test_compile_metric_chart_column_order_with_breakdown() -> None:
+    """Test that breakdown dimension appears before metrics in kbn_columns_by_id (Lens).
+
+    Kibana requires breakdown dimensions to appear before metrics in the columnOrder
+    array for proper Elasticsearch query generation.
+    """
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'aerospike.namespace.name',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'aggregation': 'count',
+        },
+        'secondary': {
+            'field': 'aerospike.node.name',
+            'id': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
+            'aggregation': 'unique_count',
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'agent.name',
+            'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+        },
+    }
+
+    lens_chart = LensMetricChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+
+    # Verify columnOrder has breakdown dimension BEFORE metrics
+    column_ids = list(kbn_columns_by_id.keys())
+    assert column_ids == [
+        '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',  # breakdown dimension FIRST
+        '156e3e91-7bb6-406f-8ae5-cb409747953b',  # primary metric
+        'a1ec5883-19b2-4ab9-b027-a13d6074128b',  # secondary metric
+    ]
+
+
+def test_compile_metric_chart_column_order_with_breakdown_primary_only() -> None:
+    """Test that breakdown dimension appears before primary metric in kbn_columns_by_id (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'aerospike.namespace.name',
+            'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'aggregation': 'count',
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'agent.name',
+            'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
+        },
+    }
+
+    lens_chart = LensMetricChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+
+    # Verify columnOrder has breakdown dimension BEFORE metric
+    column_ids = list(kbn_columns_by_id.keys())
+    assert column_ids == [
+        '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',  # breakdown dimension FIRST
+        '156e3e91-7bb6-406f-8ae5-cb409747953b',  # primary metric
+    ]

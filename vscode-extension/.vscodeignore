@@ -8,3 +8,12 @@ tsconfig.json
 !out/**/*.d.ts
 node_modules/**
 *.vsix
+build/**
+dist/**
+scripts/**
+esbuild.js
+test/**
+.eslintrc.json
+TESTING.md
+AGENTS.md
+CLAUDE.md
