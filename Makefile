@@ -188,12 +188,12 @@ lint-markdown-check:
 # Auto-fix YAML issues
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix .github docs inputs tests fixture-generator
+	uv run yamlfix .github docs inputs tests fixture-generator vscode-extension/src mkdocs.yml
 
 # Check YAML without fixing
 lint-yaml-check:
 	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check .github docs inputs tests fixture-generator > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check .github docs inputs tests fixture-generator && exit 1)
+	@uv run yamlfix --check .github docs inputs tests fixture-generator vscode-extension/src mkdocs.yml > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check .github docs inputs tests fixture-generator vscode-extension/src mkdocs.yml && exit 1)
 
 typecheck:
 	@echo "Running type checking..."

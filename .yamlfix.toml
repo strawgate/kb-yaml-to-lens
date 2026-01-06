@@ -5,16 +5,5 @@ line_length = 140
 sequence_style = "block_style"
 none_representation = "null"
 
-# Exclude patterns
-exclude = [
-  ".venv/**",
-  "venv/**",
-  "node_modules/**",
-  "dist/**",
-  "build/**",
-  "output/**",
-  "htmlcov/**",
-  ".git/**",
-  "vscode-extension/node_modules/**",
-  "vscode-extension/.vscode-test/**",
-]
+# Note: exclude patterns in this file are not reliably honored by yamlfix CLI
+# Exclusions are handled via explicit directory listing in Makefile instead
