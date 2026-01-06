@@ -8,6 +8,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    concurrency:
+      group: publish-vscode-extension
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: ./vscode-extension
@@ -46,14 +49,22 @@ jobs:
           echo "Version validation passed: $PKG_VERSION"
 
       - name: Package and Publish to OpenVSX
-        id: publish
+        id: publish-openvsx
         uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
           packagePath: .
 
+      - name: Publish to VS Code Marketplace
+        id: publish-marketplace
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.VS_MARKETPLACE_PAT }}
+          registryUrl: https://marketplace.visualstudio.com
+          packagePath: .
+
       - name: Upload VSIX on failure
-        if: steps.publish.outcome == 'failure'
+        if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
         uses: actions/upload-artifact@v6
         with:
           name: extension-vsix
