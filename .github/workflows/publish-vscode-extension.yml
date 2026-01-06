@@ -1,0 +1,72 @@
+name: Publish VS Code Extension
+
+on:
+  push:
+    tags:
+      - 'vscode-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish-vscode-extension
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: ./vscode-extension
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: vscode-extension/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Verify build
+        run: npm run vscode:prepublish
+
+      - name: Validate version matches tag
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/vscode-v}
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "Version validation passed: $PKG_VERSION"
+
+      - name: Package and Publish to OpenVSX
+        id: publish-openvsx
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          packagePath: .
+
+      - name: Publish to VS Code Marketplace
+        id: publish-marketplace
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.VS_MARKETPLACE_PAT }}
+          registryUrl: https://marketplace.visualstudio.com
+          packagePath: .
+
+      - name: Upload VSIX on failure
+        if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
+        uses: actions/upload-artifact@v6
+        with:
+          name: extension-vsix
+          path: '*.vsix'
+          retention-days: 7
