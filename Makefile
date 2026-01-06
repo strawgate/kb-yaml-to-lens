@@ -188,12 +188,12 @@ lint-markdown-check:
 # Auto-fix YAML issues
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix .github docs inputs tests fixture-generator vscode-extension/src mkdocs.yml
+	uv run yamlfix --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" .
 
 # Check YAML without fixing
 lint-yaml-check:
 	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check .github docs inputs tests fixture-generator vscode-extension/src mkdocs.yml > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check .github docs inputs tests fixture-generator vscode-extension/src mkdocs.yml && exit 1)
+	@uv run yamlfix --check --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" . && exit 1)
 
 typecheck:
 	@echo "Running type checking..."
