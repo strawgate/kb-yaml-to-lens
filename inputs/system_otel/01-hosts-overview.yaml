@@ -38,7 +38,7 @@ dashboards:
           rows:
             - id: hostname
               type: values
-              field: host.name
+              field: resource.attributes.host.name
               size: 100
           metrics:
             - id: cpu-util
