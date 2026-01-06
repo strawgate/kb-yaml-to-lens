@@ -1,6 +1,6 @@
-from pydantic import Field
+from pydantic import Field, model_validator
 
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Grid, Position, Size
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
@@ -27,5 +27,62 @@ class BasePanel(BaseCfgModel):
     description: str | None = Field(default=None)
     """A brief description of the panel's content or purpose. Defaults to an empty string."""
 
-    grid: Grid = Field(...)
-    """Defines the panel's position and size on the dashboard grid."""
+    grid: Grid | None = Field(default=None)
+    """Defines the panel's position and size on the dashboard grid. Deprecated in favor of size and position."""
+
+    size: Size = Field(default_factory=Size)
+    """Defines the panel's size on the dashboard grid."""
+
+    position: Position = Field(default_factory=Position)
+    """Defines the panel's position on the dashboard grid. If not specified, position will be auto-calculated."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def resolve_grid_to_size_position(cls, data: dict) -> dict:
+        """Convert legacy grid field to size and position fields.
+
+        If grid is specified, it takes precedence and populates size/position.
+        This maintains backward compatibility.
+        """
+        if not isinstance(data, dict):
+            return data
+
+        grid = data.get('grid')
+        if grid is not None:
+            if 'size' not in data:
+                data['size'] = {}
+            if 'position' not in data:
+                data['position'] = {}
+
+            if isinstance(grid, dict):
+                if isinstance(data['size'], dict):
+                    data['size']['w'] = grid.get('w')
+                    data['size']['h'] = grid.get('h')
+
+                if isinstance(data['position'], dict):
+                    data['position']['x'] = grid.get('x')
+                    data['position']['y'] = grid.get('y')
+            elif isinstance(grid, Grid):
+                if isinstance(data['size'], dict):
+                    data['size']['w'] = grid.w
+                    data['size']['h'] = grid.h
+
+                if isinstance(data['position'], dict):
+                    data['position']['x'] = grid.x
+                    data['position']['y'] = grid.y
+
+        return data
+
+    @model_validator(mode='after')
+    def compute_grid_from_size_position(self) -> 'BasePanel':
+        """Compute grid from size and position after all validators run.
+
+        This ensures grid is always available for backward compatibility.
+        """
+        if self.grid is None and self.position.x is not None and self.position.y is not None:
+            object.__setattr__(
+                self,
+                'grid',
+                Grid(x=self.position.x, y=self.position.y, w=self.size.w, h=self.size.h),
+            )
+        return self
