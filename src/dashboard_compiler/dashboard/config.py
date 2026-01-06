@@ -7,6 +7,7 @@ from dashboard_compiler.controls.config import ControlSettings
 from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.queries.types import LegacyQueryTypes
+from dashboard_compiler.sample_data.config import SampleData
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
@@ -60,6 +61,9 @@ class Dashboard(BaseCfgModel):
 
     panels: list[PanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
+
+    sample_data: SampleData | None = Field(default=None)
+    """Optional sample data to bundle with the dashboard for testing and demonstration."""
 
     def add_filter(self, filter: FilterTypes) -> Self:
         """Add a filter to the dashboard's global filters list.

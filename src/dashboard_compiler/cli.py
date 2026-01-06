@@ -8,12 +8,16 @@ from pathlib import Path
 
 import aiohttp
 import rich_click as click
+from elastic_transport import TransportError
+from elasticsearch import AsyncElasticsearch
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
+from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
 
 click.rich_click.USE_RICH_MARKUP = True
@@ -34,6 +38,7 @@ ICON_SUCCESS = '✓'
 ICON_ERROR = '✗'
 ICON_WARNING = '⚠'
 ICON_UPLOAD = '📤'
+ICON_DOWNLOAD = '📥'
 ICON_BROWSER = '🌐'
 
 MAX_GITHUB_ISSUE_URL_LENGTH = 8000
@@ -419,6 +424,232 @@ async def upload_to_kibana(  # noqa: PLR0913
         raise click.ClickException(msg) from e
 
 
+@cli.command('load-sample-data')
+@click.option(
+    '--input-dir',
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=DEFAULT_INPUT_DIR,
+    help='Directory containing YAML dashboard files with sample data.',
+)
+@click.option(
+    '--es-url',
+    type=str,
+    envvar='ELASTICSEARCH_URL',
+    default='http://localhost:9200',
+    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
+)
+@click.option(
+    '--es-username',
+    type=str,
+    envvar='ELASTICSEARCH_USERNAME',
+    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
+)
+@click.option(
+    '--es-password',
+    type=str,
+    envvar='ELASTICSEARCH_PASSWORD',
+    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
+)
+@click.option(
+    '--es-api-key',
+    type=str,
+    envvar='ELASTICSEARCH_API_KEY',
+    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
+)
+@click.option(
+    '--es-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification for Elasticsearch connections.',
+)
+def load_sample_data_command(  # noqa: PLR0913
+    input_dir: Path,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    es_no_ssl_verify: bool,
+) -> None:
+    r"""Load sample data bundled with dashboards into Elasticsearch.
+
+    This command scans the input directory for YAML dashboard configurations
+    that include sample data, and loads that data into Elasticsearch. The
+    sample data will be automatically transformed so the maximum timestamp
+    becomes "now", making the data appear as if it just happened.
+
+    \b
+    Examples:
+        # Load sample data from default directory
+        kb-dashboard load-sample-data
+
+        # Load with custom input directory
+        kb-dashboard load-sample-data --input-dir ./dashboards
+
+        # Load with Elasticsearch authentication
+        kb-dashboard load-sample-data --es-url https://es.example.com \\
+            --es-username admin --es-password secret
+
+        # Use API key (recommended)
+        kb-dashboard load-sample-data --es-url https://es.example.com \\
+            --es-api-key "your-api-key-here"
+    """
+    if es_api_key is not None and (es_username is not None or es_password is not None):
+        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
+        msg = '--es-username and --es-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
+    yaml_files = get_yaml_files(input_dir)
+    if len(yaml_files) == 0:
+        console.print('[yellow]No YAML files found.[/yellow]')
+        return
+
+    dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]] = []
+
+    for yaml_file in yaml_files:
+        dashboards = load(str(yaml_file))
+        for dashboard in dashboards:
+            if dashboard.sample_data is not None:
+                dashboards_with_sample_data.append((yaml_file, dashboards))
+                break
+
+    if len(dashboards_with_sample_data) == 0:
+        console.print('[yellow]No dashboards with sample data found.[/yellow]')
+        return
+
+    console.print(f'Found {len(dashboards_with_sample_data)} dashboard(s) with sample data')
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...\n')
+
+    asyncio.run(
+        load_all_sample_data(
+            dashboards_with_sample_data,
+            es_url,
+            es_username,
+            es_password,
+            es_api_key,
+            ssl_verify=not es_no_ssl_verify,
+        )
+    )
+
+
+@cli.command('extract-sample-data')
+@click.option(
+    '--index',
+    type=str,
+    required=True,
+    help='Elasticsearch index pattern to extract data from (e.g., logs-*, metrics-*).',
+)
+@click.option(
+    '--output',
+    type=click.Path(path_type=Path),
+    required=True,
+    help='Path where the NDJSON file will be saved.',
+)
+@click.option(
+    '--query',
+    type=str,
+    default='*',
+    help='Elasticsearch query to filter documents (default: * for all documents).',
+)
+@click.option(
+    '--max-docs',
+    type=int,
+    default=1000,
+    help='Maximum number of documents to extract (default: 1000).',
+)
+@click.option(
+    '--es-url',
+    type=str,
+    envvar='ELASTICSEARCH_URL',
+    default='http://localhost:9200',
+    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
+)
+@click.option(
+    '--es-username',
+    type=str,
+    envvar='ELASTICSEARCH_USERNAME',
+    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
+)
+@click.option(
+    '--es-password',
+    type=str,
+    envvar='ELASTICSEARCH_PASSWORD',
+    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
+)
+@click.option(
+    '--es-api-key',
+    type=str,
+    envvar='ELASTICSEARCH_API_KEY',
+    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
+)
+@click.option(
+    '--es-no-ssl-verify',
+    is_flag=True,
+    help='Disable SSL certificate verification for Elasticsearch connections.',
+)
+def extract_sample_data_command(  # noqa: PLR0913
+    index: str,
+    output: Path,
+    query: str,
+    max_docs: int,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    es_no_ssl_verify: bool,
+) -> None:
+    r"""Extract data from Elasticsearch to NDJSON format.
+
+    This command queries Elasticsearch and exports the results to an NDJSON file
+    that can be used as sample data for dashboards. Each line in the output file
+    is a separate JSON document.
+
+    \b
+    Examples:
+        # Extract logs data
+        kb-dashboard extract-sample-data --index logs-* --output sample-logs.ndjson
+
+        # Extract with custom query
+        kb-dashboard extract-sample-data --index metrics-* --output sample-metrics.ndjson \
+            --query 'host.name:server01'
+
+        # Extract limited number of documents
+        kb-dashboard extract-sample-data --index logs-* --output sample.ndjson --max-docs 100
+
+        # With authentication
+        kb-dashboard extract-sample-data --index logs-* --output sample.ndjson \
+            --es-url https://es.example.com --es-api-key "your-api-key"
+    """
+    if es_api_key is not None and (es_username is not None or es_password is not None):
+        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
+        raise click.UsageError(msg)
+
+    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
+        msg = '--es-username and --es-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch at {es_url}...')
+    console.print(f'Index: {index}')
+    console.print(f'Query: {query}')
+    console.print(f'Max docs: {max_docs}')
+    console.print(f'Output: {output}\n')
+
+    asyncio.run(
+        extract_data(
+            index,
+            output,
+            query,
+            max_docs,
+            es_url,
+            es_username,
+            es_password,
+            es_api_key,
+            ssl_verify=not es_no_ssl_verify,
+        )
+    )
+
+
 @cli.command('screenshot')
 @click.option(
     '--dashboard-id',
@@ -659,6 +890,158 @@ async def generate_screenshot(  # noqa: PLR0913
     except (OSError, ValueError) as e:
         msg = f'Error generating screenshot: {e}'
         raise click.ClickException(msg) from e
+
+
+def _create_es_client(
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    ssl_verify: bool,
+) -> AsyncElasticsearch:
+    """Create an AsyncElasticsearch client with the given credentials.
+
+    Args:
+        es_url: Elasticsearch base URL
+        es_username: Basic auth username
+        es_password: Basic auth password
+        es_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates
+
+    Returns:
+        Configured AsyncElasticsearch client
+
+    """
+    if es_api_key is not None:
+        return AsyncElasticsearch(es_url, api_key=es_api_key, verify_certs=ssl_verify)
+    if es_username is not None and es_password is not None:
+        return AsyncElasticsearch(es_url, basic_auth=(es_username, es_password), verify_certs=ssl_verify)
+    return AsyncElasticsearch(es_url, verify_certs=ssl_verify)
+
+
+async def extract_data(  # noqa: PLR0913
+    index: str,
+    output: Path,
+    query: str,
+    max_docs: int,
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    ssl_verify: bool = True,
+) -> None:
+    """Extract data from Elasticsearch to NDJSON file.
+
+    Args:
+        index: Elasticsearch index pattern to query
+        output: Path where NDJSON file will be saved
+        query: Elasticsearch query string
+        max_docs: Maximum number of documents to extract
+        es_url: Elasticsearch base URL
+        es_username: Basic auth username
+        es_password: Basic auth password
+        es_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates (default: True)
+
+    Raises:
+        click.ClickException: If extraction fails.
+
+    """
+    import json
+
+    es_client = _create_es_client(es_url, es_username, es_password, es_api_key, ssl_verify)
+
+    try:
+        response = await es_client.search(
+            index=index,
+            query={'query_string': {'query': query}},
+            size=max_docs,
+            sort=['@timestamp:desc'],
+        )
+
+        hits = response['hits']['hits']  # pyright: ignore[reportAny]
+        doc_count = len(hits)  # pyright: ignore[reportAny]
+
+        if doc_count == 0:
+            console.print('[yellow]No documents found matching the query.[/yellow]')
+            return
+
+        with output.open('w') as f:
+            for hit in hits:  # pyright: ignore[reportAny]
+                source = hit['_source']  # pyright: ignore[reportAny]
+                _ = f.write(json.dumps(source))
+                _ = f.write('\n')
+
+        console.print(f'\n[green]{ICON_SUCCESS}[/green] Successfully extracted {doc_count} document(s) to {output}')
+
+    except (OSError, ValueError, TransportError) as e:
+        msg = f'Error extracting data: {e}'
+        raise click.ClickException(msg) from e
+    finally:
+        await es_client.close()
+
+
+async def load_all_sample_data(  # noqa: PLR0913
+    dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]],
+    es_url: str,
+    es_username: str | None,
+    es_password: str | None,
+    es_api_key: str | None,
+    ssl_verify: bool = True,
+) -> None:
+    """Load sample data from all dashboards into Elasticsearch.
+
+    Args:
+        dashboards_with_sample_data: List of (yaml_file_path, dashboards) tuples
+        es_url: Elasticsearch base URL
+        es_username: Basic auth username
+        es_password: Basic auth password
+        es_api_key: API key for authentication
+        ssl_verify: Whether to verify SSL certificates (default: True)
+
+    Raises:
+        click.ClickException: If sample data loading fails.
+
+    """
+    es_client = _create_es_client(es_url, es_username, es_password, es_api_key, ssl_verify)
+
+    try:
+        total_loaded = 0
+        total_errors: list[str] = []
+
+        for yaml_file, dashboards in dashboards_with_sample_data:
+            for dashboard in dashboards:
+                if dashboard.sample_data is None:
+                    continue
+
+                console.print(f'Loading sample data for dashboard: {dashboard.name}')
+
+                result = await load_sample_data(
+                    es_client,
+                    dashboard.sample_data,
+                    base_path=yaml_file.parent,
+                )
+
+                if result.success is True:
+                    console.print(f'[green]{ICON_SUCCESS}[/green] Loaded {result.success_count} document(s) for {dashboard.name}')
+                    total_loaded += result.success_count
+                else:
+                    console.print(f'[red]{ICON_ERROR}[/red] Failed to load sample data for {dashboard.name}')
+                    total_errors.extend(result.errors)
+
+        if total_loaded > 0:
+            console.print(f'\n[green]{ICON_SUCCESS}[/green] Successfully loaded {total_loaded} total document(s)')
+
+        if len(total_errors) > 0:
+            console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(total_errors)} error(s):')
+            for error in total_errors:
+                console.print(f'  [red]•[/red] {error}', style='red')
+
+    except (OSError, ValueError, TransportError) as e:
+        msg = f'Error loading sample data: {e}'
+        raise click.ClickException(msg) from e
+    finally:
+        await es_client.close()
 
 
 @cli.command('export-for-issue')
