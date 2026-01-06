@@ -149,6 +149,89 @@ View models (`BaseVwModel`) have special behaviors:
 - May narrow types in subclasses (e.g., `str` → `Literal['value']`)
 - basedpyright's `reportIncompatibleVariableOverride = false` allows type narrowing
 
+#### Pydantic Validator Patterns
+
+**Strongly prefer `mode='after'` validators over `mode='before'` validators.**
+
+**✅ Use `mode='after'` for:**
+
+- Working with validated model attributes (the common case)
+- Cross-field validation that reads multiple attributes
+- Business logic that depends on fully validated data
+
+**Benefits:**
+
+- Access typed, validated attributes directly instead of raw dicts
+- Cleaner, more readable code
+- Type checker understands the types
+- No dict manipulation needed
+
+**Example:**
+
+```python
+from pydantic import model_validator
+from typing_extensions import Self
+
+class Dashboard(BaseCfgModel):
+    panels: list[Panel]
+    auto_layout: bool = False
+
+    @model_validator(mode='after')
+    def apply_auto_layout(self) -> Self:
+        """Apply auto-layout to panels if enabled."""
+        if not self.auto_layout:
+            return self
+
+        # Work with validated Panel objects, not dicts
+        for panel in self.panels:
+            if panel.position.x is not None:  # Type-safe attribute access
+                # ... positioning logic
+        return self
+```
+
+**❌ Use `mode='before'` only for:**
+
+- Raw input transformation (e.g., converting formats, normalizing keys)
+- Data migrations (e.g., handling renamed fields)
+- Working with data that cannot be validated yet
+
+**Example of appropriate `mode='before'` use:**
+
+```python
+@model_validator(mode='before')
+@classmethod
+def migrate_legacy_field(cls, data: dict[str, Any]) -> dict[str, Any]:
+    """Migrate deprecated 'old_name' field to 'new_name'."""
+    if 'old_name' in data and 'new_name' not in data:
+        data['new_name'] = data.pop('old_name')
+    return data
+```
+
+**Key Principles:**
+
+- Never import inside validators - place all imports at module level
+- Never manipulate dicts when you could access validated attributes
+- Field type annotations should reflect the actual runtime type after validation
+- All generic types must include type arguments: `dict[str, Any]`, `list[Panel]`
+
+**Type annotation consistency:**
+
+If a `mode='before'` validator converts a field to a specific type, the field annotation should reflect that final type:
+
+```python
+# ✅ Correct - annotation matches runtime type after validation
+w: int = Field(...)
+
+@field_validator('w', mode='before')
+@classmethod
+def resolve_width(cls, value: int | SemanticWidth) -> int:
+    """Convert semantic width to pixels."""
+    return resolve_semantic_width(value)
+
+# ❌ Incorrect - annotation is union but validator always returns int
+w: int | SemanticWidth = Field(...)  # Misleading - always int at runtime
+```
+
 ---
 
 ### Lint and Type Checking Exceptions
@@ -258,6 +341,7 @@ data_view and esql FROM statements should always target either `logs-*` or `metr
 | **Empty checks** | `if len(items) > 0:` | `if items:` |
 | **Union handling** | isinstance chain + final error | Type narrowing alone |
 | **Pydantic models** | Inherit from BaseCfgModel | Duplicate model_config |
+| **Validators** | Use `mode='after'` | Use `mode='before'` by default |
 | **Field docs** | Attribute docstrings | Inline comments |
 | **Line length** | 140 chars max | No limit |
 

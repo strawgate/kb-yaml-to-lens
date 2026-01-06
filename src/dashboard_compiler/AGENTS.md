@@ -68,6 +68,13 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 - Use attribute docstrings for field descriptions
 - View models may narrow types in subclasses
 
+**Pydantic Validators:**
+
+- Strongly prefer `mode='after'` validators - work with validated attributes, not dicts
+- Only use `mode='before'` for raw input transformation or data migrations
+- Never import inside validators - place imports at module level
+- Field annotations should reflect runtime type after validation
+
 See [CODE_STYLE.md](../../CODE_STYLE.md) for detailed explanations and examples.
 
 ### Documentation Updates
