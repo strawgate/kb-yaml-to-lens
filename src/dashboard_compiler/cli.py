@@ -7,6 +7,8 @@ from pathlib import Path
 
 import aiohttp
 import rich_click as click
+import yaml
+from pydantic import ValidationError
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
@@ -65,6 +67,60 @@ def _extract_error_message(error: SavedObjectError) -> str:
     return str(error)
 
 
+def _format_validation_error(e: ValidationError, yaml_path: Path) -> str:
+    """Format a Pydantic validation error into a user-friendly message.
+
+    Args:
+        e: The ValidationError from Pydantic.
+        yaml_path: Path to the YAML file being validated.
+
+    Returns:
+        A formatted error message string.
+
+    """
+    errors = e.errors()
+
+    # Check for empty/invalid file at root level
+    if len(errors) == 1 and errors[0]['loc'] == () and errors[0]['type'] == 'model_type':
+        return f'{yaml_path.name}: File is empty or does not contain valid YAML. Expected a YAML document with a "dashboards" key.'
+
+    # Check for missing "dashboards" key at root level
+    if len(errors) == 1 and errors[0]['loc'] == ('dashboards',) and errors[0]['type'] == 'missing':
+        return f'{yaml_path.name}: Missing required "dashboards" key. Your YAML file must have a "dashboards:" section at the top level.'
+
+    error_count = e.error_count()
+    error_word = 'error' if error_count == 1 else 'errors'
+    lines = [f'{error_count} validation {error_word} in {yaml_path.name}:']
+
+    for err in errors:
+        location = '.'.join(str(loc) for loc in err['loc']) if err['loc'] else 'root'
+        msg = err['msg']
+        lines.append(f'  • {location}: {msg}')
+
+    return '\n'.join(lines)
+
+
+def _format_yaml_error(e: yaml.YAMLError, yaml_path: Path) -> str:
+    """Format a YAML parsing error into a user-friendly message.
+
+    Args:
+        e: The YAMLError from the yaml library.
+        yaml_path: Path to the YAML file being parsed.
+
+    Returns:
+        A formatted error message string.
+
+    """
+    # yaml.YAMLError subclasses set problem_mark/problem dynamically; use getattr for safety
+    problem_mark = getattr(e, 'problem_mark', None)
+    if problem_mark is not None:
+        line: int = getattr(problem_mark, 'line', -1) + 1  # pyright: ignore[reportAny]
+        column: int = getattr(problem_mark, 'column', -1) + 1  # pyright: ignore[reportAny]
+        problem: str = getattr(e, 'problem', 'syntax error')
+        return f'YAML syntax error in {yaml_path.name} at line {line}, column {column}: {problem}'
+    return f'YAML syntax error in {yaml_path.name}: {e}'
+
+
 def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -> None:
     """Write a list of JSON strings to an NDJSON file.
 
@@ -100,6 +156,10 @@ def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
     except FileNotFoundError:
         return [], f'YAML file not found: {yaml_path}'
+    except yaml.YAMLError as e:
+        return [], _format_yaml_error(e, yaml_path)
+    except ValidationError as e:
+        return [], _format_validation_error(e, yaml_path)
     except (ValueError, TypeError, KeyError) as e:
         return [], f'Error compiling {yaml_path}: {e}'
     else:
