@@ -43,27 +43,6 @@ def return_if_equals(var: V | None, equals: V, is_false: T, is_true: T, is_none:
     return is_true if var == equals else is_false
 
 
-def extract_metrics_from_config(config: Any) -> list[Any]:  # pyright: ignore[reportAny]
-    """Extract metrics from either 'metric' or 'metrics' attribute.
-
-    Args:
-        config: Object with either 'metric' or 'metrics' attribute
-
-    Returns:
-        List of metric configs
-
-    Raises:
-        ValueError: If neither metric nor metrics is provided
-
-    """
-    if hasattr(config, 'metric') and config.metric is not None:  # pyright: ignore[reportAny]
-        return [config.metric]  # pyright: ignore[reportAny]
-    if hasattr(config, 'metrics') and config.metrics is not None and len(config.metrics) > 0:  # pyright: ignore[reportAny]
-        return config.metrics  # pyright: ignore[reportAny]
-    msg = "Either 'metric' or 'metrics' must be provided"
-    raise ValueError(msg)
-
-
 @overload
 def normalize_static_metric(value: int | float, static_value_class: type['LensStaticValue']) -> 'LensStaticValue': ...
 

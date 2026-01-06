@@ -64,9 +64,9 @@ dashboards:
         lens:
           type: pie # Specifies a LensPieChart
           data_view: "weblogs-*"
-          metric:
-            aggregation: "count"
-            label: "Sessions"
+          metrics:
+            - aggregation: "count"
+              label: "Sessions"
           slice_by:
             - type: values
               field: "source.medium"
@@ -104,9 +104,9 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['metric']` | Specifies the chart type as a Lens Metric visualization. | `metric` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
-| `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | N/A | Yes |
-| `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | `None` | No |
-| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | `None` | No |
+| `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
+| `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
+| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | `None` | No |
 
 **Example (Lens Metric Chart):**
@@ -142,7 +142,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `type` | `Literal['pie']` | Specifies the chart type as a Lens Pie visualization. | `pie` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `data_view` | `string` | The ID or title of the data view (index pattern) for this pie chart. | N/A | Yes |
-| `metric` | `LensMetricTypes` object | The metric that determines the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metric-for-pie). | N/A | Yes |
+| `metrics` | `LensMetricTypes \| list[LensMetricTypes]` object | A single metric or list of metrics that determine the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `slice_by` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
@@ -155,7 +155,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 # Within a LensPanel's 'chart' field:
 # type: pie
 # data_view: "ecommerce-orders"
-# metric:
+# metrics:
 #   aggregation: "sum"
 #   field: "order_value"
 #   label: "Total Order Value"
@@ -257,7 +257,7 @@ Groups data into numeric ranges (buckets).
 
 ---
 
-## Lens Metrics (`primary`, `secondary`, `maximum` for Metric; `metric` for Pie)
+## Lens Metrics (`primary`, `secondary`, `maximum` for Metric; `metrics` for Pie)
 
 Metrics define the calculations performed on your data (e.g., count, sum, average).
 

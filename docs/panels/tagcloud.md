@@ -44,7 +44,7 @@ dashboards:
         tags:
           type: values
           field: "error.message"
-        metric:
+        metrics:
           aggregation: count
 ```
 
@@ -61,7 +61,7 @@ dashboards:
         query: "FROM logs-* | STATS error_count = count(*) BY error.message"
         tags:
           field: "error.message"
-        metric:
+        metrics:
           field: "error_count"
 ```
 
@@ -74,7 +74,7 @@ dashboards:
 | `type` | `Literal['tagcloud']` | Specifies the chart type. | tagcloud | Yes |
 | `data_view` | `string` | The data view that determines the data source. | - | Yes |
 | `tags` | `LensDimensionTypes` | The dimension for grouping (terms/tags). | - | Yes |
-| `metric` | `LensMetricTypes` | The metric for sizing each tag. | - | Yes |
+| `metrics` | `LensMetricTypes` | The metric for sizing each tag. | - | Yes |
 | `appearance` | `TagcloudAppearance` | Appearance settings (fonts, orientation). | None | No |
 | `color` | `ColorMapping` | Color palette configuration. | None | No |
 
@@ -85,7 +85,7 @@ dashboards:
 | `type` | `Literal['tagcloud']` | Specifies the chart type. | tagcloud | Yes |
 | `esql` | `string` | The ES\|QL query that determines the data. | - | Yes |
 | `tags` | `ESQLDimensionTypes` | The dimension for grouping (terms/tags). | - | Yes |
-| `metric` | `ESQLMetricTypes` | The metric for sizing each tag. | - | Yes |
+| `metrics` | `ESQLMetricTypes` | The metric for sizing each tag. | - | Yes |
 | `appearance` | `TagcloudAppearance` | Appearance settings (fonts, orientation). | None | No |
 | `color` | `ColorMapping` | Color palette configuration. | None | No |
 
@@ -126,7 +126,7 @@ dashboards:
         tags:
           type: values
           field: "service.name"
-        metric:
+        metrics:
           aggregation: count
         appearance:
           min_font_size: 12

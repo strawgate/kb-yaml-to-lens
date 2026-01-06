@@ -9,7 +9,7 @@ suite('ConfigService Test Suite', () => {
 
     suiteSetup(async () => {
         // Get the extension and activate it
-        const extension = vscode.extensions.getExtension('strawgate.yaml-dashboard-compiler');
+        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension);
 
         if (!extension.isActive) {

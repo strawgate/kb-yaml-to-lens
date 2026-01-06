@@ -59,9 +59,9 @@ dashboards:
           slice_by:
             - field: agent.name
               id: dim_agent_name
-          metric:
-            field: count
-            id: metric_count
+          metrics:
+            - field: count
+              id: metric_count
           query:
             - FROM metrics-*
             - WHERE agent.name IN (?agent_name)
@@ -80,9 +80,9 @@ dashboards:
           slice_by:
             - field: agent.version
               id: dim_agent_version
-          metric:
-            field: count
-            id: metric_count
+          metrics:
+            - field: count
+              id: metric_count
           query:
             - FROM metrics-*
             - WHERE agent.name IN (?agent_name)

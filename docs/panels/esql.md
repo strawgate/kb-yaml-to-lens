@@ -69,8 +69,8 @@ dashboards:
             | STATS event_count = COUNT(*) BY event.category
             | ORDER event_count DESC
             | LIMIT 5
-          metric:
-            field: "event_count"
+          metrics:
+            - field: "event_count"
           slice_by:
             - field: "event.category"
 ```
@@ -130,7 +130,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | ----------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['pie']` | Specifies the chart type as an ESQL Pie visualization. | `pie` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
-| `metric` | `ESQLMetric` object | The metric that determines the size of each slice. Its `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
+| `metrics` | `ESQLMetric \| list[ESQLMetric]` object | A single metric or list of metrics that determine the size of each slice. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `slice_by` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None` | No |
@@ -142,7 +142,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 ```yaml
 # Within an ESQLPanel's 'chart' field:
 # type: pie
-# metric:
+# metrics:
 #   field: "error_count"  # Column from ESQL: ... | STATS error_count = COUNT(error.code) BY error.type
 # slice_by:
 #   - field: "error_type" # Column from ESQL
@@ -248,7 +248,7 @@ Displays area chart visualizations with data sourced from an ESQL query. Support
 
 ## ESQL Columns
 
-For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metric`, `slice_by` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
+For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metrics`, `slice_by` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
 
 ### ESQL Metric Column
 

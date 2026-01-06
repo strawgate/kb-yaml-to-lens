@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
-"""Unit tests for compile_server.py LSP handlers."""
+"""Unit tests for dashboard_compiler.lsp.server LSP handlers."""
+# ruff: noqa: PT009
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock
 
-# Add parent directories to path for importing
-sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
-
-from compile_server import _compile_dashboard, _params_to_dict, compile_command, compile_custom, get_dashboards_custom
-from lsprotocol import types
+from dashboard_compiler.lsp.server import (
+    _compile_dashboard,
+    _params_to_dict,
+    compile_custom,
+    get_dashboards_custom,
+)
 
 
 class TestParamsToDict(unittest.TestCase):
@@ -161,78 +159,6 @@ class TestCompileDashboard(unittest.TestCase):
         self.temp_file.write_text(yaml_content)
 
         result = _compile_dashboard(str(self.temp_file), 0)
-
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-
-
-class TestCompileCommand(unittest.TestCase):
-    """Test the compile_command handler (workspace/executeCommand pattern)."""
-
-    def setUp(self) -> None:
-        """Create temporary test files."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.temp_file = Path(self.temp_dir) / 'test_dashboard.yaml'
-        yaml_content = """dashboards:
-- name: Test Dashboard
-  panels: []
-- name: Second Dashboard
-  panels: []
-"""
-        self.temp_file.write_text(yaml_content)
-
-    def tearDown(self) -> None:
-        """Clean up temporary files."""
-        import shutil
-
-        shutil.rmtree(self.temp_dir)
-
-    def test_compile_command_with_path_only(self) -> None:
-        """Test executeCommand with just path argument."""
-        mock_ls = MagicMock()
-        args = [str(self.temp_file)]
-
-        result = compile_command(mock_ls, args)
-
-        self.assertTrue(result['success'])
-        self.assertIn('data', result)
-
-    def test_compile_command_with_index(self) -> None:
-        """Test executeCommand with path and dashboard index."""
-        mock_ls = MagicMock()
-        args = [str(self.temp_file), 1]
-
-        result = compile_command(mock_ls, args)
-
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['attributes']['title'], 'Second Dashboard')
-
-    def test_compile_command_with_string_index(self) -> None:
-        """Test executeCommand with dashboard index as string."""
-        mock_ls = MagicMock()
-        args = [str(self.temp_file), '1']
-
-        result = compile_command(mock_ls, args)
-
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['attributes']['title'], 'Second Dashboard')
-
-    def test_compile_command_missing_args(self) -> None:
-        """Test executeCommand with no arguments returns error."""
-        mock_ls = MagicMock()
-        args: list[Any] = []
-
-        result = compile_command(mock_ls, args)
-
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Missing path', result['error'])
-
-    def test_compile_command_empty_args(self) -> None:
-        """Test executeCommand with None args returns error."""
-        mock_ls = MagicMock()
-
-        result = compile_command(mock_ls, [])
 
         self.assertFalse(result['success'])
         self.assertIn('error', result)
@@ -426,49 +352,6 @@ class TestGetDashboardsCustom(unittest.TestCase):
         result = get_dashboards_custom(params)
 
         self.assertTrue(result['success'])
-
-
-class TestDidSaveHandler(unittest.TestCase):
-    """Test the did_save notification handler."""
-
-    def test_did_save_sends_notification(self) -> None:
-        """Test that did_save handler sends fileChanged notification."""
-        from compile_server import did_save
-
-        # Create mock language server
-        mock_ls = MagicMock()
-        mock_protocol = MagicMock()
-        mock_ls.protocol = mock_protocol
-
-        # Create params
-        params = types.DidSaveTextDocumentParams(text_document=types.TextDocumentIdentifier(uri='file:///test/dashboard.yaml'))
-
-        # Call handler
-        did_save(mock_ls, params)
-
-        # Verify notification was sent
-        mock_protocol.notify.assert_called_once_with('dashboard/fileChanged', {'uri': 'file:///test/dashboard.yaml'})
-
-    def test_did_save_with_different_uris(self) -> None:
-        """Test did_save with various file URIs."""
-        from compile_server import did_save
-
-        test_uris = [
-            'file:///workspace/test.yaml',
-            'file:///home/user/dashboards/main.yaml',
-            'file:///c:/Windows/dashboard.yaml',
-        ]
-
-        for uri in test_uris:
-            mock_ls = MagicMock()
-            mock_protocol = MagicMock()
-            mock_ls.protocol = mock_protocol
-
-            params = types.DidSaveTextDocumentParams(text_document=types.TextDocumentIdentifier(uri=uri))
-
-            did_save(mock_ls, params)
-
-            mock_protocol.notify.assert_called_once_with('dashboard/fileChanged', {'uri': uri})
 
 
 if __name__ == '__main__':

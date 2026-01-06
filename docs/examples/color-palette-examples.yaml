@@ -13,8 +13,8 @@ dashboards:
           slice_by:
             - field: http.response.status_code
               type: values
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -110,8 +110,8 @@ dashboards:
           slice_by:
             - field: document.type
               type: values
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
           color:
             palette: gray
 
@@ -124,8 +124,8 @@ dashboards:
           slice_by:
             - field: log.level
               type: values
-          metric:
-            aggregation: count
+          metrics:
+            - aggregation: count
           color:
             palette: eui_amsterdam_color_blind
             assignments:
