@@ -18,9 +18,7 @@ def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'len
         lens_chart = LensMetricChart.model_validate(config)
         _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
         assert kbn_state_visualization is not None
-        assert len(kbn_state_visualization.layers) > 0
-        kbn_state_visualization_layer = kbn_state_visualization.layers[0]
-        return kbn_state_visualization_layer.model_dump()
+        return kbn_state_visualization.model_dump()
 
     # esql
     esql_chart = ESQLMetricChart.model_validate(config)
@@ -48,13 +46,9 @@ def test_compile_metric_chart_primary_only_lens() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
         }
     )
 
@@ -107,13 +101,9 @@ def test_compile_metric_chart_primary_and_secondary_lens() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
         }
     )
@@ -177,13 +167,9 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
         }
@@ -243,13 +229,9 @@ def test_compile_metric_chart_formula_simple() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': 'formula-metric-1',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
         }
     )
 
@@ -273,12 +255,8 @@ def test_compile_metric_chart_formula_with_fields() -> None:
         {
             'layerId': IsUUID,
             'layerType': 'data',
-            'colorMapping': {
-                'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
-                'paletteId': 'eui_amsterdam_color_blind',
-                'colorMode': {'type': 'categorical'},
-            },
             'metricAccessor': 'formula-metric-2',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
         }
     )
