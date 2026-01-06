@@ -123,11 +123,19 @@ class AutoLayoutEngine:
         Returns:
             Tuple of (x, y) coordinates.
 
+        Raises:
+            ValueError: If panel width exceeds grid width.
+
         """
+        if width > self.grid_width:
+            msg = f'Panel width {width} exceeds grid width {self.grid_width}'
+            raise ValueError(msg)
+
         y = 0
         max_height_in_row = 0
+        max_y = max((coord[1] for coord in self.occupied), default=0) + _MAX_Y_SEARCH_BUFFER
 
-        while True:
+        while y <= max_y:
             for x in range(self.grid_width - width + 1):
                 if self._can_place(x, y, width, height):
                     max_height_in_row = max(max_height_in_row, height)
@@ -135,6 +143,8 @@ class AutoLayoutEngine:
 
             y += max_height_in_row if max_height_in_row > 0 else 1
             max_height_in_row = 0
+
+        return (0, max_y + 1)
 
     def _can_place(self, x: int, y: int, width: int, height: int) -> bool:
         """Check if a panel can be placed at the given position.
