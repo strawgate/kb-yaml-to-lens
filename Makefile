@@ -8,7 +8,7 @@ DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
 # YAML linting exclusions
-YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml"
+YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" --exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
 
 all: ci
 
@@ -92,11 +92,14 @@ help:
 	@echo "Helpers:"
 	@echo "  inspector     - Run MCP Inspector"
 
-install: install-extension
-	@echo "Running uv sync..."
+install:
+	@echo "Installing Python dependencies..."
 	uv sync --group dev
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
+	@echo "Installing VSCode extension dependencies..."
+	@cd vscode-extension && $(MAKE) install
+	@echo "✓ All dependencies installed"
 
 # CI and development workflow commands
 ci: lint-all-check typecheck test-all docs-build-quiet
@@ -107,14 +110,17 @@ check: ci
 fix: lint-all
 
 # Linting meta-commands
-lint-all: lint format lint-markdown lint-yaml lint-extension
+lint-all: lint format lint-markdown lint-yaml
+	@cd vscode-extension && $(MAKE) fix
 	@echo "✓ All linting complete (with auto-fix)"
 
-lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check lint-extension-check
+lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
+	@cd vscode-extension && $(MAKE) lint
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
-test-all: test test-smoke test-links test-extension-typescript
+test-all: test test-smoke test-links
+	@cd vscode-extension && $(MAKE) test-unit
 	@echo "✓ All tests passed"
 
 test:
@@ -145,12 +151,10 @@ test-links:
 
 test-extension:
 	@echo "Running VSCode extension tests..."
-	cd vscode-extension && npm install && npm test
+	@cd vscode-extension && $(MAKE) test
 
 test-extension-typescript:
-	@echo "Running TypeScript tests for VSCode extension..."
-	# Using npm install for local development flexibility (vs npm ci in CI)
-	@cd vscode-extension && npm install > /dev/null 2>&1 && npm run compile > /dev/null 2>&1 && npm run test:unit
+	@cd vscode-extension && $(MAKE) test-unit
 
 test-extension-e2e:
 	@echo "Running Extension E2E Tests..."
@@ -159,21 +163,17 @@ test-extension-e2e:
 
 # VS Code Extension build and dependency management
 install-extension:
-	@echo "Installing VSCode extension dependencies..."
-	@cd vscode-extension && npm ci
+	@cd vscode-extension && $(MAKE) install
 
 build-extension:
-	@echo "Building VSCode extension..."
-	@cd vscode-extension && npm run vscode:prepublish
+	@cd vscode-extension && $(MAKE) package
 
-# Extension linting
+# Extension linting (kept for backward compatibility, but prefer component Makefile)
 lint-extension:
-	@echo "Running ESLint on VSCode extension (auto-fix)..."
-	@cd vscode-extension && npm run lint -- --fix 2>/dev/null || npm run lint
+	@cd vscode-extension && $(MAKE) fix
 
 lint-extension-check:
-	@echo "Running ESLint on VSCode extension..."
-	@cd vscode-extension && npm run compile > /dev/null && npm run lint
+	@cd vscode-extension && $(MAKE) lint
 
 inspector:
 	@echo "Running MCP Inspector..."

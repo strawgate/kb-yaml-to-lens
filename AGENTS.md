@@ -26,20 +26,25 @@ This repository contains three main components:
 
 ### Common Commands
 
-We try to make all common commands available via `make` commands.
+Root-level commands orchestrate all components via `make`:
 
 | Command | Purpose |
 | --------- | --------- |
-| `make install` | Install all dependencies (Python + Node.js + Extension) |
-| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests including extension) |
-| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML + Extension) |
-| `make lint-all-check` | Check all linting without fixing (Python + Markdown + YAML + Extension) |
-| `make test-all` | Run all tests (unit + smoke + extension) |
+| `make install` | Install all dependencies (all components) |
+| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests) |
+| `make fix` | Auto-fix all linting issues (all components) |
+| `make lint-all-check` | Check all linting without fixing (all components) |
+| `make test-all` | Run all tests (all components) |
 | `make test` | Run Python unit tests only |
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
-Note: These are intended to be used from the repository root. See component-specific AGENTS.md files for detailed commands.
+**Component-specific Makefiles:**
+
+- `vscode-extension/Makefile` - Extension development commands
+- `fixture-generator/Makefile` - Fixture generation commands
+
+Component-specific commands can be run by cd-ing into the component directory. See component-specific AGENTS.md files for available commands.
 
 **Workflow example:**
 
