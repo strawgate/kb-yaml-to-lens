@@ -161,3 +161,15 @@ class TestAutoLayoutEngine:
             (36, 0),
             (42, 0),
         ]
+
+    def test_panel_exceeds_grid_width_up_left(self) -> None:
+        """Test that panel wider than grid raises ValueError with up-left algorithm."""
+        engine = AutoLayoutEngine(algorithm='up-left')
+        with pytest.raises(ValueError, match=r'Panel width .* exceeds grid width'):
+            _ = engine.compute_positions([(0, 60, 12)])
+
+    def test_panel_exceeds_grid_width_left_right(self) -> None:
+        """Test that panel wider than grid raises ValueError with left-right algorithm."""
+        engine = AutoLayoutEngine(algorithm='left-right')
+        with pytest.raises(ValueError, match=r'Panel width .* exceeds grid width'):
+            _ = engine.compute_positions([(0, 60, 12)])
