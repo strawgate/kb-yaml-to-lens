@@ -113,6 +113,7 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 
 - **[CLI Reference](CLI.md)** – Detailed documentation of the `kb-dashboard` command-line tool for compiling and uploading dashboards.
 - **[VS Code Extension](vscode-extension.md)** – Live compilation, preview, and visual grid editing in Visual Studio Code.
+- **[Dashboard Decompiling Guide](dashboard-decompiling-guide.md)** – Convert existing Kibana JSON dashboards to YAML using LLMs.
 - **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples covering various use cases.
 
 ### User Guide

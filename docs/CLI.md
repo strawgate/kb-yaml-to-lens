@@ -75,6 +75,8 @@ This will extract the dashboard into separate files:
 - `references.json` - Data view references
 - `panels/` - Individual panel JSON files
 
+For a comprehensive guide on using this tool to convert dashboards from JSON to YAML, see the [Dashboard Decompiling Guide](dashboard-decompiling-guide.md).
+
 ## Configuration
 
 ### Environment Variables
@@ -263,6 +265,8 @@ cat dashboard_parts/panels/000_panel-1_lens.json | llm "Convert this Kibana pane
 curl -u elastic:changeme http://localhost:5601/api/saved_objects/dashboard/my-id | \
   kb-dashboard disassemble -o output/
 ```
+
+For a complete workflow guide on converting these disassembled components to YAML, see the [Dashboard Decompiling Guide](dashboard-decompiling-guide.md).
 
 ## Makefile Shortcuts
 
