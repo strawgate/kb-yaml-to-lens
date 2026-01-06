@@ -35,8 +35,9 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: "1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:\
-              \ wait'))"
+            formula: >-
+              1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+              wait'))
             label: CPU %
             format:
               type: percent
@@ -80,8 +81,9 @@ dashboards:
             - field: '@timestamp'
               type: date_histogram
           metrics:
-            - formula: "1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:\
-                \ wait'))"
+            - formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
               label: CPU Utilization
               format:
                 type: percent

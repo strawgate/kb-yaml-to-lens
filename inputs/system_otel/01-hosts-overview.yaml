@@ -42,8 +42,9 @@ dashboards:
               size: 100
           metrics:
             - id: cpu-util
-              formula: "1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:\
-                \ wait'))"
+              formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
               label: CPU %
               format:
                 type: percent
