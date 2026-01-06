@@ -14,17 +14,15 @@ dashboards:
     panels:
       - title: Navigation Links
         grid: {x: 0, y: 0, w: 48, h: 3}
-        description: Links to related dashboards
+        description: 'Links to related dashboards (update URLs after importing to Kibana)'
         links:
           layout: horizontal
           links:
-            - label: Overview
+            - label: Hosts Overview
               url: '#'
-            - label: Metadata
+            - label: Host Overview
               url: '#'
-            - label: Metrics
-              url: '#'
-            - label: Logs
+            - label: Host Metrics
               url: '#'
       - title: CPU Section
         grid: {x: 0, y: 3, w: 48, h: 2}

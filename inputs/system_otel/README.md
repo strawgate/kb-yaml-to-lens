@@ -4,24 +4,24 @@ This directory contains YAML dashboards for the OpenTelemetry System integration
 
 ## Dashboards
 
-1. **hosts-overview.yaml** - Overview of all hosts with key metrics
-2. **host-details-overview.yaml** - Detailed overview of a single host
-3. **host-details-metadata.yaml** - Host metadata tables
-4. **host-details-metrics.yaml** - Detailed metrics charts for a host
-5. **host-details-logs.yaml** - Host logs viewer
+1. **01-hosts-overview.yaml** - Overview of all hosts with key metrics
+2. **02-host-details-overview.yaml** - Detailed overview of a single host
+3. **03-host-details-metrics.yaml** - Detailed metrics charts for a host
+
+**Note:** Two dashboards from the original Elastic integrations set are not included:
+
+- **Host Details - Metadata** - Uses `visualization` panels not yet supported by the compiler
+- **Host Details - Logs** - Uses AI-powered panels (`aiopsLogRateAnalysisEmbeddable`, `aiopsPatternAnalysisEmbeddable`) not yet supported by the compiler
 
 ## Notes
 
 These YAML dashboards are simplified versions of the original Kibana dashboards. Some advanced features from the original dashboards are not yet supported:
 
-- **AI-powered features**: Log rate analysis and pattern detection panels
+- **AI-powered features**: Log rate analysis and pattern detection panels (excluded from these dashboards)
+- **Visualization panels**: Legacy visualization panels (excluded from these dashboards)
 - **Dashboard drill-downs**: Clickable table rows that navigate to other dashboards
-- **Advanced formulas**: Some complex formulas may be simplified
 
-The dashboards use the following data views:
-
-- `metrics-*` for metrics panels
-- `logs-*` for log panels
+The dashboards use the `metrics-*` data view.
 
 ## Data Requirements
 
@@ -51,9 +51,3 @@ These dashboards expect data from the OpenTelemetry hostmetricsreceiver with the
 - `resource.attributes.os.type`
 - `resource.attributes.os.description`
 - `cloud.*` (Cloud metadata fields)
-
-### Logs
-
-- `@timestamp`
-- `message`
-- `resource.attributes.host.name`

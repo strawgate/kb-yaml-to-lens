@@ -1,7 +1,7 @@
 ---
 dashboards:
   - name: '[OTel] Hosts Overview'
-    description: ''
+    description: 'Overview of all OpenTelemetry-monitored hosts with key performance metrics'
     filters:
       - exists: resource.attributes.host.name
       - field: data_stream.dataset
@@ -46,19 +46,16 @@ dashboards:
               label: CPU %
               format:
                 type: percent
-                decimals: 1
             - id: mem-util
               formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
               label: Memory %
               format:
                 type: percent
-                decimals: 1
             - id: norm-load
               formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
               label: Normalized Load
               format:
                 type: percent
-                decimals: 1
           paging:
             enabled: true
             page_size: 20
