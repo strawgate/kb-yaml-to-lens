@@ -7,11 +7,13 @@ This directory contains YAML dashboards for the OpenTelemetry System integration
 1. **01-hosts-overview.yaml** - Overview of all hosts with key metrics
 2. **02-host-details-overview.yaml** - Detailed overview of a single host
 3. **03-host-details-metrics.yaml** - Detailed metrics charts for a host
+4. **04-host-details-metadata.yaml** - Host resource attributes and metadata (ES|QL datatables)
+5. **05-host-details-logs.yaml** - Host log messages (ES|QL datatable)
 
-**Note:** Two dashboards from the original Elastic integrations set are not included:
+**Note:** These YAML dashboards exclude some panels from the original Elastic integrations:
 
-- **Host Details - Metadata** - Uses `visualization` panels not yet supported by the compiler
-- **Host Details - Logs** - Uses AI-powered panels (`aiopsLogRateAnalysisEmbeddable`, `aiopsPatternAnalysisEmbeddable`) not yet supported by the compiler
+- **04-host-details-metadata.yaml** - Excludes 1 `visualization` panel (markdown section separator) not yet supported by the compiler
+- **05-host-details-logs.yaml** - Excludes 2 AI-powered panels (`aiopsLogRateAnalysisEmbeddable`, `aiopsPatternAnalysisEmbeddable`) not yet supported by the compiler
 
 ## Notes
 
@@ -21,7 +23,7 @@ These YAML dashboards are simplified versions of the original Kibana dashboards.
 - **Visualization panels**: Legacy visualization panels (excluded from these dashboards)
 - **Dashboard drill-downs**: Clickable table rows that navigate to other dashboards
 
-The dashboards use the `metrics-*` data view.
+The dashboards use the `metrics-*` and `logs-*` data views.
 
 ## Data Requirements
 
