@@ -22,6 +22,7 @@ dependencies = [
     "rich-click>=1.9.0",
     "aiohttp>=3.13",
     "prison>=0.2.1",
+    "elasticsearch>=8.16.2",
 ]
 
 [project.optional-dependencies]
