@@ -326,3 +326,88 @@ async def test_dimension_type_field_has_default() -> None:
 
     intervals = LensIntervalsDimension(field='price')
     assert intervals.type == 'intervals'
+
+
+async def test_terms_dimension_with_formula_metric_uses_alphabetical_ordering() -> None:
+    """Test that terms dimension uses alphabetical ordering when first metric is a formula.
+
+    Formula columns are computed post-aggregation and cannot be used for
+    Elasticsearch aggregation ordering. This test ensures we fall back to
+    alphabetical ordering in this case.
+    """
+    metric_config = {
+        'formula': '1 - average(system.cpu.idle.pct)',
+        'label': 'CPU %',
+        'id': 'cpu-util',
+    }
+    dimension_config = {
+        'type': 'values',
+        'field': 'host.name',
+        'size': 100,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    # Should use alphabetical ordering, not order by the formula column
+    assert dimension_result['params']['orderBy'] == snapshot({'type': 'alphabetical', 'fallback': True})
+    assert dimension_result['params']['orderDirection'] == 'desc'
+
+
+async def test_terms_dimension_with_non_formula_metric_orders_by_metric() -> None:
+    """Test that terms dimension orders by metric when first metric is not a formula.
+
+    Non-formula metrics (like count, average, sum, etc.) can be used for
+    Elasticsearch aggregation ordering.
+    """
+    metric_config = {'aggregation': 'average', 'field': 'system.cpu.user.pct', 'label': 'Avg CPU', 'id': 'avg-cpu'}
+    dimension_config = {
+        'type': 'values',
+        'field': 'host.name',
+        'size': 10,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    # Should order by the metric column (not alphabetical)
+    assert dimension_result['params']['orderBy']['type'] == 'column'
+    assert dimension_result['params']['orderBy']['columnId'] == metric_id
+    assert dimension_result['params']['orderDirection'] == 'desc'
+
+
+async def test_terms_dimension_without_metrics_uses_alphabetical_ordering() -> None:
+    """Test that terms dimension uses alphabetical ordering when there are no metrics."""
+    dimension_config = {
+        'type': 'values',
+        'field': 'host.name',
+        'size': 5,
+    }
+
+    kbn_metric_column_by_id = {}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    # Should use alphabetical ordering when no metrics available
+    assert dimension_result['params']['orderBy'] == snapshot({'type': 'alphabetical', 'fallback': True})
+    assert dimension_result['params']['orderDirection'] == 'desc'
