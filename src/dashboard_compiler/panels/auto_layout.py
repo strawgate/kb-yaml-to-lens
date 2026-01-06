@@ -10,6 +10,9 @@ from dashboard_compiler.panels.config import KIBANA_GRID_WIDTH
 
 PackingAlgorithm = Literal['up-left', 'left-right']
 
+# Buffer for searching beyond occupied space when no position is found
+_MAX_Y_SEARCH_BUFFER = 100
+
 
 class AutoLayoutEngine:
     """Engine for automatically positioning panels on a dashboard grid.
@@ -98,7 +101,7 @@ class AutoLayoutEngine:
 
         """
         y = 0
-        max_y = max((coord[1] for coord in self.occupied), default=0) + 100
+        max_y = max((coord[1] for coord in self.occupied), default=0) + _MAX_Y_SEARCH_BUFFER
 
         while y <= max_y:
             for x in range(self.grid_width - width + 1):

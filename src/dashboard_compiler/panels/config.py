@@ -39,6 +39,9 @@ def resolve_semantic_width(value: int | SemanticWidth) -> int:
     Returns:
         int: The numeric width value.
 
+    Raises:
+        ValueError: If an unknown semantic width value is provided.
+
     """
     if isinstance(value, int):
         return value
@@ -51,6 +54,11 @@ def resolve_semantic_width(value: int | SemanticWidth) -> int:
         'sixth': GRID_WIDTH_SIXTH,
         'eighth': GRID_WIDTH_EIGHTH,
     }
+
+    if value not in mapping:
+        msg = f"Unknown semantic width: '{value}'"
+        raise ValueError(msg)
+
     return mapping[value]
 
 
@@ -62,6 +70,9 @@ def resolve_semantic_height(value: int | SemanticHeight) -> int:
 
     Returns:
         int: The numeric height value.
+
+    Raises:
+        ValueError: If an unknown semantic height value is provided.
 
     """
     if isinstance(value, int):
@@ -75,6 +86,11 @@ def resolve_semantic_height(value: int | SemanticHeight) -> int:
         'sixth': GRID_HEIGHT_SIXTH,
         'eighth': GRID_HEIGHT_EIGHTH,
     }
+
+    if value not in mapping:
+        msg = f"Unknown semantic height: '{value}'"
+        raise ValueError(msg)
+
     return mapping[value]
 
 
