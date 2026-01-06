@@ -230,6 +230,57 @@ uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.pn
 
 **Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
 
+### Export Dashboard for Issue
+
+Export a dashboard from Kibana and create a pre-filled GitHub issue for requesting compilation support:
+
+```bash
+uv run kb-dashboard export-for-issue --dashboard-id DASHBOARD_ID [OPTIONS]
+```
+
+**Required Options:**
+
+- `--dashboard-id ID` – The Kibana dashboard ID to export
+
+**Options:**
+
+- `--no-browser` – Do not open browser automatically
+- `--kibana-url URL` – Kibana URL (default: `http://localhost:5601`, or set `KIBANA_URL` env var)
+- `--kibana-username USER` – Username for basic auth (or set `KIBANA_USERNAME` env var)
+- `--kibana-password PASS` – Password for basic auth (or set `KIBANA_PASSWORD` env var)
+- `--kibana-api-key KEY` – API key for authentication (or set `KIBANA_API_KEY` env var)
+- `--kibana-no-ssl-verify` – Disable SSL certificate verification
+
+**Examples:**
+
+```bash
+# Export and open issue in browser
+uv run kb-dashboard export-for-issue --dashboard-id my-dashboard-id
+```
+
+### Disassemble Dashboard
+
+Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
+
+```bash
+uv run kb-dashboard disassemble INPUT_FILE -o OUTPUT_DIR
+```
+
+**Arguments:**
+
+- `INPUT_FILE` - Path to the dashboard NDJSON file (optional, reads from stdin if omitted)
+- `-o, --output` - Output directory for component files (required)
+
+**Examples:**
+
+```bash
+# Disassemble a file
+uv run kb-dashboard disassemble dashboard.ndjson -o output_dir
+
+# Disassemble from stdin
+curl -u user:pass http://localhost:5601... | uv run kb-dashboard disassemble -o output_dir
+```
+
 ## License
 
 MIT
