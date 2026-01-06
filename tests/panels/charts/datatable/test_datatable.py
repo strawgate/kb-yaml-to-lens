@@ -381,3 +381,48 @@ def test_compile_datatable_chart_with_row_column_config_lens() -> None:
             'layerType': 'data',
         }
     )
+
+
+def test_compile_datatable_chart_with_formula_metrics_lens() -> None:
+    """Test that datatable with formula metrics uses alphabetical ordering for rows.
+
+    Formula columns are computed post-aggregation and cannot be used for
+    Elasticsearch aggregation ordering. When a datatable has only formula
+    metrics, the row dimension should use alphabetical ordering instead of
+    trying to order by the formula column.
+    """
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'formula': '1 - average(system.cpu.idle.pct)',
+                'label': 'CPU %',
+                'id': 'cpu-util',
+            },
+            {
+                'formula': 'average(system.memory.used.pct)',
+                'label': 'Memory %',
+                'id': 'mem-util',
+            },
+        ],
+        'rows': [
+            {
+                'type': 'values',
+                'field': 'host.name',
+                'id': 'hostname',
+                'size': 100,
+            }
+        ],
+    }
+
+    lens_chart = LensDatatableChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
+
+    # Get the row dimension column
+    hostname_column = kbn_columns_by_id['hostname']
+    hostname_dict = hostname_column.model_dump()
+
+    # Verify that the row dimension uses alphabetical ordering (not ordering by formula)
+    assert hostname_dict['params']['orderBy'] == {'type': 'alphabetical', 'fallback': True}
+    assert hostname_dict['params']['orderDirection'] == 'desc'
