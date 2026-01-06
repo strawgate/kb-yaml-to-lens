@@ -82,7 +82,7 @@ def main() -> None:
     # Validate the binary is executable
     if not target_path.is_file():
         print(f'Warning: Binary not found at {target_path}')
-    elif os.name != 'nt' and not os.access(target_path, os.X_OK):
+    elif platform.system() != 'Windows' and not os.access(target_path, os.X_OK):
         print(f'Warning: Binary at {target_path} is not executable')
 
     # Clean build artifacts
