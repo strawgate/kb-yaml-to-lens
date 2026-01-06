@@ -203,7 +203,7 @@ def _extract_chart_type_specific_appearance(
     hide_endzones = None
 
     # Extract line/area chart appearance
-    if chart.appearance is not None and isinstance(chart.appearance, LineChartAppearance | AreaChartAppearance):
+    if chart.appearance is not None and isinstance(chart.appearance, (LineChartAppearance, AreaChartAppearance)):
         fitting_function = chart.appearance.fitting_function
         emphasize_fitting = chart.appearance.emphasize_fitting
         end_value = chart.appearance.end_value

@@ -175,7 +175,7 @@ class LineChartAppearance(XYAppearance):
 class AreaChartAppearance(LineChartAppearance):
     """Represents area chart appearance formatting options."""
 
-    fill_opacity: float | None = Field(default=None, description='The fill opacity for area charts (0.0 to 1.0).')
+    fill_opacity: float | None = Field(default=None, ge=0.0, le=1.0, description='The fill opacity for area charts (0.0 to 1.0).')
 
 
 class XYTitlesAndText(BaseCfgModel):
