@@ -251,13 +251,13 @@ Tests are located in `src/test/`:
 
 Before claiming work is complete:
 
-- [ ] TypeScript compiles without errors (`npm run compile`)
-- [ ] ESLint passes (`make lint-extension-check` from repository root)
+- [ ] TypeScript compiles without errors (`npm run compile` or `make compile` from vscode-extension/)
+- [ ] ESLint passes (`make lint` from vscode-extension/)
 - [ ] Extension loads in Development Host (press F5)
 - [ ] All commands work as expected
 - [ ] No console errors in Extension Host
 - [ ] Python server starts and responds correctly
-- [ ] All CI checks pass (`make ci` from repository root)
+- [ ] All CI checks pass (`make ci` from vscode-extension/ or repository root)
 
 ### Working with Python Server
 
