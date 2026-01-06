@@ -13,6 +13,7 @@ from rich.table import Table
 
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
+from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
 
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
@@ -145,6 +146,7 @@ def cli() -> None:
         1. Compile dashboards:     kb-dashboard compile
         2. Compile and upload:     kb-dashboard compile --upload
         3. Take a screenshot:      kb-dashboard screenshot --dashboard-id ID --output file.png
+        4. Disassemble dashboard:  kb-dashboard disassemble dashboard.ndjson -o output_dir
 
     \b
     Authentication:
@@ -652,6 +654,77 @@ async def generate_screenshot(  # noqa: PLR0913
         raise click.ClickException(msg) from e
     except (OSError, ValueError) as e:
         msg = f'Error generating screenshot: {e}'
+        raise click.ClickException(msg) from e
+
+
+@cli.command('disassemble')
+@click.argument('input_file', type=click.Path(exists=True, path_type=Path), required=False)
+@click.option(
+    '-o',
+    '--output',
+    type=click.Path(path_type=Path),
+    required=True,
+    help='Output directory for component files.',
+)
+def disassemble(input_file: Path | None, output: Path) -> None:
+    r"""Disassemble a Kibana dashboard NDJSON file into components.
+
+    This command breaks down a Kibana dashboard JSON file (in NDJSON format)
+    into separate files for easier processing by LLMs. This enables incremental
+    conversion of large dashboards to YAML format.
+
+    The dashboard is split into:
+    - metadata.json: Dashboard metadata
+    - options.json: Dashboard display options
+    - controls.json: Dashboard control group configuration
+    - filters.json: Dashboard-level filters
+    - references.json: Data view and index pattern references
+    - panels/: Directory containing individual panel JSON files
+
+    \b
+    Examples:
+        # Disassemble a dashboard NDJSON file
+        kb-dashboard disassemble dashboard.ndjson -o output_dir
+
+        # Read from stdin
+        cat dashboard.ndjson | kb-dashboard disassemble -o output_dir
+
+        # Download and disassemble directly
+        curl -u user:pass http://localhost:5601/api/saved_objects/dashboard/my-id | \
+            kb-dashboard disassemble -o output_dir
+    """
+    try:
+        if input_file is None:
+            import sys
+
+            content = sys.stdin.read()
+        else:
+            content = input_file.read_text(encoding='utf-8')
+
+        dashboard = parse_ndjson(content)
+        components = disassemble_dashboard(dashboard, output)
+
+        console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard disassembled to: {output}')
+        console.print('  [dim]•[/dim] metadata.json: Dashboard metadata')
+
+        if components.get('options') is True:
+            console.print('  [dim]•[/dim] options.json: Dashboard options')
+
+        if components.get('controls') is True:
+            console.print('  [dim]•[/dim] controls.json: Control group configuration')
+
+        if components.get('filters') is True:
+            console.print('  [dim]•[/dim] filters.json: Dashboard-level filters')
+
+        if components.get('references') is True:
+            console.print('  [dim]•[/dim] references.json: Data view references')
+
+        panel_count = components.get('panels')
+        if panel_count is not None and isinstance(panel_count, int):
+            console.print(f'  [dim]•[/dim] panels/: {panel_count} panel files')
+
+    except (ValueError, OSError) as e:
+        msg = f'Error disassembling dashboard: {e}'
         raise click.ClickException(msg) from e
 
 
