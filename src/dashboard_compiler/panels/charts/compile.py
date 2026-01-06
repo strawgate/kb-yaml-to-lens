@@ -85,11 +85,11 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
             return KbnVisualizationTypeEnum.GAUGE
         case LensHeatmapChart() | ESQLHeatmapChart():
             return KbnVisualizationTypeEnum.HEATMAP
-        case LensTagcloudChart() | ESQLTagcloudChart():  # pyright: ignore[reportUnnecessaryIsInstance]
+        case LensTagcloudChart() | ESQLTagcloudChart():
             return KbnVisualizationTypeEnum.TAGCLOUD
-        case _:
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
             msg = f'Unsupported Lens chart type: {type(chart)}'
-            raise NotImplementedError(msg)
+            raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
 
 def compile_lens_chart_state(  # noqa: PLR0912
@@ -129,7 +129,7 @@ def compile_lens_chart_state(  # noqa: PLR0912
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_heatmap_chart(chart)
             case LensTagcloudChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
-            case LensReferenceLineLayer():  # pyright: ignore[reportUnnecessaryIsInstance]
+            case LensReferenceLineLayer():
                 # Reference line layers contribute layers and columns but no visualization state
                 layer_id, lens_columns_static, ref_line_layers = compile_lens_reference_line_layer(chart)
                 # Cast to the general type since KbnLensStaticValueColumn is a subtype of KbnLensColumnTypes
@@ -138,9 +138,9 @@ def compile_lens_chart_state(  # noqa: PLR0912
                 all_reference_line_layers.extend(ref_line_layers)
                 # Don't update visualization_state for reference line layers
                 # They will be merged into the XY visualization state after the loop
-            case _:
+            case _:  # pyright: ignore[reportUnnecessaryComparison]
                 msg = f'Unsupported chart type: {type(chart)}'
-                raise NotImplementedError(msg)
+                raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
         kbn_references.append(
             KbnReference(
@@ -216,11 +216,11 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             layer_id, esql_columns, visualization_state = compile_esql_datatable_chart(chart)
         case ESQLTagcloudChart():
             layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(chart)
-        case ESQLBarChart() | ESQLLineChart() | ESQLAreaChart():  # pyright: ignore[reportUnnecessaryIsInstance]
+        case ESQLBarChart() | ESQLLineChart() | ESQLAreaChart():
             layer_id, esql_columns, visualization_state = compile_esql_xy_chart(chart)
-        case _:
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
             msg = f'Unsupported ESQL chart type: {type(chart)}'
-            raise NotImplementedError(msg)
+            raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
         query=compile_esql_query(chart.query),
@@ -275,13 +275,13 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
                 charts=all_charts,
             )
             visualization_type = chart_type_to_kbn_type_lens(base_chart)
-        case ESQLPanel():  # pyright: ignore[reportUnnecessaryIsInstance]
+        case ESQLPanel():
             chart_state, _ = compile_esql_chart_state(panel)
             visualization_type = chart_type_to_kbn_type_lens(panel.esql)
             references = []
-        case _:
-            msg = f'Unsupported panel type: {type(panel)}'  # pyright: ignore[reportUnreachable]
-            raise NotImplementedError(msg)
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            msg = f'Unsupported panel type: {type(panel)}'
+            raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
     return (
         KbnLensPanelAttributes(
