@@ -173,7 +173,7 @@ lint-extension:
 
 lint-extension-check:
 	@echo "Running ESLint on VSCode extension..."
-	@cd vscode-extension && npm run compile > /dev/null 2>&1 && npm run lint
+	@cd vscode-extension && npm run compile > /dev/null && npm run lint
 
 inspector:
 	@echo "Running MCP Inspector..."
