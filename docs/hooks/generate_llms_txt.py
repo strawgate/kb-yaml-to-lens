@@ -95,6 +95,8 @@ def generate_llms_full_txt(site_dir: Path, config: dict[str, Any]) -> None:
 
     # Extract all files from navigation (all sections)
     all_files = extract_files_from_nav(nav)
+    # Deduplicate while preserving order
+    all_files = list(dict.fromkeys(all_files))
 
     log.info(f'Extracted {len(all_files)} files from navigation')
 
