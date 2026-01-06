@@ -62,9 +62,9 @@ dashboards:
           slice_by:
             - field: http.response.status_code
               id: dim_status_code
-          metric:
-            field: count
-            id: metric_count
+          metrics:
+            - field: count
+              id: metric_count
           query:
             - FROM logs-*
             - WHERE service.environment == ?service_environment

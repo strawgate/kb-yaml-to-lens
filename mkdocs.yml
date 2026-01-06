@@ -60,6 +60,8 @@ plugins:
             signature_crossrefs: true
             separate_signature: true
             line_length: 80
+hooks:
+  - docs/hooks/generate_llms_txt.py
 markdown_extensions:
   - admonition
   - pymdownx.details
