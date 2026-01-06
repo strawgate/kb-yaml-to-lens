@@ -50,7 +50,7 @@ This will use Kibana's Reporting API to take a screenshot.
 
 ### Disassemble Dashboards
 
-Break down a Kibana dashboard JSON into component parts for easier LLM-based conversion:
+Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
 
 ```bash
 python -m dashboard_compiler.tools.disassemble dashboard.ndjson -o output_dir
@@ -139,7 +139,7 @@ Generate a PNG screenshot of a Kibana dashboard.
 
 ### `dashboard_compiler.tools.disassemble`
 
-Disassemble a Kibana dashboard JSON into component parts for easier LLM processing.
+Disassemble a Kibana dashboard JSON into components for easier LLM processing.
 
 **Usage:**
 

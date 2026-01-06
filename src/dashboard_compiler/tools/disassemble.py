@@ -65,12 +65,18 @@ def _parse_json_field(field: str | dict[str, Any] | list[Any] | None) -> dict[st
 
     Returns:
         Parsed dict/list or None
+
+    Raises:
+        TypeError: If field is not a supported type
     """
     if field is None:
         return None
     if isinstance(field, str):
         return json.loads(field)
-    return field
+    if isinstance(field, (dict, list)):
+        return field
+    msg = f'Unsupported field type in _parse_json_field: {type(field).__name__}'
+    raise TypeError(msg)
 
 
 def disassemble_dashboard(dashboard: dict[str, Any], output_dir: Path) -> None:
