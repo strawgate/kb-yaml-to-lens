@@ -1,8 +1,8 @@
-from collections.abc import Sequence
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from dashboard_compiler.filters.compile import compile_filters
-from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.panels.charts.config import (
     AllChartTypes,
     ESQLPanel,
@@ -51,15 +51,18 @@ from dashboard_compiler.panels.charts.xy.config import (
 )
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
 from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
-from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.view import KbnReference
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from dashboard_compiler.filters.config import FilterTypes
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
     from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
     from dashboard_compiler.panels.charts.xy.view import XYReferenceLineLayerConfig
+    from dashboard_compiler.queries.types import LegacyQueryTypes
 
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
@@ -92,7 +95,54 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
 
-def compile_lens_chart_state(  # noqa: PLR0912
+def _compile_lens_chart_layer(  # noqa: PLR0911
+    chart: LensChartTypes,
+) -> tuple[
+    str, dict[str, KbnLensColumnTypes], KbnVisualizationStateTypes | None, list[XYReferenceLineLayerConfig]
+]:
+    """Compile a single Lens chart layer into its Kibana view model representation.
+
+    Args:
+        chart (LensChartTypes): The chart object to compile.
+
+    Returns:
+        tuple: A tuple containing the layer ID, columns, visualization state, and reference line layers.
+
+    """
+    match chart:
+        case LensLineChart() | LensBarChart() | LensAreaChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensPieChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensMetricChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensDatatableChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_datatable_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensGaugeChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_gauge_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensHeatmapChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_heatmap_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensTagcloudChart():
+            layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
+            return layer_id, lens_columns_by_id, visualization_state, []
+        case LensReferenceLineLayer():
+            # Reference line layers contribute layers and columns but no visualization state
+            layer_id, lens_columns_static, ref_line_layers = compile_lens_reference_line_layer(chart)
+            # Cast to the general type since KbnLensStaticValueColumn is a subtype of KbnLensColumnTypes
+            lens_columns_by_id: dict[str, KbnLensColumnTypes] = dict(lens_columns_static)
+            return layer_id, lens_columns_by_id, None, ref_line_layers
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            msg = f'Unsupported chart type: {type(chart)}'
+            raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
+
+
+def compile_lens_chart_state(
     query: LegacyQueryTypes | None,
     filters: list[FilterTypes] | None,
     charts: Sequence[LensChartTypes],
@@ -114,33 +164,12 @@ def compile_lens_chart_state(  # noqa: PLR0912
     # their visualization config (legend, colors, axis settings) is discarded.
     # This is a current limitation - multi-layer support is partial.
     for chart in charts:
-        match chart:
-            case LensLineChart() | LensBarChart() | LensAreaChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
-            case LensPieChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
-            case LensMetricChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
-            case LensDatatableChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_datatable_chart(chart)
-            case LensGaugeChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_gauge_chart(chart)
-            case LensHeatmapChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_heatmap_chart(chart)
-            case LensTagcloudChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
-            case LensReferenceLineLayer():
-                # Reference line layers contribute layers and columns but no visualization state
-                layer_id, lens_columns_static, ref_line_layers = compile_lens_reference_line_layer(chart)
-                # Cast to the general type since KbnLensStaticValueColumn is a subtype of KbnLensColumnTypes
-                lens_columns_by_id: dict[str, KbnLensColumnTypes] = dict(lens_columns_static)
-                # Store reference line layers to be added to XY visualization state
-                all_reference_line_layers.extend(ref_line_layers)
-                # Don't update visualization_state for reference line layers
-                # They will be merged into the XY visualization state after the loop
-            case _:  # pyright: ignore[reportUnnecessaryComparison]
-                msg = f'Unsupported chart type: {type(chart)}'
-                raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
+        layer_id, lens_columns_by_id, chart_viz_state, ref_line_layers = _compile_lens_chart_layer(chart)
+
+        if chart_viz_state is not None:
+            visualization_state = chart_viz_state
+
+        all_reference_line_layers.extend(ref_line_layers)
 
         kbn_references.append(
             KbnReference(
