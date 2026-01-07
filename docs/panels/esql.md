@@ -110,14 +110,24 @@ Displays a single primary metric derived from an ESQL query, optionally with a s
 **Example (ESQL Metric Chart):**
 
 ```yaml
-# Within an ESQLPanel's 'chart' field:
-# type: metric
-# primary:
-#   field: "avg_response_time" # Column from ESQL: ... | STATS avg_response_time = AVG(response.time)
-# secondary:
-#   field: "p95_response_time" # Column from ESQL: ... | STATS p95_response_time = PERCENTILE(response.time, 95.0)
-# breakdown:
-#   field: "service_name"      # Column from ESQL: ... BY service_name
+dashboards:
+  - name: "ESQL Metric Example"
+    description: "Example of ESQL metric panel with primary, secondary, and breakdown"
+    panels:
+      - title: "Service Performance Metrics"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        esql:
+          type: metric
+          query: |
+            FROM logs-*
+            | STATS avg_response_time = AVG(response.time),
+                    p95_response_time = PERCENTILE(response.time, 95.0) BY service_name
+          primary:
+            field: "avg_response_time"
+          secondary:
+            field: "p95_response_time"
+          breakdown:
+            field: "service_name"
 ```
 
 ---
@@ -140,14 +150,25 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 **Example (ESQL Pie Chart):**
 
 ```yaml
-# Within an ESQLPanel's 'chart' field:
-# type: pie
-# metrics:
-#   field: "error_count"  # Column from ESQL: ... | STATS error_count = COUNT(error.code) BY error.type
-# slice_by:
-#   - field: "error_type" # Column from ESQL
-# appearance:
-#   donut: "small"
+dashboards:
+  - name: "ESQL Pie Chart Example"
+    description: "Example of ESQL pie chart with donut appearance"
+    panels:
+      - title: "Error Types Distribution"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        esql:
+          type: pie
+          query: |
+            FROM logs-*
+            | STATS error_count = COUNT(error.code) BY error_type
+            | ORDER error_count DESC
+            | LIMIT 10
+          metrics:
+            - field: "error_count"
+          slice_by:
+            - field: "error_type"
+          appearance:
+            donut: "small"
 ```
 
 ---
@@ -171,15 +192,25 @@ Displays bar chart visualizations with data sourced from an ESQL query. Supports
 **Example (ESQL Bar Chart):**
 
 ```yaml
-# Within an ESQLPanel's 'chart' field:
-# type: bar
-# mode: stacked
-# dimensions:
-#   - field: "@timestamp"  # Column from ESQL: ... | STATS ... BY @timestamp = BUCKET(@timestamp, 1 hour)
-# metrics:
-#   - field: "event_count"  # Column from ESQL: ... | STATS event_count = COUNT(*)
-# breakdown:
-#   field: "event.category"  # Column from ESQL: ... BY event.category
+dashboards:
+  - name: "ESQL Bar Chart Example"
+    description: "Example of ESQL bar chart with stacked mode"
+    panels:
+      - title: "Events Over Time by Category"
+        grid: { x: 0, y: 0, w: 48, h: 20 }
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), event.category
+            | ORDER timestamp_bucket ASC
+          mode: stacked
+          dimensions:
+            - field: "timestamp_bucket"
+          metrics:
+            - field: "event_count"
+          breakdown:
+            field: "event.category"
 ```
 
 ---
@@ -202,14 +233,24 @@ Displays line chart visualizations with data sourced from an ESQL query. The `fi
 **Example (ESQL Line Chart):**
 
 ```yaml
-# Within an ESQLPanel's 'chart' field:
-# type: line
-# dimensions:
-#   - field: "@timestamp"  # Column from ESQL: ... | STATS ... BY @timestamp = BUCKET(@timestamp, 1 hour)
-# metrics:
-#   - field: "avg_response_time"  # Column from ESQL: ... | STATS avg_response_time = AVG(response.time)
-# breakdown:
-#   field: "service.name"  # Column from ESQL: ... BY service.name
+dashboards:
+  - name: "ESQL Line Chart Example"
+    description: "Example of ESQL line chart with breakdown"
+    panels:
+      - title: "Average Response Time by Service"
+        grid: { x: 0, y: 0, w: 48, h: 20 }
+        esql:
+          type: line
+          query: |
+            FROM logs-*
+            | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), service.name
+            | ORDER timestamp_bucket ASC
+          dimensions:
+            - field: "timestamp_bucket"
+          metrics:
+            - field: "avg_response_time"
+          breakdown:
+            field: "service.name"
 ```
 
 ---
@@ -233,15 +274,25 @@ Displays area chart visualizations with data sourced from an ESQL query. Support
 **Example (ESQL Area Chart):**
 
 ```yaml
-# Within an ESQLPanel's 'chart' field:
-# type: area
-# mode: stacked
-# dimensions:
-#   - field: "@timestamp"  # Column from ESQL: ... | STATS ... BY @timestamp = BUCKET(@timestamp, 1 hour)
-# metrics:
-#   - field: "bytes_total"  # Column from ESQL: ... | STATS bytes_total = SUM(bytes)
-# breakdown:
-#   field: "host.name"  # Column from ESQL: ... BY host.name
+dashboards:
+  - name: "ESQL Area Chart Example"
+    description: "Example of ESQL area chart with stacked mode"
+    panels:
+      - title: "Total Bytes by Host"
+        grid: { x: 0, y: 0, w: 48, h: 20 }
+        esql:
+          type: area
+          query: |
+            FROM logs-*
+            | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), host.name
+            | ORDER timestamp_bucket ASC
+          mode: stacked
+          dimensions:
+            - field: "timestamp_bucket"
+          metrics:
+            - field: "bytes_total"
+          breakdown:
+            field: "host.name"
 ```
 
 ---
@@ -287,34 +338,51 @@ For completely custom number formatting, use:
 **Example (Metric with Format):**
 
 ```yaml
-# Within an ESQL chart's metrics field:
-metrics:
-  - field: "total_bytes"
-    label: "Total Data"
-    format:
-      type: bytes
-      decimals: 1  # Show 1 decimal place
-  - field: "event_count"
-    label: "Events"
-    format:
-      type: number
-      decimals: 0  # No decimal places
-  - field: "avg_response_time"
-    label: "Avg Response Time"
-    format:
-      type: number
-      decimals: 2  # 2 decimal places
-      suffix: "ms"
-  - field: "success_rate"
-    label: "Success Rate"
-    format:
-      type: percent
-      decimals: 1  # 1 decimal place for percentages
-  - field: "precise_value"
-    label: "Precise Value"
-    format:
-      type: number
-      pattern: "0,0.0000"  # Pattern for custom thousands separator and 4 decimals
+dashboards:
+  - name: "ESQL Metric Formatting Example"
+    description: "Example showing various metric formatting options"
+    panels:
+      - title: "Formatted Metrics"
+        grid: { x: 0, y: 0, w: 48, h: 20 }
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS total_bytes = SUM(bytes),
+                    event_count = COUNT(*),
+                    avg_response_time = AVG(response.time),
+                    success_rate = COUNT(status == 200) / COUNT(*) * 100,
+                    precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER timestamp_bucket ASC
+          dimensions:
+            - field: "timestamp_bucket"
+          metrics:
+            - field: "total_bytes"
+              label: "Total Data"
+              format:
+                type: bytes
+                decimals: 1
+            - field: "event_count"
+              label: "Events"
+              format:
+                type: number
+                decimals: 0
+            - field: "avg_response_time"
+              label: "Avg Response Time"
+              format:
+                type: number
+                decimals: 2
+                suffix: "ms"
+            - field: "success_rate"
+              label: "Success Rate"
+              format:
+                type: percent
+                decimals: 1
+            - field: "precise_value"
+              label: "Precise Value"
+              format:
+                type: number
+                pattern: "0,0.0000"
 ```
 
 ### ESQL Dimension Column
