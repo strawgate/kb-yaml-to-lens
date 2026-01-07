@@ -79,7 +79,11 @@ If you have recently undergone context summarization/compaction:
 
 ---
 
-**Core Principles:**
+## Code Review Guidelines
+
+@CODERABBIT.md
+
+## Agent Operating Principles
 
 - **Read first** — Component README.md/AGENTS.md before working
 - **Search, don't speculate** — Use Grep/Glob to find how the codebase solves similar problems
@@ -116,8 +120,6 @@ If you have recently undergone context summarization/compaction:
 **Requirements:** No merge conflicts, no unrelated changes/plan files, all checks pass, self-review done, use `.github/pull_request_template.md` for PR body
 
 **Self-review:** Solves stated problem (reference issue), code complete/follows patterns, tests updated, docs accurate, `make ci` passes
-
-**CodeRabbit:** @CODERABBIT.md — Reviews PRs automatically. Sometimes makes mistakes; evaluate feedback carefully.
 
 ---
 
