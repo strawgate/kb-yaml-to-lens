@@ -11,7 +11,7 @@ from typing import Any
 
 from dashboard_compiler.dashboard_compiler import load
 from dashboard_compiler.lsp.utils import get_panel_type
-from dashboard_compiler.panels.auto_layout import create_layout_engine
+from dashboard_compiler.panels.compile import compute_panel_positions
 
 
 def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -36,23 +36,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
     dashboard_config = dashboards[dashboard_index]
 
     # Compute positions for panels that need auto-layout
-    any_needs_layout = any(p.position.x is None or p.position.y is None for p in dashboard_config.panels)
-
-    position_map: dict[int, tuple[int, int]] = {}
-    if any_needs_layout:
-        # Create stateful layout engine
-        engine = create_layout_engine('up-left')
-
-        # Mark locked panels (those with explicit positions)
-        for panel in dashboard_config.panels:
-            if panel.position.x is not None and panel.position.y is not None:
-                engine.mark_locked_panel(panel.position.x, panel.position.y, panel.size.w, panel.size.h)
-
-        # Add panels one at a time and get coordinates back immediately
-        for idx, panel in enumerate(dashboard_config.panels):
-            if panel.position.x is None or panel.position.y is None:
-                x, y = engine.add_panel(panel.size.w, panel.size.h)
-                position_map[idx] = (x, y)
+    position_map = compute_panel_positions(dashboard_config.panels, algorithm=dashboard_config.settings.layout_algorithm)
 
     # Extract panel information
     panels = []

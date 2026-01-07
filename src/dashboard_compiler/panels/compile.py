@@ -233,7 +233,8 @@ def compile_dashboard_panels(
             grid = compute_panel_grid(panel)
 
         grids.append(grid)
-        grid_titles.append((getattr(panel, 'title', 'Untitled'), grid))
+        panel_title = panel.title if len(panel.title) > 0 else 'Untitled Panel'
+        grid_titles.append((panel_title, grid))
 
     # Validate no overlaps
     validate_no_overlapping_grids(grid_titles)
