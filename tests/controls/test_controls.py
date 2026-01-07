@@ -527,3 +527,126 @@ async def test_time_slider_control_validation_error() -> None:
             start_offset=0.8,
             end_offset=0.2,
         )
+
+
+async def test_options_list_with_multi_select() -> None:
+    """Test options list control with multi-select (singular: false)."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'aerospike.namespace',
+        'label': 'Multi Select Test',
+        'singular': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Multi Select Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
+async def test_options_list_without_wait_for_results() -> None:
+    """Test options list control with wait_for_results: false."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'aerospike.namespace',
+        'label': 'No Wait Test',
+        'wait_for_results': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'No Wait Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'runPastTimeout': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
+async def test_esql_static_control_with_multi_select() -> None:
+    """Test ES|QL static control with multi-select (single_select: false)."""
+    config = {
+        'type': 'esql_static',
+        'variable_name': 'status',
+        'variable_type': 'values',
+        'available_options': ['200', '404', '500'],
+        'title': 'HTTP Status',
+        'single_select': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'status',
+                'variableType': 'values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'HTTP Status',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'availableOptions': ['200', '404', '500'],
+            },
+        }
+    )
+
+
+async def test_esql_query_control_with_multi_select() -> None:
+    """Test ES|QL query control with multi-select (single_select: false)."""
+    config = {
+        'type': 'esql_query',
+        'variable_name': 'host',
+        'variable_type': 'values',
+        'esql_query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+        'title': 'Host Name',
+        'single_select': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'host',
+                'variableType': 'values',
+                'esqlQuery': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+                'controlType': 'VALUES_FROM_QUERY',
+                'title': 'Host Name',
+                'selectedOptions': [],
+                'singleSelect': False,
+            },
+        }
+    )
