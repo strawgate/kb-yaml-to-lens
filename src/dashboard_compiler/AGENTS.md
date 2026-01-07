@@ -48,35 +48,9 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 
 ## Code Conventions
 
-> For detailed code style guidelines (explicit boolean checks, exhaustive type checking patterns, Pydantic conventions, line length, documentation requirements), see **[CODE_STYLE.md](../../CODE_STYLE.md)** at the repository root.
+@../../CODE_STYLE.md
 
-### Quick Reference
-
-**Explicit Boolean Comparisons:**
-
-- Use `if x is not None:` instead of `if x:`
-- Use `if len(items) > 0:` instead of `if items:`
-
-**Exhaustive Type Checking:**
-
-- Always use isinstance chains with a final error handler
-- Never rely on type narrowing alone for union types
-
-**Pydantic Models:**
-
-- Inherit from `BaseCfgModel` or `BaseVwModel` - they set common configuration
-- Use attribute docstrings for field descriptions
-- View models may narrow types in subclasses
-
-**Leverage Pydantic's Features:**
-
-- Work with validated model attributes, not raw dictionaries
-- Use `mode='after'` validators for business logic (the common case)
-- Only use `mode='before'` for raw input transformation or migrations
-- Never import inside validators - place imports at module level
-- Field annotations should reflect runtime type after validation
-
-See [CODE_STYLE.md](../../CODE_STYLE.md) for detailed explanations and examples.
+@../../CODERABBIT.md
 
 ### Documentation Updates
 
@@ -96,9 +70,7 @@ When updating YAML configuration docs:
 1. **Read relevant files first** — Never speculate about code you haven't inspected
 2. **Search for existing patterns** — Check how similar components handle the same problem
 3. **Understand the architecture** — Config models → compile functions → view models
-4. **Use explicit Boolean comparisons** — Never rely on implicit truthiness
-   - `if x is not None:` instead of `if x:`
-   - `if len(items) > 0:` instead of `if items:`
+4. **Follow code style guidelines** — See CODE_STYLE.md for detailed conventions
 
 ### When Working on Chart Types (panels/charts/)
 
