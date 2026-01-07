@@ -171,6 +171,18 @@ class ESQLStaticValuesControl(BaseControl):
     default_value: str | list[str] | None = Field(default=None, alias='default')
     """Default selected value(s). For single_select controls, use a string. For multi-select, use a list."""
 
+    @model_validator(mode='after')
+    def validate_default_in_available(self) -> Self:
+        """Ensure default_value entries exist in available_options."""
+        if self.default_value is None:
+            return self
+        defaults = [self.default_value] if isinstance(self.default_value, str) else self.default_value
+        invalid = set(defaults) - set(self.available_options)
+        if invalid:
+            msg = f'default_value contains options not in available_options: {invalid}'
+            raise ValueError(msg)
+        return self
+
 
 class ESQLQueryControl(BaseControl):
     """Represents an ES|QL control with query-driven values.

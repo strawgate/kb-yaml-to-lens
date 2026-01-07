@@ -139,12 +139,13 @@ def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl)
     stable_id = get_layer_id(control)
 
     # Convert default_value to selectedOptions list
-    selected_options: list[str] = []
-    if control.default_value is not None:
-        if isinstance(control.default_value, str):
-            selected_options = [control.default_value]
-        else:
-            selected_options = control.default_value
+    selected_options: list[str] = (
+        [control.default_value]
+        if isinstance(control.default_value, str)
+        else control.default_value
+        if control.default_value is not None
+        else []
+    )
 
     return KbnESQLControl(
         grow=False,
