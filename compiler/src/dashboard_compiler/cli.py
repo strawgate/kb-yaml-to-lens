@@ -257,7 +257,7 @@ def compile_dashboards(  # noqa: PLR0913
     """
     # Context is already populated by @kibana_options decorator
     assert isinstance(ctx.obj, CliContext)  # noqa: S101
-    cli_context = ctx.obj  # pyright: ignore[reportAny]
+    cli_context = ctx.obj
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -405,7 +405,7 @@ def load_sample_data_command(
     """
     # Context is already populated by @elasticsearch_options decorator
     assert isinstance(ctx.obj, CliContext)  # noqa: S101
-    cli_context = ctx.obj  # pyright: ignore[reportAny]
+    cli_context = ctx.obj
 
     yaml_files = get_yaml_files(input_dir)
     if len(yaml_files) == 0:
@@ -489,7 +489,7 @@ def extract_sample_data_command(
     """
     # Context is already populated by @elasticsearch_options decorator
     assert isinstance(ctx.obj, CliContext)  # noqa: S101
-    cli_context = ctx.obj  # pyright: ignore[reportAny]
+    cli_context = ctx.obj
 
     console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch at {cli_context.es_url}...')
     console.print(f'Index: {index}')
@@ -589,7 +589,7 @@ def screenshot_dashboard(  # noqa: PLR0913
     """
     # Context is already populated by @kibana_options decorator
     assert isinstance(ctx.obj, CliContext)  # noqa: S101
-    cli_context = ctx.obj  # pyright: ignore[reportAny]
+    cli_context = ctx.obj
 
     asyncio.run(
         generate_screenshot(
@@ -701,10 +701,10 @@ async def extract_data(
     """
     import json
 
-    es_client_wrapper = cli_context.create_elasticsearch_client()
+    es_client = cli_context.create_elasticsearch_client()
 
     try:
-        response = await es_client_wrapper.client.search(
+        response = await es_client.search(
             index=index,
             query={'query_string': {'query': query}},
             size=max_docs,
@@ -730,7 +730,7 @@ async def extract_data(
         msg = f'Error extracting data: {e}'
         raise click.ClickException(msg) from e
     finally:
-        await es_client_wrapper.close()
+        await es_client.close()
 
 
 async def load_all_sample_data(
@@ -747,7 +747,7 @@ async def load_all_sample_data(
         click.ClickException: If sample data loading fails.
 
     """
-    es_client_wrapper = cli_context.create_elasticsearch_client()
+    es_client = cli_context.create_elasticsearch_client()
 
     try:
         total_loaded = 0
@@ -761,7 +761,7 @@ async def load_all_sample_data(
                 console.print(f'Loading sample data for dashboard: {dashboard.name}')
 
                 result = await load_sample_data(
-                    es_client_wrapper.client,
+                    es_client,
                     dashboard.sample_data,
                     base_path=yaml_file.parent,
                 )
@@ -785,7 +785,7 @@ async def load_all_sample_data(
         msg = f'Error loading sample data: {e}'
         raise click.ClickException(msg) from e
     finally:
-        await es_client_wrapper.close()
+        await es_client.close()
 
 
 @cli.command('export-for-issue')
@@ -826,7 +826,7 @@ def export_for_issue(
     """
     # Context is already populated by @kibana_options decorator
     assert isinstance(ctx.obj, CliContext)  # noqa: S101
-    cli_context = ctx.obj  # pyright: ignore[reportAny]
+    cli_context = ctx.obj
 
     asyncio.run(_export_dashboard_for_issue(cli_context, dashboard_id=dashboard_id, open_browser=not no_browser))
 

@@ -1,6 +1,7 @@
 """CLI context for sharing configuration across Click commands."""
 
-from dashboard_compiler.elasticsearch_client import ElasticsearchClient
+from elasticsearch import AsyncElasticsearch
+
 from dashboard_compiler.kibana_client import KibanaClient
 
 
@@ -56,11 +57,11 @@ class CliContext:
             ssl_verify=self.kibana_ssl_verify,
         )
 
-    def create_elasticsearch_client(self) -> ElasticsearchClient:
-        """Create an ElasticsearchClient from stored configuration.
+    def create_elasticsearch_client(self) -> AsyncElasticsearch:
+        """Create an AsyncElasticsearch client from stored configuration.
 
         Returns:
-            Configured ElasticsearchClient instance
+            Configured AsyncElasticsearch instance
 
         Raises:
             ValueError: If required Elasticsearch configuration is missing
@@ -70,10 +71,17 @@ class CliContext:
             msg = 'Elasticsearch URL is required'
             raise ValueError(msg)
 
-        return ElasticsearchClient(
-            url=self.es_url,
-            username=self.es_username,
-            password=self.es_password,
-            api_key=self.es_api_key,
-            ssl_verify=self.es_ssl_verify,
-        )
+        # API key takes priority
+        if self.es_api_key is not None:
+            return AsyncElasticsearch(self.es_url, api_key=self.es_api_key, verify_certs=self.es_ssl_verify)
+
+        # Basic auth
+        if self.es_username is not None and self.es_password is not None:
+            return AsyncElasticsearch(
+                self.es_url,
+                basic_auth=(self.es_username, self.es_password),
+                verify_certs=self.es_ssl_verify,
+            )
+
+        # No auth
+        return AsyncElasticsearch(self.es_url, verify_certs=self.es_ssl_verify)

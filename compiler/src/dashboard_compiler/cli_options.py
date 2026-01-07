@@ -23,6 +23,14 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     - Populates the Click context with Kibana configuration
     - Removes Kibana parameters from the function signature
 
+    Usage:
+        @cli.command()
+        @kibana_options
+        @click.pass_context
+        def my_command(ctx: click.Context) -> None:
+            # Context is already populated with Kibana config
+            client = ctx.obj.create_kibana_client()
+
     Args:
         func: The Click command function to decorate
 
@@ -96,7 +104,7 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         from dashboard_compiler.cli_context import CliContext
 
         assert isinstance(ctx.obj, CliContext)  # noqa: S101
-        cli_context: CliContext = ctx.obj  # pyright: ignore[reportAny]
+        cli_context: CliContext = ctx.obj
         cli_context.kibana_url = kibana_url
         cli_context.kibana_username = kibana_username
         cli_context.kibana_password = kibana_password
@@ -124,6 +132,14 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     - Validates authentication options
     - Populates the Click context with Elasticsearch configuration
     - Removes Elasticsearch parameters from the function signature
+
+    Usage:
+        @cli.command()
+        @elasticsearch_options
+        @click.pass_context
+        def my_command(ctx: click.Context) -> None:
+            # Context is already populated with Elasticsearch config
+            client = ctx.obj.create_elasticsearch_client()
 
     Args:
         func: The Click command function to decorate
@@ -182,7 +198,7 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         from dashboard_compiler.cli_context import CliContext
 
         assert isinstance(ctx.obj, CliContext)  # noqa: S101
-        cli_context: CliContext = ctx.obj  # pyright: ignore[reportAny]
+        cli_context: CliContext = ctx.obj
         cli_context.es_url = es_url
         cli_context.es_username = es_username
         cli_context.es_password = es_password
