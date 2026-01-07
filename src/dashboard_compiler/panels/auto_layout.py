@@ -7,7 +7,7 @@ one at a time.
 """
 
 from abc import ABC, abstractmethod
-from typing import Literal
+from typing import Literal, override
 
 from dashboard_compiler.panels.config import KIBANA_GRID_WIDTH
 
@@ -127,6 +127,7 @@ class UpLeftEngine(BaseLayoutEngine):
     a 2x2 grid.
     """
 
+    @override
     def _find_position(self, width: int, height: int) -> tuple[int, int]:
         """Find next position using up-then-left algorithm.
 
@@ -188,6 +189,7 @@ class LeftRightEngine(BaseLayoutEngine):
                 max_height = max(max_height, cell_y - y + 1)
         return max_height
 
+    @override
     def _find_position(self, width: int, height: int) -> tuple[int, int]:
         """Find next position using left-to-right algorithm.
 
@@ -240,6 +242,7 @@ class BlockedEngine(BaseLayoutEngine):
         self.min_y: int = 0
         self.locked_positions: set[tuple[int, int]] = set()
 
+    @override
     def mark_locked_panel(self, x: int, y: int, width: int, height: int) -> None:
         """Mark a region as occupied by a locked panel.
 
@@ -256,6 +259,7 @@ class BlockedEngine(BaseLayoutEngine):
             for dx in range(width):
                 self.locked_positions.add((x + dx, y + dy))
 
+    @override
     def _find_position(self, width: int, height: int) -> tuple[int, int]:
         """Find next position without filling gaps above current bottom.
 
@@ -278,6 +282,7 @@ class BlockedEngine(BaseLayoutEngine):
 
         return (0, max_y + 1)
 
+    @override
     def add_panel(self, width: int, height: int) -> tuple[int, int]:
         """Add a panel and return its position.
 
@@ -327,6 +332,7 @@ class FirstAvailableGapEngine(BaseLayoutEngine):
     Useful for maximizing space utilization and minimizing dashboard height.
     """
 
+    @override
     def _find_position(self, width: int, height: int) -> tuple[int, int]:
         """Find first available gap in the entire grid.
 
@@ -371,8 +377,9 @@ def create_layout_engine(algorithm: LayoutAlgorithm, grid_width: int = KIBANA_GR
     if algorithm == 'first-available-gap':
         return FirstAvailableGapEngine(grid_width)
 
+    # This should be unreachable due to the Literal type, but handle runtime errors gracefully
     msg = f'Unknown layout algorithm: {algorithm}'
-    raise ValueError(msg)
+    raise ValueError(msg)  # pyright: ignore[reportUnreachable]
 
 
 # Legacy compatibility: AutoLayoutEngine with batch compute_positions API

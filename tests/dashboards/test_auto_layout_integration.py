@@ -1,9 +1,9 @@
 """Integration tests for auto-layout with dashboards."""
 
 import pytest
-from pydantic import ValidationError
 
 from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.panels.compile import compile_dashboard_panels
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
 
@@ -11,7 +11,7 @@ class TestAutoLayoutIntegration:
     """Integration tests for auto-layout functionality."""
 
     def test_panels_with_no_position_get_auto_positioned(self) -> None:
-        """Test that panels without position are automatically positioned."""
+        """Test that panels without position are automatically positioned during compilation."""
         dashboard = Dashboard(
             name='Auto Layout Test',
             panels=[
@@ -20,12 +20,13 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.x == 0
-        assert dashboard.panels[0].grid.y == 0
-        assert dashboard.panels[1].grid is not None
-        assert dashboard.panels[1].grid.x == 24
-        assert dashboard.panels[1].grid.y == 0
+        # Grid positions should be calculated during compilation
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.x == 0
+        assert kbn_panels[0].gridData.y == 0
+        assert kbn_panels[1].gridData.x == 24
+        assert kbn_panels[1].gridData.y == 0
 
     def test_panels_use_default_size(self) -> None:
         """Test that panels without size use default 24w x 12h."""
@@ -36,9 +37,10 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.w == 24
-        assert dashboard.panels[0].grid.h == 12
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.w == 24
+        assert kbn_panels[0].gridData.h == 12
 
     def test_panels_with_semantic_width(self) -> None:
         """Test panels using semantic width values."""
@@ -51,12 +53,11 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.w == 12
-        assert dashboard.panels[1].grid is not None
-        assert dashboard.panels[1].grid.w == 24
-        assert dashboard.panels[2].grid is not None
-        assert dashboard.panels[2].grid.w == 48
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.w == 12
+        assert kbn_panels[1].gridData.w == 24
+        assert kbn_panels[2].gridData.w == 48
 
     def test_four_panels_form_grid(self) -> None:
         """Test that four default panels form a 2x2 grid."""
@@ -65,18 +66,16 @@ class TestAutoLayoutIntegration:
             panels=[MarkdownPanel(title=f'Panel {i}', markdown={'content': f'Test {i}'}) for i in range(4)],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.x == 0
-        assert dashboard.panels[0].grid.y == 0
-        assert dashboard.panels[1].grid is not None
-        assert dashboard.panels[1].grid.x == 24
-        assert dashboard.panels[1].grid.y == 0
-        assert dashboard.panels[2].grid is not None
-        assert dashboard.panels[2].grid.x == 0
-        assert dashboard.panels[2].grid.y == 12
-        assert dashboard.panels[3].grid is not None
-        assert dashboard.panels[3].grid.x == 24
-        assert dashboard.panels[3].grid.y == 12
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.x == 0
+        assert kbn_panels[0].gridData.y == 0
+        assert kbn_panels[1].gridData.x == 24
+        assert kbn_panels[1].gridData.y == 0
+        assert kbn_panels[2].gridData.x == 0
+        assert kbn_panels[2].gridData.y == 12
+        assert kbn_panels[3].gridData.x == 24
+        assert kbn_panels[3].gridData.y == 12
 
     def test_locked_and_auto_panels_mixed(self) -> None:
         """Test mixing locked and auto-positioned panels."""
@@ -94,15 +93,14 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.x == 0
-        assert dashboard.panels[0].grid.y == 0
-        assert dashboard.panels[1].grid is not None
-        assert dashboard.panels[1].grid.x == 24
-        assert dashboard.panels[1].grid.y == 0
-        assert dashboard.panels[2].grid is not None
-        assert dashboard.panels[2].grid.x == 24
-        assert dashboard.panels[2].grid.y == 12
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.x == 0
+        assert kbn_panels[0].gridData.y == 0
+        assert kbn_panels[1].gridData.x == 24
+        assert kbn_panels[1].gridData.y == 0
+        assert kbn_panels[2].gridData.x == 24
+        assert kbn_panels[2].gridData.y == 12
 
     def test_legacy_grid_field_still_works(self) -> None:
         """Test that legacy grid field still works for backward compatibility."""
@@ -117,11 +115,18 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.x == 10
-        assert dashboard.panels[0].grid.y == 5
-        assert dashboard.panels[0].grid.w == 20
-        assert dashboard.panels[0].grid.h == 15
+        # Legacy grid should translate to position and size
+        assert dashboard.panels[0].position.x == 10
+        assert dashboard.panels[0].position.y == 5
+        assert dashboard.panels[0].size.w == 20
+        assert dashboard.panels[0].size.h == 15
+
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.x == 10
+        assert kbn_panels[0].gridData.y == 5
+        assert kbn_panels[0].gridData.w == 20
+        assert kbn_panels[0].gridData.h == 15
 
     def test_full_width_panel_then_auto_panels(self) -> None:
         """Test full-width panel followed by auto-positioned panels."""
@@ -138,38 +143,38 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.x == 0
-        assert dashboard.panels[0].grid.y == 0
-        assert dashboard.panels[0].grid.w == 48
-        assert dashboard.panels[1].grid is not None
-        assert dashboard.panels[1].grid.x == 0
-        assert dashboard.panels[1].grid.y == 8
-        assert dashboard.panels[2].grid is not None
-        assert dashboard.panels[2].grid.x == 24
-        assert dashboard.panels[2].grid.y == 8
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.x == 0
+        assert kbn_panels[0].gridData.y == 0
+        assert kbn_panels[0].gridData.w == 48
+        assert kbn_panels[1].gridData.x == 0
+        assert kbn_panels[1].gridData.y == 8
+        assert kbn_panels[2].gridData.x == 24
+        assert kbn_panels[2].gridData.y == 8
 
     def test_overlapping_panels_raises_error(self) -> None:
-        """Test that manually overlapping panels still raise validation error."""
-        with pytest.raises(ValidationError) as exc_info:
-            _ = Dashboard(
-                name='Overlap Test',
-                panels=[
-                    MarkdownPanel(
-                        title='Panel 1',
-                        position={'x': 0, 'y': 0},
-                        size={'w': 30, 'h': 15},
-                        markdown={'content': 'P1'},
-                    ),
-                    MarkdownPanel(
-                        title='Panel 2',
-                        position={'x': 20, 'y': 10},
-                        size={'w': 20, 'h': 15},
-                        markdown={'content': 'P2'},
-                    ),
-                ],
-            )
-        assert 'overlaps with' in str(exc_info.value)
+        """Test that manually overlapping panels raise validation error during compilation."""
+        dashboard = Dashboard(
+            name='Overlap Test',
+            panels=[
+                MarkdownPanel(
+                    title='Panel 1',
+                    position={'x': 0, 'y': 0},
+                    size={'w': 30, 'h': 15},
+                    markdown={'content': 'P1'},
+                ),
+                MarkdownPanel(
+                    title='Panel 2',
+                    position={'x': 20, 'y': 10},
+                    size={'w': 20, 'h': 15},
+                    markdown={'content': 'P2'},
+                ),
+            ],
+        )
+
+        with pytest.raises(ValueError, match='overlaps with'):
+            compile_dashboard_panels(dashboard.panels)
 
     def test_panels_with_custom_sizes(self) -> None:
         """Test panels with various custom sizes."""
@@ -194,15 +199,14 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.w == 16
-        assert dashboard.panels[0].grid.x == 0
-        assert dashboard.panels[1].grid is not None
-        assert dashboard.panels[1].grid.w == 16
-        assert dashboard.panels[1].grid.x == 16
-        assert dashboard.panels[2].grid is not None
-        assert dashboard.panels[2].grid.w == 16
-        assert dashboard.panels[2].grid.x == 32
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.w == 16
+        assert kbn_panels[0].gridData.x == 0
+        assert kbn_panels[1].gridData.w == 16
+        assert kbn_panels[1].gridData.x == 16
+        assert kbn_panels[2].gridData.w == 16
+        assert kbn_panels[2].gridData.x == 32
 
     def test_size_and_position_field_aliases(self) -> None:
         """Test that field aliases work for size and position."""
@@ -218,11 +222,12 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        assert dashboard.panels[0].grid is not None
-        assert dashboard.panels[0].grid.x == 5
-        assert dashboard.panels[0].grid.y == 3
-        assert dashboard.panels[0].grid.w == 20
-        assert dashboard.panels[0].grid.h == 10
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        assert kbn_panels[0].gridData.x == 5
+        assert kbn_panels[0].gridData.y == 3
+        assert kbn_panels[0].gridData.w == 20
+        assert kbn_panels[0].gridData.h == 10
 
     def test_eighth_width_panels_fit_in_row(self) -> None:
         """Test that eight eighth-width panels fit in one row."""
@@ -238,8 +243,9 @@ class TestAutoLayoutIntegration:
             ],
         )
 
-        for i, panel in enumerate(dashboard.panels):
-            assert panel.grid is not None
-            assert panel.grid.x == i * 6
-            assert panel.grid.y == 0
-            assert panel.grid.w == 6
+        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
+
+        for i, kbn_panel in enumerate(kbn_panels):
+            assert kbn_panel.gridData.x == i * 6
+            assert kbn_panel.gridData.y == 0
+            assert kbn_panel.gridData.w == 6

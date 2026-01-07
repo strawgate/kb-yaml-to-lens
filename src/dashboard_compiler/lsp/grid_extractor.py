@@ -11,6 +11,7 @@ from typing import Any
 
 from dashboard_compiler.dashboard_compiler import load
 from dashboard_compiler.lsp.utils import get_panel_type
+from dashboard_compiler.panels.auto_layout import AutoLayoutEngine
 
 
 def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -34,22 +35,54 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
 
     dashboard_config = dashboards[dashboard_index]
 
+    # Compute positions for panels that need auto-layout
+    any_needs_layout = any(p.position.x is None or p.position.y is None for p in dashboard_config.panels)
+
+    position_map: dict[int, tuple[int, int]] = {}
+    if any_needs_layout:
+        engine = AutoLayoutEngine(algorithm='up-left')
+
+        # Mark locked panels (those with explicit positions)
+        for panel in dashboard_config.panels:
+            if panel.position.x is not None and panel.position.y is not None:
+                engine.mark_locked_panel(panel.position.x, panel.position.y, panel.size.w, panel.size.h)
+
+        # Collect panels that need positioning
+        panels_to_position: list[tuple[int, int, int]] = []
+        for idx, panel in enumerate(dashboard_config.panels):
+            if panel.position.x is None or panel.position.y is None:
+                panels_to_position.append((idx, panel.size.w, panel.size.h))
+
+        # Compute positions
+        positions = engine.compute_positions(panels_to_position)
+
+        # Build result mapping
+        for (idx, _w, _h), (x, y) in zip(panels_to_position, positions, strict=True):
+            position_map[idx] = (x, y)
+
+    # Extract panel information
     panels = []
     for index, panel in enumerate(dashboard_config.panels):
-        if panel.grid is None:
-            msg = f'Panel at index {index} has no grid information'
+        panel_type = get_panel_type(panel)
+
+        # Use computed position if available, otherwise use panel's position
+        if index in position_map:
+            x, y = position_map[index]
+        elif panel.position.x is not None and panel.position.y is not None:
+            x, y = panel.position.x, panel.position.y
+        else:
+            msg = f'Panel at index {index} has no position and auto-layout failed'
             raise ValueError(msg)
 
-        panel_type = get_panel_type(panel)
         panel_info = {
             'id': panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
             'title': panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
             'type': panel_type,
             'grid': {
-                'x': panel.grid.x,
-                'y': panel.grid.y,
-                'w': panel.grid.w,
-                'h': panel.grid.h,
+                'x': x,
+                'y': y,
+                'w': panel.size.w,
+                'h': panel.size.h,
             },
         }
         panels.append(panel_info)

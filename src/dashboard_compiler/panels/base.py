@@ -71,17 +71,3 @@ class BasePanel(BaseCfgModel):
             data['position']['y'] = grid.y
 
         return data  # pyright: ignore[reportUnknownVariableType]
-
-    @model_validator(mode='after')
-    def compute_grid_from_size_position(self) -> 'BasePanel':
-        """Compute grid from size and position after all validators run.
-
-        This ensures grid is always available for backward compatibility.
-        """
-        if self.grid is None and self.position.x is not None and self.position.y is not None:
-            object.__setattr__(
-                self,
-                'grid',
-                Grid(x=self.position.x, y=self.position.y, w=self.size.w, h=self.size.h),
-            )
-        return self
