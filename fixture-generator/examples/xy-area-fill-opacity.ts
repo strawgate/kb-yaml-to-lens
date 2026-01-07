@@ -1,24 +1,25 @@
 #!/usr/bin/env node
 /**
- * Test fixture: End value handling for line charts
+ * Test fixture: Fill opacity for area charts
  *
- * Tests: None, Zero, Nearest
+ * Tests: fillOpacity property
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateLineEndValue() {
-  // ES|QL variant - testing Zero end value
-  const esqlConfig = {
+export async function generateAreaFillOpacity(): Promise<void> {
+  // ES|QL variant
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - End Value Zero',
+    title: 'Area Chart - Fill Opacity 0.7',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
     layers: [
       {
         type: 'series',
-        seriesType: 'line',
+        seriesType: 'area',
         xAxis: '@timestamp',
         yAxis: [
           {
@@ -28,13 +29,13 @@ export async function generateLineEndValue() {
         ]
       }
     ],
-    endValue: 'Zero'
+    fillOpacity: 0.7
   };
 
-  // Data View variant - testing Nearest end value
-  const dataviewConfig = {
+  // Data View variant
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - End Value Nearest (Data View)',
+    title: 'Area Chart - Fill Opacity 0.7 (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -42,7 +43,7 @@ export async function generateLineEndValue() {
     layers: [
       {
         type: 'series',
-        seriesType: 'line',
+        seriesType: 'area',
         xAxis: {
           type: 'dateHistogram',
           field: '@timestamp'
@@ -55,11 +56,11 @@ export async function generateLineEndValue() {
         ]
       }
     ],
-    endValue: 'Nearest'
+    fillOpacity: 0.7
   };
 
   await generateDualFixture(
-    'xy-line-end-value',
+    'xy-area-fill-opacity',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
@@ -67,4 +68,4 @@ export async function generateLineEndValue() {
   );
 }
 
-runIfMain(generateLineEndValue, import.meta.url);
+runIfMain(generateAreaFillOpacity, import.meta.url);

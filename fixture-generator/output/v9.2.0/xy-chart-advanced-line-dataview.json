@@ -65,7 +65,7 @@
       "preferredSeriesType": "line",
       "valueLabels": "hide",
       "emphasizeFitting": true,
-      "fittingFunction": "Linear",
+      "fittingFunction": "Average",
       "yLeftExtent": {
         "mode": "full"
       },

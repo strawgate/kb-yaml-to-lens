@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /**
- * Test fixture: All fitting function options for line charts
+ * Test fixture: Time marker and endzone options
  *
- * Tests: None, Linear, Carry, Lookahead, Average, Nearest
+ * Tests: showCurrentTimeMarker, hideEndzones
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateLineFittingFunctions() {
-  // ES|QL variant - testing Linear fitting
-  const esqlConfig = {
+export async function generateLineTimeMarkers(): Promise<void> {
+  // ES|QL variant - testing time markers
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - Linear Fitting',
+    title: 'Line Chart - With Time Marker',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
@@ -28,14 +29,14 @@ export async function generateLineFittingFunctions() {
         ]
       }
     ],
-    fittingFunction: 'Linear',
-    emphasizeFitting: true
+    showCurrentTimeMarker: true,
+    hideEndzones: true
   };
 
-  // Data View variant - testing Average fitting
-  const dataviewConfig = {
+  // Data View variant
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - Average Fitting (Data View)',
+    title: 'Line Chart - With Time Marker (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -56,12 +57,12 @@ export async function generateLineFittingFunctions() {
         ]
       }
     ],
-    fittingFunction: 'Average',
-    emphasizeFitting: true
+    showCurrentTimeMarker: true,
+    hideEndzones: true
   };
 
   await generateDualFixture(
-    'xy-line-fitting-functions',
+    'xy-line-time-markers',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
@@ -69,4 +70,4 @@ export async function generateLineFittingFunctions() {
   );
 }
 
-runIfMain(generateLineFittingFunctions, import.meta.url);
+runIfMain(generateLineTimeMarkers, import.meta.url);

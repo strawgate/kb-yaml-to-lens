@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /**
- * Test fixture: Time marker and endzone options
+ * Test fixture: Curve type options for line charts
  *
- * Tests: showCurrentTimeMarker, hideEndzones
+ * Tests: LINEAR, CURVE_MONOTONE_X, CURVE_STEP_AFTER, etc.
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateLineTimeMarkers() {
-  // ES|QL variant - testing time markers
-  const esqlConfig = {
+export async function generateLineCurveTypes(): Promise<void> {
+  // ES|QL variant - testing CURVE_MONOTONE_X
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - With Time Marker',
+    title: 'Line Chart - Monotone X Curve',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
@@ -28,14 +29,13 @@ export async function generateLineTimeMarkers() {
         ]
       }
     ],
-    showCurrentTimeMarker: true,
-    hideEndzones: true
+    curveType: 'CURVE_MONOTONE_X'
   };
 
-  // Data View variant
-  const dataviewConfig = {
+  // Data View variant - testing LINEAR
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - With Time Marker (Data View)',
+    title: 'Line Chart - Linear Curve (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -56,12 +56,11 @@ export async function generateLineTimeMarkers() {
         ]
       }
     ],
-    showCurrentTimeMarker: true,
-    hideEndzones: true
+    curveType: 'LINEAR'
   };
 
   await generateDualFixture(
-    'xy-line-time-markers',
+    'xy-line-curve-types',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
@@ -69,4 +68,4 @@ export async function generateLineTimeMarkers() {
   );
 }
 
-runIfMain(generateLineTimeMarkers, import.meta.url);
+runIfMain(generateLineCurveTypes, import.meta.url);

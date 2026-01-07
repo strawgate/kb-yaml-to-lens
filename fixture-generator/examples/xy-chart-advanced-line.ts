@@ -10,11 +10,12 @@
  * - Hide endzones
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateXYChartAdvancedLine() {
+export async function generateXYChartAdvancedLine(): Promise<void> {
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
     title: 'Advanced Line Chart with Fitting Functions',
     dataset: {
@@ -46,7 +47,7 @@ export async function generateXYChartAdvancedLine() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
     title: 'Advanced Line Chart (Data View)',
     dataset: {

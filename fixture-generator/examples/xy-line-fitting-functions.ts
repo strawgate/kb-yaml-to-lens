@@ -1,24 +1,25 @@
 #!/usr/bin/env node
 /**
- * Test fixture: Fill opacity for area charts
+ * Test fixture: All fitting function options for line charts
  *
- * Tests: fillOpacity property
+ * Tests: None, Linear, Carry, Lookahead, Average, Nearest
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateAreaFillOpacity() {
-  // ES|QL variant
-  const esqlConfig = {
+export async function generateLineFittingFunctions(): Promise<void> {
+  // ES|QL variant - testing Linear fitting
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Area Chart - Fill Opacity 0.7',
+    title: 'Line Chart - Linear Fitting',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
     layers: [
       {
         type: 'series',
-        seriesType: 'area',
+        seriesType: 'line',
         xAxis: '@timestamp',
         yAxis: [
           {
@@ -28,13 +29,14 @@ export async function generateAreaFillOpacity() {
         ]
       }
     ],
-    fillOpacity: 0.7
+    fittingFunction: 'Linear',
+    emphasizeFitting: true
   };
 
-  // Data View variant
-  const dataviewConfig = {
+  // Data View variant - testing Average fitting
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Area Chart - Fill Opacity 0.7 (Data View)',
+    title: 'Line Chart - Average Fitting (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -42,7 +44,7 @@ export async function generateAreaFillOpacity() {
     layers: [
       {
         type: 'series',
-        seriesType: 'area',
+        seriesType: 'line',
         xAxis: {
           type: 'dateHistogram',
           field: '@timestamp'
@@ -55,11 +57,12 @@ export async function generateAreaFillOpacity() {
         ]
       }
     ],
-    fillOpacity: 0.7
+    fittingFunction: 'Average',
+    emphasizeFitting: true
   };
 
   await generateDualFixture(
-    'xy-area-fill-opacity',
+    'xy-line-fitting-functions',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
@@ -67,4 +70,4 @@ export async function generateAreaFillOpacity() {
   );
 }
 
-runIfMain(generateAreaFillOpacity, import.meta.url);
+runIfMain(generateLineFittingFunctions, import.meta.url);

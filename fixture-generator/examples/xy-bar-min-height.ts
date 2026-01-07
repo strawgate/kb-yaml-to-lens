@@ -5,11 +5,12 @@
  * Tests: minBarHeight property
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateBarMinHeight() {
+export async function generateBarMinHeight(): Promise<void> {
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
     title: 'Bar Chart - Min Bar Height 5px',
     dataset: {
@@ -32,7 +33,7 @@ export async function generateBarMinHeight() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
     title: 'Bar Chart - Min Bar Height 5px (Data View)',
     dataset: {

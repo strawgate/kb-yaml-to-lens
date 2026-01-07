@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /**
- * Test fixture: Curve type options for line charts
+ * Test fixture: End value handling for line charts
  *
- * Tests: LINEAR, CURVE_MONOTONE_X, CURVE_STEP_AFTER, etc.
+ * Tests: None, Zero, Nearest
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateLineCurveTypes() {
-  // ES|QL variant - testing CURVE_MONOTONE_X
-  const esqlConfig = {
+export async function generateLineEndValue(): Promise<void> {
+  // ES|QL variant - testing Zero end value
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - Monotone X Curve',
+    title: 'Line Chart - End Value Zero',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
@@ -28,13 +29,13 @@ export async function generateLineCurveTypes() {
         ]
       }
     ],
-    curveType: 'CURVE_MONOTONE_X'
+    endValue: 'Zero'
   };
 
-  // Data View variant - testing LINEAR
-  const dataviewConfig = {
+  // Data View variant - testing Nearest end value
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'Line Chart - Linear Curve (Data View)',
+    title: 'Line Chart - End Value Nearest (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -55,11 +56,11 @@ export async function generateLineCurveTypes() {
         ]
       }
     ],
-    curveType: 'LINEAR'
+    endValue: 'Nearest'
   };
 
   await generateDualFixture(
-    'xy-line-curve-types',
+    'xy-line-end-value',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-7d', to: 'now', type: 'relative' } },
@@ -67,4 +68,4 @@ export async function generateLineCurveTypes() {
   );
 }
 
-runIfMain(generateLineCurveTypes, import.meta.url);
+runIfMain(generateLineEndValue, import.meta.url);
