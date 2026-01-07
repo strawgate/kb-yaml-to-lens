@@ -165,9 +165,9 @@ def test_yaml_examples_use_dashboards_format(file_path: str, yaml_content: str, 
     # Look for the top-level dashboard: key (not dashboard: inside links/other fields)
     lines = yaml_content.split('\n')
     for line in lines:
-        if line.strip().startswith('#'):
+        if line.strip().startswith('#') is True:
             continue
-        if line.startswith('dashboard:'):
+        if line.startswith('dashboard:') is True:
             msg = (
                 f"{file_path}:{line_num} - YAML example uses deprecated 'dashboard:' format. "
                 "Use 'dashboards:' (plural, array format) instead."
@@ -186,7 +186,7 @@ def test_yaml_examples_valid_syntax(file_path: str, yaml_content: str, line_num:
     Validates that all YAML code blocks in documentation can be parsed by PyYAML.
     Skips examples with explicit skip markers or placeholder content.
     """
-    if skip is True or _is_placeholder_example(yaml_content):
+    if skip is True or _is_placeholder_example(yaml_content) is True:
         pytest.skip('Example marked with skip or contains placeholders')
 
     try:
