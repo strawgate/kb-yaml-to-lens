@@ -270,14 +270,21 @@ For a complete workflow guide on converting these disassembled components to YAM
 
 ## Makefile Shortcuts
 
-The project includes convenient Makefile targets:
+The project includes convenient Makefile targets (run from `compiler/` directory):
 
 ```bash
 # Compile only
-make compile
+cd compiler && make compile
 
 # Compile and upload (uses environment variables for Kibana config)
-make upload
+cd compiler && make upload
+```
+
+Or use the CLI directly from anywhere with uv:
+
+```bash
+cd compiler && uv run kb-dashboard compile
+cd compiler && uv run kb-dashboard compile --upload
 ```
 
 ## Authentication

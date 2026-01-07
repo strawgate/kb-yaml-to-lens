@@ -29,38 +29,56 @@ This repository contains three main components:
 
 ### Common Commands
 
-Root-level commands orchestrate all components via `make`:
+**Root-level commands** orchestrate all components:
 
 | Command | Purpose |
 | --------- | --------- |
 | `make install` | Install all dependencies (all components) |
-| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests) |
-| `make fix` | Auto-fix all linting issues (all components) |
-| `make lint-all-check` | Check all linting without fixing (all components) |
+| `make ci` or `make check` | **Run before committing** (linting + tests across all components) |
+| `make fix` | Auto-fix linting issues (all components) |
+| `make lint-all-check` | Check all linting without fixing |
 | `make test-all` | Run all tests (all components) |
-| `make test` | Run Python unit tests only |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
+| `make clean` | Clean cache and temporary files |
+| `make clean-full` | Deep clean including virtual environments |
 
-**Component-specific Makefiles:**
+**Component-specific Makefiles** provide focused workflows:
 
+- `compiler/Makefile` - Python compiler commands (see below)
 - `vscode-extension/Makefile` - Extension development commands
 - `fixture-generator/Makefile` - Fixture generation commands
 
-Component-specific commands can be run by cd-ing into the component directory. See component-specific AGENTS.md files for available commands.
+**Compiler-specific commands** (run from `compiler/` directory or use `cd compiler && make <command>`):
 
-**Workflow example:**
+| Command | Purpose |
+| --------- | --------- |
+| `make ci` or `make check` | Run compiler CI checks (lint + typecheck + test + docs) |
+| `make fix` | Auto-fix Python and YAML linting |
+| `make test` | Run Python unit tests |
+| `make typecheck` | Run type checking with basedpyright |
+| `make compile` | Compile YAML dashboards to NDJSON |
+| `make docs-serve` | Start local documentation server |
+| `make docker-build` | Build Docker image |
+| `make build-binary` | Build standalone binary |
+
+See `make help` in root or component directories for complete command lists.
+
+**Workflow examples:**
 
 ```bash
-# First time setup
+# First time setup (from root)
 make install
 
-# Development cycle
-# 1. Make changes
-# 2. Auto-fix linting issues
-make fix
-# 3. Run all CI checks (linting + typecheck + tests)
-make ci
+# Global workflow - run from root
+make fix    # Auto-fix all components
+make ci     # Run CI checks across all components
+
+# Component workflow - run from compiler/
+cd compiler
+make fix    # Auto-fix Python and YAML
+make ci     # Run compiler CI checks (lint + typecheck + test + docs)
+
+# Mixed workflow - work on compiler, verify globally
+cd compiler && make fix && cd .. && make ci
 ```
 
 ---
