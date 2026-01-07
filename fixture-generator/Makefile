@@ -46,7 +46,6 @@ run: ## Generate all fixtures
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
 		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
-		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
@@ -54,13 +53,12 @@ run: ## Generate all fixtures
 		$(BASE_IMAGE) \
 		tsx generate-all.js
 
-run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-basic.js)
+run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-basic.ts)
 	@mkdir -p $(OUTPUT_DIR)
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
 		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
-		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		-e KIBANA_VERSION=$(KIBANA_VERSION) \
@@ -72,7 +70,6 @@ shell: ## Open a shell in the container for debugging
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
 		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
-		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
