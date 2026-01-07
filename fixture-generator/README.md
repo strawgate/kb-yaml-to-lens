@@ -252,49 +252,43 @@ docker run --rm \
 
 ## Docker Setup
 
-The project uses pre-built Kibana base images with direct volume mounting:
+The project uses pre-built Kibana base images published to GitHub Container Registry (GHCR):
 
-**Base Image (`Dockerfile.base`)**
+**Base Image** - Available at `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:<version>`
 
-1. Installs Node.js 22.x (matches Kibana requirement)
-2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
-3. Published weekly to GitHub Container Registry
-4. Build time: ~6 minutes (one-time, automated via GitHub Actions)
+- Contains Kibana source + bootstrap (~6 minutes to build, automated weekly)
+- Supports multiple versions: `v9.2.0` (default), `v9.1.0`
+- Multi-arch support (amd64, arm64)
+- Size: ~8GB (includes full Kibana source and node_modules)
 
-### Runtime Approach
+**Runtime Approach** - No local Docker builds required:
 
-Instead of building a local Docker image, fixture generation uses `docker run` with volume mounts:
+1. Pull the pre-built base image: `make pull`
+2. Mount generator scripts via volumes: `make run`
+3. Scripts execute directly in the base image
 
-1. Pull the pre-built base image from GHCR (one-time operation)
-2. Mount generator scripts directly into the container
-3. Execute fixture generation without any local builds
+### Base Image Management
 
-This approach eliminates all local Docker builds - just pull and run!
-
-### Base Image Updates
-
-Base images are automatically rebuilt weekly via GitHub Actions workflow. To trigger a manual rebuild or build a custom version:
+**Using Different Versions:**
 
 ```bash
-# Trigger workflow manually via GitHub UI:
-# Actions → Build and Publish Kibana Base Images → Run workflow
-
-# Or build locally for testing:
-make build-base KIBANA_VERSION=v9.2.0
-
-# Push to GHCR (requires authentication):
-docker push ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.0
-```
-
-### Using Different Kibana Versions
-
-```bash
-# Pull a different pre-built version
 make pull KIBANA_VERSION=v9.1.0
-
-# Generate fixtures with that version
 make run KIBANA_VERSION=v9.1.0
 ```
+
+**Building Locally** (for testing base image changes):
+
+```bash
+make build-base KIBANA_VERSION=v9.2.0
+make run
+```
+
+**Adding New Versions:** Edit `.github/workflows/build-kibana-base-images.yml` and add to the `matrix.kibana_version` list. The workflow runs weekly on Mondays at 3 AM UTC and can be triggered manually via Actions → Build and Publish Kibana Base Images.
+
+**Versioning:**
+
+- `v9.2.0` - Latest weekly build (mutable)
+- `v9.2.0-20260107` - Specific build date (immutable)
 
 ## Troubleshooting
 
@@ -314,6 +308,30 @@ make run KIBANA_VERSION=v9.1.0
 2. Try `make test-import` to verify the module is available
 3. Use `make shell` to debug interactively
 4. If the problem persists, the base image may need to be rebuilt (check GitHub Actions workflow)
+
+### Base Image Not Found
+
+**Problem**: Base image doesn't exist for your Kibana version
+
+**Solution**:
+
+```bash
+# Option 1: Build base image locally
+make build-base KIBANA_VERSION=v9.2.0
+
+# Option 2: Trigger workflow via GitHub UI
+# Actions → Build and Publish Kibana Base Images → Run workflow
+```
+
+### Before Committing Fixture Changes
+
+Always run these verification steps:
+
+1. Generate fixture: `make run-example EXAMPLE=your-file.js`
+2. Verify output exists in `fixture-generator/output/`
+3. Validate JSON: `python -m json.tool output/your-file.json > /dev/null`
+4. Run checks from root: `cd .. && make ci`
+5. Commit both generator script and output files
 
 ### Invalid Configuration
 
