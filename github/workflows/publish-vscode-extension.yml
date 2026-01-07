@@ -1,0 +1,53 @@
+---
+name: Publish VS Code Extension
+on:
+  release:
+    types:
+      - published
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish-vscode-extension
+      cancel-in-progress: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vscode-extension/package-lock.json
+      - name: Install dependencies
+        working-directory: vscode-extension
+        run: npm ci
+      - name: Run linting
+        working-directory: vscode-extension
+        run: make lint-check
+      - name: Run tests
+        working-directory: vscode-extension
+        run: make test-unit
+      - name: Verify build
+        working-directory: vscode-extension
+        run: make package
+      - name: Package and Publish to OpenVSX
+        id: publish-openvsx
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          packagePath: vscode-extension
+      - name: Publish to VS Code Marketplace
+        id: publish-marketplace
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.VS_MARKETPLACE_PAT }}
+          registryUrl: https://marketplace.visualstudio.com
+          packagePath: vscode-extension
+      - name: Upload VSIX on failure
+        if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
+        uses: actions/upload-artifact@v6
+        with:
+          name: extension-vsix
+          path: vscode-extension/*.vsix
+          retention-days: 7
