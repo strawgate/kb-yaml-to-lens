@@ -896,6 +896,270 @@ async def test_axis_extent_configuration() -> None:
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is False
 
 
+async def test_line_chart_with_fitting_function() -> None:
+    """Test line chart with fitting function configuration."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': 'Linear',
+            'show_as_dotted': True,
+            'end_values': 'Zero',
+        },
+    }
+
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify fitting function is compiled
+    assert kbn_state_visualization.fittingFunction == 'Linear'
+    assert kbn_state_visualization.emphasizeFitting is True
+    assert kbn_state_visualization.endValue == 'Zero'
+
+
+@pytest.mark.parametrize('fitting_func', ['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'])
+async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
+    """Test line chart with all available fitting function options."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': fitting_func,
+        },
+    }
+
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.fittingFunction == fitting_func
+
+
+async def test_area_chart_with_fitting_and_fill_opacity() -> None:
+    """Test area chart with fitting function and fill opacity."""
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': 'Carry',
+            'show_as_dotted': False,
+            'fill_opacity': 0.5,
+        },
+    }
+
+    lens_chart = LensAreaChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify fitting function and fill opacity
+    assert kbn_state_visualization.fittingFunction == 'Carry'
+    assert kbn_state_visualization.emphasizeFitting is False
+    assert kbn_state_visualization.fillOpacity == 0.5
+
+
+async def test_line_chart_with_time_series_features() -> None:
+    """Test line chart with time series features (current time marker and hide endzones)."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'show_current_time_marker': True,
+        'hide_endzones': True,
+    }
+
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify time series features
+    assert kbn_state_visualization.showCurrentTimeMarker is True
+    assert kbn_state_visualization.hideEndzones is True
+
+
+async def test_area_chart_with_time_series_features() -> None:
+    """Test area chart with time series features."""
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'show_current_time_marker': False,
+        'hide_endzones': False,
+    }
+
+    lens_chart = LensAreaChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify time series features
+    assert kbn_state_visualization.showCurrentTimeMarker is False
+    assert kbn_state_visualization.hideEndzones is False
+
+
+async def test_line_chart_with_all_advanced_features() -> None:
+    """Test line chart with all advanced features combined."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': 'Average',
+            'show_as_dotted': True,
+            'end_values': 'Nearest',
+            'line_style': 'monotone-x',
+        },
+        'show_current_time_marker': True,
+        'hide_endzones': True,
+    }
+
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify all features are compiled
+    assert kbn_state_visualization.fittingFunction == 'Average'
+    assert kbn_state_visualization.emphasizeFitting is True
+    assert kbn_state_visualization.endValue == 'Nearest'
+    assert kbn_state_visualization.curveType == 'CURVE_MONOTONE_X'  # Mapped from 'monotone-x' to Kibana format
+    assert kbn_state_visualization.showCurrentTimeMarker is True
+    assert kbn_state_visualization.hideEndzones is True
+
+
+@pytest.mark.parametrize(
+    ('config_value', 'expected_kibana_value'),
+    [
+        ('linear', 'LINEAR'),
+        ('monotone-x', 'CURVE_MONOTONE_X'),
+        ('step-after', 'CURVE_STEP_AFTER'),
+    ],
+)
+async def test_line_style_mapping(config_value: str, expected_kibana_value: str) -> None:
+    """Test that line styles are correctly mapped from config to Kibana format.
+
+    Only tests the 3 line styles supported by Kibana.
+    """
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'line_style': config_value,
+        },
+    }
+
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    assert kbn_state_visualization.curveType == expected_kibana_value
+
+
+async def test_esql_line_chart_with_advanced_features() -> None:
+    """Test ESQL line chart with advanced features."""
+    esql_config = {
+        'type': 'line',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': 'Lookahead',
+            'show_as_dotted': False,
+        },
+        'show_current_time_marker': True,
+        'hide_endzones': False,
+    }
+
+    esql_chart = ESQLLineChart.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify features are compiled for ESQL charts
+    assert kbn_state_visualization.fittingFunction == 'Lookahead'
+    assert kbn_state_visualization.emphasizeFitting is False
+    assert kbn_state_visualization.showCurrentTimeMarker is True
+    assert kbn_state_visualization.hideEndzones is False
+
+
+async def test_esql_area_chart_with_fitting_and_fill_opacity() -> None:
+    """Test ESQL area chart with fitting function and fill opacity."""
+    esql_config = {
+        'type': 'area',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': 'Carry',
+            'show_as_dotted': True,
+            'fill_opacity': 0.7,
+        },
+        'show_current_time_marker': False,
+        'hide_endzones': True,
+    }
+
+    esql_chart = ESQLAreaChart.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify features are compiled for ESQL area charts
+    assert kbn_state_visualization.fittingFunction == 'Carry'
+    assert kbn_state_visualization.emphasizeFitting is True
+    assert kbn_state_visualization.fillOpacity == 0.7
+    assert kbn_state_visualization.showCurrentTimeMarker is False
+    assert kbn_state_visualization.hideEndzones is True
+
+
+async def test_bar_chart_with_min_bar_height() -> None:
+    """Test bar chart with min_bar_height configuration."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'min_bar_height': 5.0,
+        },
+    }
+
+    lens_chart = LensBarChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify min_bar_height is compiled
+    assert kbn_state_visualization.minBarHeight == 5.0
+
+
+async def test_bar_chart_with_min_bar_height_and_axis_config() -> None:
+    """Test bar chart with min_bar_height and axis configuration."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'min_bar_height': 3.5,
+            'y_left_axis': {
+                'title': 'Count',
+                'scale': 'linear',
+            },
+        },
+    }
+
+    lens_chart = LensBarChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify min_bar_height and axis config are compiled
+    assert kbn_state_visualization.minBarHeight == 3.5
+    assert kbn_state_visualization.yLeftTitle == 'Count'
+    assert kbn_state_visualization.yLeftScale == 'linear'
+
+
 async def test_lens_bar_chart_validation_requires_metrics() -> None:
     """Test that Lens bar chart validation fails when metrics list is empty."""
     config = {

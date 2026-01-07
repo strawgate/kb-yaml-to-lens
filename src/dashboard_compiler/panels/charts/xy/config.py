@@ -119,11 +119,11 @@ class AxisConfig(BaseCfgModel):
     """Extent/bounds configuration for the axis."""
 
 
-class XYAppearance(BaseCfgModel):
-    """Represents chart appearance formatting options for XY charts.
+class BaseXYChartAppearance(BaseCfgModel):
+    """Base class for XY chart appearance formatting options.
 
     Includes axis configuration for left Y-axis, right Y-axis, and X-axis,
-    as well as per-series visual styling.
+    as well as per-series visual styling. Not intended to be used directly by users.
     """
 
     x_axis: AxisConfig | None = Field(default=None)
@@ -139,27 +139,46 @@ class XYAppearance(BaseCfgModel):
     """Per-series visual configuration (axis assignment, colors, line styles, etc.)."""
 
 
-class BarChartAppearance(BaseCfgModel):
-    """Represents bar chart appearance formatting options."""
+class BarChartAppearance(BaseXYChartAppearance):
+    """Represents bar chart appearance formatting options.
+
+    Extends BaseXYChartAppearance to include bar-specific options.
+    """
 
     min_bar_height: float | None = Field(default=None, description='The minimum height for bars in bar charts.')
 
 
-class LineChartAppearance(BaseCfgModel):
-    """Represents line chart appearance formatting options."""
+class LineChartAppearance(BaseXYChartAppearance):
+    """Represents line chart appearance formatting options.
 
-    fitting_function: Literal['Linear'] | None = Field(default=None, description='The fitting function to apply to line/area charts.')
-    emphasize_fitting: bool | None = Field(default=None, description='If `true`, emphasize the fitting function line. Defaults to `false`.')
-    curve_type: Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] | None = Field(
+    Extends BaseXYChartAppearance to include line-specific options.
+    """
+
+    missing_values: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
         default=None,
-        description='The curve type for line/area charts.',
+        description='How to handle missing data points. Controls interpolation for gaps in your data.',
+    )
+    show_as_dotted: bool | None = Field(
+        default=None,
+        description='If `true`, visually distinguish interpolated data from real data points. Defaults to `false`.',
+    )
+    end_values: Literal['None', 'Zero', 'Nearest'] | None = Field(
+        default=None,
+        description='How to handle the end of the time range in line/area charts.',
+    )
+    line_style: Literal['linear', 'monotone-x', 'step-after'] | None = Field(
+        default=None,
+        description=(
+            'The line style for line/area charts. '
+            'Only 3 types are supported by Kibana: linear (straight), monotone-x (smooth), step-after (stepped).'
+        ),
     )
 
 
 class AreaChartAppearance(LineChartAppearance):
     """Represents area chart appearance formatting options."""
 
-    fill_opacity: float | None = Field(default=None, description='The fill opacity for area charts (0.0 to 1.0).')
+    fill_opacity: float | None = Field(default=None, ge=0.0, le=1.0, description='The fill opacity for area charts (0.0 to 1.0).')
 
 
 class XYTitlesAndText(BaseCfgModel):
@@ -185,11 +204,6 @@ class XYSeries(BaseCfgModel):
 
 class BaseXYChart(BaseChart):
     """Base model for defining XY chart objects."""
-
-    appearance: XYAppearance | None = Field(
-        None,
-        description='Formatting options for the chart appearance.',
-    )
 
     titles_and_text: XYTitlesAndText | None = Field(
         None,
@@ -271,6 +285,11 @@ class BaseXYBarChart(BaseXYChart):
 
     type: Literal['bar'] = Field('bar', description="The type of XY chart to display. Defaults to 'bar'.")
 
+    appearance: BarChartAppearance | None = Field(
+        None,
+        description='Formatting options for the chart appearance.',
+    )
+
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
         'stacked',
         description="The stacking mode for bar and area charts. Defaults to 'stacked'.",
@@ -282,11 +301,31 @@ class BaseXYLineChart(BaseXYChart):
 
     type: Literal['line'] = Field('line', description="The type of XY chart to display. Defaults to 'line'.")
 
+    appearance: LineChartAppearance | None = Field(
+        None,
+        description='Formatting options for the chart appearance.',
+    )
+
+    show_current_time_marker: bool | None = Field(
+        default=None,
+        description='Whether to show a vertical line at the current time in time series charts.',
+    )
+
+    hide_endzones: bool | None = Field(
+        default=None,
+        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
+    )
+
 
 class BaseXYAreaChart(BaseXYLineChart):
     """Represents an Area chart configuration within a Lens panel."""
 
     type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
+
+    appearance: AreaChartAppearance | None = Field(
+        None,
+        description='Formatting options for the chart appearance. AreaChartAppearance includes all line chart options plus fill_opacity.',
+    )
 
     mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
         'stacked',

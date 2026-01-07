@@ -91,9 +91,9 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. See [Chart Appearance Options](#chart-appearance-options) below. | `None` | No |
+| `appearance` | `BarChartAppearance \| None` | Chart appearance formatting options including axis configuration, series styling, and bar-specific options (min_bar_height). | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend \| None` | Legend formatting options. See [XYLegend Options](#xylegend-options) below. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Line Chart
@@ -105,10 +105,12 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. See [Chart Appearance Options](#chart-appearance-options) below. | `None` | No |
+| `appearance` | `LineChartAppearance \| None` | Chart appearance formatting options including axis configuration, series styling, and line-specific options (missing_values, show_as_dotted, end_values, line_style). | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend \| None` | Legend formatting options. See [XYLegend Options](#xylegend-options) below. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
+| `show_current_time_marker` | `bool \| None` | Whether to show a vertical line at the current time in time series charts. | `None` | No |
+| `hide_endzones` | `bool \| None` | Whether to hide end zones in time series charts (areas where data is incomplete). | `None` | No |
 
 ### Lens Area Chart
 
@@ -120,10 +122,12 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. See [Chart Appearance Options](#chart-appearance-options) below. | `None` | No |
+| `appearance` | `AreaChartAppearance \| None` | Chart appearance formatting options including axis configuration, series styling, line-specific options (missing_values, show_as_dotted, end_values, line_style), and area-specific options (fill_opacity). | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend \| None` | Legend formatting options. See [XYLegend Options](#xylegend-options) below. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
+| `show_current_time_marker` | `bool \| None` | Whether to show a vertical line at the current time in time series charts. | `None` | No |
+| `hide_endzones` | `bool \| None` | Whether to hide end zones in time series charts (areas where data is incomplete). | `None` | No |
 
 #### XYLegend Options
 
@@ -136,7 +140,7 @@ dashboards:
 
 XY charts support appearance customization through the `appearance` field. The available options depend on the chart type and include both chart-type-specific options and common axis/series options.
 
-#### Common XYAppearance Options (All Chart Types)
+#### Common Appearance Options (All Chart Types)
 
 These options are available for all XY chart types (bar, line, area):
 
@@ -183,7 +187,7 @@ Configures per-series visual styling and axis assignment. Used to customize indi
 
 #### Bar Chart Specific Appearance
 
-For bar charts (`type: bar`), the following additional appearance options are available:
+For bar charts (`type: bar`), you can use all the axis config and series options from the base appearance, plus the following bar-specific options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | -------------------------------------------- | ------- | -------- |
@@ -204,13 +208,14 @@ chart:
 
 #### Line Chart Specific Appearance
 
-For line charts (`type: line`), the following additional appearance options are available:
+For line charts (`type: line`), you can use all the axis config and series options from the base appearance, plus the following line-specific options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
-| `fitting_function` | `Literal['Linear'] \| None` | The fitting function to apply to line charts for smoothing. | `None` | No |
-| `emphasize_fitting` | `bool \| None` | If `true`, emphasize the fitting function line. | `false` | No |
-| `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. | `None` | No |
+| `missing_values` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | How to handle missing data points ("Missing values" in Kibana UI). Controls interpolation for gaps in your data. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
+| `show_as_dotted` | `bool \| None` | If `true`, visually distinguish interpolated data from real data points ("Show as dotted line" in Kibana UI). | `None` | No |
+| `end_values` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end of the time range in line/area charts ("End values" in Kibana UI). Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
+| `line_style` | `Literal['linear', 'monotone-x', 'step-after'] \| None` | The line style for line/area charts ("Line style" in Kibana UI). Only 3 types are supported by Kibana: 'linear' (straight), 'monotone-x' (curved), 'step-after' (stepped). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
 
 **Example**:
 
@@ -219,9 +224,10 @@ chart:
   type: line
   data_view: "metrics-*"
   appearance:
-    fitting_function: Linear
-    emphasize_fitting: true
-    curve_type: monotone-x
+    missing_values: Average
+    show_as_dotted: true
+    end_values: Zero
+    line_style: monotone-x
     series:
       - metric_id: "response_time"
         color: "#2196F3"
@@ -230,7 +236,7 @@ chart:
 
 #### Area Chart Specific Appearance
 
-For area charts (`type: area`), all line chart appearance options are available, plus:
+For area charts (`type: area`), you can use all the axis config, series options, and line-specific options, plus the following area-specific option:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | ------------------------------------------------------ | ------- | -------- |
@@ -244,7 +250,7 @@ chart:
   data_view: "metrics-*"
   appearance:
     fill_opacity: 0.7
-    curve_type: cardinal
+    line_style: linear
     series:
       - metric_id: "bytes_in"
         color: "#4CAF50"
@@ -416,6 +422,34 @@ dashboards:
                 color: "#4CAF50"
               - metric_id: "outbound"
                 color: "#FF9800"
+```
+
+### Advanced Line Chart with Time Series Features
+
+Use fitting functions, time markers, and end value handling for time series visualizations:
+
+```yaml
+dashboards:
+  - name: "Time Series Analytics"
+    panels:
+      - title: "CPU Usage with Interpolation"
+        grid: { x: 0, y: 0, w: 48, h: 12 }
+        lens:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: average
+              field: "system.cpu.usage"
+          appearance:
+            missing_values: Average
+            show_as_dotted: true
+            end_values: Zero
+            line_style: monotone-x
+          show_current_time_marker: true
+          hide_endzones: true
 ```
 
 ## Programmatic Usage (Python)

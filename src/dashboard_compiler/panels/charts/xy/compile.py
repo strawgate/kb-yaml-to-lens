@@ -14,8 +14,10 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
+    AreaChartAppearance,
     AxisConfig,
     AxisExtent,
+    BarChartAppearance,
     ESQLAreaChart,
     ESQLBarChart,
     ESQLLineChart,
@@ -25,6 +27,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensLineChart,
     LensReferenceLineLayer,
     LensXYChartTypes,
+    LineChartAppearance,
     XYReferenceLine,
     XYReferenceLineValue,
 )
@@ -169,6 +172,97 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
     return accessor_id, static_value_column, y_config
 
 
+def _map_curve_type_to_kibana(curve_type: str | None) -> str | None:
+    """Map user-friendly curve type values to Kibana's expected format.
+
+    Kibana supports only 3 curve types as defined in:
+    x-pack/plugins/lens/public/visualizations/xy/xy_config_panel/visual_options_popover/curve_styles.tsx
+
+    - LINEAR: Straight line segments between points
+    - CURVE_MONOTONE_X: Smooth curve that preserves monotonicity
+    - CURVE_STEP_AFTER: Step function with horizontal segment after each point
+
+    Args:
+        curve_type: The curve type from config ('linear', 'monotone-x', or 'step-after').
+
+    Returns:
+        The Kibana-formatted curve type constant or None.
+    """
+    if curve_type is None:
+        return None
+
+    # Mapping from config values to Kibana constants
+    # Only the 3 curve types supported by Kibana are included
+    curve_type_mapping = {
+        'linear': 'LINEAR',
+        'monotone-x': 'CURVE_MONOTONE_X',
+        'step-after': 'CURVE_STEP_AFTER',
+    }
+
+    return curve_type_mapping.get(curve_type, curve_type)
+
+
+def _extract_chart_type_specific_appearance(
+    chart: LensXYChartTypes | ESQLXYChartTypes,
+) -> tuple[
+    str | None,  # fitting_function
+    bool | None,  # emphasize_fitting
+    str | None,  # end_value
+    str | None,  # curve_type
+    float | None,  # fill_opacity
+    float | None,  # min_bar_height
+    bool | None,  # show_current_time_marker
+    bool | None,  # hide_endzones
+]:
+    """Extract chart-type-specific appearance properties.
+
+    Args:
+        chart: The XY chart configuration.
+
+    Returns:
+        Tuple of (fitting_function, emphasize_fitting, end_value, curve_type, fill_opacity,
+                 min_bar_height, show_current_time_marker, hide_endzones).
+    """
+    fitting_function = None
+    emphasize_fitting = None
+    end_value = None
+    curve_type = None
+    fill_opacity = None
+    min_bar_height = None
+    show_current_time_marker = None
+    hide_endzones = None
+
+    # Extract line/area chart appearance
+    if chart.appearance is not None and isinstance(chart.appearance, (LineChartAppearance, AreaChartAppearance)):
+        fitting_function = chart.appearance.missing_values
+        emphasize_fitting = chart.appearance.show_as_dotted
+        end_value = chart.appearance.end_values
+        curve_type = _map_curve_type_to_kibana(chart.appearance.line_style)
+
+        if isinstance(chart.appearance, AreaChartAppearance):
+            fill_opacity = chart.appearance.fill_opacity
+
+    # Extract bar chart appearance
+    if chart.appearance is not None and isinstance(chart.appearance, BarChartAppearance):
+        min_bar_height = chart.appearance.min_bar_height
+
+    # Extract time series features from line/area charts
+    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
+        show_current_time_marker = chart.show_current_time_marker
+        hide_endzones = chart.hide_endzones
+
+    return (
+        fitting_function,
+        emphasize_fitting,
+        end_value,
+        curve_type,
+        fill_opacity,
+        min_bar_height,
+        show_current_time_marker,
+        hide_endzones,
+    )
+
+
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     """Determine the Kibana series type based on the chart configuration.
 
@@ -206,6 +300,10 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
             series_type = 'area_percentage_stacked'
         else:  # default to stacked
             series_type = 'area'
+    else:
+        # Defensive programming: ensure runtime type safety
+        msg = f'Unsupported chart type: {type(chart).__name__}'  # pyright: ignore[reportUnreachable]
+        raise TypeError(msg)
 
     return series_type
 
@@ -304,6 +402,18 @@ def compile_xy_chart_visualization_state(
         if chart.legend.position is not None:
             legend_position = chart.legend.position
 
+    # Extract chart-type-specific appearance properties
+    (
+        fitting_function,
+        emphasize_fitting,
+        end_value,
+        curve_type,
+        fill_opacity,
+        min_bar_height,
+        show_current_time_marker,
+        hide_endzones,
+    ) = _extract_chart_type_specific_appearance(chart)
+
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
         layers=[kbn_layer_visualization],
@@ -319,6 +429,14 @@ def compile_xy_chart_visualization_state(
         yLeftExtent=y_left_extent,
         yRightExtent=y_right_extent,
         axisTitlesVisibilitySettings=axis_titles_visibility,
+        fittingFunction=fitting_function,
+        emphasizeFitting=emphasize_fitting,
+        endValue=end_value,
+        curveType=curve_type,
+        fillOpacity=fill_opacity,
+        minBarHeight=min_bar_height,
+        showCurrentTimeMarker=show_current_time_marker,
+        hideEndzones=hide_endzones,
     )
 
 
