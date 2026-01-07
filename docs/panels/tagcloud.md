@@ -112,10 +112,10 @@ The `orientation` field controls how tags are rotated in the cloud:
 
 ```yaml
 appearance:
-  min_font_size: 18      # Smallest tags will be 18pt
-  max_font_size: 96      # Largest tags will be 96pt
-  orientation: "multiple"  # Use various angles for artistic effect
-  show_label: false      # Hide the legend
+  min_font_size: 18        # Smallest tag size (18pt) - lower values have smaller visual impact
+  max_font_size: 96        # Largest tag size (96pt) - higher values have greater visual impact
+  orientation: "multiple"  # Multiple angles (most artistic but less readable than "single" or "right angled")
+  show_label: false        # Hide legend/labels
 ```
 
 ## Advanced Configuration Example
