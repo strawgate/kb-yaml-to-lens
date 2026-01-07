@@ -1,0 +1,42 @@
+---
+dashboards:
+  - id: otel-host-details-logs
+    name: '[OTel] Host Details - Logs'
+    description: Host log messages from OpenTelemetry logs collection
+    filters:
+      - exists: resource.attributes.host.name
+    controls:
+      - type: options
+        label: Host Name
+        data_view: logs-*
+        field: resource.attributes.host.name
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        description: Links to related dashboards
+        links:
+          layout: horizontal
+          links:
+            - label: Hosts Overview
+              dashboard: otel-hosts-overview
+            - label: Host Overview
+              dashboard: otel-host-details-overview
+            - label: Host Metrics
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
+      - title: Logs
+        grid: {x: 0, y: 2, w: 48, h: 56}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - SORT @timestamp DESC
+            - LIMIT 1000
+            - KEEP message, @timestamp
+          rows:
+            - field: '@timestamp'
+            - field: message

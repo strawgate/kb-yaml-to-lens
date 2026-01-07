@@ -1,0 +1,160 @@
+---
+dashboards:
+  - id: otel-host-details-metrics
+    name: '[OTel] Host Details - Metrics'
+    description: Detailed system metrics for OpenTelemetry hosts
+    filters:
+      - exists: resource.attributes.host.name
+      - field: data_stream.dataset
+        equals: hostmetricsreceiver.otel
+    controls:
+      - type: options
+        label: Host Name
+        data_view: metrics-*
+        field: resource.attributes.host.name
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        description: Links to related dashboards
+        links:
+          layout: horizontal
+          links:
+            - label: Hosts Overview
+              dashboard: otel-hosts-overview
+            - label: Host Overview
+              dashboard: otel-host-details-overview
+            - label: Host Metrics
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
+      - title: CPU Section
+        grid: {x: 0, y: 3, w: 48, h: 2}
+        markdown:
+          content: '### CPU'
+      - title: CPU Utilization
+        grid: {x: 0, y: 5, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
+              label: CPU Utilization
+              format:
+                type: percent
+      - title: CPU Utilization by State
+        grid: {x: 24, y: 5, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+            - field: attributes.state
+              label: State
+          metrics:
+            - aggregation: average
+              field: metrics.system.cpu.utilization
+              label: CPU %
+      - title: Load Average
+        grid: {x: 0, y: 17, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - aggregation: average
+              field: metrics.system.cpu.load_average.1m
+              label: 1m
+            - aggregation: average
+              field: metrics.system.cpu.load_average.5m
+              label: 5m
+            - aggregation: average
+              field: metrics.system.cpu.load_average.15m
+              label: 15m
+      - title: Normalized Load
+        grid: {x: 24, y: 17, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              label: Normalized Load
+              format:
+                type: percent
+      - title: Memory Section
+        grid: {x: 0, y: 29, w: 48, h: 2}
+        markdown:
+          content: '### Memory'
+      - title: Memory Utilization
+        grid: {x: 0, y: 31, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              label: Memory Utilization
+              format:
+                type: percent
+      - title: Memory Utilization by State
+        grid: {x: 24, y: 31, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+            - field: attributes.state
+              label: State
+          metrics:
+            - aggregation: average
+              field: metrics.system.memory.utilization
+              label: Memory %
+      - title: Disk Section
+        grid: {x: 0, y: 43, w: 48, h: 2}
+        markdown:
+          content: '### Disk'
+      - title: Disk Usage by Mount Point
+        grid: {x: 0, y: 45, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+            - field: attributes.mountpoint
+              label: Mount Point
+          metrics:
+            - aggregation: average
+              field: metrics.system.filesystem.utilization
+              label: Disk Usage
+              format:
+                type: percent
+      - title: Disk Operations
+        grid: {x: 24, y: 45, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+            - field: attributes.device
+              label: Device
+          metrics:
+            - aggregation: average
+              field: metrics.system.disk.operations
+              label: Operations

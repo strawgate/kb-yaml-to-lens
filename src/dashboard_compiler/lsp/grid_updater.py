@@ -68,11 +68,22 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
     if found_panel is None:
         return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
 
-    # Update grid coordinates
-    found_panel.grid.x = new_grid['x']
-    found_panel.grid.y = new_grid['y']
-    found_panel.grid.w = new_grid['w']
-    found_panel.grid.h = new_grid['h']
+    # Update position and size (config model uses frozen, so we need to use model_copy)
+    try:
+        updated_panel = found_panel.model_copy(
+            update={
+                'position': {'x': new_grid['x'], 'y': new_grid['y']},
+                'size': {'w': new_grid['w'], 'h': new_grid['h']},
+            }
+        )
+
+        # Replace the panel in the dashboard's panel list
+        for idx, panel in enumerate(dashboard.panels):
+            if panel is found_panel:
+                dashboard.panels[idx] = updated_panel
+                break
+    except Exception as e:
+        return {'success': False, 'error': f'Failed to update panel: {e}'}
 
     # Save the updated dashboard
     try:
