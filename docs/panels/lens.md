@@ -111,8 +111,6 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 
 **Example (Lens Metric Chart):**
 
-See the complete example: [`docs/examples/panel-types/lens/metric-with-secondary-breakdown.yaml`](../../examples/panel-types/lens/metric-with-secondary-breakdown.yaml)
-
 ```yaml
 dashboards:
   - name: "Lens Metric Example"
@@ -159,8 +157,6 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-color-field). | `None` | No |
 
 **Example (Lens Pie Chart):**
-
-See the complete example: [`docs/examples/panel-types/lens/pie-with-appearance.yaml`](../../examples/panel-types/lens/pie-with-appearance.yaml)
 
 ```yaml
 dashboards:

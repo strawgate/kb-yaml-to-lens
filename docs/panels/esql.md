@@ -109,8 +109,6 @@ Displays a single primary metric derived from an ESQL query, optionally with a s
 
 **Example (ESQL Metric Chart):**
 
-See the complete example: [`docs/examples/panel-types/esql/metric-with-secondary-breakdown.yaml`](../../examples/panel-types/esql/metric-with-secondary-breakdown.yaml)
-
 ```yaml
 dashboards:
   - name: "ESQL Metric Example"
@@ -150,8 +148,6 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None` | No |
 
 **Example (ESQL Pie Chart):**
-
-See the complete example: [`docs/examples/panel-types/esql/pie-with-donut.yaml`](../../examples/panel-types/esql/pie-with-donut.yaml)
 
 ```yaml
 dashboards:
@@ -195,8 +191,6 @@ Displays bar chart visualizations with data sourced from an ESQL query. Supports
 
 **Example (ESQL Bar Chart):**
 
-See the complete example: [`docs/examples/panel-types/esql/bar-stacked.yaml`](../../examples/panel-types/esql/bar-stacked.yaml)
-
 ```yaml
 dashboards:
   - name: "ESQL Bar Chart Example"
@@ -238,8 +232,6 @@ Displays line chart visualizations with data sourced from an ESQL query. The `fi
 
 **Example (ESQL Line Chart):**
 
-See the complete example: [`docs/examples/panel-types/esql/line-with-breakdown.yaml`](../../examples/panel-types/esql/line-with-breakdown.yaml)
-
 ```yaml
 dashboards:
   - name: "ESQL Line Chart Example"
@@ -280,8 +272,6 @@ Displays area chart visualizations with data sourced from an ESQL query. Support
 | `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
 
 **Example (ESQL Area Chart):**
-
-See the complete example: [`docs/examples/panel-types/esql/area-stacked.yaml`](../../examples/panel-types/esql/area-stacked.yaml)
 
 ```yaml
 dashboards:
@@ -346,8 +336,6 @@ For completely custom number formatting, use:
 | `pattern` | `string` | Numeral.js pattern for custom formatting (e.g., '0,0.[0000]', '0.00%'). | N/A | Yes |
 
 **Example (Metric with Format):**
-
-See the complete example: [`docs/examples/panel-types/esql/metric-formatting.yaml`](../../examples/panel-types/esql/metric-formatting.yaml)
 
 ```yaml
 dashboards:
