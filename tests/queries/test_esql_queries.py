@@ -138,7 +138,9 @@ async def test_esql_deeply_nested_arrays() -> None:
     assert esql_query.root == expected_esql
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'})
+    assert kbn_query.model_dump() == snapshot(
+        {'esql': 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'}
+    )
 
 
 async def test_esql_multiple_anchor_references() -> None:
@@ -244,4 +246,6 @@ query:
     assert esql_query.root == 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'})
+    assert kbn_query.model_dump() == snapshot(
+        {'esql': 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'}
+    )
