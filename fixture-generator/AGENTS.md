@@ -6,6 +6,31 @@
 
 ## Critical Rules
 
+### Understanding LensConfigBuilder API Limitations
+
+**IMPORTANT:** The LensConfigBuilder API does NOT expose all Kibana Lens features.
+
+**When a feature is not available via LensConfigBuilder:**
+
+- ❌ **WRONG**: Conclude the feature doesn't exist in Kibana
+- ✅ **CORRECT**: Investigate the Kibana codebase to find the underlying JSON structure
+
+**Why this matters:**
+
+The fixture generator uses Kibana's `LensConfigBuilder` API to create test fixtures. This is a **convenience API** for common use cases, but Kibana's underlying Lens visualization engine supports many more options than the builder exposes.
+
+**Example:** ES|QL per-metric color and axis assignment options don't exist in `LensConfigBuilder`, but they DO exist in Kibana's Lens JSON schema. To implement these in our compiler, we need to:
+
+1. Search the Kibana codebase for relevant type definitions (e.g., `YConfig`, `VisualizeEditorFormState`)
+2. Examine actual Kibana dashboard exports to see the JSON structure
+3. Create view models matching the discovered schema
+4. Skip fixture generation (since we can't use LensConfigBuilder)
+5. Test by compiling YAML and importing into Kibana
+
+**Always investigate before concluding a feature is unsupported.**
+
+---
+
 ### Fixture Generation is Required
 
 We're building a compiler targeting Kibana's JSON format. The fixture generator produces valid Kibana JSON using official APIs—much faster than manual creation.

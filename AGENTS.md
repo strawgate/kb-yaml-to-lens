@@ -73,6 +73,7 @@ If you have recently undergone context summarization/compaction:
 - **Honest** — Document unresolved items, acknowledge uncertainty, never claim completion with critical issues
 - **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
 - **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
+- **Investigate deeply** — LensConfigBuilder API limitations ≠ Kibana feature limitations. If a feature isn't in the builder API, investigate the Kibana codebase before concluding it doesn't exist.
 
 **Code Style:** See component AGENTS.md files for language-specific conventions and detailed patterns.
 
