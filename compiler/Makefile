@@ -155,7 +155,7 @@ setup:
 	@echo "Setting up environment..."
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 	uv sync --group dev
-	echo "Environment set up successfully!"
+	@echo "✓ Environment set up successfully!"
 
 update-deps:
 	@echo "Updating dependencies..."
@@ -210,7 +210,7 @@ docker-publish:
 		echo "Usage: make docker-publish CONFIRM_PUBLISH=yes"; \
 		exit 1; \
 	fi
-	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. Install with: docker buildx install" && exit 1)
+	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. See https://docs.docker.com/build/buildx/install/" && exit 1)
 	docker buildx build \
 		--platform linux/amd64,linux/arm64 \
 		-t $(GHCR_REGISTRY) \
@@ -237,8 +237,8 @@ clean:
 	rm -rf __pycache__ **/__pycache__
 	rm -rf .pytest_cache **/.pytest_cache
 	rm -rf .ruff_cache **/.ruff_cache
-	rm -rf **/.pyc
-	rm -rf **/.pyo
+	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyo" -delete
 
 clean-full: clean
 	@echo "Cleaning up all..."

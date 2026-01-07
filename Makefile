@@ -66,7 +66,21 @@ install:
 	@echo ""
 	@echo "✓ All dependencies installed"
 
-ci: lint-all-check test-all
+ci:
+	@echo "Running CI across all components..."
+	@echo ""
+	@echo "→ Running compiler CI..."
+	@cd compiler && $(MAKE) ci
+	@echo ""
+	@echo "→ Running VS Code extension CI..."
+	@if [ -d "vscode-extension/node_modules" ]; then \
+		cd vscode-extension && $(MAKE) ci; \
+	else \
+		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
+	fi
+	@echo ""
+	@echo "→ Checking markdown..."
+	@$(MAKE) lint-markdown-check
 	@echo ""
 	@echo "✓ All CI checks passed!"
 
