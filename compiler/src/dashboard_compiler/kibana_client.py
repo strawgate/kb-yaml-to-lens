@@ -157,6 +157,8 @@ class KibanaClient:
         """Close HTTP session and connector, releasing resources."""
         if self._session is not None and not self._session.closed:
             await self._session.close()
+        if self._connector is not None and not self._connector.closed:
+            self._connector.close()
         self._session = None
         self._connector = None
 
