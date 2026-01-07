@@ -84,13 +84,13 @@ class OptionsListControl(BaseControl):
     match_technique: MatchTechnique | None = Field(default=None, strict=False)  # strict=False for enum coercion
     """The search technique used for filtering options (e.g., 'prefix', 'contains', 'exact')."""
 
-    wait_for_results: bool = Field(default=False)
+    wait_for_results: bool | None = Field(default=None)
     """If set to true, delay the display of the list of values until the results are fully loaded."""
 
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
-    singular: bool = Field(default=False)
+    singular: bool | None = Field(default=None)
     """If true, the control allows only a single selection from the options list."""
 
     data_view: str = Field(...)
@@ -165,7 +165,7 @@ class ESQLStaticValuesControl(BaseControl):
     title: str = Field(...)
     """Display title for the control."""
 
-    single_select: bool = Field(default=False)
+    single_select: bool | None = Field(default=None)
     """If true, only allow single selection from the options."""
 
 
@@ -190,5 +190,5 @@ class ESQLQueryControl(BaseControl):
     title: str = Field(...)
     """Display title for the control."""
 
-    single_select: bool = Field(default=False)
+    single_select: bool | None = Field(default=None)
     """If true, only allow single selection from the options."""
