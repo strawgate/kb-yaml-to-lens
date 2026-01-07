@@ -31,13 +31,29 @@ suite('Extension Test Suite', () => {
         // Try to find .venv in typical locations
         // __dirname will be vscode-extension/out/test/suite when tests run
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-        const potentialPaths = [
-            ...(workspaceRoot ? [path.join(workspaceRoot, 'compiler/.venv/bin/python')] : []), // From workspace root
-            path.resolve(__dirname, '../../../../../compiler/.venv/bin/python'), // From compiled test file to compiler/.venv
-            path.resolve(__dirname, '../../../../.venv/bin/python'), // From compiled test file to repo root (legacy)
-            path.resolve('/app/compiler/.venv/bin/python'), // Absolute path to compiler/.venv (container)
-            path.resolve('/app/.venv/bin/python') // Absolute path to repo root (container, legacy)
-        ];
+
+        // Build potential paths, starting with the most likely locations
+        const potentialPaths: string[] = [];
+
+        // If we have a workspace root, try relative to that
+        if (workspaceRoot) {
+            potentialPaths.push(path.join(workspaceRoot, 'compiler/.venv/bin/python'));
+            potentialPaths.push(path.join(workspaceRoot, '.venv/bin/python')); // legacy location
+        }
+
+        // Try relative to __dirname (vscode-extension/out/test/suite)
+        potentialPaths.push(path.resolve(__dirname, '../../../../../compiler/.venv/bin/python'));
+        potentialPaths.push(path.resolve(__dirname, '../../../../.venv/bin/python'));
+
+        // Try from current working directory (CI environment)
+        if (process.cwd()) {
+            potentialPaths.push(path.join(process.cwd(), 'compiler/.venv/bin/python'));
+            potentialPaths.push(path.join(process.cwd(), '.venv/bin/python'));
+        }
+
+        // Absolute container paths
+        potentialPaths.push('/app/compiler/.venv/bin/python');
+        potentialPaths.push('/app/.venv/bin/python');
 
         let pythonPath = potentialPaths.find(p => fs.existsSync(p));
 
