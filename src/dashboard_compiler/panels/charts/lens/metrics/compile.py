@@ -30,7 +30,7 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
 )
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
-from dashboard_compiler.shared.defaults import default_true
+from dashboard_compiler.shared.defaults import default_none, default_true
 
 FORMAT_TO_DEFAULT_DECIMALS = {
     'number': 2,
@@ -125,7 +125,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
         )
 
     custom_label = None if metric.label is None else True
-    metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
+    metric_format = default_none(compile_lens_metric_format(metric.format) if metric.format is not None else None)
 
     if isinstance(metric, LensFormulaMetric):
         metric_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])

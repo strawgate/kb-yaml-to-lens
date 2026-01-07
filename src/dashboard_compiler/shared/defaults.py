@@ -61,3 +61,28 @@ def default_true(value: bool | None) -> bool:
 
     """
     return value if value is not None else True
+
+
+def default_none[T](value: T | None) -> T | None:
+    """Return value or None if None.
+
+    This helper provides clarity and consistency with default_true/default_false
+    when working with optional fields, particularly in Pydantic models with
+    OmitIfNone metadata.
+
+    Args:
+        value: The value to check.
+
+    Returns:
+        The value if not None, otherwise None.
+
+    Examples:
+        >>> default_none("hello")
+        'hello'
+        >>> default_none(5)
+        5
+        >>> default_none(None)
+        None
+
+    """
+    return value if value is not None else None

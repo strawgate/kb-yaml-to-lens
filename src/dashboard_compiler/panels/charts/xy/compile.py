@@ -37,6 +37,7 @@ from dashboard_compiler.panels.charts.xy.view import (
     YConfig,
 )
 from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.defaults import default_none
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -75,7 +76,7 @@ def _extract_axis_config(
 
     title = axis_config.title
     scale = axis_config.scale
-    extent = _convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None
+    extent = default_none(_convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None)
 
     return title, scale, extent
 

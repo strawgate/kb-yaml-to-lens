@@ -3,6 +3,7 @@
 from dashboard_compiler.shared.defaults import (
     default_false,
     default_if_none,
+    default_none,
     default_true,
 )
 
@@ -54,3 +55,19 @@ class TestDefaultTrue:
     def test_returns_true_when_none(self) -> None:
         """Test that True is returned when value is None."""
         assert default_true(None) is True
+
+
+class TestDefaultNone:
+    """Tests for default_none helper."""
+
+    def test_returns_value_when_not_none(self) -> None:
+        """Test that value is returned when not None."""
+        assert default_none('hello') == 'hello'
+        assert default_none(5) == 5
+        assert default_none(False) is False
+        assert default_none(0) == 0
+        assert default_none([]) == []
+
+    def test_returns_none_when_none(self) -> None:
+        """Test that None is returned when value is None."""
+        assert default_none(None) is None
