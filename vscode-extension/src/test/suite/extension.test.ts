@@ -24,44 +24,28 @@ suite('Extension Test Suite', () => {
         const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension);
 
-        // Find the .venv path relative to this test file or the repo root
-        // We are in vscode-extension/out/test/suite/extension.test.js
-        // The compiler's .venv is at compiler/.venv
-
-        // Try to find .venv in typical locations
-        // __dirname will be vscode-extension/out/test/suite when tests run
+        // Find Python interpreter with dashboard_compiler module installed.
+        // The compiler's .venv is at compiler/.venv relative to repo root.
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
-        // Build potential paths, starting with the most likely locations
-        const potentialPaths: string[] = [];
+        const potentialPaths = [
+            // Workspace root (most reliable in both dev and CI)
+            workspaceRoot && path.join(workspaceRoot, 'compiler/.venv/bin/python'),
+            // Current working directory (CI fallback)
+            path.join(process.cwd(), 'compiler/.venv/bin/python'),
+            // System python (last resort - may not have dashboard_compiler)
+            'python3'
+        ].filter((p): p is string => !!p);
 
-        // If we have a workspace root, try relative to that
-        if (workspaceRoot) {
-            potentialPaths.push(path.join(workspaceRoot, 'compiler/.venv/bin/python'));
-            potentialPaths.push(path.join(workspaceRoot, '.venv/bin/python')); // legacy location
-        }
+        const pythonPath = potentialPaths.find(p => {
+            try {
+                return fs.existsSync(p) || p === 'python3';
+            } catch {
+                return false;
+            }
+        }) || 'python3';
 
-        // Try relative to __dirname (vscode-extension/out/test/suite)
-        potentialPaths.push(path.resolve(__dirname, '../../../../compiler/.venv/bin/python'));
-        potentialPaths.push(path.resolve(__dirname, '../../../../.venv/bin/python'));
-
-        // Try from current working directory (CI environment)
-        potentialPaths.push(path.join(process.cwd(), 'compiler/.venv/bin/python'));
-        potentialPaths.push(path.join(process.cwd(), '.venv/bin/python'));
-
-        // Absolute container paths
-        potentialPaths.push('/app/compiler/.venv/bin/python');
-        potentialPaths.push('/app/.venv/bin/python');
-
-        let pythonPath = potentialPaths.find(p => fs.existsSync(p));
-
-        if (!pythonPath) {
-             console.log('Could not find .venv/bin/python in:', potentialPaths);
-             // Fallback to system python if venv missing (though we expect it to be there)
-             pythonPath = 'python3';
-        } else {
-            console.log('Found python at:', pythonPath);
-        }
+        console.log(`Using Python interpreter: ${pythonPath}`);
 
         const config = vscode.workspace.getConfiguration('yamlDashboard');
         // Update global config if workspace is not available, or workspace config if it is
