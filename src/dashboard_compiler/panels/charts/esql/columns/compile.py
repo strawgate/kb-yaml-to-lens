@@ -10,6 +10,7 @@ from dashboard_compiler.panels.charts.esql.columns.config import (
     ESQLStaticValue,
 )
 from dashboard_compiler.panels.charts.esql.columns.view import (
+    KbnESQLColumnMeta,
     KbnESQLFieldDimensionColumn,
     KbnESQLFieldMetricColumn,
     KbnESQLMetricColumnParams,
@@ -93,9 +94,19 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         esql_format = compile_esql_metric_format(metric.format)
         params = KbnESQLMetricColumnParams(format=esql_format)
 
+    # Determine label (use custom label if provided, otherwise use field name)
+    label = metric.label if metric.label is not None else metric.field
+    custom_label = metric.label is not None
+
+    # ES|QL aggregations always return numbers
+    meta = KbnESQLColumnMeta(type='number', esType='long')
+
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
         columnId=metric_id,
+        label=label,
+        customLabel=custom_label,
+        meta=meta,
         inMetricDimension=True,
         params=params,
     )
