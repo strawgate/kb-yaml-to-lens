@@ -5,7 +5,7 @@ import { glob } from 'glob';
 export async function run(): Promise<void> {
     // Create the mocha test
     const mocha = new Mocha({
-        ui: 'tdd',
+        ui: 'bdd',
         color: true,
         timeout: 10000
     });
