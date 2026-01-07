@@ -39,12 +39,14 @@ jobs:
         working-directory: compiler
         run: uv sync --group build
       - name: Build binary
+        working-directory: compiler
         run: make build-binary
       - name: Run smoke tests
+        working-directory: compiler
         run: make test-binary-smoke
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
           name: kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
-          path: dist/kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
+          path: compiler/dist/kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
           retention-days: 7

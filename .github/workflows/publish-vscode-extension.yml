@@ -20,13 +20,17 @@ jobs:
           cache: npm
           cache-dependency-path: vscode-extension/package-lock.json
       - name: Install dependencies
-        run: make install-extension
+        working-directory: vscode-extension
+        run: npm ci
       - name: Run linting
-        run: make lint-extension-check
+        working-directory: vscode-extension
+        run: make lint-check
       - name: Run tests
-        run: make test-extension-typescript
+        working-directory: vscode-extension
+        run: make test-unit
       - name: Verify build
-        run: make build-extension
+        working-directory: vscode-extension
+        run: make package
       - name: Package and Publish to OpenVSX
         id: publish-openvsx
         uses: HaaLeo/publish-vscode-extension@v2
