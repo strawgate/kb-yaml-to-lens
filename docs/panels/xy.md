@@ -91,9 +91,9 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. See [Chart Appearance Options](#chart-appearance-options) below. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. See [XYLegend Options](#xylegend-options) below. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Line Chart
@@ -105,9 +105,9 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. See [Chart Appearance Options](#chart-appearance-options) below. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. See [XYLegend Options](#xylegend-options) below. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 ### Lens Area Chart
@@ -120,9 +120,9 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. | `None` | No |
+| `appearance` | `XYAppearance \| None` | Chart appearance formatting options. See [Chart Appearance Options](#chart-appearance-options) below. | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
-| `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
+| `legend` | `XYLegend \| None` | Legend formatting options. See [XYLegend Options](#xylegend-options) below. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 
 #### XYLegend Options

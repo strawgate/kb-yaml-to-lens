@@ -17,22 +17,26 @@ class TestGetPanelTypeName:
 
     def test_returns_markdown_for_markdown_panel(self) -> None:
         """Test that 'markdown' is returned for a MarkdownPanel."""
-        panel = MarkdownPanel(markdown=MarkdownPanelConfig(content='# Test'), grid=Grid(x=0, y=0, w=12, h=4))
+        panel = MarkdownPanel(markdown=MarkdownPanelConfig(content='# Test'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
         assert get_panel_type_name(panel) == 'markdown'
 
     def test_returns_links_for_links_panel(self) -> None:
         """Test that 'links' is returned for a LinksPanel."""
-        panel = LinksPanel(links=LinksPanelConfig(links=[UrlLink(url='https://example.com')]), grid=Grid(x=0, y=0, w=12, h=4))
+        panel = LinksPanel(
+            links=LinksPanelConfig(links=[UrlLink(url='https://example.com')]), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+        )
         assert get_panel_type_name(panel) == 'links'
 
     def test_returns_image_for_image_panel(self) -> None:
         """Test that 'image' is returned for an ImagePanel."""
-        panel = ImagePanel(image=ImagePanelConfig(from_url='https://example.com/image.png'), grid=Grid(x=0, y=0, w=12, h=4))
+        panel = ImagePanel(
+            image=ImagePanelConfig(from_url='https://example.com/image.png'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+        )
         assert get_panel_type_name(panel) == 'image'
 
     def test_returns_search_for_search_panel(self) -> None:
         """Test that 'search' is returned for a SearchPanel."""
-        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), grid=Grid(x=0, y=0, w=12, h=4))
+        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
         assert get_panel_type_name(panel) == 'search'
 
 
@@ -42,9 +46,14 @@ class TestCompileDashboardPanel:
     def test_compiles_links_panel(self) -> None:
         """Test that a LinksPanel is compiled correctly."""
         panel = LinksPanel(
-            links=LinksPanelConfig(links=[UrlLink(url='https://example.com', label='Example')]), grid=Grid(x=0, y=0, w=12, h=4)
+            links=LinksPanelConfig(links=[UrlLink(url='https://example.com', label='Example')]),
+            position={'x': 0, 'y': 0},
+            size={'w': 12, 'h': 4},
         )
-        _references, kbn_panel = compile_dashboard_panel(panel)
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        _references, kbn_panel = compile_dashboard_panel(panel, grid)
 
         assert kbn_panel.model_dump(by_alias=True) == snapshot(
             {
@@ -71,8 +80,13 @@ class TestCompileDashboardPanel:
 
     def test_compiles_image_panel(self) -> None:
         """Test that an ImagePanel is compiled correctly."""
-        panel = ImagePanel(image=ImagePanelConfig(from_url='https://example.com/image.png'), grid=Grid(x=0, y=0, w=12, h=4))
-        _references, kbn_panel = compile_dashboard_panel(panel)
+        panel = ImagePanel(
+            image=ImagePanelConfig(from_url='https://example.com/image.png'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+        )
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        _references, kbn_panel = compile_dashboard_panel(panel, grid)
 
         assert kbn_panel.model_dump(by_alias=True) == snapshot(
             {
@@ -93,7 +107,10 @@ class TestCompileDashboardPanel:
 
     def test_raises_not_implemented_for_search_panel(self) -> None:
         """Test that SearchPanel compilation raises NotImplementedError."""
-        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), grid=Grid(x=0, y=0, w=12, h=4))
+        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
 
         with pytest.raises(NotImplementedError, match='Panel type SearchPanel is not yet supported'):
-            _ = compile_dashboard_panel(panel)
+            _ = compile_dashboard_panel(panel, grid)

@@ -32,7 +32,7 @@ async def test_esql_string_query_backward_compatibility() -> None:
 async def test_esql_array_with_two_elements() -> None:
     """Test ESQL array with two elements."""
     config = ['FROM logs-*', 'LIMIT 10']
-    expected_esql = 'FROM logs-* | LIMIT 10'
+    expected_esql = 'FROM logs-*\n| LIMIT 10'
 
     esql_query = ESQLQuery.model_validate(config)
 
@@ -42,13 +42,13 @@ async def test_esql_array_with_two_elements() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-* | LIMIT 10'})
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-*\n| LIMIT 10'})
 
 
 async def test_esql_complex_multi_part_array_query() -> None:
     """Test ESQL complex multi-part array query."""
     config = ['FROM metrics-*', 'WHERE service.name == "api"', 'STATS avg_response = AVG(http.response.time)', 'LIMIT 100']
-    expected_esql = 'FROM metrics-* | WHERE service.name == "api" | STATS avg_response = AVG(http.response.time) | LIMIT 100'
+    expected_esql = 'FROM metrics-*\n| WHERE service.name == "api"\n| STATS avg_response = AVG(http.response.time)\n| LIMIT 100'
 
     esql_query = ESQLQuery.model_validate(config)
 
@@ -59,7 +59,7 @@ async def test_esql_complex_multi_part_array_query() -> None:
     kbn_query_as_dict = kbn_query.model_dump()
 
     assert kbn_query_as_dict == snapshot(
-        {'esql': 'FROM metrics-* | WHERE service.name == "api" | STATS avg_response = AVG(http.response.time) | LIMIT 100'}
+        {'esql': 'FROM metrics-*\n| WHERE service.name == "api"\n| STATS avg_response = AVG(http.response.time)\n| LIMIT 100'}
     )
 
 
@@ -82,7 +82,7 @@ async def test_esql_single_element_array() -> None:
 async def test_esql_array_with_filter_and_aggregation() -> None:
     """Test ESQL array with filter and aggregation."""
     config = ['FROM logs-*', 'WHERE @timestamp > NOW() - 1h', 'STATS count BY service.name']
-    expected_esql = 'FROM logs-* | WHERE @timestamp > NOW() - 1h | STATS count BY service.name'
+    expected_esql = 'FROM logs-*\n| WHERE @timestamp > NOW() - 1h\n| STATS count BY service.name'
 
     esql_query = ESQLQuery.model_validate(config)
 
@@ -92,7 +92,7 @@ async def test_esql_array_with_filter_and_aggregation() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-* | WHERE @timestamp > NOW() - 1h | STATS count BY service.name'})
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-*\n| WHERE @timestamp > NOW() - 1h\n| STATS count BY service.name'})
 
 
 async def test_esql_nested_array_from_yaml_anchor() -> None:
@@ -109,7 +109,7 @@ async def test_esql_nested_array_from_yaml_anchor() -> None:
     #   - *base
     #   - STATS count = COUNT()
     config: list[str | list[str]] = [['FROM logs-*', 'WHERE status == 200'], 'STATS count = COUNT()']
-    expected_esql = 'FROM logs-* | WHERE status == 200 | STATS count = COUNT()'
+    expected_esql = 'FROM logs-*\n| WHERE status == 200\n| STATS count = COUNT()'
 
     esql_query = ESQLQuery.model_validate(config)
 
@@ -119,7 +119,7 @@ async def test_esql_nested_array_from_yaml_anchor() -> None:
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
     kbn_query_as_dict = kbn_query.model_dump()
 
-    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-* | WHERE status == 200 | STATS count = COUNT()'})
+    assert kbn_query_as_dict == snapshot({'esql': 'FROM logs-*\n| WHERE status == 200\n| STATS count = COUNT()'})
 
 
 async def test_esql_deeply_nested_arrays() -> None:
@@ -130,7 +130,7 @@ async def test_esql_deeply_nested_arrays() -> None:
         'WHERE status >= 400',
         'STATS errors = COUNT()',
     ]
-    expected_esql = 'FROM logs-* | WHERE env == "prod" | WHERE status >= 400 | STATS errors = COUNT()'
+    expected_esql = 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'
 
     esql_query = ESQLQuery.model_validate(config)
 
@@ -138,7 +138,9 @@ async def test_esql_deeply_nested_arrays() -> None:
     assert esql_query.root == expected_esql
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-* | WHERE env == "prod" | WHERE status >= 400 | STATS errors = COUNT()'})
+    assert kbn_query.model_dump() == snapshot(
+        {'esql': 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'}
+    )
 
 
 async def test_esql_multiple_anchor_references() -> None:
@@ -157,7 +159,7 @@ async def test_esql_multiple_anchor_references() -> None:
         ['WHERE host.name IS NOT NULL'],
         'STATS avg = AVG(cpu.pct)',
     ]
-    expected_esql = 'FROM metrics-* | WHERE host.name IS NOT NULL | STATS avg = AVG(cpu.pct)'
+    expected_esql = 'FROM metrics-*\n| WHERE host.name IS NOT NULL\n| STATS avg = AVG(cpu.pct)'
 
     esql_query = ESQLQuery.model_validate(config)
 
@@ -165,7 +167,7 @@ async def test_esql_multiple_anchor_references() -> None:
     assert esql_query.root == expected_esql
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM metrics-* | WHERE host.name IS NOT NULL | STATS avg = AVG(cpu.pct)'})
+    assert kbn_query.model_dump() == snapshot({'esql': 'FROM metrics-*\n| WHERE host.name IS NOT NULL\n| STATS avg = AVG(cpu.pct)'})
 
 
 # YAML Integration Tests - Test actual YAML parsing behavior
@@ -188,10 +190,10 @@ query:
 
     esql_query = ESQLQuery.model_validate(config)
 
-    assert esql_query.root == 'FROM logs-* | WHERE status == 200 | STATS count = COUNT()'
+    assert esql_query.root == 'FROM logs-*\n| WHERE status == 200\n| STATS count = COUNT()'
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-* | WHERE status == 200 | STATS count = COUNT()'})
+    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-*\n| WHERE status == 200\n| STATS count = COUNT()'})
 
 
 async def test_yaml_anchor_multiple_references() -> None:
@@ -214,10 +216,10 @@ query:
 
     esql_query = ESQLQuery.model_validate(config)
 
-    assert esql_query.root == 'FROM metrics-* | WHERE host.name IS NOT NULL | STATS avg = AVG(cpu.pct)'
+    assert esql_query.root == 'FROM metrics-*\n| WHERE host.name IS NOT NULL\n| STATS avg = AVG(cpu.pct)'
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM metrics-* | WHERE host.name IS NOT NULL | STATS avg = AVG(cpu.pct)'})
+    assert kbn_query.model_dump() == snapshot({'esql': 'FROM metrics-*\n| WHERE host.name IS NOT NULL\n| STATS avg = AVG(cpu.pct)'})
 
 
 async def test_yaml_anchor_deeply_nested_composition() -> None:
@@ -241,7 +243,9 @@ query:
 
     esql_query = ESQLQuery.model_validate(config)
 
-    assert esql_query.root == 'FROM logs-* | WHERE env == "prod" | WHERE status >= 400 | STATS errors = COUNT()'
+    assert esql_query.root == 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'
 
     kbn_query: KbnESQLQuery = compile_esql_query(query=esql_query)
-    assert kbn_query.model_dump() == snapshot({'esql': 'FROM logs-* | WHERE env == "prod" | WHERE status >= 400 | STATS errors = COUNT()'})
+    assert kbn_query.model_dump() == snapshot(
+        {'esql': 'FROM logs-*\n| WHERE env == "prod"\n| WHERE status >= 400\n| STATS errors = COUNT()'}
+    )

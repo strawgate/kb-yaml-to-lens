@@ -1,6 +1,6 @@
 # Agent Guidelines: Fixture Generator
 
-> Docker-based JavaScript fixture generator using Kibana's official LensConfigBuilder API
+> Docker-based TypeScript fixture generator using Kibana's official LensConfigBuilder API
 
 ---
 
@@ -21,7 +21,7 @@ We're building a compiler that targets Kibana's JSON format. The fixture generat
 **When creating or modifying fixture generator files:**
 
 1. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
-2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.js`
+2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.ts`
 3. Verify output file exists in `fixture-generator/output/`
 4. Inspect the output JSON to ensure it's valid
 5. Commit BOTH the generator script AND the output JSON files
@@ -35,7 +35,7 @@ We're building a compiler that targets Kibana's JSON format. The fixture generat
 
 **If you can't run Docker:**
 
-State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.js` to verify the output before merging. Don't commit untested generator code.
+State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.ts` to verify the output before merging. Don't commit untested generator code.
 
 ---
 
@@ -45,11 +45,12 @@ State this clearly in your response and request that the user run `cd fixture-ge
 
 | Command | Purpose |
 | ------- | ------- |
-| `make ci` | Run CI checks (build + test-import) |
+| `make ci` | Run CI checks (build + typecheck + test) |
 | `make fix` | No linting (placeholder for consistency) |
+| `make typecheck` | Run TypeScript type checking |
 | `make build` | Build Docker image (first time only, ~6 minutes) |
 | `make run` | Generate all fixtures |
-| `make run-example EXAMPLE=file.js` | Generate single fixture |
+| `make run-example EXAMPLE=file.ts` | Generate single fixture |
 | `make shell` | Debug in Docker container |
 | `make test-import` | Test that LensConfigBuilder imports |
 | `make clean` | Clean output directory |
@@ -65,7 +66,7 @@ make build
 make run
 
 # Generate one fixture
-make run-example EXAMPLE=metric-basic.js
+make run-example EXAMPLE=metric-basic.ts
 
 # Verify output
 ls -lh output/
@@ -80,7 +81,7 @@ When creating or modifying fixture generators, complete this checklist:
 
 - [ ] Created/modified generator script in `examples/`
 - [ ] Ran `make build` (if Docker image doesn't exist)
-- [ ] Ran `make run-example EXAMPLE=<your-file>.js`
+- [ ] Ran `make run-example EXAMPLE=<your-file>.ts`
 - [ ] Verified `output/<your-file>.json` exists
 - [ ] Verified `output/<your-file>-dataview.json` exists (for dual generators)
 - [ ] Inspected JSON structure with `cat output/<your-file>.json | python -m json.tool | head -100`
@@ -116,7 +117,7 @@ make run
 
 ```bash
 cd fixture-generator
-make run-example EXAMPLE=metric-basic.js
+make run-example EXAMPLE=metric-basic.ts
 ```
 
 **Verify output:**
@@ -128,17 +129,57 @@ cat fixture-generator/output/metric-basic.json | head -20
 
 ---
 
+## TypeScript Type Checking
+
+All fixture generators are written in TypeScript with strict type checking to catch invalid LensConfigBuilder properties at development time.
+
+### How It Works
+
+1. **Type Imports**: Each generator imports the appropriate Lens type from Kibana:
+
+   ```typescript
+   import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder';
+   ```
+
+2. **Type Annotations**: Configuration objects are typed to catch errors:
+
+   ```typescript
+   const esqlConfig: LensMetricConfig = {
+     chartType: 'metric',
+     // TypeScript will error if you use invalid properties!
+   };
+   ```
+
+3. **CI Enforcement**: Type checking runs automatically in CI via `make typecheck`
+
+### Benefits
+
+- **Catch errors early**: Invalid properties are flagged before Docker build
+- **IDE support**: Autocomplete and inline errors in editors
+- **No runtime overhead**: Type checking happens at build time
+- **Future-proof**: Automatically picks up new properties when Kibana updates
+
+### Running Type Checks
+
+```bash
+cd fixture-generator
+make typecheck  # Run type checking only
+make ci         # Run full CI (includes type checking)
+```
+
+---
+
 ## Development Workflow
 
 ### 1. Make Your Changes
 
-Edit generator files in `fixture-generator/examples/`.
+Edit generator files in `fixture-generator/examples/` (TypeScript `.ts` files).
 
 ### 2. Test Your Changes
 
 ```bash
 cd fixture-generator
-make run-example EXAMPLE=your-new-generator.js
+make run-example EXAMPLE=your-new-generator.ts
 ```
 
 ### 3. Verify Output
@@ -161,6 +202,7 @@ Only commit after:
 - ✅ Generator runs successfully in Docker
 - ✅ Output JSON is created
 - ✅ Output JSON is valid
+- ✅ Type checking passes (`make typecheck`)
 - ✅ `make ci` passes
 
 ---
@@ -169,34 +211,63 @@ Only commit after:
 
 Most new generators should use the dual-generation pattern to create both ES|QL and Data View variants:
 
-```javascript
+```typescript
 #!/usr/bin/env node
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateMyChart() {
-  const sharedConfig = {
+export async function generateMyChart(): Promise<void> {
+  const sharedConfig: Partial<LensXYConfig> = {
     chartType: 'xy',
     // ... shared properties
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensXYConfig = {
     ...sharedConfig,
+    chartType: 'xy',
     title: 'My Chart',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
+    layers: [
+      {
+        type: 'series',
+        seriesType: 'line',
+        xAxis: '@timestamp',
+        yAxis: [
+          {
+            label: 'Count',
+            value: 'count'
+          }
+        ]
+      }
+    ]
     // ... ES|QL-specific properties (use column names from query)
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensXYConfig = {
     ...sharedConfig,
+    chartType: 'xy',
     title: 'My Chart (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
     },
+    layers: [
+      {
+        type: 'series',
+        seriesType: 'line',
+        xAxis: '@timestamp',
+        yAxis: [
+          {
+            label: 'Count',
+            value: 'count()'
+          }
+        ]
+      }
+    ]
     // ... Data View-specific properties (use aggregation functions)
   };
 
@@ -268,7 +339,7 @@ node examples/your-generator.js
 
 **Before you commit any generator code:**
 
-1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
+1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.ts`
 2. Verify `fixture-generator/output/your-file.json` exists
 3. Check JSON is valid with `python -m json.tool`
 4. Run `make ci` from project root

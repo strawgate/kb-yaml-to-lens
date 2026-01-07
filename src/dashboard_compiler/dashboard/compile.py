@@ -45,7 +45,10 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         KbnDashboardAttributes: The compiled Kibana dashboard attributes view model.
 
     """
-    references, panels = compile_dashboard_panels(dashboard.panels)
+    references, panels = compile_dashboard_panels(
+        dashboard.panels,
+        layout_algorithm=dashboard.settings.layout_algorithm,
+    )
 
     return references, KbnDashboardAttributes(
         title=dashboard.name,

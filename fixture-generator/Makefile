@@ -5,20 +5,28 @@ IMAGE_NAME := kibana-fixture-generator
 KIBANA_VERSION ?= v9.2.0
 OUTPUT_DIR := $(shell pwd)/output
 
-.PHONY: help all ci check fix test build build-no-cache run run-example shell test-import clean clean-image
+.PHONY: help all ci check fix test typecheck build build-no-cache run run-example shell test-import clean clean-image
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 all: build ## Default target: build Docker image
 
-ci: build test ## Run CI checks (build + test)
+ci: build typecheck test ## Run CI checks (build + typecheck + test)
 	@echo "✓ Fixture generator CI checks passed"
 
 check: ci ## Alias for ci
 
 fix: ## No linting to fix (placeholder for consistency)
 	@echo "✓ No linting to fix for fixture generator"
+
+typecheck: ## Run TypeScript type checking
+	docker run --rm \
+		-v $(shell pwd)/tsconfig.json:/kibana/tsconfig.json:ro \
+		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
+		$(IMAGE_NAME):$(KIBANA_VERSION) \
+		bash -c "tsc --noEmit --project tsconfig.json"
 
 test: test-import ## Run tests
 
@@ -39,6 +47,7 @@ run: ## Generate all fixtures
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
 		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
@@ -51,6 +60,7 @@ run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-bas
 	docker run --rm \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
 		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
@@ -62,6 +72,7 @@ shell: ## Open a shell in the container for debugging
 	docker run --rm -it \
 		-v $(OUTPUT_DIR):/kibana/output \
 		-v $(shell pwd)/examples:/kibana/examples:ro \
+		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
 		-v $(shell pwd)/generator-utils.js:/kibana/generator-utils.js:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \

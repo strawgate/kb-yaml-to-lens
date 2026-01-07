@@ -37,18 +37,6 @@ No panel works without you.
 This example shows how base panel fields are used within a `markdown` panel:
 
 ```yaml
-# Within a dashboard's 'panels' list:
-# - markdown:  # Specific panel type key
-#     content: "System is **operational**."
-#   title: "Status Overview"
-#   grid:
-#     x: 0
-#     y: 0
-#     w: 6
-#     h: 4
-#   # ... other fields ...
-
-# For a complete dashboard structure:
 dashboards:
 - name: "Example Dashboard"
   panels:
@@ -57,12 +45,15 @@ dashboards:
       title: "Status Overview"
       description: "A quick look at system status." # BasePanel field
       hide_title: false                             # BasePanel field
-      grid:                                         # BasePanel field
+      size:                                         # BasePanel field (recommended)
+        w: quarter  # or numeric value like 12
+        h: 8
+      position:                                     # BasePanel field (optional)
         x: 0
         y: 0
-        w: 6
-        h: 4
 ```
+
+**Note:** The newer `size` and `position` fields are recommended over the legacy `grid` field. See [Auto-Layout Guide](./auto-layout.md) for details on automatic panel positioning.
 
 ## Full Configuration Options
 
@@ -76,13 +67,87 @@ These fields are available for all panel types and are inherited from the `BaseP
 | `title` | `string` | The title displayed on the panel header. Can be an empty string if you wish for no visible title. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden. | `false` (title is shown) | No |
 | `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size on the dashboard grid. See [Grid Object Configuration](#grid-object-configuration-grid) below. | N/A | Yes |
+| `size` | `Size` object | **Recommended:** Defines the panel's width and height. See [Size Object Configuration](#size-object-configuration-size) below. | `w: 12, h: 8` | No* |
+| `position` | `Position` object | **Optional:** Defines the panel's x/y coordinates. Omit for automatic positioning. See [Position Object Configuration](#position-object-configuration-position) below. | Auto-calculated | No |
+| `grid` | `Grid` object | **Legacy:** Combined position and size. See [Grid Object Configuration](#grid-object-configuration-grid---legacy) below. Use `size` + `position` instead. | N/A | No* |
+
+\* Either `grid` OR (`size` + optional `position`) must be provided. The `size` + `position` approach is recommended for new dashboards.
 
 **Note on Panel Types**: Each panel must have exactly one key identifying its type (e.g., `markdown`, `lens`, `search`, `links`, `image`, `esql`). This key contains the type-specific configuration.
 
-### Grid Object Configuration (`grid`)
+**Note on Auto-Layout**: For automatic panel positioning without manual coordinate calculation, use the `size` field and omit the `position` field. See the [Auto-Layout Guide](./auto-layout.md) for details.
 
-The `grid` object is required for every panel and defines its placement and dimensions on the dashboard. The dashboard uses a 48-column grid, and `w` and `h` are unitless and relative to this grid system.
+### Size Object Configuration (`size`)
+
+The `size` object defines the panel's width and height on the dashboard grid. This is the **recommended** approach for new dashboards.
+
+Both shorthand and verbose parameter names are supported for improved readability.
+
+| YAML Key | Verbose Alternative | Data Type | Description | Default | Required |
+| -------- | ------------------- | --------- | ------------------------------------------------------------ | ------- | -------- |
+| `w` | `width` | `integer` or `SemanticWidth` | The width of the panel. Accepts semantic values (`whole`, `half`, `third`, `quarter`, `sixth`, `eighth`) or numeric values (1-48). | `12` (quarter) | No |
+| `h` | `height` | `integer` | The height of the panel in grid units. | `8` | No |
+
+**Semantic Width Values:**
+
+| Value | Grid Units | Description |
+| ----- | ---------- | ----------- |
+| `whole` | 48 | Full dashboard width |
+| `half` | 24 | Half width |
+| `third` | 16 | One-third width |
+| `quarter` | 12 | Quarter width |
+| `sixth` | 8 | One-sixth width |
+| `eighth` | 6 | One-eighth width |
+
+**Example:**
+
+```yaml
+size:
+  w: quarter  # Semantic value
+  h: 8
+
+# Or with numeric value:
+size:
+  width: 24   # Numeric value
+  height: 12
+```
+
+### Position Object Configuration (`position`)
+
+The `position` object defines the panel's x/y coordinates on the dashboard grid. This field is **optional** - when omitted, the panel will be automatically positioned using the dashboard's layout algorithm.
+
+| YAML Key | Verbose Alternative | Data Type | Description | Default | Required |
+| -------- | ------------------- | --------- | ------------------------------------------------------------ | ------- | -------- |
+| `x` | `from_left` | `integer` or `None` | The horizontal starting position (0-based, 0-48). If `None`, position is auto-calculated. | `None` | No |
+| `y` | `from_top` | `integer` or `None` | The vertical starting position (0-based). If `None`, position is auto-calculated. | `None` | No |
+
+**Example with fixed position:**
+
+```yaml
+position:
+  x: 0
+  y: 0
+
+# Or verbose:
+position:
+  from_left: 24
+  from_top: 10
+```
+
+**Example with auto-positioning (omit position entirely):**
+
+```yaml
+# No position field - will be auto-positioned
+size:
+  w: quarter
+  h: 8
+```
+
+### Grid Object Configuration (`grid`) - Legacy
+
+**Note:** The `grid` field is supported for backward compatibility, but the `size` + `position` approach is recommended for new dashboards.
+
+The `grid` object combines position and size in a single field. The dashboard uses a 48-column grid, and `w` and `h` are unitless and relative to this grid system.
 
 Both shorthand and verbose parameter names are supported for improved readability. You can mix and match both forms in the same configuration.
 
