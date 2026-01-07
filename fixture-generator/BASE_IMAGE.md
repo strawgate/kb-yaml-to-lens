@@ -165,7 +165,7 @@ This is expected and necessary to provide `@kbn/lens-embeddable-utils` and other
 Base images are published to the **public** GitHub Container Registry. They contain:
 
 - ✅ Public Kibana source code (Apache 2.0 license)
-- ✅ Open source dependencies
+- ✅ Open-source dependencies
 - ❌ No secrets or credentials
 - ❌ No proprietary code
 

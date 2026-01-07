@@ -261,7 +261,7 @@ The project uses pre-built Kibana base images with direct volume mounting:
 3. Published weekly to GitHub Container Registry
 4. Build time: ~6 minutes (one-time, automated via GitHub Actions)
 
-**Runtime Approach**
+### Runtime Approach
 
 Instead of building a local Docker image, fixture generation uses `docker run` with volume mounts:
 
