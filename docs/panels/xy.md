@@ -187,7 +187,7 @@ Configures per-series visual styling and axis assignment. Used to customize indi
 
 #### Bar Chart Specific Appearance
 
-For bar charts (`type: bar`), `BarChartAppearance` extends `XYAppearance` (includes all axis config and series options) and adds the following bar-specific options:
+For bar charts (`type: bar`), you can use all the axis config and series options from the base appearance, plus the following bar-specific options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | -------------------------------------------- | ------- | -------- |
@@ -208,14 +208,14 @@ chart:
 
 #### Line Chart Specific Appearance
 
-For line charts (`type: line`), `LineChartAppearance` extends `XYAppearance` (includes all axis config and series options) and adds the following line-specific options:
+For line charts (`type: line`), you can use all the axis config and series options from the base appearance, plus the following line-specific options:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
 | `missing_values` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | How to handle missing data points ("Missing values" in Kibana UI). Controls interpolation for gaps in your data. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
 | `show_as_dotted` | `bool \| None` | If `true`, visually distinguish interpolated data from real data points ("Show as dotted line" in Kibana UI). | `None` | No |
 | `end_values` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end of the time range in line/area charts ("End values" in Kibana UI). Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
-| `line_style` | `Literal['linear', 'monotone-x', 'step-after'] \| None` | The line style for line/area charts ("Line style" in Kibana UI). Only 3 types are supported by Kibana: 'linear' (straight lines), 'monotone-x' (smooth curves), 'step-after' (stepped lines). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
+| `line_style` | `Literal['linear', 'monotone-x', 'step-after'] \| None` | The line style for line/area charts ("Line style" in Kibana UI). Only 3 types are supported by Kibana: 'linear' (straight), 'monotone-x' (curved), 'step-after' (stepped). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
 
 **Example**:
 
@@ -236,7 +236,7 @@ chart:
 
 #### Area Chart Specific Appearance
 
-For area charts (`type: area`), `AreaChartAppearance` extends `LineChartAppearance` (which includes all `XYAppearance` and line-specific options) and adds:
+For area charts (`type: area`), you can use all the axis config, series options, and line-specific options, plus the following area-specific option:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------------- | --------------- | ------------------------------------------------------ | ------- | -------- |

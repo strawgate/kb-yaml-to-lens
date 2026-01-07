@@ -30,15 +30,13 @@ export async function generateXYChartAdvancedLine() {
             label: 'Count',
             value: 'count'
           }
-        ],
-        seriesOptions: {
-          fittingFunction: 'Average',
-          emphasizeFitting: true,
-          endValue: 'Zero',
-          curveType: 'CURVE_MONOTONE_X'
-        }
+        ]
       }
     ],
+    fittingFunction: 'Average',
+    emphasizeFitting: true,
+    endValue: 'Zero',
+    curveType: 'CURVE_MONOTONE_X',
     legend: {
       show: true,
       position: 'right'
@@ -68,15 +66,13 @@ export async function generateXYChartAdvancedLine() {
             label: 'Count',
             value: 'count()'
           }
-        ],
-        seriesOptions: {
-          fittingFunction: 'Average',
-          emphasizeFitting: true,
-          endValue: 'Zero',
-          curveType: 'CURVE_MONOTONE_X'
-        }
+        ]
       }
     ],
+    fittingFunction: 'Average',
+    emphasizeFitting: true,
+    endValue: 'Zero',
+    curveType: 'CURVE_MONOTONE_X',
     legend: {
       show: true,
       position: 'right'

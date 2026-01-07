@@ -300,6 +300,10 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
             series_type = 'area_percentage_stacked'
         else:  # default to stacked
             series_type = 'area'
+    else:
+        # Defensive programming: ensure runtime type safety
+        msg = f'Unsupported chart type: {type(chart).__name__}'  # pyright: ignore[reportUnreachable]
+        raise TypeError(msg)
 
     return series_type
 

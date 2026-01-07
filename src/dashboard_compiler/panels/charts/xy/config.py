@@ -119,11 +119,11 @@ class AxisConfig(BaseCfgModel):
     """Extent/bounds configuration for the axis."""
 
 
-class XYAppearance(BaseCfgModel):
-    """Represents chart appearance formatting options for XY charts.
+class BaseXYChartAppearance(BaseCfgModel):
+    """Base class for XY chart appearance formatting options.
 
     Includes axis configuration for left Y-axis, right Y-axis, and X-axis,
-    as well as per-series visual styling.
+    as well as per-series visual styling. Not intended to be used directly by users.
     """
 
     x_axis: AxisConfig | None = Field(default=None)
@@ -139,7 +139,7 @@ class XYAppearance(BaseCfgModel):
     """Per-series visual configuration (axis assignment, colors, line styles, etc.)."""
 
 
-class BarChartAppearance(XYAppearance):
+class BarChartAppearance(BaseXYChartAppearance):
     """Represents bar chart appearance formatting options.
 
     Extends XYAppearance to include bar-specific options.
@@ -148,10 +148,10 @@ class BarChartAppearance(XYAppearance):
     min_bar_height: float | None = Field(default=None, description='The minimum height for bars in bar charts.')
 
 
-class LineChartAppearance(XYAppearance):
+class LineChartAppearance(BaseXYChartAppearance):
     """Represents line chart appearance formatting options.
 
-    Extends XYAppearance to include line-specific options.
+    Extends BaseXYChartAppearance to include line-specific options.
     """
 
     missing_values: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
@@ -285,7 +285,7 @@ class BaseXYBarChart(BaseXYChart):
 
     type: Literal['bar'] = Field('bar', description="The type of XY chart to display. Defaults to 'bar'.")
 
-    appearance: BarChartAppearance | XYAppearance | None = Field(
+    appearance: BarChartAppearance | None = Field(
         None,
         description='Formatting options for the chart appearance.',
     )
@@ -301,7 +301,7 @@ class BaseXYLineChart(BaseXYChart):
 
     type: Literal['line'] = Field('line', description="The type of XY chart to display. Defaults to 'line'.")
 
-    appearance: LineChartAppearance | XYAppearance | None = Field(
+    appearance: LineChartAppearance | None = Field(
         None,
         description='Formatting options for the chart appearance.',
     )
@@ -322,7 +322,7 @@ class BaseXYAreaChart(BaseXYLineChart):
 
     type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
 
-    appearance: AreaChartAppearance | XYAppearance | None = Field(
+    appearance: AreaChartAppearance | None = Field(
         None,
         description='Formatting options for the chart appearance. AreaChartAppearance includes all line chart options plus fill_opacity.',
     )
