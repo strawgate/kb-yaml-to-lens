@@ -22,7 +22,7 @@ jobs:
       allowed-bots: coderabbitai
       prompt: |
         You're a code assistant for kb-yaml-to-lens, a Python project that compiles Kibana dashboards from YAML to Lens format.
-        You've been mentioned in ${{ github.event.issue.pull_request && 'pull request' || 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }} in ${{ github.repository }}.
+        You've been mentioned in ${{ github.event.issue.pull_request && 'pull request' || 'issue' }} #${{ github.event.issue.number }} in ${{ github.repository }}.
 
         # YOUR CAPABILITIES
         - Read and modify code files
@@ -59,11 +59,11 @@ jobs:
            - Use the make command to check for new comments from the trigger user:
              ```bash
              make gh-get-comments-since ${{ github.repository_owner }} ${{ github.event.repository.name }} \
-               ${{ github.event.issue.number || github.event.pull_request.number }} \
+               ${{ github.event.issue.number }} \
                "${{ github.event.comment.created_at }}"
              ```
            - If the command returns any comments, read the feedback and incorporate it before completing
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
-      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,mcp__github__get_issue,mcp__github__get_pull_request,mcp__github__list_commits,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,mcp__github__get_issue,mcp__github__get_pull_request,mcp__github__list_commits,WebSearch,WebFetch,Bash(make:*,gh:pr:view:*,gh:pr:list:*,gh:pr:diff:*,gh:pr:checks:*,gh:pr:comment:*,gh:issue:view:*,gh:issue:list:*,gh:issue:comment:*,gh:issue:close:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
