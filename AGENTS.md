@@ -111,7 +111,7 @@ If you have recently undergone context summarization/compaction:
 
 **Workflows:** Testing/quality checks, docs deployment (GitHub Pages), Claude AI assistance, Docker builds
 
-**Modifying workflows:** Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder, request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
+**Modifying workflows:** Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder (mirroring `.github/workflows/` structure), request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
 
 ---
 
