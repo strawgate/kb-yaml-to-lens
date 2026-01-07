@@ -102,7 +102,7 @@ fix: lint-all
 lint-all: format lint lint-markdown lint-yaml
 	@echo "✓ All linting complete (with auto-fix)"
 
-lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
+lint-all-check: format-check lint-check lint-markdown-check lint-yaml-check
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
