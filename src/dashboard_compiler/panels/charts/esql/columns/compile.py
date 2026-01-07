@@ -1,13 +1,64 @@
 from collections.abc import Sequence
 
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes, ESQLStaticValue
+from dashboard_compiler.panels.charts.esql.columns.config import (
+    ESQLCustomMetricFormat,
+    ESQLDimensionTypes,
+    ESQLMetric,
+    ESQLMetricFormat,
+    ESQLMetricFormatTypes,
+    ESQLMetricTypes,
+    ESQLStaticValue,
+)
 from dashboard_compiler.panels.charts.esql.columns.view import (
+    KbnESQLColumnMeta,
     KbnESQLFieldDimensionColumn,
     KbnESQLFieldMetricColumn,
+    KbnESQLMetricColumnParams,
     KbnESQLMetricColumnTypes,
+    KbnESQLMetricFormat,
+    KbnESQLMetricFormatParams,
     KbnESQLStaticValueColumn,
 )
 from dashboard_compiler.shared.config import get_layer_id, stable_id_generator
+
+
+def compile_esql_metric_format(metric_format: ESQLMetricFormatTypes) -> KbnESQLMetricFormat:
+    """Compile ES|QL metric format configuration to Kibana view model.
+
+    Args:
+        metric_format (ESQLMetricFormatTypes): The ES|QL metric format configuration.
+
+    Returns:
+        KbnESQLMetricFormat: The compiled Kibana format view model.
+
+    """
+    # Determine default decimals based on format type
+    if isinstance(metric_format, ESQLCustomMetricFormat):
+        format_id = 'custom'
+        decimals = 0
+        pattern = metric_format.pattern
+        suffix = None
+        compact = None
+    elif isinstance(metric_format, ESQLMetricFormat):  # pyright: ignore[reportUnnecessaryIsInstance]
+        format_id = metric_format.type
+        # Set default decimals based on type
+        decimals = 0 if metric_format.type in ('bits', 'duration') else 2
+        pattern = metric_format.pattern
+        suffix = metric_format.suffix
+        compact = metric_format.compact
+    else:
+        msg = f'Unknown metric format type: {type(metric_format).__name__}'
+        raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+
+    return KbnESQLMetricFormat(
+        id=format_id,
+        params=KbnESQLMetricFormatParams(
+            decimals=decimals,
+            suffix=suffix,
+            compact=compact,
+            pattern=pattern,
+        ),
+    )
 
 
 def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
@@ -31,12 +82,33 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         )
 
     # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
+    if not isinstance(metric, ESQLMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
+        msg = f'Unknown metric type: {type(metric).__name__}'
+        raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+
     metric_id = metric.id or stable_id_generator([metric.field])
+
+    # Compile format if provided
+    params = None
+    if metric.format is not None:
+        esql_format = compile_esql_metric_format(metric.format)
+        params = KbnESQLMetricColumnParams(format=esql_format)
+
+    # Determine label (use custom label if provided, otherwise use field name)
+    label = metric.label if metric.label is not None else metric.field
+    custom_label = metric.label is not None
+
+    # ES|QL aggregations always return numbers
+    meta = KbnESQLColumnMeta(type='number', esType='long')
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
         columnId=metric_id,
+        label=label,
+        customLabel=custom_label,
+        meta=meta,
         inMetricDimension=True,
+        params=params,
     )
 
 

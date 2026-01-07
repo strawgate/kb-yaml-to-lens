@@ -1,0 +1,239 @@
+{
+  "title": "Data View Multi-Metric with Formats",
+  "visualizationType": "lnsXY",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    },
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_1"
+    },
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_2"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "x_metric_formula_accessor0",
+              "metric_formula_accessor0_0"
+            ],
+            "columns": {
+              "metric_formula_accessor0_0": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "Event Count",
+                "params": {
+                  "formula": "count()",
+                  "format": {
+                    "id": {
+                      "id": "number",
+                      "params": {
+                        "pattern": "0,0"
+                      }
+                    },
+                    "params": {
+                      "decimals": 2
+                    }
+                  }
+                },
+                "customLabel": true
+              },
+              "x_metric_formula_accessor0": {
+                "dataType": "date",
+                "isBucketed": true,
+                "label": "@timestamp",
+                "operationType": "date_histogram",
+                "scale": "interval",
+                "sourceField": "@timestamp",
+                "params": {
+                  "interval": "auto"
+                }
+              }
+            }
+          },
+          "layer_1": {
+            "columnOrder": [
+              "x_metric_formula_accessor1",
+              "metric_formula_accessor1_0"
+            ],
+            "columns": {
+              "metric_formula_accessor1_0": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "Total Bytes",
+                "params": {
+                  "formula": "sum(bytes)",
+                  "format": {
+                    "id": {
+                      "id": "bytes",
+                      "params": {
+                        "pattern": "0,0.0 b"
+                      }
+                    },
+                    "params": {
+                      "decimals": 2
+                    }
+                  }
+                },
+                "customLabel": true
+              },
+              "x_metric_formula_accessor1": {
+                "dataType": "date",
+                "isBucketed": true,
+                "label": "@timestamp",
+                "operationType": "date_histogram",
+                "scale": "interval",
+                "sourceField": "@timestamp",
+                "params": {
+                  "interval": "auto"
+                }
+              }
+            }
+          },
+          "layer_2": {
+            "columnOrder": [
+              "x_metric_formula_accessor2",
+              "metric_formula_accessor2_0"
+            ],
+            "columns": {
+              "metric_formula_accessor2_0": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "Avg Bytes",
+                "params": {
+                  "formula": "average(bytes)",
+                  "format": {
+                    "id": {
+                      "id": "bytes",
+                      "params": {
+                        "pattern": "0.00 b"
+                      }
+                    },
+                    "params": {
+                      "decimals": 2
+                    }
+                  }
+                },
+                "customLabel": true
+              },
+              "x_metric_formula_accessor2": {
+                "dataType": "date",
+                "isBucketed": true,
+                "label": "@timestamp",
+                "operationType": "date_histogram",
+                "scale": "interval",
+                "sourceField": "@timestamp",
+                "params": {
+                  "interval": "auto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "axisTitlesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "legend": {
+        "isVisible": true,
+        "position": "bottom"
+      },
+      "hideEndzones": true,
+      "preferredSeriesType": "line",
+      "valueLabels": "hide",
+      "emphasizeFitting": true,
+      "fittingFunction": "Linear",
+      "yLeftExtent": {
+        "mode": "full"
+      },
+      "tickLabelsVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "labelsOrientation": {
+        "x": 0,
+        "yLeft": 0,
+        "yRight": 0
+      },
+      "gridlinesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "layers": [
+        {
+          "layerId": "layer_0",
+          "layerType": "data",
+          "xAccessor": "x_metric_formula_accessor0",
+          "accessors": [
+            "metric_formula_accessor0_0"
+          ],
+          "seriesType": "bar",
+          "yConfig": [
+            {
+              "forAccessor": "metric_formula_accessor0_0"
+            }
+          ]
+        },
+        {
+          "layerId": "layer_1",
+          "layerType": "data",
+          "xAccessor": "x_metric_formula_accessor1",
+          "accessors": [
+            "metric_formula_accessor1_0"
+          ],
+          "seriesType": "line",
+          "yConfig": [
+            {
+              "forAccessor": "metric_formula_accessor1_0"
+            }
+          ]
+        },
+        {
+          "layerId": "layer_2",
+          "layerType": "data",
+          "xAccessor": "x_metric_formula_accessor2",
+          "accessors": [
+            "metric_formula_accessor2_0"
+          ],
+          "seriesType": "line",
+          "yConfig": [
+            {
+              "forAccessor": "metric_formula_accessor2_0"
+            }
+          ]
+        }
+      ]
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}

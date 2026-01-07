@@ -258,6 +258,51 @@ Used to specify a metric column from your ESQL query result.
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id` | `string` | An optional unique identifier for this metric column definition. | Generated ID | No |
 | `field` | `string` | The name of the column in your ESQL query result that represents the metric value. | N/A | Yes |
+| `label` | `string` | An optional display label for the metric. | `None` | No |
+| `format` | `ESQLMetricFormat` object | Optional format configuration for the metric. See [ESQL Metric Format](#esql-metric-format). | `None` | No |
+
+#### ESQL Metric Format
+
+Configure how metric values are displayed (number format, suffix, decimal places, etc.).
+
+**Standard Format Types:**
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The format type for the metric. | N/A | Yes |
+| `suffix` | `string` | Optional suffix to display after the number (e.g., 'KB', 'ms'). | `None` | No |
+| `compact` | `boolean` | Whether to display the number in a compact format (e.g., '1.2K' instead of '1200'). | `None` | No |
+| `pattern` | `string` | Optional Numeral.js pattern for custom formatting (e.g., '0,0.0 b' for bytes). | `None` | No |
+
+**Custom Format Type:**
+
+For completely custom number formatting, use:
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `type` | `Literal['custom']` | Indicates a custom format pattern. | `'custom'` | Yes |
+| `pattern` | `string` | Numeral.js pattern for custom formatting (e.g., '0,0.[0000]', '0.00%'). | N/A | Yes |
+
+**Example (Metric with Format):**
+
+```yaml
+# Within an ESQL chart's metrics field:
+metrics:
+  - field: "total_bytes"
+    label: "Total Data"
+    format:
+      type: bytes
+      pattern: "0,0.0 b"
+  - field: "event_count"
+    label: "Events"
+    format:
+      type: number
+      pattern: "0,0"
+  - field: "success_rate"
+    label: "Success Rate"
+    format:
+      type: percent
+```
 
 ### ESQL Dimension Column
 
