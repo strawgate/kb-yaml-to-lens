@@ -75,8 +75,8 @@ dashboards:
 | `data_view` | `string` | The data view that determines the data source. | - | Yes |
 | `tags` | `LensDimensionTypes` | The dimension for grouping (terms/tags). | - | Yes |
 | `metrics` | `LensMetricTypes` | The metric for sizing each tag. | - | Yes |
-| `appearance` | `TagcloudAppearance` | Appearance settings (fonts, orientation). | None | No |
-| `color` | `ColorMapping` | Color palette configuration. | None | No |
+| `appearance` | `TagcloudAppearance \| None` | Appearance settings (fonts, orientation). See [TagcloudAppearance Options](#tagcloudappearance-options) below. | None | No |
+| `color` | `ColorMapping \| None` | Color palette configuration. See [Color Mapping Configuration](base.md#color-mapping-configuration). | None | No |
 
 ### ESQLTagcloudChart
 
@@ -86,31 +86,37 @@ dashboards:
 | `esql` | `string` | The ES\|QL query that determines the data. | - | Yes |
 | `tags` | `ESQLDimensionTypes` | The dimension for grouping (terms/tags). | - | Yes |
 | `metrics` | `ESQLMetricTypes` | The metric for sizing each tag. | - | Yes |
-| `appearance` | `TagcloudAppearance` | Appearance settings (fonts, orientation). | None | No |
-| `color` | `ColorMapping` | Color palette configuration. | None | No |
+| `appearance` | `TagcloudAppearance \| None` | Appearance settings (fonts, orientation). See [TagcloudAppearance Options](#tagcloudappearance-options) below. | None | No |
+| `color` | `ColorMapping \| None` | Color palette configuration. See [Color Mapping Configuration](base.md#color-mapping-configuration). | None | No |
 
-### TagcloudAppearance
+### TagcloudAppearance Options
+
+Controls the visual appearance of tags in the cloud.
 
 | YAML Key | Data Type | Description | Default | Required |
 | --------------- | ------------------------- | -------------------------------- | ------- | -------- |
-| `min_font_size` | `int` (1-100) | Minimum font size for tags. | 12 | No |
-| `max_font_size` | `int` (1-200) | Maximum font size for tags. | 72 | No |
-| `orientation` | `TagcloudOrientationEnum` | Text orientation configuration. | single | No |
-| `show_label` | `boolean` | Toggle for label visibility. | true | No |
+| `min_font_size` | `int` (1-100) | Minimum font size for tags (in points). Smaller tags represent lower metric values. | 12 | No |
+| `max_font_size` | `int` (1-200) | Maximum font size for tags (in points). Larger tags represent higher metric values. | 72 | No |
+| `orientation` | `TagcloudOrientationEnum` | Text orientation configuration. Controls how tags are rotated in the cloud. | single | No |
+| `show_label` | `boolean` | Toggle for label visibility. When false, hides the legend/labels. | true | No |
 
-### TagcloudOrientationEnum
+#### Orientation Options
 
-- `single`: Single horizontal orientation
-- `right angled`: Mix of horizontal and vertical orientations
-- `multiple`: Multiple angles
+The `orientation` field controls how tags are rotated in the cloud:
 
-### ColorMapping
+- **`single`**: All tags horizontal (0°) - cleanest, most readable
+- **`right angled`**: Mix of horizontal (0°) and vertical (90°) orientations - classic word cloud style
+- **`multiple`**: Multiple angles including diagonal - most artistic but potentially less readable
 
-| YAML Key | Data Type | Description | Default | Required |
-| --------- | --------- | ---------------------------------------- | ------- | -------- |
-| `palette` | `string` | The palette to use for tag cloud colors. | default | No |
+**Example:**
 
-Common palette values include: `default`, `kibana_palette`, `eui_amsterdam_color_blind`, etc.
+```yaml
+appearance:
+  min_font_size: 18      # Smallest tags will be 18pt
+  max_font_size: 96      # Largest tags will be 96pt
+  orientation: "multiple"  # Use various angles for artistic effect
+  show_label: false      # Hide the legend
+```
 
 ## Advanced Configuration Example
 

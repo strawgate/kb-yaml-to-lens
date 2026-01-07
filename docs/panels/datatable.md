@@ -67,11 +67,11 @@ dashboards:
 | `metrics` | `list[LensMetricTypes]` | List of metrics to display as columns. | `[]` | No |
 | `rows` | `list[LensDimensionTypes]` | List of dimensions to use as row groupings. | `[]` | No |
 | `rows_by` | `list[LensDimensionTypes]` | Optional "split metrics by" dimensions (creates separate metric columns). | `None` | No |
-| `columns` | `list[DatatableColumnConfig]` | Optional column configurations for row columns. | `None` | No |
-| `metric_columns` | `list[DatatableMetricColumnConfig]` | Optional column configurations for metric columns. | `None` | No |
-| `appearance` | `DatatableAppearance` | Optional appearance settings (row height, density). | `None` | No |
-| `sorting` | `DatatableSortingConfig` | Optional sorting configuration. | `None` | No |
-| `paging` | `DatatablePagingConfig` | Optional pagination configuration. | `None` | No |
+| `columns` | `list[DatatableColumnConfig]` | Optional column configurations for row columns. See [Row Column Configuration](#row-column-configuration-datatablecolumnconfig) below. | `None` | No |
+| `metric_columns` | `list[DatatableMetricColumnConfig]` | Optional column configurations for metric columns. See [Metric Column Configuration](#metric-column-configuration-datatablemetriccolumnconfig) below. | `None` | No |
+| `appearance` | `DatatableAppearance \| None` | Optional appearance settings (row height, density). See [Appearance Configuration](#appearance-configuration-datatableappearance) below. | `None` | No |
+| `sorting` | `DatatableSortingConfig \| None` | Optional sorting configuration. See [Sorting Configuration](#sorting-configuration-datatablesortingconfig) below. | `None` | No |
+| `paging` | `DatatablePagingConfig \| None` | Optional pagination configuration. See [Pagination Configuration](#pagination-configuration-datatablepagingconfig) below. | `None` | No |
 
 ### Row Column Configuration (`DatatableColumnConfig`)
 
@@ -101,15 +101,24 @@ Customize metric columns with these options (includes all base options plus summ
 
 ### Appearance Configuration (`DatatableAppearance`)
 
-Control the visual appearance of the datatable:
+Control the visual appearance and density of the datatable:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ----------- | ---------------------------------------------------- | ------------------------------------------------ | -------- | -------- |
-| `row_height` | `auto` \| `single` \| `custom` | Row height mode. | `auto` | No |
-| `row_height_lines` | `int` | Number of lines for custom row height. | `None` | No |
-| `header_row_height` | `auto` \| `single` \| `custom` | Header row height mode. | `auto` | No |
-| `header_row_height_lines` | `int` | Number of lines for custom header row height. | `None` | No |
-| `density` | `compact` \| `normal` \| `expanded` | Grid density setting. | `normal` | No |
+| `row_height` | `'auto' \| 'single' \| 'custom'` | Row height mode: `auto` (fit content), `single` (single line), `custom` (specify lines). | `auto` | No |
+| `row_height_lines` | `int` | Number of lines for custom row height. Only applies when `row_height` is `custom`. | `None` | No |
+| `header_row_height` | `'auto' \| 'single' \| 'custom'` | Header row height mode. Same options as `row_height`. | `auto` | No |
+| `header_row_height_lines` | `int` | Number of lines for custom header row height. Only applies when `header_row_height` is `custom`. | `None` | No |
+| `density` | `'compact' \| 'normal' \| 'expanded'` | Grid density: `compact` (tight spacing), `normal` (balanced), `expanded` (more whitespace). | `normal` | No |
+
+**Example:**
+
+```yaml
+appearance:
+  row_height: single        # Show one line per row
+  density: compact          # Tight spacing for more data on screen
+  header_row_height: auto   # Let headers expand to fit text
+```
 
 ### Sorting Configuration (`DatatableSortingConfig`)
 
