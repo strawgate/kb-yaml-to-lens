@@ -905,7 +905,7 @@ async def test_lens_bar_chart_validation_requires_metrics() -> None:
         'metrics': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         LensBarChart.model_validate(config)
 
 
@@ -918,7 +918,7 @@ async def test_lens_line_chart_validation_requires_metrics() -> None:
         'metrics': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         LensLineChart.model_validate(config)
 
 
@@ -931,7 +931,7 @@ async def test_lens_area_chart_validation_requires_metrics() -> None:
         'metrics': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         LensAreaChart.model_validate(config)
 
 
@@ -943,7 +943,7 @@ async def test_esql_bar_chart_validation_requires_metrics() -> None:
         'metrics': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         ESQLBarChart.model_validate(config)
 
 
@@ -955,7 +955,7 @@ async def test_esql_line_chart_validation_requires_metrics() -> None:
         'metrics': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         ESQLLineChart.model_validate(config)
 
 
@@ -967,5 +967,5 @@ async def test_esql_area_chart_validation_requires_metrics() -> None:
         'metrics': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         ESQLAreaChart.model_validate(config)

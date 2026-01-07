@@ -212,7 +212,11 @@ class LensXYChartMixin(BaseCfgModel):
 
     data_view: str = Field(default=..., description='The data view to use for the chart.')
     dimensions: list[LensDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
-    metrics: list[LensMetricTypes] = Field(default_factory=list, description='Defines the metrics for the chart.')
+    metrics: list[LensMetricTypes] = Field(
+        default_factory=list,
+        min_length=1,
+        description='Defines the metrics for the chart. At least one metric is required.',
+    )
     breakdown: LensDimensionTypes | None = Field(
         None,
         description=(
@@ -232,25 +236,17 @@ class LensXYChartMixin(BaseCfgModel):
 
         return self
 
-    @model_validator(mode='after')
-    def validate_has_metrics(self) -> Self:
-        """Validate that XY chart has at least one metric.
-
-        Kibana requires XY charts to have at least one metric to plot.
-        Without metrics, the chart will be blank.
-        """
-        if len(self.metrics) == 0:
-            msg = 'XY chart must have at least one metric'
-            raise ValueError(msg)
-        return self
-
 
 class ESQLXYChartMixin(BaseCfgModel):
     """Shared fields for ESQL-based XY charts."""
 
     dimensions: list[ESQLDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
 
-    metrics: list[ESQLMetricTypes] = Field(default_factory=list, description='Defines the metrics for the chart.')
+    metrics: list[ESQLMetricTypes] = Field(
+        default_factory=list,
+        min_length=1,
+        description='Defines the metrics for the chart. At least one metric is required.',
+    )
 
     breakdown: ESQLDimensionTypes | None = Field(
         None,
@@ -269,18 +265,6 @@ class ESQLXYChartMixin(BaseCfgModel):
         """Add a metric to the ESQL Chart."""
         self.metrics.append(esql_metric)
 
-        return self
-
-    @model_validator(mode='after')
-    def validate_has_metrics(self) -> Self:
-        """Validate that XY chart has at least one metric.
-
-        Kibana requires XY charts to have at least one metric to plot.
-        Without metrics, the chart will be blank.
-        """
-        if len(self.metrics) == 0:
-            msg = 'XY chart must have at least one metric'
-            raise ValueError(msg)
         return self
 
 
