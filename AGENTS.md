@@ -80,32 +80,19 @@ make ci
 
 ### Context7 MCP Integration
 
-Query up-to-date library documentation and code examples via MCP tools:
+Query up-to-date library documentation via MCP tools: `resolve-library-id` → `query-docs`. **Rate limited—use sparingly** (max 3 calls/question).
 
-1. **Resolve library ID first**: `resolve-library-id` (unless user provides `/org/project` format)
-2. **Query documentation**: `query-docs` with library ID and specific question
-3. **Limit queries**: Max 3 calls per question to avoid overhead
+**Project libraries:**
 
-**Project-relevant libraries:**
+| Library | Context7 ID | Use Cases |
+| ------- | ----------- | --------- |
+| Pydantic | `/websites/pydantic_dev` | Field validators, frozen models, model config patterns |
+| Elasticsearch | `/elastic/elasticsearch-py` | Client initialization, search queries, response handling |
+| PyYAML | `/yaml/pyyaml` | Safe loading, custom tags, multi-document streams |
 
-| Library | Context7 ID | Coverage | Use Cases |
-| ------- | ----------- | -------- | --------- |
-| Pydantic | `/websites/pydantic_dev` | 2,805 snippets | Field validators, frozen models, model config patterns |
-| Elasticsearch | `/elastic/elasticsearch-py` | 281 snippets | Client initialization, search queries, response handling |
-| PyYAML | `/yaml/pyyaml` | 37 snippets | Safe loading, custom tags, multi-document streams |
+**When to use:** Implementing new Pydantic validation patterns, working with Elasticsearch client in `kibana_client.py`, extending YAML parsing in `loader.py`, understanding library-specific best practices during code review.
 
-**When to use:**
-
-- Implementing new Pydantic validation patterns (validator modes, field patterns)
-- Working with Elasticsearch client in `kibana_client.py`
-- Extending YAML parsing in `loader.py`
-- Understanding library-specific best practices during code review
-
-**Query guidelines:**
-
-- Be specific: "How to use field validators with mode='after' in Pydantic 2.x?" not "pydantic validators"
-- Include version context when relevant
-- Prioritize official documentation sources (High reputation)
+**Query guidelines:** Be specific ("How to use field validators with mode='after' in Pydantic 2.x?" not "pydantic validators"), include version context, prioritize official documentation sources (High reputation).
 
 ---
 
