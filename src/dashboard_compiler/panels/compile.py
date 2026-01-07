@@ -160,7 +160,7 @@ def compute_panel_positions(
     """
     # Check if any panels need positioning
     any_needs_layout = any(p.position.x is None or p.position.y is None for p in panels)
-    if not any_needs_layout:
+    if any_needs_layout is False:
         return {}
 
     # Create layout engine
