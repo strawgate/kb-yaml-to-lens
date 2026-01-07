@@ -19,6 +19,7 @@ Base `model_config` includes: `strict=True`, `validate_default=True`, `extra='fo
 ### Ruff Configuration
 
 Parent rule codes enable all sub-rules. Examples:
+
 - `PLR` enables `PLR0911`, `PLR2004`, etc.
 - `PLW` enables all `PLW*` rules
 
@@ -45,6 +46,7 @@ raise TypeError(msg)  # Final error handler - KEEP THIS
 ### Python Code Style
 
 Key project styles:
+
 - Explicit boolean comparisons: `if x is not None:` not `if x:`
 - Exhaustive isinstance chains with final error handlers
 - Pydantic validators using `mode='after'`
@@ -60,11 +62,13 @@ Test files (`tests/**/*.py`) have relaxed rules: allow `assert`, magic numbers, 
 ### Documentation Requirements
 
 **Flag missing docstrings** on:
+
 - Public functions and methods
 - Public classes
 - Module-level code (except `__init__.py`)
 
 **Do NOT flag missing docstrings** on:
+
 - Test functions/methods
 - Private functions (prefixed with `_`)
 - View models in `**/view.py` files

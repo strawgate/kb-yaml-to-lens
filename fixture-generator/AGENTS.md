@@ -47,70 +47,27 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 ### Workflow
 
 ```bash
-# First time
-cd fixture-generator
-make build
-
-# Generate all
-make run
-
-# Generate one
-make run-example EXAMPLE=metric-basic.js
-
-# Verify
-ls -lh output/
-cat output/metric-basic.json | python -m json.tool | head -50
+cd fixture-generator && make build                          # First time
+make run                                                     # All fixtures
+make run-example EXAMPLE=metric-basic.js                    # Single fixture
+cat output/metric-basic.json | python -m json.tool | head   # Verify
 ```
 
 ---
 
-## Verification Checklist
+## Verification
 
-- [ ] Created/modified generator in `examples/`
-- [ ] Ran `make build` (if needed)
-- [ ] Ran `make run-example EXAMPLE=<file>.js`
-- [ ] Verified `output/<file>.json` exists
-- [ ] Verified `output/<file>-dataview.json` exists (for dual generators)
-- [ ] Inspected JSON: `cat output/<file>.json | python -m json.tool | head -100`
-- [ ] Compared to compiler output (if applicable)
-- [ ] Ran `make ci` from root - all pass
-- [ ] Committed changes
+Created/modified `examples/` generator → `make build` (if needed) → `make run-example EXAMPLE=<file>.js` → verify output files exist → inspect JSON (`python -m json.tool | head`) → compare to compiler → `make ci` from root → commit
 
 ---
 
 ## Development Workflow
 
-### 1. Make Changes
-
-Edit generators in `fixture-generator/examples/`.
-
-### 2. Test
-
-```bash
-cd fixture-generator
-make run-example EXAMPLE=your-generator.js
-```
-
-### 3. Verify
-
-```bash
-cat output/your-generator.json | python -m json.tool | head -50
-```
-
-### 4. Run Full Test
-
-```bash
-cd ..
-make ci
-```
-
-### 5. Commit After Testing
-
-Only after:
-- ✅ Generator runs in Docker
-- ✅ Output JSON created
-- ✅ Output JSON valid
-- ✅ `make ci` passes
+1. Edit `examples/` generator
+2. Test: `make run-example EXAMPLE=your-generator.js`
+3. Verify: `cat output/your-generator.json | python -m json.tool | head`
+4. Full test: `cd .. && make ci`
+5. Commit only after: Generator runs in Docker ✅ Output created ✅ Valid JSON ✅ `make ci` passes ✅
 
 ---
 
@@ -162,6 +119,7 @@ runIfMain(generateMyChart, import.meta.url);
 ```
 
 **Key differences:**
+
 - **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
 - **Metrics**: Column names vs aggregation functions
 - **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`
@@ -190,12 +148,6 @@ runIfMain(generateMyChart, import.meta.url);
 
 ## Summary
 
-**Before committing:**
+**Before commit:** `make run-example EXAMPLE=your-file.js` → verify output exists → validate JSON (`python -m json.tool`) → `make ci` from root → commit
 
-1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
-2. Verify `output/your-file.json` exists
-3. Check JSON valid: `python -m json.tool`
-4. Run `make ci` from root
-5. Then commit
-
-**If you can't run Docker**, state this clearly and ask user to test.
+**No Docker?** State clearly, request user testing.

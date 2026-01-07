@@ -37,17 +37,9 @@ Root-level (from repository root):
 ### Development Workflow
 
 ```bash
-# First time setup (from root)
-make install
-
-# Development
-cd vscode-extension
-make watch  # Start watch mode
-# Press F5 in VS Code to launch Extension Development Host
-
-# Run checks
-make ci  # Extension checks
-cd .. && make ci  # All components
+make install                    # First time (from root)
+cd vscode-extension && make watch  # Watch mode, then F5 in VS Code
+make ci && cd .. && make ci     # Run extension + all checks
 ```
 
 ---
@@ -57,6 +49,7 @@ cd .. && make ci  # All components
 ### Overview
 
 Hybrid TypeScript + Python:
+
 - **TypeScript Extension** manages UI, commands, Python subprocess
 - **Python Server** handles compilation using `dashboard_compiler`
 
@@ -74,22 +67,26 @@ Hybrid TypeScript + Python:
 ### Key Components
 
 **Compiler Service** (`compiler.ts`):
+
 - Manages Python subprocess
 - Sends compilation requests via stdin
 - Receives JSON via stdout
 - Handles errors and crashes
 
 **Schema Registration** (`extension.ts`):
+
 - Registers JSON schema with Red Hat YAML extension
 - Fetches from LSP server (`dashboard/getSchema`)
 - Provides auto-complete, validation, hover docs
 
 **Preview Panel** (`previewPanel.ts`):
+
 - Webview-based preview
 - Auto-refreshes on save
 - Export to NDJSON
 
 **Grid Editor** (`gridEditorPanel.ts`):
+
 - Drag-and-drop repositioning
 - Interactive resizing
 - Automatic YAML updates
@@ -99,6 +96,7 @@ Hybrid TypeScript + Python:
 ## Extension Commands
 
 Via Command Palette:
+
 - `yamlDashboard.compile` - Compile current file
 - `yamlDashboard.preview` - Open preview
 - `yamlDashboard.editLayout` - Open grid editor
@@ -129,6 +127,7 @@ Via Command Palette:
 Stdio-based JSON-RPC:
 
 **Request:**
+
 ```json
 {
   "method": "compile",
@@ -137,6 +136,7 @@ Stdio-based JSON-RPC:
 ```
 
 **Response (success):**
+
 ```json
 {
   "success": true,
@@ -145,6 +145,7 @@ Stdio-based JSON-RPC:
 ```
 
 **Response (error):**
+
 ```json
 {
   "success": false,
@@ -176,6 +177,7 @@ npm test
 ```
 
 Tests in `src/test/`:
+
 - `suite/` - Integration tests
 - `unit/` - Unit tests
 
@@ -200,19 +202,14 @@ Tests in `src/test/`:
 3. Check existing command patterns
 4. Test in Extension Development Host
 
-### Verification Checklist
+### Verification
 
-- [ ] TypeScript compiles (`make compile`)
-- [ ] ESLint passes (`make lint`)
-- [ ] Extension loads (F5)
-- [ ] All commands work
-- [ ] No console errors
-- [ ] Python server starts correctly
-- [ ] All CI checks pass (`make ci`)
+TypeScript compiles (`make compile`), ESLint passes, extension loads (F5), commands work, no console errors, Python server starts, `make ci` passes
 
 ### Working with Python Server
 
 When modifying `python/compile_server.py`:
+
 1. Maintain stdio JSON-RPC protocol
 2. Test success and error paths
 3. Ensure proper error handling

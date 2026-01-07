@@ -80,12 +80,14 @@ When updating YAML configuration docs:
 
 Get accurate reference data using the fixture generator:
 
-**Option 1: Reference Existing Fixtures (Preferred)**
+#### Option 1: Reference Existing Fixtures (Preferred)
+
 1. Check `fixture-generator/output/` for chart type
 2. Read fixture to understand Kibana JSON structure
 3. Compare compiler output against fixture
 
-**Option 2: Create New Fixtures**
+#### Option 2: Create New Fixtures
+
 1. Create generator in `fixture-generator/examples/<chart-type>.js`
 2. Run `cd fixture-generator && make build` (if needed)
 3. Run `cd fixture-generator && make run-example EXAMPLE=<chart-type>.js`
@@ -93,7 +95,7 @@ Get accurate reference data using the fixture generator:
 5. Compare compiler output with fixture
 6. Commit both generator script AND output files
 
-**Option 3: Review Kibana Codebase**
+#### Option 3: Review Kibana Codebase
 
 Use GitHub code search for JSON examples from the chart type in Kibana codebase.
 
@@ -101,39 +103,24 @@ Use GitHub code search for JSON examples from the chart type in Kibana codebase.
 
 See `fixture-generator/AGENTS.md` for details.
 
-### Verification Requirements
+### Verification
 
-- [ ] For schema changes: Cross-reference with official docs
-- [ ] For test changes: Explain WHY data changed, not just WHAT
-- [ ] For type errors: Verify fix compiles AND is semantically correct
-- [ ] For Boolean checks: All use explicit comparisons
-- [ ] Run `make typecheck` to verify types
-- [ ] Run `make check` after EACH fix
-- [ ] Test compiled output is valid
+- Schema changes: cross-reference official docs
+- Test changes: explain WHY data changed, not just WHAT
+- Type errors: verify fix compiles AND semantically correct
+- Boolean checks: explicit comparisons only
+- Run `make typecheck` and `make check` after each fix
+- Test compiled output validity
 
-### Radical Honesty
-
-- Document unresolved items
-- Acknowledge uncertainty
-- Report problems encountered
-- Share reasoning for rejecting feedback
-- Admit limitations
-
-**Never claim work complete with unresolved critical/important issues.**
+**Radical Honesty:** Document unresolved items, acknowledge uncertainty, report problems, share reasoning, admit limitations. Never claim completion with critical/important issues unresolved.
 
 ---
 
 ## CI/CD
 
-CI fails if:
-- Ruff linting fails
-- Markdown/YAML linting fails
-- Tests fail
-- Type checking fails
-- Docstring coverage below 80%
-- Merge conflicts present
+**CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring coverage <80%, merge conflicts
 
-Run `make ci` locally before pushing.
+Run `make ci` before pushing.
 
 ---
 
