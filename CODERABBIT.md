@@ -2,7 +2,7 @@
 
 This document provides specific instructions for CodeRabbit to improve the accuracy and relevance of code reviews for the kb-yaml-to-lens project.
 
-**Core Principle:** When in doubt about whether something is an issue, search the codebase for similar patterns. If a pattern exists across multiple files, it's likely intentional and should not be flagged.
+**Core Principle:** When in doubt about whether something is an issue, search the codebase for similar patterns and be more intentional about your feedback, taking extra steps to ensure the item genuinely needs to be flagged.
 
 ## Project Architecture Context
 
@@ -52,7 +52,7 @@ Examples:
 
 ### Intentional isinstance Patterns
 
-The codebase uses exhaustive isinstance checking patterns with final error handlers. See CODE_STYLE.md for the full explanation and examples.
+The codebase uses exhaustive isinstance checking patterns with final error handlers.
 
 **Key indicators this pattern is intentional:**
 
@@ -78,13 +78,12 @@ The codebase uses `# pyright: ignore[reportUnnecessaryIsInstance]` in specific l
 
 ### Python Code Style
 
-The project follows specific code style conventions documented in CODE_STYLE.md. Before suggesting style changes:
+The project follows specific code style conventions. Before suggesting style changes:
 
-1. **Check CODE_STYLE.md first** — It documents intentional patterns
-2. **Search the codebase** — If a pattern appears across multiple files, it's intentional
-3. **Prefer consistency** — Match existing code over isolated "best practices"
+1. **Search the codebase** — Look for similar patterns to understand intent
+2. **Prefer consistency** — Match existing code over isolated "best practices"
 
-Key project styles (see CODE_STYLE.md for details):
+Key project styles:
 
 - Explicit boolean comparisons (`if x is not None:` not `if x:`)
 - Exhaustive isinstance chains with final error handlers
@@ -210,7 +209,6 @@ When reviewing code for kb-yaml-to-lens:
 When in doubt, check the relevant configuration files:
 
 - `pyproject.toml` - Ruff rules and exemptions
-- `CODE_STYLE.md` - Code style conventions and patterns
 - `src/dashboard_compiler/AGENTS.md` - Component-specific architecture
 - `src/dashboard_compiler/shared/model.py` - Base Pydantic configuration
 - `CLAUDE.md` - Overall project guidelines
