@@ -16,22 +16,8 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  "files": [
-    "examples/datatable-user-test.ts",
-    "examples/gauge.ts",
-    "examples/heatmap.ts",
-    "examples/metric-basic.ts",
-    "examples/metric-with-breakdown.ts",
-    "examples/metric-with-trend.ts",
-    "examples/pie-chart-advanced-colors.ts",
-    "examples/pie-chart-donut.ts",
-    "examples/pie-chart.ts",
-    "examples/tagcloud.ts",
-    "examples/treemap.ts",
-    "examples/waffle.ts",
-    "examples/xy-chart-multi-layer.ts",
-    "examples/xy-chart-with-reference-line.ts",
-    "examples/xy-chart.ts",
+  "include": [
+    "examples/**/*.ts",
     "generator-utils.ts"
   ],
   "exclude": [

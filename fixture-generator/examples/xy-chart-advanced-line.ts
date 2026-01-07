@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 /**
- * Example: Generate line chart with advanced options (fitting functions, time markers, curve types)
+ * Example: Generate line chart with advanced options (fitting functions, curve types)
  *
  * Demonstrates the new advanced line chart features added in PR #542:
  * - Fitting functions (Linear, Average, Carry, etc.)
- * - End value handling
  * - Curve types
- * - Time markers
- * - Hide endzones
  */
 
 import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
@@ -36,14 +33,10 @@ export async function generateXYChartAdvancedLine(): Promise<void> {
     ],
     fittingFunction: 'Average',
     emphasizeFitting: true,
-    endValue: 'Zero',
-    curveType: 'CURVE_MONOTONE_X',
     legend: {
       show: true,
       position: 'right'
-    },
-    hideEndzones: true,
-    showCurrentTimeMarker: true
+    }
   };
 
   // Data View variant
@@ -72,14 +65,10 @@ export async function generateXYChartAdvancedLine(): Promise<void> {
     ],
     fittingFunction: 'Average',
     emphasizeFitting: true,
-    endValue: 'Zero',
-    curveType: 'CURVE_MONOTONE_X',
     legend: {
       show: true,
       position: 'right'
-    },
-    hideEndzones: true,
-    showCurrentTimeMarker: true
+    }
   };
 
   await generateDualFixture(
