@@ -9,7 +9,12 @@ from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type ControlTypes = Annotated[
-    RangeSliderControl | OptionsListControl | TimeSliderControl | ESQLSingleSelectControl | ESQLMultiSelectControl | ESQLQueryControl,
+    RangeSliderControl
+    | OptionsListControl
+    | TimeSliderControl
+    | ESQLStaticSingleSelectControl
+    | ESQLStaticMultiSelectControl
+    | ESQLQueryControl,
     Field(discriminator='type'),
 ]
 
@@ -144,7 +149,7 @@ class TimeSliderControl(BaseControl):
         return self
 
 
-class ESQLSingleSelectControl(BaseControl):
+class ESQLStaticSingleSelectControl(BaseControl):
     """Represents an ES|QL control with static values and single selection.
 
     This control allows users to select a single value from a predefined list
@@ -177,7 +182,7 @@ class ESQLSingleSelectControl(BaseControl):
         return self
 
 
-class ESQLMultiSelectControl(BaseControl):
+class ESQLStaticMultiSelectControl(BaseControl):
     """Represents an ES|QL control with static values and multi-selection.
 
     This control allows users to select multiple values from a predefined list

@@ -12,8 +12,8 @@ from dashboard_compiler.controls.compile import compile_control, compile_control
 from dashboard_compiler.controls.config import (
     ControlSettings,
     ControlTypes,
-    ESQLMultiSelectControl,
-    ESQLSingleSelectControl,
+    ESQLStaticMultiSelectControl,
+    ESQLStaticSingleSelectControl,
     TimeSliderControl,
 )
 
@@ -693,7 +693,7 @@ async def test_esql_multi_select_control_with_default() -> None:
 async def test_esql_single_select_control_default_validation() -> None:
     """Test that default value validation works for single-select controls."""
     with pytest.raises(ValidationError, match='default value "option3" not in available_options'):
-        ESQLSingleSelectControl.model_validate(
+        ESQLStaticSingleSelectControl.model_validate(
             {
                 'type': 'esql_single_select',
                 'variable_name': 'project_id',
@@ -708,7 +708,7 @@ async def test_esql_single_select_control_default_validation() -> None:
 async def test_esql_multi_select_control_default_validation() -> None:
     """Test that default value validation works for multi-select controls."""
     with pytest.raises(ValidationError, match='default contains options not in available_options'):
-        ESQLMultiSelectControl.model_validate(
+        ESQLStaticMultiSelectControl.model_validate(
             {
                 'type': 'esql_multi_select',
                 'variable_name': 'status',

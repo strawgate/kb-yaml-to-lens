@@ -5,9 +5,9 @@ from collections.abc import Sequence
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import (
     ControlSettings,
-    ESQLMultiSelectControl,
     ESQLQueryControl,
-    ESQLSingleSelectControl,
+    ESQLStaticMultiSelectControl,
+    ESQLStaticSingleSelectControl,
     MatchTechnique,
     OptionsListControl,
     RangeSliderControl,
@@ -126,12 +126,12 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
     )
 
 
-def compile_esql_single_select_control(order: int, *, control: ESQLSingleSelectControl) -> KbnESQLControl:
-    """Compile an ESQLSingleSelectControl into its Kibana view model representation.
+def compile_esql_static_single_select_control(order: int, *, control: ESQLStaticSingleSelectControl) -> KbnESQLControl:
+    """Compile an ESQLStaticSingleSelectControl into its Kibana view model representation.
 
     Args:
         order (int): The order of the control in the dashboard.
-        control (ESQLSingleSelectControl): The ESQLSingleSelectControl object to compile.
+        control (ESQLStaticSingleSelectControl): The ESQLStaticSingleSelectControl object to compile.
 
     Returns:
         KbnESQLControl: The compiled Kibana ES|QL control view model.
@@ -159,12 +159,12 @@ def compile_esql_single_select_control(order: int, *, control: ESQLSingleSelectC
     )
 
 
-def compile_esql_multi_select_control(order: int, *, control: ESQLMultiSelectControl) -> KbnESQLControl:
-    """Compile an ESQLMultiSelectControl into its Kibana view model representation.
+def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticMultiSelectControl) -> KbnESQLControl:
+    """Compile an ESQLStaticMultiSelectControl into its Kibana view model representation.
 
     Args:
         order (int): The order of the control in the dashboard.
-        control (ESQLMultiSelectControl): The ESQLMultiSelectControl object to compile.
+        control (ESQLStaticMultiSelectControl): The ESQLStaticMultiSelectControl object to compile.
 
     Returns:
         KbnESQLControl: The compiled Kibana ES|QL control view model.
@@ -243,11 +243,11 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
 
-    if isinstance(control, ESQLSingleSelectControl):
-        return compile_esql_single_select_control(order, control=control)
+    if isinstance(control, ESQLStaticSingleSelectControl):
+        return compile_esql_static_single_select_control(order, control=control)
 
-    if isinstance(control, ESQLMultiSelectControl):
-        return compile_esql_multi_select_control(order, control=control)
+    if isinstance(control, ESQLStaticMultiSelectControl):
+        return compile_esql_static_multi_select_control(order, control=control)
 
     if isinstance(control, ESQLQueryControl):  # pyright: ignore[reportUnnecessaryIsInstance]
         return compile_esql_query_control(order, control=control)
