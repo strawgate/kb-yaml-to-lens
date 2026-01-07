@@ -4,8 +4,9 @@
 IMAGE_NAME := kibana-fixture-generator
 KIBANA_VERSION ?= v9.2.0
 OUTPUT_DIR := $(shell pwd)/output
+BASE_IMAGE ?= ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:$(KIBANA_VERSION)
 
-.PHONY: help all ci check fix test typecheck build build-no-cache run run-example shell test-import clean clean-image
+.PHONY: help all ci check fix test typecheck build build-no-cache build-from-source build-base pull-base run run-example shell test-import clean clean-image
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -30,16 +31,35 @@ typecheck: ## Run TypeScript type checking
 
 test: test-import ## Run tests
 
-build: ## Build the Docker image (Node.js version auto-detected from Kibana)
+pull-base: ## Pull pre-built base image from GHCR
+	docker pull $(BASE_IMAGE)
+
+build: ## Build using pre-built base image from GHCR (~30 seconds)
 	docker build \
 		--build-arg KIBANA_VERSION=$(KIBANA_VERSION) \
+		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
 		-t $(IMAGE_NAME):$(KIBANA_VERSION) \
 		.
 
-build-no-cache: ## Build without cache (full rebuild)
+build-no-cache: ## Build without cache using pre-built base image
 	docker build --no-cache \
 		--build-arg KIBANA_VERSION=$(KIBANA_VERSION) \
+		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
 		-t $(IMAGE_NAME):$(KIBANA_VERSION) \
+		.
+
+build-from-source: ## Build from source (Dockerfile.base, ~6 minutes)
+	docker build \
+		--build-arg KIBANA_VERSION=$(KIBANA_VERSION) \
+		-f Dockerfile.base \
+		-t $(IMAGE_NAME):$(KIBANA_VERSION) \
+		.
+
+build-base: ## Build base image locally (for testing base image changes)
+	docker build \
+		--build-arg KIBANA_VERSION=$(KIBANA_VERSION) \
+		-f Dockerfile.base \
+		-t $(BASE_IMAGE) \
 		.
 
 run: ## Generate all fixtures

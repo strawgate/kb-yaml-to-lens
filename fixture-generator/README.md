@@ -36,7 +36,7 @@ cd fixture-generator
 make build
 ```
 
-**Note**: First build takes ~6 minutes to bootstrap Kibana and make the `@kbn/lens-embeddable-utils` package available.
+**Note**: The default `make build` uses a pre-built base image from GitHub Container Registry (~30 seconds). To build from source instead (~6 minutes), use `make build-from-source`.
 
 ### 2. Generate Fixtures
 
@@ -62,8 +62,11 @@ Run `make help` to see all commands:
 
 | Command | Description |
 | --------- | ------------- |
-| `make build` | Build the Docker image |
-| `make build-no-cache` | Full rebuild without cache |
+| `make build` | Build using pre-built base image from GHCR (~30 seconds) |
+| `make build-from-source` | Build from source (Dockerfile.base, ~6 minutes) |
+| `make build-base` | Build base image locally (for testing base image changes) |
+| `make pull-base` | Pull pre-built base image from GHCR |
+| `make build-no-cache` | Full rebuild without cache (using pre-built base) |
 | `make run` | Generate all fixtures |
 | `make run-example EXAMPLE=<file>` | Run a specific example script |
 | `make shell` | Open a shell in the container for debugging |
@@ -253,12 +256,48 @@ docker run --rm \
 
 ## Docker Setup
 
-The Dockerfile:
+The project uses a two-stage Docker approach:
+
+**Base Image (`Dockerfile.base`)**
 
 1. Installs Node.js 22.x (matches Kibana requirement)
 2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
+3. Published weekly to GitHub Container Registry
+4. Build time: ~6 minutes (one-time, then cached and reused)
+
+**Runtime Image (`Dockerfile`)**
+
+1. Uses pre-built base image as foundation
+2. Adds generator scripts
 3. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
-4. Runs your generator scripts and exports JSON to `./output/`
+4. Build time: ~30 seconds
+
+This approach significantly speeds up local development and CI by eliminating the need to bootstrap Kibana on every build.
+
+### Base Image Updates
+
+Base images are automatically rebuilt weekly via GitHub Actions workflow. To trigger a manual rebuild or build a custom version:
+
+```bash
+# Trigger workflow manually via GitHub UI:
+# Actions → Build and Publish Kibana Base Images → Run workflow
+
+# Or build locally for testing:
+make build-base KIBANA_VERSION=v9.2.0
+
+# Push to GHCR (requires authentication):
+docker push ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.0
+```
+
+### Using Different Kibana Versions
+
+```bash
+# Use a different pre-built version
+make build KIBANA_VERSION=v9.1.0
+
+# Build from source for a custom version
+make build-from-source KIBANA_VERSION=v8.15.0
+```
 
 ## Troubleshooting
 

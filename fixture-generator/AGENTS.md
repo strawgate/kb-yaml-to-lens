@@ -38,7 +38,10 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 | ------- | ------- |
 | `make ci` | Run CI checks (typecheck + build) |
 | `make typecheck` | Run TypeScript type checking |
-| `make build` | Build Docker image (~6 min) |
+| `make build` | Build using pre-built base image (~30 sec) |
+| `make build-from-source` | Build from source (~6 min) |
+| `make build-base` | Build base image locally |
+| `make pull-base` | Pull pre-built base image from GHCR |
 | `make run` | Generate all fixtures |
 | `make run-example EXAMPLE=file.ts` | Generate single fixture |
 | `make shell` | Debug in container |
@@ -48,10 +51,13 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 ### Workflow
 
 ```bash
-cd fixture-generator && make build                          # First time
+cd fixture-generator && make build                          # First time (uses pre-built base)
 make run                                                     # All fixtures
 make run-example EXAMPLE=metric-basic.ts                    # Single fixture
 cat output/metric-basic.json | python -m json.tool | head   # Verify
+
+# If pre-built base unavailable, build from source:
+make build-from-source                                       # ~6 minutes
 ```
 
 ---
