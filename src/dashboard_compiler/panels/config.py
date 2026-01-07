@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import AliasChoices, Field, field_validator, model_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from dashboard_compiler.shared.config import BaseCfgModel
 
@@ -60,10 +60,8 @@ class Size(BaseCfgModel):
     Width accepts semantic values ('whole', 'half', etc.) or integers.
     """
 
-    w: int = Field(
+    w: int | SemanticWidth = Field(
         default=GRID_WIDTH_QUARTER,
-        gt=0,
-        le=KIBANA_GRID_WIDTH,
         validation_alias=AliasChoices('w', 'width'),
     )
     """The width of the panel in grid units.
@@ -74,11 +72,19 @@ class Size(BaseCfgModel):
     h: int = Field(default=8, gt=0, validation_alias=AliasChoices('h', 'height'))
     """The height of the panel in grid units. Defaults to 8."""
 
-    @field_validator('w', mode='before')
-    @classmethod
-    def resolve_width(cls, v: int | SemanticWidth) -> int:
-        """Resolve semantic width values to integers."""
-        return resolve_semantic_width(v)
+    @property
+    def width(self) -> int:
+        """Get the resolved width as an integer.
+
+        Returns:
+            int: The width in grid units (1-48).
+
+        """
+        resolved = resolve_semantic_width(self.w)
+        if resolved <= 0 or resolved > KIBANA_GRID_WIDTH:
+            msg = f'Width must be between 1 and {KIBANA_GRID_WIDTH}, got {resolved}'
+            raise ValueError(msg)
+        return resolved
 
 
 class Position(BaseCfgModel):
@@ -101,13 +107,13 @@ class Grid(BaseCfgModel):
     This determines the panel's position and size on the dashboard grid.
     """
 
-    x: int = Field(..., ge=0, validation_alias=AliasChoices('x', 'from_left'))
+    x: int = Field(..., ge=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('x', 'from_left'))
     """The horizontal starting position of the panel on the grid (0-based)."""
 
     y: int = Field(..., ge=0, validation_alias=AliasChoices('y', 'from_top'))
     """The vertical starting position of the panel on the grid (0-based)."""
 
-    w: int = Field(..., gt=0, validation_alias=AliasChoices('w', 'width'))
+    w: int = Field(..., gt=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('w', 'width'))
     """The width of the panel in grid units."""
 
     h: int = Field(..., gt=0, validation_alias=AliasChoices('h', 'height'))

@@ -87,7 +87,7 @@ def compute_panel_grid(panel: PanelTypes) -> Grid:
         msg = f'Panel "{panel.title}" position is not set'
         raise ValueError(msg)
 
-    return Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+    return Grid(x=panel.position.x, y=panel.position.y, w=panel.size.width, h=panel.size.h)
 
 
 def compile_panel_shared(panel: PanelTypes, grid: Grid) -> tuple[str, KbnGridData]:
@@ -169,13 +169,13 @@ def compute_panel_positions(
     # Mark locked panels (those with explicit positions)
     for panel in panels:
         if panel.position.x is not None and panel.position.y is not None:
-            engine.mark_locked_panel(panel.position.x, panel.position.y, panel.size.w, panel.size.h)
+            engine.mark_locked_panel(panel.position.x, panel.position.y, panel.size.width, panel.size.h)
 
     # Add panels one at a time and get coordinates back immediately
     position_map: dict[int, tuple[int, int]] = {}
     for idx, panel in enumerate(panels):
         if panel.position.x is None or panel.position.y is None:
-            x, y = engine.add_panel(panel.size.w, panel.size.h)
+            x, y = engine.add_panel(panel.size.width, panel.size.h)
             position_map[idx] = (x, y)
 
     return position_map
@@ -228,7 +228,7 @@ def compile_dashboard_panels(
         # Use computed position if available, otherwise use panel's position
         if idx in position_map:
             x, y = position_map[idx]
-            grid = Grid(x=x, y=y, w=panel.size.w, h=panel.size.h)
+            grid = Grid(x=x, y=y, w=panel.size.width, h=panel.size.h)
         else:
             grid = compute_panel_grid(panel)
 

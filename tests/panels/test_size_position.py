@@ -12,55 +12,55 @@ class TestSize:
     def test_size_default_values(self) -> None:
         """Test that Size uses default values of 12w x 8h."""
         size = Size()
-        assert size.w == 12
+        assert size.width == 12
         assert size.h == 8
 
     def test_size_with_explicit_values(self) -> None:
         """Test Size with explicit numeric values."""
         size = Size(w=48, h=20)
-        assert size.w == 48
+        assert size.width == 48
         assert size.h == 20
 
     def test_size_semantic_width_whole(self) -> None:
         """Test semantic width 'whole' resolves to 48."""
         size = Size(w='whole')
-        assert size.w == 48
+        assert size.width == 48
 
     def test_size_semantic_width_half(self) -> None:
         """Test semantic width 'half' resolves to 24."""
         size = Size(w='half')
-        assert size.w == 24
+        assert size.width == 24
 
     def test_size_semantic_width_third(self) -> None:
         """Test semantic width 'third' resolves to 16."""
         size = Size(w='third')
-        assert size.w == 16
+        assert size.width == 16
 
     def test_size_semantic_width_quarter(self) -> None:
         """Test semantic width 'quarter' resolves to 12."""
         size = Size(w='quarter')
-        assert size.w == 12
+        assert size.width == 12
 
     def test_size_semantic_width_sixth(self) -> None:
         """Test semantic width 'sixth' resolves to 8."""
         size = Size(w='sixth')
-        assert size.w == 8
+        assert size.width == 8
 
     def test_size_semantic_width_eighth(self) -> None:
         """Test semantic width 'eighth' resolves to 6."""
         size = Size(w='eighth')
-        assert size.w == 6
+        assert size.width == 6
 
     def test_size_mixed_semantic_and_numeric(self) -> None:
         """Test mixing semantic and numeric dimensions."""
         size = Size(w='quarter', h=20)
-        assert size.w == 12
+        assert size.width == 12
         assert size.h == 20
 
     def test_size_width_alias(self) -> None:
         """Test 'width' alias works for 'w'."""
         size = Size(width=30)
-        assert size.w == 30
+        assert size.width == 30
 
     def test_size_height_alias(self) -> None:
         """Test 'height' alias works for 'h'."""
@@ -69,15 +69,15 @@ class TestSize:
 
     def test_size_zero_width_rejected(self) -> None:
         """Test that zero width is rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            _ = Size(w=0)
-        assert 'Input should be greater than 0' in str(exc_info.value)
+        size = Size(w=0)
+        with pytest.raises(ValueError, match=r'Width must be between 1 and 48'):
+            _ = size.width
 
     def test_size_negative_width_rejected(self) -> None:
         """Test that negative width is rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            _ = Size(w=-10)
-        assert 'Input should be greater than 0' in str(exc_info.value)
+        size = Size(w=-10)
+        with pytest.raises(ValueError, match=r'Width must be between 1 and 48'):
+            _ = size.width
 
     def test_size_zero_height_rejected(self) -> None:
         """Test that zero height is rejected."""
@@ -93,9 +93,9 @@ class TestSize:
 
     def test_size_exceeds_grid_width_rejected(self) -> None:
         """Test that width exceeding 48 is rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            _ = Size(w=50)
-        assert 'Input should be less than or equal to 48' in str(exc_info.value)
+        size = Size(w=50)
+        with pytest.raises(ValueError, match=r'Width must be between 1 and 48'):
+            _ = size.width
 
 
 class TestPosition:
