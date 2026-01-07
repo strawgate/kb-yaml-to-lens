@@ -29,7 +29,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
 )
 from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
 from dashboard_compiler.shared.config import stable_id_generator
-from dashboard_compiler.shared.defaults import default_false, default_none, default_true
+from dashboard_compiler.shared.defaults import default_false, default_true
 
 # Maps user-friendly granularity levels (1=finest to 7=coarsest) to Kibana's
 # maxBars parameter. These values control histogram bucketing precision:
@@ -171,8 +171,8 @@ def compile_lens_dimension(
             )
         ranges = [
             KbnLensIntervalsRange(
-                from_value=default_none(interval.from_value),
-                to_value=default_none(interval.to_value),
+                from_value=interval.from_value,
+                to_value=interval.to_value,
                 label=interval.label or '',
             )
             for interval in dimension.intervals
