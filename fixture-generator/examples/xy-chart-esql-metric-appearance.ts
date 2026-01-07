@@ -1,21 +1,24 @@
 #!/usr/bin/env node
 /**
- * Example: Generate XY chart with ES|QL metric appearance options
+ * Example: Generate XY chart testing metric format options
  *
- * Demonstrates:
- * - Custom format types (bytes, number, percent)
- * - Custom colors for individual metrics
- * - Dual-axis assignment (left/right)
- * - Multiple metrics with different appearance configurations
+ * Note: This fixture tests Data View format support only.
+ * ES|QL datasources do not support format configuration via LensConfigBuilder.
+ *
+ * LensConfigBuilder limitations for ES|QL:
+ * - ❌ format on yAxis items (ignored)
+ * - ❌ color on yAxis items (use palette instead)
+ * - ❌ axisMode on yAxis items (not supported)
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateXYChartESQLMetricAppearance() {
-  // ES|QL variant - bar chart with multiple metrics showing different formats and appearances
-  const esqlConfig = {
+export async function generateXYChartESQLMetricAppearance(): Promise<void> {
+  // ES|QL variant - demonstrates that format/color/axisMode are NOT supported
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'ES|QL Metrics with Appearance Options',
+    title: 'ES|QL Multi-Metric Chart',
     dataset: {
       esql: 'FROM logs-* | STATS event_count = COUNT(), total_bytes = SUM(bytes), avg_bytes = AVG(bytes) BY @timestamp'
     },
@@ -27,15 +30,7 @@ export async function generateXYChartESQLMetricAppearance() {
         yAxis: [
           {
             label: 'Event Count',
-            value: 'event_count',
-            axisMode: 'left',
-            color: '#68BC00',
-            format: {
-              id: 'number',
-              params: {
-                pattern: '0,0'
-              }
-            }
+            value: 'event_count'
           }
         ]
       },
@@ -46,15 +41,7 @@ export async function generateXYChartESQLMetricAppearance() {
         yAxis: [
           {
             label: 'Total Bytes',
-            value: 'total_bytes',
-            axisMode: 'right',
-            color: '#009CE0',
-            format: {
-              id: 'bytes',
-              params: {
-                pattern: '0,0.0 b'
-              }
-            }
+            value: 'total_bytes'
           }
         ]
       },
@@ -65,15 +52,7 @@ export async function generateXYChartESQLMetricAppearance() {
         yAxis: [
           {
             label: 'Avg Bytes',
-            value: 'avg_bytes',
-            axisMode: 'right',
-            color: '#F04E98',
-            format: {
-              id: 'bytes',
-              params: {
-                pattern: '0.00 b'
-              }
-            }
+            value: 'avg_bytes'
           }
         ]
       }
@@ -84,10 +63,10 @@ export async function generateXYChartESQLMetricAppearance() {
     }
   };
 
-  // Data View variant - same chart using data view aggregations
-  const dataviewConfig = {
+  // Data View variant - DOES support format configuration
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
-    title: 'ES|QL Metrics with Appearance Options (Data View)',
+    title: 'Data View Multi-Metric with Formats',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
@@ -104,8 +83,6 @@ export async function generateXYChartESQLMetricAppearance() {
           {
             label: 'Event Count',
             value: 'count()',
-            axisMode: 'left',
-            color: '#68BC00',
             format: {
               id: 'number',
               params: {
@@ -126,8 +103,6 @@ export async function generateXYChartESQLMetricAppearance() {
           {
             label: 'Total Bytes',
             value: 'sum(bytes)',
-            axisMode: 'right',
-            color: '#009CE0',
             format: {
               id: 'bytes',
               params: {
@@ -148,8 +123,6 @@ export async function generateXYChartESQLMetricAppearance() {
           {
             label: 'Avg Bytes',
             value: 'average(bytes)',
-            axisMode: 'right',
-            color: '#F04E98',
             format: {
               id: 'bytes',
               params: {
