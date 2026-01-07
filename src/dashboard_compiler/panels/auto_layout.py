@@ -137,7 +137,14 @@ class UpLeftEngine(BaseLayoutEngine):
         Returns:
             Tuple of (x, y) coordinates.
 
+        Raises:
+            ValueError: If panel width exceeds grid width.
+
         """
+        if width > self.grid_width:
+            msg = f'Panel width {width} exceeds grid width {self.grid_width}'
+            raise ValueError(msg)
+
         y = 0
         max_y = max((coord[1] for coord in self.occupied), default=0) + _MAX_Y_SEARCH_BUFFER
 
@@ -171,6 +178,9 @@ class LeftRightEngine(BaseLayoutEngine):
 
     def _get_row_height(self, y: int) -> int:
         """Get the height of the current row based on all occupied cells.
+
+        Finds the maximum vertical extent from row y to any occupied cell
+        at or below y, which gives the row height needed to clear all panels.
 
         Args:
             y: The current row's y coordinate.
@@ -298,7 +308,7 @@ class BlockedEngine(BaseLayoutEngine):
             # Check if there are locked panels in this row
             has_locked_in_row = any(cell_y == y for _cell_x, cell_y in self.locked_positions)
 
-            if has_locked_in_row:
+            if has_locked_in_row is True:
                 # Find the maximum bottom edge of all panels in this row
                 max_y_in_row = y + height - 1
                 for cell_x, cell_y in self.occupied:
