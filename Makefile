@@ -1,5 +1,5 @@
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-python lint-python-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy typecheck compile upload setup docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint-python lint-python-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy typecheck compile upload setup docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -152,26 +152,6 @@ lint-python-check:
 	@uv run ruff format . --check --quiet
 	@echo "Running ruff check..."
 	@uv run ruff check . --quiet
-
-# Individual Python linting (for backwards compatibility)
-lint:
-	@echo "Running ruff check --fix..."
-	uv run ruff check . --fix
-
-# Check for linting issues without fixing
-lint-check:
-	@echo "Running ruff check..."
-	@uv run ruff check . --quiet
-
-# Auto-format code
-format:
-	@echo "Running ruff format..."
-	uv run ruff format .
-
-# Check formatting without fixing
-format-check:
-	@echo "Running ruff format --check..."
-	@uv run ruff format . --check --quiet
 
 # Auto-fix markdown issues
 lint-markdown:
