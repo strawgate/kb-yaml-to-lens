@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Test fixture: All fitting function options for line charts
+ * Test fixture: Line chart fitting functions (Linear and Average)
  *
- * Tests: None, Linear, Carry, Lookahead, Average, Nearest
+ * Tests: Linear (ES|QL), Average (Data View)
  */
 
 import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';

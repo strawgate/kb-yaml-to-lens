@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Example: Generate line chart with advanced options (fitting functions, curve types)
+ * Example: Generate line chart with advanced fitting options
  *
- * Demonstrates the new advanced line chart features added in PR #542:
+ * Demonstrates advanced line chart features:
  * - Fitting functions (Linear, Average, Carry, etc.)
- * - Curve types
+ * - Emphasize fitting option
  */
 
 import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
