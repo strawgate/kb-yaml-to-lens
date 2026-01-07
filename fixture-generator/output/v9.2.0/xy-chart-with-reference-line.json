@@ -48,8 +48,22 @@
             }
           },
           "layer_1": {
-            "columns": {},
-            "columnOrder": []
+            "columnOrder": [
+              "metric_formula_accessor1_0"
+            ],
+            "columns": {
+              "metric_formula_accessor1_0": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "SLA Threshold",
+                "params": {
+                  "formula": "500"
+                },
+                "customLabel": true
+              }
+            }
           }
         }
       }
@@ -108,7 +122,19 @@
             }
           ]
         },
-        null
+        {
+          "layerId": "layer_1",
+          "layerType": "referenceLine",
+          "accessors": [
+            "metric_formula_accessor1_0"
+          ],
+          "yConfig": [
+            {
+              "forAccessor": "metric_formula_accessor1_0",
+              "axisMode": "left"
+            }
+          ]
+        }
       ]
     },
     "adHocDataViews": {

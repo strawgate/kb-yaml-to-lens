@@ -20,7 +20,7 @@
             "columns": [
               {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "metric_formula_accessor"
+                "fieldName": "count"
               },
               {
                 "columnId": "metric_formula_accessor_breakdown",
@@ -30,7 +30,7 @@
             "allColumns": [
               {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "metric_formula_accessor"
+                "fieldName": "count"
               },
               {
                 "columnId": "metric_formula_accessor_breakdown",

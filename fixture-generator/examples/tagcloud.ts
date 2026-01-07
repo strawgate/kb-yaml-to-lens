@@ -16,7 +16,7 @@ export async function generateTagcloud(): Promise<void> {
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20'
     },
-    metric: 'count',
+    value: 'count',
     breakdown: 'log.level'
   };
 
@@ -28,19 +28,8 @@ export async function generateTagcloud(): Promise<void> {
       index: 'logs-*',
       timeFieldName: '@timestamp'
     },
-    metric: [{
-      type: 'count',
-      label: 'Count'
-    }],
-    breakdown: [{
-      type: 'terms',
-      field: 'log.level',
-      params: {
-        size: 20,
-        orderBy: { type: 'column', columnId: 'metric-column' },
-        orderDirection: 'desc'
-      }
-    }]
+    value: 'count()',
+    breakdown: 'log.level'
   };
 
   await generateDualFixture(

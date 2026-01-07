@@ -23,31 +23,22 @@ export async function generatePieChartAdvancedColors(): Promise<void> {
 
   // ES|QL variant
   const esqlConfig: LensPieConfig = {
-    chartType: 'pie',
+    chartType: 'donut',
     title: 'Request Methods with Custom Palette',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY request.method'
     },
     value: 'count',
     breakdown: ['request.method'],
-    shape: 'donut',
-    palette: customPalette,
-    labels: {
-      show: true,
-      position: 'inside',
-      values: true,
-      percentDecimals: 2
-    },
     legend: {
       show: true,
-      position: 'bottom',
-      legendSize: 'medium'
+      position: 'bottom'
     }
   };
 
   // Data View variant
   const dataviewConfig: LensPieConfig = {
-    chartType: 'pie',
+    chartType: 'donut',
     title: 'Request Methods with Custom Palette (Data View)',
     dataset: {
       index: 'logs-*',
@@ -55,18 +46,9 @@ export async function generatePieChartAdvancedColors(): Promise<void> {
     },
     value: 'count()',
     breakdown: ['request.method'],
-    shape: 'donut',
-    palette: customPalette,
-    labels: {
-      show: true,
-      position: 'inside',
-      values: true,
-      percentDecimals: 2
-    },
     legend: {
       show: true,
-      position: 'bottom',
-      legendSize: 'medium'
+      position: 'bottom'
     }
   };
 

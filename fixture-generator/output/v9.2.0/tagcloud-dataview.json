@@ -23,8 +23,36 @@
                 "isBucketed": false,
                 "dataType": "number",
                 "references": [],
-                "params": {},
+                "label": "count()",
+                "params": {
+                  "formula": "count()"
+                },
                 "customLabel": true
+              },
+              "metric_formula_accessor_breakdown": {
+                "label": "Top 5 values of log.level",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "log.level",
+                "isBucketed": true,
+                "params": {
+                  "size": 5,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
               }
             }
           }

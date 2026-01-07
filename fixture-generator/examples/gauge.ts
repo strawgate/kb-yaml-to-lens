@@ -12,11 +12,10 @@ export async function generateGauge(): Promise<void> {
   // Shared configuration between both variants
   const sharedConfig: Partial<LensGaugeConfig> = {
     chartType: 'gauge',
-    min: 0,
-    max: 1,
-    goal: 0.8,
-    shape: 'arc',
-    colorMode: 'palette'
+    queryMinValue: '0',
+    queryMaxValue: '1',
+    queryGoalValue: '0.8',
+    shape: 'arc'
   };
 
   // ES|QL variant
@@ -26,7 +25,7 @@ export async function generateGauge(): Promise<void> {
     dataset: {
       esql: 'FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)'
     },
-    metric: 'avg_cpu'
+    value: 'avg_cpu'
   };
 
   // Data View variant
@@ -36,7 +35,7 @@ export async function generateGauge(): Promise<void> {
     dataset: {
       index: 'metrics-*'
     },
-    metric: 'average(system.cpu.total.pct)'
+    value: 'average(system.cpu.total.pct)'
   };
 
   await generateDualFixture(

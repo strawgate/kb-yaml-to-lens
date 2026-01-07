@@ -15,12 +15,7 @@ export async function generateDatatableUserTest(): Promise<void> {
       index: 'metrics-*'
     },
     breakdown: ['agent.version'],
-    columns: [
-      {
-        columnId: 'agent_count',
-        value: 'count(agent.name)'
-      }
-    ]
+    value: 'count(agent.name)'
   };
 
   await generateFixture(

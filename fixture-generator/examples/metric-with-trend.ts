@@ -13,8 +13,7 @@ export async function generateMetricWithTrend(): Promise<void> {
   const sharedConfig: Partial<LensMetricConfig> = {
     chartType: 'metric',
     label: 'Total Events',
-    trendline: true,
-    progressDirection: 'vertical'
+    trendLine: true
   };
 
   // ES|QL variant

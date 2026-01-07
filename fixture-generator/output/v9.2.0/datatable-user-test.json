@@ -23,7 +23,10 @@
                 "isBucketed": false,
                 "dataType": "number",
                 "references": [],
-                "params": {},
+                "label": "count(agent.name)",
+                "params": {
+                  "formula": "count(agent.name)"
+                },
                 "customLabel": true
               },
               "metric_formula_accessor_breakdown_0": {

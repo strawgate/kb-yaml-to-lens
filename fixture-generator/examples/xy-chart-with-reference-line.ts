@@ -34,14 +34,12 @@ export async function generateXYChartWithReferenceLine(): Promise<void> {
         ]
       },
       {
-        type: 'referenceLine',
+        type: 'reference',
         yAxis: [
           {
-            value: 500.0,
+            value: '500',
             label: 'SLA Threshold',
-            color: '#FF0000',
-            lineStyle: 'dashed',
-            lineWidth: 2
+            color: '#FF0000'
           }
         ]
       }

@@ -9,33 +9,25 @@ import type { LensMosaicConfig } from '@kbn/lens-embeddable-utils/config_builder
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateWaffle(): Promise<void> {
-  // Shared configuration
-  const sharedConfig: Partial<LensMosaicConfig> = {
-    chartType: 'mosaic',
-    breakdown: ['request.method'],
-    legend: {
-      show: true,
-      position: 'right'
-    }
-  };
-
   // ES|QL variant
   const esqlConfig: LensMosaicConfig = {
-    ...sharedConfig,
+    chartType: 'mosaic',
     title: 'HTTP Methods Distribution',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY request.method'
     },
+    breakdown: ['request.method'],
     value: 'count'
   };
 
   // Data View variant
   const dataviewConfig: LensMosaicConfig = {
-    ...sharedConfig,
+    chartType: 'mosaic',
     title: 'HTTP Methods Distribution (Data View)',
     dataset: {
       index: 'logs-*'
     },
+    breakdown: ['request.method'],
     value: 'count()'
   };
 

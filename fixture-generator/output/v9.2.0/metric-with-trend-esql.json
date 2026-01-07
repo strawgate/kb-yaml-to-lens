@@ -49,7 +49,11 @@
       "layerId": "layer_0",
       "layerType": "data",
       "metricAccessor": "metric_formula_accessor",
-      "showBar": false
+      "showBar": false,
+      "trendlineLayerId": "layer_0_trendline",
+      "trendlineLayerType": "metricTrendline",
+      "trendlineMetricAccessor": "metric_formula_accessor_trendline",
+      "trendlineTimeAccessor": "x_date_histogram"
     },
     "adHocDataViews": {
       "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}": {}

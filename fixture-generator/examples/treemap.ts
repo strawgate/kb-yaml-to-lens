@@ -9,37 +9,25 @@ import type { LensTreeMapConfig } from '@kbn/lens-embeddable-utils/config_builde
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateTreemap(): Promise<void> {
-  // Shared configuration
-  const sharedConfig: Partial<LensTreeMapConfig> = {
-    chartType: 'treemap',
-    legend: {
-      show: true,
-      position: 'right'
-    }
-  };
-
   // ES|QL variant
   const esqlConfig: LensTreeMapConfig = {
-    ...sharedConfig,
+    chartType: 'treemap',
     title: 'Traffic by Source and Destination',
     dataset: {
       esql: 'FROM logs-* | STATS bytes = SUM(bytes) BY geo.src, geo.dest'
     },
-    primaryGroup: 'geo.src',
-    secondaryGroup: 'geo.dest',
-    metric: 'bytes'
+    breakdown: ['geo.src', 'geo.dest'],
+    value: 'bytes'
   };
 
   // Data View variant
   const dataviewConfig: LensTreeMapConfig = {
-    ...sharedConfig,
+    chartType: 'treemap',
     title: 'Traffic by Source and Destination (Data View)',
     dataset: {
       index: 'logs-*'
     },
     breakdown: ['geo.src', 'geo.dest'],
-    primaryGroup: 'geo.src',
-    secondaryGroup: 'geo.dest',
     value: 'sum(bytes)'
   };
 
