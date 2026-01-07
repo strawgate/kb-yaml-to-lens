@@ -23,7 +23,7 @@ jobs:
         # Build multiple Kibana versions
         kibana_version:
           - v9.2.0
-          - v9.1.0
+          - v8.19.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
