@@ -1,9 +1,13 @@
 """Tests for error message formatting functions."""
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError
+
+if TYPE_CHECKING:
+    from pydantic_core import ErrorDetails
 
 from dashboard_compiler.shared.error_formatter import (
     CUSTOM_MESSAGES,
@@ -47,16 +51,12 @@ class TestFormatErrorMessage:
 
     def test_missing_field_uses_custom_message(self) -> None:
         """Test that missing field errors use the custom message."""
-        from pydantic_core import ErrorDetails
-
         error: ErrorDetails = {'type': 'missing', 'loc': ('name',), 'msg': 'Field required', 'input': None}
         result = format_error_message(error)
         assert result == CUSTOM_MESSAGES['missing']
 
     def test_value_error_extracts_message_from_ctx(self) -> None:
         """Test that value_error extracts message from context."""
-        from pydantic_core import ErrorDetails
-
         error: ErrorDetails = {
             'type': 'value_error',
             'loc': ('panels', 0, 'grid'),
@@ -69,8 +69,6 @@ class TestFormatErrorMessage:
 
     def test_union_tag_invalid_formats_tags(self) -> None:
         """Test that union_tag_invalid formats expected tags."""
-        from pydantic_core import ErrorDetails
-
         error: ErrorDetails = {
             'type': 'union_tag_invalid',
             'loc': ('panels', 0, 'esql'),
@@ -85,8 +83,6 @@ class TestFormatErrorMessage:
 
     def test_unknown_error_type_uses_original_message(self) -> None:
         """Test that unknown error types use the original message."""
-        from pydantic_core import ErrorDetails
-
         error: ErrorDetails = {'type': 'some_unknown_type', 'loc': ('field',), 'msg': 'Original message', 'input': None}
         result = format_error_message(error)
         assert result == 'Original message'
@@ -106,7 +102,7 @@ class TestFormatValidationError:
         except ValidationError as e:
             result = format_validation_error(e, Path('config.yaml'))
             assert 'config.yaml' in result
-            assert 'empty or invalid' in result.lower() or 'dashboards' in result.lower()
+            assert 'empty or invalid' in result.lower()
 
     def test_missing_dashboards_key_error(self) -> None:
         """Test error message for missing 'dashboards' key."""
