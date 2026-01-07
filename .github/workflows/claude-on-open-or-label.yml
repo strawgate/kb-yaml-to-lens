@@ -112,6 +112,6 @@ jobs:
         | --- | --- | --- |
         | Handling Division by Zero Best Practices | https://my-blog-about-division-by-zero.com/handling+division+by+zero+in+calculator | This webpage provides general best practices for handling division by zero in calculator applications and in Python, which is directly relevant to the issue and potential solutions. |
         </details>
-      allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:api:*)
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:api:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
