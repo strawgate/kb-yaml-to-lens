@@ -79,10 +79,6 @@ If you have recently undergone context summarization/compaction:
 
 ---
 
-## Code Review Guidelines
-
-@CODERABBIT.md
-
 ## Agent Operating Principles
 
 - **Read first** — Component README.md/AGENTS.md before working
@@ -93,7 +89,7 @@ If you have recently undergone context summarization/compaction:
 - **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
 - **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
 
-**Code Style:** See `CODE_STYLE.md` for language-specific conventions and component AGENTS.md files for detailed patterns.
+**Code Style:** See component AGENTS.md files for language-specific conventions and detailed patterns.
 
 ---
 
