@@ -43,22 +43,9 @@ This repository contains three main components:
 
 **Component-specific Makefiles** provide focused workflows:
 
-- `compiler/Makefile` - Python compiler commands (see below)
-- `vscode-extension/Makefile` - Extension development commands
-- `fixture-generator/Makefile` - Fixture generation commands
-
-**Compiler-specific commands** (run from `compiler/` directory or use `cd compiler && make <command>`):
-
-| Command | Purpose |
-| --------- | --------- |
-| `make ci` or `make check` | Run compiler CI checks (lint + typecheck + test + docs) |
-| `make fix` | Auto-fix Python and YAML linting |
-| `make test` | Run Python unit tests |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
-| `make docs-serve` | Start local documentation server |
-| `make docker-build` | Build Docker image |
-| `make build-binary` | Build standalone binary |
+- `compiler/Makefile` - Python compiler commands (see `compiler/AGENTS.md`)
+- `vscode-extension/Makefile` - Extension development commands (see `vscode-extension/AGENTS.md`)
+- `fixture-generator/Makefile` - Fixture generation commands (see `fixture-generator/AGENTS.md`)
 
 See `make help` in root or component directories for complete command lists.
 
@@ -72,13 +59,7 @@ make install
 make fix    # Auto-fix all components
 make ci     # Run CI checks across all components
 
-# Component workflow - run from compiler/
-cd compiler
-make fix    # Auto-fix Python and YAML
-make ci     # Run compiler CI checks (lint + typecheck + test + docs)
-
-# Mixed workflow - work on compiler, verify globally
-cd compiler && make fix && cd .. && make ci
+# Component workflow - see component AGENTS.md files for detailed workflows
 ```
 
 ---
@@ -98,8 +79,6 @@ If you have recently undergone context summarization/compaction:
 
 ---
 
-@CODE_STYLE.md
-
 **Core Principles:**
 
 - **Read first** — Component README.md/AGENTS.md before working
@@ -110,21 +89,7 @@ If you have recently undergone context summarization/compaction:
 - **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
 - **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
 
-### Context7 MCP Integration
-
-Query up-to-date library documentation via MCP tools: `resolve-library-id` → `query-docs`. **Rate limited—use sparingly** (max 3 calls/question).
-
-**Project libraries:**
-
-| Library | Context7 ID | Use Cases |
-| ------- | ----------- | --------- |
-| Pydantic | `/websites/pydantic_dev` | Field validators, frozen models, model config patterns |
-| Elasticsearch | `/elastic/elasticsearch-py` | Client initialization, search queries, response handling |
-| PyYAML | `/yaml/pyyaml` | Safe loading, custom tags, multi-document streams |
-
-**When to use:** Implementing new Pydantic validation patterns, working with Elasticsearch client in `kibana_client.py`, extending YAML parsing in `loader.py`, understanding library-specific best practices during code review.
-
-**Query guidelines:** Be specific ("How to use field validators with mode='after' in Pydantic 2.x?" not "pydantic validators"), include version context, prioritize official documentation sources (High reputation).
+**Code Style:** See `CODE_STYLE.md` for language-specific conventions and component AGENTS.md files for detailed patterns.
 
 ---
 
