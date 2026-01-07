@@ -41,6 +41,9 @@ on:
       claude-oauth-token:
         description: Claude OAuth token
         required: true
+      context7-api-key:
+        description: API key for Context7 MCP server
+        required: false
 jobs:
   claude:
     runs-on: ubuntu-latest
@@ -56,7 +59,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Setup MCP Server
         env:
-          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+          CONTEXT7_API_KEY: ${{ secrets.context7-api-key }}
         run: |
           mkdir -p /tmp/mcp-config
           cat > /tmp/mcp-config/mcp-servers.json << EOF
