@@ -215,7 +215,7 @@ For line charts (`type: line`), `LineChartAppearance` extends `XYAppearance` (in
 | `missing_values` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | How to handle missing data points ("Missing values" in Kibana UI). Controls interpolation for gaps in your data. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
 | `show_as_dotted` | `bool \| None` | If `true`, visually distinguish interpolated data from real data points ("Show as dotted line" in Kibana UI). | `None` | No |
 | `end_values` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end of the time range in line/area charts ("End values" in Kibana UI). Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
-| `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. Options: 'linear' (straight lines), 'monotone-x' (smooth monotonic curve), 'cardinal' (cardinal spline), 'catmull-rom' (Catmull-Rom spline), 'natural' (natural cubic spline), 'step' (step function), 'step-after' (step after each point), 'step-before' (step before each point). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
+| `curve_type` | `Literal['linear', 'monotone-x', 'step-after'] \| None` | The curve interpolation type for line charts. Kibana supports only 3 types: 'linear' (straight lines), 'monotone-x' (smooth monotonic curve), 'step-after' (step after each point). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
 
 **Example**:
 
@@ -250,7 +250,7 @@ chart:
   data_view: "metrics-*"
   appearance:
     fill_opacity: 0.7
-    curve_type: cardinal
+    curve_type: linear
     series:
       - metric_id: "bytes_in"
         color: "#4CAF50"

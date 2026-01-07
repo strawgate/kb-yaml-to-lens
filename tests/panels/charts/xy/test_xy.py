@@ -1039,15 +1039,13 @@ async def test_line_chart_with_all_advanced_features() -> None:
         ('linear', 'LINEAR'),
         ('monotone-x', 'CURVE_MONOTONE_X'),
         ('step-after', 'CURVE_STEP_AFTER'),
-        ('step-before', 'CURVE_STEP_BEFORE'),
-        ('cardinal', 'CURVE_CARDINAL'),
-        ('catmull-rom', 'CURVE_CATMULL_ROM'),
-        ('natural', 'CURVE_NATURAL'),
-        ('step', 'CURVE_STEP'),
     ],
 )
 async def test_curve_type_mapping(config_value: str, expected_kibana_value: str) -> None:
-    """Test that curve types are correctly mapped from config to Kibana format."""
+    """Test that curve types are correctly mapped from config to Kibana format.
+
+    Only tests the 3 curve types supported by Kibana.
+    """
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
