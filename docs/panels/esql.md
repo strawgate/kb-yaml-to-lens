@@ -272,7 +272,7 @@ Configure how metric values are displayed (number format, suffix, decimal places
 | `type` | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The format type for the metric. | N/A | Yes |
 | `suffix` | `string` | Optional suffix to display after the number (e.g., 'KB', 'ms'). | `None` | No |
 | `compact` | `boolean` | Whether to display the number in a compact format (e.g., '1.2K' instead of '1200'). | `None` | No |
-| `pattern` | `string` | Optional Numeral.js pattern for custom formatting (e.g., '0,0.0 b' for bytes). | `None` | No |
+| `pattern` | `string` | Optional Numeral.js pattern for custom formatting. Controls decimal places, thousands separators, and more (e.g., '0,0.00' for 2 decimals with comma separator, '0.0000' for 4 decimals). | `None` | No |
 
 **Custom Format Type:**
 
@@ -297,11 +297,18 @@ metrics:
     label: "Events"
     format:
       type: number
-      pattern: "0,0"
+      pattern: "0,0"  # No decimal places
+  - field: "avg_response_time"
+    label: "Avg Response Time"
+    format:
+      type: number
+      pattern: "0,0.00"  # 2 decimal places
+      suffix: "ms"
   - field: "success_rate"
     label: "Success Rate"
     format:
       type: percent
+      pattern: "0.0%"  # 1 decimal place for percentages
 ```
 
 ### ESQL Dimension Column
@@ -354,9 +361,6 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 ESQL XY Charts (bar, line, area) share the same formatting options for appearance and legend as Lens XY Charts.
 
-!!! tip "ES|QL XY Chart Appearance"
-    ES|QL bar, line, and area charts support full appearance customization including per-metric colors and dual Y-axis assignment via the `appearance.series` field. This allows you to style each metric independently and create sophisticated multi-axis visualizations.
-
 ### XY Chart Appearance Formatting (`appearance` field)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
@@ -364,7 +368,7 @@ ESQL XY Charts (bar, line, area) share the same formatting options for appearanc
 | `x_axis` | `AxisConfig \| None` | Configuration for the X-axis (horizontal axis). | `None` | No |
 | `y_left_axis` | `AxisConfig \| None` | Configuration for the left Y-axis (primary vertical axis). | `None` | No |
 | `y_right_axis` | `AxisConfig \| None` | Configuration for the right Y-axis (secondary vertical axis). | `None` | No |
-| `series` | `list[XYSeries] \| None` | Per-series visual configuration (axis, colors) for ES\|QL and Lens. | `None` | No |
+| `series` | `list[XYSeries] \| None` | Per-series visual configuration (axis assignment, colors). | `None` | No |
 
 #### AxisConfig Options
 
@@ -391,53 +395,6 @@ ESQL XY Charts (bar, line, area) share the same formatting options for appearanc
 | `metric_id` | `str` | ID of the metric this series configuration applies to. | N/A | Yes |
 | `axis` | `Literal['left', 'right'] \| None` | Which Y-axis this series is assigned to (for dual-axis charts). | `None` | No |
 | `color` | `str \| None` | Hex color code for the series (e.g., '#2196F3'). | `None` | No |
-
-**Example (ES|QL Bar Chart with Custom Colors and Dual Axes):**
-
-```yaml
-panels:
-  - title: "Traffic Analysis with Dual Axes"
-    grid: { x: 0, y: 0, w: 48, h: 12 }
-    esql:
-      query: |
-        FROM logs-*
-        | STATS
-            request_count = COUNT(*),
-            avg_bytes = AVG(bytes)
-          BY @timestamp = BUCKET(@timestamp, 1 hour)
-      chart:
-        type: bar
-        dimensions:
-          - field: "@timestamp"
-        metrics:
-          - field: request_count
-            label: "Request Count"
-            format:
-              type: number
-          - field: avg_bytes
-            label: "Avg Bytes"
-            format:
-              type: bytes
-        appearance:
-          series:
-            - metric_id: request_count
-              color: "#68BC00"   # Green for request count
-              axis: left
-            - metric_id: avg_bytes
-              color: "#009CE0"   # Blue for bytes
-              axis: right
-          y_left_axis:
-            title: "Request Count"
-          y_right_axis:
-            title: "Average Bytes"
-```
-
-This example demonstrates:
-
-* **Per-metric colors**: Each metric gets a custom color using hex codes
-* **Dual Y-axes**: `request_count` on the left axis, `avg_bytes` on the right axis
-* **Axis titles**: Custom titles for left and right Y-axes for clarity
-* **Format options**: Number formatting for counts, bytes formatting for data size
 
 ### XY Legend Formatting (`legend` field)
 
