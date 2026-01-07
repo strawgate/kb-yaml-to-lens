@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import Field, model_validator
 
-from dashboard_compiler.panels.config import Grid, Position, Size
+from dashboard_compiler.panels.config import Position, Size
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
@@ -29,9 +29,6 @@ class BasePanel(BaseCfgModel):
     description: str | None = Field(default=None)
     """A brief description of the panel's content or purpose. Defaults to an empty string."""
 
-    grid: Grid | None = Field(default=None)
-    """Defines the panel's position and size on the dashboard grid. Deprecated in favor of size and position."""
-
     size: Size = Field(default_factory=Size)
     """Defines the panel's size on the dashboard grid."""
 
@@ -54,20 +51,24 @@ class BasePanel(BaseCfgModel):
         if grid is None:
             return data  # pyright: ignore[reportUnknownVariableType]
 
+        # Legacy grid field provided - convert to size and position
         if 'size' not in data:
             data['size'] = {}
         if 'position' not in data:
             data['position'] = {}
 
+        # Extract values from grid dict
         if isinstance(grid, dict):
-            data['size']['w'] = grid.get('w')  # pyright: ignore[reportUnknownMemberType]
-            data['size']['h'] = grid.get('h')  # pyright: ignore[reportUnknownMemberType]
-            data['position']['x'] = grid.get('x')  # pyright: ignore[reportUnknownMemberType]
-            data['position']['y'] = grid.get('y')  # pyright: ignore[reportUnknownMemberType]
-        elif isinstance(grid, Grid):
-            data['size']['w'] = grid.w
-            data['size']['h'] = grid.h
-            data['position']['x'] = grid.x
-            data['position']['y'] = grid.y
+            if 'w' in grid:
+                data['size']['w'] = grid['w']
+            if 'h' in grid:
+                data['size']['h'] = grid['h']
+            if 'x' in grid:
+                data['position']['x'] = grid['x']
+            if 'y' in grid:
+                data['position']['y'] = grid['y']
+
+        # Remove grid field after conversion to prevent extra_forbid error
+        data.pop('grid', None)  # pyright: ignore[reportUnknownMemberType]
 
         return data  # pyright: ignore[reportUnknownVariableType]

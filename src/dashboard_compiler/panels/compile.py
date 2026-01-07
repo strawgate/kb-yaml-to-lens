@@ -3,7 +3,7 @@
 from collections.abc import Sequence
 
 from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
-from dashboard_compiler.panels.auto_layout import AutoLayoutEngine
+from dashboard_compiler.panels.auto_layout import AutoLayoutEngine, LayoutAlgorithm
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
@@ -144,11 +144,15 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
             raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
-def compute_panel_positions(panels: Sequence[PanelTypes]) -> dict[int, tuple[int, int]]:
+def compute_panel_positions(
+    panels: Sequence[PanelTypes],
+    algorithm: LayoutAlgorithm = 'up-left',
+) -> dict[int, tuple[int, int]]:
     """Compute positions for panels that need auto-layout.
 
     Args:
         panels (Sequence[PanelTypes]): The sequence of panel objects.
+        algorithm (LayoutAlgorithm): The layout algorithm to use. Defaults to 'up-left'.
 
     Returns:
         dict[int, tuple[int, int]]: Mapping of panel index to (x, y) position.
@@ -160,7 +164,7 @@ def compute_panel_positions(panels: Sequence[PanelTypes]) -> dict[int, tuple[int
         return {}
 
     # Create layout engine
-    engine = AutoLayoutEngine(algorithm='up-left')
+    engine = AutoLayoutEngine(algorithm=algorithm)
 
     # Mark locked panels (those with explicit positions)
     for panel in panels:
@@ -206,18 +210,22 @@ def validate_no_overlapping_grids(grids: list[tuple[str, Grid]]) -> None:
                 raise ValueError(msg)
 
 
-def compile_dashboard_panels(panels: Sequence[PanelTypes]) -> tuple[list[KbnReference], list[KbnBasePanel]]:
+def compile_dashboard_panels(
+    panels: Sequence[PanelTypes],
+    layout_algorithm: LayoutAlgorithm = 'up-left',
+) -> tuple[list[KbnReference], list[KbnBasePanel]]:
     """Compile the panels of a Dashboard object into their Kibana view model representation.
 
     Args:
         panels (Sequence[PanelTypes]): The sequence of panel objects to compile.
+        layout_algorithm (LayoutAlgorithm): The layout algorithm to use. Defaults to 'up-left'.
 
     Returns:
         tuple[list[KbnReference], list[KbnBasePanel]]: The compiled references and panel view models.
 
     """
     # Compute positions for panels that need auto-layout
-    position_map = compute_panel_positions(panels)
+    position_map = compute_panel_positions(panels, algorithm=layout_algorithm)
 
     # Compute grid for each panel and validate
     grids: list[Grid] = []

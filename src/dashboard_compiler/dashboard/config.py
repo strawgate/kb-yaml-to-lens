@@ -5,6 +5,7 @@ from pydantic import Field
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import ControlSettings
 from dashboard_compiler.filters.config import FilterTypes
+from dashboard_compiler.panels.auto_layout import LayoutAlgorithm
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.sample_data.config import SampleData
@@ -34,6 +35,9 @@ class DashboardSettings(BaseCfgModel):
 
     titles: bool | None = Field(default=None)
     """Whether to display the titles in the panel headers. Defaults to true if not set."""
+
+    layout_algorithm: LayoutAlgorithm = Field(default='up-left')
+    """The auto-layout algorithm to use for positioning panels without explicit coordinates. Defaults to 'up-left'."""
 
 
 class Dashboard(BaseCfgModel):

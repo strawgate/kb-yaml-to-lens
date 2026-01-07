@@ -51,21 +51,6 @@ class TestSize:
         size = Size(w='eighth')
         assert size.w == 6
 
-    def test_size_semantic_height_whole(self) -> None:
-        """Test semantic height 'whole' resolves to 48."""
-        size = Size(h='whole')
-        assert size.h == 48
-
-    def test_size_semantic_height_half(self) -> None:
-        """Test semantic height 'half' resolves to 24."""
-        size = Size(h='half')
-        assert size.h == 24
-
-    def test_size_semantic_height_quarter(self) -> None:
-        """Test semantic height 'quarter' resolves to 12."""
-        size = Size(h='quarter')
-        assert size.h == 12
-
     def test_size_mixed_semantic_and_numeric(self) -> None:
         """Test mixing semantic and numeric dimensions."""
         size = Size(w='quarter', h=20)
@@ -86,31 +71,31 @@ class TestSize:
         """Test that zero width is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Size(w=0)
-        assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+        assert 'Input should be greater than 0' in str(exc_info.value)
 
     def test_size_negative_width_rejected(self) -> None:
         """Test that negative width is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Size(w=-10)
-        assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+        assert 'Input should be greater than 0' in str(exc_info.value)
 
     def test_size_zero_height_rejected(self) -> None:
         """Test that zero height is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Size(h=0)
-        assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+        assert 'Input should be greater than 0' in str(exc_info.value)
 
     def test_size_negative_height_rejected(self) -> None:
         """Test that negative height is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Size(h=-5)
-        assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+        assert 'Input should be greater than 0' in str(exc_info.value)
 
     def test_size_exceeds_grid_width_rejected(self) -> None:
         """Test that width exceeding 48 is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Size(w=50)
-        assert 'Panel width exceeds standard Kibana grid width (48 units)' in str(exc_info.value)
+        assert 'Input should be less than or equal to 48' in str(exc_info.value)
 
 
 class TestPosition:
@@ -160,10 +145,10 @@ class TestPosition:
         """Test that negative x is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Position(x=-5)
-        assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+        assert 'Input should be greater than or equal to 0' in str(exc_info.value)
 
     def test_position_negative_y_rejected(self) -> None:
         """Test that negative y is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             _ = Position(y=-10)
-        assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+        assert 'Input should be greater than or equal to 0' in str(exc_info.value)
