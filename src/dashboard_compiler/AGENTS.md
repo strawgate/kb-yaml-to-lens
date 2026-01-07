@@ -52,6 +52,20 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 
 @../../CODERABBIT.md
 
+### Quick Reference: Finding Patterns
+
+Before implementing a feature, use these searches to learn from existing code:
+
+| Task | Search Strategy |
+| ---- | --------------- |
+| **Adding a new panel type** | `grep -r "isinstance.*Panel" src/dashboard_compiler/panels/compile.py` |
+| **Adding a new chart type** | Study `src/dashboard_compiler/panels/charts/` directory structure |
+| **Adding Pydantic validation** | `grep -r "@model_validator" src/` and look for `mode='after'` usage |
+| **Handling union types** | Search for `isinstance` chains with final error handlers |
+| **Adding a new config option** | Find similar options in `config.py` files, check if defaults in `compile.py` |
+
+**Remember:** The codebase is your best teacher. Search, read, then implement following existing patterns.
+
 ### Documentation Updates
 
 When updating YAML configuration docs:
