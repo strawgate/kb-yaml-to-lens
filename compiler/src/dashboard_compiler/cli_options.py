@@ -6,6 +6,8 @@ from typing import Any
 
 import rich_click as click
 
+from dashboard_compiler.kibana_client import KibanaClient
+
 
 def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     """Add all Kibana connection and authentication options to a Click command.
@@ -20,7 +22,8 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
     The decorator automatically:
     - Validates authentication options
-    - Populates the Click context with Kibana configuration
+    - Creates a KibanaClient with the provided configuration
+    - Populates the Click context with the client
     - Removes Kibana parameters from the function signature
 
     Usage:
@@ -28,14 +31,19 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         @kibana_options
         @click.pass_context
         def my_command(ctx: click.Context) -> None:
-            # Context is already populated with Kibana config
-            client = ctx.obj.create_kibana_client()
+            # Access the pre-configured client from context
+            from dashboard_compiler.cli_context import CliContext
+            if not isinstance(ctx.obj, CliContext):
+                raise TypeError("Context object must be CliContext")
+            client = ctx.obj.kibana_client
+            if client is None:
+                raise ValueError("Kibana client not configured")
 
     Args:
         func: The Click command function to decorate
 
     Returns:
-        The decorated function with Kibana options added and context injection
+        The decorated function with Kibana options added and client injection
 
     """
 
@@ -100,22 +108,27 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         # Validate authentication
         validate_kibana_auth(kibana_api_key, kibana_username, kibana_password)
 
-        # Populate context with Kibana configuration
+        # Create and populate context with Kibana client
         from dashboard_compiler.cli_context import CliContext
 
-        assert isinstance(ctx.obj, CliContext)  # noqa: S101
-        cli_context: CliContext = ctx.obj
-        cli_context.kibana_url = kibana_url
-        cli_context.kibana_username = kibana_username
-        cli_context.kibana_password = kibana_password
-        cli_context.kibana_api_key = kibana_api_key
-        cli_context.kibana_space_id = kibana_space_id
-        cli_context.kibana_ssl_verify = not kibana_no_ssl_verify
+        if not isinstance(ctx.obj, CliContext):
+            msg = 'Context object must be CliContext'
+            raise TypeError(msg)
+
+        ctx.obj.kibana_client = KibanaClient(
+            url=kibana_url,
+            username=kibana_username,
+            password=kibana_password,
+            api_key=kibana_api_key,
+            space_id=kibana_space_id,
+            ssl_verify=not kibana_no_ssl_verify,
+        )
 
         # Call the original function without Kibana parameters
-        return func(ctx, *args, **kwargs)  # pyright: ignore[reportCallIssue]
+        # Note: ctx is passed through because the decorated function has @click.pass_context
+        return func(ctx, *args, **kwargs)  # type: ignore[return-value,call-arg]  # pyright: ignore[reportCallIssue]
 
-    return wrapper  # pyright: ignore[reportReturnType]
+    return wrapper  # type: ignore[return-value]
 
 
 def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
@@ -130,7 +143,8 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
     The decorator automatically:
     - Validates authentication options
-    - Populates the Click context with Elasticsearch configuration
+    - Creates an AsyncElasticsearch client with the provided configuration
+    - Populates the Click context with the client
     - Removes Elasticsearch parameters from the function signature
 
     Usage:
@@ -138,14 +152,19 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         @elasticsearch_options
         @click.pass_context
         def my_command(ctx: click.Context) -> None:
-            # Context is already populated with Elasticsearch config
-            client = ctx.obj.create_elasticsearch_client()
+            # Access the pre-configured client from context
+            from dashboard_compiler.cli_context import CliContext
+            if not isinstance(ctx.obj, CliContext):
+                raise TypeError("Context object must be CliContext")
+            client = ctx.obj.es_client
+            if client is None:
+                raise ValueError("Elasticsearch client not configured")
 
     Args:
         func: The Click command function to decorate
 
     Returns:
-        The decorated function with Elasticsearch options added and context injection
+        The decorated function with Elasticsearch options added and client injection
 
     """
 
@@ -194,21 +213,34 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         # Validate authentication
         validate_elasticsearch_auth(es_api_key, es_username, es_password)
 
-        # Populate context with Elasticsearch configuration
+        # Create and populate context with Elasticsearch client
+        from elasticsearch import AsyncElasticsearch
+
         from dashboard_compiler.cli_context import CliContext
 
-        assert isinstance(ctx.obj, CliContext)  # noqa: S101
-        cli_context: CliContext = ctx.obj
-        cli_context.es_url = es_url
-        cli_context.es_username = es_username
-        cli_context.es_password = es_password
-        cli_context.es_api_key = es_api_key
-        cli_context.es_ssl_verify = not es_no_ssl_verify
+        if not isinstance(ctx.obj, CliContext):
+            msg = 'Context object must be CliContext'
+            raise TypeError(msg)
+
+        # API key takes priority
+        if es_api_key is not None:
+            ctx.obj.es_client = AsyncElasticsearch(es_url, api_key=es_api_key, verify_certs=not es_no_ssl_verify)
+        # Basic auth
+        elif es_username is not None and es_password is not None:
+            ctx.obj.es_client = AsyncElasticsearch(
+                es_url,
+                basic_auth=(es_username, es_password),
+                verify_certs=not es_no_ssl_verify,
+            )
+        # No auth
+        else:
+            ctx.obj.es_client = AsyncElasticsearch(es_url, verify_certs=not es_no_ssl_verify)
 
         # Call the original function without Elasticsearch parameters
-        return func(ctx, *args, **kwargs)  # pyright: ignore[reportCallIssue]
+        # Note: ctx is passed through because the decorated function has @click.pass_context
+        return func(ctx, *args, **kwargs)  # type: ignore[return-value,call-arg]  # pyright: ignore[reportCallIssue]
 
-    return wrapper  # pyright: ignore[reportReturnType]
+    return wrapper  # type: ignore[return-value]
 
 
 def validate_kibana_auth(

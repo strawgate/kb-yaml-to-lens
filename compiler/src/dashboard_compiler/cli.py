@@ -10,6 +10,7 @@ import aiohttp
 import rich_click as click
 import yaml
 from elastic_transport import TransportError
+from elasticsearch import AsyncElasticsearch
 from pydantic import ValidationError
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -22,7 +23,7 @@ from dashboard_compiler.cli_options import (
 )
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
-from dashboard_compiler.kibana_client import SavedObjectError
+from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
 from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
@@ -217,7 +218,7 @@ def cli(ctx: click.Context) -> None:
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
 @click.pass_context
-def compile_dashboards(  # noqa: PLR0913
+def compile_dashboards(  # noqa: PLR0913, PLR0912
     ctx: click.Context,
     input_dir: Path,
     output_dir: Path,
@@ -256,7 +257,9 @@ def compile_dashboards(  # noqa: PLR0913
         kb-dashboard compile --upload
     """
     # Context is already populated by @kibana_options decorator
-    assert isinstance(ctx.obj, CliContext)  # noqa: S101
+    if not isinstance(ctx.obj, CliContext):
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
     cli_context = ctx.obj
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -315,12 +318,15 @@ def compile_dashboards(  # noqa: PLR0913
     console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
 
     if upload is True:
-        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana at {cli_context.kibana_url}...')
-        asyncio.run(upload_to_kibana(cli_context, combined_file, overwrite, not no_browser))
+        if cli_context.kibana_client is None:
+            msg = 'Kibana client not configured'
+            raise click.ClickException(msg)
+        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana...')
+        asyncio.run(upload_to_kibana(cli_context.kibana_client, combined_file, overwrite, not no_browser))
 
 
 async def upload_to_kibana(
-    cli_context: CliContext,
+    client: KibanaClient,
     ndjson_file: Path,
     overwrite: bool,
     open_browser: bool,
@@ -328,7 +334,7 @@ async def upload_to_kibana(
     """Upload NDJSON file to Kibana.
 
     Args:
-        cli_context: CLI context with Kibana client configuration
+        client: Pre-configured Kibana client
         ndjson_file: Path to NDJSON file to upload
         overwrite: Whether to overwrite existing objects
         open_browser: Whether to open browser after successful upload
@@ -337,8 +343,6 @@ async def upload_to_kibana(
         click.ClickException: If upload fails.
 
     """
-    client = cli_context.create_kibana_client()
-
     try:
         result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
@@ -404,8 +408,14 @@ def load_sample_data_command(
             --es-api-key "your-api-key-here"
     """
     # Context is already populated by @elasticsearch_options decorator
-    assert isinstance(ctx.obj, CliContext)  # noqa: S101
+    if not isinstance(ctx.obj, CliContext):
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
     cli_context = ctx.obj
+
+    if cli_context.es_client is None:
+        msg = 'Elasticsearch client not configured'
+        raise click.ClickException(msg)
 
     yaml_files = get_yaml_files(input_dir)
     if len(yaml_files) == 0:
@@ -426,9 +436,9 @@ def load_sample_data_command(
         return
 
     console.print(f'Found {len(dashboards_with_sample_data)} dashboard(s) with sample data')
-    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Loading sample data to Elasticsearch at {cli_context.es_url}...\n')
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Loading sample data to Elasticsearch...\n')
 
-    asyncio.run(load_all_sample_data(cli_context, dashboards_with_sample_data))
+    asyncio.run(load_all_sample_data(cli_context.es_client, dashboards_with_sample_data))
 
 
 @cli.command('extract-sample-data')
@@ -488,16 +498,22 @@ def extract_sample_data_command(
             --es-url https://es.example.com --es-api-key "your-api-key"
     """
     # Context is already populated by @elasticsearch_options decorator
-    assert isinstance(ctx.obj, CliContext)  # noqa: S101
+    if not isinstance(ctx.obj, CliContext):
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
     cli_context = ctx.obj
 
-    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch at {cli_context.es_url}...')
+    if cli_context.es_client is None:
+        msg = 'Elasticsearch client not configured'
+        raise click.ClickException(msg)
+
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch...')
     console.print(f'Index: {index}')
     console.print(f'Query: {query}')
     console.print(f'Max docs: {max_docs}')
     console.print(f'Output: {output}\n')
 
-    asyncio.run(extract_data(cli_context, index, output, query, max_docs))
+    asyncio.run(extract_data(cli_context.es_client, index, output, query, max_docs))
 
 
 @cli.command('screenshot')
@@ -588,12 +604,18 @@ def screenshot_dashboard(  # noqa: PLR0913
             --width 3840 --height 2160
     """
     # Context is already populated by @kibana_options decorator
-    assert isinstance(ctx.obj, CliContext)  # noqa: S101
+    if not isinstance(ctx.obj, CliContext):
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
     cli_context = ctx.obj
+
+    if cli_context.kibana_client is None:
+        msg = 'Kibana client not configured'
+        raise click.ClickException(msg)
 
     asyncio.run(
         generate_screenshot(
-            cli_context,
+            cli_context.kibana_client,
             dashboard_id=dashboard_id,
             output_path=output,
             time_from=time_from,
@@ -607,7 +629,7 @@ def screenshot_dashboard(  # noqa: PLR0913
 
 
 async def generate_screenshot(  # noqa: PLR0913
-    cli_context: CliContext,
+    client: KibanaClient,
     dashboard_id: str,
     output_path: Path,
     time_from: str | None,
@@ -620,7 +642,7 @@ async def generate_screenshot(  # noqa: PLR0913
     """Generate a screenshot of a Kibana dashboard.
 
     Args:
-        cli_context: CLI context with Kibana client configuration
+        client: Pre-configured Kibana client
         dashboard_id: The dashboard ID to screenshot
         output_path: Path to save the PNG file
         time_from: Start time for dashboard time range
@@ -634,8 +656,6 @@ async def generate_screenshot(  # noqa: PLR0913
         click.ClickException: If screenshot generation fails.
 
     """
-    client = cli_context.create_kibana_client()
-
     try:
         with Progress(
             SpinnerColumn(),
@@ -680,7 +700,7 @@ async def generate_screenshot(  # noqa: PLR0913
 
 
 async def extract_data(
-    cli_context: CliContext,
+    es_client: AsyncElasticsearch,
     index: str,
     output: Path,
     query: str,
@@ -689,7 +709,7 @@ async def extract_data(
     """Extract data from Elasticsearch to NDJSON file.
 
     Args:
-        cli_context: CLI context with Elasticsearch client configuration
+        es_client: Pre-configured Elasticsearch client
         index: Elasticsearch index pattern to query
         output: Path where NDJSON file will be saved
         query: Elasticsearch query string
@@ -700,8 +720,6 @@ async def extract_data(
 
     """
     import json
-
-    es_client = cli_context.create_elasticsearch_client()
 
     try:
         response = await es_client.search(
@@ -734,21 +752,19 @@ async def extract_data(
 
 
 async def load_all_sample_data(
-    cli_context: CliContext,
+    es_client: AsyncElasticsearch,
     dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]],
 ) -> None:
     """Load sample data from all dashboards into Elasticsearch.
 
     Args:
-        cli_context: CLI context with Elasticsearch client configuration
+        es_client: Pre-configured Elasticsearch client
         dashboards_with_sample_data: List of (yaml_file_path, dashboards) tuples
 
     Raises:
         click.ClickException: If sample data loading fails.
 
     """
-    es_client = cli_context.create_elasticsearch_client()
-
     try:
         total_loaded = 0
         total_errors: list[str] = []
@@ -825,21 +841,27 @@ def export_for_issue(
         kb-dashboard export-for-issue --dashboard-id my-dashboard-id --no-browser
     """
     # Context is already populated by @kibana_options decorator
-    assert isinstance(ctx.obj, CliContext)  # noqa: S101
+    if not isinstance(ctx.obj, CliContext):
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
     cli_context = ctx.obj
 
-    asyncio.run(_export_dashboard_for_issue(cli_context, dashboard_id=dashboard_id, open_browser=not no_browser))
+    if cli_context.kibana_client is None:
+        msg = 'Kibana client not configured'
+        raise click.ClickException(msg)
+
+    asyncio.run(_export_dashboard_for_issue(cli_context.kibana_client, dashboard_id=dashboard_id, open_browser=not no_browser))
 
 
 async def _export_dashboard_for_issue(
-    cli_context: CliContext,
+    client: KibanaClient,
     dashboard_id: str,
     open_browser: bool,
 ) -> None:
     """Export dashboard and generate GitHub issue URL.
 
     Args:
-        cli_context: CLI context with Kibana client configuration
+        client: Pre-configured Kibana client
         dashboard_id: The dashboard ID to export
         open_browser: Whether to open browser with pre-filled issue
 
@@ -847,8 +869,6 @@ async def _export_dashboard_for_issue(
         click.ClickException: If export fails
 
     """
-    client = cli_context.create_kibana_client()
-
     try:
         with Progress(
             SpinnerColumn(),
