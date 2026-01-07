@@ -32,7 +32,7 @@ jobs:
       - name: Build Docker image for testing
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: compiler
           platforms: linux/amd64
           load: true
           tags: kb-dashboard-compiler:test
@@ -48,7 +48,7 @@ jobs:
       - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: compiler
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

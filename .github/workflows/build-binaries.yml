@@ -36,6 +36,7 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v7
       - name: Install dependencies
+        working-directory: compiler
         run: uv sync --group build
       - name: Build binary
         run: make build-binary
