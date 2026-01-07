@@ -80,7 +80,7 @@ def _should_skip_compilation(yaml_content: str, skip: bool) -> bool:
         True if the example should be skipped from compilation tests.
     """
     return (
-        skip
+        skip is True
         or _is_placeholder_example(yaml_content)
         or 'dashboards:' not in yaml_content
         or '# Your panel definitions go here' in yaml_content
@@ -158,7 +158,7 @@ def test_yaml_examples_use_dashboards_format(file_path: str, yaml_content: str, 
     Validates that all YAML examples use the current array format (dashboards:) instead of
     the deprecated singular format (dashboard:). Skips examples with explicit skip markers.
     """
-    if skip:
+    if skip is True:
         pytest.skip('Example marked with skip in code fence')
 
     # Check if this example contains a dashboard definition
@@ -186,7 +186,7 @@ def test_yaml_examples_valid_syntax(file_path: str, yaml_content: str, line_num:
     Validates that all YAML code blocks in documentation can be parsed by PyYAML.
     Skips examples with explicit skip markers or placeholder content.
     """
-    if skip or _is_placeholder_example(yaml_content):
+    if skip is True or _is_placeholder_example(yaml_content):
         pytest.skip('Example marked with skip or contains placeholders')
 
     try:
