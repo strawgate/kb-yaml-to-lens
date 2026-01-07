@@ -137,14 +137,7 @@ class UpLeftEngine(BaseLayoutEngine):
         Returns:
             Tuple of (x, y) coordinates.
 
-        Raises:
-            ValueError: If panel width exceeds grid width.
-
         """
-        if width > self.grid_width:
-            msg = f'Panel width {width} exceeds grid width {self.grid_width}'
-            raise ValueError(msg)
-
         y = 0
         max_y = max((coord[1] for coord in self.occupied), default=0) + _MAX_Y_SEARCH_BUFFER
 
