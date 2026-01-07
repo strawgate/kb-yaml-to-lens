@@ -407,16 +407,15 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, _layer_id = compile_esql_chart_state(panel)
+        state, layer_id = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
-        assert len(layers) > 0
 
-        # Get the first layer
-        first_layer = next(iter(layers.values()))
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
         assert first_layer.timeField == '@timestamp'
 
     def test_esql_metric_chart_custom_time_field(self) -> None:
@@ -435,16 +434,15 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, _layer_id = compile_esql_chart_state(panel)
+        state, layer_id = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
-        assert len(layers) > 0
 
-        # Get the first layer
-        first_layer = next(iter(layers.values()))
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
         assert first_layer.timeField == 'event.created'
 
     def test_esql_pie_chart_custom_time_field(self) -> None:
@@ -464,14 +462,41 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, _layer_id = compile_esql_chart_state(panel)
+        state, layer_id = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
-        assert len(layers) > 0
 
-        # Get the first layer
-        first_layer = next(iter(layers.values()))
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
         assert first_layer.timeField == 'timestamp'
+
+    def test_esql_bar_chart_custom_time_field(self) -> None:
+        """Test that ES|QL bar chart uses custom timeField when specified."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'bar',
+                    'query': 'FROM metrics-* | STATS count() BY @timestamp',
+                    'timeField': 'event.timestamp',
+                    'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, layer_id = compile_esql_chart_state(panel)
+
+        assert state.datasourceStates is not None
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
+        assert first_layer.timeField == 'event.timestamp'
