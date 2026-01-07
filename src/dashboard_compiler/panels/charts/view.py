@@ -114,6 +114,7 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
+    timeField: str
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):
