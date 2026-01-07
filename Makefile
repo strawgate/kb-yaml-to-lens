@@ -287,11 +287,11 @@ build-extension:
 # If a workflow is failing silently, check that the target exists above this line.
 #
 # WARNING: This rule makes undefined targets succeed silently. To prevent accidental
-# silent failures, we print a warning if the target looks like an actual command
-# (contains hyphens, which are common in make targets but rare in script arguments).
+# silent failures, we check if the target looks like a make command (starts with
+# common prefixes like lint-, test-, build-, etc.) and fail with an error if so.
 %:
-	@if echo "$@" | grep -q -- "-"; then \
-		echo "⚠️  WARNING: Target '$@' is not defined in Makefile" >&2; \
-		echo "⚠️  If this was intended to be a make command, check the Makefile" >&2; \
+	@if echo "$@" | grep -qE '^(lint-|test-|build-|docs-|typecheck|compile|install-|clean-|ci|check|fix)'; then \
+		echo "⚠️  ERROR: Target '$@' is not defined in Makefile" >&2; \
+		echo "⚠️  Run 'make help' to see available commands" >&2; \
 		exit 1; \
 	fi
