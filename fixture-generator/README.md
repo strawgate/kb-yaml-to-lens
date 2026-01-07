@@ -334,8 +334,9 @@ Always run these verification steps:
 1. Generate fixture: `make run-example EXAMPLE=your-file.js`
 2. Verify output exists in `fixture-generator/output/`
 3. Validate JSON: `python -m json.tool output/your-file.json > /dev/null`
-4. Run checks from root: `cd .. && make ci`
-5. Commit both generator script and output files
+4. Run typecheck: `cd .. && make typecheck`
+5. Run full CI from root: `cd .. && make ci`
+6. Commit both generator script and output files
 
 ### Invalid Configuration
 
