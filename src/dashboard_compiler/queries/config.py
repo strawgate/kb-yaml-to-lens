@@ -35,7 +35,7 @@ def _normalize_esql_query(value: QueryPart) -> str:
     """Normalize the query to a string by flattening and concatenating list elements with pipes."""
     if isinstance(value, list):
         flattened = _flatten_query_parts(value)
-        return ' | '.join(flattened)
+        return '\n| '.join(flattened)
     return value
 
 
@@ -85,7 +85,10 @@ class ESQLQuery(BaseRootCfgModel):
           - *base_query
           - STATS count = COUNT()
 
-        # Results in: FROM logs-* | WHERE @timestamp > NOW() - 1h | STATS count = COUNT()
+        # Results in:
+        # FROM logs-*
+        # | WHERE @timestamp > NOW() - 1h
+        # | STATS count = COUNT()
     """
 
     root: NormalizedQuery = Field(...)
