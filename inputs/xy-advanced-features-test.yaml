@@ -1,0 +1,300 @@
+---
+dashboards:
+  - name: '[XY Charts] Advanced Line Chart Features Test'
+    description: Test dashboard demonstrating all new advanced XY chart features (fitting functions, curve types, time markers, fill opacity,
+      min bar height)
+    panels:
+      # Panel 1: Fitting Functions - Linear
+      - title: Line Chart - Linear Fitting Function
+        description: Demonstrates linear interpolation for missing data points
+        grid: {x: 0, y: 0, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Linear
+            emphasize_fitting: true
+
+      # Panel 2: Fitting Functions - Average
+      - title: Line Chart - Average Fitting Function
+        description: Demonstrates average interpolation for missing data points
+        grid: {x: 24, y: 0, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Average
+            emphasize_fitting: true
+
+      # Panel 3: Fitting Functions - Carry
+      - title: Line Chart - Carry Fitting Function
+        description: Demonstrates carry forward interpolation
+        grid: {x: 0, y: 12, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Carry
+
+      # Panel 4: Fitting Functions - Lookahead
+      - title: Line Chart - Lookahead Fitting Function
+        description: Demonstrates lookahead interpolation
+        grid: {x: 24, y: 12, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Lookahead
+
+      # Panel 5: Fitting Functions - Nearest
+      - title: Line Chart - Nearest Fitting Function
+        description: Demonstrates nearest value interpolation
+        grid: {x: 0, y: 24, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Nearest
+
+      # Panel 6: Curve Types - Monotone X
+      - title: Line Chart - Monotone X Curve
+        description: Smooth monotonic curve interpolation
+        grid: {x: 24, y: 24, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            curve_type: monotone-x
+
+      # Panel 7: Curve Types - Step After
+      - title: Line Chart - Step After Curve
+        description: Step function that changes after each point
+        grid: {x: 0, y: 36, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            curve_type: step-after
+
+      # Panel 8: Curve Types - Cardinal
+      - title: Line Chart - Cardinal Curve
+        description: Cardinal spline interpolation
+        grid: {x: 24, y: 36, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            curve_type: cardinal
+
+      # Panel 9: End Value Handling - Zero
+      - title: Line Chart - End Value Zero
+        description: Line ends at zero value
+        grid: {x: 0, y: 48, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            end_value: Zero
+
+      # Panel 10: End Value Handling - Nearest
+      - title: Line Chart - End Value Nearest
+        description: Line ends at nearest value
+        grid: {x: 24, y: 48, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            end_value: Nearest
+
+      # Panel 11: Time Series Features - Time Marker & Endzones
+      - title: Line Chart - Time Marker & Hidden Endzones
+        description: Shows current time marker and hides incomplete data endzones
+        grid: {x: 0, y: 60, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          show_current_time_marker: true
+          hide_endzones: true
+
+      # Panel 12: Area Chart - Fill Opacity
+      - title: Area Chart - Custom Fill Opacity
+        description: Area chart with 70% fill opacity
+        grid: {x: 24, y: 60, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fill_opacity: 0.7
+
+      # Panel 13: Bar Chart - Min Bar Height
+      - title: Bar Chart - Minimum Bar Height
+        description: Bar chart with minimum height of 5 pixels
+        grid: {x: 0, y: 72, w: 24, h: 12}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            min_bar_height: 5.0
+
+      # Panel 14: All Advanced Features Combined
+      - title: Line Chart - All Advanced Features
+        description: Combines fitting function, curve type, end value, time markers, and endzones
+        grid: {x: 24, y: 72, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Average
+            emphasize_fitting: true
+            end_value: Nearest
+            curve_type: monotone-x
+          show_current_time_marker: true
+          hide_endzones: true
+
+      # Panel 15: Area Chart - All Area Features
+      - title: Area Chart - All Area Features
+        description: Combines fitting, curve type, fill opacity, and time series features
+        grid: {x: 0, y: 84, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            fitting_function: Linear
+            emphasize_fitting: false
+            end_value: Zero
+            curve_type: cardinal
+            fill_opacity: 0.5
+          show_current_time_marker: false
+          hide_endzones: true
+
+      # Panel 16: Bar Chart with Axis Configuration
+      - title: Bar Chart - Min Height with Axis Config
+        description: Bar chart combining min bar height with axis title and scale
+        grid: {x: 24, y: 84, w: 24, h: 12}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimensions:
+            - type: date_histogram
+              field: '@timestamp'
+          metrics:
+            - aggregation: count
+          appearance:
+            min_bar_height: 3.5
+            y_left_axis:
+              title: Event Count
+              scale: linear
+
+      # Panel 17: ESQL Line Chart with Advanced Features
+      - title: ESQL Line Chart - Advanced Features
+        description: ESQL-based line chart with fitting and time series features
+        grid: {x: 0, y: 96, w: 24, h: 12}
+        esql:
+          type: line
+          dimensions:
+            - field: '@timestamp'
+          metrics:
+            - field: count
+          appearance:
+            fitting_function: Lookahead
+            emphasize_fitting: false
+            curve_type: natural
+          show_current_time_marker: true
+          hide_endzones: false
+          query:
+            - FROM logs-*
+            - STATS count = COUNT(*) BY @timestamp
+            - LIMIT 1000
+
+      # Panel 18: ESQL Area Chart with Fill Opacity
+      - title: ESQL Area Chart - Fill Opacity
+        description: ESQL-based area chart with custom fill opacity
+        grid: {x: 24, y: 96, w: 24, h: 12}
+        esql:
+          type: area
+          dimensions:
+            - field: '@timestamp'
+          metrics:
+            - field: count
+          appearance:
+            fill_opacity: 0.8
+            fitting_function: Carry
+          query:
+            - FROM logs-*
+            - STATS count = COUNT(*) BY @timestamp
+            - LIMIT 1000
