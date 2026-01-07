@@ -46,10 +46,8 @@ suite('Extension Test Suite', () => {
         potentialPaths.push(path.resolve(__dirname, '../../../../.venv/bin/python'));
 
         // Try from current working directory (CI environment)
-        if (process.cwd()) {
-            potentialPaths.push(path.join(process.cwd(), 'compiler/.venv/bin/python'));
-            potentialPaths.push(path.join(process.cwd(), '.venv/bin/python'));
-        }
+        potentialPaths.push(path.join(process.cwd(), 'compiler/.venv/bin/python'));
+        potentialPaths.push(path.join(process.cwd(), '.venv/bin/python'));
 
         // Absolute container paths
         potentialPaths.push('/app/compiler/.venv/bin/python');
