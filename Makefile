@@ -99,7 +99,7 @@ check: ci
 fix: lint-all
 
 # Linting meta-commands
-lint-all: format lint lint-markdown lint-yaml
+lint-all: lint format lint-markdown lint-yaml
 	@echo "✓ All linting complete (with auto-fix)"
 
 lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
