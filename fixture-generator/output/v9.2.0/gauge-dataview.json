@@ -14,7 +14,10 @@
         "layers": {
           "layer_0": {
             "columnOrder": [
-              "metric_formula_accessor"
+              "metric_formula_accessor",
+              "metric_formula_accessor_goal",
+              "metric_formula_accessor_min",
+              "metric_formula_accessor_max"
             ],
             "columns": {
               "metric_formula_accessor": {
@@ -22,7 +25,43 @@
                 "isBucketed": false,
                 "dataType": "number",
                 "references": [],
-                "params": {},
+                "label": "average(system.cpu.total.pct)",
+                "params": {
+                  "formula": "average(system.cpu.total.pct)"
+                },
+                "customLabel": true
+              },
+              "metric_formula_accessor_goal": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "0.8",
+                "params": {
+                  "formula": "0.8"
+                },
+                "customLabel": true
+              },
+              "metric_formula_accessor_min": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "0",
+                "params": {
+                  "formula": "0"
+                },
+                "customLabel": true
+              },
+              "metric_formula_accessor_max": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "1",
+                "params": {
+                  "formula": "1"
+                },
                 "customLabel": true
               }
             }
@@ -42,7 +81,11 @@
       "ticksPosition": "auto",
       "shape": "arc",
       "labelMajorMode": "auto",
-      "metricAccessor": "metric_formula_accessor"
+      "metricAccessor": "metric_formula_accessor",
+      "goalAccessor": "metric_formula_accessor_goal",
+      "maxAccessor": "metric_formula_accessor_max",
+      "showBar": true,
+      "minAccessor": "metric_formula_accessor_min"
     },
     "adHocDataViews": {
       "metrics-*": {}
