@@ -42,7 +42,7 @@ suite('Extension Test Suite', () => {
         }
 
         // Try relative to __dirname (vscode-extension/out/test/suite)
-        potentialPaths.push(path.resolve(__dirname, '../../../../../compiler/.venv/bin/python'));
+        potentialPaths.push(path.resolve(__dirname, '../../../../compiler/.venv/bin/python'));
         potentialPaths.push(path.resolve(__dirname, '../../../../.venv/bin/python'));
 
         // Try from current working directory (CI environment)
