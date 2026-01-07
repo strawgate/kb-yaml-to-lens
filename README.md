@@ -14,7 +14,6 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 - **Advanced Controls** – Control groups with options lists, range sliders, and time sliders with chaining
 - **Filter Support** – Exists, phrase, range, and custom DSL with AND/OR/NOT operators
 - **Direct Upload** – Optional direct upload to Kibana with authentication support
-- **Screenshot Export** – Generate PNG screenshots of dashboards with custom time ranges using Kibana's Reporting API
 
 ## Prerequisites
 
@@ -33,18 +32,6 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Pytho
 
 ```bash
 uv sync
-```
-
-**For development (includes testing, linting, type checking):**
-
-```bash
-uv sync --group dev
-```
-
-Or simply use the convenience command:
-
-```bash
-make install
 ```
 
 #### Option 2: Using Docker
@@ -72,6 +59,21 @@ No Python installation required!
 
 ### Compile Your First Dashboard
 
+All future commands that use uv should start with `uv run kb-dashboard <command>`.
+
+All future commands that use Docker should start with:
+
+```bash
+docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
+  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest <command>
+```
+
+All future commands that use the standalone binary should start with:
+
+```bash
+./kb-dashboard-<platform> <command>
+```
+
 1. Create a YAML dashboard file in `inputs/` directory:
 
 ```yaml
@@ -90,60 +92,14 @@ dashboards:
 
 1. Compile to NDJSON:
 
-**Using uv:**
-
 ```bash
-uv run kb-dashboard compile --input-dir inputs --output-dir output
-```
-
-**Using Docker:**
-
-```bash
-docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
-  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
-  compile --input-dir /inputs --output-dir /output
-```
-
-**Using standalone binary:**
-
-```bash
-./kb-dashboard-linux-x64 compile --input-dir inputs --output-dir output
+<compiler-command> compile --input-dir inputs --output-dir output
 ```
 
 1. (Optional) Upload directly to Kibana:
 
-**Using uv:**
-
 ```bash
-uv run kb-dashboard compile \
-  --input-dir inputs \
-  --output-dir output \
-  --upload \
-  --kibana-url http://localhost:5601 \
-  --kibana-username elastic \
-  --kibana-password changeme
-```
-
-**Using Docker:**
-
-```bash
-docker run --rm -v $(pwd)/inputs:/inputs \
-  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
-  compile --input-dir /inputs --upload \
-  --kibana-url http://host.docker.internal:5601 \
-  --kibana-username elastic --kibana-password changeme
-```
-
-**Using standalone binary:**
-
-```bash
-./kb-dashboard-linux-x64 compile \
-  --input-dir inputs \
-  --output-dir output \
-  --upload \
-  --kibana-url http://localhost:5601 \
-  --kibana-username elastic \
-  --kibana-password changeme
+<compiler-command> compile --input-dir inputs --output-dir output --upload --kibana-url http://localhost:5601 --kibana-username elastic --kibana-password changeme
 ```
 
 The `--upload` flag will automatically open your dashboard in the browser upon successful upload.
@@ -154,81 +110,6 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 - **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
 - **[Architecture](docs/architecture.md)** – Technical design and data flow overview
 - **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities
-
-## CLI Commands
-
-### Compile Dashboards
-
-Compile YAML files to NDJSON format:
-
-```bash
-uv run kb-dashboard compile [OPTIONS]
-```
-
-**Options:**
-
-- `--input-dir PATH` – Directory containing YAML files (default: `inputs`)
-- `--output-dir PATH` – Output directory for NDJSON files (default: `output`)
-- `--output-file NAME` – Combined output filename (default: `compiled_dashboards.ndjson`)
-- `--upload` – Upload to Kibana after compilation
-- `--kibana-url URL` – Kibana URL (default: `http://localhost:5601`, or set `KIBANA_URL` env var)
-- `--kibana-username USER` – Username for basic auth (or set `KIBANA_USERNAME` env var)
-- `--kibana-password PASS` – Password for basic auth (or set `KIBANA_PASSWORD` env var)
-- `--kibana-api-key KEY` – API key for authentication (or set `KIBANA_API_KEY` env var)
-- `--no-browser` – Don't open browser after upload
-- `--overwrite/--no-overwrite` – Overwrite existing dashboards (default: `--overwrite`)
-- `--kibana-no-ssl-verify` – Disable SSL certificate verification
-
-### Screenshot Dashboard
-
-Generate a PNG screenshot of a Kibana dashboard using the Kibana Reporting API:
-
-```bash
-uv run kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
-```
-
-**Required Options:**
-
-- `--dashboard-id ID` – The Kibana dashboard ID to screenshot
-- `--output PATH` – Output PNG file path
-
-**Options:**
-
-- `--time-from TIME` – Start time for dashboard time range (ISO 8601 format or relative like "now-7d")
-- `--time-to TIME` – End time for dashboard time range (ISO 8601 format or relative like "now")
-- `--width PIXELS` – Screenshot width in pixels (default: 1920)
-- `--height PIXELS` – Screenshot height in pixels (default: 1080)
-- `--browser-timezone TZ` – Timezone for the screenshot (default: UTC)
-- `--timeout SECONDS` – Maximum seconds to wait for screenshot generation (default: 300)
-- `--kibana-url URL` – Kibana URL (default: `http://localhost:5601`, or set `KIBANA_URL` env var)
-- `--kibana-username USER` – Username for basic auth (or set `KIBANA_USERNAME` env var)
-- `--kibana-password PASS` – Password for basic auth (or set `KIBANA_PASSWORD` env var)
-- `--kibana-api-key KEY` – API key for authentication (or set `KIBANA_API_KEY` env var)
-
-**Examples:**
-
-```bash
-# Screenshot with default settings
-uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
-
-# Screenshot with custom time range (absolute)
-uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
-  --time-from "2024-01-01T00:00:00Z" --time-to "2024-12-31T23:59:59Z"
-
-# Screenshot with relative time range
-uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
-  --time-from "now-7d" --time-to "now"
-
-# Screenshot with custom dimensions (4K)
-uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
-  --width 3840 --height 2160
-
-# Screenshot with API key authentication
-export KIBANA_API_KEY="your-api-key"
-uv run kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png
-```
-
-**Note:** This feature requires a Kibana instance with the Reporting plugin enabled (included by default in most Kibana distributions).
 
 ## License
 

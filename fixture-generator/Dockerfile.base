@@ -1,11 +1,10 @@
-# Kibana Dashboard Fixture Generator
+# Kibana Base Image for Fixture Generation
 #
-# This Dockerfile creates an environment that:
-# 1. Bootstraps Kibana from source (to access @kbn/lens-embeddable-utils)
-# 2. Provides LensConfigBuilder API for generating fixtures
-# 3. Runs simple JavaScript scripts to export dashboard JSON
+# This Dockerfile creates a base image with Kibana bootstrapped and ready to use.
+# It is published to GitHub Container Registry and reused by the main Dockerfile.
 #
-# Note: The first build takes ~6 minutes due to Kibana bootstrap and build
+# Build time: ~6 minutes (one-time, then cached and reused)
+# Image size: ~8GB (includes full Kibana source + node_modules)
 
 FROM ubuntu:22.04
 
@@ -48,30 +47,20 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
 RUN yarn kbn bootstrap --allow-root
 
-# Install tsx, typescript, @types/node, and peggy globally
+# Install global dependencies needed for fixture generation
 # tsx: needed for TypeScript transpilation
 # typescript: needed for type checking with tsc
 # @types/node: needed for Node.js type definitions
 # peggy: needed to compile .peggy grammar files to JavaScript
-# Then compile .peggy grammar files to JavaScript
-RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node@22.19.3 peggy@4.0.3 && \
-    cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
+RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node@22.19.3 peggy@4.0.3
+
+# Compile .peggy grammar files to JavaScript
+RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
     peggy grammar.peggy && \
     sed -i "s|from './grammar.peggy'|from './grammar.js'|g" index.ts
 
-# Copy generator scripts to Kibana root (for proper @kbn/ module resolution)
-COPY generate-all.js /kibana/
-COPY dataviews-mock.js /kibana/
-COPY generator-utils.ts /kibana/
-COPY examples/ /kibana/examples/
-RUN mkdir -p /kibana/output
+# Set Kibana version for runtime use
+ENV KIBANA_VERSION=${KIBANA_VERSION}
 
 # Stay in Kibana root for module resolution
 WORKDIR /kibana
-
-# Set output directory and Kibana version for fixture generation
-ENV OUTPUT_DIR=/kibana/output
-ENV KIBANA_VERSION=${KIBANA_VERSION}
-
-# Default command: generate all fixtures using tsx for TypeScript support
-CMD ["tsx", "generate-all.js"]

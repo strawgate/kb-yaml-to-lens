@@ -18,7 +18,7 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 
 **When creating/modifying fixtures:**
 
-1. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
+1. Run `cd fixture-generator && make pull` (first time only - pulls pre-built base image)
 2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.ts`
 3. Verify output exists in `fixture-generator/output/`
 4. Inspect JSON validity
@@ -36,9 +36,10 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 
 | Command | Purpose |
 | ------- | ------- |
-| `make ci` | Run CI checks (typecheck + build) |
+| `make ci` | Run CI checks (typecheck + pull + test) |
 | `make typecheck` | Run TypeScript type checking |
-| `make build` | Build Docker image (~6 min) |
+| `make pull` | Pull pre-built base image from GHCR |
+| `make build-base` | Build base image locally (for testing changes) |
 | `make run` | Generate all fixtures |
 | `make run-example EXAMPLE=file.ts` | Generate single fixture |
 | `make shell` | Debug in container |
@@ -48,7 +49,7 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 ### Workflow
 
 ```bash
-cd fixture-generator && make build                          # First time
+cd fixture-generator && make pull                            # First time (pulls pre-built base)
 make run                                                     # All fixtures
 make run-example EXAMPLE=metric-basic.ts                    # Single fixture
 cat output/metric-basic.json | python -m json.tool | head   # Verify
@@ -72,7 +73,7 @@ Generators use TypeScript with strict type checking to catch invalid LensConfigB
 
 ## Verification
 
-Created/modified `examples/` generator → `make typecheck` → `make build` (if needed) → `make run-example EXAMPLE=<file>.ts` → verify output files exist → inspect JSON (`python -m json.tool | head`) → `make ci` from root → commit
+Created/modified `examples/` generator → `make typecheck` → `make pull` (if needed) → `make run-example EXAMPLE=<file>.ts` → verify output files exist → inspect JSON (`python -m json.tool | head`) → `make ci` from root → commit
 
 ---
 
@@ -148,7 +149,7 @@ runIfMain(generateMyChart, import.meta.url);
 
 **"Cannot find module '@kbn/lens-embeddable-utils'"**: Trying to run outside Docker. Use `make run`.
 
-**"Docker image not found"**: Run `make build`.
+**"Docker image not found"**: Run `make pull`.
 
 **"Generator runs but no output"**: Check console output. Debug with `make shell` then `node examples/your-generator.ts`.
 
