@@ -105,6 +105,20 @@ Real-world monitoring dashboards for Aerospike database:
 
 **Use this when:** Monitoring Aerospike NoSQL database deployments.
 
+### [OpenTelemetry System Dashboards](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/system_otel/)
+
+Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
+
+- **Hosts Overview** - Overview of all hosts with key performance metrics
+- **Host Details - Overview** - Detailed single host overview with CPU, memory, and disk metrics
+- **Host Details - Metrics** - In-depth metrics charts for CPU, memory, disk, and load
+- **Host Details - Metadata** - Host resource attributes and metadata (ES|QL datatables)
+- **Host Details - Logs** - Host log messages (ES|QL datatable)
+
+**Use this when:** Monitoring infrastructure with OpenTelemetry hostmetricsreceiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:

@@ -1,0 +1,129 @@
+---
+dashboards:
+  - id: otel-host-details-metadata
+    name: '[OTel] Host Details - Metadata'
+    description: Host resource attributes and metadata from OpenTelemetry hostmetricsreceiver
+    filters:
+      - exists: resource.attributes.host.name
+      - field: data_stream.dataset
+        equals: hostmetricsreceiver.otel
+    controls:
+      - type: options
+        label: Host Name
+        data_view: metrics-*
+        field: resource.attributes.host.name
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        description: Links to related dashboards
+        links:
+          layout: horizontal
+          links:
+            - label: Hosts Overview
+              dashboard: otel-hosts-overview
+            - label: Host Overview
+              dashboard: otel-host-details-overview
+            - label: Host Metrics
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
+      - title: Host Metadata
+        grid: {x: 0, y: 2, w: 24, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
+            - LIMIT 1
+            - STATS BY arch = resource.attributes.host.arch, ip = resource.attributes.host.ip, mac = resource.attributes.host.mac, name = resource.attributes.host.name
+            - EVAL ip_str = TO_STRING(ip)
+            - EVAL str = CONCAT("host.arch$",arch, "|", "host.ip$", ip_str, "|", "host.mac$",mac, "|", "host.name$", name)
+            - EVAL arr = SPLIT(str, "|")
+            - MV_EXPAND arr
+            - EVAL pairs = SPLIT(arr, "$")
+            - EVAL `Resource Attribute` = MV_FIRST(pairs), value = MV_LAST(pairs)
+            - KEEP `Resource Attribute`, value
+            - STATS `Value` = MV_DEDUPE(TOP(value, 400, "asc")) BY `Resource Attribute`
+          rows:
+            - field: Resource Attribute
+            - field: Value
+      - title: Host CPU Metadata
+        grid: {x: 24, y: 2, w: 24, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
+            - LIMIT 1
+            - STATS BY cache_size = TO_STRING(resource.attributes.host.cpu.cache.l2.size), family = resource.attributes.host.cpu.family, model_id
+              = resource.attributes.host.cpu.model.id, model_name = resource.attributes.host.cpu.model.name, stepping = resource.attributes.host.cpu.stepping,
+              vendor_id = resource.attributes.host.cpu.vendor.id
+            - EVAL str = CONCAT("host.cpu.cache.l2.size$", cache_size, "|", "host.cpu.family$",family, "|", "host.cpu.model.id$",model_id, "|",
+              "host.cpu.model.name$",model_name, "|", "host.cpu.stepping$",stepping, "|", "host.cpu.vendor.id$",vendor_id)
+            - EVAL arr = SPLIT(str, "|")
+            - MV_EXPAND arr
+            - EVAL pairs = SPLIT(arr, "$")
+            - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
+            - KEEP `Resource Attribute`, `Value`
+          rows:
+            - field: Resource Attribute
+            - field: Value
+      - title: Operating System Metadata
+        grid: {x: 0, y: 14, w: 24, h: 7}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
+            - LIMIT 1
+            - STATS BY description = resource.attributes.os.description, type = resource.attributes.os.type
+            - EVAL str = CONCAT("os.description$", description, "|", "os.type$",type)
+            - EVAL arr = SPLIT(str, "|")
+            - MV_EXPAND arr
+            - EVAL pairs = SPLIT(arr, "$")
+            - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
+            - KEEP `Resource Attribute`, `Value`
+          rows:
+            - field: Resource Attribute
+            - field: Value
+      - title: Cloud Metadata
+        grid: {x: 24, y: 14, w: 24, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
+            - LIMIT 1
+            - STATS BY resource.attributes.cloud.account.id, resource.attributes.cloud.instance.id, resource.attributes.cloud.platform, resource.attributes.cloud.provider
+            - EVAL str = CONCAT("cloud.account.id$",COALESCE(resource.attributes.cloud.account.id, ""), "|", "cloud.instance.id$",COALESCE(resource.attributes.cloud.instance.id,
+              ""), "|", "cloud.platform$",COALESCE(resource.attributes.cloud.platform, ""), "|", "cloud.provider$",COALESCE(resource.attributes.cloud.provider,
+              ""))
+            - EVAL arr = SPLIT(str, "|")
+            - MV_EXPAND arr
+            - EVAL pairs = SPLIT(arr, "$")
+            - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
+            - KEEP `Resource Attribute`, `Value`
+          rows:
+            - field: Resource Attribute
+            - field: Value
+      - title: Kubernetes Metadata
+        grid: {x: 0, y: 21, w: 24, h: 5}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
+            - LIMIT 1
+            - STATS BY resource.attributes.k8s.cluster.name
+            - EVAL `Resource Attribute` = "k8s.cluster.name", `Value` = resource.attributes.k8s.cluster.name
+            - KEEP `Resource Attribute`, `Value`
+          rows:
+            - field: Resource Attribute
+            - field: Value

@@ -59,7 +59,7 @@
           "allowMultipleMetrics": false,
           "numberDisplay": "percent",
           "categoryDisplay": "default",
-          "legendDisplay": "show",
+          "legendDisplay": "default",
           "legendPosition": "right",
           "primaryGroups": [
             "metric_formula_accessor_breakdown_0"

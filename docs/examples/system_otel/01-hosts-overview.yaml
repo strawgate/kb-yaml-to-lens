@@ -1,0 +1,79 @@
+---
+dashboards:
+  - id: otel-hosts-overview
+    name: '[OTel] Hosts Overview'
+    description: Overview of all OpenTelemetry-monitored hosts with key performance metrics
+    filters:
+      - exists: resource.attributes.host.name
+      - field: data_stream.dataset
+        equals: hostmetricsreceiver.otel
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        description: Links to related dashboards
+        links:
+          layout: horizontal
+          links:
+            - label: Hosts Overview
+              dashboard: otel-hosts-overview
+            - label: Host Overview
+              dashboard: otel-host-details-overview
+            - label: Host Metrics
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
+      - title: Number of Hosts
+        grid: {x: 0, y: 3, w: 48, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: resource.attributes.host.name
+            label: Total Hosts
+      - title: Hosts by OS
+        grid: {x: 0, y: 7, w: 48, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          breakdown:
+            field: resource.attributes.os.type
+            label: OS Type
+            size: 5
+          primary:
+            aggregation: unique_count
+            field: resource.attributes.host.name
+            label: Hosts
+      - title: Host Performance Summary
+        grid: {x: 0, y: 11, w: 48, h: 25}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          rows:
+            - id: hostname
+              type: values
+              field: resource.attributes.host.name
+              size: 100
+          metrics:
+            - id: cpu-util
+              formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
+              label: CPU %
+              format:
+                type: percent
+            - id: mem-util
+              formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              label: Memory %
+              format:
+                type: percent
+            - id: norm-load
+              formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              label: Normalized Load
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 20

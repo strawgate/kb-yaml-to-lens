@@ -48,7 +48,7 @@
       "query": ""
     },
     "visualization": {
-      "shape": "pie",
+      "shape": "donut",
       "layers": [
         {
           "layerId": "layer_0",

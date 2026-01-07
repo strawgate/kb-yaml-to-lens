@@ -2,6 +2,8 @@
 
 > Multi-language project for compiling Kibana dashboards from YAML to Lens format
 > Python compiler · TypeScript VS Code extension · JavaScript fixture generator
+>
+> **Note:** `CLAUDE.md` is a symlink to `AGENTS.md` throughout this repository. Both names reference the same file.
 
 ---
 
@@ -70,18 +72,14 @@ make ci
 
 - When working in any component, read the README.md or AGENTS.md/CLAUDE.md for the component you're working on.
 
-**Read Before Modify:**
+**Learn from the codebase:**
 
-- Never speculate about code you haven't read
-- Always inspect existing implementations before suggesting changes
-- Search for similar patterns across the codebase
+- **Search first, then implement** — Use Grep/Glob to find how similar problems are solved
+- **Pattern matching over prescription** — The codebase shows you the way; follow it
+- **Never speculate** — Read the actual code before making assumptions
+- **Consistency is key** — Match existing patterns unless there's strong justification to diverge
 
-**Maintain Consistency:**
-
-- Always search for existing patterns in the codebase to maintain consistency
-- Follow existing code patterns within each component
-- Match the style and conventions of surrounding code
-- Don't introduce new patterns without strong justification
+When implementing a feature, ask yourself: "How does the codebase handle similar cases?" Then search for and study those examples.
 
 **Verify Your Work:**
 

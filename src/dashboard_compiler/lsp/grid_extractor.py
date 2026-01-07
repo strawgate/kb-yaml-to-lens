@@ -11,6 +11,7 @@ from typing import Any
 
 from dashboard_compiler.dashboard_compiler import load
 from dashboard_compiler.lsp.utils import get_panel_type
+from dashboard_compiler.panels.compile import compute_panel_positions
 
 
 def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -34,18 +35,32 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
 
     dashboard_config = dashboards[dashboard_index]
 
+    # Compute positions for panels that need auto-layout
+    position_map = compute_panel_positions(dashboard_config.panels, algorithm=dashboard_config.settings.layout_algorithm)
+
+    # Extract panel information
     panels = []
     for index, panel in enumerate(dashboard_config.panels):
         panel_type = get_panel_type(panel)
+
+        # Use computed position if available, otherwise use panel's position
+        if index in position_map:
+            x, y = position_map[index]
+        elif panel.position.x is not None and panel.position.y is not None:
+            x, y = panel.position.x, panel.position.y
+        else:
+            msg = f'Panel at index {index} has no position and auto-layout failed'
+            raise ValueError(msg)
+
         panel_info = {
             'id': panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
             'title': panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
             'type': panel_type,
             'grid': {
-                'x': panel.grid.x,
-                'y': panel.grid.y,
-                'w': panel.grid.w,
-                'h': panel.grid.h,
+                'x': x,
+                'y': y,
+                'w': panel.size.w,
+                'h': panel.size.h,
             },
         }
         panels.append(panel_info)

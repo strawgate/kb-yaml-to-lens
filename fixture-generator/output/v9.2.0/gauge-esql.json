@@ -20,13 +20,37 @@
             "columns": [
               {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "metric_formula_accessor"
+                "fieldName": "avg_cpu"
+              },
+              {
+                "columnId": "metric_formula_accessor_max",
+                "fieldName": "1"
+              },
+              {
+                "columnId": "metric_formula_accessor_min",
+                "fieldName": "0"
+              },
+              {
+                "columnId": "metric_formula_accessor_goal",
+                "fieldName": "0.8"
               }
             ],
             "allColumns": [
               {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "metric_formula_accessor"
+                "fieldName": "avg_cpu"
+              },
+              {
+                "columnId": "metric_formula_accessor_max",
+                "fieldName": "1"
+              },
+              {
+                "columnId": "metric_formula_accessor_min",
+                "fieldName": "0"
+              },
+              {
+                "columnId": "metric_formula_accessor_goal",
+                "fieldName": "0.8"
               }
             ]
           }
@@ -45,7 +69,11 @@
       "ticksPosition": "auto",
       "shape": "arc",
       "labelMajorMode": "auto",
-      "metricAccessor": "metric_formula_accessor"
+      "metricAccessor": "metric_formula_accessor",
+      "goalAccessor": "metric_formula_accessor_goal",
+      "maxAccessor": "metric_formula_accessor_max",
+      "showBar": true,
+      "minAccessor": "metric_formula_accessor_min"
     },
     "adHocDataViews": {
       "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}": {}

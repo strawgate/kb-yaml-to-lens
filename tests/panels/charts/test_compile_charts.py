@@ -4,6 +4,7 @@ import pytest
 
 from dashboard_compiler.panels.charts.compile import (
     chart_type_to_kbn_type_lens,
+    compile_esql_chart_state,
     compile_lens_chart_state,
 )
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
@@ -386,3 +387,116 @@ class TestCompileLensChartState:
         assert ref_layer.yConfig is not None
         assert len(ref_layer.yConfig) == 1
         assert ref_layer.yConfig[0].forAccessor == 'ref1'
+
+
+class TestCompileESQLChartState:
+    """Tests for compile_esql_chart_state function."""
+
+    def test_esql_metric_chart_default_time_field(self) -> None:
+        """Test that ES|QL metric chart uses default timeField (@timestamp)."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS count()',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        state, layer_id = compile_esql_chart_state(panel)
+
+        assert state.datasourceStates is not None
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
+        assert first_layer.timeField == '@timestamp'
+
+    def test_esql_metric_chart_custom_time_field(self) -> None:
+        """Test that ES|QL metric chart uses custom timeField when specified."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS count()',
+                    'timeField': 'event.created',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        state, layer_id = compile_esql_chart_state(panel)
+
+        assert state.datasourceStates is not None
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
+        assert first_layer.timeField == 'event.created'
+
+    def test_esql_pie_chart_custom_time_field(self) -> None:
+        """Test that ES|QL pie chart uses custom timeField when specified."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'pie',
+                    'query': 'FROM logs-* | STATS count() BY status',
+                    'timeField': 'timestamp',
+                    'slice_by': [{'field': 'status', 'id': 'group1'}],
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, layer_id = compile_esql_chart_state(panel)
+
+        assert state.datasourceStates is not None
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
+        assert first_layer.timeField == 'timestamp'
+
+    def test_esql_bar_chart_custom_time_field(self) -> None:
+        """Test that ES|QL bar chart uses custom timeField when specified."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'bar',
+                    'query': 'FROM metrics-* | STATS count() BY @timestamp',
+                    'timeField': 'event.timestamp',
+                    'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, layer_id = compile_esql_chart_state(panel)
+
+        assert state.datasourceStates is not None
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+
+        # Access the specific layer using returned layer_id
+        first_layer = layers[layer_id]
+        assert first_layer.timeField == 'event.timestamp'

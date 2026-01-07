@@ -171,8 +171,8 @@ def compile_lens_dimension(
             )
         ranges = [
             KbnLensIntervalsRange(
-                from_value=interval.from_value if interval.from_value is not None else None,
-                to_value=interval.to_value if interval.to_value is not None else None,
+                from_value=interval.from_value,
+                to_value=interval.to_value,
                 label=interval.label or '',
             )
             for interval in dimension.intervals
