@@ -4,6 +4,14 @@
 
 ---
 
+## Code Conventions
+
+@../CODE_STYLE.md
+
+@../CODERABBIT.md
+
+---
+
 ## Critical Rules — READ THIS FIRST
 
 ### Fixture Generation is Required

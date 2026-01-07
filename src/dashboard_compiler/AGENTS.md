@@ -50,6 +50,8 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 
 @../../CODE_STYLE.md
 
+@../../CODERABBIT.md
+
 ### Documentation Updates
 
 When updating YAML configuration docs:
@@ -68,9 +70,7 @@ When updating YAML configuration docs:
 1. **Read relevant files first** — Never speculate about code you haven't inspected
 2. **Search for existing patterns** — Check how similar components handle the same problem
 3. **Understand the architecture** — Config models → compile functions → view models
-4. **Use explicit Boolean comparisons** — Never rely on implicit truthiness
-   - `if x is not None:` instead of `if x:`
-   - `if len(items) > 0:` instead of `if items:`
+4. **Follow code style guidelines** — See CODE_STYLE.md for detailed conventions
 
 ### When Working on Chart Types (panels/charts/)
 

@@ -4,6 +4,14 @@
 
 ---
 
+## Code Conventions
+
+@../CODE_STYLE.md
+
+@../CODERABBIT.md
+
+---
+
 ## Quick Reference
 
 ### Essential Commands

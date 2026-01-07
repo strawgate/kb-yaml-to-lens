@@ -64,6 +64,8 @@ make ci
 
 ## AI Agent Guidelines
 
+@CODE_STYLE.md
+
 **Read the docs first:**
 
 - When working in any component, read the README.md or AGENTS.md/CLAUDE.md for the component you're working on.
@@ -183,7 +185,9 @@ Copilot is extremely dumb and needs to be spoon-fed the exact change you want ma
 
 ### Code Rabbit will review your PR
 
-Code Rabbit will review your PR and provide feedback on the changes you made. CodeRabbit sometimes makes mistakes, so you should carefully consider the feedback and address the feedback if necessary. CodeRabbit will follow the rules outlined in ./CODERABBIT.md, ./CODE_STYLE.md, and this file (./AGENTS.md).
+@CODERABBIT.md
+
+Code Rabbit will review your PR and provide feedback on the changes you made. CodeRabbit sometimes makes mistakes, so you should carefully consider the feedback and address the feedback if necessary.
 
 ---
 
