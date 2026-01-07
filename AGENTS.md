@@ -85,6 +85,19 @@ cd compiler && make fix && cd .. && make ci
 
 ## AI Agent Guidelines
 
+### IMPORTANT: Post-Compaction Recovery
+
+If you have recently undergone context summarization/compaction:
+
+1. **IMMEDIATELY re-read this file** (`AGENTS.md`) before proceeding with any work
+2. **DO NOT rely on summarized references** to framework rules in your conversation history
+3. **DO NOT assume you remember project conventions** from the summary—the summary is lossy and paraphrased
+4. **Re-establish understanding** of: Core Principles, Code Style, Verification requirements, and project patterns
+
+**Why this matters:** Post-compaction behavioral compliance drops 30-40% when agents rely on paraphrased summaries instead of authoritative source files. AGENTS.md files survive compaction intact and are loaded fresh from disk—you have access to them, so use them.
+
+---
+
 @CODE_STYLE.md
 
 **Core Principles:**
