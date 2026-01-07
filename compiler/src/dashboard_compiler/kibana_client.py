@@ -158,7 +158,7 @@ class KibanaClient:
         if self._session is not None and not self._session.closed:
             await self._session.close()
         if self._connector is not None and not self._connector.closed:
-            self._connector.close()
+            await self._connector.close()
         self._session = None
         self._connector = None
 
@@ -170,7 +170,7 @@ class KibanaClient:
         """Exit async context manager and close client."""
         await self.close()
 
-    async def _get(self, path: str, **kwargs: Any) -> aiohttp.ClientResponse:
+    async def _get(self, path: str, **kwargs: Any) -> aiohttp.ClientResponse:  # pyright: ignore[reportAny]
         """Make GET request to Kibana API.
 
         Args:
@@ -184,9 +184,9 @@ class KibanaClient:
         url = self._get_api_url(path)
         headers, auth = self._get_auth_headers_and_auth()
         session = self._get_session()
-        return await session.get(url, headers=headers, auth=auth, **kwargs)
+        return await session.get(url, headers=headers, auth=auth, **kwargs)  # pyright: ignore[reportAny]
 
-    async def _post(self, path: str, **kwargs: Any) -> aiohttp.ClientResponse:
+    async def _post(self, path: str, **kwargs: Any) -> aiohttp.ClientResponse:  # pyright: ignore[reportAny]
         """Make POST request to Kibana API.
 
         Args:
@@ -201,10 +201,10 @@ class KibanaClient:
         headers, auth = self._get_auth_headers_and_auth()
 
         if 'headers' in kwargs:
-            headers.update(kwargs.pop('headers'))
+            headers.update(kwargs.pop('headers'))  # pyright: ignore[reportAny]
 
         session = self._get_session()
-        return await session.post(url, headers=headers, auth=auth, **kwargs)
+        return await session.post(url, headers=headers, auth=auth, **kwargs)  # pyright: ignore[reportAny]
 
     async def upload_ndjson(
         self,

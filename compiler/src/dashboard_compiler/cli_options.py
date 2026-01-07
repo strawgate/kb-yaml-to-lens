@@ -102,8 +102,8 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         kibana_api_key: str | None,
         kibana_space_id: str | None,
         kibana_no_ssl_verify: bool,
-        *args: Any,
-        **kwargs: Any,
+        *args: Any,  # pyright: ignore[reportAny]
+        **kwargs: Any,  # pyright: ignore[reportAny]
     ) -> R:
         # Validate authentication
         validate_kibana_auth(kibana_api_key, kibana_username, kibana_password)
@@ -111,7 +111,7 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         # Create and populate context with Kibana client
         from dashboard_compiler.cli_context import CliContext
 
-        if not isinstance(ctx.obj, CliContext):
+        if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
             msg = 'Context object must be CliContext'
             raise TypeError(msg)
 
@@ -126,7 +126,7 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
         # Call the original function without Kibana parameters
         # Note: ctx is passed through because the decorated function has @click.pass_context
-        return func(ctx, *args, **kwargs)  # type: ignore[return-value,call-arg]  # pyright: ignore[reportCallIssue]
+        return func(ctx, *args, **kwargs)  # type: ignore[return-value,call-arg]  # pyright: ignore[reportCallIssue,reportUnknownVariableType]
 
     return wrapper  # type: ignore[return-value]
 
@@ -207,8 +207,8 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         es_password: str | None,
         es_api_key: str | None,
         es_no_ssl_verify: bool,
-        *args: Any,
-        **kwargs: Any,
+        *args: Any,  # pyright: ignore[reportAny]
+        **kwargs: Any,  # pyright: ignore[reportAny]
     ) -> R:
         # Validate authentication
         validate_elasticsearch_auth(es_api_key, es_username, es_password)
@@ -218,7 +218,7 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
         from dashboard_compiler.cli_context import CliContext
 
-        if not isinstance(ctx.obj, CliContext):
+        if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
             msg = 'Context object must be CliContext'
             raise TypeError(msg)
 
@@ -238,7 +238,7 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
         # Call the original function without Elasticsearch parameters
         # Note: ctx is passed through because the decorated function has @click.pass_context
-        return func(ctx, *args, **kwargs)  # type: ignore[return-value,call-arg]  # pyright: ignore[reportCallIssue]
+        return func(ctx, *args, **kwargs)  # type: ignore[return-value,call-arg]  # pyright: ignore[reportCallIssue,reportUnknownVariableType]
 
     return wrapper  # type: ignore[return-value]
 

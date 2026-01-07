@@ -257,7 +257,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         kb-dashboard compile --upload
     """
     # Context is already populated by @kibana_options decorator
-    if not isinstance(ctx.obj, CliContext):
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'
         raise TypeError(msg)
     cli_context = ctx.obj
@@ -408,7 +408,7 @@ def load_sample_data_command(
             --es-api-key "your-api-key-here"
     """
     # Context is already populated by @elasticsearch_options decorator
-    if not isinstance(ctx.obj, CliContext):
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'
         raise TypeError(msg)
     cli_context = ctx.obj
@@ -498,7 +498,7 @@ def extract_sample_data_command(
             --es-url https://es.example.com --es-api-key "your-api-key"
     """
     # Context is already populated by @elasticsearch_options decorator
-    if not isinstance(ctx.obj, CliContext):
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'
         raise TypeError(msg)
     cli_context = ctx.obj
@@ -604,7 +604,7 @@ def screenshot_dashboard(  # noqa: PLR0913
             --width 3840 --height 2160
     """
     # Context is already populated by @kibana_options decorator
-    if not isinstance(ctx.obj, CliContext):
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'
         raise TypeError(msg)
     cli_context = ctx.obj
@@ -841,7 +841,7 @@ def export_for_issue(
         kb-dashboard export-for-issue --dashboard-id my-dashboard-id --no-browser
     """
     # Context is already populated by @kibana_options decorator
-    if not isinstance(ctx.obj, CliContext):
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'
         raise TypeError(msg)
     cli_context = ctx.obj
