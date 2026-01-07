@@ -7,10 +7,12 @@ The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations 
 After installing the project dependencies, the CLI will be available:
 
 ```bash
-uv sync
+uv sync --directory compiler
 ```
 
 ## Basic Usage
+
+All commands assume you are running from the `compiler` directory or using `uv run --directory compiler kb-dashboard`.
 
 ### Compile Dashboards
 
@@ -76,6 +78,26 @@ This will extract the dashboard into separate files:
 - `panels/` - Individual panel JSON files
 
 For a comprehensive guide on using this tool to convert dashboards from JSON to YAML, see the [Dashboard Decompiling Guide](dashboard-decompiling-guide.md).
+
+### Extract Sample Data
+
+Extract data from Elasticsearch to NDJSON format for use as sample data:
+
+```bash
+kb-dashboard extract-sample-data --index logs-* --output sample-logs.ndjson
+```
+
+This queries Elasticsearch and exports the results to an NDJSON file where each line is a separate JSON document.
+
+### Load Sample Data
+
+Load bundled sample data into Elasticsearch:
+
+```bash
+kb-dashboard load-sample-data
+```
+
+This scans the input directory for YAML dashboard configurations that include sample data and loads that data into Elasticsearch. Timestamps are automatically adjusted so the data appears recent.
 
 ## Configuration
 
@@ -189,6 +211,35 @@ The tool creates the following files in the output directory:
 - `references.json` - Data view and index pattern references
 - `panels/` - Directory containing individual panel JSON files, named as `NNN_panelId_type.json`
 
+### `kb-dashboard extract-sample-data`
+
+Extract data from Elasticsearch to NDJSON format.
+
+**Options:**
+
+- `--index TEXT` - Elasticsearch index pattern to extract data from (e.g., logs-*) [required]
+- `--output PATH` - Path where the NDJSON file will be saved [required]
+- `--query TEXT` - Elasticsearch query to filter documents (default: * for all documents)
+- `--max-docs INTEGER` - Maximum number of documents to extract (default: 1000)
+- `--es-url TEXT` - Elasticsearch base URL (default: env ELASTICSEARCH_URL)
+- `--es-username TEXT` - Elasticsearch username (default: env ELASTICSEARCH_USERNAME)
+- `--es-password TEXT` - Elasticsearch password (default: env ELASTICSEARCH_PASSWORD)
+- `--es-api-key TEXT` - Elasticsearch API key (default: env ELASTICSEARCH_API_KEY)
+- `--es-no-ssl-verify` - Disable SSL certificate verification for Elasticsearch
+
+### `kb-dashboard load-sample-data`
+
+Load sample data bundled with dashboards into Elasticsearch.
+
+**Options:**
+
+- `--input-dir DIRECTORY` - Directory containing YAML dashboard files with sample data
+- `--es-url TEXT` - Elasticsearch base URL (default: env ELASTICSEARCH_URL)
+- `--es-username TEXT` - Elasticsearch username (default: env ELASTICSEARCH_USERNAME)
+- `--es-password TEXT` - Elasticsearch password (default: env ELASTICSEARCH_PASSWORD)
+- `--es-api-key TEXT` - Elasticsearch API key (default: env ELASTICSEARCH_API_KEY)
+- `--es-no-ssl-verify` - Disable SSL certificate verification for Elasticsearch
+
 ## Examples
 
 ### Compile only
@@ -283,8 +334,8 @@ cd compiler && make upload
 Or use the CLI directly from anywhere with uv:
 
 ```bash
-cd compiler && uv run kb-dashboard compile
-cd compiler && uv run kb-dashboard compile --upload
+uv run --directory compiler kb-dashboard compile
+uv run --directory compiler kb-dashboard compile --upload
 ```
 
 ## Authentication

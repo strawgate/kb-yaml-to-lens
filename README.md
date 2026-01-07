@@ -32,13 +32,13 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Pytho
 **For basic usage (compiling dashboards):**
 
 ```bash
-uv sync
+uv sync --directory compiler
 ```
 
 **For development (includes testing, linting, type checking):**
 
 ```bash
-uv sync --group dev
+uv sync --directory compiler --group dev
 ```
 
 Or simply use the convenience command:
@@ -72,7 +72,13 @@ No Python installation required!
 
 ### Compile Your First Dashboard
 
-1. Create a YAML dashboard file in `inputs/` directory:
+1. Create the `inputs` directory and a YAML dashboard file:
+
+```bash
+mkdir -p inputs
+```
+
+Create `inputs/my_dashboard.yaml` with the following content:
 
 ```yaml
 dashboards:
@@ -93,7 +99,7 @@ dashboards:
 **Using uv:**
 
 ```bash
-uv run kb-dashboard compile --input-dir inputs --output-dir output
+uv run --directory compiler kb-dashboard compile --input-dir ../inputs --output-dir ../output
 ```
 
 **Using Docker:**
@@ -115,9 +121,9 @@ docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
 **Using uv:**
 
 ```bash
-uv run kb-dashboard compile \
-  --input-dir inputs \
-  --output-dir output \
+uv run --directory compiler kb-dashboard compile \
+  --input-dir ../inputs \
+  --output-dir ../output \
   --upload \
   --kibana-url http://localhost:5601 \
   --kibana-username elastic \
@@ -162,7 +168,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 Compile YAML files to NDJSON format:
 
 ```bash
-uv run kb-dashboard compile [OPTIONS]
+uv run --directory compiler kb-dashboard compile [OPTIONS]
 ```
 
 **Options:**
@@ -184,7 +190,7 @@ uv run kb-dashboard compile [OPTIONS]
 Generate a PNG screenshot of a Kibana dashboard using the Kibana Reporting API:
 
 ```bash
-uv run kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
+uv run --directory compiler kb-dashboard screenshot --dashboard-id DASHBOARD_ID --output OUTPUT_FILE [OPTIONS]
 ```
 
 **Required Options:**
