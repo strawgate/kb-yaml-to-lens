@@ -136,10 +136,6 @@ Advanced documentation for contributors and programmatic usage:
 - **[Kibana Architecture Reference](kibana-architecture.md)** – Understanding Kibana's internal structure.
 - **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** – Generating test fixtures from live Kibana instances.
 
-### More Examples
-
-Refer to the example YAML files in the [`inputs/`](https://github.com/strawgate/kb-yaml-to-lens/tree/main/inputs) directory on GitHub for more complex examples.
-
 ## Requirements
 
 - Python 3.12+
