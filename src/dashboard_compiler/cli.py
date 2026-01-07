@@ -8,8 +8,10 @@ from pathlib import Path
 
 import aiohttp
 import rich_click as click
+import yaml
 from elastic_transport import TransportError
 from elasticsearch import AsyncElasticsearch
+from pydantic import ValidationError
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
@@ -18,6 +20,7 @@ from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
 from dashboard_compiler.sample_data.loader import load_sample_data
+from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
 
 click.rich_click.USE_RICH_MARKUP = True
@@ -109,6 +112,10 @@ def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
     except FileNotFoundError:
         return [], f'YAML file not found: {yaml_path}'
+    except yaml.YAMLError as e:
+        return [], format_yaml_error(e, yaml_path)
+    except ValidationError as e:
+        return [], format_validation_error(e, yaml_path)
     except (ValueError, TypeError, KeyError) as e:
         return [], f'Error compiling {yaml_path}: {e}'
     else:
