@@ -15,7 +15,8 @@ YAMLFIX_EXCLUDE := \
 	--exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
-	--exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
+	--exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml" \
+	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
 
 help:
 	@echo "Dashboard Compiler Commands:"
