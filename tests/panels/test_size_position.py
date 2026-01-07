@@ -10,10 +10,10 @@ class TestSize:
     """Test suite for Size model."""
 
     def test_size_default_values(self) -> None:
-        """Test that Size uses default values of 24w x 12h."""
+        """Test that Size uses default values of 12w x 8h."""
         size = Size()
-        assert size.w == 24
-        assert size.h == 12
+        assert size.w == 12
+        assert size.h == 8
 
     def test_size_with_explicit_values(self) -> None:
         """Test Size with explicit numeric values."""

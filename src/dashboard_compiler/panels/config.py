@@ -61,15 +61,18 @@ class Size(BaseCfgModel):
     """
 
     w: int = Field(
-        default=GRID_WIDTH_HALF,
+        default=GRID_WIDTH_QUARTER,
         gt=0,
         le=KIBANA_GRID_WIDTH,
         validation_alias=AliasChoices('w', 'width'),
     )
-    """The width of the panel in grid units. Defaults to 24 (half width). Accepts semantic values or integers."""
+    """The width of the panel in grid units.
 
-    h: int = Field(default=12, gt=0, validation_alias=AliasChoices('h', 'height'))
-    """The height of the panel in grid units. Defaults to 12."""
+    Defaults to 12 (quarter width). Accepts semantic values ('whole', 'half', 'third', 'quarter', 'sixth', 'eighth') or integers (1-48).
+    """
+
+    h: int = Field(default=8, gt=0, validation_alias=AliasChoices('h', 'height'))
+    """The height of the panel in grid units. Defaults to 8."""
 
     @field_validator('w', mode='before')
     @classmethod
@@ -85,7 +88,7 @@ class Position(BaseCfgModel):
     If not specified, the panel will be auto-positioned.
     """
 
-    x: int | None = Field(default=None, ge=0, validation_alias=AliasChoices('x', 'from_left'))
+    x: int | None = Field(default=None, ge=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('x', 'from_left'))
     """The horizontal starting position of the panel on the grid (0-based). If None, position will be auto-calculated."""
 
     y: int | None = Field(default=None, ge=0, validation_alias=AliasChoices('y', 'from_top'))

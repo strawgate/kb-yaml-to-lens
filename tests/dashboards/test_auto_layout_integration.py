@@ -25,11 +25,11 @@ class TestAutoLayoutIntegration:
 
         assert kbn_panels[0].gridData.x == 0
         assert kbn_panels[0].gridData.y == 0
-        assert kbn_panels[1].gridData.x == 24
+        assert kbn_panels[1].gridData.x == 12  # Default width is now 12
         assert kbn_panels[1].gridData.y == 0
 
     def test_panels_use_default_size(self) -> None:
-        """Test that panels without size use default 24w x 12h."""
+        """Test that panels without size use default 12w x 8h."""
         dashboard = Dashboard(
             name='Default Size Test',
             panels=[
@@ -39,8 +39,8 @@ class TestAutoLayoutIntegration:
 
         _, kbn_panels = compile_dashboard_panels(dashboard.panels)
 
-        assert kbn_panels[0].gridData.w == 24
-        assert kbn_panels[0].gridData.h == 12
+        assert kbn_panels[0].gridData.w == 12
+        assert kbn_panels[0].gridData.h == 8
 
     def test_panels_with_semantic_width(self) -> None:
         """Test panels using semantic width values."""
@@ -60,7 +60,7 @@ class TestAutoLayoutIntegration:
         assert kbn_panels[2].gridData.w == 48
 
     def test_four_panels_form_grid(self) -> None:
-        """Test that four default panels form a 2x2 grid."""
+        """Test that four default panels form a 4-panel row (4 x 12-wide panels)."""
         dashboard = Dashboard(
             name='Grid Test',
             panels=[MarkdownPanel(title=f'Panel {i}', markdown={'content': f'Test {i}'}) for i in range(4)],
@@ -68,14 +68,15 @@ class TestAutoLayoutIntegration:
 
         _, kbn_panels = compile_dashboard_panels(dashboard.panels)
 
+        # Default width is 12, so 4 panels fit in one row (4 * 12 = 48)
         assert kbn_panels[0].gridData.x == 0
         assert kbn_panels[0].gridData.y == 0
-        assert kbn_panels[1].gridData.x == 24
+        assert kbn_panels[1].gridData.x == 12
         assert kbn_panels[1].gridData.y == 0
-        assert kbn_panels[2].gridData.x == 0
-        assert kbn_panels[2].gridData.y == 12
-        assert kbn_panels[3].gridData.x == 24
-        assert kbn_panels[3].gridData.y == 12
+        assert kbn_panels[2].gridData.x == 24
+        assert kbn_panels[2].gridData.y == 0
+        assert kbn_panels[3].gridData.x == 36
+        assert kbn_panels[3].gridData.y == 0
 
     def test_locked_and_auto_panels_mixed(self) -> None:
         """Test mixing locked and auto-positioned panels."""
@@ -97,10 +98,11 @@ class TestAutoLayoutIntegration:
 
         assert kbn_panels[0].gridData.x == 0
         assert kbn_panels[0].gridData.y == 0
+        # Auto panels flow to the right of the locked panel (which is 24 wide)
         assert kbn_panels[1].gridData.x == 24
         assert kbn_panels[1].gridData.y == 0
-        assert kbn_panels[2].gridData.x == 24
-        assert kbn_panels[2].gridData.y == 12
+        assert kbn_panels[2].gridData.x == 36  # Next panel at 24 + 12 = 36
+        assert kbn_panels[2].gridData.y == 0
 
     def test_legacy_grid_field_still_works(self) -> None:
         """Test that legacy grid field still works for backward compatibility."""
@@ -150,7 +152,7 @@ class TestAutoLayoutIntegration:
         assert kbn_panels[0].gridData.w == 48
         assert kbn_panels[1].gridData.x == 0
         assert kbn_panels[1].gridData.y == 8
-        assert kbn_panels[2].gridData.x == 24
+        assert kbn_panels[2].gridData.x == 12  # Default width is 12, not 24
         assert kbn_panels[2].gridData.y == 8
 
     def test_overlapping_panels_raises_error(self) -> None:

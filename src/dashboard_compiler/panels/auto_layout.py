@@ -157,6 +157,15 @@ class LeftRightEngine(BaseLayoutEngine):
     This fills each row completely from left to right before moving
     to the next row. The row height is determined by the tallest panel
     in that row (including locked panels).
+
+    Example layout for panels with widths [24, 24, 12, 12, 24] and heights [8, 10, 8, 8, 8]:
+        Row 1: Panel 1 (w=24, h=8) | Panel 2 (w=24, h=10)
+               [Row height = 10, determined by tallest panel]
+        Row 2: Panel 3 (w=12, h=8) | Panel 4 (w=12, h=8) | Panel 5 (w=24, h=8)
+               [Row height = 8, all panels same height]
+
+    This creates a reading flow similar to text, where panels appear
+    in the order they're defined when read left-to-right, top-to-bottom.
     """
 
     def __init__(self, grid_width: int = KIBANA_GRID_WIDTH) -> None:
@@ -380,52 +389,3 @@ def create_layout_engine(algorithm: LayoutAlgorithm, grid_width: int = KIBANA_GR
     # This should be unreachable due to the Literal type, but handle runtime errors gracefully
     msg = f'Unknown layout algorithm: {algorithm}'
     raise ValueError(msg)  # pyright: ignore[reportUnreachable]
-
-
-# Legacy compatibility: AutoLayoutEngine with batch compute_positions API
-class AutoLayoutEngine:
-    """Legacy wrapper for backward compatibility.
-
-    This class maintains the original batch-oriented API while using
-    the new stateful engine internally.
-    """
-
-    def __init__(self, algorithm: LayoutAlgorithm = 'up-left', grid_width: int = KIBANA_GRID_WIDTH) -> None:
-        """Initialize the auto-layout engine.
-
-        Args:
-            algorithm: The packing algorithm to use.
-            grid_width: The width of the grid in units.
-
-        """
-        self.engine: BaseLayoutEngine = create_layout_engine(algorithm, grid_width)
-
-    def compute_positions(self, panels: list[tuple[int, int, int]]) -> list[tuple[int, int]]:
-        """Compute positions for panels.
-
-        Args:
-            panels: List of (index, width, height) tuples for panels needing positions.
-
-        Returns:
-            List of (x, y) positions in the same order as input panels.
-
-        """
-        positions: list[tuple[int, int]] = []
-
-        for _, width, height in panels:
-            x, y = self.engine.add_panel(width, height)
-            positions.append((x, y))
-
-        return positions
-
-    def mark_locked_panel(self, x: int, y: int, width: int, height: int) -> None:
-        """Mark a region as occupied by a locked panel.
-
-        Args:
-            x: The x coordinate.
-            y: The y coordinate.
-            width: The panel width.
-            height: The panel height.
-
-        """
-        self.engine.mark_locked_panel(x, y, width, height)
