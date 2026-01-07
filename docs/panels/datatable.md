@@ -140,22 +140,22 @@ This example demonstrates a datatable with custom column configurations, sorting
 
 ```yaml
 dashboards:
-  - name: "Service Performance Dashboard"
+  - name: "Host Performance Dashboard"
     panels:
       - lens:
           type: datatable
-          data_view: "apm-*"
+          data_view: "metrics-*"
           metrics:
-            - id: "request-count"
-              field: "transaction.name"
-              aggregation: count
-            - id: "avg-duration"
-              field: "transaction.duration.us"
+            - id: "cpu-util"
+              field: "metrics.system.cpu.utilization"
+              aggregation: average
+            - id: "mem-util"
+              field: "metrics.system.memory.utilization"
               aggregation: average
           rows:
-            - id: "service-name"
+            - id: "hostname"
               type: values
-              field: "service.name"
+              field: "resource.attributes.host.name"
               size: 50
           columns:
             - column_id: "service-name"

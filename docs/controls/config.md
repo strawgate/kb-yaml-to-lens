@@ -8,22 +8,24 @@ Here's a minimal example of an `options` list control:
 
 ```yaml
 dashboards:
-  - controls:
+  - name: "Example Dashboard"
+    controls:
       - type: options
-        label: "Filter by Status"
-        data_view: "your-data-view-id" # Replace with your data view ID or title
-        field: "status.keyword"      # Replace with the field to filter on
+        label: "Filter by OS Type"
+        data_view: "metrics-*"
+        field: "resource.attributes.os.type"
 ```
 
 Here's a minimal example of a `range` slider control:
 
 ```yaml
 dashboards:
-  - controls:
+  - name: "Example Dashboard"
+    controls:
       - type: range
-        label: "Response Time (ms)"
-        data_view: "your-data-view-id" # Replace with your data view ID or title
-        field: "response.time"       # Replace with the numeric field
+        label: "CPU Load Average (1m)"
+        data_view: "metrics-*"
+        field: "metrics.system.cpu.load_average.1m"
 ```
 
 ## Complex Configuration Example
@@ -41,19 +43,18 @@ dashboards:
         click_to_apply: false
     controls:
       - type: options
-        label: "Service Name"
+        label: "Host Name"
         width: "medium"
-        data_view: "apm-*"
-        field: "service.name"
+        data_view: "metrics-*"
+        field: "resource.attributes.host.name"
         singular: false
         match_technique: "contains"
-        preselected: ["checkout-service"]
       - type: range
-        label: "CPU Usage (%)"
+        label: "CPU Utilization"
         width: "large"
         data_view: "metrics-*"
-        field: "system.cpu.user.pct"
-        step: 0.05
+        field: "metrics.system.cpu.utilization"
+        step: 0.01
       - type: time
         label: "Custom Time Slice"
         width: "small"

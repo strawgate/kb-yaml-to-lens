@@ -40,13 +40,13 @@ dashboards:
         grid: { x: 0, y: 0, w: 24, h: 6 }
         lens:
           type: pie
-          data_view: "traffic-data"
+          data_view: "metrics-*"
           slice_by:
-            - field: "source"
+            - field: "resource.attributes.os.type"
               type: values
           metrics:
-            - aggregation: sum
-              field: visits
+            - aggregation: unique_count
+              field: resource.attributes.host.name
 ```
 
 ## Example with Custom Colors
