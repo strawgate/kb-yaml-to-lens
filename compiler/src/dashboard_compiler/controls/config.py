@@ -9,7 +9,7 @@ from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type ControlTypes = Annotated[
-    RangeSliderControl | OptionsListControl | TimeSliderControl | ESQLStaticValuesControl | ESQLQueryControl,
+    RangeSliderControl | OptionsListControl | TimeSliderControl | ESQLSingleSelectControl | ESQLMultiSelectControl | ESQLQueryControl,
     Field(discriminator='type'),
 ]
 
@@ -144,14 +144,14 @@ class TimeSliderControl(BaseControl):
         return self
 
 
-class ESQLStaticValuesControl(BaseControl):
-    """Represents an ES|QL control with static values.
+class ESQLSingleSelectControl(BaseControl):
+    """Represents an ES|QL control with static values and single selection.
 
-    This control allows users to select from a predefined list of values
+    This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
     """
 
-    type: Literal['esql_static'] = 'esql_static'
+    type: Literal['esql_single_select'] = 'esql_single_select'
 
     variable_name: str = Field(...)
     """The name of the ES|QL variable (e.g., 'status_code')."""
@@ -165,22 +165,50 @@ class ESQLStaticValuesControl(BaseControl):
     title: str = Field(...)
     """Display title for the control."""
 
-    single_select: bool | None = Field(default=None)
-    """If true, only allow single selection from the options."""
-
-    default_value: str | list[str] | None = Field(default=None, alias='default')
-    """Default selected value(s). For single_select controls, use a string. For multi-select, use a list."""
+    default: str | None = Field(default=None)
+    """Default selected value."""
 
     @model_validator(mode='after')
     def validate_default_in_available(self) -> Self:
-        """Ensure default_value entries exist in available_options."""
-        if self.default_value is None:
-            return self
-        defaults = [self.default_value] if isinstance(self.default_value, str) else self.default_value
-        invalid = set(defaults) - set(self.available_options)
-        if invalid:
-            msg = f'default_value contains options not in available_options: {invalid}'
+        """Ensure default exists in available_options."""
+        if self.default is not None and self.default not in self.available_options:
+            msg = f'default value "{self.default}" not in available_options'
             raise ValueError(msg)
+        return self
+
+
+class ESQLMultiSelectControl(BaseControl):
+    """Represents an ES|QL control with static values and multi-selection.
+
+    This control allows users to select multiple values from a predefined list
+    to filter ES|QL visualizations via variables.
+    """
+
+    type: Literal['esql_multi_select'] = 'esql_multi_select'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    available_options: list[str] = Field(...)
+    """The static list of available values for this control."""
+
+    title: str = Field(...)
+    """Display title for the control."""
+
+    default: list[str] | None = Field(default=None)
+    """Default selected values."""
+
+    @model_validator(mode='after')
+    def validate_default_in_available(self) -> Self:
+        """Ensure all default values exist in available_options."""
+        if self.default is not None:
+            invalid = set(self.default) - set(self.available_options)
+            if invalid:
+                msg = f'default contains options not in available_options: {invalid}'
+                raise ValueError(msg)
         return self
 
 

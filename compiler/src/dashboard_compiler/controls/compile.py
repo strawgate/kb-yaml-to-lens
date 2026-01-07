@@ -5,8 +5,9 @@ from collections.abc import Sequence
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import (
     ControlSettings,
+    ESQLMultiSelectControl,
     ESQLQueryControl,
-    ESQLStaticValuesControl,
+    ESQLSingleSelectControl,
     MatchTechnique,
     OptionsListControl,
     RangeSliderControl,
@@ -125,12 +126,12 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
     )
 
 
-def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl) -> KbnESQLControl:
-    """Compile an ESQLStaticValuesControl into its Kibana view model representation.
+def compile_esql_single_select_control(order: int, *, control: ESQLSingleSelectControl) -> KbnESQLControl:
+    """Compile an ESQLSingleSelectControl into its Kibana view model representation.
 
     Args:
         order (int): The order of the control in the dashboard.
-        control (ESQLStaticValuesControl): The ESQLStaticValuesControl object to compile.
+        control (ESQLSingleSelectControl): The ESQLSingleSelectControl object to compile.
 
     Returns:
         KbnESQLControl: The compiled Kibana ES|QL control view model.
@@ -138,14 +139,7 @@ def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl)
     """
     stable_id = get_layer_id(control)
 
-    # Convert default_value to selectedOptions list
-    selected_options: list[str] = (
-        [control.default_value]
-        if isinstance(control.default_value, str)
-        else control.default_value
-        if control.default_value is not None
-        else []
-    )
+    selected_options: list[str] = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
         grow=False,
@@ -159,7 +153,40 @@ def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl)
             controlType=EsqlControlType.STATIC_VALUES.value,
             title=control.title,
             selectedOptions=selected_options,
-            singleSelect=return_if(var=control.single_select, is_true=True, is_false=False, default=None),
+            singleSelect=True,
+            availableOptions=control.available_options,
+        ),
+    )
+
+
+def compile_esql_multi_select_control(order: int, *, control: ESQLMultiSelectControl) -> KbnESQLControl:
+    """Compile an ESQLMultiSelectControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (ESQLMultiSelectControl): The ESQLMultiSelectControl object to compile.
+
+    Returns:
+        KbnESQLControl: The compiled Kibana ES|QL control view model.
+
+    """
+    stable_id = get_layer_id(control)
+
+    selected_options: list[str] = control.default if control.default is not None else []
+
+    return KbnESQLControl(
+        grow=False,
+        order=order,
+        width=default_if_none(control.width, 'medium'),
+        explicitInput=KbnESQLControlExplicitInput(
+            id=stable_id,
+            variableName=control.variable_name,
+            variableType=control.variable_type,
+            esqlQuery='',
+            controlType=EsqlControlType.STATIC_VALUES.value,
+            title=control.title,
+            selectedOptions=selected_options,
+            singleSelect=False,
             availableOptions=control.available_options,
         ),
     )
@@ -216,8 +243,11 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
     if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
 
-    if isinstance(control, ESQLStaticValuesControl):
-        return compile_esql_static_control(order, control=control)
+    if isinstance(control, ESQLSingleSelectControl):
+        return compile_esql_single_select_control(order, control=control)
+
+    if isinstance(control, ESQLMultiSelectControl):
+        return compile_esql_multi_select_control(order, control=control)
 
     if isinstance(control, ESQLQueryControl):  # pyright: ignore[reportUnnecessaryIsInstance]
         return compile_esql_query_control(order, control=control)
