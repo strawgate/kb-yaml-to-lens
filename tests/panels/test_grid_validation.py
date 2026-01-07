@@ -19,42 +19,42 @@ def test_grid_negative_x() -> None:
     """Test that negative x coordinate raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid(x=-1, y=0, w=24, h=15)
-    assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+    assert 'Input should be greater than or equal to 0' in str(exc_info.value)
 
 
 def test_grid_negative_y() -> None:
     """Test that negative y coordinate raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid(x=0, y=-5, w=24, h=15)
-    assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+    assert 'Input should be greater than or equal to 0' in str(exc_info.value)
 
 
 def test_grid_zero_width() -> None:
     """Test that zero width raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid(x=0, y=0, w=0, h=15)
-    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+    assert 'Input should be greater than 0' in str(exc_info.value)
 
 
 def test_grid_negative_width() -> None:
     """Test that negative width raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid(x=0, y=0, w=-10, h=15)
-    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+    assert 'Input should be greater than 0' in str(exc_info.value)
 
 
 def test_grid_zero_height() -> None:
     """Test that zero height raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid(x=0, y=0, w=24, h=0)
-    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+    assert 'Input should be greater than 0' in str(exc_info.value)
 
 
 def test_grid_negative_height() -> None:
     """Test that negative height raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid(x=0, y=0, w=24, h=-3)
-    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+    assert 'Input should be greater than 0' in str(exc_info.value)
 
 
 def test_grid_large_y_position() -> None:
@@ -176,28 +176,28 @@ def test_grid_verbose_negative_from_left() -> None:
     """Test that negative from_left raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid.model_validate({'from_left': -1, 'from_top': 0, 'width': 24, 'height': 15})
-    assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+    assert 'Input should be greater than or equal to 0' in str(exc_info.value)
 
 
 def test_grid_verbose_negative_from_top() -> None:
     """Test that negative from_top raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid.model_validate({'from_left': 0, 'from_top': -5, 'width': 24, 'height': 15})
-    assert 'Position coordinates (x, y) must be non-negative' in str(exc_info.value)
+    assert 'Input should be greater than or equal to 0' in str(exc_info.value)
 
 
 def test_grid_verbose_zero_width() -> None:
     """Test that zero width raises validation error with verbose syntax."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid.model_validate({'from_left': 0, 'from_top': 0, 'width': 0, 'height': 15})
-    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+    assert 'Input should be greater than 0' in str(exc_info.value)
 
 
 def test_grid_verbose_zero_height() -> None:
     """Test that zero height raises validation error with verbose syntax."""
     with pytest.raises(ValidationError) as exc_info:
         _ = Grid.model_validate({'from_left': 0, 'from_top': 0, 'width': 24, 'height': 0})
-    assert 'Width and height (w, h) must be positive' in str(exc_info.value)
+    assert 'Input should be greater than 0' in str(exc_info.value)
 
 
 def test_grid_verbose_exceeds_kibana_width() -> None:

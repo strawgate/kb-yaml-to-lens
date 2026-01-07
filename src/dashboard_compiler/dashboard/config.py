@@ -1,10 +1,11 @@
 from typing import Self
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import ControlSettings
 from dashboard_compiler.filters.config import FilterTypes
+from dashboard_compiler.panels.auto_layout import LayoutAlgorithm
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.sample_data.config import SampleData
@@ -34,6 +35,9 @@ class DashboardSettings(BaseCfgModel):
 
     titles: bool | None = Field(default=None)
     """Whether to display the titles in the panel headers. Defaults to true if not set."""
+
+    layout_algorithm: LayoutAlgorithm = Field(default='up-left')
+    """The auto-layout algorithm to use for positioning panels without explicit coordinates. Defaults to 'up-left'."""
 
 
 class Dashboard(BaseCfgModel):
@@ -105,29 +109,4 @@ class Dashboard(BaseCfgModel):
         """
         self.panels.append(panel)
 
-        return self
-
-    @model_validator(mode='after')
-    def validate_no_overlapping_panels(self) -> Self:
-        """Validate that no panels overlap on the grid.
-
-        Returns:
-            Self: The current instance of the Dashboard.
-
-        Raises:
-            ValueError: If any panels overlap.
-
-        """
-        for i, panel1 in enumerate(self.panels):
-            for panel2 in self.panels[i + 1 :]:
-                if panel1.grid.overlaps_with(panel2.grid):
-                    panel1_title = getattr(panel1, 'title', 'Untitled')
-                    panel2_title = getattr(panel2, 'title', 'Untitled')
-                    msg = (
-                        f'Panel "{panel1_title}" at (x={panel1.grid.x}, y={panel1.grid.y}, '
-                        f'w={panel1.grid.w}, h={panel1.grid.h}) overlaps with '
-                        f'panel "{panel2_title}" at (x={panel2.grid.x}, y={panel2.grid.y}, '
-                        f'w={panel2.grid.w}, h={panel2.grid.h})'
-                    )
-                    raise ValueError(msg)
         return self
