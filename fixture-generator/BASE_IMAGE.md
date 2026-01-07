@@ -142,7 +142,7 @@ strategy:
 
 ### Updating Base Image Build
 
-If you need to modify what goes into the base image:
+To customize the base image contents:
 
 1. Edit `fixture-generator/Dockerfile.base`
 2. Build and test locally: `make build-base && make run && make test`
