@@ -85,13 +85,13 @@ class OptionsListControl(BaseControl):
     """The search technique used for filtering options (e.g., 'prefix', 'contains', 'exact')."""
 
     wait_for_results: bool | None = Field(default=None)
-    """If set to true, delay the display of the list of values until the results are fully loaded."""
+    """Controls result display timing: True delays display until results load, False shows immediately, None uses default behavior."""
 
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
     singular: bool | None = Field(default=None)
-    """If true, the control allows only a single selection from the options list."""
+    """Selection mode: True for single-select, False for multi-select, None for default behavior."""
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
@@ -166,7 +166,7 @@ class ESQLStaticValuesControl(BaseControl):
     """Display title for the control."""
 
     single_select: bool | None = Field(default=None)
-    """If true, only allow single selection from the options."""
+    """Selection mode: True for single-select, False for multi-select, None for default behavior."""
 
 
 class ESQLQueryControl(BaseControl):
@@ -191,4 +191,4 @@ class ESQLQueryControl(BaseControl):
     """Display title for the control."""
 
     single_select: bool | None = Field(default=None)
-    """If true, only allow single selection from the options."""
+    """Selection mode: True for single-select, False for multi-select, None for default behavior."""
