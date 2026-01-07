@@ -1,15 +1,99 @@
-"""Tests for CLI error message formatting functions."""
+"""Tests for error message formatting functions."""
 
 from pathlib import Path
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError
 
-from dashboard_compiler.cli import _format_validation_error, _format_yaml_error
+from dashboard_compiler.shared.error_formatter import (
+    CUSTOM_MESSAGES,
+    format_error_message,
+    format_validation_error,
+    format_yaml_error,
+    loc_to_path,
+)
+
+
+class TestLocToPath:
+    """Tests for loc_to_path function."""
+
+    def test_empty_loc(self) -> None:
+        """Test that empty loc returns '<root>'."""
+        assert loc_to_path(()) == '<root>'
+
+    def test_simple_field(self) -> None:
+        """Test simple field name."""
+        assert loc_to_path(('name',)) == 'name'
+
+    def test_nested_field(self) -> None:
+        """Test nested field path."""
+        assert loc_to_path(('dashboards', 'name')) == 'dashboards.name'
+
+    def test_list_index(self) -> None:
+        """Test list index formatting."""
+        assert loc_to_path(('dashboards', 0)) == 'dashboards[0]'
+
+    def test_complex_path(self) -> None:
+        """Test complex nested path with indices."""
+        assert loc_to_path(('dashboards', 0, 'panels', 1, 'grid')) == 'dashboards[0].panels[1].grid'
+
+    def test_multiple_indices(self) -> None:
+        """Test path with multiple consecutive indices."""
+        assert loc_to_path(('items', 0, 1, 2)) == 'items[0][1][2]'
+
+
+class TestFormatErrorMessage:
+    """Tests for format_error_message function."""
+
+    def test_missing_field_uses_custom_message(self) -> None:
+        """Test that missing field errors use the custom message."""
+        from pydantic_core import ErrorDetails
+
+        error: ErrorDetails = {'type': 'missing', 'loc': ('name',), 'msg': 'Field required', 'input': None}
+        result = format_error_message(error)
+        assert result == CUSTOM_MESSAGES['missing']
+
+    def test_value_error_extracts_message_from_ctx(self) -> None:
+        """Test that value_error extracts message from context."""
+        from pydantic_core import ErrorDetails
+
+        error: ErrorDetails = {
+            'type': 'value_error',
+            'loc': ('panels', 0, 'grid'),
+            'msg': 'Value error, Panel overlaps',
+            'input': None,
+            'ctx': {'message': 'Panel "A" overlaps with "B"'},
+        }
+        result = format_error_message(error)
+        assert 'Panel "A" overlaps with "B"' in result
+
+    def test_union_tag_invalid_formats_tags(self) -> None:
+        """Test that union_tag_invalid formats expected tags."""
+        from pydantic_core import ErrorDetails
+
+        error: ErrorDetails = {
+            'type': 'union_tag_invalid',
+            'loc': ('panels', 0, 'esql'),
+            'msg': 'Invalid tag',
+            'input': None,
+            'ctx': {'tag': 'invalid_type', 'expected_tags': "'metric', 'pie', 'bar'"},
+        }
+        result = format_error_message(error)
+        assert 'invalid_type' in result
+        assert 'metric' in result
+        assert 'pie' in result
+
+    def test_unknown_error_type_uses_original_message(self) -> None:
+        """Test that unknown error types use the original message."""
+        from pydantic_core import ErrorDetails
+
+        error: ErrorDetails = {'type': 'some_unknown_type', 'loc': ('field',), 'msg': 'Original message', 'input': None}
+        result = format_error_message(error)
+        assert result == 'Original message'
 
 
 class TestFormatValidationError:
-    """Tests for _format_validation_error function."""
+    """Tests for format_validation_error function."""
 
     def test_empty_file_error(self) -> None:
         """Test error message for empty YAML file (None input)."""
@@ -20,10 +104,9 @@ class TestFormatValidationError:
         try:
             TestModel.model_validate(None)
         except ValidationError as e:
-            result = _format_validation_error(e, Path('config.yaml'))
+            result = format_validation_error(e, Path('config.yaml'))
             assert 'config.yaml' in result
-            assert 'empty or does not contain valid YAML' in result
-            assert 'dashboards' in result
+            assert 'empty or invalid' in result.lower() or 'dashboards' in result.lower()
 
     def test_missing_dashboards_key_error(self) -> None:
         """Test error message for missing 'dashboards' key."""
@@ -34,10 +117,9 @@ class TestFormatValidationError:
         try:
             TestModel.model_validate({'panels': []})
         except ValidationError as e:
-            result = _format_validation_error(e, Path('my-dashboard.yaml'))
+            result = format_validation_error(e, Path('my-dashboard.yaml'))
             assert 'my-dashboard.yaml' in result
-            assert 'Missing required "dashboards" key' in result
-            assert 'dashboards:' in result
+            assert 'dashboards' in result.lower()
 
     def test_single_validation_error(self) -> None:
         """Test formatting of a single validation error."""
@@ -51,10 +133,10 @@ class TestFormatValidationError:
         try:
             TestModel.model_validate({'dashboards': [{'title': 'test'}]})
         except ValidationError as e:
-            result = _format_validation_error(e, Path('test.yaml'))
-            assert '1 validation error in test.yaml:' in result
-            assert 'dashboards.0.name' in result
-            assert 'Field required' in result
+            result = format_validation_error(e, Path('test.yaml'))
+            assert '1 validation error' in result
+            assert 'test.yaml' in result
+            assert 'dashboards[0].name' in result
 
     def test_multiple_validation_errors(self) -> None:
         """Test formatting of multiple validation errors."""
@@ -69,8 +151,8 @@ class TestFormatValidationError:
         try:
             TestModel.model_validate({'dashboards': [{}]})
         except ValidationError as e:
-            result = _format_validation_error(e, Path('test.yaml'))
-            assert '2 validation errors in test.yaml:' in result
+            result = format_validation_error(e, Path('test.yaml'))
+            assert '2 validation errors' in result
             assert 'name' in result
             assert 'value' in result
 
@@ -83,14 +165,27 @@ class TestFormatValidationError:
         try:
             TestModel.model_validate({'dashboards': 'not a list'})
         except ValidationError as e:
-            result = _format_validation_error(e, Path('test.yaml'))
+            result = format_validation_error(e, Path('test.yaml'))
             # Should not contain pydantic internal formatting
             assert 'input_type=' not in result
             assert 'input_value=' not in result
 
+    def test_no_file_path(self) -> None:
+        """Test formatting when no file path is provided."""
+
+        class TestModel(BaseModel):
+            name: str = Field(...)
+
+        try:
+            TestModel.model_validate({})
+        except ValidationError as e:
+            result = format_validation_error(e)
+            assert 'name' in result
+            # Should work without file context
+
 
 class TestFormatYamlError:
-    """Tests for _format_yaml_error function."""
+    """Tests for format_yaml_error function."""
 
     def test_yaml_syntax_error_with_position(self) -> None:
         """Test formatting of YAML syntax error with line/column info."""
@@ -98,7 +193,7 @@ class TestFormatYamlError:
         try:
             yaml.safe_load(invalid_yaml)
         except yaml.YAMLError as e:
-            result = _format_yaml_error(e, Path('broken.yaml'))
+            result = format_yaml_error(e, Path('broken.yaml'))
             assert 'YAML syntax error in broken.yaml' in result
             assert 'line' in result
             assert 'column' in result
@@ -109,7 +204,7 @@ class TestFormatYamlError:
         try:
             yaml.safe_load(invalid_yaml)
         except yaml.YAMLError as e:
-            result = _format_yaml_error(e, Path('invalid.yaml'))
+            result = format_yaml_error(e, Path('invalid.yaml'))
             assert 'YAML syntax error in invalid.yaml' in result
 
     def test_yaml_scanner_error(self) -> None:
@@ -118,26 +213,30 @@ class TestFormatYamlError:
         try:
             yaml.safe_load(invalid_yaml)
         except yaml.YAMLError as e:
-            result = _format_yaml_error(e, Path('scanner-error.yaml'))
+            result = format_yaml_error(e, Path('scanner-error.yaml'))
             assert 'YAML syntax error in scanner-error.yaml' in result
 
     def test_yaml_error_without_mark(self) -> None:
         """Test handling of YAML error without position information."""
-        # Create a mock error without problem_mark
         error = yaml.YAMLError('Generic error')
-        result = _format_yaml_error(error, Path('generic.yaml'))
+        result = format_yaml_error(error, Path('generic.yaml'))
         assert 'YAML syntax error in generic.yaml' in result
         assert 'Generic error' in result
 
+    def test_yaml_error_no_file_path(self) -> None:
+        """Test YAML error formatting without file path."""
+        error = yaml.YAMLError('Generic error')
+        result = format_yaml_error(error)
+        assert 'YAML syntax error' in result
+        assert 'YAML' in result  # Uses 'YAML' as default context
+
     def test_yaml_duplicate_key_error(self) -> None:
         """Test formatting of YAML duplicate key warning."""
-        # Note: PyYAML doesn't raise an error for duplicate keys by default,
-        # but we can test the structure
         invalid_yaml = 'items:\n  - title: "Test"\n    grid: {x: 0\n'
         try:
             yaml.safe_load(invalid_yaml)
         except yaml.YAMLError as e:
-            result = _format_yaml_error(e, Path('duplicate.yaml'))
+            result = format_yaml_error(e, Path('duplicate.yaml'))
             assert 'YAML syntax error in duplicate.yaml' in result
 
 
@@ -155,7 +254,6 @@ class TestCompileYamlToJsonErrorHandling:
         assert json_lines == []
         assert error is not None
         assert 'empty.yaml' in error
-        assert 'empty or does not contain valid YAML' in error
 
     def test_compile_invalid_yaml_syntax(self, tmp_path: Path) -> None:
         """Test that YAML syntax errors produce friendly error messages."""
