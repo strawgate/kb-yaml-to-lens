@@ -31,10 +31,15 @@ async function main() {
         await runTests({
             vscodeExecutablePath,
             extensionDevelopmentPath,
-            extensionTestsPath
+            extensionTestsPath,
             // Note: --disable-extensions is not used because it would disable redhat.vscode-yaml
             // which is a required dependency. The extension is installed above and will be
             // available during testing.
+            launchArgs: [
+                '--disable-gpu',
+                '--no-sandbox',
+                '--disable-dev-shm-usage'
+            ]
         });
     } catch (err) {
         console.error('Failed to run tests:', err);
