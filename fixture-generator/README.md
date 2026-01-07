@@ -252,16 +252,20 @@ docker run --rm \
 
 ## Docker Setup
 
-The project uses pre-built Kibana base images published to GitHub Container Registry (GHCR):
+The project uses pre-built Kibana base images published to GitHub Container Registry (GHCR).
 
-**Base Image** - Available at `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:<version>`
+### Base Image
+
+Available at `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:<version>`
 
 - Contains Kibana source + bootstrap (~6 minutes to build, automated weekly)
 - Supports multiple versions: `v9.2.0` (default), `v9.1.0`
 - Multi-arch support (amd64, arm64)
 - Size: ~8GB (includes full Kibana source and node_modules)
 
-**Runtime Approach** - No local Docker builds required:
+### Runtime Approach
+
+No local Docker builds required:
 
 1. Pull the pre-built base image: `make pull`
 2. Mount generator scripts via volumes: `make run`
