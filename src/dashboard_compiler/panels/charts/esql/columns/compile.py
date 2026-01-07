@@ -1,12 +1,14 @@
 from collections.abc import Sequence
 
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes, ESQLStaticValue
+from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetric, ESQLMetricTypes, ESQLStaticValue
 from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLFieldDimensionColumn,
     KbnESQLFieldMetricColumn,
+    KbnESQLMetricColumnParams,
     KbnESQLMetricColumnTypes,
     KbnESQLStaticValueColumn,
 )
+from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric_format
 from dashboard_compiler.shared.config import get_layer_id, stable_id_generator
 
 
@@ -31,12 +33,24 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         )
 
     # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
+    if not isinstance(metric, ESQLMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
+        msg = f'Unknown metric type: {type(metric).__name__}'
+        raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+
     metric_id = metric.id or stable_id_generator([metric.field])
+
+    # Compile format if provided
+    metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
+
+    # Create params only if format is present
+    # Note: KbnLensMetricFormat and KbnESQLMetricFormat have identical structure, so cast is safe
+    params = KbnESQLMetricColumnParams(format=metric_format) if metric_format is not None else None  # pyright: ignore[reportArgumentType]
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
         columnId=metric_id,
         inMetricDimension=True,
+        params=params,
     )
 
 

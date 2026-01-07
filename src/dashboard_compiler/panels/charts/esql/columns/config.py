@@ -1,6 +1,7 @@
 from pydantic import Field
 
 from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum
+from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricFormatTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type ESQLColumnTypes = ESQLDimension | ESQLMetric | ESQLStaticValue
@@ -32,6 +33,12 @@ class ESQLMetric(BaseESQLColumn):
 
     field: str = Field(default=...)
     """The field in the data view that this metric is based on."""
+
+    label: str | None = Field(default=None)
+    """Optional display label for the metric."""
+
+    format: LensMetricFormatTypes | None = Field(default=None)
+    """The format of the metric (number, bytes, bits, percent, duration, or custom)."""
 
 
 class ESQLStaticValue(BaseESQLColumn):
