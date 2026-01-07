@@ -112,23 +112,30 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 **Example (Lens Metric Chart):**
 
 ```yaml
-# Within a LensPanel's 'chart' field:
-# type: metric
-# primary:
-#   aggregation: "sum"
-#   field: "bytes_transferred"
-#   label: "Total Data"
-#   format: { type: "bytes" }
-# secondary:
-#   aggregation: "average"
-#   field: "response_time_ms"
-#   label: "Avg Response"
-#   format: { type: "duration", suffix: " ms" }
-# breakdown:
-#   type: values
-#   field: "host.name"
-#   size: 3
-#   label: "Top Hosts"
+dashboards:
+  - name: "Lens Metric Example"
+    description: "Example of Lens metric panel with primary, secondary, and breakdown"
+    panels:
+      - title: "Data Transfer Metrics"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: "sum"
+            field: "bytes_transferred"
+            label: "Total Data"
+            format: { type: "bytes" }
+          secondary:
+            aggregation: "average"
+            field: "response_time_ms"
+            label: "Avg Response"
+            format: { type: "duration", suffix: " ms" }
+          breakdown:
+            type: values
+            field: "host.name"
+            size: 3
+            label: "Top Hosts"
 ```
 
 ---
@@ -152,26 +159,32 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 **Example (Lens Pie Chart):**
 
 ```yaml
-# Within a LensPanel's 'chart' field:
-# type: pie
-# data_view: "ecommerce-orders"
-# metrics:
-#   aggregation: "sum"
-#   field: "order_value"
-#   label: "Total Order Value"
-# slice_by:
-#   - type: values
-#     field: "product.category"
-#     size: 5
-#     label: "Product Category"
-# appearance:
-#   donut: "medium"
-# legend:
-#   visible: "show"
-#   width: "large"
-# titles_and_text:
-#   slice_labels: "inside"
-#   slice_values: "percent"
+dashboards:
+  - name: "Lens Pie Chart Example"
+    description: "Example of Lens pie chart with appearance and legend options"
+    panels:
+      - title: "Order Value by Category"
+        grid: { x: 0, y: 0, w: 24, h: 15 }
+        lens:
+          type: pie
+          data_view: "ecommerce-orders"
+          metrics:
+            - aggregation: "sum"
+              field: "order_value"
+              label: "Total Order Value"
+          slice_by:
+            - type: values
+              field: "product.category"
+              size: 5
+              label: "Product Category"
+          appearance:
+            donut: "medium"
+          legend:
+            visible: "show"
+            width: "large"
+          titles_and_text:
+            slice_labels: "inside"
+            slice_values: "percent"
 ```
 
 ---
