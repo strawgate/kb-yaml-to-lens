@@ -16,10 +16,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run ruff check (make lint-check)
-        run: make lint-check
-      - name: Run ruff format check (make format-check)
-        run: make format-check
+      - name: Run Python linting checks (make lint-python-check)
+        run: make lint-python-check
   lint-markdown:
     name: Lint Markdown
     runs-on: ubuntu-latest

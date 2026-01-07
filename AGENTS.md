@@ -68,124 +68,43 @@ make ci
 
 @CODE_STYLE.md
 
-**Read the docs first:**
+**Core Principles:**
 
-- When working in any component, read the README.md or AGENTS.md/CLAUDE.md for the component you're working on.
-
-**Learn from the codebase:**
-
-- **Search first, then implement** — Use Grep/Glob to find how similar problems are solved
-- **Pattern matching over prescription** — The codebase shows you the way; follow it
-- **Never speculate** — Read the actual code before making assumptions
-- **Consistency is key** — Match existing patterns unless there's strong justification to diverge
-
-When implementing a feature, ask yourself: "How does the codebase handle similar cases?" Then search for and study those examples.
-
-**Verify Your Work:**
-
-- Run component-specific tests before committing
-- Ensure all checks pass (lint, typecheck, tests)
-- Test the actual functionality, not just that it compiles
-
-**Be Honest:**
-
-- Document unresolved items
-- Acknowledge when you're uncertain
-- Never claim work is complete with critical issues unresolved
-
-**Be Thorough:**
-
-- Go the extra mile!
-- Update documentation and tests when you make code changes. These are not typically near the code so make sure you thoroughly search for items to update.
-- Consider the broader impact of your changes.
-
-**Slop-Free since 1993:**
-
-- No slop, no excuses, no half-measures
-- No slop comments, no slop code, no slop logic, no slop architecture, no slop design, no slop anything.
-- Avoid comments that simply state what the code is obviously doing
-- Do not write comments that contrast the current implementation with a previous implementation (i.e. "this now does X" or "this class now contains Y")
+- **Read first** — Component README.md/AGENTS.md before working
+- **Search, don't speculate** — Use Grep/Glob to find how the codebase solves similar problems
+- **Pattern matching** — Follow existing patterns unless justified to diverge
+- **Verify** — Run tests, ensure checks pass (lint/typecheck/tests), test actual functionality
+- **Honest** — Document unresolved items, acknowledge uncertainty, never claim completion with critical issues
+- **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
+- **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
 
 ---
 
-## Working with Code Review Feedback
+## Code Review Feedback
 
-### Triage First
+**Triage:** Critical (security, data corruption, type safety, test failures) → Important (error handling, performance, missing tests/types) → Optional (style, minor refactors)
 
-| Priority | Examples |
-| ---------- | ---------- |
-| **Critical** | Security issues, data corruption, type safety violations, test failures |
-| **Important** | Error handling, performance, missing tests, type annotations |
-| **Optional** | Style preferences, minor refactors |
+**Evaluate:** Search for similar patterns before accepting. Pattern exists across files = likely intentional. Preserve consistency over isolated best practices.
 
-### Evaluate Against Codebase
-
-- Search for similar patterns before accepting suggestions
-- If a pattern exists across multiple files, it's likely intentional
-- Preserve consistency over isolated best practices
-
-### Verification Requirements
-
-- [ ] All critical issues addressed
-- [ ] All important issues addressed or deferred with rationale
-- [ ] Component-specific checks pass (see component AGENTS.md)
-- [ ] Manual testing completed where applicable
+**Verify:** Critical/important issues addressed, component checks pass, manual testing done
 
 ---
 
 ## CI/CD
 
-### Automated Workflows
+**Workflows:** Testing/quality checks, docs deployment (GitHub Pages), Claude AI assistance, Docker builds
 
-The repository uses GitHub Actions for:
-
-- **Testing & Quality Checks** — Automated linting, type checking, tests on every push/PR
-- **Documentation** — Automatic deployment of docs to GitHub Pages
-- **Claude AI Assistants** — Automated code assistance, issue triage, merge conflict resolution
-- **Build Automation** — Docker image building for fixture generators
-
-Each workflow has self-contained instructions. Claude receives both the workflow prompt and relevant AGENTS.md files.
-
-### Modifying Workflows
-
-**Claude CANNOT modify workflow files** in `.github/workflows/` due to GitHub App permissions. When attempting to push changes to workflow files, GitHub rejects the push with:
-
-```text
-refusing to allow a GitHub App to create or update workflow `.github/workflows/*` without `workflows` permission
-```
-
-**To request workflow changes:**
-
-Copilot is extremely dumb and needs to be spoon-fed the exact change you want made. Do not give co-pilot options, do not rely on its expertise, do not trust its output.
-
-1. Make the exact workflow file you want in a `github/` folder. Do not attempt to modify existing workflow files.
-2. In your PR, indicate that you need a maintainer or Copilot to move the file into `.github/` as a new workflow file or a replacement for an existing workflow file.
+**Modifying workflows:** Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder, request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
 
 ---
 
-## Pull Request Standards
+## Pull Requests
 
-### Requirements
+**Requirements:** No merge conflicts, no unrelated changes/plan files, all checks pass, self-review done, use `.github/pull_request_template.md` for PR body
 
-- No merge conflicts with main
-- No unrelated changes or plan files
-- All static checks pass (component-specific)
-- Self-review completed
-- The repository's Pull Request Template is located at `.github/pull_request_template.md` and should be the basis for your initial PR body
+**Self-review:** Solves stated problem (reference issue), code complete/follows patterns, tests updated, docs accurate, `make ci` passes
 
-### Self Code Review Checklist
-
-- [ ] Solves the stated problem, with specific reference to the body of the related issue
-- [ ] Code is complete, well-written, and follows existing patterns in codebase
-- [ ] Tests added/updated as needed
-- [ ] Documentation is still accurate after the changes
-- [ ] All checks pass (linting + typecheck + tests) - run `make ci` to verify all checks pass
-
-### Code Rabbit will review your PR
-
-@CODERABBIT.md
-
-Code Rabbit will review your PR and provide feedback on the changes you made. CodeRabbit sometimes makes mistakes, so you should carefully consider the feedback and address the feedback if necessary.
+**CodeRabbit:** @CODERABBIT.md — Reviews PRs automatically. Sometimes makes mistakes; evaluate feedback carefully.
 
 ---
 

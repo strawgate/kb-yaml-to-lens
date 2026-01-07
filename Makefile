@@ -1,5 +1,5 @@
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy typecheck compile upload setup docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint-python lint-python-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy typecheck compile upload setup docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -27,10 +27,8 @@ help:
 	@echo "Linting (individual commands):"
 	@echo "  lint-all          - Auto-fix ALL linting issues (Python, Markdown, YAML)"
 	@echo "  lint-all-check    - Check ALL linting (Python, Markdown, YAML) without fixing"
-	@echo "  lint              - Auto-fix Python linting issues (ruff check --fix)"
-	@echo "  lint-check        - Check Python linting without fixing"
-	@echo "  format            - Auto-format Python code (ruff format)"
-	@echo "  format-check      - Check Python formatting without fixing"
+	@echo "  lint-python       - Auto-fix Python issues (format + lint)"
+	@echo "  lint-python-check - Check Python without fixing (format + lint)"
 	@echo "  lint-markdown     - Auto-fix markdown linting issues"
 	@echo "  lint-markdown-check - Check markdown without fixing"
 	@echo "  lint-yaml         - Auto-fix YAML linting issues"
@@ -99,10 +97,10 @@ check: ci
 fix: lint-all
 
 # Linting meta-commands
-lint-all: lint format lint-markdown lint-yaml
+lint-all: lint-python lint-markdown lint-yaml
 	@echo "✓ All linting complete (with auto-fix)"
 
-lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
+lint-all-check: lint-python-check lint-markdown-check lint-yaml-check
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
@@ -142,25 +140,18 @@ inspector:
 test-smoke:
 	uv run kb-dashboard --help
 
-# Auto-fix linting issues
-lint:
-	@echo "Running ruff check --fix..."
-	uv run ruff check . --fix
-
-# Check for linting issues without fixing
-lint-check:
-	@echo "Running ruff check..."
-	@uv run ruff check . --quiet
-
-# Auto-format code
-format:
+# Combined Python linting (recommended)
+lint-python:
 	@echo "Running ruff format..."
-	uv run ruff format .
+	@uv run ruff format .
+	@echo "Running ruff check --fix..."
+	@uv run ruff check . --fix
 
-# Check formatting without fixing
-format-check:
+lint-python-check:
 	@echo "Running ruff format --check..."
 	@uv run ruff format . --check --quiet
+	@echo "Running ruff check..."
+	@uv run ruff check . --quiet
 
 # Auto-fix markdown issues
 lint-markdown:

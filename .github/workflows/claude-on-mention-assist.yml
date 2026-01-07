@@ -64,6 +64,6 @@ jobs:
              ```
            - If the command returns any comments, read the feedback and incorporate it before completing
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
-      allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

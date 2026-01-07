@@ -1,14 +1,12 @@
 # Agent Guidelines: VS Code Extension
 
-> TypeScript extension providing live YAML dashboard compilation and preview for VS Code
+> TypeScript extension for live YAML dashboard compilation and preview
 
 ---
 
 ## Code Conventions
 
-@../CODE_STYLE.md
-
-@../CODERABBIT.md
+See root CODE_STYLE.md and CODERABBIT.md for detailed conventions.
 
 ---
 
@@ -16,47 +14,32 @@
 
 ### Essential Commands
 
-Component-specific commands (run from `vscode-extension/` directory):
+Component-specific (from `vscode-extension/`):
 
 | Command | Purpose |
 | ------- | ------- |
 | `make install` | Install dependencies |
-| `make ci` | Run all CI checks (compile + lint + test) |
-| `make fix` | Auto-fix linting issues |
+| `make ci` | Run all CI checks |
+| `make fix` | Auto-fix linting |
 | `make compile` | Build TypeScript |
-| `make watch` | Watch mode for development |
-| `make lint` | Check linting |
-| `make test` | Run all tests |
-| `make test-unit` | Run unit tests only |
+| `make watch` | Watch mode |
+| `make test` | Run tests |
 | `make package` | Create .vsix package |
 
-Root-level commands (run from repository root):
+Root-level (from repository root):
 
 | Command | Purpose |
 | ------- | ------- |
-| `make install` | Install all dependencies (all components) |
-| `make ci` | Run all CI checks (all components) |
-| `make fix` | Auto-fix all linting (all components) |
-| `make test-all` | Run all tests (all components) |
+| `make install` | Install all components |
+| `make ci` | Run all checks |
+| `make fix` | Auto-fix all linting |
 
 ### Development Workflow
 
 ```bash
-# First time setup (from repository root)
-make install
-
-# Development
-cd vscode-extension
-make watch  # Start watch mode
-# Press F5 in VS Code to launch Extension Development Host
-
-# Run component checks
-make ci  # Run extension CI checks
-
-# Or run from repository root for all components
-cd ..
-make fix  # Auto-fix all linting issues (all components)
-make ci   # Run all CI checks (all components)
+make install                    # First time (from root)
+cd vscode-extension && make watch  # Watch mode, then F5 in VS Code
+make ci && cd .. && make ci     # Run extension + all checks
 ```
 
 ---
@@ -65,71 +48,68 @@ make ci   # Run all CI checks (all components)
 
 ### Overview
 
-The extension uses a hybrid TypeScript + Python architecture:
+Hybrid TypeScript + Python:
 
-- **TypeScript Extension** manages UI, commands, and Python subprocess
-- **Python Server** handles actual compilation using `dashboard_compiler` package
+- **TypeScript Extension** manages UI, commands, Python subprocess
+- **Python Server** handles compilation using `dashboard_compiler`
 
 ### File Structure
 
 | File | Purpose |
 | ---- | ------- |
-| `src/extension.ts` | Main entry point, command registration |
-| `src/compiler.ts` | Python subprocess management, compilation requests |
-| `src/previewPanel.ts` | Webview preview panel management |
-| `src/gridEditorPanel.ts` | Visual grid layout editor |
+| `src/extension.ts` | Main entry, command registration |
+| `src/compiler.ts` | Python subprocess management |
+| `src/previewPanel.ts` | Webview preview panel |
+| `src/gridEditorPanel.ts` | Visual grid editor |
 | `src/fileWatcher.ts` | File change detection |
-| `python/compile_server.py` | Stdio-based Python compilation server |
+| `python/compile_server.py` | Stdio-based Python server |
 
 ### Key Components
 
 **Compiler Service** (`compiler.ts`):
 
-- Manages Python subprocess lifecycle
+- Manages Python subprocess
 - Sends compilation requests via stdin
-- Receives JSON responses via stdout
-- Handles errors and subprocess crashes
+- Receives JSON via stdout
+- Handles errors and crashes
 
 **Schema Registration** (`extension.ts`):
 
 - Registers JSON schema with Red Hat YAML extension
-- Fetches schema from LSP server (`dashboard/getSchema` endpoint)
-- Provides auto-complete, validation, and hover documentation
-- Automatically matches YAML files for dashboard editing
+- Fetches from LSP server (`dashboard/getSchema`)
+- Provides auto-complete, validation, hover docs
 
 **Preview Panel** (`previewPanel.ts`):
 
-- Webview-based dashboard preview
-- Auto-refreshes on file save
-- Export to NDJSON (copy/download)
+- Webview-based preview
+- Auto-refreshes on save
+- Export to NDJSON
 
 **Grid Editor** (`gridEditorPanel.ts`):
 
-- Drag-and-drop panel repositioning
-- Interactive panel resizing
-- Automatic YAML updates on changes
+- Drag-and-drop repositioning
+- Interactive resizing
+- Automatic YAML updates
 
 ---
 
 ## Extension Commands
 
-The extension provides these commands (accessible via Command Palette):
+Via Command Palette:
 
-- `yamlDashboard.compile` - Compile current YAML file
-- `yamlDashboard.preview` - Open preview panel
-- `yamlDashboard.editLayout` - Open grid layout editor
+- `yamlDashboard.compile` - Compile current file
+- `yamlDashboard.preview` - Open preview
+- `yamlDashboard.editLayout` - Open grid editor
 - `yamlDashboard.export` - Export to NDJSON
 
 ---
 
 ## Configuration
 
-Extension settings (VS Code settings.json):
-
-| Setting | Type | Description | Default | Required |
-| ------- | ---- | ----------- | ------- | -------- |
-| `yamlDashboard.pythonPath` | string | Path to Python interpreter (must have dashboard_compiler package installed) | `"python"` | No |
-| `yamlDashboard.compileOnSave` | boolean | Automatically compile dashboard when YAML file is saved | `true` | No |
+| Setting | Type | Description | Default |
+| ------- | ---- | ----------- | ------- |
+| `yamlDashboard.pythonPath` | string | Python interpreter path | `"python"` |
+| `yamlDashboard.compileOnSave` | boolean | Auto-compile on save | `true` |
 
 ---
 
@@ -137,23 +117,21 @@ Extension settings (VS Code settings.json):
 
 ### TypeScript Style
 
-- Use TypeScript strict mode
-- Avoid `any` types where possible
-- Use async/await for asynchronous operations
+- Use strict mode
+- Avoid `any` types
+- Use async/await
 - Handle errors explicitly
 
 ### Python Server Protocol
 
-The Python server uses stdio-based JSON-RPC:
+Stdio-based JSON-RPC:
 
 **Request:**
 
 ```json
 {
   "method": "compile",
-  "params": {
-    "file_path": "/path/to/dashboard.yaml"
-  }
+  "params": { "file_path": "/path/to/dashboard.yaml" }
 }
 ```
 
@@ -162,10 +140,7 @@ The Python server uses stdio-based JSON-RPC:
 ```json
 {
   "success": true,
-  "result": {
-    "dashboard": { ... },
-    "data_view": { ... }
-  }
+  "result": { "dashboard": {...}, "data_view": {...} }
 }
 ```
 
@@ -174,16 +149,16 @@ The Python server uses stdio-based JSON-RPC:
 ```json
 {
   "success": false,
-  "error": "Error message here"
+  "error": "Error message"
 }
 ```
 
 ### Webview Guidelines
 
-- Use VS Code webview API for all UI panels
-- Sanitize HTML content
-- Use message passing for webview ↔ extension communication
-- Handle webview lifecycle (dispose, reveal, etc.)
+- Use VS Code webview API
+- Sanitize HTML
+- Use message passing for communication
+- Handle lifecycle (dispose, reveal)
 
 ---
 
@@ -191,13 +166,9 @@ The Python server uses stdio-based JSON-RPC:
 
 ### Manual Testing
 
-1. Press F5 in VS Code to launch Extension Development Host
-2. Open a test YAML file (e.g., `inputs/esql-controls-example.yaml`)
-3. Test commands:
-   - Compile Dashboard
-   - Preview Dashboard
-   - Edit Dashboard Layout
-   - Export to NDJSON
+1. Press F5 in VS Code
+2. Open test YAML (e.g., `inputs/esql-controls-example.yaml`)
+3. Test commands
 
 ### Automated Testing
 
@@ -205,7 +176,7 @@ The Python server uses stdio-based JSON-RPC:
 npm test
 ```
 
-Tests are located in `src/test/`:
+Tests in `src/test/`:
 
 - `suite/` - Integration tests
 - `unit/` - Unit tests
@@ -214,35 +185,11 @@ Tests are located in `src/test/`:
 
 ## Common Issues
 
-### Python Server Not Starting
+**Python Server Not Starting**: Verify `dashboard_compiler` installed, check Python path
 
-**Symptoms:** "Python server not running" error
+**Compilation Errors**: Check YAML syntax, verify schema
 
-**Solutions:**
-
-- Verify `dashboard_compiler` is installed: `python -c "import dashboard_compiler"`
-- Check Python path in extension settings
-- View Output panel (View → Output) → "YAML Dashboard Compiler"
-
-### Compilation Errors
-
-**Symptoms:** "Compilation failed" in preview
-
-**Solutions:**
-
-- Check YAML syntax
-- Verify dashboard schema
-- Test manually: `python -c "from dashboard_compiler.dashboard_compiler import load; load('file.yaml')"`
-
-### Preview Not Updating
-
-**Symptoms:** Preview doesn't refresh after save
-
-**Solutions:**
-
-- Check `yamlDashboard.compileOnSave` is enabled
-- Manually run "Preview Dashboard" command
-- Close and reopen preview panel
+**Preview Not Updating**: Check `compileOnSave` enabled, manually run command
 
 ---
 
@@ -250,31 +197,23 @@ Tests are located in `src/test/`:
 
 ### Before Making Changes
 
-1. **Read relevant files first** — Never modify TypeScript without reading it
-2. **Understand the architecture** — Know the TypeScript ↔ Python boundary
-3. **Check existing patterns** — Look at how other commands are implemented
-4. **Test in Extension Development Host** — Always verify changes work
+1. Read relevant files first
+2. Understand TypeScript ↔ Python boundary
+3. Check existing command patterns
+4. Test in Extension Development Host
 
-### Verification Checklist
+### Verification
 
-Before claiming work is complete:
-
-- [ ] TypeScript compiles without errors (`npm run compile` or `make compile` from vscode-extension/)
-- [ ] ESLint passes (`make lint` from vscode-extension/)
-- [ ] Extension loads in Development Host (press F5)
-- [ ] All commands work as expected
-- [ ] No console errors in Extension Host
-- [ ] Python server starts and responds correctly
-- [ ] All CI checks pass (`make ci` from vscode-extension/ or repository root)
+TypeScript compiles (`make compile`), ESLint passes, extension loads (F5), commands work, no console errors, Python server starts, `make ci` passes
 
 ### Working with Python Server
 
-When modifying the Python server (`python/compile_server.py`):
+When modifying `python/compile_server.py`:
 
-1. Changes must maintain the stdio JSON-RPC protocol
-2. Test both success and error paths
-3. Ensure proper error handling and logging
-4. Remember: This runs as a subprocess, not in-process
+1. Maintain stdio JSON-RPC protocol
+2. Test success and error paths
+3. Ensure proper error handling
+4. Remember: runs as subprocess
 
 ---
 
@@ -285,4 +224,4 @@ When modifying the Python server (`python/compile_server.py`):
 | Main repository | `../README.md` |
 | Python compiler | `../src/dashboard_compiler/` |
 | Extension README | `README.md` |
-| VS Code Extension API | <https://code.visualstudio.com/api> |
+| VS Code API | <https://code.visualstudio.com/api> |

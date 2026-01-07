@@ -1,4 +1,10 @@
 ---
+# Reusable workflow for running Claude Code Action
+#
+# Required Secrets:
+#   CONTEXT7_API_KEY - API key for Context7 MCP server (provides library documentation)
+#                      Configure in: Settings → Secrets → Actions → Repository secrets
+#
 name: Run Claude Code Action
 on:
   workflow_call:
@@ -31,15 +37,13 @@ on:
         required: false
         type: boolean
         default: true
-      mcp-config:
-        description: MCP server configuration JSON
-        required: false
-        type: string
-        default: ''
     secrets:
       claude-oauth-token:
         description: Claude OAuth token
         required: true
+      context7-api-key:
+        description: API key for Context7 MCP server
+        required: false
 jobs:
   claude:
     runs-on: ubuntu-latest
@@ -55,7 +59,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Setup MCP Server
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONTEXT7_API_KEY: ${{ secrets.context7-api-key }}
         run: |
           mkdir -p /tmp/mcp-config
           cat > /tmp/mcp-config/mcp-servers.json << EOF
@@ -68,6 +72,13 @@ jobs:
               "code-search": {
                 "type": "http",
                 "url": "https://public-code-search.fastmcp.app/mcp"
+              },
+              "context7": {
+                "type": "http",
+                "url": "https://mcp.context7.com/mcp",
+                "headers": {
+                  "CONTEXT7_API_KEY": "$CONTEXT7_API_KEY"
+                }
               }
             }
           }
