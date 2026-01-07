@@ -6,7 +6,7 @@
  */
 
 import type { LensPieConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generatePieChartAdvancedColors(): Promise<void> {
   // Shared palette configuration
@@ -50,7 +50,8 @@ export async function generatePieChartAdvancedColors(): Promise<void> {
     chartType: 'pie',
     title: 'Request Methods with Custom Palette (Data View)',
     dataset: {
-      index: 'logs-*'
+      index: 'logs-*',
+      timeFieldName: '@timestamp'
     },
     value: 'count()',
     breakdown: ['request.method'],

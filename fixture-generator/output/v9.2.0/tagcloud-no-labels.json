@@ -1,0 +1,63 @@
+{
+  "title": "Tag Cloud - No Labels",
+  "visualizationType": "lnsTagcloud",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM logs-* | STATS count = COUNT() BY url.path | SORT count DESC | LIMIT 20"
+            },
+            "columns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "metric_formula_accessor"
+              },
+              {
+                "columnId": "metric_formula_accessor_breakdown",
+                "fieldName": "url.path"
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "metric_formula_accessor"
+              },
+              {
+                "columnId": "metric_formula_accessor_breakdown",
+                "fieldName": "url.path"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "valueAccessor": "metric_formula_accessor",
+      "maxFontSize": 72,
+      "minFontSize": 12,
+      "orientation": "single",
+      "showLabel": true,
+      "tagAccessor": "metric_formula_accessor_breakdown"
+    },
+    "adHocDataViews": {
+      "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

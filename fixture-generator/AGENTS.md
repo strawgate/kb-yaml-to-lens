@@ -21,7 +21,7 @@ We're building a compiler that targets Kibana's JSON format. The fixture generat
 **When creating or modifying fixture generator files:**
 
 1. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
-2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.js`
+2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.ts`
 3. Verify output file exists in `fixture-generator/output/`
 4. Inspect the output JSON to ensure it's valid
 5. Commit BOTH the generator script AND the output JSON files
@@ -35,7 +35,7 @@ We're building a compiler that targets Kibana's JSON format. The fixture generat
 
 **If you can't run Docker:**
 
-State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.js` to verify the output before merging. Don't commit untested generator code.
+State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.ts` to verify the output before merging. Don't commit untested generator code.
 
 ---
 
@@ -81,7 +81,7 @@ When creating or modifying fixture generators, complete this checklist:
 
 - [ ] Created/modified generator script in `examples/`
 - [ ] Ran `make build` (if Docker image doesn't exist)
-- [ ] Ran `make run-example EXAMPLE=<your-file>.js`
+- [ ] Ran `make run-example EXAMPLE=<your-file>.ts`
 - [ ] Verified `output/<your-file>.json` exists
 - [ ] Verified `output/<your-file>-dataview.json` exists (for dual generators)
 - [ ] Inspected JSON structure with `cat output/<your-file>.json | python -m json.tool | head -100`
@@ -117,7 +117,7 @@ make run
 
 ```bash
 cd fixture-generator
-make run-example EXAMPLE=metric-basic.js
+make run-example EXAMPLE=metric-basic.ts
 ```
 
 **Verify output:**
@@ -339,7 +339,7 @@ node examples/your-generator.js
 
 **Before you commit any generator code:**
 
-1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
+1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.ts`
 2. Verify `fixture-generator/output/your-file.json` exists
 3. Check JSON is valid with `python -m json.tool`
 4. Run `make ci` from project root

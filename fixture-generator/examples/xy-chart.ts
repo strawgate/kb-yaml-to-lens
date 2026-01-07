@@ -6,7 +6,7 @@
  */
 
 import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateXYChart(): Promise<void> {
   // Shared configuration between both variants
@@ -52,7 +52,10 @@ export async function generateXYChart(): Promise<void> {
       {
         type: 'series',
         seriesType: 'line',
-        xAxis: '@timestamp',
+        xAxis: {
+          type: 'dateHistogram',
+          field: '@timestamp'
+        },
         yAxis: [
           {
             label: 'Count',

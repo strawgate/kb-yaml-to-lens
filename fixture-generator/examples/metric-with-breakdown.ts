@@ -6,7 +6,7 @@
  */
 
 import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricWithBreakdown(): Promise<void> {
   // Shared configuration between both variants

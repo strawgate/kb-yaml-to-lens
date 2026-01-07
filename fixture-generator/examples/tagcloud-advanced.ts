@@ -10,7 +10,7 @@
  */
 
 import type { LensTagCloudConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateFixture, runIfMain } from '../generator-utils';
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 /**
  * Generate basic tagcloud (ES|QL)
@@ -23,7 +23,7 @@ async function generateBasicTagcloud() {
       esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20'
     },
     metric: 'count',
-    breakdown: ['log.level']
+    breakdown: 'log.level'
   };
 
   await generateFixture(
@@ -45,7 +45,7 @@ async function generateTagcloudCustomFontSize() {
       esql: 'FROM logs-* | STATS count = COUNT() BY host.name | SORT count DESC | LIMIT 15'
     },
     metric: 'count',
-    breakdown: ['host.name'],
+    breakdown: 'host.name',
     // Custom appearance settings
     minFontSize: 24,
     maxFontSize: 96
@@ -70,7 +70,7 @@ async function generateTagcloudRightAngled() {
       esql: 'FROM logs-* | STATS count = COUNT() BY service.name | SORT count DESC | LIMIT 25'
     },
     metric: 'count',
-    breakdown: ['service.name'],
+    breakdown: 'service.name',
     orientation: 'right angled'
   };
 
@@ -93,7 +93,7 @@ async function generateTagcloudMultipleOrientations() {
       esql: 'FROM logs-* | STATS count = COUNT() BY error.type | SORT count DESC | LIMIT 30'
     },
     metric: 'count',
-    breakdown: ['error.type'],
+    breakdown: 'error.type',
     orientation: 'multiple'
   };
 
@@ -116,7 +116,7 @@ async function generateTagcloudNoLabels() {
       esql: 'FROM logs-* | STATS count = COUNT() BY url.path | SORT count DESC | LIMIT 20'
     },
     metric: 'count',
-    breakdown: ['url.path'],
+    breakdown: 'url.path',
     showLabel: false
   };
 
@@ -139,7 +139,7 @@ async function generateTagcloudAllSettings() {
       esql: 'FROM logs-* | STATS total = COUNT() BY user.name | SORT total DESC | LIMIT 50'
     },
     metric: 'total',
-    breakdown: ['user.name'],
+    breakdown: 'user.name',
     minFontSize: 18,
     maxFontSize: 120,
     orientation: 'right angled',

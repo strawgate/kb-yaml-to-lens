@@ -4,7 +4,7 @@
  */
 
 import type { LensTableConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils';
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableUserTest(): Promise<void> {
   // Data View variant matching user's example
@@ -23,9 +23,8 @@ export async function generateDatatableUserTest(): Promise<void> {
     ]
   };
 
-  await generateDualFixture(
-    'datatable-user-test',
-    null, // No ESQL variant
+  await generateFixture(
+    'datatable-user-test.json',
     dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
     import.meta.url

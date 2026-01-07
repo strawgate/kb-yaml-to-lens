@@ -5,10 +5,8 @@
  * Demonstrates creating a tagcloud with tags sized by a metric value
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
 import type { LensTagCloudConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateTagcloud(): Promise<void> {
   // ES|QL configuration
@@ -19,7 +17,7 @@ export async function generateTagcloud(): Promise<void> {
       esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20'
     },
     metric: 'count',
-    breakdown: ['log.level']
+    breakdown: 'log.level'
   };
 
   // Data View configuration

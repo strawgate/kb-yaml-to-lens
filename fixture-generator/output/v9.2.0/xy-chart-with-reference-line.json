@@ -1,11 +1,16 @@
 {
-  "title": "Events Over Time (Data View)",
+  "title": "Response Time with SLA Threshold",
   "visualizationType": "lnsXY",
   "references": [
     {
       "type": "index-pattern",
-      "id": "logs-*",
+      "id": "metrics-*",
       "name": "indexpattern-datasource-layer-layer_0"
+    },
+    {
+      "type": "index-pattern",
+      "id": "metrics-*",
+      "name": "indexpattern-datasource-layer-layer_1"
     }
   ],
   "state": {
@@ -23,9 +28,9 @@
                 "isBucketed": false,
                 "dataType": "number",
                 "references": [],
-                "label": "Count",
+                "label": "Average Response Time",
                 "params": {
-                  "formula": "count()"
+                  "formula": "average(response_time)"
                 },
                 "customLabel": true
               },
@@ -41,6 +46,10 @@
                 }
               }
             }
+          },
+          "layer_1": {
+            "columns": {},
+            "columnOrder": []
           }
         }
       }
@@ -98,11 +107,12 @@
               "forAccessor": "metric_formula_accessor0_0"
             }
           ]
-        }
+        },
+        null
       ]
     },
     "adHocDataViews": {
-      "logs-*": {}
+      "metrics-*": {}
     }
   }
 }

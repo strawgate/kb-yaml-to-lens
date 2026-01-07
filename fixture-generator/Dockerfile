@@ -53,7 +53,7 @@ RUN yarn kbn bootstrap --allow-root
 # typescript: needed for type checking with tsc
 # @types/node: needed for Node.js type definitions
 # peggy: needed to compile .peggy grammar files to JavaScript
-RUN npm install -g tsx@4.21.0 typescript @types/node peggy
+RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node peggy
 
 # Compile .peggy grammar files to JavaScript
 # The kbn-es-query package has a grammar.peggy file that needs compilation

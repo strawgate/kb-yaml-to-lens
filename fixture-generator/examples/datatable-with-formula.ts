@@ -8,7 +8,7 @@
  */
 
 import type { LensTableConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateFixture, runIfMain } from '../generator-utils';
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableWithFormula(): Promise<void> {
   const dataviewConfig: LensTableConfig = {

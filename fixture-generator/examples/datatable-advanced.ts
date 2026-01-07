@@ -6,7 +6,7 @@
  */
 
 import type { LensTableConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableAdvanced(): Promise<void> {
   // ES|QL variant
