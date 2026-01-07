@@ -142,7 +142,7 @@ class BaseXYChartAppearance(BaseCfgModel):
 class BarChartAppearance(BaseXYChartAppearance):
     """Represents bar chart appearance formatting options.
 
-    Extends XYAppearance to include bar-specific options.
+    Extends BaseXYChartAppearance to include bar-specific options.
     """
 
     min_bar_height: float | None = Field(default=None, description='The minimum height for bars in bar charts.')
