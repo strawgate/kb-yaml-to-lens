@@ -78,6 +78,22 @@ make ci
 - **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
 - **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
 
+### Context7 MCP Integration
+
+Query up-to-date library documentation via MCP tools: `resolve-library-id` → `query-docs`. **Rate limited—use sparingly** (max 3 calls/question).
+
+**Project libraries:**
+
+| Library | Context7 ID | Use Cases |
+| ------- | ----------- | --------- |
+| Pydantic | `/websites/pydantic_dev` | Field validators, frozen models, model config patterns |
+| Elasticsearch | `/elastic/elasticsearch-py` | Client initialization, search queries, response handling |
+| PyYAML | `/yaml/pyyaml` | Safe loading, custom tags, multi-document streams |
+
+**When to use:** Implementing new Pydantic validation patterns, working with Elasticsearch client in `kibana_client.py`, extending YAML parsing in `loader.py`, understanding library-specific best practices during code review.
+
+**Query guidelines:** Be specific ("How to use field validators with mode='after' in Pydantic 2.x?" not "pydantic validators"), include version context, prioritize official documentation sources (High reputation).
+
 ---
 
 ## Code Review Feedback
