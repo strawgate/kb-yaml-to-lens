@@ -146,6 +146,40 @@ def test_compile_esql_metric_format_with_suffix_and_compact() -> None:
     )
 
 
+def test_compile_esql_metric_format_with_pattern_and_suffix() -> None:
+    """Test compilation of format with pattern and suffix."""
+    fmt = ESQLMetricFormat(type='number', pattern='0,0.00', suffix='KB')
+    result = compile_esql_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'number',
+            'params': {
+                'decimals': 2,
+                'pattern': '0,0.00',
+                'suffix': 'KB',
+            },
+        }
+    )
+
+
+def test_compile_esql_metric_format_with_pattern_and_compact() -> None:
+    """Test compilation of format with pattern and compact."""
+    fmt = ESQLMetricFormat(type='bytes', pattern='0.0 b', compact=True)
+    result = compile_esql_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'bytes',
+            'params': {
+                'decimals': 2,
+                'pattern': '0.0 b',
+                'compact': True,
+            },
+        }
+    )
+
+
 def test_compile_esql_custom_metric_format() -> None:
     """Test compilation of custom metric format."""
     fmt = ESQLCustomMetricFormat(pattern='0,0.[0000]')
