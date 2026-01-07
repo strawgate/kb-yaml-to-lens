@@ -182,12 +182,20 @@ jobs:
           cache-dependency-path: vscode-extension/package-lock.json
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
+      - name: Setup Xvfb (X Virtual Framebuffer)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          export DISPLAY=':99.0'
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       - name: Install extension dependencies
         working-directory: vscode-extension
         run: npm ci
       - name: Run E2E tests for extension
         working-directory: vscode-extension
         run: make test
+        env:
+          DISPLAY: :99.0
   checks-passed:
     name: All Checks Passed
     runs-on: ubuntu-latest
