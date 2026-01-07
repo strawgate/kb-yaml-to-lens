@@ -214,7 +214,7 @@ Most new generators should use the dual-generation pattern to create both ES|QL 
 ```typescript
 #!/usr/bin/env node
 import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.ts';
+import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMyChart(): Promise<void> {
   const sharedConfig: Partial<LensXYConfig> = {

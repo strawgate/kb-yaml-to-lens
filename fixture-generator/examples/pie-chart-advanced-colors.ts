@@ -1,30 +1,18 @@
 #!/usr/bin/env node
 /**
- * Example: Generate pie chart with advanced color palette (both ES|QL and Data View)
+ * Example: Generate donut chart with legend (both ES|QL and Data View)
  *
- * Demonstrates custom color mapping for pie/donut charts
+ * Demonstrates donut chart visualization with legend positioning
  */
 
 import type { LensPieConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generatePieChartAdvancedColors(): Promise<void> {
-  // Shared palette configuration
-  const customPalette = {
-    type: 'palette',
-    name: 'custom',
-    params: {
-      colors: ['#E7664C', '#57C17B', '#6F87D8', '#F9D66A', '#DA8B45', '#AA6556'],
-      gradient: false,
-      stops: [],
-      rangeType: 'number'
-    }
-  };
-
   // ES|QL variant
   const esqlConfig: LensPieConfig = {
     chartType: 'donut',
-    title: 'Request Methods with Custom Palette',
+    title: 'Request Methods Distribution',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY request.method'
     },
@@ -39,7 +27,7 @@ export async function generatePieChartAdvancedColors(): Promise<void> {
   // Data View variant
   const dataviewConfig: LensPieConfig = {
     chartType: 'donut',
-    title: 'Request Methods with Custom Palette (Data View)',
+    title: 'Request Methods Distribution (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'

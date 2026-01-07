@@ -1,45 +1,30 @@
 #!/usr/bin/env node
 /**
- * Example: Generate metric with trend visualizations (both ES|QL and Data View)
+ * Example: Generate metric with trend visualization (Data View only)
  *
  * Demonstrates creating a metric showing trend arrow/change
+ * Note: Trendlines require time-series data and are not supported with ES|QL
  */
 
 import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.js';
+import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricWithTrend(): Promise<void> {
-  // Shared configuration
-  const sharedConfig: Partial<LensMetricConfig> = {
+  // Data View configuration with trendline
+  const config: LensMetricConfig = {
     chartType: 'metric',
-    label: 'Total Events',
-    trendLine: true
-  };
-
-  // ES|QL variant
-  const esqlConfig: LensMetricConfig = {
-    ...sharedConfig,
     title: 'Event Count with Trend',
-    dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT()'
-    },
-    value: 'count'
-  };
-
-  // Data View variant
-  const dataviewConfig: LensMetricConfig = {
-    ...sharedConfig,
-    title: 'Event Count with Trend (Data View)',
+    label: 'Total Events',
     dataset: {
       index: 'logs-*'
     },
-    value: 'count()'
+    value: 'count()',
+    trendLine: true
   };
 
-  await generateDualFixture(
-    'metric-with-trend',
-    esqlConfig,
-    dataviewConfig,
+  await generateFixture(
+    'metric-with-trend.json',
+    config,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
     import.meta.url
   );
