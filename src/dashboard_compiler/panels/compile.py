@@ -3,7 +3,7 @@
 from collections.abc import Sequence
 
 from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
-from dashboard_compiler.panels.auto_layout import AutoLayoutEngine, LayoutAlgorithm
+from dashboard_compiler.panels.auto_layout import LayoutAlgorithm, create_layout_engine
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.charts.view import KbnLensPanel
@@ -163,27 +163,20 @@ def compute_panel_positions(
     if any_needs_layout is False:
         return {}
 
-    # Create layout engine
-    engine = AutoLayoutEngine(algorithm=algorithm)
+    # Create stateful layout engine
+    engine = create_layout_engine(algorithm)
 
     # Mark locked panels (those with explicit positions)
     for panel in panels:
         if panel.position.x is not None and panel.position.y is not None:
             engine.mark_locked_panel(panel.position.x, panel.position.y, panel.size.w, panel.size.h)
 
-    # Collect panels that need positioning
-    panels_to_position: list[tuple[int, int, int]] = []
+    # Add panels one at a time and get coordinates back immediately
+    position_map: dict[int, tuple[int, int]] = {}
     for idx, panel in enumerate(panels):
         if panel.position.x is None or panel.position.y is None:
-            panels_to_position.append((idx, panel.size.w, panel.size.h))
-
-    # Compute positions
-    positions = engine.compute_positions(panels_to_position)
-
-    # Build result mapping
-    position_map: dict[int, tuple[int, int]] = {}
-    for (idx, _w, _h), (x, y) in zip(panels_to_position, positions, strict=True):
-        position_map[idx] = (x, y)
+            x, y = engine.add_panel(panel.size.w, panel.size.h)
+            position_map[idx] = (x, y)
 
     return position_map
 
