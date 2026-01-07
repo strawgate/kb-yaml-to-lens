@@ -166,9 +166,12 @@ class LineChartAppearance(XYAppearance):
         default=None,
         description='How to handle the end of the time range in line/area charts.',
     )
-    curve_type: Literal['linear', 'monotone-x', 'step-after'] | None = Field(
+    line_style: Literal['linear', 'monotone-x', 'step-after'] | None = Field(
         default=None,
-        description='The curve type for line/area charts. Only 3 types are supported by Kibana: linear, monotone-x, step-after.',
+        description=(
+            'The line style for line/area charts. '
+            'Only 3 types are supported by Kibana: linear (straight), monotone-x (smooth), step-after (stepped).'
+        ),
     )
 
 

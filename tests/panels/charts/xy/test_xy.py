@@ -1014,7 +1014,7 @@ async def test_line_chart_with_all_advanced_features() -> None:
             'missing_values': 'Average',
             'show_as_dotted': True,
             'end_values': 'Nearest',
-            'curve_type': 'monotone-x',
+            'line_style': 'monotone-x',
         },
         'show_current_time_marker': True,
         'hide_endzones': True,
@@ -1041,10 +1041,10 @@ async def test_line_chart_with_all_advanced_features() -> None:
         ('step-after', 'CURVE_STEP_AFTER'),
     ],
 )
-async def test_curve_type_mapping(config_value: str, expected_kibana_value: str) -> None:
-    """Test that curve types are correctly mapped from config to Kibana format.
+async def test_line_style_mapping(config_value: str, expected_kibana_value: str) -> None:
+    """Test that line styles are correctly mapped from config to Kibana format.
 
-    Only tests the 3 curve types supported by Kibana.
+    Only tests the 3 line styles supported by Kibana.
     """
     lens_config = {
         'type': 'line',
@@ -1052,7 +1052,7 @@ async def test_curve_type_mapping(config_value: str, expected_kibana_value: str)
         'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'curve_type': config_value,
+            'line_style': config_value,
         },
     }
 

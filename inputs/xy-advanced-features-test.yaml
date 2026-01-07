@@ -96,10 +96,10 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            curve_type: monotone-x
+            line_style: monotone-x
 
-      # Panel 7: Curve Types - Step After
-      - title: Line Chart - Step After Curve
+      # Panel 7: Line Style - Step After
+      - title: Line Chart - Step After Line Style
         description: Step function that changes after each point
         grid: {x: 0, y: 36, w: 24, h: 12}
         lens:
@@ -111,11 +111,11 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            curve_type: step-after
+            line_style: step-after
 
-      # Panel 8: Curve Types - Cardinal
-      - title: Line Chart - Cardinal Curve
-        description: Cardinal spline interpolation
+      # Panel 8: Line Style - Linear (default)
+      - title: Line Chart - Linear Line Style
+        description: Linear (straight) line interpolation
         grid: {x: 24, y: 36, w: 24, h: 12}
         lens:
           type: line
@@ -126,7 +126,7 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            curve_type: cardinal
+            line_style: linear
 
       # Panel 9: End Value Handling - Zero
       - title: Line Chart - End Value Zero
@@ -219,13 +219,13 @@ dashboards:
             missing_values: Average
             show_as_dotted: true
             end_values: Nearest
-            curve_type: monotone-x
+            line_style: monotone-x
           show_current_time_marker: true
           hide_endzones: true
 
       # Panel 15: Area Chart - All Area Features
       - title: Area Chart - All Area Features
-        description: Combines fitting, curve type, fill opacity, and time series features
+        description: Combines missing values, line style, fill opacity, and time series features
         grid: {x: 0, y: 84, w: 24, h: 12}
         lens:
           type: area
@@ -239,7 +239,7 @@ dashboards:
             missing_values: Linear
             show_as_dotted: false
             end_values: Zero
-            curve_type: cardinal
+            line_style: linear
             fill_opacity: 0.5
           show_current_time_marker: false
           hide_endzones: true
@@ -275,7 +275,7 @@ dashboards:
           appearance:
             missing_values: Lookahead
             show_as_dotted: false
-            curve_type: natural
+            line_style: linear
           show_current_time_marker: true
           hide_endzones: false
           query:

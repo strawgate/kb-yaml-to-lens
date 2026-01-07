@@ -237,7 +237,7 @@ def _extract_chart_type_specific_appearance(
         fitting_function = chart.appearance.missing_values
         emphasize_fitting = chart.appearance.show_as_dotted
         end_value = chart.appearance.end_values
-        curve_type = _map_curve_type_to_kibana(chart.appearance.curve_type)
+        curve_type = _map_curve_type_to_kibana(chart.appearance.line_style)
 
         if isinstance(chart.appearance, AreaChartAppearance):
             fill_opacity = chart.appearance.fill_opacity
