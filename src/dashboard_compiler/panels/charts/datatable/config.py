@@ -1,7 +1,7 @@
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -164,9 +164,25 @@ class LensDatatableChart(BaseChart):
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
 
+    @model_validator(mode='after')
+    def validate_has_metrics_or_rows(self) -> Self:
+        """Validate that datatable has at least one metric or row.
+
+        Kibana requires datatables to have either metrics or rows (or both).
+        An empty datatable with neither will render as a blank panel.
+        """
+        if len(self.metrics) == 0 and len(self.rows) == 0:
+            msg = 'Datatable must have at least one metric or one row dimension'
+            raise ValueError(msg)
+        return self
+
 
 class ESQLDatatableChart(BaseChart):
-    """Represents a Datatable chart configuration within an ESQL panel."""
+    """Represents a Datatable chart configuration within an ESQL panel.
+
+    Note: ESQL datatables can have empty metrics and rows lists if they rely on
+    the ESQL query to define columns (e.g., STATS or KEEP commands).
+    """
 
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
