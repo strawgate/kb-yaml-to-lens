@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node", "mocha"]
+    "types": ["node", "mocha", "vscode", "glob"]
   },
   "exclude": [
     "node_modules",

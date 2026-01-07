@@ -195,7 +195,7 @@ jobs:
         working-directory: vscode-extension
         run: make test
         env:
-          DISPLAY: ':99.0'
+          DISPLAY: :99.0
   checks-passed:
     name: All Checks Passed
     runs-on: ubuntu-latest
