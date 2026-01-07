@@ -210,3 +210,49 @@ def test_compile_esql_custom_metric_format_with_different_pattern() -> None:
             },
         }
     )
+
+
+def test_compile_esql_metric_format_with_explicit_decimals() -> None:
+    """Test compilation of format with explicit decimals override."""
+    fmt = ESQLMetricFormat(type='number', decimals=4)
+    result = compile_esql_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'number',
+            'params': {
+                'decimals': 4,
+            },
+        }
+    )
+
+
+def test_compile_esql_metric_format_bits_with_explicit_decimals() -> None:
+    """Test compilation of bits format with explicit decimals override."""
+    fmt = ESQLMetricFormat(type='bits', decimals=2)
+    result = compile_esql_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'bits',
+            'params': {
+                'decimals': 2,
+            },
+        }
+    )
+
+
+def test_compile_esql_metric_format_with_decimals_and_suffix() -> None:
+    """Test compilation of format with both decimals and suffix."""
+    fmt = ESQLMetricFormat(type='number', decimals=1, suffix='ms')
+    result = compile_esql_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'number',
+            'params': {
+                'decimals': 1,
+                'suffix': 'ms',
+            },
+        }
+    )

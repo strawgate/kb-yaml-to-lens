@@ -23,6 +23,9 @@ class ESQLMetricFormat(BaseCfgModel):
 
     type: Literal['number', 'bytes', 'bits', 'percent', 'duration']
 
+    decimals: int | None = Field(default=None)
+    """The number of decimal places to display. If not specified, defaults to 2 for number/bytes/percent/duration, 0 for bits."""
+
     suffix: str | None = Field(default=None)
     """The suffix to display after the number."""
 

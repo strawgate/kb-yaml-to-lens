@@ -270,9 +270,10 @@ Configure how metric values are displayed (number format, suffix, decimal places
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The format type for the metric. | N/A | Yes |
+| `decimals` | `integer` | Number of decimal places to display. If not specified, defaults to 2 for number/bytes/percent/duration, 0 for bits. | Type-dependent | No |
 | `suffix` | `string` | Optional suffix to display after the number (e.g., 'KB', 'ms'). | `None` | No |
 | `compact` | `boolean` | Whether to display the number in a compact format (e.g., '1.2K' instead of '1200'). | `None` | No |
-| `pattern` | `string` | Optional Numeral.js pattern for custom formatting (e.g., '0,0.0 b' for bytes). | `None` | No |
+| `pattern` | `string` | Optional Numeral.js pattern for custom formatting. Controls decimal places, thousands separators, and more (e.g., '0,0.00' for 2 decimals with comma separator, '0.0000' for 4 decimals). Note: `decimals` provides a simpler way to control decimal places without a pattern. | `None` | No |
 
 **Custom Format Type:**
 
@@ -292,16 +293,28 @@ metrics:
     label: "Total Data"
     format:
       type: bytes
-      pattern: "0,0.0 b"
+      decimals: 1  # Show 1 decimal place
   - field: "event_count"
     label: "Events"
     format:
       type: number
-      pattern: "0,0"
+      decimals: 0  # No decimal places
+  - field: "avg_response_time"
+    label: "Avg Response Time"
+    format:
+      type: number
+      decimals: 2  # 2 decimal places
+      suffix: "ms"
   - field: "success_rate"
     label: "Success Rate"
     format:
       type: percent
+      decimals: 1  # 1 decimal place for percentages
+  - field: "precise_value"
+    label: "Precise Value"
+    format:
+      type: number
+      pattern: "0,0.0000"  # Pattern for custom thousands separator and 4 decimals
 ```
 
 ### ESQL Dimension Column
