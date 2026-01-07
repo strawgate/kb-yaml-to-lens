@@ -168,6 +168,9 @@ class ESQLStaticValuesControl(BaseControl):
     single_select: bool | None = Field(default=None)
     """If true, only allow single selection from the options."""
 
+    default_value: str | list[str] | None = Field(default=None, alias='default')
+    """Default selected value(s). For single_select controls, use a string. For multi-select, use a list."""
+
 
 class ESQLQueryControl(BaseControl):
     """Represents an ES|QL control with query-driven values.

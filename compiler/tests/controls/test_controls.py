@@ -621,6 +621,123 @@ async def test_esql_static_control_with_multi_select() -> None:
     )
 
 
+async def test_esql_static_control_with_default_value_string() -> None:
+    """Test ES|QL static control with default_value as a string (single value)."""
+    config = {
+        'type': 'esql_static',
+        'variable_name': 'project_id',
+        'variable_type': 'values',
+        'available_options': ['e252fee1dd6f4ff08bc91532aa922182', 'aaca5cd9be82480fa821c3f8e64e3f41'],
+        'title': 'Project ID',
+        'default': 'e252fee1dd6f4ff08bc91532aa922182',
+        'single_select': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'project_id',
+                'variableType': 'values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Project ID',
+                'selectedOptions': ['e252fee1dd6f4ff08bc91532aa922182'],
+                'singleSelect': True,
+                'availableOptions': ['e252fee1dd6f4ff08bc91532aa922182', 'aaca5cd9be82480fa821c3f8e64e3f41'],
+            },
+        }
+    )
+
+
+async def test_esql_static_control_with_default_value_list() -> None:
+    """Test ES|QL static control with default_value as a list (multiple values)."""
+    config = {
+        'type': 'esql_static',
+        'variable_name': 'status',
+        'variable_type': 'values',
+        'available_options': ['200', '404', '500', '503'],
+        'title': 'HTTP Status',
+        'default': ['200', '404'],
+        'single_select': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'status',
+                'variableType': 'values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'HTTP Status',
+                'selectedOptions': ['200', '404'],
+                'singleSelect': False,
+                'availableOptions': ['200', '404', '500', '503'],
+            },
+        }
+    )
+
+
+async def test_esql_static_control_with_default_value_none() -> None:
+    """Test ES|QL static control without default_value (should have empty selectedOptions)."""
+    config = {
+        'type': 'esql_static',
+        'variable_name': 'environment',
+        'variable_type': 'values',
+        'available_options': ['production', 'staging', 'development'],
+        'title': 'Environment',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'environment',
+                'variableType': 'values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Environment',
+                'selectedOptions': [],
+                'availableOptions': ['production', 'staging', 'development'],
+            },
+        }
+    )
+
+
+async def test_esql_static_control_default_alias_validation() -> None:
+    """Test that 'default' alias works for default_value field (YAML uses 'default', Python uses 'default_value')."""
+    from dashboard_compiler.controls.config import ESQLStaticValuesControl
+
+    # Test that 'default' alias is accepted during validation (YAML field name)
+    config_with_alias = {
+        'type': 'esql_static',
+        'variable_name': 'project_id',
+        'variable_type': 'values',
+        'available_options': ['option1', 'option2'],
+        'title': 'Project',
+        'default': 'option1',  # Using 'default' alias (YAML field name)
+    }
+    control = ESQLStaticValuesControl.model_validate(config_with_alias)
+    # Verify the value is accessible via Python attribute name
+    assert control.default_value == 'option1'
+    # Verify the model can be serialized back with the alias
+    dumped = control.model_dump(by_alias=True)
+    assert dumped['default'] == 'option1'
+
+
 async def test_esql_query_control_with_multi_select() -> None:
     """Test ES|QL query control with multi-select (single_select: false)."""
     config = {
