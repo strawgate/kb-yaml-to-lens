@@ -7,13 +7,11 @@ import pytest
 import yaml
 
 # Automatically discover markdown files that contain YAML dashboard examples
-_project_root = Path(__file__).parent.parent
+_project_root = Path(__file__).parent.parent.parent
 _docs_dir = _project_root / 'docs'
 
-# Find all markdown files in the repository
-_all_markdown_files = sorted(
-    str(p.relative_to(_project_root)) for p in [_project_root / 'README.md', *_docs_dir.rglob('*.md')] if p.exists()
-)
+# Find all markdown files in the repository (use absolute paths since tests run from compiler/)
+_all_markdown_files = sorted(str(p.absolute()) for p in [_project_root / 'README.md', *_docs_dir.rglob('*.md')] if p.exists())
 
 # Exclude files that shouldn't be tested (add patterns here if needed)
 _excluded_patterns = [

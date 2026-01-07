@@ -19,11 +19,12 @@ This repository contains three main components:
 
 | Directory | Technology | Purpose | AGENTS.md |
 | --------- | ---------- | ------- | --------- |
-| `src/dashboard_compiler/` | Python 3.12+ | Core compilation logic | `src/dashboard_compiler/AGENTS.md` |
+| `compiler/` | Python 3.12+ | Dashboard compiler | `compiler/AGENTS.md` |
+| `compiler/src/dashboard_compiler/` | Python 3.12+ | Core compilation logic | `compiler/AGENTS.md` |
+| `compiler/tests/` | Python pytest | Unit tests for compiler | `compiler/AGENTS.md` |
+| `compiler/inputs/` | YAML | Example dashboards | - |
 | `vscode-extension/` | TypeScript/Node.js | VS Code extension | `vscode-extension/AGENTS.md` |
 | `fixture-generator/` | JavaScript/Docker | Kibana fixture generation | `fixture-generator/AGENTS.md` |
-| `tests/` | Python pytest | Unit tests for compiler | `src/dashboard_compiler/AGENTS.md` |
-| `inputs/` | YAML | Example dashboards | - |
 | `docs/` | Markdown | Documentation | - |
 
 ### Common Commands
@@ -128,7 +129,7 @@ Query up-to-date library documentation via MCP tools: `resolve-library-id` → `
 
 | Resource | Location |
 | ---------- | ---------- |
-| Component AGENTS.md files | `src/dashboard_compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
+| Component AGENTS.md files | `compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
 | Architecture details | `docs/architecture.md` |
 | Getting started guide | `docs/index.md` (includes installation and first dashboard tutorial) |
 | Contributing guide | `CONTRIBUTING.md` |

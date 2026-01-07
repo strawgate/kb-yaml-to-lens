@@ -8,7 +8,7 @@ DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
 # YAML linting exclusions
-YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" --exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
+YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" --exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
 
 all: ci
 
@@ -83,7 +83,7 @@ help:
 
 install:
 	@echo "Installing Python dependencies..."
-	uv sync --group dev
+	cd compiler && uv sync --group dev
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
 	@echo "✓ All dependencies installed"
@@ -109,49 +109,49 @@ test-all: test test-smoke test-links
 
 test:
 	@echo "Running pytest..."
-	@uv run pytest -o addopts="" --tb=line --no-header -q
+	@cd compiler && uv run pytest -o addopts="" --tb=line --no-header -q
 
 test-coverage:
 	@echo "Running pytest with coverage..."
-	@uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+	@cd compiler && uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
 	@echo ""
 	@echo "✓ Coverage report generated:"
-	@echo "  • HTML report: htmlcov/index.html"
-	@echo "  • JSON report: coverage.json"
+	@echo "  • HTML report: compiler/htmlcov/index.html"
+	@echo "  • JSON report: compiler/coverage.json"
 	@echo ""
 	@echo "Run 'make coverage-report' to open the HTML report in your browser"
 
 coverage-report:
 	@echo "Opening coverage report..."
-	@if [ ! -f htmlcov/index.html ]; then \
+	@if [ ! -f compiler/htmlcov/index.html ]; then \
 		echo "Error: Coverage report not found. Run 'make test-coverage' first."; \
 		exit 1; \
 	fi
-	@python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
+	@python -m webbrowser compiler/htmlcov/index.html || xdg-open compiler/htmlcov/index.html || open compiler/htmlcov/index.html
 
 test-links:
 	@echo "Checking documentation links..."
-	@uv run pytest --check-links docs/ README.md CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
+	@cd compiler && uv run pytest --check-links ../docs/ ../README.md ../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
 
 inspector:
 	@echo "Running MCP Inspector..."
 	npx @modelcontextprotocol/inspector
 
 test-smoke:
-	uv run kb-dashboard --help
+	cd compiler && uv run kb-dashboard --help
 
 # Combined Python linting (recommended)
 lint-python:
 	@echo "Running ruff format..."
-	@uv run ruff format .
+	@cd compiler && uv run ruff format .
 	@echo "Running ruff check --fix..."
-	@uv run ruff check . --fix
+	@cd compiler && uv run ruff check . --fix
 
 lint-python-check:
 	@echo "Running ruff format --check..."
-	@uv run ruff format . --check --quiet
+	@cd compiler && uv run ruff format . --check --quiet
 	@echo "Running ruff check..."
-	@uv run ruff check . --quiet
+	@cd compiler && uv run ruff check . --quiet
 
 # Auto-fix markdown issues
 lint-markdown:
@@ -166,16 +166,16 @@ lint-markdown-check:
 # Auto-fix YAML issues
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix $(YAMLFIX_EXCLUDE) .
+	cd compiler && uv run yamlfix $(YAMLFIX_EXCLUDE) ..
 
 # Check YAML without fixing
 lint-yaml-check:
 	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check $(YAMLFIX_EXCLUDE) . && exit 1)
+	@(cd compiler && uv run yamlfix --check $(YAMLFIX_EXCLUDE) ..) > /dev/null 2>&1 && echo "✓ YAML checks passed" || (cd compiler && uv run yamlfix --check $(YAMLFIX_EXCLUDE) ..)
 
 typecheck:
 	@echo "Running type checking..."
-	uv run basedpyright
+	cd compiler && uv run basedpyright
 
 clean:
 	@echo "Cleaning up..."
@@ -192,47 +192,47 @@ clean-full: clean
 setup:
 	@echo "Setting up environment..."
 	curl -LsSf https://astral.sh/uv/install.sh | sh
-	uv sync --group dev
+	cd compiler && uv sync --group dev
 	echo "Environment set up successfully!"
 
 update-deps:
 	@echo "Updating dependencies..."
-	uv lock --upgrade
+	cd compiler && uv lock --upgrade
 
 compile:
 	@echo "Compiling dashboards..."
-	uv run kb-dashboard compile
+	cd compiler && uv run kb-dashboard compile
 
 upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
-	uv run kb-dashboard compile --upload
+	cd compiler && uv run kb-dashboard compile --upload
 
 docs-serve:
 	@echo "Starting documentation server..."
-	uv run --group docs mkdocs serve
+	cd compiler && uv run --group docs mkdocs serve -f ../mkdocs.yml
 
 docs-build:
 	@echo "Building documentation..."
-	uv run --group docs mkdocs build
+	cd compiler && uv run --group docs mkdocs build -f ../mkdocs.yml
 
 docs-build-quiet:
 	@echo "Building documentation (errors only)..."
-	@uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+	@cd compiler && uv run --group docs mkdocs build --quiet --strict -f ../mkdocs.yml && echo "✓ Documentation builds successfully"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
-	uv run --group docs mkdocs gh-deploy --force
+	cd compiler && uv run --group docs mkdocs gh-deploy --force -f ../mkdocs.yml
 
 # Docker commands
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t $(DOCKER_IMAGE) .
+	docker build -t $(DOCKER_IMAGE) -f compiler/Dockerfile compiler
 
 docker-run:
 	@echo "Running Docker container..."
-	@mkdir -p $(PWD)/inputs $(PWD)/output
+	@mkdir -p $(PWD)/compiler/inputs $(PWD)/output
 	@echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
-	docker run --rm -v $(PWD)/inputs:/inputs -v $(PWD)/output:/output \
+	docker run --rm -v $(PWD)/compiler/inputs:/inputs -v $(PWD)/output:/output \
 		$(DOCKER_IMAGE) compile --input-dir /inputs --output-dir /output
 
 docker-test:
@@ -250,13 +250,14 @@ docker-publish:
 	docker buildx build \
 		--platform linux/amd64,linux/arm64 \
 		-t $(GHCR_REGISTRY) \
-		--push .
+		-f compiler/Dockerfile \
+		--push compiler
 
 # Binary build command
 build-binary:
 	@echo "Building standalone binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py
+	@cd compiler && uv sync --group build
+	@cd compiler && uv run python ../scripts/build_binaries.py
 
 # Docker smoke tests
 test-docker-smoke:

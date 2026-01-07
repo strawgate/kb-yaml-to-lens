@@ -49,7 +49,7 @@ plugins:
       handlers:
         python:
           paths:
-            - src
+            - compiler/src
           options:
             show_source: true
             docstring_style: google
