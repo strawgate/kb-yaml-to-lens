@@ -3,8 +3,49 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
+/**
+ * Find Python interpreter with dashboard_compiler module.
+ * Searches in order: workspace root, process.cwd(), fallback to python3
+ */
+function findPythonPath(): string {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+    const candidates = [
+        workspaceRoot && path.join(workspaceRoot, 'compiler/.venv/bin/python'),
+        path.join(process.cwd(), 'compiler/.venv/bin/python'),
+        'python3'
+    ].filter((p): p is string => !!p);
+
+    const found = candidates.find(p => {
+        try {
+            return fs.existsSync(p) || p === 'python3';
+        } catch {
+            return false;
+        }
+    }) || 'python3';
+
+    console.log(`Using Python interpreter: ${found}`);
+    return found;
+}
+
 suite('Extension Test Suite', () => {
     vscode.window.showInformationMessage('Start all tests.');
+
+    // Configure Python path before all tests to ensure consistent extension state
+    before(async () => {
+        const pythonPath = findPythonPath();
+        const config = vscode.workspace.getConfiguration('yamlDashboard');
+        const target = vscode.workspace.workspaceFolders
+            ? vscode.ConfigurationTarget.Workspace
+            : vscode.ConfigurationTarget.Global;
+        await config.update('pythonPath', pythonPath, target);
+
+        // Ensure extension is activated with the correct config
+        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
+        if (extension && !extension.isActive) {
+            await extension.activate();
+        }
+    });
 
     test('Debug Workspace', async () => {
         console.log('Workspace folders:', vscode.workspace.workspaceFolders);
@@ -23,48 +64,10 @@ suite('Extension Test Suite', () => {
     test('Extension should activate', async () => {
         const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension);
-
-        // Find Python interpreter with dashboard_compiler module installed.
-        // The compiler's .venv is at compiler/.venv relative to repo root.
-        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-
-        const potentialPaths = [
-            // Workspace root (most reliable in both dev and CI)
-            workspaceRoot && path.join(workspaceRoot, 'compiler/.venv/bin/python'),
-            // Current working directory (CI fallback)
-            path.join(process.cwd(), 'compiler/.venv/bin/python'),
-            // System python (last resort - may not have dashboard_compiler)
-            'python3'
-        ].filter((p): p is string => !!p);
-
-        const pythonPath = potentialPaths.find(p => {
-            try {
-                return fs.existsSync(p) || p === 'python3';
-            } catch {
-                return false;
-            }
-        }) || 'python3';
-
-        console.log(`Using Python interpreter: ${pythonPath}`);
-
-        const config = vscode.workspace.getConfiguration('yamlDashboard');
-        // Update global config if workspace is not available, or workspace config if it is
-        const target = vscode.workspace.workspaceFolders ? vscode.ConfigurationTarget.Workspace : vscode.ConfigurationTarget.Global;
-        await config.update('pythonPath', pythonPath, target);
-
-        // Wait for activation
-        if (!extension.isActive) {
-            await extension.activate();
-        }
-        assert.ok(extension.isActive);
+        assert.ok(extension.isActive, 'Extension should be activated by before() hook');
     });
 
     test('Should register commands', async () => {
-        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
-        if (!extension?.isActive) {
-            await extension?.activate();
-        }
-
         const commands = await vscode.commands.getCommands(true);
         assert.ok(commands.includes('yamlDashboard.compile'), 'yamlDashboard.compile command missing');
         assert.ok(commands.includes('yamlDashboard.preview'), 'yamlDashboard.preview command missing');
@@ -76,15 +79,6 @@ suite('Extension Test Suite', () => {
     });
 
     test('Should get dashboards from YAML file', async () => {
-        // This test specifically verifies the getDashboards custom request works
-        // which was failing with AttributeError: 'Object' object has no attribute 'get'
-        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
-        assert.ok(extension);
-
-        if (!extension.isActive) {
-            await extension.activate();
-        }
-
         const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
         if (!fs.existsSync(fixturePath)) {
             const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
@@ -93,8 +87,6 @@ suite('Extension Test Suite', () => {
             }
         }
 
-        // Get the compiler from the extension's exports (if available)
-        // For now, we'll test it indirectly through the compile command which calls getDashboards
         const uri = vscode.Uri.file(fixturePath);
         const doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
@@ -103,7 +95,6 @@ suite('Extension Test Suite', () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Execute compile command - this internally calls getDashboards()
-        // and will fail if the AttributeError occurs
         try {
             await vscode.commands.executeCommand('yamlDashboard.compile');
         } catch (error) {
@@ -112,19 +103,13 @@ suite('Extension Test Suite', () => {
     });
 
     test('Should open YAML file and compile', async () => {
-        // Construct path to fixture relative to this file
-        // The fixture is in src/test/fixtures/test.yaml
-        // compiled test file is in out/test/suite/extension.test.js
-        // so we need ../../../src/test/fixtures/test.yaml relative to __dirname (out/test/suite)
-
         const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
 
         if (!fs.existsSync(fixturePath)) {
-            // Check potential fallback location
-             const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
-             if (!fs.existsSync(fallbackPath)) {
+            const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
+            if (!fs.existsSync(fallbackPath)) {
                 assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
-             }
+            }
         }
 
         const uri = vscode.Uri.file(fixturePath);
@@ -134,17 +119,12 @@ suite('Extension Test Suite', () => {
             await vscode.window.showTextDocument(doc);
             assert.strictEqual(doc.languageId, 'yaml');
 
-            // Give it a moment to stabilize
+            // Give LSP server a moment to initialize
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Execute the compile command
-            // Since there is only one dashboard in the file, it should proceed without prompting
             await vscode.commands.executeCommand('yamlDashboard.compile');
-
-            // If we reached here without error, it's likely successful.
-
         } catch (error) {
-             assert.fail(`Test failed: ${error}`);
+            assert.fail(`Test failed: ${error}`);
         }
     });
 });
