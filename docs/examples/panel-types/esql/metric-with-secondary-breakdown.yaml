@@ -1,0 +1,19 @@
+---
+dashboards:
+  - name: ESQL Metric Example
+    description: Example of ESQL metric panel with primary, secondary, and breakdown
+    panels:
+      - title: Service Performance Metrics
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: metric
+          query: |
+            FROM logs-*
+            | STATS avg_response_time = AVG(response.time),
+                    p95_response_time = PERCENTILE(response.time, 95.0) BY service_name
+          primary:
+            field: avg_response_time
+          secondary:
+            field: p95_response_time
+          breakdown:
+            field: service_name
