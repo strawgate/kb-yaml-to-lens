@@ -16,6 +16,11 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from dashboard_compiler.cli_context import CliContext
+from dashboard_compiler.cli_options import (
+    elasticsearch_options,
+    kibana_options,
+)
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
@@ -149,7 +154,8 @@ def get_yaml_files(directory: Path) -> list[Path]:
 
 @click.group()
 @click.version_option(version='0.1.0')
-def cli() -> None:
+@click.pass_context
+def cli(ctx: click.Context) -> None:
     r"""Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format.
 
     This tool helps you manage Kibana dashboards as code by compiling YAML
@@ -173,6 +179,7 @@ def cli() -> None:
     Use environment variables (KIBANA_URL, KIBANA_USERNAME, KIBANA_PASSWORD,
     KIBANA_API_KEY) to avoid passing credentials on the command line.
     """
+    _ = ctx.ensure_object(CliContext)
 
 
 @cli.command('compile')
@@ -199,46 +206,7 @@ def cli() -> None:
     is_flag=True,
     help='Upload compiled dashboards to Kibana immediately after compilation.',
 )
-@click.option(
-    '--kibana-url',
-    type=str,
-    envvar='KIBANA_URL',
-    default='http://localhost:5601',
-    help='Kibana base URL. Example: https://kibana.example.com (env: KIBANA_URL)',
-)
-@click.option(
-    '--kibana-username',
-    type=str,
-    envvar='KIBANA_USERNAME',
-    help=(
-        'Kibana username for basic authentication. Must be used with --kibana-password. '
-        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
-    ),
-)
-@click.option(
-    '--kibana-password',
-    type=str,
-    envvar='KIBANA_PASSWORD',
-    help=(
-        'Kibana password for basic authentication. Must be used with --kibana-username. '
-        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
-    ),
-)
-@click.option(
-    '--kibana-api-key',
-    type=str,
-    envvar='KIBANA_API_KEY',
-    help=(
-        'Kibana API key for authentication (recommended for production). '
-        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
-    ),
-)
-@click.option(
-    '--kibana-space-id',
-    type=str,
-    envvar='KIBANA_SPACE_ID',
-    help='Kibana space ID to upload dashboards to. If not specified, uses the default space. (env: KIBANA_SPACE_ID)',
-)
+@kibana_options
 @click.option(
     '--no-browser',
     is_flag=True,
@@ -249,24 +217,15 @@ def cli() -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-@click.option(
-    '--kibana-no-ssl-verify',
-    is_flag=True,
-    help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
-)
+@click.pass_context
 def compile_dashboards(  # noqa: PLR0913, PLR0912
+    ctx: click.Context,
     input_dir: Path,
     output_dir: Path,
     output_file: str,
     upload: bool,
-    kibana_url: str,
-    kibana_username: str | None,
-    kibana_password: str | None,
-    kibana_api_key: str | None,
-    kibana_space_id: str | None,
     no_browser: bool,
     overwrite: bool,
-    kibana_no_ssl_verify: bool,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -297,13 +256,11 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         export KIBANA_API_KEY=your-api-key
         kb-dashboard compile --upload
     """
-    if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
-        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
-        raise click.UsageError(msg)
-
-    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
-        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    # Context is already populated by @kibana_options decorator
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
+    cli_context = ctx.obj
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -361,59 +318,31 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
     console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
 
     if upload is True:
-        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana at {kibana_url}...')
-        asyncio.run(
-            upload_to_kibana(
-                combined_file,
-                kibana_url,
-                kibana_username,
-                kibana_password,
-                kibana_api_key,
-                kibana_space_id,
-                overwrite,
-                not no_browser,
-                ssl_verify=not kibana_no_ssl_verify,
-            )
-        )
+        if cli_context.kibana_client is None:
+            msg = 'Kibana client not configured'
+            raise click.ClickException(msg)
+        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana...')
+        asyncio.run(upload_to_kibana(cli_context.kibana_client, combined_file, overwrite, not no_browser))
 
 
-async def upload_to_kibana(  # noqa: PLR0913
+async def upload_to_kibana(
+    client: KibanaClient,
     ndjson_file: Path,
-    kibana_url: str,
-    username: str | None,
-    password: str | None,
-    api_key: str | None,
-    space_id: str | None,
     overwrite: bool,
     open_browser: bool,
-    ssl_verify: bool = True,
 ) -> None:
     """Upload NDJSON file to Kibana.
 
     Args:
+        client: Pre-configured Kibana client
         ndjson_file: Path to NDJSON file to upload
-        kibana_url: Kibana base URL
-        username: Basic auth username
-        password: Basic auth password
-        api_key: API key for authentication
-        space_id: Kibana space ID (optional)
         overwrite: Whether to overwrite existing objects
         open_browser: Whether to open browser after successful upload
-        ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
         click.ClickException: If upload fails.
 
     """
-    client = KibanaClient(
-        url=kibana_url,
-        username=username,
-        password=password,
-        api_key=api_key,
-        space_id=space_id,
-        ssl_verify=ssl_verify,
-    )
-
     try:
         result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
@@ -449,43 +378,11 @@ async def upload_to_kibana(  # noqa: PLR0913
     default=DEFAULT_INPUT_DIR,
     help='Directory containing YAML dashboard files with sample data.',
 )
-@click.option(
-    '--es-url',
-    type=str,
-    envvar='ELASTICSEARCH_URL',
-    default='http://localhost:9200',
-    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
-)
-@click.option(
-    '--es-username',
-    type=str,
-    envvar='ELASTICSEARCH_USERNAME',
-    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
-)
-@click.option(
-    '--es-password',
-    type=str,
-    envvar='ELASTICSEARCH_PASSWORD',
-    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
-)
-@click.option(
-    '--es-api-key',
-    type=str,
-    envvar='ELASTICSEARCH_API_KEY',
-    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
-)
-@click.option(
-    '--es-no-ssl-verify',
-    is_flag=True,
-    help='Disable SSL certificate verification for Elasticsearch connections.',
-)
-def load_sample_data_command(  # noqa: PLR0913
+@elasticsearch_options
+@click.pass_context
+def load_sample_data_command(
+    ctx: click.Context,
     input_dir: Path,
-    es_url: str,
-    es_username: str | None,
-    es_password: str | None,
-    es_api_key: str | None,
-    es_no_ssl_verify: bool,
 ) -> None:
     r"""Load sample data bundled with dashboards into Elasticsearch.
 
@@ -510,13 +407,15 @@ def load_sample_data_command(  # noqa: PLR0913
         kb-dashboard load-sample-data --es-url https://es.example.com \\
             --es-api-key "your-api-key-here"
     """
-    if es_api_key is not None and (es_username is not None or es_password is not None):
-        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
-        raise click.UsageError(msg)
+    # Context is already populated by @elasticsearch_options decorator
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
+    cli_context = ctx.obj
 
-    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
-        msg = '--es-username and --es-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    if cli_context.es_client is None:
+        msg = 'Elasticsearch client not configured'
+        raise click.ClickException(msg)
 
     yaml_files = get_yaml_files(input_dir)
     if len(yaml_files) == 0:
@@ -537,18 +436,9 @@ def load_sample_data_command(  # noqa: PLR0913
         return
 
     console.print(f'Found {len(dashboards_with_sample_data)} dashboard(s) with sample data')
-    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Loading sample data to Elasticsearch at {es_url}...\n')
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Loading sample data to Elasticsearch...\n')
 
-    asyncio.run(
-        load_all_sample_data(
-            dashboards_with_sample_data,
-            es_url,
-            es_username,
-            es_password,
-            es_api_key,
-            ssl_verify=not es_no_ssl_verify,
-        )
-    )
+    asyncio.run(load_all_sample_data(cli_context.es_client, dashboards_with_sample_data))
 
 
 @cli.command('extract-sample-data')
@@ -576,46 +466,14 @@ def load_sample_data_command(  # noqa: PLR0913
     default=1000,
     help='Maximum number of documents to extract (default: 1000).',
 )
-@click.option(
-    '--es-url',
-    type=str,
-    envvar='ELASTICSEARCH_URL',
-    default='http://localhost:9200',
-    help='Elasticsearch base URL. Example: https://elasticsearch.example.com (env: ELASTICSEARCH_URL)',
-)
-@click.option(
-    '--es-username',
-    type=str,
-    envvar='ELASTICSEARCH_USERNAME',
-    help='Elasticsearch username for basic authentication (env: ELASTICSEARCH_USERNAME)',
-)
-@click.option(
-    '--es-password',
-    type=str,
-    envvar='ELASTICSEARCH_PASSWORD',
-    help='Elasticsearch password for basic authentication (env: ELASTICSEARCH_PASSWORD)',
-)
-@click.option(
-    '--es-api-key',
-    type=str,
-    envvar='ELASTICSEARCH_API_KEY',
-    help='Elasticsearch API key for authentication (env: ELASTICSEARCH_API_KEY)',
-)
-@click.option(
-    '--es-no-ssl-verify',
-    is_flag=True,
-    help='Disable SSL certificate verification for Elasticsearch connections.',
-)
-def extract_sample_data_command(  # noqa: PLR0913
+@elasticsearch_options
+@click.pass_context
+def extract_sample_data_command(
+    ctx: click.Context,
     index: str,
     output: Path,
     query: str,
     max_docs: int,
-    es_url: str,
-    es_username: str | None,
-    es_password: str | None,
-    es_api_key: str | None,
-    es_no_ssl_verify: bool,
 ) -> None:
     r"""Extract data from Elasticsearch to NDJSON format.
 
@@ -639,33 +497,23 @@ def extract_sample_data_command(  # noqa: PLR0913
         kb-dashboard extract-sample-data --index logs-* --output sample.ndjson \
             --es-url https://es.example.com --es-api-key "your-api-key"
     """
-    if es_api_key is not None and (es_username is not None or es_password is not None):
-        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
-        raise click.UsageError(msg)
+    # Context is already populated by @elasticsearch_options decorator
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
+    cli_context = ctx.obj
 
-    if (es_username is not None and es_password is None) or (es_password is not None and es_username is None):
-        msg = '--es-username and --es-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    if cli_context.es_client is None:
+        msg = 'Elasticsearch client not configured'
+        raise click.ClickException(msg)
 
-    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch at {es_url}...')
+    console.print(f'[blue]{ICON_DOWNLOAD}[/blue] Extracting data from Elasticsearch...')
     console.print(f'Index: {index}')
     console.print(f'Query: {query}')
     console.print(f'Max docs: {max_docs}')
     console.print(f'Output: {output}\n')
 
-    asyncio.run(
-        extract_data(
-            index,
-            output,
-            query,
-            max_docs,
-            es_url,
-            es_username,
-            es_password,
-            es_api_key,
-            ssl_verify=not es_no_ssl_verify,
-        )
-    )
+    asyncio.run(extract_data(cli_context.es_client, index, output, query, max_docs))
 
 
 @cli.command('screenshot')
@@ -720,52 +568,10 @@ def extract_sample_data_command(  # noqa: PLR0913
     default=300,
     help='Maximum time in seconds to wait for screenshot generation. Increase for complex dashboards. Default: 300',
 )
-@click.option(
-    '--kibana-url',
-    type=str,
-    envvar='KIBANA_URL',
-    default='http://localhost:5601',
-    help='Kibana base URL. Example: https://kibana.example.com (env: KIBANA_URL)',
-)
-@click.option(
-    '--kibana-username',
-    type=str,
-    envvar='KIBANA_USERNAME',
-    help=(
-        'Kibana username for basic authentication. Must be used with --kibana-password. '
-        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
-    ),
-)
-@click.option(
-    '--kibana-password',
-    type=str,
-    envvar='KIBANA_PASSWORD',
-    help=(
-        'Kibana password for basic authentication. Must be used with --kibana-username. '
-        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
-    ),
-)
-@click.option(
-    '--kibana-api-key',
-    type=str,
-    envvar='KIBANA_API_KEY',
-    help=(
-        'Kibana API key for authentication (recommended for production). '
-        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
-    ),
-)
-@click.option(
-    '--kibana-space-id',
-    type=str,
-    envvar='KIBANA_SPACE_ID',
-    help='Kibana space ID where the dashboard is located. If not specified, uses the default space. (env: KIBANA_SPACE_ID)',
-)
-@click.option(
-    '--kibana-no-ssl-verify',
-    is_flag=True,
-    help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
-)
+@kibana_options
+@click.pass_context
 def screenshot_dashboard(  # noqa: PLR0913
+    ctx: click.Context,
     dashboard_id: str,
     output: Path,
     time_from: str | None,
@@ -774,12 +580,6 @@ def screenshot_dashboard(  # noqa: PLR0913
     height: int,
     browser_timezone: str,
     timeout: int,
-    kibana_url: str,
-    kibana_username: str | None,
-    kibana_password: str | None,
-    kibana_api_key: str | None,
-    kibana_space_id: str | None,
-    kibana_no_ssl_verify: bool,
 ) -> None:
     r"""Generate a PNG screenshot of a Kibana dashboard.
 
@@ -803,16 +603,19 @@ def screenshot_dashboard(  # noqa: PLR0913
         kb-dashboard screenshot --dashboard-id my-dashboard --output dashboard.png \
             --width 3840 --height 2160
     """
-    if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
-        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
-        raise click.UsageError(msg)
+    # Context is already populated by @kibana_options decorator
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
+    cli_context = ctx.obj
 
-    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
-        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    if cli_context.kibana_client is None:
+        msg = 'Kibana client not configured'
+        raise click.ClickException(msg)
 
     asyncio.run(
         generate_screenshot(
+            cli_context.kibana_client,
             dashboard_id=dashboard_id,
             output_path=output,
             time_from=time_from,
@@ -821,17 +624,12 @@ def screenshot_dashboard(  # noqa: PLR0913
             height=height,
             browser_timezone=browser_timezone,
             timeout_seconds=timeout,
-            kibana_url=kibana_url,
-            kibana_username=kibana_username,
-            kibana_password=kibana_password,
-            kibana_api_key=kibana_api_key,
-            kibana_space_id=kibana_space_id,
-            ssl_verify=not kibana_no_ssl_verify,
         )
     )
 
 
 async def generate_screenshot(  # noqa: PLR0913
+    client: KibanaClient,
     dashboard_id: str,
     output_path: Path,
     time_from: str | None,
@@ -840,16 +638,11 @@ async def generate_screenshot(  # noqa: PLR0913
     height: int,
     browser_timezone: str,
     timeout_seconds: int,
-    kibana_url: str,
-    kibana_username: str | None,
-    kibana_password: str | None,
-    kibana_api_key: str | None,
-    kibana_space_id: str | None,
-    ssl_verify: bool = True,
 ) -> None:
     """Generate a screenshot of a Kibana dashboard.
 
     Args:
+        client: Pre-configured Kibana client
         dashboard_id: The dashboard ID to screenshot
         output_path: Path to save the PNG file
         time_from: Start time for dashboard time range
@@ -858,26 +651,11 @@ async def generate_screenshot(  # noqa: PLR0913
         height: Screenshot height in pixels
         browser_timezone: Timezone for the screenshot
         timeout_seconds: Maximum seconds to wait for screenshot generation
-        kibana_url: Kibana base URL
-        kibana_username: Basic auth username
-        kibana_password: Basic auth password
-        kibana_api_key: API key for authentication
-        kibana_space_id: Kibana space ID (optional)
-        ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
         click.ClickException: If screenshot generation fails.
 
     """
-    client = KibanaClient(
-        url=kibana_url,
-        username=kibana_username,
-        password=kibana_password,
-        api_key=kibana_api_key,
-        space_id=kibana_space_id,
-        ssl_verify=ssl_verify,
-    )
-
     try:
         with Progress(
             SpinnerColumn(),
@@ -921,64 +699,27 @@ async def generate_screenshot(  # noqa: PLR0913
         raise click.ClickException(msg) from e
 
 
-def _create_es_client(
-    es_url: str,
-    es_username: str | None,
-    es_password: str | None,
-    es_api_key: str | None,
-    ssl_verify: bool,
-) -> AsyncElasticsearch:
-    """Create an AsyncElasticsearch client with the given credentials.
-
-    Args:
-        es_url: Elasticsearch base URL
-        es_username: Basic auth username
-        es_password: Basic auth password
-        es_api_key: API key for authentication
-        ssl_verify: Whether to verify SSL certificates
-
-    Returns:
-        Configured AsyncElasticsearch client
-
-    """
-    if es_api_key is not None:
-        return AsyncElasticsearch(es_url, api_key=es_api_key, verify_certs=ssl_verify)
-    if es_username is not None and es_password is not None:
-        return AsyncElasticsearch(es_url, basic_auth=(es_username, es_password), verify_certs=ssl_verify)
-    return AsyncElasticsearch(es_url, verify_certs=ssl_verify)
-
-
-async def extract_data(  # noqa: PLR0913
+async def extract_data(
+    es_client: AsyncElasticsearch,
     index: str,
     output: Path,
     query: str,
     max_docs: int,
-    es_url: str,
-    es_username: str | None,
-    es_password: str | None,
-    es_api_key: str | None,
-    ssl_verify: bool = True,
 ) -> None:
     """Extract data from Elasticsearch to NDJSON file.
 
     Args:
+        es_client: Pre-configured Elasticsearch client
         index: Elasticsearch index pattern to query
         output: Path where NDJSON file will be saved
         query: Elasticsearch query string
         max_docs: Maximum number of documents to extract
-        es_url: Elasticsearch base URL
-        es_username: Basic auth username
-        es_password: Basic auth password
-        es_api_key: API key for authentication
-        ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
         click.ClickException: If extraction fails.
 
     """
     import json
-
-    es_client = _create_es_client(es_url, es_username, es_password, es_api_key, ssl_verify)
 
     try:
         response = await es_client.search(
@@ -1010,30 +751,20 @@ async def extract_data(  # noqa: PLR0913
         await es_client.close()
 
 
-async def load_all_sample_data(  # noqa: PLR0913
+async def load_all_sample_data(
+    es_client: AsyncElasticsearch,
     dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]],
-    es_url: str,
-    es_username: str | None,
-    es_password: str | None,
-    es_api_key: str | None,
-    ssl_verify: bool = True,
 ) -> None:
     """Load sample data from all dashboards into Elasticsearch.
 
     Args:
+        es_client: Pre-configured Elasticsearch client
         dashboards_with_sample_data: List of (yaml_file_path, dashboards) tuples
-        es_url: Elasticsearch base URL
-        es_username: Basic auth username
-        es_password: Basic auth password
-        es_api_key: API key for authentication
-        ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
         click.ClickException: If sample data loading fails.
 
     """
-    es_client = _create_es_client(es_url, es_username, es_password, es_api_key, ssl_verify)
-
     try:
         total_loaded = 0
         total_errors: list[str] = []
@@ -1079,65 +810,17 @@ async def load_all_sample_data(  # noqa: PLR0913
     required=True,
     help='Kibana dashboard ID to export. Find this in the dashboard URL.',
 )
-@click.option(
-    '--kibana-url',
-    type=str,
-    envvar='KIBANA_URL',
-    default='http://localhost:5601',
-    help='Kibana base URL. Example: https://kibana.example.com (env: KIBANA_URL)',
-)
-@click.option(
-    '--kibana-username',
-    type=str,
-    envvar='KIBANA_USERNAME',
-    help=(
-        'Kibana username for basic authentication. Must be used with --kibana-password. '
-        'Mutually exclusive with --kibana-api-key. (env: KIBANA_USERNAME)'
-    ),
-)
-@click.option(
-    '--kibana-password',
-    type=str,
-    envvar='KIBANA_PASSWORD',
-    help=(
-        'Kibana password for basic authentication. Must be used with --kibana-username. '
-        'Mutually exclusive with --kibana-api-key. (env: KIBANA_PASSWORD)'
-    ),
-)
-@click.option(
-    '--kibana-api-key',
-    type=str,
-    envvar='KIBANA_API_KEY',
-    help=(
-        'Kibana API key for authentication (recommended for production). '
-        'Mutually exclusive with --kibana-username/--kibana-password. (env: KIBANA_API_KEY)'
-    ),
-)
-@click.option(
-    '--kibana-space-id',
-    type=str,
-    envvar='KIBANA_SPACE_ID',
-    help='Kibana space ID where the dashboard is located. If not specified, uses the default space. (env: KIBANA_SPACE_ID)',
-)
+@kibana_options
 @click.option(
     '--no-browser',
     is_flag=True,
     help='Do not open browser automatically with pre-filled issue.',
 )
-@click.option(
-    '--kibana-no-ssl-verify',
-    is_flag=True,
-    help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
-)
-def export_for_issue(  # noqa: PLR0913
+@click.pass_context
+def export_for_issue(
+    ctx: click.Context,
     dashboard_id: str,
-    kibana_url: str,
-    kibana_username: str | None,
-    kibana_password: str | None,
-    kibana_api_key: str | None,
-    kibana_space_id: str | None,
     no_browser: bool,
-    kibana_no_ssl_verify: bool,
 ) -> None:
     r"""Export a dashboard from Kibana and create a pre-filled GitHub issue.
 
@@ -1157,63 +840,35 @@ def export_for_issue(  # noqa: PLR0913
         # Export and print URL without opening browser
         kb-dashboard export-for-issue --dashboard-id my-dashboard-id --no-browser
     """
-    if kibana_api_key is not None and (kibana_username is not None or kibana_password is not None):
-        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
-        raise click.UsageError(msg)
+    # Context is already populated by @kibana_options decorator
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
+    cli_context = ctx.obj
 
-    if (kibana_username is not None and kibana_password is None) or (kibana_password is not None and kibana_username is None):
-        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    if cli_context.kibana_client is None:
+        msg = 'Kibana client not configured'
+        raise click.ClickException(msg)
 
-    asyncio.run(
-        _export_dashboard_for_issue(
-            dashboard_id=dashboard_id,
-            kibana_url=kibana_url,
-            kibana_username=kibana_username,
-            kibana_password=kibana_password,
-            kibana_api_key=kibana_api_key,
-            kibana_space_id=kibana_space_id,
-            open_browser=not no_browser,
-            ssl_verify=not kibana_no_ssl_verify,
-        )
-    )
+    asyncio.run(_export_dashboard_for_issue(cli_context.kibana_client, dashboard_id=dashboard_id, open_browser=not no_browser))
 
 
-async def _export_dashboard_for_issue(  # noqa: PLR0913
+async def _export_dashboard_for_issue(
+    client: KibanaClient,
     dashboard_id: str,
-    kibana_url: str,
-    kibana_username: str | None,
-    kibana_password: str | None,
-    kibana_api_key: str | None,
-    kibana_space_id: str | None,
     open_browser: bool,
-    ssl_verify: bool,
 ) -> None:
     """Export dashboard and generate GitHub issue URL.
 
     Args:
+        client: Pre-configured Kibana client
         dashboard_id: The dashboard ID to export
-        kibana_url: Kibana base URL
-        kibana_username: Basic auth username
-        kibana_password: Basic auth password
-        kibana_api_key: API key for authentication
-        kibana_space_id: Kibana space ID (optional)
         open_browser: Whether to open browser with pre-filled issue
-        ssl_verify: Whether to verify SSL certificates
 
     Raises:
         click.ClickException: If export fails
 
     """
-    client = KibanaClient(
-        url=kibana_url,
-        username=kibana_username,
-        password=kibana_password,
-        api_key=kibana_api_key,
-        space_id=kibana_space_id,
-        ssl_verify=ssl_verify,
-    )
-
     try:
         with Progress(
             SpinnerColumn(),

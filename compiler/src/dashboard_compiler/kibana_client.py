@@ -76,6 +76,8 @@ class KibanaClient:
     api_key: str | None
     space_id: str | None
     ssl_verify: bool
+    _session: aiohttp.ClientSession | None
+    _connector: aiohttp.TCPConnector | None
 
     def __init__(  # noqa: PLR0913
         self,
@@ -104,6 +106,8 @@ class KibanaClient:
         self.api_key = api_key
         self.space_id = space_id
         self.ssl_verify = ssl_verify
+        self._session = None
+        self._connector = None
 
     def _get_api_url(self, path: str) -> str:
         """Build API URL with space prefix if space_id is set.
@@ -137,6 +141,71 @@ class KibanaClient:
 
         return headers, auth
 
+    def _get_session(self) -> aiohttp.ClientSession:
+        """Get or create reusable HTTP session.
+
+        Returns:
+            aiohttp.ClientSession instance
+
+        """
+        if self._session is None or self._session.closed:
+            self._connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
+            self._session = aiohttp.ClientSession(connector=self._connector)
+        return self._session
+
+    async def close(self) -> None:
+        """Close HTTP session and connector, releasing resources."""
+        if self._session is not None and not self._session.closed:
+            await self._session.close()
+        if self._connector is not None and not self._connector.closed:
+            await self._connector.close()
+        self._session = None
+        self._connector = None
+
+    async def __aenter__(self) -> 'KibanaClient':
+        """Enter async context manager."""
+        return self
+
+    async def __aexit__(self, *args: object) -> None:
+        """Exit async context manager and close client."""
+        await self.close()
+
+    async def _get(self, path: str, **kwargs: Any) -> aiohttp.ClientResponse:  # pyright: ignore[reportAny]
+        """Make GET request to Kibana API.
+
+        Args:
+            path: API path (e.g., /api/saved_objects/_export)
+            **kwargs: Additional arguments to pass to session.get()
+
+        Returns:
+            aiohttp.ClientResponse object
+
+        """
+        url = self._get_api_url(path)
+        headers, auth = self._get_auth_headers_and_auth()
+        session = self._get_session()
+        return await session.get(url, headers=headers, auth=auth, **kwargs)  # pyright: ignore[reportAny]
+
+    async def _post(self, path: str, **kwargs: Any) -> aiohttp.ClientResponse:  # pyright: ignore[reportAny]
+        """Make POST request to Kibana API.
+
+        Args:
+            path: API path (e.g., /api/saved_objects/_import)
+            **kwargs: Additional arguments to pass to session.post()
+
+        Returns:
+            aiohttp.ClientResponse object
+
+        """
+        url = self._get_api_url(path)
+        headers, auth = self._get_auth_headers_and_auth()
+
+        if 'headers' in kwargs:
+            headers.update(kwargs.pop('headers'))  # pyright: ignore[reportAny]
+
+        session = self._get_session()
+        return await session.post(url, headers=headers, auth=auth, **kwargs)  # pyright: ignore[reportAny]
+
     async def upload_ndjson(
         self,
         ndjson_data: Path | str,
@@ -155,27 +224,23 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        endpoint = self._get_api_url('/api/saved_objects/_import')
+        endpoint = '/api/saved_objects/_import'
         if overwrite:
             endpoint += '?overwrite=true'
 
-        headers, auth = self._get_auth_headers_and_auth()
+        data = aiohttp.FormData()
 
-        connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
-        async with aiohttp.ClientSession(connector=connector) as session:
-            data = aiohttp.FormData()
+        if isinstance(ndjson_data, Path):
+            with ndjson_data.open('rb') as f:
+                content = f.read()
+            data.add_field('file', content, filename=ndjson_data.name, content_type='application/ndjson')
+        else:
+            data.add_field('file', ndjson_data.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
 
-            if isinstance(ndjson_data, Path):
-                with ndjson_data.open('rb') as f:
-                    content = f.read()
-                data.add_field('file', content, filename=ndjson_data.name, content_type='application/ndjson')
-            else:
-                data.add_field('file', ndjson_data.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
-
-            async with session.post(endpoint, data=data, headers=headers, auth=auth) as response:
-                response.raise_for_status()
-                json_response = await response.json()  # pyright: ignore[reportAny]
-                return KibanaSavedObjectsResponse.model_validate(json_response)
+        async with await self._post(endpoint, data=data) as response:
+            response.raise_for_status()
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return KibanaSavedObjectsResponse.model_validate(json_response)
 
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
@@ -248,16 +313,10 @@ class KibanaClient:
             msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
 
-        endpoint = self._get_api_url('/api/reporting/generate/pngV2')
+        endpoint = '/api/reporting/generate/pngV2'
         params: dict[str, str] = {'jobParams': rison_result}
 
-        headers, auth = self._get_auth_headers_and_auth()
-
-        connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
-        async with (
-            aiohttp.ClientSession(connector=connector) as session,
-            session.post(endpoint, params=params, headers=headers, auth=auth) as response,
-        ):
+        async with await self._post(endpoint, params=params) as response:
             response.raise_for_status()
             json_response = await response.json()  # pyright: ignore[reportAny]
             job_response = KibanaReportingJobResponse.model_validate(json_response)
@@ -284,32 +343,28 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        endpoint = f'{self.url}{job_path}'
-
+        session = self._get_session()
         headers, auth = self._get_auth_headers_and_auth()
+        endpoint = f'{self.url}{job_path}'
 
         try:
             async with asyncio.timeout(timeout_seconds):
-                connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
-                async with aiohttp.ClientSession(connector=connector) as session:
-                    while True:
-                        async with session.get(endpoint, headers=headers, auth=auth) as response:
-                            if response.status == HTTP_OK:
-                                content_type = response.headers.get('Content-Type', '')
-                                if 'image/png' in content_type:
-                                    return await response.read()
-                                body = await response.text()
-                                msg = (
-                                    f'Unexpected response from Kibana (status {response.status}, content-type {content_type}): {body[:200]}'
-                                )
-                                raise ValueError(msg)
+                while True:
+                    async with session.get(endpoint, headers=headers, auth=auth) as response:
+                        if response.status == HTTP_OK:
+                            content_type = response.headers.get('Content-Type', '')
+                            if 'image/png' in content_type:
+                                return await response.read()
+                            body = await response.text()
+                            msg = f'Unexpected response from Kibana (status {response.status}, content-type {content_type}): {body[:200]}'
+                            raise ValueError(msg)
 
-                            if response.status == HTTP_SERVICE_UNAVAILABLE:
-                                pass
-                            else:
-                                response.raise_for_status()
+                        if response.status == HTTP_SERVICE_UNAVAILABLE:
+                            pass
+                        else:
+                            response.raise_for_status()
 
-                        await asyncio.sleep(poll_interval)
+                    await asyncio.sleep(poll_interval)
         except TimeoutError as e:
             msg = f'Screenshot generation timed out after {timeout_seconds} seconds'
             raise TimeoutError(msg) from e
@@ -372,10 +427,7 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        endpoint = self._get_api_url('/api/saved_objects/_export')
-
-        headers, auth = self._get_auth_headers_and_auth()
-        headers['Content-Type'] = 'application/json'
+        endpoint = '/api/saved_objects/_export'
 
         request_body = {
             'objects': [
@@ -387,10 +439,6 @@ class KibanaClient:
             'includeReferencesDeep': True,
         }
 
-        connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
-        async with (
-            aiohttp.ClientSession(connector=connector) as session,
-            session.post(endpoint, json=request_body, headers=headers, auth=auth) as response,
-        ):
+        async with await self._post(endpoint, json=request_body, headers={'Content-Type': 'application/json'}) as response:
             response.raise_for_status()
             return await response.text()
