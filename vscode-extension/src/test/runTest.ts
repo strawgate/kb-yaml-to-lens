@@ -40,6 +40,7 @@ async function main() {
             // available during testing.
             launchArgs: [
                 workspaceFolder,
+                // Chromium flags for headless CI execution (prevents X server errors and SIGSEGVs)
                 '--disable-gpu',
                 '--no-sandbox',
                 '--disable-dev-shm-usage'
