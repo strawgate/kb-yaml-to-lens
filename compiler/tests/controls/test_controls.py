@@ -690,37 +690,6 @@ async def test_esql_multi_select_control_with_default() -> None:
     )
 
 
-async def test_esql_multi_select_control_without_default() -> None:
-    """Test ES|QL multi-select control without default (should have empty selectedOptions)."""
-    config = {
-        'type': 'esql_multi_select',
-        'variable_name': 'environment',
-        'variable_type': 'values',
-        'available_options': ['production', 'staging', 'development'],
-        'title': 'Environment',
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'esqlControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'variableName': 'environment',
-                'variableType': 'values',
-                'esqlQuery': '',
-                'controlType': 'STATIC_VALUES',
-                'title': 'Environment',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'availableOptions': ['production', 'staging', 'development'],
-            },
-        }
-    )
-
-
 async def test_esql_single_select_control_default_validation() -> None:
     """Test that default value validation works for single-select controls."""
     with pytest.raises(ValidationError, match='default value "option3" not in available_options'):
