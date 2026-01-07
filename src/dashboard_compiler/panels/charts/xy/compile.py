@@ -234,9 +234,9 @@ def _extract_chart_type_specific_appearance(
 
     # Extract line/area chart appearance
     if chart.appearance is not None and isinstance(chart.appearance, (LineChartAppearance, AreaChartAppearance)):
-        fitting_function = chart.appearance.fitting_function
-        emphasize_fitting = chart.appearance.emphasize_fitting
-        end_value = chart.appearance.end_value
+        fitting_function = chart.appearance.missing_values
+        emphasize_fitting = chart.appearance.show_as_dotted
+        end_value = chart.appearance.end_values
         curve_type = _map_curve_type_to_kibana(chart.appearance.curve_type)
 
         if isinstance(chart.appearance, AreaChartAppearance):

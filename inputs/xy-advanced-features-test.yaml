@@ -17,8 +17,8 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Linear
-            emphasize_fitting: true
+            missing_values: Linear
+            show_as_dotted: true
 
       # Panel 2: Fitting Functions - Average
       - title: Line Chart - Average Fitting Function
@@ -33,8 +33,8 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Average
-            emphasize_fitting: true
+            missing_values: Average
+            show_as_dotted: true
 
       # Panel 3: Fitting Functions - Carry
       - title: Line Chart - Carry Fitting Function
@@ -49,7 +49,7 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Carry
+            missing_values: Carry
 
       # Panel 4: Fitting Functions - Lookahead
       - title: Line Chart - Lookahead Fitting Function
@@ -64,7 +64,7 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Lookahead
+            missing_values: Lookahead
 
       # Panel 5: Fitting Functions - Nearest
       - title: Line Chart - Nearest Fitting Function
@@ -79,7 +79,7 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Nearest
+            missing_values: Nearest
 
       # Panel 6: Curve Types - Monotone X
       - title: Line Chart - Monotone X Curve
@@ -139,7 +139,7 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            end_value: Zero
+            end_values: Zero
 
       # Panel 10: End Value Handling - Nearest
       - title: Line Chart - End Value Nearest
@@ -154,7 +154,7 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            end_value: Nearest
+            end_values: Nearest
 
       # Panel 11: Time Series Features - Time Marker & Endzones
       - title: Line Chart - Time Marker & Hidden Endzones
@@ -214,9 +214,9 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Average
-            emphasize_fitting: true
-            end_value: Nearest
+            missing_values: Average
+            show_as_dotted: true
+            end_values: Nearest
             curve_type: monotone-x
           show_current_time_marker: true
           hide_endzones: true
@@ -234,9 +234,9 @@ dashboards:
           metrics:
             - aggregation: count
           appearance:
-            fitting_function: Linear
-            emphasize_fitting: false
-            end_value: Zero
+            missing_values: Linear
+            show_as_dotted: false
+            end_values: Zero
             curve_type: cardinal
             fill_opacity: 0.5
           show_current_time_marker: false
@@ -271,8 +271,8 @@ dashboards:
           metrics:
             - field: count
           appearance:
-            fitting_function: Lookahead
-            emphasize_fitting: false
+            missing_values: Lookahead
+            show_as_dotted: false
             curve_type: natural
           show_current_time_marker: true
           hide_endzones: false
@@ -293,7 +293,7 @@ dashboards:
             - field: count
           appearance:
             fill_opacity: 0.8
-            fitting_function: Carry
+            missing_values: Carry
           query:
             - FROM logs-*
             - STATS count = COUNT(*) BY @timestamp

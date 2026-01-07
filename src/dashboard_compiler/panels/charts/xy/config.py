@@ -154,17 +154,17 @@ class LineChartAppearance(XYAppearance):
     Extends XYAppearance to include line-specific options.
     """
 
-    fitting_function: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
+    missing_values: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
         default=None,
-        description='The fitting function to apply to line/area charts. Controls how missing data points are interpolated.',
+        description='How to handle missing data points. Controls interpolation for gaps in your data.',
     )
-    emphasize_fitting: bool | None = Field(
+    show_as_dotted: bool | None = Field(
         default=None,
-        description='If `true`, emphasize the fitting function line. Defaults to `false`.',
+        description='If `true`, visually distinguish interpolated data from real data points. Defaults to `false`.',
     )
-    end_value: Literal['None', 'Zero', 'Nearest'] | None = Field(
+    end_values: Literal['None', 'Zero', 'Nearest'] | None = Field(
         default=None,
-        description='How to handle the end value in line/area charts.',
+        description='How to handle the end of the time range in line/area charts.',
     )
     curve_type: Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] | None = Field(
         default=None,

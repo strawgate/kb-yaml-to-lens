@@ -105,7 +105,7 @@ dashboards:
 | `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
-| `appearance` | `LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. LineChartAppearance includes all XYAppearance options plus line-specific options (fitting_function, emphasize_fitting, end_value, curve_type). | `None` | No |
+| `appearance` | `LineChartAppearance \| XYAppearance \| None` | Chart appearance formatting options. LineChartAppearance includes all XYAppearance options plus line-specific options (missing_values, show_as_dotted, end_values, curve_type). | `None` | No |
 | `titles_and_text` | `XYTitlesAndText \| None` | Titles and text formatting options. | `None` | No |
 | `legend` | `XYLegend \| None` | Legend formatting options. | `None` | No |
 | `color` | `ColorMapping \| None` | Color palette mapping for the chart. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
@@ -212,9 +212,9 @@ For line charts (`type: line`), `LineChartAppearance` extends `XYAppearance` (in
 
 | YAML Key | Data Type | Description | Default | Required |
 | ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------- | -------- |
-| `fitting_function` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | The fitting function for interpolating missing data points. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
-| `emphasize_fitting` | `bool \| None` | If `true`, visually emphasize fitted vs actual data points. | `None` | No |
-| `end_value` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end value in line/area charts. Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
+| `missing_values` | `Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] \| None` | How to handle missing data points ("Missing values" in Kibana UI). Controls interpolation for gaps in your data. Options: 'None' (no interpolation), 'Linear' (linear interpolation), 'Carry' (carry forward), 'Lookahead' (use next value), 'Average' (average of neighbors), 'Nearest' (nearest value). | `None` | No |
+| `show_as_dotted` | `bool \| None` | If `true`, visually distinguish interpolated data from real data points ("Show as dotted line" in Kibana UI). | `None` | No |
+| `end_values` | `Literal['None', 'Zero', 'Nearest'] \| None` | How to handle the end of the time range in line/area charts ("End values" in Kibana UI). Options: 'None' (no special handling), 'Zero' (end at zero), 'Nearest' (use nearest value). | `None` | No |
 | `curve_type` | `Literal['linear', 'cardinal', 'catmull-rom', 'natural', 'step', 'step-after', 'step-before', 'monotone-x'] \| None` | The curve interpolation type for line charts. Options: 'linear' (straight lines), 'monotone-x' (smooth monotonic curve), 'cardinal' (cardinal spline), 'catmull-rom' (Catmull-Rom spline), 'natural' (natural cubic spline), 'step' (step function), 'step-after' (step after each point), 'step-before' (step before each point). These values are automatically converted to Kibana's format (e.g., 'monotone-x' → 'CURVE_MONOTONE_X'). | `None` | No |
 
 **Example**:
@@ -224,9 +224,9 @@ chart:
   type: line
   data_view: "metrics-*"
   appearance:
-    fitting_function: Average
-    emphasize_fitting: true
-    end_value: Zero
+    missing_values: Average
+    show_as_dotted: true
+    end_values: Zero
     curve_type: monotone-x
     series:
       - metric_id: "response_time"
@@ -444,9 +444,9 @@ dashboards:
             - aggregation: average
               field: "system.cpu.usage"
           appearance:
-            fitting_function: Average
-            emphasize_fitting: true
-            end_value: Zero
+            missing_values: Average
+            show_as_dotted: true
+            end_values: Zero
             curve_type: monotone-x
           show_current_time_marker: true
           hide_endzones: true

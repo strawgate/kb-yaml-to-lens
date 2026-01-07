@@ -904,9 +904,9 @@ async def test_line_chart_with_fitting_function() -> None:
         'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'fitting_function': 'Linear',
-            'emphasize_fitting': True,
-            'end_value': 'Zero',
+            'missing_values': 'Linear',
+            'show_as_dotted': True,
+            'end_values': 'Zero',
         },
     }
 
@@ -929,7 +929,7 @@ async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
         'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'fitting_function': fitting_func,
+            'missing_values': fitting_func,
         },
     }
 
@@ -947,8 +947,8 @@ async def test_area_chart_with_fitting_and_fill_opacity() -> None:
         'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'fitting_function': 'Carry',
-            'emphasize_fitting': False,
+            'missing_values': 'Carry',
+            'show_as_dotted': False,
             'fill_opacity': 0.5,
         },
     }
@@ -1011,9 +1011,9 @@ async def test_line_chart_with_all_advanced_features() -> None:
         'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'fitting_function': 'Average',
-            'emphasize_fitting': True,
-            'end_value': 'Nearest',
+            'missing_values': 'Average',
+            'show_as_dotted': True,
+            'end_values': 'Nearest',
             'curve_type': 'monotone-x',
         },
         'show_current_time_marker': True,
@@ -1071,8 +1071,8 @@ async def test_esql_line_chart_with_advanced_features() -> None:
         'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
-            'fitting_function': 'Lookahead',
-            'emphasize_fitting': False,
+            'missing_values': 'Lookahead',
+            'show_as_dotted': False,
         },
         'show_current_time_marker': True,
         'hide_endzones': False,
