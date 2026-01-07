@@ -10,7 +10,12 @@ DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
 # YAML linting exclusions (operates on parent directory)
-YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" --exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
+YAMLFIX_EXCLUDE := \
+	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
+	--exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" \
+	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
+	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
+	--exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
 
 help:
 	@echo "Dashboard Compiler Commands:"

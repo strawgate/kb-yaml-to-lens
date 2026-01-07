@@ -58,7 +58,11 @@ install:
 	@cd vscode-extension && $(MAKE) install
 	@echo ""
 	@echo "→ Installing global tools..."
-	@npm install -g markdownlint-cli
+	@if command -v npm > /dev/null 2>&1; then \
+		npm install -g markdownlint-cli; \
+	else \
+		echo "⚠ Skipping markdownlint-cli (npm not installed)"; \
+	fi
 	@echo ""
 	@echo "✓ All dependencies installed"
 
