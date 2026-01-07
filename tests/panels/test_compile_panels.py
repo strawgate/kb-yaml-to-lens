@@ -50,6 +50,8 @@ class TestCompileDashboardPanel:
             position={'x': 0, 'y': 0},
             size={'w': 12, 'h': 4},
         )
+        assert panel.position.x is not None
+        assert panel.position.y is not None
         grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
         _references, kbn_panel = compile_dashboard_panel(panel, grid)
 
@@ -81,6 +83,8 @@ class TestCompileDashboardPanel:
         panel = ImagePanel(
             image=ImagePanelConfig(from_url='https://example.com/image.png'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
         )
+        assert panel.position.x is not None
+        assert panel.position.y is not None
         grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
         _references, kbn_panel = compile_dashboard_panel(panel, grid)
 
@@ -104,6 +108,8 @@ class TestCompileDashboardPanel:
     def test_raises_not_implemented_for_search_panel(self) -> None:
         """Test that SearchPanel compilation raises NotImplementedError."""
         panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
+        assert panel.position.x is not None
+        assert panel.position.y is not None
         grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
 
         with pytest.raises(NotImplementedError, match='Panel type SearchPanel is not yet supported'):
