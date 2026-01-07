@@ -61,6 +61,7 @@ dashboards:
           metrics:
             - aggregation: average
               field: metrics.system.cpu.utilization
+              label: CPU %
       - title: Load Average
         grid: {x: 0, y: 17, w: 24, h: 12}
         lens:
@@ -122,6 +123,7 @@ dashboards:
           metrics:
             - aggregation: average
               field: metrics.system.memory.utilization
+              label: Memory %
       - title: Disk Section
         grid: {x: 0, y: 43, w: 48, h: 2}
         markdown:
