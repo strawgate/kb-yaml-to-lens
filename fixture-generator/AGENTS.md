@@ -1,173 +1,122 @@
 # Agent Guidelines: Fixture Generator
 
-> Docker-based JavaScript fixture generator using Kibana's official LensConfigBuilder API
+> Docker-based JavaScript fixture generator using Kibana's LensConfigBuilder API
 
 ---
 
 ## Code Conventions
 
-@../CODE_STYLE.md
-
-@../CODERABBIT.md
+See root CODE_STYLE.md and CODERABBIT.md for detailed conventions.
 
 ---
 
-## Critical Rules — READ THIS FIRST
+## Critical Rules
 
 ### Fixture Generation is Required
 
-We're building a compiler that targets Kibana's JSON format. The fixture generator reliably produces valid Kibana JSON by using Kibana's official APIs. This takes a couple of minutes to run, which is much faster than creating fixtures manually.
+We're building a compiler targeting Kibana's JSON format. The fixture generator produces valid Kibana JSON using official APIs—much faster than manual creation.
 
-**When creating or modifying fixture generator files:**
+**When creating/modifying fixtures:**
 
 1. Run `cd fixture-generator && make build` (if Docker image doesn't exist)
 2. Run `cd fixture-generator && make run-example EXAMPLE=<your-file>.js`
-3. Verify output file exists in `fixture-generator/output/`
-4. Inspect the output JSON to ensure it's valid
-5. Commit BOTH the generator script AND the output JSON files
+3. Verify output exists in `fixture-generator/output/`
+4. Inspect JSON validity
+5. Commit BOTH script AND output files
 
-**Why this matters:**
+**Why:** Ensures compiler produces JSON that works in Kibana. Provides accurate reference. Catches schema changes.
 
-- Ensures the compiler produces JSON that actually works in Kibana
-- Provides accurate reference for what Kibana expects
-- Catches schema changes when Kibana updates
-- Faster than creating fixtures manually
-
-**If you can't run Docker:**
-
-State this clearly in your response and request that the user run `cd fixture-generator && make run-example EXAMPLE=<file>.js` to verify the output before merging. Don't commit untested generator code.
+**If you can't run Docker:** State this clearly and request user verification before merging.
 
 ---
 
 ## Quick Reference
 
-### Essential Commands
+### Commands
 
 | Command | Purpose |
 | ------- | ------- |
-| `make ci` | Run CI checks (build + test-import) |
-| `make fix` | No linting (placeholder for consistency) |
-| `make build` | Build Docker image (first time only, ~6 minutes) |
+| `make ci` | Run CI checks |
+| `make build` | Build Docker image (~6 min) |
 | `make run` | Generate all fixtures |
 | `make run-example EXAMPLE=file.js` | Generate single fixture |
-| `make shell` | Debug in Docker container |
-| `make test-import` | Test that LensConfigBuilder imports |
+| `make shell` | Debug in container |
+| `make test-import` | Test LensConfigBuilder import |
 | `make clean` | Clean output directory |
 
-### Common Workflow
+### Workflow
 
 ```bash
-# First time setup
+# First time
 cd fixture-generator
 make build
 
-# Generate all fixtures
+# Generate all
 make run
 
-# Generate one fixture
+# Generate one
 make run-example EXAMPLE=metric-basic.js
 
-# Verify output
+# Verify
 ls -lh output/
 cat output/metric-basic.json | python -m json.tool | head -50
 ```
 
 ---
 
-## Fixture Generation Verification Checklist
+## Verification Checklist
 
-When creating or modifying fixture generators, complete this checklist:
-
-- [ ] Created/modified generator script in `examples/`
-- [ ] Ran `make build` (if Docker image doesn't exist)
-- [ ] Ran `make run-example EXAMPLE=<your-file>.js`
-- [ ] Verified `output/<your-file>.json` exists
-- [ ] Verified `output/<your-file>-dataview.json` exists (for dual generators)
-- [ ] Inspected JSON structure with `cat output/<your-file>.json | python -m json.tool | head -100`
-- [ ] Compared fixture to compiler output (if applicable)
-- [ ] Ran `make ci` from project root - all tests pass
+- [ ] Created/modified generator in `examples/`
+- [ ] Ran `make build` (if needed)
+- [ ] Ran `make run-example EXAMPLE=<file>.js`
+- [ ] Verified `output/<file>.json` exists
+- [ ] Verified `output/<file>-dataview.json` exists (for dual generators)
+- [ ] Inspected JSON: `cat output/<file>.json | python -m json.tool | head -100`
+- [ ] Compared to compiler output (if applicable)
+- [ ] Ran `make ci` from root - all pass
 - [ ] Committed changes
-
-Copy this checklist into your response and check off each item as you complete it.
-
----
-
-## How to Run Fixture Generation
-
-### Prerequisites Check
-
-```bash
-docker --version
-make --version
-```
-
-### Running Generators
-
-The fixture generator runs inside Docker because it requires Kibana's `@kbn/lens-embeddable-utils` package.
-
-**Generate all fixtures:**
-
-```bash
-cd fixture-generator
-make run
-```
-
-**Generate single fixture:**
-
-```bash
-cd fixture-generator
-make run-example EXAMPLE=metric-basic.js
-```
-
-**Verify output:**
-
-```bash
-ls -lh fixture-generator/output/
-cat fixture-generator/output/metric-basic.json | head -20
-```
 
 ---
 
 ## Development Workflow
 
-### 1. Make Your Changes
+### 1. Make Changes
 
-Edit generator files in `fixture-generator/examples/`.
+Edit generators in `fixture-generator/examples/`.
 
-### 2. Test Your Changes
+### 2. Test
 
 ```bash
 cd fixture-generator
-make run-example EXAMPLE=your-new-generator.js
+make run-example EXAMPLE=your-generator.js
 ```
 
-### 3. Verify Output
+### 3. Verify
 
 ```bash
-cat output/your-new-generator.json | python -m json.tool | head -50
+cat output/your-generator.json | python -m json.tool | head -50
 ```
 
-### 4. Run Full Test Suite
+### 4. Run Full Test
 
 ```bash
 cd ..
-make ci  # Or: make check (alias)
+make ci
 ```
 
-### 5. Commit Only After Testing
+### 5. Commit After Testing
 
-Only commit after:
-
-- ✅ Generator runs successfully in Docker
-- ✅ Output JSON is created
-- ✅ Output JSON is valid
+Only after:
+- ✅ Generator runs in Docker
+- ✅ Output JSON created
+- ✅ Output JSON valid
 - ✅ `make ci` passes
 
 ---
 
-## Creating New Dual Generators
+## Creating Dual Generators
 
-Most new generators should use the dual-generation pattern to create both ES|QL and Data View variants:
+Most new generators should create both ES|QL and Data View variants:
 
 ```javascript
 #!/usr/bin/env node
@@ -186,7 +135,7 @@ export async function generateMyChart() {
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
     },
-    // ... ES|QL-specific properties (use column names from query)
+    // ... ES|QL-specific (use column names from query)
   };
 
   // Data View variant
@@ -197,7 +146,7 @@ export async function generateMyChart() {
       index: 'logs-*',
       timeFieldName: '@timestamp'
     },
-    // ... Data View-specific properties (use aggregation functions)
+    // ... Data View-specific (use aggregation functions)
   };
 
   await generateDualFixture(
@@ -212,66 +161,41 @@ export async function generateMyChart() {
 runIfMain(generateMyChart, import.meta.url);
 ```
 
-**Key differences between ES|QL and Data View:**
-
+**Key differences:**
 - **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
-- **Metrics**: Column names from query vs aggregation functions
+- **Metrics**: Column names vs aggregation functions
 - **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`
 
 ---
 
 ## Common Issues
 
-### "Cannot find module '@kbn/lens-embeddable-utils'"
+**"Cannot find module '@kbn/lens-embeddable-utils'"**: Trying to run outside Docker. Use `make run`.
 
-**Cause**: Trying to run generators outside Docker
+**"Docker image not found"**: Run `make build`.
 
-**Solution**: Always use `make run` or `make run-example`
+**"Generator runs but no output"**: Check console output. Debug with `make shell` then `node examples/your-generator.js`.
 
-### "Docker image not found"
-
-**Cause**: Docker image hasn't been built yet
-
-**Solution**: Run `make build`
-
-### "Generator runs but no output file"
-
-**Cause**: Generator script has an error
-
-**Solution**: Check console output. Use `make shell` to debug:
-
-```bash
-cd fixture-generator
-make shell
-# Inside container:
-node examples/your-generator.js
-```
-
-### "Output JSON is invalid"
-
-**Cause**: LensConfigBuilder received invalid configuration
-
-**Solution**: Check against [Kibana's Lens Config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx)
+**"Output JSON invalid"**: Check against [Kibana Lens Config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx).
 
 ---
 
 ## File Locations
 
 - **Generator scripts**: `fixture-generator/examples/*.js`
-- **Shared utilities**: `fixture-generator/generator-utils.js`
-- **Output files**: `fixture-generator/output/*.json`
-- **Test fixtures**: Generated fixtures are compared against Python compiler output in test scenarios
+- **Utilities**: `fixture-generator/generator-utils.js`
+- **Output**: `fixture-generator/output/*.json`
 
 ---
 
-## Summary for Agents
+## Summary
 
-**Before you commit any generator code:**
+**Before committing:**
 
 1. Run `cd fixture-generator && make run-example EXAMPLE=your-file.js`
-2. Verify `fixture-generator/output/your-file.json` exists
-3. Check JSON is valid with `python -m json.tool`
-4. Run `make ci` from project root
-5. Only then git add/commit/push
+2. Verify `output/your-file.json` exists
+3. Check JSON valid: `python -m json.tool`
+4. Run `make ci` from root
+5. Then commit
 
-**If you cannot run Docker**, clearly state this in your response and ask the user to test before merging.
+**If you can't run Docker**, state this clearly and ask user to test.
