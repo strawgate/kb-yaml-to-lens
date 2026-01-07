@@ -89,7 +89,6 @@ dashboards:
 <compiler-command> compile --input-dir inputs --output-dir output
 ```
 
-
 1. (Optional) Upload directly to Kibana:
 
 ```bash
