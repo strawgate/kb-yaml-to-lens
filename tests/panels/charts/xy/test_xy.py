@@ -1,7 +1,9 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from dashboard_compiler.panels.charts.xy.compile import (
     compile_esql_xy_chart,
@@ -892,3 +894,78 @@ async def test_axis_extent_configuration() -> None:
     assert kbn_state_visualization.axisTitlesVisibilitySettings.x is True
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is False
+
+
+async def test_lens_bar_chart_validation_requires_metrics() -> None:
+    """Test that Lens bar chart validation fails when metrics list is empty."""
+    config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [],
+    }
+
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
+        LensBarChart.model_validate(config)
+
+
+async def test_lens_line_chart_validation_requires_metrics() -> None:
+    """Test that Lens line chart validation fails when metrics list is empty."""
+    config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [],
+    }
+
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
+        LensLineChart.model_validate(config)
+
+
+async def test_lens_area_chart_validation_requires_metrics() -> None:
+    """Test that Lens area chart validation fails when metrics list is empty."""
+    config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [],
+    }
+
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
+        LensAreaChart.model_validate(config)
+
+
+async def test_esql_bar_chart_validation_requires_metrics() -> None:
+    """Test that ESQL bar chart validation fails when metrics list is empty."""
+    config = {
+        'type': 'bar',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [],
+    }
+
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
+        ESQLBarChart.model_validate(config)
+
+
+async def test_esql_line_chart_validation_requires_metrics() -> None:
+    """Test that ESQL line chart validation fails when metrics list is empty."""
+    config = {
+        'type': 'line',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [],
+    }
+
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
+        ESQLLineChart.model_validate(config)
+
+
+async def test_esql_area_chart_validation_requires_metrics() -> None:
+    """Test that ESQL area chart validation fails when metrics list is empty."""
+    config = {
+        'type': 'area',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [],
+    }
+
+    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
+        ESQLAreaChart.model_validate(config)

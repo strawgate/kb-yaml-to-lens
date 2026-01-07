@@ -161,6 +161,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'datatable',
                 'data_view': 'metrics-*',
+                'metrics': [{'field': 'test', 'id': 'test-id', 'aggregation': 'count'}],
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -171,6 +172,7 @@ class TestChartTypeToKbnTypeLens:
         chart = ESQLDatatableChart.model_validate(
             {
                 'type': 'datatable',
+                'metrics': [{'field': 'count(*)', 'id': 'test-id'}],
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
