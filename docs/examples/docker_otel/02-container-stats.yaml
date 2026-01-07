@@ -1,0 +1,171 @@
+---
+dashboards:
+  - id: docker-otel-container-stats
+    name: '[Metrics Docker] Container Stats'
+    description: ''
+    controls:
+      - type: options
+        label: Container image
+        data_view: metrics-*
+        field: container.image.name
+      - type: options
+        label: Container name
+        data_view: metrics-*
+        field: container.name
+      - type: options
+        label: Container hostname
+        data_view: metrics-*
+        field: container.hostname
+      - type: options
+        label: Container ID
+        data_view: metrics-*
+        field: container.id
+    filters:
+      - field: data_stream.dataset
+        equals: dockerstatsreceiver.otel
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        links:
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: docker-otel-overview
+            - label: Container Stats
+              dashboard: docker-otel-container-stats
+      - title: Containers count
+        grid: {x: 0, y: 4, w: 7, h: 4}
+        hide_title: true
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            field: container.id
+            aggregation: unique_count
+            label: Selected Containers
+      - title: Container stats
+        grid: {x: 7, y: 2, w: 41, h: 6}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          rows:
+            - id: container-id
+              type: values
+              field: container.id
+              label: Container ID
+              size: 100
+          metrics:
+            - id: cpu-usage
+              formula: median(container.cpu.utilization)/100
+              label: CPU Usage
+              format:
+                type: percent
+            - id: memory-usage
+              formula: median(container.memory.percent)/100
+              label: Memory Usage
+              format:
+                type: percent
+            - id: memory-bytes
+              field: container.memory.usage.total
+              aggregation: median
+              label: Memory (Bytes)
+              format:
+                type: bytes
+      - title: CPU Usage
+        grid: {x: 0, y: 8, w: 24, h: 11}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: median(container.cpu.utilization)/100
+              label: CPU Usage
+              format:
+                type: percent
+      - title: Memory %
+        grid: {x: 24, y: 8, w: 24, h: 11}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: median(container.memory.percent)/100
+              label: Memory %
+              format:
+                type: percent
+      - title: Memory Usage
+        grid: {x: 0, y: 19, w: 24, h: 11}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - field: container.memory.usage.total
+              aggregation: median
+              label: Memory Usage
+              format:
+                type: bytes
+      - title: I/O Read
+        grid: {x: 24, y: 19, w: 24, h: 11}
+        lens:
+          type: area
+          data_view: metrics-*
+          filters:
+            - field: attributes.operation
+              equals: read
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+              label: Bytes
+              format:
+                type: bytes
+      - title: I/O Write
+        grid: {x: 0, y: 30, w: 24, h: 11}
+        lens:
+          type: area
+          data_view: metrics-*
+          filters:
+            - field: attributes.operation
+              equals: write
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+              label: Bytes
+              format:
+                type: bytes
+      - title: Network Received
+        grid: {x: 24, y: 30, w: 24, h: 11}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: counter_rate(max(container.network.io.usage.rx_bytes))
+              label: Bytes
+              format:
+                type: bytes
+      - title: Network Transmitted
+        grid: {x: 0, y: 41, w: 24, h: 11}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: counter_rate(max(container.network.io.usage.tx_bytes))
+              label: Bytes
+              format:
+                type: bytes
