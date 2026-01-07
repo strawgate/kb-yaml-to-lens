@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
+COMPILER_ROOT = PROJECT_ROOT / 'compiler'
 
 
 def get_platform_name() -> str:
@@ -28,20 +29,20 @@ def main() -> None:
 
     # Clean previous builds
     for d in ['build', 'dist']:
-        path = PROJECT_ROOT / d
+        path = COMPILER_ROOT / d
         if path.exists() is True:
             shutil.rmtree(path)
 
     # Build with PyInstaller
-    cli_path = PROJECT_ROOT / 'src' / 'dashboard_compiler' / 'cli.py'
+    cli_path = COMPILER_ROOT / 'src' / 'dashboard_compiler' / 'cli.py'
     subprocess.run(  # noqa: S603
         ['pyinstaller', '--name', binary_name, '--onefile', '--clean', '--noconfirm', str(cli_path)],  # noqa: S607
         check=True,
-        cwd=PROJECT_ROOT,
+        cwd=COMPILER_ROOT,
     )
 
     # Report success
-    binary_path = PROJECT_ROOT / 'dist' / binary_name
+    binary_path = COMPILER_ROOT / 'dist' / binary_name
     size_mb = binary_path.stat().st_size / (1024 * 1024)
     print(f'Built: {binary_path} ({size_mb:.1f} MB)')
 

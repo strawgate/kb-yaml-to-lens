@@ -10,7 +10,7 @@ The project uses **GitHub Actions with PyPI Trusted Publishing** for secure, tok
 
 ## Publishing a Release
 
-1. Update version in `pyproject.toml` (if needed)
+1. Update version in `compiler/pyproject.toml` (if needed)
 2. Commit and push changes
 3. Create a git tag:
 

@@ -1,73 +1,36 @@
+# Root Makefile - Global orchestration for all components
+# Component-specific commands are in each component's Makefile
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint-python lint-python-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy typecheck compile upload setup docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
-
-# Docker configuration
-DOCKER_IMAGE_NAME := kb-dashboard-compiler
-DOCKER_IMAGE_TAG ?= latest
-DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
-GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
-
-# YAML linting exclusions
-YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" --exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
+.PHONY: all help install ci check fix lint-all-check test-all clean clean-full lint-markdown lint-markdown-check inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: ci
 
 help:
-	@echo "Dependency Management:"
-	@echo "  setup         - Set up the environment"
-	@echo "  install       - Install dependencies using uv"
-	@echo "  update-deps   - Update dependencies"
+	@echo "=== Root-Level Commands (Orchestration) ==="
 	@echo ""
-	@echo "CI and Development Workflow:"
+	@echo "Setup:"
+	@echo "  install       - Install all component dependencies"
+	@echo ""
+	@echo "CI Workflow:"
 	@echo "  all           - Run all CI checks (default target)"
-	@echo "  ci            - Run all CI checks (compact output on success)"
-	@echo "  check         - Same as 'ci' - validate everything before committing"
-	@echo "  fix           - Auto-fix all linting issues (compact output)"
+	@echo "  ci            - Run CI checks across all components"
+	@echo "  check         - Alias for ci"
+	@echo "  fix           - Auto-fix linting issues across all components"
 	@echo ""
-	@echo "Linting (individual commands):"
-	@echo "  lint-all          - Auto-fix ALL linting issues (Python, Markdown, YAML)"
-	@echo "  lint-all-check    - Check ALL linting (Python, Markdown, YAML) without fixing"
-	@echo "  lint-python       - Auto-fix Python issues (format + lint)"
-	@echo "  lint-python-check - Check Python without fixing (format + lint)"
-	@echo "  lint-markdown     - Auto-fix markdown linting issues"
+	@echo "Linting:"
+	@echo "  lint-all-check    - Check all linting without fixing"
+	@echo "  lint-markdown     - Auto-fix markdown linting"
 	@echo "  lint-markdown-check - Check markdown without fixing"
-	@echo "  lint-yaml         - Auto-fix YAML linting issues"
-	@echo "  lint-yaml-check   - Check YAML without fixing"
-	@echo ""
-	@echo "Type Checking:"
-	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test-all                 - Run ALL tests (unit, smoke, links)"
-	@echo "  test                     - Run Python unit tests"
-	@echo "  test-coverage            - Run tests with coverage (HTML + terminal + JSON)"
-	@echo "  coverage-report          - Open HTML coverage report in browser"
-	@echo "  test-links               - Check documentation links"
-	@echo "  test-smoke               - Run smoke tests"
-	@echo ""
-	@echo "Dashboard Compilation:"
-	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
-	@echo "  upload        - Compile and upload dashboards to Kibana (requires input-dir)"
-	@echo ""
-	@echo "Documentation:"
-	@echo "  docs-serve    - Start local documentation server"
-	@echo "  docs-build    - Build documentation static site"
-	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
-	@echo ""
-	@echo "Docker:"
-	@echo "  docker-build       - Build Docker image for the compiler"
-	@echo "  docker-run         - Run Docker container with sample inputs"
-	@echo "  docker-test        - Test Docker image with basic help command"
-	@echo "  docker-publish     - Publish multi-arch Docker image to GHCR"
-	@echo "  test-docker-smoke  - Run comprehensive smoke tests on Docker image"
-	@echo ""
-	@echo "Binary Distribution:"
-	@echo "  build-binary       - Build standalone binary for current platform"
-	@echo "  test-binary-smoke  - Run comprehensive smoke tests on binary"
+	@echo "  test-all      - Run all tests across all components"
 	@echo ""
 	@echo "Cleaning:"
-	@echo "  clean         - Clean up cache and temporary files"
-	@echo "  clean-full    - Clean up all including virtual environment"
+	@echo "  clean         - Clean cache and temporary files"
+	@echo "  clean-full    - Clean all including virtual environments"
+	@echo ""
+	@echo "Helpers:"
+	@echo "  inspector     - Run MCP Inspector"
 	@echo ""
 	@echo "GitHub Workflow Helpers:"
 	@echo "  gh-get-review-threads        - Get PR review threads (OWNER REPO PR [AUTHOR])"
@@ -78,199 +41,137 @@ help:
 	@echo "  gh-minimize-outdated-comments - Minimize outdated PR comments (OWNER REPO PR)"
 	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
 	@echo ""
-	@echo "Helpers:"
-	@echo "  inspector     - Run MCP Inspector"
+	@echo "=== Component-Specific Commands ==="
+	@echo ""
+	@echo "For component-specific commands, use:"
+	@echo "  cd compiler/ && make help        - Compiler commands"
+	@echo "  cd vscode-extension/ && make help - VS Code extension commands"
+	@echo "  cd fixture-generator/ && make help - Fixture generator commands"
 
 install:
-	@echo "Installing Python dependencies..."
-	uv sync --group dev
-	@echo "Installing markdownlint-cli..."
-	npm install -g markdownlint-cli
+	@echo "Installing all component dependencies..."
+	@echo ""
+	@echo "→ Installing compiler dependencies..."
+	@cd compiler && $(MAKE) install
+	@echo ""
+	@echo "→ Installing VS Code extension dependencies..."
+	@cd vscode-extension && $(MAKE) install
+	@echo ""
+	@echo "→ Installing global tools..."
+	@if command -v npm > /dev/null 2>&1; then \
+		npm install -g markdownlint-cli; \
+	else \
+		echo "⚠ Skipping markdownlint-cli (npm not installed)"; \
+	fi
+	@echo ""
 	@echo "✓ All dependencies installed"
 
-# CI and development workflow commands
-ci: lint-all-check typecheck test-all docs-build-quiet
+ci:
+	@echo "Running CI across all components..."
+	@echo ""
+	@echo "→ Running compiler CI..."
+	@cd compiler && $(MAKE) ci
+	@echo ""
+	@echo "→ Running VS Code extension CI..."
+	@if [ -d "vscode-extension/node_modules" ]; then \
+		cd vscode-extension && $(MAKE) ci; \
+	else \
+		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
+	fi
+	@echo ""
+	@echo "→ Checking markdown..."
+	@$(MAKE) lint-markdown-check
+	@echo ""
 	@echo "✓ All CI checks passed!"
 
 check: ci
 
-fix: lint-all
+fix:
+	@echo "Auto-fixing linting issues across all components..."
+	@echo ""
+	@echo "→ Fixing compiler issues..."
+	@cd compiler && $(MAKE) fix
+	@echo ""
+	@echo "→ Fixing VS Code extension issues..."
+	@if [ -d "vscode-extension/node_modules" ]; then \
+		cd vscode-extension && $(MAKE) fix; \
+	else \
+		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
+	fi
+	@echo ""
+	@echo "→ Fixing markdown issues..."
+	@$(MAKE) lint-markdown
+	@echo ""
+	@echo "✓ All fixes complete"
 
-# Linting meta-commands
-lint-all: lint-python lint-markdown lint-yaml
-	@echo "✓ All linting complete (with auto-fix)"
-
-lint-all-check: lint-python-check lint-markdown-check lint-yaml-check
+lint-all-check:
+	@echo "Checking linting across all components..."
+	@echo ""
+	@echo "→ Checking compiler..."
+	@cd compiler && $(MAKE) lint-check
+	@echo ""
+	@echo "→ Checking VS Code extension..."
+	@if [ -d "vscode-extension/node_modules" ]; then \
+		cd vscode-extension && $(MAKE) lint-check; \
+	else \
+		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
+	fi
+	@echo ""
+	@echo "→ Checking markdown..."
+	@$(MAKE) lint-markdown-check
+	@echo ""
 	@echo "✓ All linting checks passed"
 
-# Testing meta-command
-test-all: test test-smoke test-links
+test-all:
+	@echo "Running tests across all components..."
+	@echo ""
+	@echo "→ Testing compiler..."
+	@cd compiler && $(MAKE) test test-links test-smoke
+	@echo ""
+	@echo "→ Testing VS Code extension..."
+	@if [ -d "vscode-extension/node_modules" ]; then \
+		cd vscode-extension && $(MAKE) test; \
+	else \
+		echo "⚠ Skipping VS Code extension tests (dependencies not installed)"; \
+	fi
+	@echo ""
+	@echo "→ Testing fixture generator..."
+	@if docker images | grep -q "kibana-fixture-generator"; then \
+		cd fixture-generator && $(MAKE) test; \
+	else \
+		echo "⚠ Skipping fixture generator tests (Docker image not built)"; \
+	fi
+	@echo ""
 	@echo "✓ All tests passed"
 
-test:
-	@echo "Running pytest..."
-	@uv run pytest -o addopts="" --tb=line --no-header -q
-
-test-coverage:
-	@echo "Running pytest with coverage..."
-	@uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
-	@echo ""
-	@echo "✓ Coverage report generated:"
-	@echo "  • HTML report: htmlcov/index.html"
-	@echo "  • JSON report: coverage.json"
-	@echo ""
-	@echo "Run 'make coverage-report' to open the HTML report in your browser"
-
-coverage-report:
-	@echo "Opening coverage report..."
-	@if [ ! -f htmlcov/index.html ]; then \
-		echo "Error: Coverage report not found. Run 'make test-coverage' first."; \
-		exit 1; \
-	fi
-	@python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
-
-test-links:
-	@echo "Checking documentation links..."
-	@uv run pytest --check-links docs/ README.md CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
-
-inspector:
-	@echo "Running MCP Inspector..."
-	npx @modelcontextprotocol/inspector
-
-test-smoke:
-	uv run kb-dashboard --help
-
-# Combined Python linting (recommended)
-lint-python:
-	@echo "Running ruff format..."
-	@uv run ruff format .
-	@echo "Running ruff check --fix..."
-	@uv run ruff check . --fix
-
-lint-python-check:
-	@echo "Running ruff format --check..."
-	@uv run ruff format . --check --quiet
-	@echo "Running ruff check..."
-	@uv run ruff check . --quiet
-
-# Auto-fix markdown issues
+# Markdown linting (global)
 lint-markdown:
 	@echo "Running markdownlint --fix..."
 	markdownlint --fix -c .markdownlint.jsonc .
 
-# Check markdown without fixing
 lint-markdown-check:
 	@echo "Running markdownlint..."
 	@markdownlint -c .markdownlint.jsonc . > /dev/null 2>&1 && echo "✓ Markdown checks passed" || (markdownlint -c .markdownlint.jsonc . && exit 1)
 
-# Auto-fix YAML issues
-lint-yaml:
-	@echo "Running yamlfix..."
-	uv run yamlfix $(YAMLFIX_EXCLUDE) .
-
-# Check YAML without fixing
-lint-yaml-check:
-	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check $(YAMLFIX_EXCLUDE) . && exit 1)
-
-typecheck:
-	@echo "Running type checking..."
-	uv run basedpyright
-
+# Cleaning
 clean:
-	@echo "Cleaning up..."
-	rm -rf __pycache__ **/__pycache__
-	rm -rf .pytest_cache **/.pytest_cache
-	rm -rf .ruff_cache **/.ruff_cache
-	rm -rf **/.pyc
-	rm -rf **/.pyo
+	@echo "Cleaning all components..."
+	@cd compiler && $(MAKE) clean
+	@cd vscode-extension && $(MAKE) clean
+	@cd fixture-generator && $(MAKE) clean
 
-clean-full: clean
-	@echo "Cleaning up all..."
-	rm -rf .venv
+clean-full:
+	@echo "Deep cleaning all components..."
+	@cd compiler && $(MAKE) clean-full
+	@cd vscode-extension && $(MAKE) clean
+	@cd fixture-generator && $(MAKE) clean-image
 
-setup:
-	@echo "Setting up environment..."
-	curl -LsSf https://astral.sh/uv/install.sh | sh
-	uv sync --group dev
-	echo "Environment set up successfully!"
-
-update-deps:
-	@echo "Updating dependencies..."
-	uv lock --upgrade
-
-compile:
-	@echo "Compiling dashboards..."
-	uv run kb-dashboard compile
-
-upload:
-	@echo "Compiling and uploading dashboards to Kibana..."
-	uv run kb-dashboard compile --upload
-
-docs-serve:
-	@echo "Starting documentation server..."
-	uv run --group docs mkdocs serve
-
-docs-build:
-	@echo "Building documentation..."
-	uv run --group docs mkdocs build
-
-docs-build-quiet:
-	@echo "Building documentation (errors only)..."
-	@uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
-
-docs-deploy:
-	@echo "Deploying documentation to GitHub Pages..."
-	uv run --group docs mkdocs gh-deploy --force
-
-# Docker commands
-docker-build:
-	@echo "Building Docker image..."
-	docker build -t $(DOCKER_IMAGE) .
-
-docker-run:
-	@echo "Running Docker container..."
-	@mkdir -p $(PWD)/inputs $(PWD)/output
-	@echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
-	docker run --rm -v $(PWD)/inputs:/inputs -v $(PWD)/output:/output \
-		$(DOCKER_IMAGE) compile --input-dir /inputs --output-dir /output
-
-docker-test:
-	@echo "Testing Docker image..."
-	docker run --rm $(DOCKER_IMAGE) --help
-
-docker-publish:
-	@echo "Publishing Docker image to GHCR..."
-	@if [ "$(CONFIRM_PUBLISH)" != "yes" ]; then \
-		echo "Error: Set CONFIRM_PUBLISH=yes to confirm publishing to GHCR"; \
-		echo "Usage: make docker-publish CONFIRM_PUBLISH=yes"; \
-		exit 1; \
-	fi
-	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. Install with: docker buildx install" && exit 1)
-	docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		-t $(GHCR_REGISTRY) \
-		--push .
-
-# Binary build command
-build-binary:
-	@echo "Building standalone binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py
-
-# Docker smoke tests
-test-docker-smoke:
-	@echo "Running Docker smoke tests..."
-	@bash scripts/test_docker_smoke.sh
-
-# Binary smoke tests
-test-binary-smoke:
-	@echo "Running binary smoke tests..."
-	@bash scripts/test_binary_smoke.sh
+# Helpers
+inspector:
+	@echo "Running MCP Inspector..."
+	npx @modelcontextprotocol/inspector
 
 # GitHub Workflow Helper Commands
-# These wrap the scripts in .github/scripts/ for easier use
-
 gh-get-review-threads:
 	@.github/scripts/gh-get-review-threads.sh $(filter-out $@,$(MAKECMDGOALS))
 
@@ -292,5 +193,6 @@ gh-minimize-outdated-comments:
 gh-check-repo-activity:
 	@.github/scripts/gh-check-repo-activity.sh $(filter-out $@,$(MAKECMDGOALS))
 
+# Prevent make from trying to build targets passed as arguments to scripts
 %:
 	@:

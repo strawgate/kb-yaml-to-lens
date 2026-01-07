@@ -6,8 +6,9 @@ import pytest
 from pytest_examples import CodeExample, EvalExample, find_examples
 
 # Find all Python code examples in markdown files using glob pattern
-docs_dir = Path(__file__).parent.parent / 'docs'
-markdown_files = sorted(str(p.relative_to(docs_dir.parent)) for p in docs_dir.rglob('*.md'))
+docs_dir = Path(__file__).parent.parent.parent / 'docs'
+# Use absolute paths for pytest-examples since it runs from the compiler directory
+markdown_files = sorted(str(p.absolute()) for p in docs_dir.rglob('*.md'))
 
 # Fail fast if no markdown files are found (likely a path or checkout issue)
 assert markdown_files, f'No markdown files found in {docs_dir}'
