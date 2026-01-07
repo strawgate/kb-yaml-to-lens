@@ -48,10 +48,11 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
 RUN yarn kbn bootstrap --allow-root
 
-# Install tsx and peggy globally
+# Install tsx, typescript, and peggy globally
 # tsx: needed for TypeScript transpilation
+# typescript: needed for type checking with tsc
 # peggy: needed to compile .peggy grammar files to JavaScript
-RUN npm install -g tsx@4.21.0 peggy
+RUN npm install -g tsx@4.21.0 typescript peggy
 
 # Compile .peggy grammar files to JavaScript
 # The kbn-es-query package has a grammar.peggy file that needs compilation
