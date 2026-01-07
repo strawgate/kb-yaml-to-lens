@@ -1089,6 +1089,33 @@ async def test_esql_line_chart_with_advanced_features() -> None:
     assert kbn_state_visualization.hideEndzones is False
 
 
+async def test_esql_area_chart_with_fitting_and_fill_opacity() -> None:
+    """Test ESQL area chart with fitting function and fill opacity."""
+    esql_config = {
+        'type': 'area',
+        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+        'appearance': {
+            'missing_values': 'Carry',
+            'show_as_dotted': True,
+            'fill_opacity': 0.7,
+        },
+        'show_current_time_marker': False,
+        'hide_endzones': True,
+    }
+
+    esql_chart = ESQLAreaChart.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify features are compiled for ESQL area charts
+    assert kbn_state_visualization.fittingFunction == 'Carry'
+    assert kbn_state_visualization.emphasizeFitting is True
+    assert kbn_state_visualization.fillOpacity == 0.7
+    assert kbn_state_visualization.showCurrentTimeMarker is False
+    assert kbn_state_visualization.hideEndzones is True
+
+
 async def test_bar_chart_with_min_bar_height() -> None:
     """Test bar chart with min_bar_height configuration."""
     lens_config = {

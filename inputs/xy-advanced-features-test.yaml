@@ -1,4 +1,6 @@
 ---
+# TEMPORARY TEST FILE - DELETE BEFORE MERGE
+# This file demonstrates advanced XY chart features for testing purposes only
 dashboards:
   - name: '[XY Charts] Advanced Line Chart Features Test'
     description: Test dashboard demonstrating all new advanced XY chart features (fitting functions, curve types, time markers, fill opacity,
