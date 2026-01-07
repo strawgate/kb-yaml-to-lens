@@ -11,7 +11,6 @@ import { generateDualFixture, runIfMain } from '../generator-utils.js';
 export async function generateGauge(): Promise<void> {
   // Shared configuration between both variants
   const sharedConfig: Partial<LensGaugeConfig> = {
-    chartType: 'gauge',
     queryMinValue: '0',
     queryMaxValue: '1',
     queryGoalValue: '0.8',
@@ -20,6 +19,7 @@ export async function generateGauge(): Promise<void> {
 
   // ES|QL variant
   const esqlConfig: LensGaugeConfig = {
+    chartType: 'gauge',
     ...sharedConfig,
     title: 'CPU Usage Gauge',
     dataset: {
@@ -30,6 +30,7 @@ export async function generateGauge(): Promise<void> {
 
   // Data View variant
   const dataviewConfig: LensGaugeConfig = {
+    chartType: 'gauge',
     ...sharedConfig,
     title: 'CPU Usage Gauge (Data View)',
     dataset: {

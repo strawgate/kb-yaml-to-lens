@@ -11,12 +11,12 @@ import { generateDualFixture, runIfMain } from '../generator-utils.js';
 export async function generateMetricWithBreakdown(): Promise<void> {
   // Shared configuration between both variants
   const sharedConfig: Partial<LensMetricConfig> = {
-    chartType: 'metric',
     label: 'Events per Agent'
   };
 
   // ES|QL variant
   const esqlConfig: LensMetricConfig = {
+    chartType: 'metric',
     ...sharedConfig,
     title: 'Count by Agent',
     dataset: {
@@ -28,6 +28,7 @@ export async function generateMetricWithBreakdown(): Promise<void> {
 
   // Data View variant
   const dataviewConfig: LensMetricConfig = {
+    chartType: 'metric',
     ...sharedConfig,
     title: 'Count by Agent (Data View)',
     dataset: {

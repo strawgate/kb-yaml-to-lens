@@ -11,7 +11,6 @@ import { generateDualFixture, runIfMain } from '../generator-utils.js';
 export async function generateXYChart(): Promise<void> {
   // Shared configuration between both variants
   const sharedConfig: Partial<LensXYConfig> = {
-    chartType: 'xy',
     legend: {
       show: true,
       position: 'right'
@@ -20,6 +19,7 @@ export async function generateXYChart(): Promise<void> {
 
   // ES|QL variant
   const esqlConfig: LensXYConfig = {
+    chartType: 'xy',
     ...sharedConfig,
     title: 'Events Over Time',
     dataset: {
@@ -42,6 +42,7 @@ export async function generateXYChart(): Promise<void> {
 
   // Data View variant
   const dataviewConfig: LensXYConfig = {
+    chartType: 'xy',
     ...sharedConfig,
     title: 'Events Over Time (Data View)',
     dataset: {

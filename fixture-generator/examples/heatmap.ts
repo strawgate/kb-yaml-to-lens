@@ -12,7 +12,6 @@ import { generateDualFixture, runIfMain } from '../generator-utils.js';
 export async function generateHeatmap(): Promise<void> {
   // Shared configuration between both variants
   const sharedConfig: Partial<LensHeatmapConfig> = {
-    chartType: 'heatmap',
     legend: {
       show: true,
       position: 'right'
@@ -21,6 +20,7 @@ export async function generateHeatmap(): Promise<void> {
 
   // ES|QL variant
   const esqlConfig: LensHeatmapConfig = {
+    chartType: 'heatmap',
     ...sharedConfig,
     title: 'Traffic Heatmap by Geographic Location',
     dataset: {
@@ -33,6 +33,7 @@ export async function generateHeatmap(): Promise<void> {
 
   // Data View variant
   const dataviewConfig: LensHeatmapConfig = {
+    chartType: 'heatmap',
     ...sharedConfig,
     title: 'Traffic Heatmap by Geographic Location (Data View)',
     dataset: {

@@ -16,7 +16,8 @@ export async function generateMetricWithTrend(): Promise<void> {
     title: 'Event Count with Trend',
     label: 'Total Events',
     dataset: {
-      index: 'logs-*'
+      index: 'logs-*',
+      timeFieldName: '@timestamp'
     },
     value: 'count()',
     trendLine: true

@@ -11,7 +11,6 @@ import { generateDualFixture, runIfMain } from '../generator-utils.js';
 export async function generatePieChart(): Promise<void> {
   // Shared configuration between both variants
   const sharedConfig: Partial<LensPieConfig> = {
-    chartType: 'pie',
     legend: {
       show: true,
       position: 'right'
@@ -20,6 +19,7 @@ export async function generatePieChart(): Promise<void> {
 
   // ES|QL variant
   const esqlConfig: LensPieConfig = {
+    chartType: 'pie',
     ...sharedConfig,
     title: 'Events by Status',
     dataset: {
@@ -31,6 +31,7 @@ export async function generatePieChart(): Promise<void> {
 
   // Data View variant
   const dataviewConfig: LensPieConfig = {
+    chartType: 'pie',
     ...sharedConfig,
     title: 'Events by Status (Data View)',
     dataset: {

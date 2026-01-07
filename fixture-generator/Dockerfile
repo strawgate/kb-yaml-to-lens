@@ -54,7 +54,7 @@ RUN yarn kbn bootstrap --allow-root
 # @types/node: needed for Node.js type definitions
 # peggy: needed to compile .peggy grammar files to JavaScript
 # Then compile .peggy grammar files to JavaScript
-RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node peggy@4.0.3 && \
+RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node@22.19.3 peggy@4.0.3 && \
     cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
     peggy grammar.peggy && \
     sed -i "s|from './grammar.peggy'|from './grammar.js'|g" index.ts
