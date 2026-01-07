@@ -32,7 +32,7 @@ suite('Extension Test Suite', () => {
     vscode.window.showInformationMessage('Start all tests.');
 
     // Configure Python path before all tests to ensure consistent extension state
-    before(async function() {
+    suiteSetup(async function() {
         // Increase timeout for extension activation
         this.timeout(10000);
 
