@@ -37,10 +37,13 @@ State this clearly in your response and request that the user run `cd fixture-ge
 
 | Command | Purpose |
 | ------- | ------- |
+| `make ci` | Run CI checks (build + test-import) |
+| `make fix` | No linting (placeholder for consistency) |
 | `make build` | Build Docker image (first time only, ~6 minutes) |
 | `make run` | Generate all fixtures |
 | `make run-example EXAMPLE=file.js` | Generate single fixture |
 | `make shell` | Debug in Docker container |
+| `make test-import` | Test that LensConfigBuilder imports |
 | `make clean` | Clean output directory |
 
 ### Common Workflow
