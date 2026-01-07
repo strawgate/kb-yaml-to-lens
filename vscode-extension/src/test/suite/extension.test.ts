@@ -25,13 +25,15 @@ suite('Extension Test Suite', () => {
         assert.ok(extension);
 
         // Find the .venv path relative to this test file or the repo root
-        // We are in /app/vscode-extension/out/test/suite/extension.test.js
-        // Repo root is /app
+        // We are in vscode-extension/out/test/suite/extension.test.js
+        // The compiler's .venv is at compiler/.venv
 
         // Try to find .venv in typical locations
         const potentialPaths = [
-            path.resolve(__dirname, '../../../../.venv/bin/python'), // From compiled test file to repo root
-            path.resolve('/app/.venv/bin/python') // Absolute path in this environment
+            path.resolve(__dirname, '../../../../../compiler/.venv/bin/python'), // From compiled test file to compiler/.venv
+            path.resolve(__dirname, '../../../../.venv/bin/python'), // From compiled test file to repo root (legacy)
+            path.resolve('/app/compiler/.venv/bin/python'), // Absolute path to compiler/.venv (container)
+            path.resolve('/app/.venv/bin/python') // Absolute path to repo root (container, legacy)
         ];
 
         let pythonPath = potentialPaths.find(p => fs.existsSync(p));
@@ -39,7 +41,7 @@ suite('Extension Test Suite', () => {
         if (!pythonPath) {
              console.log('Could not find .venv/bin/python in:', potentialPaths);
              // Fallback to system python if venv missing (though we expect it to be there)
-             pythonPath = 'python';
+             pythonPath = 'python3';
         } else {
             console.log('Found python at:', pythonPath);
         }
