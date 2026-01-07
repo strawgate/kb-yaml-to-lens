@@ -80,7 +80,7 @@ def _should_skip_compilation(yaml_content: str, skip: bool) -> bool:
         True if the example should be skipped from compilation tests.
     """
     return (
-        skip
+        skip is True
         or _is_placeholder_example(yaml_content)
         or 'dashboards:' not in yaml_content
         or '# Your panel definitions go here' in yaml_content
@@ -125,74 +125,62 @@ def extract_yaml_examples(file_path: str) -> list[tuple[str, int, bool]]:
     return examples
 
 
-@pytest.mark.parametrize('file_path', markdown_files)
-def test_yaml_examples_use_dashboards_format(file_path: str) -> None:
-    """Test that YAML examples use 'dashboards:' (plural) not 'dashboard:' (singular).
+def _collect_all_yaml_examples() -> tuple[list[tuple[str, str, int, bool]], list[str]]:
+    """Collect all YAML examples from all markdown files.
 
-    Validates that all YAML examples use the current array format (dashboards:) instead of
-    the deprecated singular format (dashboard:). Skips examples with explicit skip markers.
+    Returns:
+        Tuple containing:
+        - List of tuples (file_path, yaml_content, line_number, skip)
+        - List of test IDs in the format "file_path:line_number"
     """
-    examples = extract_yaml_examples(file_path)
-
-    for yaml_content, line_num, skip in examples:
-        if skip:
-            continue  # Skip examples marked with 'skip' in code fence
-        # Check if this example contains a dashboard definition
-        # Look for the top-level dashboard: key (not dashboard: inside links/other fields)
-        lines = yaml_content.split('\n')
-        for line in lines:
-            if line.strip().startswith('#'):
-                continue
-            if line.startswith('dashboard:'):
-                msg = (
-                    f"{file_path}:{line_num} - YAML example uses deprecated 'dashboard:' format. "
-                    "Use 'dashboards:' (plural, array format) instead."
-                )
-                pytest.fail(msg)
+    all_examples: list[tuple[str, str, int, bool]] = []
+    all_ids: list[str] = []
+    for file_path in markdown_files:
+        examples = extract_yaml_examples(file_path)
+        for yaml_content, line_num, skip in examples:
+            all_examples.append((file_path, yaml_content, line_num, skip))
+            all_ids.append(f'{file_path}:{line_num}')
+    return all_examples, all_ids
 
 
-@pytest.mark.parametrize('file_path', markdown_files)
-def test_yaml_examples_valid_syntax(file_path: str) -> None:
-    """Test that YAML examples have valid syntax.
+# Collect examples and IDs once at module level
+_all_yaml_examples, _all_yaml_example_ids = _collect_all_yaml_examples()
 
-    Validates that all YAML code blocks in documentation can be parsed by PyYAML.
+
+@pytest.mark.parametrize(
+    ('file_path', 'yaml_content', 'line_num', 'skip'),
+    _all_yaml_examples,
+    ids=_all_yaml_example_ids,
+)
+def test_yaml_examples(file_path: str, yaml_content: str, line_num: int, skip: bool, tmp_path: Path) -> None:
+    """Test that YAML examples have valid syntax and can be compiled.
+
+    Validates that YAML examples:
+    1. Have valid YAML syntax (can be parsed by PyYAML)
+    2. Can be successfully compiled by the dashboard compiler (if they are complete examples)
+
     Skips examples with explicit skip markers or placeholder content.
-    """
-    examples = extract_yaml_examples(file_path)
-
-    for yaml_content, line_num, skip in examples:
-        # Skip examples marked with 'skip' in code fence or with placeholders
-        if skip or _is_placeholder_example(yaml_content):
-            continue
-
-        try:
-            yaml.safe_load(yaml_content)
-        except yaml.YAMLError as e:
-            pytest.fail(f'{file_path}:{line_num} - Invalid YAML syntax: {e}')
-
-
-@pytest.mark.parametrize('file_path', markdown_files)
-def test_yaml_examples_compilable(file_path: str, tmp_path: Path) -> None:
-    """Test that complete YAML examples can be loaded by the dashboard compiler.
-
-    Validates that YAML examples can be successfully compiled by the dashboard compiler.
-    Skips examples with explicit skip markers, placeholder content, or fragments that
-    don't represent complete dashboard configurations.
     """
     from dashboard_compiler.dashboard_compiler import load
 
-    examples = extract_yaml_examples(file_path)
+    if skip is True or _is_placeholder_example(yaml_content) is True:
+        pytest.skip('Example marked with skip or contains placeholders')
 
-    for yaml_content, line_num, skip in examples:
-        # Skip examples marked with 'skip' in code fence, or that are fragments/placeholders
-        if _should_skip_compilation(yaml_content, skip):
-            continue
+    # First, validate YAML syntax
+    try:
+        yaml.safe_load(yaml_content)
+    except yaml.YAMLError as e:
+        pytest.fail(f'{file_path}:{line_num} - Invalid YAML syntax: {e}')
 
-        try:
-            temp_yaml = tmp_path / f'example_{line_num}.yaml'
-            _ = temp_yaml.write_text(yaml_content)
+    # Then, validate compilation (if this is a complete example)
+    if _should_skip_compilation(yaml_content, skip):
+        pytest.skip('Example is a fragment or contains placeholders')
 
-            dashboards = load(str(temp_yaml))
-            assert len(dashboards) > 0, 'Should load at least one dashboard'
-        except Exception as e:
-            pytest.fail(f'{file_path}:{line_num} - Failed to compile YAML: {e}')
+    try:
+        temp_yaml = tmp_path / f'example_{line_num}.yaml'
+        _ = temp_yaml.write_text(yaml_content)
+
+        dashboards = load(str(temp_yaml))
+        assert len(dashboards) > 0, 'Should load at least one dashboard'
+    except Exception as e:
+        pytest.fail(f'{file_path}:{line_num} - Failed to compile YAML: {e}')
