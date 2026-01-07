@@ -5,12 +5,12 @@
  * Demonstrates creating a time series line chart
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateXYChart() {
+export async function generateXYChart(): Promise<void> {
   // Shared configuration between both variants
-  const sharedConfig = {
-    chartType: 'xy',
+  const sharedConfig: Partial<LensXYConfig> = {
     legend: {
       show: true,
       position: 'right'
@@ -18,7 +18,8 @@ export async function generateXYChart() {
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensXYConfig = {
+    chartType: 'xy',
     ...sharedConfig,
     title: 'Events Over Time',
     dataset: {
@@ -40,7 +41,8 @@ export async function generateXYChart() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensXYConfig = {
+    chartType: 'xy',
     ...sharedConfig,
     title: 'Events Over Time (Data View)',
     dataset: {
@@ -51,7 +53,10 @@ export async function generateXYChart() {
       {
         type: 'series',
         seriesType: 'line',
-        xAxis: '@timestamp',
+        xAxis: {
+          type: 'dateHistogram',
+          field: '@timestamp'
+        },
         yAxis: [
           {
             label: 'Count',

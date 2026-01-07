@@ -19,14 +19,30 @@
             },
             "columns": [
               {
+                "columnId": "metric_formula_accessor_breakdown_0",
+                "fieldName": "geo.src"
+              },
+              {
+                "columnId": "metric_formula_accessor_breakdown_1",
+                "fieldName": "geo.dest"
+              },
+              {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "metric_formula_accessor"
+                "fieldName": "bytes"
               }
             ],
             "allColumns": [
               {
+                "columnId": "metric_formula_accessor_breakdown_0",
+                "fieldName": "geo.src"
+              },
+              {
+                "columnId": "metric_formula_accessor_breakdown_1",
+                "fieldName": "geo.dest"
+              },
+              {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "metric_formula_accessor"
+                "fieldName": "bytes"
               }
             ]
           }
@@ -51,10 +67,11 @@
           "allowMultipleMetrics": false,
           "numberDisplay": "percent",
           "categoryDisplay": "default",
-          "legendDisplay": "show",
+          "legendDisplay": "default",
           "legendPosition": "right",
           "primaryGroups": [
-            "metric_formula_accessor_breakdown_0"
+            "metric_formula_accessor_breakdown_0",
+            "metric_formula_accessor_breakdown_1"
           ]
         }
       ]

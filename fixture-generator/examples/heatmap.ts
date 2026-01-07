@@ -6,12 +6,12 @@
  * with data aggregated by source and destination countries.
  */
 
+import type { LensHeatmapConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateHeatmap() {
+export async function generateHeatmap(): Promise<void> {
   // Shared configuration between both variants
-  const sharedConfig = {
-    chartType: 'heatmap',
+  const sharedConfig: Partial<LensHeatmapConfig> = {
     legend: {
       show: true,
       position: 'right'
@@ -19,7 +19,8 @@ export async function generateHeatmap() {
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensHeatmapConfig = {
+    chartType: 'heatmap',
     ...sharedConfig,
     title: 'Traffic Heatmap by Geographic Location',
     dataset: {
@@ -31,7 +32,8 @@ export async function generateHeatmap() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensHeatmapConfig = {
+    chartType: 'heatmap',
     ...sharedConfig,
     title: 'Traffic Heatmap by Geographic Location (Data View)',
     dataset: {

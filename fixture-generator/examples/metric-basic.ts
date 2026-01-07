@@ -5,17 +5,18 @@
  * Demonstrates creating a simple count metric
  */
 
+import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateMetricBasic() {
+export async function generateMetricBasic(): Promise<void> {
   // Shared configuration between both variants
-  const sharedConfig = {
-    chartType: 'metric',
+  const sharedConfig: Partial<LensMetricConfig> = {
     label: 'Total Events'
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensMetricConfig = {
+    chartType: 'metric',
     ...sharedConfig,
     title: 'Basic Count Metric',
     dataset: {
@@ -25,7 +26,8 @@ export async function generateMetricBasic() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensMetricConfig = {
+    chartType: 'metric',
     ...sharedConfig,
     title: 'Basic Count Metric (Data View)',
     dataset: {

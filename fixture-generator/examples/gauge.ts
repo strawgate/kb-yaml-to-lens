@@ -5,37 +5,38 @@
  * Demonstrates creating a gauge showing a single metric value with min/max ranges
  */
 
+import type { LensGaugeConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateGauge() {
+export async function generateGauge(): Promise<void> {
   // Shared configuration between both variants
-  const sharedConfig = {
-    chartType: 'gauge',
-    min: 0,
-    max: 1,
-    goal: 0.8,
-    shape: 'arc',
-    colorMode: 'palette'
+  const sharedConfig: Partial<LensGaugeConfig> = {
+    queryMinValue: '0',
+    queryMaxValue: '1',
+    queryGoalValue: '0.8',
+    shape: 'arc'
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensGaugeConfig = {
+    chartType: 'gauge',
     ...sharedConfig,
     title: 'CPU Usage Gauge',
     dataset: {
       esql: 'FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)'
     },
-    metric: 'avg_cpu'
+    value: 'avg_cpu'
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensGaugeConfig = {
+    chartType: 'gauge',
     ...sharedConfig,
     title: 'CPU Usage Gauge (Data View)',
     dataset: {
       index: 'metrics-*'
     },
-    metric: 'average(system.cpu.total.pct)'
+    value: 'average(system.cpu.total.pct)'
   };
 
   await generateDualFixture(

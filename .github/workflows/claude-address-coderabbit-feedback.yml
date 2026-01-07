@@ -87,6 +87,6 @@ jobs:
         - Resolve ALL threads (either by fixing or explaining)
         - Don't mention @coderabbitai unless explaining why you won't fix something
         - Focus on fixing real issues, not perfecting code
-      allowed-tools: mcp__repository-summary,mcp__code-search,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*)
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

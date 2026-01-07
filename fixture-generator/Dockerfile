@@ -48,20 +48,21 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
 RUN yarn kbn bootstrap --allow-root
 
-# Install tsx and peggy globally
+# Install tsx, typescript, @types/node, and peggy globally
 # tsx: needed for TypeScript transpilation
+# typescript: needed for type checking with tsc
+# @types/node: needed for Node.js type definitions
 # peggy: needed to compile .peggy grammar files to JavaScript
-RUN npm install -g tsx@4.21.0 peggy
-
-# Compile .peggy grammar files to JavaScript
-# The kbn-es-query package has a grammar.peggy file that needs compilation
-RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
+# Then compile .peggy grammar files to JavaScript
+RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node@22.19.3 peggy@4.0.3 && \
+    cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
     peggy grammar.peggy && \
     sed -i "s|from './grammar.peggy'|from './grammar.js'|g" index.ts
 
 # Copy generator scripts to Kibana root (for proper @kbn/ module resolution)
 COPY generate-all.js /kibana/
 COPY dataviews-mock.js /kibana/
+COPY generator-utils.ts /kibana/
 COPY examples/ /kibana/examples/
 RUN mkdir -p /kibana/output
 

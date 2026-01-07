@@ -5,12 +5,12 @@
  * Demonstrates creating a pie chart with slices
  */
 
+import type { LensPieConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generatePieChart() {
+export async function generatePieChart(): Promise<void> {
   // Shared configuration between both variants
-  const sharedConfig = {
-    chartType: 'pie',
+  const sharedConfig: Partial<LensPieConfig> = {
     legend: {
       show: true,
       position: 'right'
@@ -18,7 +18,8 @@ export async function generatePieChart() {
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensPieConfig = {
+    chartType: 'pie',
     ...sharedConfig,
     title: 'Events by Status',
     dataset: {
@@ -29,7 +30,8 @@ export async function generatePieChart() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensPieConfig = {
+    chartType: 'pie',
     ...sharedConfig,
     title: 'Events by Status (Data View)',
     dataset: {

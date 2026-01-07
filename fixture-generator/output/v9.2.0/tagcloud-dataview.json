@@ -1,6 +1,6 @@
 {
-  "title": "Events by Status and Level (Nested Legend - Data View)",
-  "visualizationType": "lnsPie",
+  "title": "Top Log Levels",
+  "visualizationType": "lnsTagcloud",
   "references": [
     {
       "type": "index-pattern",
@@ -14,8 +14,7 @@
         "layers": {
           "layer_0": {
             "columnOrder": [
-              "metric_formula_accessor_breakdown_1",
-              "metric_formula_accessor_breakdown_0",
+              "metric_formula_accessor_breakdown",
               "metric_formula_accessor"
             ],
             "columns": {
@@ -30,32 +29,7 @@
                 },
                 "customLabel": true
               },
-              "metric_formula_accessor_breakdown_0": {
-                "label": "Top 5 values of host.name",
-                "dataType": "string",
-                "operationType": "terms",
-                "scale": "ordinal",
-                "sourceField": "host.name",
-                "isBucketed": true,
-                "params": {
-                  "size": 5,
-                  "orderBy": {
-                    "type": "alphabetical",
-                    "fallback": false
-                  },
-                  "orderDirection": "asc",
-                  "otherBucket": false,
-                  "missingBucket": false,
-                  "parentFormat": {
-                    "id": "terms"
-                  },
-                  "include": [],
-                  "exclude": [],
-                  "includeIsRegex": false,
-                  "excludeIsRegex": false
-                }
-              },
-              "metric_formula_accessor_breakdown_1": {
+              "metric_formula_accessor_breakdown": {
                 "label": "Top 5 values of log.level",
                 "dataType": "string",
                 "operationType": "terms",
@@ -92,25 +66,13 @@
       "query": ""
     },
     "visualization": {
-      "shape": "pie",
-      "layers": [
-        {
-          "layerId": "layer_0",
-          "layerType": "data",
-          "metrics": [
-            "metric_formula_accessor"
-          ],
-          "allowMultipleMetrics": false,
-          "numberDisplay": "percent",
-          "categoryDisplay": "default",
-          "legendDisplay": "show",
-          "legendPosition": "right",
-          "primaryGroups": [
-            "metric_formula_accessor_breakdown_0",
-            "metric_formula_accessor_breakdown_1"
-          ]
-        }
-      ]
+      "layerId": "layer_0",
+      "valueAccessor": "metric_formula_accessor",
+      "maxFontSize": 72,
+      "minFontSize": 12,
+      "orientation": "single",
+      "showLabel": true,
+      "tagAccessor": "metric_formula_accessor_breakdown"
     },
     "adHocDataViews": {
       "logs-*": {}

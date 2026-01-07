@@ -1,6 +1,6 @@
 {
-  "title": "Event Count with Trend",
-  "visualizationType": "lnsMetric",
+  "title": "Top Log Levels",
+  "visualizationType": "lnsTagcloud",
   "references": [
     {
       "type": "index-pattern",
@@ -15,24 +15,26 @@
           "layer_0": {
             "index": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
             "query": {
-              "esql": "FROM logs-* | STATS count = COUNT()"
+              "esql": "FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20"
             },
             "columns": [
               {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "count",
-                "meta": {
-                  "type": "number"
-                }
+                "fieldName": "count"
+              },
+              {
+                "columnId": "metric_formula_accessor_breakdown",
+                "fieldName": "log.level"
               }
             ],
             "allColumns": [
               {
                 "columnId": "metric_formula_accessor",
-                "fieldName": "count",
-                "meta": {
-                  "type": "number"
-                }
+                "fieldName": "count"
+              },
+              {
+                "columnId": "metric_formula_accessor_breakdown",
+                "fieldName": "log.level"
               }
             ]
           }
@@ -47,9 +49,12 @@
     },
     "visualization": {
       "layerId": "layer_0",
-      "layerType": "data",
-      "metricAccessor": "metric_formula_accessor",
-      "showBar": false
+      "valueAccessor": "metric_formula_accessor",
+      "maxFontSize": 72,
+      "minFontSize": 12,
+      "orientation": "single",
+      "showLabel": true,
+      "tagAccessor": "metric_formula_accessor_breakdown"
     },
     "adHocDataViews": {
       "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}": {}

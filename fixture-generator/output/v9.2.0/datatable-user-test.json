@@ -1,5 +1,5 @@
 {
-  "title": "Host Performance Summary",
+  "title": "Agent Status Table",
   "visualizationType": "lnsDatatable",
   "references": [
     {
@@ -23,15 +23,18 @@
                 "isBucketed": false,
                 "dataType": "number",
                 "references": [],
-                "params": {},
+                "label": "count(agent.name)",
+                "params": {
+                  "formula": "count(agent.name)"
+                },
                 "customLabel": true
               },
               "metric_formula_accessor_breakdown_0": {
-                "label": "Top 5 values of host.name",
+                "label": "Top 5 values of agent.version",
                 "dataType": "string",
                 "operationType": "terms",
                 "scale": "ordinal",
-                "sourceField": "host.name",
+                "sourceField": "agent.version",
                 "isBucketed": true,
                 "params": {
                   "size": 5,

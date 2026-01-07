@@ -20,7 +20,7 @@ async function discoverExamples() {
   const files = await readdir(examplesDir);
 
   const exampleFiles = files
-    .filter(file => file.endsWith('.js'))
+    .filter(file => file.endsWith('.ts'))
     .sort();
 
   return exampleFiles;

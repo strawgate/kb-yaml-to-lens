@@ -5,43 +5,31 @@
  * Demonstrates creating a tagcloud with tags sized by a metric value
  */
 
-import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
-import { createDataViewsMock } from '../dataviews-mock.js';
+import type { LensTagCloudConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateTagcloud() {
+export async function generateTagcloud(): Promise<void> {
   // ES|QL configuration
-  const esqlConfig = {
+  const esqlConfig: LensTagCloudConfig = {
     chartType: 'tagcloud',
     title: 'Top Log Levels',
     dataset: {
       esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20'
     },
-    metric: 'count',
-    breakdown: ['log.level']
+    value: 'count',
+    breakdown: 'log.level'
   };
 
   // Data View configuration
-  const dataviewConfig = {
+  const dataviewConfig: LensTagCloudConfig = {
     chartType: 'tagcloud',
     title: 'Top Log Levels',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
     },
-    metric: [{
-      type: 'count',
-      label: 'Count'
-    }],
-    breakdown: [{
-      type: 'terms',
-      field: 'log.level',
-      params: {
-        size: 20,
-        orderBy: { type: 'column', columnId: 'metric-column' },
-        orderDirection: 'desc'
-      }
-    }]
+    value: 'count()',
+    breakdown: 'log.level'
   };
 
   await generateDualFixture(

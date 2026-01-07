@@ -5,11 +5,12 @@
  * Demonstrates creating a chart with bar and line layers combined
  */
 
+import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateXYChartMultiLayer() {
+export async function generateXYChartMultiLayer(): Promise<void> {
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensXYConfig = {
     chartType: 'xy',
     title: 'Events with Success Rate Overlay',
     dataset: {
@@ -46,7 +47,7 @@ export async function generateXYChartMultiLayer() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
     title: 'Events with Avg Bytes Overlay (Data View)',
     dataset: {

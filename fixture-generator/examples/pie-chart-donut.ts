@@ -5,18 +5,12 @@
  * Demonstrates creating a pie chart in donut mode with various label configurations
  */
 
+import type { LensPieConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generatePieChartDonut() {
+export async function generatePieChartDonut(): Promise<void> {
   // Shared configuration
-  const sharedConfig = {
-    chartType: 'pie',
-    shape: 'donut',
-    labels: {
-      show: true,
-      position: 'inside',
-      percentDecimals: 1
-    },
+  const sharedConfig: Partial<LensPieConfig> = {
     legend: {
       show: true,
       position: 'right'
@@ -24,7 +18,8 @@ export async function generatePieChartDonut() {
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensPieConfig = {
+    chartType: 'donut',
     ...sharedConfig,
     title: 'Response Codes Distribution (Donut)',
     dataset: {
@@ -35,7 +30,8 @@ export async function generatePieChartDonut() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensPieConfig = {
+    chartType: 'donut',
     ...sharedConfig,
     title: 'Response Codes Distribution (Donut - Data View)',
     dataset: {

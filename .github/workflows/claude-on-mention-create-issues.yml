@@ -42,6 +42,6 @@ jobs:
         - Reference related issues or PRs when relevant
         - If the command returns any comments, read the feedback and incorporate it before completing
         - Repeat this check periodically (but set a reasonable limit to prevent infinite loops - max 3 checks)
-      allowed-tools: mcp__repository-summary,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

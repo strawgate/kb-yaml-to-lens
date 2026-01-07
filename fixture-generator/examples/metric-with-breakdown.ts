@@ -5,17 +5,18 @@
  * Demonstrates creating a metric that breaks down by a field
  */
 
+import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
-export async function generateMetricWithBreakdown() {
+export async function generateMetricWithBreakdown(): Promise<void> {
   // Shared configuration between both variants
-  const sharedConfig = {
-    chartType: 'metric',
+  const sharedConfig: Partial<LensMetricConfig> = {
     label: 'Events per Agent'
   };
 
   // ES|QL variant
-  const esqlConfig = {
+  const esqlConfig: LensMetricConfig = {
+    chartType: 'metric',
     ...sharedConfig,
     title: 'Count by Agent',
     dataset: {
@@ -26,7 +27,8 @@ export async function generateMetricWithBreakdown() {
   };
 
   // Data View variant
-  const dataviewConfig = {
+  const dataviewConfig: LensMetricConfig = {
+    chartType: 'metric',
     ...sharedConfig,
     title: 'Count by Agent (Data View)',
     dataset: {

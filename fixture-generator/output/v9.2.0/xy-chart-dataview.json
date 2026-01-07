@@ -30,28 +30,14 @@
                 "customLabel": true
               },
               "x_metric_formula_accessor0": {
-                "label": "Top 5 values of @timestamp",
-                "dataType": "string",
-                "operationType": "terms",
-                "scale": "ordinal",
-                "sourceField": "@timestamp",
+                "dataType": "date",
                 "isBucketed": true,
+                "label": "@timestamp",
+                "operationType": "date_histogram",
+                "scale": "interval",
+                "sourceField": "@timestamp",
                 "params": {
-                  "size": 5,
-                  "orderBy": {
-                    "type": "alphabetical",
-                    "fallback": false
-                  },
-                  "orderDirection": "asc",
-                  "otherBucket": false,
-                  "missingBucket": false,
-                  "parentFormat": {
-                    "id": "terms"
-                  },
-                  "include": [],
-                  "exclude": [],
-                  "includeIsRegex": false,
-                  "excludeIsRegex": false
+                  "interval": "auto"
                 }
               }
             }
