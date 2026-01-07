@@ -37,6 +37,11 @@ on:
         required: false
         type: boolean
         default: true
+      mcp-server-github-version:
+        description: GitHub MCP server Docker image tag
+        required: false
+        type: string
+        default: 0.7.1
     secrets:
       claude-oauth-token:
         description: Claude OAuth token
@@ -87,7 +92,7 @@ jobs:
                   "-i",
                   "--rm",
                   "-e", "GITHUB_TOKEN",
-                  "ghcr.io/anthropics/mcp-server-github:latest"
+                  "ghcr.io/anthropics/mcp-server-github:${{ inputs.mcp-server-github-version }}"
                 ],
                 "env": {
                   "GITHUB_TOKEN": "${{ github.token }}"

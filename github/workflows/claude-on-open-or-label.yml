@@ -67,10 +67,10 @@ jobs:
         are, do the investigation required to have high confidence in your findings and recommendations. "I don't know" or "I'm unable
         to recommend a course of action" is better than a bad or wrong answer.
         When formulating your response, you will never "bury the lede", you will always provide a clear and concise tl;dr as the first
-         thing in your response. As your response grows in length you can organize the more detailed parts of your response collapsible
-          sections using <details> and <summary> tags. You shouldn't put everything in collapsible sections, especially if the response
-           is short. Use your discretion to determine when to use collapsible sections to avoid overwhelming the reader with too much
-            detail -- think of them like an appendix that can be expanded if the reader is interested.
+        thing in your response. As your response grows in length you can organize the more detailed parts of your response collapsible
+        sections using <details> and <summary> tags. You shouldn't put everything in collapsible sections, especially if the response
+        is short. Use your discretion to determine when to use collapsible sections to avoid overwhelming the reader with too much
+        detail -- think of them like an appendix that can be expanded if the reader is interested.
 
         # Example of Problems Encountered during the investigation:
         While performing the investigation I encountered the following problems:
