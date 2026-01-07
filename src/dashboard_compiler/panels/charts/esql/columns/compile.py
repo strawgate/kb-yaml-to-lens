@@ -6,6 +6,8 @@ from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLFieldMetricColumn,
     KbnESQLMetricColumnParams,
     KbnESQLMetricColumnTypes,
+    KbnESQLMetricFormat,
+    KbnESQLMetricFormatParams,
     KbnESQLStaticValueColumn,
 )
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric_format
@@ -39,12 +41,22 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
 
     metric_id = metric.id or stable_id_generator([metric.field])
 
-    # Compile format if provided
-    metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
-
-    # Create params only if format is present
-    # Note: KbnLensMetricFormat and KbnESQLMetricFormat have identical structure, so cast is safe
-    params = KbnESQLMetricColumnParams(format=metric_format) if metric_format is not None else None  # pyright: ignore[reportArgumentType]
+    # Compile format if provided - convert Lens format to ESQL format
+    params = None
+    if metric.format is not None:
+        lens_format = compile_lens_metric_format(metric.format)
+        # Explicitly convert KbnLensMetricFormat to KbnESQLMetricFormat
+        # These types are structurally identical but kept separate for clarity
+        esql_format = KbnESQLMetricFormat(
+            id=lens_format.id,
+            params=KbnESQLMetricFormatParams(
+                decimals=lens_format.params.decimals,
+                suffix=lens_format.params.suffix,
+                compact=lens_format.params.compact,
+                pattern=lens_format.params.pattern,
+            ),
+        )
+        params = KbnESQLMetricColumnParams(format=esql_format)
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
