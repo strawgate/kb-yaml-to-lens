@@ -213,7 +213,6 @@ class LensXYChartMixin(BaseCfgModel):
     data_view: str = Field(default=..., description='The data view to use for the chart.')
     dimensions: list[LensDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
     metrics: list[LensMetricTypes] = Field(
-        default_factory=list,
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
     )
@@ -243,7 +242,6 @@ class ESQLXYChartMixin(BaseCfgModel):
     dimensions: list[ESQLDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
 
     metrics: list[ESQLMetricTypes] = Field(
-        default_factory=list,
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
     )
