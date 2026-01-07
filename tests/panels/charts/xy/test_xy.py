@@ -920,25 +920,23 @@ async def test_line_chart_with_fitting_function() -> None:
     assert kbn_state_visualization.endValue == 'Zero'
 
 
-async def test_line_chart_with_all_fitting_functions() -> None:
+@pytest.mark.parametrize('fitting_func', ['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'])
+async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
     """Test line chart with all available fitting function options."""
-    fitting_functions = ['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest']
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'fitting_function': fitting_func,
+        },
+    }
 
-    for fitting_func in fitting_functions:
-        lens_config = {
-            'type': 'line',
-            'data_view': 'metrics-*',
-            'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
-            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'appearance': {
-                'fitting_function': fitting_func,
-            },
-        }
-
-        lens_chart = LensLineChart.model_validate(lens_config)
-        _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
-        assert kbn_state_visualization is not None
-        assert kbn_state_visualization.fittingFunction == fitting_func
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.fittingFunction == fitting_func
 
 
 async def test_area_chart_with_fitting_and_fill_opacity() -> None:
@@ -1035,10 +1033,9 @@ async def test_line_chart_with_all_advanced_features() -> None:
     assert kbn_state_visualization.hideEndzones is True
 
 
-async def test_curve_type_mapping() -> None:
-    """Test that curve types are correctly mapped from config to Kibana format."""
-    # Test all supported curve type mappings
-    curve_type_tests = [
+@pytest.mark.parametrize(
+    ('config_value', 'expected_kibana_value'),
+    [
         ('linear', 'LINEAR'),
         ('monotone-x', 'CURVE_MONOTONE_X'),
         ('step-after', 'CURVE_STEP_AFTER'),
@@ -1047,25 +1044,24 @@ async def test_curve_type_mapping() -> None:
         ('catmull-rom', 'CURVE_CATMULL_ROM'),
         ('natural', 'CURVE_NATURAL'),
         ('step', 'CURVE_STEP'),
-    ]
+    ],
+)
+async def test_curve_type_mapping(config_value: str, expected_kibana_value: str) -> None:
+    """Test that curve types are correctly mapped from config to Kibana format."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'curve_type': config_value,
+        },
+    }
 
-    for config_value, expected_kibana_value in curve_type_tests:
-        lens_config = {
-            'type': 'line',
-            'data_view': 'metrics-*',
-            'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
-            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'appearance': {
-                'curve_type': config_value,
-            },
-        }
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
 
-        lens_chart = LensLineChart.model_validate(lens_config)
-        _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
-
-        assert kbn_state_visualization.curveType == expected_kibana_value, (
-            f'Expected {config_value} to map to {expected_kibana_value}, got {kbn_state_visualization.curveType}'
-        )
+    assert kbn_state_visualization.curveType == expected_kibana_value
 
 
 async def test_esql_line_chart_with_advanced_features() -> None:
