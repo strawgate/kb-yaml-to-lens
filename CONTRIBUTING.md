@@ -4,7 +4,15 @@
 
 See [CLAUDE.md](CLAUDE.md) for AI agent guidelines and [component-specific AGENTS.md files](CLAUDE.md#project-overview) for detailed development guidelines.
 
+## Code Style
+
+@CODE_STYLE.md
+
 ## Pull Request Requirements
+
+@CLAUDE.md#pull-request-standards
+
+**Additional PR Requirements:**
 
 When creating a pull request:
 
@@ -15,5 +23,3 @@ When creating a pull request:
    - How to verify the changes work
 3. **For chart type modifications** - Complete the fixture generation checklist
 4. **Run all checks** before submitting: `make ci`
-
-See the [Pull Request Standards](CLAUDE.md#pull-request-standards) section in CLAUDE.md for full requirements.
