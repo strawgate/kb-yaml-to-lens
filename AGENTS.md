@@ -49,21 +49,6 @@ This repository contains three main components:
 
 See `make help` in root or component directories for complete command lists.
 
-**Workflow examples:**
-
-```bash
-# First time setup (from root)
-make install
-
-# Global workflow - run from root
-make fix    # Auto-fix all components
-make ci     # Run CI checks across all components
-
-# Component workflow - see component AGENTS.md files for detailed workflows
-```
-
----
-
 ## AI Agent Guidelines
 
 ### IMPORTANT: Post-Compaction Recovery
@@ -116,6 +101,10 @@ If you have recently undergone context summarization/compaction:
 **Requirements:** No merge conflicts, no unrelated changes/plan files, all checks pass, self-review done, use `.github/pull_request_template.md` for PR body
 
 **Self-review:** Solves stated problem (reference issue), code complete/follows patterns, tests updated, docs accurate, `make ci` passes
+
+## Before Completion
+
+When you think you've finished the job take one moment to review the original ask and ensure you have thoroughly addressed it. It's easy to get lost in the details and forget the original goal.
 
 ---
 
