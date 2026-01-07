@@ -149,6 +149,124 @@ View models (`BaseVwModel`) have special behaviors:
 - May narrow types in subclasses (e.g., `str` → `Literal['value']`)
 - basedpyright's `reportIncompatibleVariableOverride = false` allows type narrowing
 
+#### Leverage Pydantic's Features
+
+**Core Principle: Take advantage of Pydantic's validation and type safety. Avoid manual dictionary manipulation.**
+
+Pydantic is designed to give you type-safe, validated objects. Work with those objects directly instead of falling back to dict operations.
+
+##### Working with Validated Data
+
+**✅ Preferred - Use validated attributes:**
+
+```python
+from pydantic import model_validator
+from typing_extensions import Self
+
+class Dashboard(BaseCfgModel):
+    panels: list[Panel]
+    auto_layout: bool = False
+
+    @model_validator(mode='after')
+    def apply_auto_layout(self) -> Self:
+        """Apply auto-layout to panels if enabled."""
+        if not self.auto_layout:
+            return self
+
+        # Work with validated Panel objects
+        for panel in self.panels:
+            if panel.position.x is not None:  # Type-safe attribute access
+                # ... positioning logic using panel.width, panel.height, etc.
+        return self
+```
+
+**❌ Avoid - Manual dict manipulation:**
+
+```python
+@model_validator(mode='before')
+@classmethod
+def apply_auto_layout(cls, data: dict[str, Any]) -> dict[str, Any]:
+    """Apply auto-layout to panels if enabled."""
+    if not data.get('auto_layout'):
+        return data
+
+    # Manually manipulating dicts defeats the purpose of Pydantic
+    for panel_dict in data.get('panels', []):
+        if 'position' in panel_dict and panel_dict['position'].get('x') is not None:
+            # No type safety, harder to read, easy to make mistakes
+            # ...
+    return data
+```
+
+##### When to Use Each Validator Mode
+
+**Use `mode='after'` (the default and preferred choice):**
+
+- Working with validated model attributes (most validators)
+- Cross-field validation that reads multiple attributes
+- Business logic that depends on fully validated data
+- Any time you need type-safe access to model fields
+
+**Use `mode='before'` only when necessary:**
+
+- Raw input transformation before validation (e.g., converting date strings, normalizing keys)
+- Data migrations (e.g., handling renamed fields from legacy schemas)
+- Preprocessing data that can't be validated in its raw form
+
+##### Best Practices
+
+**Module-level imports:**
+
+```python
+# ✅ Correct - imports at module level
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from some_module import SomeType
+
+class MyModel(BaseCfgModel):
+    @model_validator(mode='after')
+    def validate_something(self) -> Self:
+        # Use SomeType here
+        ...
+
+# ❌ Incorrect - importing inside validator
+class MyModel(BaseCfgModel):
+    @model_validator(mode='after')
+    def validate_something(self) -> Self:
+        from some_module import SomeType  # Don't do this
+        ...
+```
+
+**Type annotations match runtime types:**
+
+Field annotations should reflect the actual type after validation completes:
+
+```python
+# ✅ Correct - annotation matches runtime type
+w: int = Field(...)
+
+@field_validator('w', mode='before')
+@classmethod
+def resolve_width(cls, value: int | SemanticWidth) -> int:
+    """Convert semantic width to pixels."""
+    return resolve_semantic_width(value)
+
+# ❌ Incorrect - annotation includes types that never exist at runtime
+w: int | SemanticWidth = Field(...)  # Misleading - always int after validation
+```
+
+**Generic types always have arguments:**
+
+```python
+# ✅ Correct - specific type arguments
+panels: list[Panel]
+metadata: dict[str, Any]
+
+# ❌ Incorrect - bare generic types
+panels: list  # Missing type argument
+metadata: dict  # Missing type arguments
+```
+
 ---
 
 ### Lint and Type Checking Exceptions
@@ -258,6 +376,7 @@ data_view and esql FROM statements should always target either `logs-*` or `metr
 | **Empty checks** | `if len(items) > 0:` | `if items:` |
 | **Union handling** | isinstance chain + final error | Type narrowing alone |
 | **Pydantic models** | Inherit from BaseCfgModel | Duplicate model_config |
+| **Validators** | Work with validated attributes | Manipulate dicts manually |
 | **Field docs** | Attribute docstrings | Inline comments |
 | **Line length** | 140 chars max | No limit |
 

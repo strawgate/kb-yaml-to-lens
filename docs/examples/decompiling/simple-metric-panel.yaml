@@ -1,0 +1,16 @@
+---
+dashboards:
+  - name: Simple Metric Example
+    description: Example showing a converted metric panel
+    panels:
+      - title: Total Documents
+        description: Count of all documents in the index
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: metric
+          primary:
+            field: doc_count
+            id: metric_doc_count
+          query:
+            - FROM logs-*
+            - STATS doc_count = COUNT(*)

@@ -6,7 +6,6 @@ dashboards:
       controls:
         chain_controls: true
         label_position: inline
-
     controls:
       # Static values ES|QL control
       - type: esql_static
@@ -33,10 +32,10 @@ dashboards:
       - type: esql_query
         variable_name: host
         variable_type: values
-        esql_query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT 20
+        esql_query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT
+          20
         title: Host Name
         width: large
-
     panels:
       # ES|QL Metric using variables
       - title: Total Requests

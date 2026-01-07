@@ -22,10 +22,10 @@ Located in `python/test_*.py`, these test the Python scripts that handle YAML ma
 **Running Python tests:**
 
 ```bash
-# From repository root
-make test-extension-python
+# From vscode-extension directory
+make test
 
-# Or directly with pytest
+# Or directly with pytest from repository root
 uv run python -m pytest vscode-extension/python/test_*.py -v
 ```
 
@@ -40,8 +40,8 @@ Located in `src/test/suite/extension.test.ts`, these tests run the actual extens
 **Running E2E tests:**
 
 ```bash
-# From repository root
-make test-extension-e2e
+# From vscode-extension directory
+npm test
 ```
 
 *Note: This requires `xvfb` to be installed on Linux environments.*
@@ -49,14 +49,14 @@ make test-extension-e2e
 ## Running Tests
 
 ```bash
-# Run all tests including extension Python tests
-make check
+# Run all extension tests (from vscode-extension directory)
+make test
 
-# Run only extension Python tests
-make test-extension-python
+# Run only TypeScript unit tests (from vscode-extension directory)
+make test-unit
 
-# Run E2E tests
-make test-extension-e2e
+# Run E2E tests (from vscode-extension directory)
+npm test
 ```
 
 ## Continuous Integration
@@ -130,6 +130,6 @@ uv sync --group dev
 
 If E2E tests fail with "No workspace folder found" or activation errors, ensure:
 
-1. You are running `make test-extension-e2e` from the repo root.
-2. The `.venv` is created (`uv sync --group dev`).
+1. You are running `npm test` from the vscode-extension directory.
+2. The `.venv` is created (`uv sync --group dev` from repo root).
 3. `xvfb` is installed if running on Linux without a display.

@@ -95,17 +95,28 @@ def compile_lens_dimension(
                 columnId=kbn_column_name_to_id[dimension.sort.by],
             )
         elif len(kbn_metric_column_by_id) > 0:
-            # Default to ordering by first metric column if available (matches Kibana's behavior)
+            # Default to ordering by first metric column if it's not a formula
+            # Formula columns cannot be used for aggregation ordering in Elasticsearch
             first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
-            order_by = KbnLensTermsOrderBy(
-                type='column',
-                columnId=first_metric_id,
-            )
+            first_metric = kbn_metric_column_by_id[first_metric_id]
+
+            if first_metric.operationType == 'formula':
+                # Formula columns are computed post-aggregation, use alphabetical ordering
+                order_by = KbnLensTermsOrderBy(
+                    type='alphabetical',
+                    fallback=True,
+                )
+            else:
+                # Non-formula metrics can be used for ordering
+                order_by = KbnLensTermsOrderBy(
+                    type='column',
+                    columnId=first_metric_id,
+                )
         else:
             # No metrics available, fall back to alphabetical
             order_by = KbnLensTermsOrderBy(
                 type='alphabetical',
-                fallback=False,
+                fallback=True,
             )
 
         return dimension_id, KbnLensTermsDimensionColumn(

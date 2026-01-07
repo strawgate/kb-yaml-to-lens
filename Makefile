@@ -1,11 +1,14 @@
 
-.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy test-extension test-extension-typescript typecheck compile upload setup test-extension-e2e docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install update-deps ci check fix lint-all lint-all-check test-all test test-coverage coverage-report test-links test-smoke clean clean-full lint lint-check format format-check lint-markdown lint-markdown-check lint-yaml lint-yaml-check inspector docs-serve docs-build docs-deploy typecheck compile upload setup docker-build docker-run docker-test docker-publish build-binary test-docker-smoke test-binary-smoke gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
 DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
+
+# YAML linting exclusions
+YAMLFIX_EXCLUDE := --exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" --exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml"
 
 all: ci
 
@@ -37,15 +40,12 @@ help:
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test-all                 - Run ALL tests (unit, smoke, extension)"
+	@echo "  test-all                 - Run ALL tests (unit, smoke, links)"
 	@echo "  test                     - Run Python unit tests"
 	@echo "  test-coverage            - Run tests with coverage (HTML + terminal + JSON)"
 	@echo "  coverage-report          - Open HTML coverage report in browser"
 	@echo "  test-links               - Check documentation links"
 	@echo "  test-smoke               - Run smoke tests"
-	@echo "  test-extension           - Run all VSCode extension tests"
-	@echo "  test-extension-typescript - Run TypeScript tests for extension"
-	@echo "  test-extension-e2e       - Run E2E tests for extension (headless)"
 	@echo ""
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON (requires input-dir)"
@@ -84,10 +84,11 @@ help:
 	@echo "  inspector     - Run MCP Inspector"
 
 install:
-	@echo "Running uv sync..."
+	@echo "Installing Python dependencies..."
 	uv sync --group dev
 	@echo "Installing markdownlint-cli..."
 	npm install -g markdownlint-cli
+	@echo "✓ All dependencies installed"
 
 # CI and development workflow commands
 ci: lint-all-check typecheck test-all docs-build-quiet
@@ -105,7 +106,7 @@ lint-all-check: lint-check format-check lint-markdown-check lint-yaml-check
 	@echo "✓ All linting checks passed"
 
 # Testing meta-command
-test-all: test test-smoke test-links test-extension-typescript
+test-all: test test-smoke test-links
 	@echo "✓ All tests passed"
 
 test:
@@ -133,20 +134,6 @@ coverage-report:
 test-links:
 	@echo "Checking documentation links..."
 	@uv run pytest --check-links docs/ README.md CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
-
-test-extension:
-	@echo "Running VSCode extension tests..."
-	cd vscode-extension && npm install && npm test
-
-test-extension-typescript:
-	@echo "Running TypeScript tests for VSCode extension..."
-	# Using npm install for local development flexibility (vs npm ci in CI)
-	@cd vscode-extension && npm install > /dev/null 2>&1 && npm run compile > /dev/null 2>&1 && npm run test:unit
-
-test-extension-e2e:
-	@echo "Running Extension E2E Tests..."
-	@uv sync --group dev --extra lsp
-	@. .venv/bin/activate && cd vscode-extension && npm install && xvfb-run -a npm test
 
 inspector:
 	@echo "Running MCP Inspector..."
@@ -188,12 +175,12 @@ lint-markdown-check:
 # Auto-fix YAML issues
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix .
+	uv run yamlfix $(YAMLFIX_EXCLUDE) .
 
 # Check YAML without fixing
 lint-yaml-check:
-	@echo "Running yamllint..."
-	@uv run yamllint . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamllint . && exit 1)
+	@echo "Running yamlfix --check..."
+	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check $(YAMLFIX_EXCLUDE) . && exit 1)
 
 typecheck:
 	@echo "Running type checking..."

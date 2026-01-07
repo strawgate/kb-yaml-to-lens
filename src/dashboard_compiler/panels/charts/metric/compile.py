@@ -82,13 +82,18 @@ def compile_lens_metric_chart(
         secondary_metric_id, secondary_metric = compile_lens_metric(lens_metric_chart.secondary)
         kbn_metric_columns_by_id[secondary_metric_id] = secondary_metric
 
-    kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {**kbn_metric_columns_by_id}
+    # Initialize kbn_columns_by_id as empty dict
+    kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
 
+    # Add breakdown dimension FIRST (if present) - Kibana requires dimensions before metrics in columnOrder
     if lens_metric_chart.breakdown:
         breakdown_dimension_id, breakdown_dimension = compile_lens_dimension(
             dimension=lens_metric_chart.breakdown, kbn_metric_column_by_id=kbn_metric_columns_by_id
         )
         kbn_columns_by_id[breakdown_dimension_id] = breakdown_dimension
+
+    # Add metrics AFTER breakdown dimension
+    kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
     layer_id = get_layer_id(lens_metric_chart)
 

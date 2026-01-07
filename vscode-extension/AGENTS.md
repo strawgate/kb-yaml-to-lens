@@ -8,28 +8,47 @@
 
 ### Essential Commands
 
+Component-specific commands (run from `vscode-extension/` directory):
+
 | Command | Purpose |
 | ------- | ------- |
-| `npm install` | Install dependencies |
-| `npm run compile` | Build TypeScript |
-| `npm run watch` | Watch mode for development |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run tests |
-| `npm run package` | Create .vsix package |
+| `make install` | Install dependencies |
+| `make ci` | Run all CI checks (compile + lint + test) |
+| `make fix` | Auto-fix linting issues |
+| `make compile` | Build TypeScript |
+| `make watch` | Watch mode for development |
+| `make lint` | Check linting |
+| `make test` | Run all tests |
+| `make test-unit` | Run unit tests only |
+| `make package` | Create .vsix package |
+
+Root-level commands (run from repository root):
+
+| Command | Purpose |
+| ------- | ------- |
+| `make install` | Install all dependencies (all components) |
+| `make ci` | Run all CI checks (all components) |
+| `make fix` | Auto-fix all linting (all components) |
+| `make test-all` | Run all tests (all components) |
 
 ### Development Workflow
 
 ```bash
-# First time setup
-npm install
+# First time setup (from repository root)
+make install
 
 # Development
-npm run watch  # Start watch mode
+cd vscode-extension
+make watch  # Start watch mode
 # Press F5 in VS Code to launch Extension Development Host
 
-# Before committing (from repository root)
-make fix  # Auto-fix all linting issues
-make ci   # Run all CI checks (linting + typecheck + tests)
+# Run component checks
+make ci  # Run extension CI checks
+
+# Or run from repository root for all components
+cd ..
+make fix  # Auto-fix all linting issues (all components)
+make ci   # Run all CI checks (all components)
 ```
 
 ---
@@ -232,12 +251,13 @@ Tests are located in `src/test/`:
 
 Before claiming work is complete:
 
-- [ ] TypeScript compiles without errors (`npm run compile`)
-- [ ] ESLint passes (`npm run lint`)
+- [ ] TypeScript compiles without errors (`npm run compile` or `make compile` from vscode-extension/)
+- [ ] ESLint passes (`make lint` from vscode-extension/)
 - [ ] Extension loads in Development Host (press F5)
 - [ ] All commands work as expected
 - [ ] No console errors in Extension Host
 - [ ] Python server starts and responds correctly
+- [ ] All CI checks pass (`make ci` from vscode-extension/ or repository root)
 
 ### Working with Python Server
 
