@@ -165,7 +165,7 @@ make run KIBANA_VERSION=v9.1.0
 make build-base KIBANA_VERSION=v9.2.0
 ```
 
-**Adding new versions**: Edit `.github/workflows/build-kibana-base-images.yml` and add to `matrix.kibana_version`. The workflow runs weekly and can be triggered manually via Actions.
+**Adding new versions**: Edit `.github/workflows/build-kibana-base-images.yml` and add to `matrix.kibana_version`. The workflow runs weekly and can be triggered manually via GitHub Actions.
 
 ## Troubleshooting
 
