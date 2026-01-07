@@ -48,27 +48,23 @@ New features and bug fixes should have corresponding and comprehensive tests. Ou
 
 ## Code Conventions
 
-> For detailed code style guidelines (explicit boolean checks, exhaustive type checking patterns, Pydantic conventions, line length, documentation requirements), see **[CODE_STYLE.md](../../CODE_STYLE.md)** at the repository root.
+@../../CODE_STYLE.md
 
-### Quick Reference
+@../../CODERABBIT.md
 
-**Explicit Boolean Comparisons:**
+### Quick Reference: Finding Patterns
 
-- Use `if x is not None:` instead of `if x:`
-- Use `if len(items) > 0:` instead of `if items:`
+Before implementing a feature, use these searches to learn from existing code:
 
-**Exhaustive Type Checking:**
+| Task | Search Strategy |
+| ---- | --------------- |
+| **Adding a new panel type** | `grep -r "isinstance.*Panel" src/dashboard_compiler/panels/compile.py` |
+| **Adding a new chart type** | Study `src/dashboard_compiler/panels/charts/` directory structure |
+| **Adding Pydantic validation** | `grep -r "@model_validator" src/` and look for `mode='after'` usage |
+| **Handling union types** | Search for `isinstance` chains with final error handlers |
+| **Adding a new config option** | Find similar options in `config.py` files, check if defaults in `compile.py` |
 
-- Always use isinstance chains with a final error handler
-- Never rely on type narrowing alone for union types
-
-**Pydantic Models:**
-
-- Inherit from `BaseCfgModel` or `BaseVwModel` - they set common configuration
-- Use attribute docstrings for field descriptions
-- View models may narrow types in subclasses
-
-See [CODE_STYLE.md](../../CODE_STYLE.md) for detailed explanations and examples.
+**Remember:** The codebase is your best teacher. Search, read, then implement following existing patterns.
 
 ### Documentation Updates
 
@@ -88,9 +84,7 @@ When updating YAML configuration docs:
 1. **Read relevant files first** — Never speculate about code you haven't inspected
 2. **Search for existing patterns** — Check how similar components handle the same problem
 3. **Understand the architecture** — Config models → compile functions → view models
-4. **Use explicit Boolean comparisons** — Never rely on implicit truthiness
-   - `if x is not None:` instead of `if x:`
-   - `if len(items) > 0:` instead of `if items:`
+4. **Follow code style guidelines** — See CODE_STYLE.md for detailed conventions
 
 ### When Working on Chart Types (panels/charts/)
 

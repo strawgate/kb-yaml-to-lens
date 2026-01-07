@@ -2,6 +2,8 @@
 
 > Multi-language project for compiling Kibana dashboards from YAML to Lens format
 > Python compiler · TypeScript VS Code extension · JavaScript fixture generator
+>
+> **Note:** `CLAUDE.md` is a symlink to `AGENTS.md` throughout this repository. Both names reference the same file.
 
 ---
 
@@ -26,20 +28,25 @@ This repository contains three main components:
 
 ### Common Commands
 
-We try to make all common commands available via `make` commands.
+Root-level commands orchestrate all components via `make`:
 
 | Command | Purpose |
 | --------- | --------- |
-| `make install` | Install all dependencies (Python + Node.js + Extension) |
-| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests including extension) |
-| `make fix` | Auto-fix all linting issues (Python + Markdown + YAML + Extension) |
-| `make lint-all-check` | Check all linting without fixing (Python + Markdown + YAML + Extension) |
-| `make test-all` | Run all tests (unit + smoke + extension) |
+| `make install` | Install all dependencies (all components) |
+| `make ci` or `make check` | **Run before committing** (all linting + typecheck + all tests) |
+| `make fix` | Auto-fix all linting issues (all components) |
+| `make lint-all-check` | Check all linting without fixing (all components) |
+| `make test-all` | Run all tests (all components) |
 | `make test` | Run Python unit tests only |
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
-Note: These are intended to be used from the repository root. See component-specific AGENTS.md files for detailed commands.
+**Component-specific Makefiles:**
+
+- `vscode-extension/Makefile` - Extension development commands
+- `fixture-generator/Makefile` - Fixture generation commands
+
+Component-specific commands can be run by cd-ing into the component directory. See component-specific AGENTS.md files for available commands.
 
 **Workflow example:**
 
@@ -59,22 +66,20 @@ make ci
 
 ## AI Agent Guidelines
 
+@CODE_STYLE.md
+
 **Read the docs first:**
 
 - When working in any component, read the README.md or AGENTS.md/CLAUDE.md for the component you're working on.
 
-**Read Before Modify:**
+**Learn from the codebase:**
 
-- Never speculate about code you haven't read
-- Always inspect existing implementations before suggesting changes
-- Search for similar patterns across the codebase
+- **Search first, then implement** — Use Grep/Glob to find how similar problems are solved
+- **Pattern matching over prescription** — The codebase shows you the way; follow it
+- **Never speculate** — Read the actual code before making assumptions
+- **Consistency is key** — Match existing patterns unless there's strong justification to diverge
 
-**Maintain Consistency:**
-
-- Always search for existing patterns in the codebase to maintain consistency
-- Follow existing code patterns within each component
-- Match the style and conventions of surrounding code
-- Don't introduce new patterns without strong justification
+When implementing a feature, ask yourself: "How does the codebase handle similar cases?" Then search for and study those examples.
 
 **Verify Your Work:**
 
@@ -178,7 +183,9 @@ Copilot is extremely dumb and needs to be spoon-fed the exact change you want ma
 
 ### Code Rabbit will review your PR
 
-Code Rabbit will review your PR and provide feedback on the changes you made. CodeRabbit sometimes makes mistakes, so you should carefully consider the feedback and address the feedback if necessary. CodeRabbit will follow the rules outlined in ./CODERABBIT.md, ./CODE_STYLE.md, and this file (./AGENTS.md).
+@CODERABBIT.md
+
+Code Rabbit will review your PR and provide feedback on the changes you made. CodeRabbit sometimes makes mistakes, so you should carefully consider the feedback and address the feedback if necessary.
 
 ---
 

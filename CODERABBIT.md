@@ -2,6 +2,8 @@
 
 This document provides specific instructions for CodeRabbit to improve the accuracy and relevance of code reviews for the kb-yaml-to-lens project.
 
+**Core Principle:** When in doubt about whether something is an issue, search the codebase for similar patterns and be more intentional about your feedback, taking extra steps to ensure the item genuinely needs to be flagged.
+
 ## Project Architecture Context
 
 ### Pydantic Model Inheritance
@@ -50,46 +52,17 @@ Examples:
 
 ### Intentional isinstance Patterns
 
-#### Exhaustive Type Checking with isinstance
+The codebase uses exhaustive isinstance checking patterns with final error handlers.
 
-The codebase uses `isinstance` checks in dispatch functions as part of an **intentional exhaustive type checking pattern**. These checks are NOT unnecessary even when the type checker flags them as such.
+**Key indicators this pattern is intentional:**
 
-**Pattern Location**: Files like `src/dashboard_compiler/panels/compile.py`, `src/dashboard_compiler/filters/compile.py`, and similar dispatch functions.
+- Multiple isinstance checks in sequence
+- Final error handler (TypeError/NotImplementedError) after all checks
+- `# pyright: ignore[reportUnnecessaryIsInstance]` or `# pyright: ignore[reportUnnecessaryComparison]` pragmas
 
-**Why This Pattern Exists**:
+**Do NOT suggest:** Removing isinstance checks, removing final error handlers, or marking them as "unnecessary."
 
-1. **Runtime Safety**: Provides clear runtime errors when new types are added to unions but not handled in dispatch logic
-2. **Developer Guidance**: The `NotImplementedError` or `TypeError` at the end of isinstance chains guides developers to add handling for new types
-3. **Type Narrowing**: Each isinstance check narrows the type for the code block, enabling proper type checking
-
-**Example from `src/dashboard_compiler/panels/compile.py`**:
-
-```python
-def compile_dashboard_panel(panel: PanelTypes) -> tuple[list[KbnReference], KbnBasePanel]:
-    if isinstance(panel, MarkdownPanel):
-        # ... handle markdown
-    if isinstance(panel, LinksPanel):
-        # ... handle links
-    if isinstance(panel, ImagePanel):
-        # ... handle images
-    if isinstance(panel, SearchPanel):
-        msg = f'Panel type {type(panel).__name__} is not yet supported'
-        raise NotImplementedError(msg)  # Intentional - guides development
-    if isinstance(panel, (LensPanel, LensMultiLayerPanel, ESQLPanel)):
-        # ... handle charts
-
-    # Final safety net - should never be reached if PanelTypes is exhaustive
-    msg = f'Unknown panel type: {type(panel).__name__}'
-    raise TypeError(msg)
-```
-
-**Do NOT suggest**:
-
-- Removing these isinstance checks
-- Removing the final error-raising statements
-- Marking these as "unnecessary" or "unreachable"
-
-**These patterns are intentional defensive programming** that makes the codebase more maintainable when types are added or modified.
+**Before flagging:** Search for similar dispatch functions in the codebase (e.g., `src/dashboard_compiler/panels/compile.py`, `src/dashboard_compiler/filters/compile.py`).
 
 ### Type Annotations and pyright Ignores
 
@@ -105,15 +78,16 @@ The codebase uses `# pyright: ignore[reportUnnecessaryIsInstance]` in specific l
 
 ### Python Code Style
 
-The project follows specific code style conventions documented in [CODE_STYLE.md](CODE_STYLE.md).
+The project follows specific code style conventions. Before suggesting style changes:
 
-#### Explicit Boolean Comparisons
+1. **Search the codebase** — Look for similar patterns to understand intent
+2. **Prefer consistency** — Match existing code over isolated "best practices"
 
-The codebase uses **explicit boolean comparisons** instead of implicit truthiness (e.g., `if x is not None:` instead of `if x:`).
+Key project styles:
 
-**Do NOT suggest replacing explicit comparisons with implicit truthiness checks**. This is an intentional project style.
-
-See [CODE_STYLE.md](CODE_STYLE.md) for detailed explanations and examples.
+- Explicit boolean comparisons (`if x is not None:` not `if x:`)
+- Exhaustive isinstance chains with final error handlers
+- Pydantic validators using `mode='after'` to work with validated models
 
 ### Testing Patterns
 
@@ -235,7 +209,6 @@ When reviewing code for kb-yaml-to-lens:
 When in doubt, check the relevant configuration files:
 
 - `pyproject.toml` - Ruff rules and exemptions
-- `CODE_STYLE.md` - Code style conventions and patterns
 - `src/dashboard_compiler/AGENTS.md` - Component-specific architecture
 - `src/dashboard_compiler/shared/model.py` - Base Pydantic configuration
 - `CLAUDE.md` - Overall project guidelines

@@ -5,10 +5,22 @@ IMAGE_NAME := kibana-fixture-generator
 KIBANA_VERSION ?= v9.2.0
 OUTPUT_DIR := $(shell pwd)/output
 
-.PHONY: help build build-no-cache run run-example shell test-import clean clean-image
+.PHONY: help all ci check fix test build build-no-cache run run-example shell test-import clean clean-image
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+all: build ## Default target: build Docker image
+
+ci: build test ## Run CI checks (build + test)
+	@echo "✓ Fixture generator CI checks passed"
+
+check: ci ## Alias for ci
+
+fix: ## No linting to fix (placeholder for consistency)
+	@echo "✓ No linting to fix for fixture generator"
+
+test: test-import ## Run tests
 
 build: ## Build the Docker image (Node.js version auto-detected from Kibana)
 	docker build \

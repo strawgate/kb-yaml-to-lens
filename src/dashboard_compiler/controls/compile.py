@@ -64,8 +64,8 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
             dataViewId=control.data_view,
             fieldName=control.field,
             title=control.label,
-            runPastTimeout=control.wait_for_results or None,
-            singleSelect=control.singular or None,
+            runPastTimeout=return_if(var=control.wait_for_results, is_true=True, is_false=False, default=None),
+            singleSelect=return_if(var=control.singular, is_true=True, is_false=False, default=None),
             searchTechnique=match_technique_to_search_technique.get(control.match_technique, SearchTechnique.PREFIX),
             selectedOptions=[],
             sort=KbnControlSort(by='_count', direction='desc'),
@@ -150,7 +150,7 @@ def compile_esql_static_control(order: int, *, control: ESQLStaticValuesControl)
             controlType=EsqlControlType.STATIC_VALUES.value,
             title=control.title,
             selectedOptions=[],
-            singleSelect=control.single_select or None,
+            singleSelect=return_if(var=control.single_select, is_true=True, is_false=False, default=None),
             availableOptions=control.available_options,
         ),
     )
@@ -181,7 +181,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
             controlType=EsqlControlType.VALUES_FROM_QUERY.value,
             title=control.title,
             selectedOptions=[],
-            singleSelect=control.single_select or None,
+            singleSelect=return_if(var=control.single_select, is_true=True, is_false=False, default=None),
             availableOptions=None,
         ),
     )
