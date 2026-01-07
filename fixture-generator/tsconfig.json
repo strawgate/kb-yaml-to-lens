@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ES2020",
+    "moduleResolution": "node",
     "lib": ["ES2020"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -20,10 +20,35 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true
   },
-  "include": [
-    "**/*.ts"
+  "files": [
+    "examples/datatable-advanced.ts",
+    "examples/datatable-user-test.ts",
+    "examples/datatable-with-formula.ts",
+    "examples/gauge.ts",
+    "examples/heatmap.ts",
+    "examples/metric-basic.ts",
+    "examples/metric-grid.ts",
+    "examples/metric-with-breakdown.ts",
+    "examples/metric-with-trend.ts",
+    "examples/pie-chart-advanced-colors.ts",
+    "examples/pie-chart-donut.ts",
+    "examples/pie-chart-nested-legend.ts",
+    "examples/pie-chart.ts",
+    "examples/tagcloud-advanced.ts",
+    "examples/tagcloud.ts",
+    "examples/treemap.ts",
+    "examples/waffle.ts",
+    "examples/xy-chart-advanced-legend.ts",
+    "examples/xy-chart-custom-colors.ts",
+    "examples/xy-chart-dual-axis.ts",
+    "examples/xy-chart-multi-layer.ts",
+    "examples/xy-chart-stacked-bar.ts",
+    "examples/xy-chart-with-reference-line.ts",
+    "examples/xy-chart.ts",
+    "generator-utils.ts"
   ],
   "exclude": [
     "node_modules",

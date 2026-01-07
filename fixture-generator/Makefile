@@ -22,9 +22,9 @@ fix: ## No linting to fix (placeholder for consistency)
 
 typecheck: ## Run TypeScript type checking
 	docker run --rm \
-		-v $(shell pwd):/workspace:ro \
+		-v $(shell pwd)/tsconfig.json:/kibana/tsconfig.json:ro \
 		$(IMAGE_NAME):$(KIBANA_VERSION) \
-		tsc --noEmit -p /workspace/tsconfig.json
+		bash -c "tsc --noEmit --project tsconfig.json"
 
 test: test-import ## Run tests
 
