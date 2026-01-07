@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all clean clean-full lint-markdown lint-markdown-check inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all clean clean-full lint-markdown lint-markdown-check inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity lint-python lint-python-check lint-yaml lint-yaml-check typecheck test test-coverage test-smoke test-links docs-build docs-build-quiet build-binary test-binary-smoke install-extension lint-extension lint-extension-check test-extension-python test-extension-typescript test-extension-e2e build-extension
 
 all: ci
 
@@ -18,12 +18,37 @@ help:
 	@echo "  fix           - Auto-fix linting issues across all components"
 	@echo ""
 	@echo "Linting:"
-	@echo "  lint-all-check    - Check all linting without fixing"
-	@echo "  lint-markdown     - Auto-fix markdown linting"
-	@echo "  lint-markdown-check - Check markdown without fixing"
+	@echo "  lint-all-check        - Check all linting without fixing"
+	@echo "  lint-markdown         - Auto-fix markdown linting"
+	@echo "  lint-markdown-check   - Check markdown without fixing"
+	@echo "  lint-python           - Auto-fix Python linting (compiler)"
+	@echo "  lint-python-check     - Check Python linting (compiler)"
+	@echo "  lint-yaml             - Auto-fix YAML linting (compiler)"
+	@echo "  lint-yaml-check       - Check YAML linting (compiler)"
+	@echo "  lint-extension        - Lint VS Code extension"
+	@echo "  lint-extension-check  - Check VS Code extension linting"
+	@echo ""
+	@echo "Type Checking:"
+	@echo "  typecheck     - Run Python type checking (compiler)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test-all      - Run all tests across all components"
+	@echo "  test-all                  - Run all tests across all components"
+	@echo "  test                      - Run Python unit tests (compiler)"
+	@echo "  test-coverage             - Run tests with coverage (compiler)"
+	@echo "  test-smoke                - Run CLI smoke tests (compiler)"
+	@echo "  test-links                - Check documentation links (compiler)"
+	@echo "  test-extension-python     - Run Python tests (compiler)"
+	@echo "  test-extension-typescript - Run TypeScript tests (extension)"
+	@echo "  test-extension-e2e        - Run E2E tests (extension)"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  docs-build        - Build documentation (compiler)"
+	@echo "  docs-build-quiet  - Build documentation quietly (compiler)"
+	@echo ""
+	@echo "Building:"
+	@echo "  build-binary          - Build standalone binary (compiler)"
+	@echo "  test-binary-smoke     - Test standalone binary (compiler)"
+	@echo "  build-extension       - Build VS Code extension"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -193,6 +218,80 @@ gh-minimize-outdated-comments:
 gh-check-repo-activity:
 	@.github/scripts/gh-check-repo-activity.sh $(filter-out $@,$(MAKECMDGOALS))
 
-# Prevent make from trying to build targets passed as arguments to scripts
+# Compiler-specific commands (delegate to compiler/Makefile)
+lint-python:
+	@cd compiler && $(MAKE) lint-python
+
+lint-python-check:
+	@cd compiler && $(MAKE) lint-python-check
+
+lint-yaml:
+	@cd compiler && $(MAKE) lint-yaml
+
+lint-yaml-check:
+	@cd compiler && $(MAKE) lint-yaml-check
+
+typecheck:
+	@cd compiler && $(MAKE) typecheck
+
+test:
+	@cd compiler && $(MAKE) test
+
+test-coverage:
+	@cd compiler && $(MAKE) test-coverage
+
+test-smoke:
+	@cd compiler && $(MAKE) test-smoke
+
+test-links:
+	@cd compiler && $(MAKE) test-links
+
+docs-build:
+	@cd compiler && $(MAKE) docs-build
+
+docs-build-quiet:
+	@cd compiler && $(MAKE) docs-build-quiet
+
+build-binary:
+	@cd compiler && $(MAKE) build-binary
+
+test-binary-smoke:
+	@cd compiler && $(MAKE) test-binary-smoke
+
+# VS Code extension commands (delegate to vscode-extension/Makefile)
+install-extension:
+	@cd vscode-extension && $(MAKE) install
+
+lint-extension:
+	@cd vscode-extension && $(MAKE) lint
+
+lint-extension-check:
+	@cd vscode-extension && $(MAKE) lint-check
+
+test-extension-python:
+	@cd compiler && $(MAKE) test
+
+test-extension-typescript:
+	@cd vscode-extension && $(MAKE) test-unit
+
+test-extension-e2e:
+	@cd vscode-extension && $(MAKE) test
+
+build-extension:
+	@cd vscode-extension && $(MAKE) compile
+
+# Catch-all rule for script arguments
+# IMPORTANT: This rule exists solely to prevent Make from treating arguments passed
+# to GitHub helper scripts (e.g., "make gh-get-review-threads OWNER REPO PR") as
+# undefined targets. All actual Make targets should be explicitly defined above.
+# If a workflow is failing silently, check that the target exists above this line.
+#
+# WARNING: This rule makes undefined targets succeed silently. To prevent accidental
+# silent failures, we print a warning if the target looks like an actual command
+# (contains hyphens, which are common in make targets but rare in script arguments).
 %:
-	@:
+	@if echo "$@" | grep -q -- "-"; then \
+		echo "⚠️  WARNING: Target '$@' is not defined in Makefile" >&2; \
+		echo "⚠️  If this was intended to be a make command, check the Makefile" >&2; \
+		exit 1; \
+	fi

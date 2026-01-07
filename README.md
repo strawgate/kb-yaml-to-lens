@@ -72,7 +72,7 @@ No Python installation required!
 
 ### Compile Your First Dashboard
 
-1. Create a YAML dashboard file in `inputs/` directory:
+1. Create a YAML dashboard file in `compiler/inputs/` directory:
 
 ```yaml
 dashboards:
@@ -93,13 +93,13 @@ dashboards:
 **Using uv:**
 
 ```bash
-uv run kb-dashboard compile --input-dir inputs --output-dir output
+uv run kb-dashboard compile --input-dir compiler/inputs --output-dir output
 ```
 
 **Using Docker:**
 
 ```bash
-docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
+docker run --rm -v $(pwd)/compiler/inputs:/inputs -v $(pwd)/output:/output \
   ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
   compile --input-dir /inputs --output-dir /output
 ```
@@ -107,7 +107,7 @@ docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
 **Using standalone binary:**
 
 ```bash
-./kb-dashboard-linux-x64 compile --input-dir inputs --output-dir output
+./kb-dashboard-linux-x64 compile --input-dir compiler/inputs --output-dir output
 ```
 
 1. (Optional) Upload directly to Kibana:
@@ -116,7 +116,7 @@ docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
 
 ```bash
 uv run kb-dashboard compile \
-  --input-dir inputs \
+  --input-dir compiler/inputs \
   --output-dir output \
   --upload \
   --kibana-url http://localhost:5601 \
@@ -127,7 +127,7 @@ uv run kb-dashboard compile \
 **Using Docker:**
 
 ```bash
-docker run --rm -v $(pwd)/inputs:/inputs \
+docker run --rm -v $(pwd)/compiler/inputs:/inputs \
   ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
   compile --input-dir /inputs --upload \
   --kibana-url http://host.docker.internal:5601 \
@@ -138,7 +138,7 @@ docker run --rm -v $(pwd)/inputs:/inputs \
 
 ```bash
 ./kb-dashboard-linux-x64 compile \
-  --input-dir inputs \
+  --input-dir compiler/inputs \
   --output-dir output \
   --upload \
   --kibana-url http://localhost:5601 \
