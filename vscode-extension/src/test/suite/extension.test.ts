@@ -32,18 +32,25 @@ suite('Extension Test Suite', () => {
     vscode.window.showInformationMessage('Start all tests.');
 
     // Configure Python path before all tests to ensure consistent extension state
-    before(async () => {
-        const pythonPath = findPythonPath();
-        const config = vscode.workspace.getConfiguration('yamlDashboard');
-        const target = vscode.workspace.workspaceFolders
-            ? vscode.ConfigurationTarget.Workspace
-            : vscode.ConfigurationTarget.Global;
-        await config.update('pythonPath', pythonPath, target);
+    before(async function() {
+        // Increase timeout for extension activation
+        this.timeout(10000);
 
-        // Ensure extension is activated with the correct config
-        const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
-        if (extension && !extension.isActive) {
-            await extension.activate();
+        try {
+            const pythonPath = findPythonPath();
+            const config = vscode.workspace.getConfiguration('yamlDashboard');
+            const target = vscode.workspace.workspaceFolders
+                ? vscode.ConfigurationTarget.Workspace
+                : vscode.ConfigurationTarget.Global;
+            await config.update('pythonPath', pythonPath, target);
+
+            // Ensure extension is activated with the correct config
+            const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
+            if (extension && !extension.isActive) {
+                await extension.activate();
+            }
+        } catch (error) {
+            throw new Error(`Test setup failed: ${error instanceof Error ? error.message : String(error)}`);
         }
     });
 
