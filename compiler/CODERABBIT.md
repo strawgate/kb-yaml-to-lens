@@ -1,6 +1,6 @@
-# CodeRabbit Configuration
+# CodeRabbit Configuration: Compiler (Python)
 
-Instructions for CodeRabbit to improve code review accuracy for kb-yaml-to-lens.
+Instructions for CodeRabbit to improve code review accuracy for the kb-yaml-to-lens compiler.
 
 **Core Principle:** Search codebase for similar patterns before flagging issues.
 
@@ -130,7 +130,7 @@ Check if file is in `tests/`. If yes, **do not flag**.
 
 ## Summary
 
-When reviewing kb-yaml-to-lens:
+When reviewing kb-yaml-to-lens compiler:
 
 ✅ **DO** focus on logic errors, security, actual bugs
 ✅ **DO** check patterns match codebase
@@ -140,4 +140,4 @@ When reviewing kb-yaml-to-lens:
 ❌ **DON'T** suggest removing intentional isinstance patterns
 ❌ **DON'T** contradict project style guidelines
 
-When in doubt: `pyproject.toml`, `src/dashboard_compiler/AGENTS.md`, `src/dashboard_compiler/shared/model.py`, `CLAUDE.md`
+When in doubt: `pyproject.toml`, `compiler/AGENTS.md`, `compiler/src/dashboard_compiler/shared/model.py`, root `AGENTS.md`

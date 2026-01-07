@@ -43,17 +43,41 @@ This repository contains three main components:
 
 **Component-specific Makefiles** provide focused workflows:
 
-- `compiler/Makefile` - Python compiler commands (see below)
-- `vscode-extension/Makefile` - Extension development commands
-- `fixture-generator/Makefile` - Fixture generation commands
+- `compiler/Makefile` - Python compiler commands (see `compiler/AGENTS.md`)
+- `vscode-extension/Makefile` - Extension development commands (see `vscode-extension/AGENTS.md`)
+- `fixture-generator/Makefile` - Fixture generation commands (see `fixture-generator/AGENTS.md`)
 
-## Code Style
+See `make help` in root or component directories for complete command lists.
 
-@CODE_STYLE.md
+**Workflow examples:**
 
-## Code Review Guidelines
+```bash
+# First time setup (from root)
+make install
 
-@CODERABBIT.md
+# Global workflow - run from root
+make fix    # Auto-fix all components
+make ci     # Run CI checks across all components
+
+# Component workflow - see component AGENTS.md files for detailed workflows
+```
+
+---
+
+## AI Agent Guidelines
+
+### IMPORTANT: Post-Compaction Recovery
+
+If you have recently undergone context summarization/compaction:
+
+1. **IMMEDIATELY re-read this file** (`AGENTS.md`) before proceeding with any work
+2. **DO NOT rely on summarized references** to framework rules in your conversation history
+3. **DO NOT assume you remember project conventions** from the summary—the summary is lossy and paraphrased
+4. **Re-establish understanding** of: Core Principles, Code Style, Verification requirements, and project patterns
+
+**Why this matters:** Post-compaction behavioral compliance drops 30-40% when agents rely on paraphrased summaries instead of authoritative source files. AGENTS.md files survive compaction intact and are loaded fresh from disk—you have access to them, so use them.
+
+---
 
 ## Agent Operating Principles
 
@@ -65,21 +89,25 @@ This repository contains three main components:
 - **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
 - **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
 
-### Context7 MCP Integration
+**Code Style:** See component AGENTS.md files for language-specific conventions and detailed patterns.
 
-Query up-to-date library documentation via MCP tools: `resolve-library-id` → `query-docs`. **Rate limited—use sparingly** (max 3 calls/question).
+---
 
-**Project libraries:**
+## Code Review Feedback
 
-| Library | Context7 ID | Use Cases |
-| ------- | ----------- | --------- |
-| Pydantic | `/websites/pydantic_dev` | Field validators, frozen models, model config patterns |
-| Elasticsearch | `/elastic/elasticsearch-py` | Client initialization, search queries, response handling |
-| PyYAML | `/yaml/pyyaml` | Safe loading, custom tags, multi-document streams |
+**Triage:** Critical (security, data corruption, type safety, test failures) → Important (error handling, performance, missing tests/types) → Optional (style, minor refactors)
 
-## Modifying workflows
+**Evaluate:** Search for similar patterns before accepting. Pattern exists across files = likely intentional. Preserve consistency over isolated best practices.
 
-Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder, request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
+**Verify:** Critical/important issues addressed, component checks pass, manual testing done
+
+---
+
+## CI/CD
+
+**Workflows:** Testing/quality checks, docs deployment (GitHub Pages), Claude AI assistance, Docker builds
+
+**Modifying workflows:** Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder (mirroring `.github/workflows/` structure), request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
 
 ---
 

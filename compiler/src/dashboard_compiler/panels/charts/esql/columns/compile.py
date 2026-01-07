@@ -41,8 +41,8 @@ def compile_esql_metric_format(metric_format: ESQLMetricFormatTypes) -> KbnESQLM
         compact = None
     elif isinstance(metric_format, ESQLMetricFormat):  # pyright: ignore[reportUnnecessaryIsInstance]
         format_id = metric_format.type
-        # Set default decimals based on type
-        decimals = 0 if metric_format.type in ('bits', 'duration') else 2
+        # Use explicit decimals if provided, otherwise default based on type
+        decimals = metric_format.decimals if metric_format.decimals is not None else 0 if metric_format.type in ('bits', 'duration') else 2
         pattern = metric_format.pattern
         suffix = metric_format.suffix
         compact = metric_format.compact

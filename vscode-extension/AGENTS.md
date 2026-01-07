@@ -4,12 +4,6 @@
 
 ---
 
-## Code Conventions
-
-See root CODE_STYLE.md and CODERABBIT.md for detailed conventions.
-
----
-
 ## Quick Reference
 
 ### Essential Commands
