@@ -62,10 +62,17 @@ No Python installation required!
 All future commands that use uv should start with `uv run kb-dashboard <command>`.
 
 All future commands that use Docker should start with:
-```docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest <command>```.
+
+```bash
+docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
+  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest <command>
+```
 
 All future commands that use the standalone binary should start with:
-```./kb-dashboard-<platform> <command>```.
+
+```bash
+./kb-dashboard-<platform> <command>
+```
 
 1. Create a YAML dashboard file in `inputs/` directory:
 
