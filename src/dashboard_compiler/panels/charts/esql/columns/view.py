@@ -81,7 +81,7 @@ class KbnESQLFieldMetricColumn(BaseVwModel):
     inMetricDimension: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether this column should be treated as a metric dimension."""
 
-    params: Annotated['KbnESQLMetricColumnParams | None', OmitIfNone()] = None
+    params: Annotated[KbnESQLMetricColumnParams | None, OmitIfNone()] = None
     """Optional formatting parameters for the metric."""
 
 
