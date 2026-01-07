@@ -35,8 +35,7 @@ jobs:
            store's SDK `https://github.com/elastic/elasticsearch-py` to see how it implements a certain class or function relevant to
            the issue at hand.
         5. You can run make commands (e.g., `make lint`, `make test`, `make check`) to build, test, or lint the code. You can also
-           run git commands (e.g., `git status`, `git log`, `git diff`) to inspect the repository. You cannot run arbitrary bash
-           commands - only make and git commands are allowed.
+           use gh CLI commands via make for GitHub operations. You cannot run arbitrary bash commands - only make and gh commands are allowed.
         6. Be Thorough! Go the extra mile!
 
         # Getting Started
@@ -96,8 +95,8 @@ jobs:
         <summary>Related Issues and Pull Requests</summary>
         | Repository | Issue or PR | Relevance |
         | --- | --- | --- |
-        | jlowin/fastmcp | [Add matrix operations support](https://github.com/jlowin/fastmcp/pull/680) | This pull request directly addresses the feature request for adding matrix operations to the calculator. |
-        | jlowin/fastmcp | [Add matrix operations support](https://github.com/jlowin/fastmcp/issues/681) | This issue directly addresses the feature request for adding matrix operations to the calculator. |
+        | jlowin/fastmcp | [Add matrix operations support (PR  # 680)](https://github.com/jlowin/fastmcp/pull/680) | This pull request implements the feature request for adding matrix operations to the calculator. |
+        | jlowin/fastmcp | [Add matrix operations support (Issue  # 681)](https://github.com/jlowin/fastmcp/issues/681) | This issue describes the feature request for adding matrix operations to the calculator. |
         </details>
         <details>
         <summary>Related Files</summary>

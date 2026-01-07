@@ -55,12 +55,12 @@ jobs:
         4. Run `make check` to verify (lint + test)
         5. If working on a PR and addressing review feedback, resolve the review threads after making fixes
         6. **BEFORE FINISHING**: Check for any new comments that were added after you started working on the issue/PR that might need to be addressed
-           - The workflow started at approximately: ${{ github.event.comment.created_at || github.event.review.submitted_at }}
+           - The workflow started at approximately: ${{ github.event.comment.created_at }}
            - Use the make command to check for new comments from the trigger user:
              ```bash
              make gh-get-comments-since ${{ github.repository_owner }} ${{ github.event.repository.name }} \
                ${{ github.event.issue.number || github.event.pull_request.number }} \
-               "${{ github.event.comment.created_at || github.event.review.submitted_at }}"
+               "${{ github.event.comment.created_at }}"
              ```
            - If the command returns any comments, read the feedback and incorporate it before completing
         Be thorough, follow existing code patterns, and ensure all checks pass before claiming completion.
