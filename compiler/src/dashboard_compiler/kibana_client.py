@@ -74,15 +74,17 @@ class KibanaClient:
     username: str | None
     password: str | None
     api_key: str | None
+    space_id: str | None
     ssl_verify: bool
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         url: str,
         *,
         username: str | None = None,
         password: str | None = None,
         api_key: str | None = None,
+        space_id: str | None = None,
         ssl_verify: bool = True,
     ) -> None:
         """Initialize the Kibana client.
@@ -92,6 +94,7 @@ class KibanaClient:
             username: Basic auth username (optional)
             password: Basic auth password (optional)
             api_key: API key for authentication (optional)
+            space_id: Kibana space ID (optional). If not specified, uses the default space.
             ssl_verify: Whether to verify SSL certificates (default: True). Set to False for self-signed certificates.
 
         """
@@ -99,7 +102,23 @@ class KibanaClient:
         self.username = username
         self.password = password
         self.api_key = api_key
+        self.space_id = space_id
         self.ssl_verify = ssl_verify
+
+    def _get_api_url(self, path: str) -> str:
+        """Build API URL with space prefix if space_id is set.
+
+        Args:
+            path: API path starting with /api/ or /app/
+
+        Returns:
+            Full URL with optional space prefix
+
+        """
+        if self.space_id is not None and path.startswith(('/api/', '/app/')):
+            # Insert /s/{space_id} before /api/ or /app/
+            path = f'/s/{self.space_id}{path}'
+        return f'{self.url}{path}'
 
     def _get_auth_headers_and_auth(self) -> tuple[dict[str, str], aiohttp.BasicAuth | None]:
         """Get authentication headers and auth object for Kibana API requests.
@@ -136,7 +155,7 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        endpoint = f'{self.url}/api/saved_objects/_import'
+        endpoint = self._get_api_url('/api/saved_objects/_import')
         if overwrite:
             endpoint += '?overwrite=true'
 
@@ -168,7 +187,7 @@ class KibanaClient:
             Full URL to the dashboard in Kibana
 
         """
-        return f'{self.url}/app/dashboards#/view/{dashboard_id}'
+        return self._get_api_url(f'/app/dashboards#/view/{dashboard_id}')
 
     async def generate_screenshot(  # noqa: PLR0913
         self,
@@ -229,7 +248,7 @@ class KibanaClient:
             msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
 
-        endpoint = f'{self.url}/api/reporting/generate/pngV2'
+        endpoint = self._get_api_url('/api/reporting/generate/pngV2')
         params: dict[str, str] = {'jobParams': rison_result}
 
         headers, auth = self._get_auth_headers_and_auth()
@@ -353,7 +372,7 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        endpoint = f'{self.url}/api/saved_objects/_export'
+        endpoint = self._get_api_url('/api/saved_objects/_export')
 
         headers, auth = self._get_auth_headers_and_auth()
         headers['Content-Type'] = 'application/json'

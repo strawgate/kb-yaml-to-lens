@@ -234,6 +234,12 @@ def cli() -> None:
     ),
 )
 @click.option(
+    '--kibana-space-id',
+    type=str,
+    envvar='KIBANA_SPACE_ID',
+    help='Kibana space ID to upload dashboards to. If not specified, uses the default space. (env: KIBANA_SPACE_ID)',
+)
+@click.option(
     '--no-browser',
     is_flag=True,
     help='Prevent browser from opening automatically after successful upload.',
@@ -257,6 +263,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    kibana_space_id: str | None,
     no_browser: bool,
     overwrite: bool,
     kibana_no_ssl_verify: bool,
@@ -362,6 +369,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
                 kibana_username,
                 kibana_password,
                 kibana_api_key,
+                kibana_space_id,
                 overwrite,
                 not no_browser,
                 ssl_verify=not kibana_no_ssl_verify,
@@ -375,6 +383,7 @@ async def upload_to_kibana(  # noqa: PLR0913
     username: str | None,
     password: str | None,
     api_key: str | None,
+    space_id: str | None,
     overwrite: bool,
     open_browser: bool,
     ssl_verify: bool = True,
@@ -387,6 +396,7 @@ async def upload_to_kibana(  # noqa: PLR0913
         username: Basic auth username
         password: Basic auth password
         api_key: API key for authentication
+        space_id: Kibana space ID (optional)
         overwrite: Whether to overwrite existing objects
         open_browser: Whether to open browser after successful upload
         ssl_verify: Whether to verify SSL certificates (default: True)
@@ -400,6 +410,7 @@ async def upload_to_kibana(  # noqa: PLR0913
         username=username,
         password=password,
         api_key=api_key,
+        space_id=space_id,
         ssl_verify=ssl_verify,
     )
 
@@ -744,6 +755,12 @@ def extract_sample_data_command(  # noqa: PLR0913
     ),
 )
 @click.option(
+    '--kibana-space-id',
+    type=str,
+    envvar='KIBANA_SPACE_ID',
+    help='Kibana space ID where the dashboard is located. If not specified, uses the default space. (env: KIBANA_SPACE_ID)',
+)
+@click.option(
     '--kibana-no-ssl-verify',
     is_flag=True,
     help='Disable SSL certificate verification (useful for self-signed certificates in local development).',
@@ -761,6 +778,7 @@ def screenshot_dashboard(  # noqa: PLR0913
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    kibana_space_id: str | None,
     kibana_no_ssl_verify: bool,
 ) -> None:
     r"""Generate a PNG screenshot of a Kibana dashboard.
@@ -807,6 +825,7 @@ def screenshot_dashboard(  # noqa: PLR0913
             kibana_username=kibana_username,
             kibana_password=kibana_password,
             kibana_api_key=kibana_api_key,
+            kibana_space_id=kibana_space_id,
             ssl_verify=not kibana_no_ssl_verify,
         )
     )
@@ -825,6 +844,7 @@ async def generate_screenshot(  # noqa: PLR0913
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    kibana_space_id: str | None,
     ssl_verify: bool = True,
 ) -> None:
     """Generate a screenshot of a Kibana dashboard.
@@ -842,6 +862,7 @@ async def generate_screenshot(  # noqa: PLR0913
         kibana_username: Basic auth username
         kibana_password: Basic auth password
         kibana_api_key: API key for authentication
+        kibana_space_id: Kibana space ID (optional)
         ssl_verify: Whether to verify SSL certificates (default: True)
 
     Raises:
@@ -853,6 +874,7 @@ async def generate_screenshot(  # noqa: PLR0913
         username=kibana_username,
         password=kibana_password,
         api_key=kibana_api_key,
+        space_id=kibana_space_id,
         ssl_verify=ssl_verify,
     )
 
@@ -1092,6 +1114,12 @@ async def load_all_sample_data(  # noqa: PLR0913
     ),
 )
 @click.option(
+    '--kibana-space-id',
+    type=str,
+    envvar='KIBANA_SPACE_ID',
+    help='Kibana space ID where the dashboard is located. If not specified, uses the default space. (env: KIBANA_SPACE_ID)',
+)
+@click.option(
     '--no-browser',
     is_flag=True,
     help='Do not open browser automatically with pre-filled issue.',
@@ -1107,6 +1135,7 @@ def export_for_issue(  # noqa: PLR0913
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    kibana_space_id: str | None,
     no_browser: bool,
     kibana_no_ssl_verify: bool,
 ) -> None:
@@ -1143,6 +1172,7 @@ def export_for_issue(  # noqa: PLR0913
             kibana_username=kibana_username,
             kibana_password=kibana_password,
             kibana_api_key=kibana_api_key,
+            kibana_space_id=kibana_space_id,
             open_browser=not no_browser,
             ssl_verify=not kibana_no_ssl_verify,
         )
@@ -1155,6 +1185,7 @@ async def _export_dashboard_for_issue(  # noqa: PLR0913
     kibana_username: str | None,
     kibana_password: str | None,
     kibana_api_key: str | None,
+    kibana_space_id: str | None,
     open_browser: bool,
     ssl_verify: bool,
 ) -> None:
@@ -1166,6 +1197,7 @@ async def _export_dashboard_for_issue(  # noqa: PLR0913
         kibana_username: Basic auth username
         kibana_password: Basic auth password
         kibana_api_key: API key for authentication
+        kibana_space_id: Kibana space ID (optional)
         open_browser: Whether to open browser with pre-filled issue
         ssl_verify: Whether to verify SSL certificates
 
@@ -1178,6 +1210,7 @@ async def _export_dashboard_for_issue(  # noqa: PLR0913
         username=kibana_username,
         password=kibana_password,
         api_key=kibana_api_key,
+        space_id=kibana_space_id,
         ssl_verify=ssl_verify,
     )
 

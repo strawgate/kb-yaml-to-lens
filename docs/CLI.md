@@ -87,6 +87,7 @@ The CLI supports configuration via environment variables:
 export KIBANA_URL=http://localhost:5601
 export KIBANA_USERNAME=elastic
 export KIBANA_PASSWORD=changeme
+export KIBANA_SPACE_ID=my-space  # Optional: target a specific Kibana space
 # OR use API key instead
 export KIBANA_API_KEY=your-api-key-here
 ```
@@ -109,6 +110,19 @@ kb-dashboard compile \
   --kibana-password changeme
 ```
 
+To upload to a specific Kibana space:
+
+```bash
+kb-dashboard compile --upload --kibana-space-id production
+```
+
+Or with environment variables:
+
+```bash
+export KIBANA_SPACE_ID=staging
+kb-dashboard compile --upload
+```
+
 ## Full Command Reference
 
 ### `kb-dashboard compile`
@@ -125,6 +139,7 @@ Compile YAML dashboard configurations to NDJSON format.
 - `--kibana-username USER` - Kibana username for basic auth (can use `KIBANA_USERNAME` env var)
 - `--kibana-password PASS` - Kibana password for basic auth (can use `KIBANA_PASSWORD` env var)
 - `--kibana-api-key KEY` - Kibana API key for authentication (can use `KIBANA_API_KEY` env var)
+- `--kibana-space-id TEXT` - Kibana space ID to upload dashboards to (can use `KIBANA_SPACE_ID` env var)
 - `--no-browser` - Do not open browser after upload
 - `--overwrite/--no-overwrite` - Overwrite existing dashboards in Kibana (default: `--overwrite`)
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
@@ -147,6 +162,7 @@ Generate a PNG screenshot of a Kibana dashboard.
 - `--kibana-username USER` - Kibana username
 - `--kibana-password PASS` - Kibana password
 - `--kibana-api-key KEY` - Kibana API key
+- `--kibana-space-id TEXT` - Kibana space ID where the dashboard is located
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
 
 ### `kb-dashboard export-for-issue`
@@ -160,6 +176,7 @@ Export a dashboard from Kibana and create a pre-filled GitHub issue for requesti
 - `--kibana-username USER` - Kibana username
 - `--kibana-password PASS` - Kibana password
 - `--kibana-api-key KEY` - Kibana API key
+- `--kibana-space-id TEXT` - Kibana space ID where the dashboard is located
 - `--no-browser` - Do not open browser automatically
 - `--kibana-no-ssl-verify` - Disable SSL certificate verification
 
