@@ -47,47 +47,15 @@ This repository contains three main components:
 - `vscode-extension/Makefile` - Extension development commands
 - `fixture-generator/Makefile` - Fixture generation commands
 
-**Compiler-specific commands** (run from `compiler/` directory or use `cd compiler && make <command>`):
-
-| Command | Purpose |
-| --------- | --------- |
-| `make ci` or `make check` | Run compiler CI checks (lint + typecheck + test + docs) |
-| `make fix` | Auto-fix Python and YAML linting |
-| `make test` | Run Python unit tests |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
-| `make docs-serve` | Start local documentation server |
-| `make docker-build` | Build Docker image |
-| `make build-binary` | Build standalone binary |
-
-See `make help` in root or component directories for complete command lists.
-
-**Workflow examples:**
-
-```bash
-# First time setup (from root)
-make install
-
-# Global workflow - run from root
-make fix    # Auto-fix all components
-make ci     # Run CI checks across all components
-
-# Component workflow - run from compiler/
-cd compiler
-make fix    # Auto-fix Python and YAML
-make ci     # Run compiler CI checks (lint + typecheck + test + docs)
-
-# Mixed workflow - work on compiler, verify globally
-cd compiler && make fix && cd .. && make ci
-```
-
----
-
-## AI Agent Guidelines
+## Code Style
 
 @CODE_STYLE.md
 
-**Core Principles:**
+## Code Review Guidelines
+
+@CODERABBIT.md
+
+## Agent Operating Principles
 
 - **Read first** — Component README.md/AGENTS.md before working
 - **Search, don't speculate** — Use Grep/Glob to find how the codebase solves similar problems
@@ -109,27 +77,9 @@ Query up-to-date library documentation via MCP tools: `resolve-library-id` → `
 | Elasticsearch | `/elastic/elasticsearch-py` | Client initialization, search queries, response handling |
 | PyYAML | `/yaml/pyyaml` | Safe loading, custom tags, multi-document streams |
 
-**When to use:** Implementing new Pydantic validation patterns, working with Elasticsearch client in `kibana_client.py`, extending YAML parsing in `loader.py`, understanding library-specific best practices during code review.
+## Modifying workflows
 
-**Query guidelines:** Be specific ("How to use field validators with mode='after' in Pydantic 2.x?" not "pydantic validators"), include version context, prioritize official documentation sources (High reputation).
-
----
-
-## Code Review Feedback
-
-**Triage:** Critical (security, data corruption, type safety, test failures) → Important (error handling, performance, missing tests/types) → Optional (style, minor refactors)
-
-**Evaluate:** Search for similar patterns before accepting. Pattern exists across files = likely intentional. Preserve consistency over isolated best practices.
-
-**Verify:** Critical/important issues addressed, component checks pass, manual testing done
-
----
-
-## CI/CD
-
-**Workflows:** Testing/quality checks, docs deployment (GitHub Pages), Claude AI assistance, Docker builds
-
-**Modifying workflows:** Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder, request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
+Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder, request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
 
 ---
 
@@ -138,8 +88,6 @@ Query up-to-date library documentation via MCP tools: `resolve-library-id` → `
 **Requirements:** No merge conflicts, no unrelated changes/plan files, all checks pass, self-review done, use `.github/pull_request_template.md` for PR body
 
 **Self-review:** Solves stated problem (reference issue), code complete/follows patterns, tests updated, docs accurate, `make ci` passes
-
-**CodeRabbit:** @CODERABBIT.md — Reviews PRs automatically. Sometimes makes mistakes; evaluate feedback carefully.
 
 ---
 

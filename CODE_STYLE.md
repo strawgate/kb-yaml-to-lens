@@ -26,7 +26,7 @@ if my_var:  # Ambiguous
 
 ### Exhaustive Type Checking
 
-Always use explicit type checks with a final error handler:
+Always use explicit type checks with a final error handler. Make adding new types to unions a runtime error, not a silent fallthrough:
 
 ```python
 # ✅ Correct - isinstance chain
@@ -55,15 +55,11 @@ def handle_panel(panel: PanelTypes) -> str:
             raise TypeError(msg)
 ```
 
-**Key principle:** Make adding new types to unions a runtime error, not a silent fallthrough.
-
-**Type checker pragmas:** Don't remove `# pyright: ignore` comments—they document intentional patterns.
-
 ### Pydantic Models
 
 **Base Model Inheritance:**
 
-All models inherit from `BaseCfgModel` or `BaseModel` (defined in `src/dashboard_compiler/shared/model.py` and `config.py`).
+All config and view models inherit from `BaseCfgModel` or `BaseModel` (defined in `src/dashboard_compiler/shared/model.py` and `config.py`).
 
 **Do NOT duplicate `model_config` settings**—they're inherited automatically.
 
@@ -96,27 +92,9 @@ def validate(cls, data: dict[str, Any]) -> dict[str, Any]:
     return data
 ```
 
-**Use `mode='after'` (preferred)** for validated attributes. **Use `mode='before'`** only for raw input transformation.
+### Other Best Practices
 
-**Best Practices:**
-
-- Module-level imports (not inside validators)
-- Type annotations match runtime types
-- Generic types always have arguments: `list[Panel]` not `list`
-
-### Configuration
-
-- **Line length:** 140 characters max (Ruff enforced)
-- **Docstring coverage:** 80% enforced in CI
-- **Lint exceptions:** Use inline `# noqa` or `# pyright: ignore`, not pyproject.toml
-
-### Per-File Exemptions
-
-**Test files** (`tests/**/*.py`): Allow `assert`, magic numbers, relaxed line length
-
-**View models** (`**/view.py`): Allow mixed-case names, missing docstrings, commented code
-
-**Config models** (`**/config.py`): Allow type-checking imports at runtime
+We use module-level imports (not inside validators) and type annotations match runtime types. Generic types always have arguments: `list[Panel]` not `list`. Use inline `# noqa xxx` or `# pyright: ignore[xxx]`, not global rules in pyproject.toml
 
 ---
 
