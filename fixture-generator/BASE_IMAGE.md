@@ -4,12 +4,12 @@ This document explains the pre-built Kibana base image system used by the fixtur
 
 ## Overview
 
-The fixture generator uses a two-stage Docker approach to speed up builds:
+The fixture generator uses pre-built Kibana base images with direct volume mounting:
 
-1. **Base Image** (`Dockerfile.base`) - Contains Kibana source + bootstrap (~6 minutes to build)
-2. **Runtime Image** (`Dockerfile`) - Uses base image + adds generator scripts (~30 seconds to build)
+1. **Base Image** (`Dockerfile.base`) - Contains Kibana source + bootstrap (~6 minutes to build, automated weekly)
+2. **Runtime Approach** - Mount generator scripts directly into pre-built base image (no local build needed)
 
-Base images are pre-built and published to GitHub Container Registry (GHCR) weekly, eliminating the need to bootstrap Kibana on every build.
+Base images are pre-built and published to GitHub Container Registry (GHCR) weekly, eliminating the need to bootstrap Kibana or build any local Docker images.
 
 ## Published Images
 
@@ -44,20 +44,14 @@ To trigger a manual build:
 ### Using Pre-built Images (Default)
 
 ```bash
-# Pull and use the latest pre-built image
-make build
+# Pull the latest pre-built base image
+make pull
+
+# Generate fixtures (scripts are mounted, no local build needed)
+make run
 ```
 
-This pulls `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.0` and builds the runtime image on top of it.
-
-### Building from Source
-
-If you need to build from source (e.g., testing a new Kibana version):
-
-```bash
-# Build everything from scratch (~6 minutes)
-make build-from-source
-```
+This pulls `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.0` and uses it directly with volume mounts.
 
 ### Building Base Image Locally
 
@@ -67,8 +61,8 @@ To build the base image locally (for testing base image changes):
 # Build base image
 make build-base KIBANA_VERSION=v9.2.0
 
-# Use it in the runtime image
-make build
+# Use it directly with volume mounts
+make run
 ```
 
 ## CI/CD Integration
@@ -87,7 +81,7 @@ Base images use the following tagging scheme:
 - `v9.2.0` - Latest build for Kibana 9.2.0 (mutable, updated weekly)
 - `v9.2.0-20260107` - Specific build from 2026-01-07 (immutable)
 
-The runtime `Dockerfile` uses the version tag (e.g., `v9.2.0`) to always pull the latest weekly build.
+The `Makefile` uses the version tag (e.g., `v9.2.0`) to always pull the latest weekly build.
 
 ## Troubleshooting
 
@@ -96,8 +90,8 @@ The runtime `Dockerfile` uses the version tag (e.g., `v9.2.0`) to always pull th
 If the base image doesn't exist yet for your version:
 
 ```bash
-# Option 1: Build from source locally
-make build-from-source KIBANA_VERSION=v9.2.0
+# Option 1: Build base image locally
+make build-base KIBANA_VERSION=v9.2.0
 
 # Option 2: Trigger workflow to build and publish it
 # (via GitHub UI: Actions → Build and Publish Kibana Base Images)
@@ -151,7 +145,7 @@ strategy:
 If you need to modify what goes into the base image:
 
 1. Edit `fixture-generator/Dockerfile.base`
-2. Build and test locally: `make build-base && make build && make test`
+2. Build and test locally: `make build-base && make run && make test`
 3. Commit and push
 4. Trigger the workflow to rebuild all base images
 

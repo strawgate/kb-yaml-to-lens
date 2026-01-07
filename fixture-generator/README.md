@@ -29,14 +29,14 @@ Generate **known-good** Kibana dashboard JSON by:
 
 ## Quick Start
 
-### 1. Build the Docker Image
+### 1. Pull the Pre-built Base Image
 
 ```bash
 cd fixture-generator
-make build
+make pull
 ```
 
-**Note**: The default `make build` uses a pre-built base image from GitHub Container Registry (~30 seconds). To build from source instead (~6 minutes), use `make build-from-source`.
+**Note**: This pulls the pre-built Kibana base image from GitHub Container Registry. No local Docker build required!
 
 ### 2. Generate Fixtures
 
@@ -62,17 +62,13 @@ Run `make help` to see all commands:
 
 | Command | Description |
 | --------- | ------------- |
-| `make build` | Build using pre-built base image from GHCR (~30 seconds) |
-| `make build-from-source` | Build from source (Dockerfile.base, ~6 minutes) |
-| `make build-base` | Build base image locally (for testing base image changes) |
-| `make pull-base` | Pull pre-built base image from GHCR |
-| `make build-no-cache` | Full rebuild without cache (using pre-built base) |
+| `make pull` | Pull pre-built base image from GHCR (required first step) |
 | `make run` | Generate all fixtures |
 | `make run-example EXAMPLE=<file>` | Run a specific example script |
 | `make shell` | Open a shell in the container for debugging |
 | `make test-import` | Test that @kbn/lens-embeddable-utils can be imported |
+| `make build-base` | Build base image locally (for testing base image changes) |
 | `make clean` | Remove generated output files |
-| `make clean-image` | Remove the Docker image |
 
 ## Project Structure
 
@@ -256,23 +252,24 @@ docker run --rm \
 
 ## Docker Setup
 
-The project uses a two-stage Docker approach:
+The project uses pre-built Kibana base images with direct volume mounting:
 
 **Base Image (`Dockerfile.base`)**
 
 1. Installs Node.js 22.x (matches Kibana requirement)
 2. Clones and bootstraps Kibana (making `@kbn/*` packages available)
 3. Published weekly to GitHub Container Registry
-4. Build time: ~6 minutes (one-time, then cached and reused)
+4. Build time: ~6 minutes (one-time, automated via GitHub Actions)
 
-**Runtime Image (`Dockerfile`)**
+**Runtime Approach**
 
-1. Uses pre-built base image as foundation
-2. Adds generator scripts
-3. Provides access to `LensConfigBuilder` from `@kbn/lens-embeddable-utils`
-4. Build time: ~30 seconds
+Instead of building a local Docker image, fixture generation uses `docker run` with volume mounts:
 
-This approach significantly speeds up local development and CI by eliminating the need to bootstrap Kibana on every build.
+1. Pull the pre-built base image from GHCR (one-time operation)
+2. Mount generator scripts directly into the container
+3. Execute fixture generation without any local builds
+
+This approach eliminates all local Docker builds - just pull and run!
 
 ### Base Image Updates
 
@@ -292,20 +289,20 @@ docker push ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.0
 ### Using Different Kibana Versions
 
 ```bash
-# Use a different pre-built version
-make build KIBANA_VERSION=v9.1.0
+# Pull a different pre-built version
+make pull KIBANA_VERSION=v9.1.0
 
-# Build from source for a custom version
-make build-from-source KIBANA_VERSION=v8.15.0
+# Generate fixtures with that version
+make run KIBANA_VERSION=v9.1.0
 ```
 
 ## Troubleshooting
 
-### Docker Build Fails
+### Docker Pull Fails
 
-**Problem**: Out of memory during Kibana bootstrap
+**Problem**: Cannot pull base image from GHCR
 
-**Solution**: Increase Docker memory limit in Docker Desktop settings (recommend 10GB+)
+**Solution**: Ensure you have internet connectivity and Docker is running. The base images are publicly accessible and don't require authentication.
 
 ### LensConfigBuilder Not Found
 
@@ -313,10 +310,10 @@ make build-from-source KIBANA_VERSION=v8.15.0
 
 **Solution**:
 
-1. Ensure Kibana bootstrap completed successfully
-2. Check build logs for errors during `yarn kbn bootstrap`
-3. Try `make test-import` to verify the module is available
-4. Use `make shell` to debug interactively
+1. Ensure you pulled the base image: `make pull`
+2. Try `make test-import` to verify the module is available
+3. Use `make shell` to debug interactively
+4. If the problem persists, the base image may need to be rebuilt (check GitHub Actions workflow)
 
 ### Invalid Configuration
 
@@ -339,10 +336,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build fixture generator
+      - name: Pull pre-built base image
         run: |
           cd fixture-generator
-          make build
+          make pull
 
       - name: Generate all fixtures
         run: |
