@@ -4,7 +4,7 @@
  */
 
 import type { LensTableConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.ts';
+import { generateDualFixture, runIfMain } from '../generator-utils';
 
 export async function generateDatatableUserTest(): Promise<void> {
   // Data View variant matching user's example

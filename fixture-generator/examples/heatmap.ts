@@ -7,7 +7,7 @@
  */
 
 import type { LensHeatmapConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.ts';
+import { generateDualFixture, runIfMain } from '../generator-utils';
 
 export async function generateHeatmap(): Promise<void> {
   // Shared configuration between both variants

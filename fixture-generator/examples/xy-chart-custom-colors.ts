@@ -6,7 +6,7 @@
  */
 
 import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.ts';
+import { generateDualFixture, runIfMain } from '../generator-utils';
 
 export async function generateXYChartCustomColors(): Promise<void> {
   // Shared custom palette configuration

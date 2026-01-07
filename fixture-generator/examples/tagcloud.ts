@@ -8,7 +8,7 @@
 import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
 import { createDataViewsMock } from '../dataviews-mock.js';
 import type { LensTagCloudConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.ts';
+import { generateDualFixture, runIfMain } from '../generator-utils';
 
 export async function generateTagcloud(): Promise<void> {
   // ES|QL configuration

@@ -10,7 +10,7 @@
  */
 
 import type { LensTagCloudConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateFixture, runIfMain } from '../generator-utils.ts';
+import { generateFixture, runIfMain } from '../generator-utils';
 
 /**
  * Generate basic tagcloud (ES|QL)
