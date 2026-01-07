@@ -29,7 +29,10 @@ suite('Extension Test Suite', () => {
         // The compiler's .venv is at compiler/.venv
 
         // Try to find .venv in typical locations
+        // __dirname will be vscode-extension/out/test/suite when tests run
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
         const potentialPaths = [
+            ...(workspaceRoot ? [path.join(workspaceRoot, 'compiler/.venv/bin/python')] : []), // From workspace root
             path.resolve(__dirname, '../../../../../compiler/.venv/bin/python'), // From compiled test file to compiler/.venv
             path.resolve(__dirname, '../../../../.venv/bin/python'), // From compiled test file to repo root (legacy)
             path.resolve('/app/compiler/.venv/bin/python'), // Absolute path to compiler/.venv (container)
