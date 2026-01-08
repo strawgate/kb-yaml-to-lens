@@ -119,6 +119,17 @@ Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
+### [Docker OpenTelemetry Dashboards](docker_otel/)
+
+Docker container monitoring dashboards for OpenTelemetry metrics:
+
+- **Containers Overview** - Multi-container monitoring with CPU, memory, disk I/O, and network metrics
+- **Container Stats** - Detailed single-container performance analysis and resource utilization
+
+**Use this when:** Monitoring Docker containers with OpenTelemetry Docker Stats Receiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/docker_otel) dashboards.
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:
