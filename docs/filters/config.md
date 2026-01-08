@@ -97,10 +97,7 @@ Matches documents where a specific field contains one or more of the specified p
 
 Matches documents where a numeric or date field falls within a specified range. At least one of `gte`, `lte`, `gt`, or `lt` must be provided.
 
-::: dashboard_compiler.filters.config.RangeFilter
-    options:
-      show_root_heading: false
-      heading_level: 4
+See [RangeFilter API Reference](../api/filters.md#dashboard_compiler.filters.config.RangeFilter) for full configuration options.
 
 ### Custom Filter
 

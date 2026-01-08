@@ -102,10 +102,7 @@ Allows users to select a range of numeric values to filter data.
 
 Allows users to select a sub-section of the dashboard's current time range. This control does not use a `data_view` or `field` as it operates on the global time context.
 
-::: dashboard_compiler.controls.config.TimeSliderControl
-    options:
-      show_root_heading: false
-      heading_level: 4
+See [TimeSliderControl API Reference](../api/controls.md#dashboard_compiler.controls.config.TimeSliderControl) for full configuration options.
 
 **Note on Time Slider Offsets:** The YAML configuration expects `start_offset` and `end_offset` as float values between 0.0 (0%) and 1.0 (100%). Kibana internally represents these as percentages from 0.0 to 100.0. If not provided, Kibana defaults to `0.0` for start and `100.0` for end.
 
