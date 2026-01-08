@@ -525,8 +525,6 @@ dev = [
     { name = "basedpyright" },
     { name = "deepdiff" },
     { name = "dirty-equals" },
-    { name = "griffe-fieldz" },
-    { name = "griffe-pydantic" },
     { name = "inline-snapshot" },
     { name = "lsprotocol" },
     { name = "pygls" },
@@ -540,6 +538,8 @@ dev = [
     { name = "yamlfix" },
 ]
 docs = [
+    { name = "griffe-fieldz" },
+    { name = "griffe-pydantic" },
     { name = "mkdocs" },
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extra = ["python"] },
@@ -569,8 +569,6 @@ dev = [
     { name = "basedpyright", specifier = ">=1.36" },
     { name = "deepdiff", specifier = ">=8.4.2" },
     { name = "dirty-equals", specifier = ">=0.8.0" },
-    { name = "griffe-fieldz", specifier = ">=0.1.2" },
-    { name = "griffe-pydantic", specifier = ">=1.1.8" },
     { name = "inline-snapshot", specifier = ">=0.31.1" },
     { name = "lsprotocol", specifier = ">=2024.0.0" },
     { name = "pygls", specifier = ">=2.0.0" },
@@ -584,6 +582,8 @@ dev = [
     { name = "yamlfix", specifier = ">=1.17.0" },
 ]
 docs = [
+    { name = "griffe-fieldz", specifier = ">=0.1.2" },
+    { name = "griffe-pydantic", specifier = ">=1.1.8" },
     { name = "mkdocs", specifier = ">=1.6.0" },
     { name = "mkdocs-material", specifier = ">=9.5.0" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.30.0" },

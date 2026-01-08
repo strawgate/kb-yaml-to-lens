@@ -13,47 +13,164 @@ class LensMetricChart(BaseChart):
 
     Metric charts display a single value or a list of values, often representing
     key performance indicators.
+
+    Examples:
+        Minimal count metric:
+        ```yaml
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Total Requests"
+        ```
+
+        Formula-based error rate metric:
+        ```yaml
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            formula: "count(kql='status:error') / count() * 100"
+            label: "Error Rate %"
+            format:
+              type: percent
+        ```
     """
 
-    type: Literal['metric'] = Field(default='metric')
+    type: Literal['metric'] = Field(
+        default='metric',
+        examples=['metric'],
+    )
     """The type of chart, which is 'metric' for this visualization."""
 
-    data_view: str = Field(default=...)
+    data_view: str = Field(
+        default=...,
+        examples=['logs-*', 'metrics-*', 'my-data-view'],
+    )
     """The data view that determines the data for the metric chart."""
 
-    primary: LensMetricTypes = Field(...)
+    primary: LensMetricTypes = Field(
+        ...,
+        examples=[
+            {'aggregation': 'count', 'label': 'Total Requests'},
+            {'aggregation': 'average', 'field': 'response_time', 'label': 'Avg Response Time'},
+            {'formula': "count(kql='status:error') / count() * 100", 'label': 'Error Rate %'},
+        ],
+    )
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: LensMetricTypes | None = Field(default=None)
+    secondary: LensMetricTypes | None = Field(
+        default=None,
+        examples=[
+            {'aggregation': 'unique_count', 'field': 'user.id', 'label': 'Unique Users'},
+            None,
+        ],
+    )
     """An optional secondary metric to display alongside the primary metric."""
 
-    maximum: LensMetricTypes | None = Field(default=None)
+    maximum: LensMetricTypes | None = Field(
+        default=None,
+        examples=[
+            {'value': 1000, 'label': 'Target'},
+            None,
+        ],
+    )
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: LensDimensionTypes | None = Field(default=None)
+    breakdown: LensDimensionTypes | None = Field(
+        default=None,
+        examples=[
+            {'field': 'service.name', 'label': 'By Service'},
+            None,
+        ],
+    )
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = Field(default=None)
+    color: ColorMapping | None = Field(
+        default=None,
+        examples=[
+            {'palette': 'eui_amsterdam_color_blind'},
+            None,
+        ],
+    )
     """Formatting options for the chart color palette."""
 
 
 class ESQLMetricChart(BaseChart):
-    """Represents a Metric chart configuration within an ESQL panel."""
+    """Represents a Metric chart configuration within an ESQL panel.
 
-    type: Literal['metric'] = Field(default='metric')
+    ESQL metric charts reference columns from your ESQL query result.
+    The query determines what metrics are available - each column in your
+    STATS clause becomes a metric you can reference.
+
+    Examples:
+        Multi-metric ESQL example:
+        ```yaml
+        esql:
+          type: metric
+          query: |
+            FROM logs-*
+            | STATS
+                total_requests = COUNT(*),
+                avg_duration = AVG(event.duration),
+                error_rate = COUNT(kql='event.outcome:failure') / COUNT(*) * 100
+          primary:
+            field: "total_requests"
+          secondary:
+            field: "avg_duration"
+          maximum:
+            field: "error_rate"
+        ```
+    """
+
+    type: Literal['metric'] = Field(
+        default='metric',
+        examples=['metric'],
+    )
     """The type of chart, which is 'metric' for this visualization."""
 
-    primary: ESQLMetricTypes = Field(...)
+    primary: ESQLMetricTypes = Field(
+        ...,
+        examples=[
+            {'field': 'total_requests'},
+            {'field': 'avg_response_time'},
+        ],
+    )
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: ESQLMetricTypes | None = Field(default=None)
+    secondary: ESQLMetricTypes | None = Field(
+        default=None,
+        examples=[
+            {'field': 'unique_users'},
+            None,
+        ],
+    )
     """An optional secondary metric to display alongside the primary metric."""
 
-    maximum: ESQLMetricTypes | None = Field(default=None)
+    maximum: ESQLMetricTypes | None = Field(
+        default=None,
+        examples=[
+            {'value': 1000, 'label': 'Target'},
+            None,
+        ],
+    )
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: ESQLDimensionTypes | None = Field(default=None)
+    breakdown: ESQLDimensionTypes | None = Field(
+        default=None,
+        examples=[
+            {'field': 'service_name'},
+            None,
+        ],
+    )
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = Field(default=None)
+    color: ColorMapping | None = Field(
+        default=None,
+        examples=[
+            {'palette': 'eui_amsterdam_color_blind'},
+            None,
+        ],
+    )
     """Formatting options for the chart color palette."""
