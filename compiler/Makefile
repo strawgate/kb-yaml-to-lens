@@ -173,7 +173,7 @@ upload:
 # Docker commands
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t $(DOCKER_IMAGE) -f Dockerfile ..
+	docker build -t $(DOCKER_IMAGE) -f Dockerfile .
 
 docker-run:
 	@echo "Running Docker container..."
@@ -198,7 +198,7 @@ docker-publish:
 		--platform linux/amd64,linux/arm64 \
 		-t $(GHCR_REGISTRY) \
 		-f Dockerfile \
-		--push ..
+		--push .
 
 test-docker-smoke:
 	@echo "Running Docker smoke tests..."
