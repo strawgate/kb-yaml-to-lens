@@ -6,7 +6,6 @@ set -e
 IMAGE_NAME="${IMAGE_NAME:-kb-dashboard-compiler:latest}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROJECT_ROOT="$(cd "$COMPILER_ROOT/.." && pwd)"
 
 echo "Testing Docker image: $IMAGE_NAME"
 

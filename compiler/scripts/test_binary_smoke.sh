@@ -29,7 +29,6 @@ fi
 BINARY_PATH="${BINARY_PATH:-dist/$BINARY_NAME}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROJECT_ROOT="$(cd "$COMPILER_ROOT/.." && pwd)"
 
 if [ ! -f "$BINARY_PATH" ]; then
   echo "✗ Binary not found at $BINARY_PATH"
