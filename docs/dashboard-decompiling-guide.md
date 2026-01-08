@@ -297,7 +297,9 @@ For thorough validation, use this round-trip workflow to verify the compiled out
    kb-dashboard compile --input-dir my-yaml/ --output-dir /tmp/compiled/
    ```
 
-1. **Disassemble both original and compiled dashboards:**
+   **IMPORTANT:** Fix any compilation errors before proceeding. The YAML must compile successfully.
+
+2. **Disassemble both original and compiled dashboards:**
 
    ```bash
    # Disassemble original
@@ -307,7 +309,7 @@ For thorough validation, use this round-trip workflow to verify the compiled out
    kb-dashboard disassemble /tmp/compiled/output.ndjson -o /tmp/compiled_disassembled/
    ```
 
-1. **Compare panel structures:**
+3. **Compare panel structures:**
 
    ```bash
    # Compare panel counts
@@ -341,20 +343,146 @@ For thorough validation, use this round-trip workflow to verify the compiled out
    EOF
    ```
 
+4. **Deep panel verification:**
+
+   For each Lens panel, compare the original and compiled JSON to verify:
+
+   **XY Charts (line, bar, area):**
+   - ✅ Chart type (`seriesType`): Verify `line`, `bar`, or `area` match exactly
+   - ✅ Stacking mode: If original has `yConfig[].axisMode: stacked`, YAML must have `mode: stacked`
+   - ✅ Legend settings: Compare `legend.isVisible` and `legend.position` (right/bottom/top/left)
+   - ✅ Dimensions: XY charts support max 1 dimension (typically `@timestamp`)
+     - Original dimension columns → YAML `dimensions` array
+     - Split series columns → YAML `breakdown` field (NOT dimensions)
+   - ✅ Breakdown field names: Verify exact field names (e.g., `attributes.device_major` not `attributes.device`)
+   - ✅ Breakdown sizes: Check `params.size` matches original (default is 5, but originals may use 10, 30, 1000, etc.)
+
+   **Datatables:**
+   - ✅ Row dimensions: Count columns with `isBucketed: true` in original
+     - All bucketed columns must appear in YAML `rows` array
+     - Common mistake: Only including 1 row when original has 5+ rows
+   - ✅ Row sizes: Verify `params.size` for each row dimension matches original
+
+   **All Lens panels:**
+   - ✅ Metric formulas: Verify aggregation functions match (median, average, sum, etc.)
+   - ✅ Field names: Exact field name matching (including namespace prefixes)
+   - ✅ Format settings: Check number formatters (percent, bytes, etc.)
+
+   **Example verification command:**
+
+   ```bash
+   # Compare specific panel JSON structures
+   diff -u \
+     <(jq '.embeddableConfig.attributes.state' /tmp/original_disassembled/panels/003_panel-4_lens.json) \
+     <(jq '.embeddableConfig.attributes.state' /tmp/compiled_disassembled/panels/003_panel-4_lens.json)
+   ```
+
 **Expected discrepancies:**
 
-- Markdown/visualization panels may be excluded (not yet supported in YAML)
-- Duplicate panels may be consolidated in YAML version
 - Panel IDs will differ (UUIDs are regenerated)
 - Minor formatting differences in filters/queries are acceptable
+- Panel order may differ if grid positions are identical
 
-**Core verification points:**
+**Discrepancies requiring investigation:**
 
-- ✅ Grid positions should match
-- ✅ Panel types should match (lens, links, etc.)
-- ✅ Visualization types should match (lnsMetric, lnsPie, etc.)
-- ✅ Column configurations should match (operationType, sourceField, labels)
-- ✅ Data view references should match
+- Different panel counts (unless intentionally excluding unsupported panels)
+- Different visualization types (lnsXY vs lnsPie, etc.)
+- Different chart types within XY (line vs area vs bar)
+- Missing columns/dimensions/breakdowns
+- Different field names
+- Different aggregation functions
+- Missing legend configuration
+
+**Critical verification checklist:**
+
+Before considering a conversion complete, verify:
+
+- [ ] All panels compile without errors
+- [ ] Panel count matches (or discrepancies are documented)
+- [ ] All XY chart types match original (`seriesType`: line/bar/area)
+- [ ] All XY charts have correct `mode: stacked` if original is stacked
+- [ ] All XY charts have legend settings matching original
+- [ ] All dimensions are in the `dimensions` array (max 1 for XY charts)
+- [ ] All split series are in `breakdown` field (NOT in dimensions)
+- [ ] All breakdown field names match exactly (check device fields, interface names, etc.)
+- [ ] All breakdown sizes match original (not just using defaults)
+- [ ] All datatable row dimensions are included (count bucketed columns)
+- [ ] All metric formulas use correct aggregation functions
+- [ ] All field names match exactly (including namespace prefixes)
+
+### Common Conversion Pitfalls
+
+#### 1. Confusing dimensions and breakdowns in XY charts
+
+❌ **Wrong:**
+
+```yaml
+lens:
+  type: line
+  dimensions:
+    - field: '@timestamp'
+      type: date_histogram
+    - field: container.id  # Split series should NOT be here
+      type: values
+```
+
+✅ **Correct:**
+
+```yaml
+lens:
+  type: line
+  dimensions:
+    - field: '@timestamp'
+      type: date_histogram
+  breakdown:  # Split series goes here
+    field: container.id
+    type: values
+    size: 20  # Don't forget to check the size
+```
+
+#### 2. Using invalid field names
+
+❌ **Wrong:** `stacked: true` (not a valid field)
+✅ **Correct:** `mode: stacked` (for area/bar charts)
+
+❌ **Wrong:** `attributes.device` (field doesn't exist)
+✅ **Correct:** `attributes.device_major` (actual field name)
+
+#### 3. Omitting legend configuration
+
+Original JSON always has `legend.isVisible` and `legend.position`. These must be included:
+
+```yaml
+lens:
+  type: line
+  legend:
+    visible: true
+    position: right
+```
+
+#### 4. Using default sizes instead of original values
+
+The default breakdown size is 5, but originals often use different values:
+
+- Network interfaces: size 30
+- Device IDs: size 1000
+- Container lists: size 10 or 20
+
+Always check `params.size` in the original column configuration.
+
+#### 5. Missing datatable row dimensions
+
+Datatables often have 5+ row dimensions. Count all columns with `isBucketed: true` and ensure they all appear in the YAML `rows` array.
+
+#### 6. Wrong chart types
+
+Original JSON `seriesType` field specifies the chart type:
+
+- `seriesType: "line"` → `type: line`
+- `seriesType: "bar"` → `type: bar`
+- `seriesType: "area"` → `type: area`
+
+Don't assume all time series charts are line charts.
 
 ## Common Patterns
 
