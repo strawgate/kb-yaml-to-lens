@@ -119,7 +119,7 @@ Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
 - **[Host Details - Metadata](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/04-host-details-metadata.yaml)** - Host resource attributes and metadata (ES|QL datatables)
 - **[Host Details - Logs](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/05-host-details-logs.yaml)** - Host log messages (ES|QL datatable)
 
-**Use this when:** Monitoring infrastructure with OpenTelemetry hostmetricsreceiver.
+**Use this when:** Monitoring infrastructure with OpenTelemetry host metrics receiver.
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
