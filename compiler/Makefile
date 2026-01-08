@@ -201,17 +201,17 @@ docker-publish:
 
 test-docker-smoke:
 	@echo "Running Docker smoke tests..."
-	@bash ../scripts/test_docker_smoke.sh
+	@bash scripts/test_docker_smoke.sh
 
 # Binary building
 build-binary:
 	@echo "Building standalone binary..."
 	@uv sync --group build
-	@uv run python ../scripts/build_binaries.py
+	@uv run python scripts/build_binaries.py
 
 test-binary-smoke:
 	@echo "Running binary smoke tests..."
-	@bash ../scripts/test_binary_smoke.sh
+	@bash scripts/test_binary_smoke.sh
 
 # Cleaning
 clean:
