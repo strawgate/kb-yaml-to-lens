@@ -35,7 +35,7 @@ def get_panel_info(dir_path: Path) -> list[tuple[str, str, str]]:
             continue
 
         try:
-            with open(fname, 'r') as f:
+            with open(fname) as f:
                 panel = json.load(f)
                 ptype = panel.get('type', 'unknown')
                 title = panel.get('title', panel.get('panelConfig', {}).get('title', '(no title)'))
@@ -79,17 +79,17 @@ def main():
 
     for i in range(max_panels):
         if i < len(orig) and i < len(comp):
-            of, ot, otitle = orig[i]
-            cf, ct, ctitle = comp[i]
+            _of, ot, otitle = orig[i]
+            _cf, ct, ctitle = comp[i]
             match = "✓" if ot == ct else "✗"
             print(f"  {match} Panel {i}: {ot:15s} | {otitle}")
             if ot != ct:
                 print(f"      Original: {ot}, Compiled: {ct}")
         elif i < len(orig):
-            of, ot, otitle = orig[i]
+            _of, ot, otitle = orig[i]
             print(f"  ✗ Panel {i}: {ot:15s} | {otitle} (MISSING in compiled)")
         else:
-            cf, ct, ctitle = comp[i]
+            _cf, ct, ctitle = comp[i]
             print(f"  ✗ Panel {i}: {ct:15s} | {ctitle} (EXTRA in compiled)")
 
     # Summary
