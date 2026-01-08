@@ -28,7 +28,12 @@ typecheck: ## Run TypeScript type checking
 		$(BASE_IMAGE) \
 		bash -c "tsc --noEmit --project tsconfig.json"
 
-test: test-import ## Run tests
+test: ## Run tests
+	@if ! docker images | grep -q "kibana-base"; then \
+		echo "⚠ Skipping test (Docker image not available)"; \
+		exit 0; \
+	fi; \
+	$(MAKE) test-import
 
 pull: ## Pull pre-built base image from GHCR
 	docker pull $(BASE_IMAGE)

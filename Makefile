@@ -50,23 +50,11 @@ help:
 	@echo "  cd vscode-extension/ && make help - VS Code extension commands"
 	@echo "  cd fixture-generator/ && make help - Fixture generator commands"
 
-# Component iteration helpers
-# Run target in component (always runs)
+# Component iteration helper
+# Run target in component
 define run-in-component
 	@echo "→ Running $(2) in $(1)..."
 	@cd $(1) && $(MAKE) $(2)
-	@echo ""
-endef
-
-# Run target in component with prerequisite check
-# Usage: $(call run-in-component-conditional,component,target,prereq-description,prereq-check)
-define run-in-component-conditional
-	@echo "→ Running $(2) in $(1)..."
-	@if $(4); then \
-		cd $(1) && $(MAKE) $(2); \
-	else \
-		echo "⚠ Skipping $(1) $(2) ($(3))"; \
-	fi
 	@echo ""
 endef
 
@@ -88,7 +76,7 @@ check:
 	@echo "Running fast checks (lint + typecheck + unit tests)..."
 	@echo ""
 	$(call run-in-component,compiler,ci)
-	$(call run-in-component-conditional,vscode-extension,ci,dependencies not installed,[ -d "vscode-extension/node_modules" ])
+	$(call run-in-component,vscode-extension,ci)
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
 	@echo ""
@@ -101,7 +89,7 @@ fix:
 	@echo "Auto-fixing linting issues across all components..."
 	@echo ""
 	$(call run-in-component,compiler,fix)
-	$(call run-in-component-conditional,vscode-extension,fix,dependencies not installed,[ -d "vscode-extension/node_modules" ])
+	$(call run-in-component,vscode-extension,fix)
 	@echo "→ Fixing markdown issues..."
 	@$(MAKE) lint-markdown
 	@echo ""
@@ -111,7 +99,7 @@ lint-all-check:
 	@echo "Checking linting across all components..."
 	@echo ""
 	$(call run-in-component,compiler,lint-check)
-	$(call run-in-component-conditional,vscode-extension,lint-check,dependencies not installed,[ -d "vscode-extension/node_modules" ])
+	$(call run-in-component,vscode-extension,lint-check)
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
 	@echo ""
@@ -121,13 +109,13 @@ test-unit:
 	@echo "Running unit tests across all components..."
 	@echo ""
 	$(call run-in-component,compiler,test)
-	$(call run-in-component-conditional,vscode-extension,test-unit,dependencies not installed,[ -d "vscode-extension/node_modules" ])
+	$(call run-in-component,vscode-extension,test-unit)
 	@echo "✓ All unit tests passed"
 
 test-e2e:
 	@echo "Running end-to-end tests..."
 	@echo ""
-	$(call run-in-component-conditional,vscode-extension,test,dependencies not installed,[ -d "vscode-extension/node_modules" ])
+	$(call run-in-component,vscode-extension,test)
 	@echo "✓ E2E tests passed"
 
 test-all: test-unit test-e2e
@@ -135,7 +123,7 @@ test-all: test-unit test-e2e
 	@echo ""
 	$(call run-in-component,compiler,test-links)
 	$(call run-in-component,compiler,test-smoke)
-	$(call run-in-component-conditional,fixture-generator,test,Docker image not available,docker images | grep -q "kibana-base")
+	$(call run-in-component,fixture-generator,test)
 	@echo "✓ All tests passed"
 
 # Markdown linting (global)

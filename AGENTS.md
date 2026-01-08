@@ -44,6 +44,8 @@ This repository contains three main components:
 | `make clean` | Clean cache and temporary files |
 | `make clean-full` | Deep clean including virtual environments |
 
+**Troubleshooting CI failures:** When GitHub Actions CI fails, run `make ci` locally to reproduce the exact checks that run in CI.
+
 **Component-specific Makefiles** provide focused workflows:
 
 - `compiler/Makefile` - Python compiler commands (see `compiler/AGENTS.md`)
