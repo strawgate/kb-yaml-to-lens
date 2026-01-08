@@ -1,9 +1,9 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all clean clean-full lint-markdown lint-markdown-check inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
-all: ci
+all: check
 
 help:
 	@echo "=== Root-Level Commands (Orchestration) ==="
@@ -12,9 +12,9 @@ help:
 	@echo "  install       - Install all component dependencies"
 	@echo ""
 	@echo "CI Workflow:"
-	@echo "  all           - Run all CI checks (default target)"
-	@echo "  ci            - Run CI checks across all components"
-	@echo "  check         - Alias for ci"
+	@echo "  all           - Run fast checks (default target, alias for check)"
+	@echo "  check         - Run fast checks (lint + typecheck + unit tests)"
+	@echo "  ci            - Run comprehensive CI (check + e2e tests, matches GitHub Actions)"
 	@echo "  fix           - Auto-fix linting issues across all components"
 	@echo ""
 	@echo "Linting:"
@@ -23,7 +23,9 @@ help:
 	@echo "  lint-markdown-check - Check markdown without fixing"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test-all      - Run all tests across all components"
+	@echo "  test-unit     - Run unit tests only (fast)"
+	@echo "  test-e2e      - Run end-to-end tests (requires setup)"
+	@echo "  test-all      - Run all tests (unit + e2e + smoke)"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -48,15 +50,19 @@ help:
 	@echo "  cd vscode-extension/ && make help - VS Code extension commands"
 	@echo "  cd fixture-generator/ && make help - Fixture generator commands"
 
+# Component iteration helper
+# Run target in component
+define run-in-component
+	@echo "→ Running $(2) in $(1)..."
+	@cd $(1) && $(MAKE) $(2)
+	@echo ""
+endef
+
 install:
 	@echo "Installing all component dependencies..."
 	@echo ""
-	@echo "→ Installing compiler dependencies..."
-	@cd compiler && $(MAKE) install
-	@echo ""
-	@echo "→ Installing VS Code extension dependencies..."
-	@cd vscode-extension && $(MAKE) install
-	@echo ""
+	$(call run-in-component,compiler,install)
+	$(call run-in-component,vscode-extension,install)
 	@echo "→ Installing global tools..."
 	@if command -v npm > /dev/null 2>&1; then \
 		npm install -g markdownlint-cli; \
@@ -66,39 +72,24 @@ install:
 	@echo ""
 	@echo "✓ All dependencies installed"
 
-ci:
-	@echo "Running CI across all components..."
+check:
+	@echo "Running fast checks (lint + typecheck + unit tests)..."
 	@echo ""
-	@echo "→ Running compiler CI..."
-	@cd compiler && $(MAKE) ci
-	@echo ""
-	@echo "→ Running VS Code extension CI..."
-	@if [ -d "vscode-extension/node_modules" ]; then \
-		cd vscode-extension && $(MAKE) ci; \
-	else \
-		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
-	fi
-	@echo ""
+	$(call run-in-component,compiler,ci)
+	$(call run-in-component,vscode-extension,ci)
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
 	@echo ""
-	@echo "✓ All CI checks passed!"
+	@echo "✓ All fast checks passed!"
 
-check: ci
+ci: check test-e2e
+	@echo "✓ Comprehensive CI checks passed (matches GitHub Actions)!"
 
 fix:
 	@echo "Auto-fixing linting issues across all components..."
 	@echo ""
-	@echo "→ Fixing compiler issues..."
-	@cd compiler && $(MAKE) fix
-	@echo ""
-	@echo "→ Fixing VS Code extension issues..."
-	@if [ -d "vscode-extension/node_modules" ]; then \
-		cd vscode-extension && $(MAKE) fix; \
-	else \
-		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
-	fi
-	@echo ""
+	$(call run-in-component,compiler,fix)
+	$(call run-in-component,vscode-extension,fix)
 	@echo "→ Fixing markdown issues..."
 	@$(MAKE) lint-markdown
 	@echo ""
@@ -107,41 +98,32 @@ fix:
 lint-all-check:
 	@echo "Checking linting across all components..."
 	@echo ""
-	@echo "→ Checking compiler..."
-	@cd compiler && $(MAKE) lint-check
-	@echo ""
-	@echo "→ Checking VS Code extension..."
-	@if [ -d "vscode-extension/node_modules" ]; then \
-		cd vscode-extension && $(MAKE) lint-check; \
-	else \
-		echo "⚠ Skipping VS Code extension (dependencies not installed)"; \
-	fi
-	@echo ""
+	$(call run-in-component,compiler,lint-check)
+	$(call run-in-component,vscode-extension,lint-check)
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
 	@echo ""
 	@echo "✓ All linting checks passed"
 
-test-all:
-	@echo "Running tests across all components..."
+test-unit:
+	@echo "Running unit tests across all components..."
 	@echo ""
-	@echo "→ Testing compiler..."
-	@cd compiler && $(MAKE) test test-links test-smoke
+	$(call run-in-component,compiler,test)
+	$(call run-in-component,vscode-extension,test-unit)
+	@echo "✓ All unit tests passed"
+
+test-e2e:
+	@echo "Running end-to-end tests..."
 	@echo ""
-	@echo "→ Testing VS Code extension..."
-	@if [ -d "vscode-extension/node_modules" ]; then \
-		cd vscode-extension && $(MAKE) test; \
-	else \
-		echo "⚠ Skipping VS Code extension tests (dependencies not installed)"; \
-	fi
+	$(call run-in-component,vscode-extension,test)
+	@echo "✓ E2E tests passed"
+
+test-all: test-unit test-e2e
+	@echo "Running additional tests..."
 	@echo ""
-	@echo "→ Testing fixture generator..."
-	@if docker images | grep -q "kibana-fixture-generator"; then \
-		cd fixture-generator && $(MAKE) test; \
-	else \
-		echo "⚠ Skipping fixture generator tests (Docker image not built)"; \
-	fi
-	@echo ""
+	$(call run-in-component,compiler,test-links)
+	$(call run-in-component,compiler,test-smoke)
+	$(call run-in-component,fixture-generator,test)
 	@echo "✓ All tests passed"
 
 # Markdown linting (global)
@@ -156,15 +138,19 @@ lint-markdown-check:
 # Cleaning
 clean:
 	@echo "Cleaning all components..."
-	@cd compiler && $(MAKE) clean
-	@cd vscode-extension && $(MAKE) clean
-	@cd fixture-generator && $(MAKE) clean
+	@echo ""
+	$(call run-in-component,compiler,clean)
+	$(call run-in-component,vscode-extension,clean)
+	$(call run-in-component,fixture-generator,clean)
+	@echo "✓ Cleaning complete"
 
 clean-full:
 	@echo "Deep cleaning all components..."
-	@cd compiler && $(MAKE) clean-full
-	@cd vscode-extension && $(MAKE) clean
-	@cd fixture-generator && $(MAKE) clean-image
+	@echo ""
+	$(call run-in-component,compiler,clean-full)
+	$(call run-in-component,vscode-extension,clean)
+	$(call run-in-component,fixture-generator,clean-image)
+	@echo "✓ Deep cleaning complete"
 
 # Helpers
 inspector:
