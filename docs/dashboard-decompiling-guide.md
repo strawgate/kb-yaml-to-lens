@@ -287,6 +287,75 @@ jq -r '.attributes.panelsJSON | fromjson | .[].type' original.ndjson | sort
 jq -r '.attributes.panelsJSON | fromjson | .[].type' compiled/output.ndjson | sort
 ```
 
+### Verification Workflow (Round-Trip Testing)
+
+For thorough validation, use this round-trip workflow to verify the compiled output matches the original:
+
+1. **Compile YAML to JSON:**
+
+   ```bash
+   kb-dashboard compile --input-dir my-yaml/ --output-dir /tmp/compiled/
+   ```
+
+1. **Disassemble both original and compiled dashboards:**
+
+   ```bash
+   # Disassemble original
+   kb-dashboard disassemble original.ndjson -o /tmp/original_disassembled/
+
+   # Disassemble compiled
+   kb-dashboard disassemble /tmp/compiled/output.ndjson -o /tmp/compiled_disassembled/
+   ```
+
+1. **Compare panel structures:**
+
+   ```bash
+   # Compare panel counts
+   echo "Original panels: $(ls /tmp/original_disassembled/panels/ | wc -l)"
+   echo "Compiled panels: $(ls /tmp/compiled_disassembled/panels/ | wc -l)"
+
+   # Compare panel types and titles
+   python3 << 'EOF'
+   import json
+   import os
+
+   def get_panel_info(dir_path):
+       panels = []
+       for fname in sorted(os.listdir(f"{dir_path}/panels/")):
+           with open(f"{dir_path}/panels/{fname}", 'r') as f:
+               panel = json.load(f)
+               ptype = panel.get('type', 'unknown')
+               title = panel.get('title', panel.get('panelConfig', {}).get('title', '(no title)'))
+               panels.append((fname, ptype, title))
+       return panels
+
+   orig = get_panel_info('/tmp/original_disassembled')
+   comp = get_panel_info('/tmp/compiled_disassembled')
+
+   print("Original panels:", len(orig))
+   print("Compiled panels:", len(comp))
+   print("\nPanel comparison:")
+   for i, ((of, ot, otitle), (cf, ct, ctitle)) in enumerate(zip(orig, comp)):
+       match = "✓" if ot == ct else "✗"
+       print(f"  {match} Panel {i}: {ot:15s} | {otitle}")
+   EOF
+   ```
+
+**Expected discrepancies:**
+
+- Markdown/visualization panels may be excluded (not yet supported in YAML)
+- Duplicate panels may be consolidated in YAML version
+- Panel IDs will differ (UUIDs are regenerated)
+- Minor formatting differences in filters/queries are acceptable
+
+**Core verification points:**
+
+- ✅ Grid positions should match
+- ✅ Panel types should match (lens, links, etc.)
+- ✅ Visualization types should match (lnsMetric, lnsPie, etc.)
+- ✅ Column configurations should match (operationType, sourceField, labels)
+- ✅ Data view references should match
+
 ## Common Patterns
 
 ### Lens Operation Mapping
