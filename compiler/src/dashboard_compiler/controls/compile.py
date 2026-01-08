@@ -58,12 +58,10 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
     }
     stable_id = get_layer_id(control)
 
-    # Determine singleSelect value (multiple takes precedence over singular)
+    # Determine singleSelect value from multiple field
     single_select_value: bool | None = None
     if control.multiple is not None:
         single_select_value = not control.multiple
-    elif control.singular is not None:
-        single_select_value = control.singular
 
     return KbnOptionsListControl(
         grow=default_false(control.fill_width),

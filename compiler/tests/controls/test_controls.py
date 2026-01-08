@@ -171,7 +171,7 @@ async def test_options_list_with_small_width_and_single_select() -> None:
         'field': 'aerospike.namespace',
         'label': 'Small Option Single Select',
         'match_technique': 'prefix',
-        'singular': True,
+        'multiple': False,
         'width': 'small',
     }
     result = compile_control_snapshot(config)
@@ -538,13 +538,13 @@ async def test_time_slider_control_validation_error() -> None:
 
 
 async def test_options_list_with_multi_select() -> None:
-    """Test options list control with multi-select (singular: false)."""
+    """Test options list control with multi-select (multiple: true)."""
     config = {
         'type': 'options',
         'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
         'field': 'aerospike.namespace',
         'label': 'Multi Select Test',
-        'singular': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -935,37 +935,6 @@ async def test_options_list_with_multiple_true() -> None:
                 'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
                 'fieldName': 'aerospike.namespace',
                 'title': 'Multiple Test',
-                'searchTechnique': 'prefix',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'sort': {'by': '_count', 'direction': 'desc'},
-            },
-        }
-    )
-
-
-async def test_options_list_multiple_precedence() -> None:
-    """Test that multiple property takes precedence over singular."""
-    config = {
-        'type': 'options',
-        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-        'field': 'aerospike.namespace',
-        'label': 'Precedence Test',
-        'singular': True,  # Should be ignored
-        'multiple': True,  # Should take precedence
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'optionsListControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-                'fieldName': 'aerospike.namespace',
-                'title': 'Precedence Test',
                 'searchTechnique': 'prefix',
                 'selectedOptions': [],
                 'singleSelect': False,

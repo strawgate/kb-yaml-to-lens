@@ -117,11 +117,8 @@ class OptionsListControl(BaseControl):
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
-    singular: bool | None = Field(default=None)
-    """If true, the control allows only a single selection from the options list."""
-
     multiple: bool | None = Field(default=None)
-    """If true, allow multiple selection. Takes precedence over deprecated `singular` field if both are set."""
+    """If true, allow multiple selection."""
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
