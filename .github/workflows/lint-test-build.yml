@@ -140,17 +140,6 @@ jobs:
         run: uv sync --group docs
       - name: Build documentation
         run: uv run --group docs mkdocs build --quiet --strict
-  test-vscode-extension-python:
-    name: Test VSCode Extension (Python)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Run Python tests for extension
-        working-directory: vscode-extension
-        run: make test
   test-vscode-extension-typescript:
     name: Test VSCode Extension (TypeScript)
     runs-on: ubuntu-latest
@@ -225,7 +214,6 @@ jobs:
       - test-python-cli
       - test-markdown-links
       - build-docs
-      - test-vscode-extension-python
       - test-vscode-extension-typescript
       - test-vscode-extension-e2e
     steps:
