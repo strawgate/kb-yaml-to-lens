@@ -16,7 +16,12 @@ def _control_discriminator(v: Any) -> str:
         if control_type == 'esql':
             # Discriminate ES|QL controls by presence of available_options vs esql_query
             if 'available_options' in v:
-                return 'esql_static'
+                # For static controls, discriminate by single_select field
+                single_select = v.get('single_select')
+                if single_select is False:
+                    return 'esql_static_multi_select'
+                # single_select is None or True -> single select
+                return 'esql_static_single_select'
             if 'esql_query' in v:
                 return 'esql_query'
         if control_type is not None:
@@ -28,7 +33,8 @@ type ControlTypes = Annotated[
     Annotated[RangeSliderControl, Tag('range')]
     | Annotated[OptionsListControl, Tag('options')]
     | Annotated[TimeSliderControl, Tag('time')]
-    | Annotated[ESQLStaticControl, Tag('esql_static')]
+    | Annotated[ESQLStaticSingleSelectControl, Tag('esql_static_single_select')]
+    | Annotated[ESQLStaticMultiSelectControl, Tag('esql_static_multi_select')]
     | Annotated[ESQLQueryControl, Tag('esql_query')],
     Discriminator(_control_discriminator),
 ]
@@ -164,10 +170,10 @@ class TimeSliderControl(BaseControl):
         return self
 
 
-class ESQLStaticControl(BaseControl):
-    """Represents an ES|QL control with static values.
+class ESQLStaticSingleSelectControl(BaseControl):
+    """Represents an ES|QL control with static values for single selection.
 
-    This control allows users to select one or more values from a predefined list
+    This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
     """
 
@@ -185,30 +191,57 @@ class ESQLStaticControl(BaseControl):
     title: str = Field(...)
     """Display title for the control."""
 
-    default: str | list[str] | None = Field(default=None)
-    """Default selected value(s). String for single-select, list for multi-select."""
+    default: str | None = Field(default=None)
+    """Default selected value."""
 
     single_select: bool | None = Field(default=None)
-    """If true, only allow single selection. If not set, inferred from default type (str=true, list=false)."""
+    """If true or None, only allow single selection. Must be None or True for this control type."""
+
+    @model_validator(mode='after')
+    def validate_defaults(self) -> Self:
+        """Validate that default value exists in available_options."""
+        if self.default is not None and self.default not in self.available_options:
+            msg = f'default contains options not in available_options: {{{self.default}}}'
+            raise ValueError(msg)
+        return self
+
+
+class ESQLStaticMultiSelectControl(BaseControl):
+    """Represents an ES|QL control with static values for multiple selection.
+
+    This control allows users to select multiple values from a predefined list
+    to filter ES|QL visualizations via variables.
+    """
+
+    type: Literal['esql'] = 'esql'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    available_options: list[str] = Field(...)
+    """The static list of available values for this control."""
+
+    title: str = Field(...)
+    """Display title for the control."""
+
+    default: list[str] | None = Field(default=None)
+    """Default selected values."""
+
+    single_select: Literal[False] = Field(default=False)
+    """Must be False for this control type."""
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
         """Validate that default values exist in available_options."""
         if self.default is not None:
-            defaults = [self.default] if isinstance(self.default, str) else self.default
-            invalid = set(defaults) - set(self.available_options)
+            invalid = set(self.default) - set(self.available_options)
             if invalid:
                 msg = f'default contains options not in available_options: {invalid}'
                 raise ValueError(msg)
         return self
-
-    def get_inferred_single_select(self) -> bool | None:
-        """Get the effective single_select value, inferring from default type if not explicitly set."""
-        if self.single_select is not None:
-            return self.single_select
-        if self.default is not None:
-            return isinstance(self.default, str)
-        return None
 
 
 class ESQLQueryControl(BaseControl):

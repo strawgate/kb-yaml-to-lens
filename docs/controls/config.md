@@ -133,22 +133,22 @@ Allows users to filter ES|QL visualizations via variables. ES|QL controls can us
 - If you provide `available_options`, it creates a static values control
 - If you provide `esql_query`, it creates a query-driven control
 
-| YAML Key                   | Data Type                                  | Description                                                                                                | Kibana Default           | Required    |
-|----------------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------|--------------------------|-------------|
-| `type`                     | `Literal['esql']`                          | Specifies the control type.                                                                                | `esql`                   | Yes         |
-| `id`                       | `string`                                   | A unique identifier for the control. If not provided, one will be generated.                               | Generated UUID           | No          |
-| `width`                    | `Literal['small', 'medium', 'large']`      | The width of the control in the dashboard layout.                                                          | `medium`                 | No          |
-| `label`                    | `string`                                   | The display label for the control. Not used for ESQL controls - use `title` instead.                      | `None`                   | No          |
-| `variable_name`            | `string`                                   | The name of the ESQL variable (e.g., `status_code`). Used in queries as `?variable_name`.                 | N/A                      | Yes         |
-| `variable_type`            | `string`                                   | The type of variable. See [ESQL Variable Types](#esql-variable-types-variable_type).                      | `values`                 | No          |
-| `title`                    | `string`                                   | Display title for the control shown in the UI.                                                             | N/A                      | Yes         |
-| **For Static Values:**     |                                            |                                                                                                            |                          |             |
-| `available_options`        | `list of strings`                          | The static list of available values for this control. **Required for static values controls.**            | N/A                      | Conditional |
-| `default`                  | `string` or `list of strings`              | Default selected value(s). If a string, auto-infers single-select mode. If a list, auto-infers multi-select mode. | `None`           | No          |
-| `single_select`            | `boolean`                                  | If true, only allow single selection. If not set, auto-inferred from `default` type (string=true, list=false). | Inferred from `default` | No          |
-| **For Query-Driven:**      |                                            |                                                                                                            |                          |             |
-| `esql_query`               | `string`                                   | The ESQL query that returns the available values. **Required for query-driven controls.**                 | N/A                      | Conditional |
-| `single_select`            | `boolean`                                  | If true, only allow single selection from the options.                                                     | `false`                  | No          |
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| --- | --- | --- | --- | --- |
+| `type` | `Literal['esql']` | Specifies the control type. | `esql` | Yes |
+| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
+| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
+| `label` | `string` | The display label for the control. Not used for ESQL controls - use `title` instead. | `None` | No |
+| `variable_name` | `string` | The name of the ESQL variable (e.g., `status_code`). Used in queries as `?variable_name`. | N/A | Yes |
+| `variable_type` | `string` | The type of variable. See [ESQL Variable Types](#esql-variable-types-variable_type). | `values` | No |
+| `title` | `string` | Display title for the control shown in the UI. | N/A | Yes |
+| **For Static Values:** | | | | |
+| `available_options` | `list of strings` | The static list of available values for this control. **Required for static values controls.** | N/A | Conditional |
+| `default` | `string` or `list of strings` | Default selected value(s). If a string, auto-infers single-select mode. If a list, auto-infers multi-select mode. | `None` | No |
+| `single_select` | `boolean` | If true, only allow single selection. If not set, auto-inferred from `default` type (string=true, list=false). | Inferred from `default` | No |
+| **For Query-Driven:** | | | | |
+| `esql_query` | `string` | The ESQL query that returns the available values. **Required for query-driven controls.** | N/A | Conditional |
+| `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
 
 #### Static Values Example
 
@@ -230,4 +230,4 @@ This enum defines the possible search techniques used for filtering options in a
 
 ## Related Documentation
 
-* [Dashboard Configuration](./../dashboard/dashboard.md)
+- [Dashboard Configuration](./../dashboard/dashboard.md)

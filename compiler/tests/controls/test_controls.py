@@ -12,7 +12,8 @@ from dashboard_compiler.controls.compile import compile_control, compile_control
 from dashboard_compiler.controls.config import (
     ControlSettings,
     ControlTypes,
-    ESQLStaticControl,
+    ESQLStaticMultiSelectControl,
+    ESQLStaticSingleSelectControl,
     TimeSliderControl,
 )
 
@@ -401,13 +402,14 @@ async def test_custom_control_settings() -> None:
 
 
 async def test_esql_multi_select_control() -> None:
-    """Test ES|QL multi-select control with static values (no default, so singleSelect not inferred)."""
+    """Test ES|QL multi-select control with static values."""
     config = {
         'type': 'esql',
         'variable_name': 'environment',
         'variable_type': 'values',
         'available_options': ['production', 'staging', 'development'],
         'title': 'Environment',
+        'single_select': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -424,6 +426,7 @@ async def test_esql_multi_select_control() -> None:
                 'controlType': 'STATIC_VALUES',
                 'title': 'Environment',
                 'selectedOptions': [],
+                'singleSelect': False,
                 'availableOptions': ['production', 'staging', 'development'],
             },
         }
@@ -595,13 +598,14 @@ async def test_options_list_without_wait_for_results() -> None:
 
 
 async def test_esql_multi_select_control_alt() -> None:
-    """Test ES|QL multi-select control (alternative test - no default, so singleSelect not inferred)."""
+    """Test ES|QL multi-select control (alternative test)."""
     config = {
         'type': 'esql',
         'variable_name': 'status',
         'variable_type': 'values',
         'available_options': ['200', '404', '500'],
         'title': 'HTTP Status',
+        'single_select': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -618,6 +622,7 @@ async def test_esql_multi_select_control_alt() -> None:
                 'controlType': 'STATIC_VALUES',
                 'title': 'HTTP Status',
                 'selectedOptions': [],
+                'singleSelect': False,
                 'availableOptions': ['200', '404', '500'],
             },
         }
@@ -665,6 +670,7 @@ async def test_esql_multi_select_control_with_default() -> None:
         'available_options': ['200', '404', '500', '503'],
         'title': 'HTTP Status',
         'default': ['200', '404'],
+        'single_select': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -691,7 +697,7 @@ async def test_esql_multi_select_control_with_default() -> None:
 async def test_esql_single_select_control_default_validation() -> None:
     """Test that default value validation works for single-select controls."""
     with pytest.raises(ValidationError, match='default contains options not in available_options'):
-        ESQLStaticControl.model_validate(
+        ESQLStaticSingleSelectControl.model_validate(
             {
                 'type': 'esql',
                 'variable_name': 'project_id',
@@ -706,7 +712,7 @@ async def test_esql_single_select_control_default_validation() -> None:
 async def test_esql_multi_select_control_default_validation() -> None:
     """Test that default value validation works for multi-select controls."""
     with pytest.raises(ValidationError, match='default contains options not in available_options'):
-        ESQLStaticControl.model_validate(
+        ESQLStaticMultiSelectControl.model_validate(
             {
                 'type': 'esql',
                 'variable_name': 'status',
@@ -714,6 +720,7 @@ async def test_esql_multi_select_control_default_validation() -> None:
                 'available_options': ['option1', 'option2'],
                 'title': 'Status',
                 'default': ['option1', 'option3'],
+                'single_select': False,
             }
         )
 
