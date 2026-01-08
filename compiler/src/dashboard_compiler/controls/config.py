@@ -199,7 +199,10 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
-        """Validate that default value exists in available_options."""
+        """Validate that default value exists in available_options and single_select is None or True."""
+        if self.single_select is False:
+            msg = 'single_select must be None or True for ESQLStaticSingleSelectControl'
+            raise ValueError(msg)
         if self.default is not None and self.default not in self.available_options:
             msg = f'default contains options not in available_options: {{{self.default}}}'
             raise ValueError(msg)
