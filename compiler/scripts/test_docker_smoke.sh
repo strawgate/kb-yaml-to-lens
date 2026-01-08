@@ -5,7 +5,7 @@ set -e
 
 IMAGE_NAME="${IMAGE_NAME:-kb-dashboard-compiler:latest}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "Testing Docker image: $IMAGE_NAME"
 
@@ -25,7 +25,7 @@ TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
 docker run --rm \
-  -v "$PROJECT_ROOT/inputs:/inputs:ro" \
+  -v "$COMPILER_ROOT/inputs:/inputs:ro" \
   -v "$TEMP_OUTPUT:/output" \
   "$IMAGE_NAME" \
   compile --input-dir /inputs --output-dir /output

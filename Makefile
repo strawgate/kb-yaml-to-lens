@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: check
 
@@ -26,6 +26,12 @@ help:
 	@echo "  test-unit     - Run unit tests only (fast)"
 	@echo "  test-e2e      - Run end-to-end tests (requires setup)"
 	@echo "  test-all      - Run all tests (unit + e2e + smoke)"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  docs-serve    - Start local documentation server"
+	@echo "  docs-build    - Build documentation static site"
+	@echo "  docs-build-quiet - Build documentation (errors only)"
+	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -156,6 +162,23 @@ clean-full:
 inspector:
 	@echo "Running MCP Inspector..."
 	npx @modelcontextprotocol/inspector
+
+# Documentation
+docs-serve:
+	@echo "Starting documentation server..."
+	uv run --group docs mkdocs serve
+
+docs-build:
+	@echo "Building documentation..."
+	uv run --group docs mkdocs build
+
+docs-build-quiet:
+	@echo "Building documentation (errors only)..."
+	@uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+
+docs-deploy:
+	@echo "Deploying documentation to GitHub Pages..."
+	uv run --group docs mkdocs gh-deploy --force
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:

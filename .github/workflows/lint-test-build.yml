@@ -1,5 +1,8 @@
 ---
 name: Checks
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 on:
   push:
     branches:
@@ -89,7 +92,6 @@ jobs:
           retention-days: 30
       - name: Comment coverage on PR
         id: coverage_comment
-        if: github.event_name == 'pull_request'
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,10 +101,12 @@ jobs:
           echo "Coverage Vars: ${{ tojson(steps.coverage_comment.outputs) }}"
       - name: Enforce minimum Overall coverage does not decrease
         if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
-        run: echo "Overall codebase coverage decreased by ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}." && exit 1
+        run: |
+          echo "Overall coverage decreased from ${{ steps.coverage_comment.outputs.reference_percent_covered }}% to ${{ steps.coverage_comment.outputs.new_percent_covered }}%."
+          && exit 1
       - name: Enforce minimum PR coverage of 90%
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
-        run: echo "This PR's coverage is ${{ steps.coverage_comment.outputs.diff_total_percent_covered }} below the minimum of 0.90" && exit 1
+        run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
   test-python-cli:
     name: Test Python CLI
     runs-on: ubuntu-latest
@@ -134,11 +138,9 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
-        working-directory: compiler
         run: uv sync --group docs
       - name: Build documentation
-        working-directory: compiler
-        run: make docs-build-quiet
+        run: uv run --group docs mkdocs build --quiet --strict
   test-vscode-extension-typescript:
     name: Test VSCode Extension (TypeScript)
     runs-on: ubuntu-latest
@@ -202,6 +204,7 @@ jobs:
   checks-passed:
     name: All Checks Passed
     runs-on: ubuntu-latest
+    if: always()
     needs:
       - lint-python
       - lint-markdown
@@ -216,4 +219,9 @@ jobs:
       - test-vscode-extension-e2e
     steps:
       - name: All Checks Passed
-        run: echo "All checks passed"
+        run: |-
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "Some checks failed or were cancelled"
+            exit 1
+          fi
+          echo "All checks passed"
