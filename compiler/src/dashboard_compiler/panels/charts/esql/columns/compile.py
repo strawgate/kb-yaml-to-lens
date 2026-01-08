@@ -137,14 +137,9 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
     """
     dimension_id = get_layer_id(dimension)
 
-    # Check if this looks like a time/date field
-    # Common time fields: @timestamp, timestamp, time, or fields from bucket() expressions
-    field_name_lower = dimension.field.lower()
-    is_time_field = any(keyword in field_name_lower for keyword in ['timestamp', 'time', '_time', 'date', '_date'])
-
-    # Add meta information for date fields
+    # Add meta information for date fields if data_type is explicitly set
     meta = None
-    if is_time_field:
+    if dimension.data_type == 'date':
         meta = KbnESQLColumnMeta(type='date', esType='date')
 
     return KbnESQLFieldDimensionColumn(

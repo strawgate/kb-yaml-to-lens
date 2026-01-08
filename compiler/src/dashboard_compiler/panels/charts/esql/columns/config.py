@@ -62,6 +62,9 @@ class ESQLDimension(BaseESQLColumn):
     field: str = Field(default=...)
     """The field to use for the dimension."""
 
+    data_type: Literal['date'] | None = Field(default=None)
+    """The data type of the field. Set to 'date' for time/date fields to enable proper sorting and formatting."""
+
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
