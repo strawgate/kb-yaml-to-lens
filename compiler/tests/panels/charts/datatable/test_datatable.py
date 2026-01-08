@@ -458,8 +458,8 @@ def test_lens_datatable_validation_with_only_metrics_succeeds() -> None:
     assert len(chart.dimensions) == 0
 
 
-def test_lens_datatable_validation_with_only_rows_succeeds() -> None:
-    """Test that Lens datatable with only rows passes validation."""
+def test_lens_datatable_validation_with_only_dimensions_succeeds() -> None:
+    """Test that Lens datatable with only dimensions passes validation."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -473,8 +473,8 @@ def test_lens_datatable_validation_with_only_rows_succeeds() -> None:
     assert len(chart.dimensions) == 1
 
 
-def test_esql_datatable_allows_empty_metrics_and_rows() -> None:
-    """Test that ESQL datatable allows empty metrics and rows (columns inferred from query)."""
+def test_esql_datatable_allows_empty_metrics_and_dimensions() -> None:
+    """Test that ESQL datatable allows empty metrics and dimensions (columns inferred from query)."""
     config = {
         'type': 'datatable',
         'metrics': [],
@@ -501,8 +501,8 @@ def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
     assert len(chart.dimensions) == 0
 
 
-def test_esql_datatable_validation_with_only_rows_succeeds() -> None:
-    """Test that ESQL datatable with only rows passes validation."""
+def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
+    """Test that ESQL datatable with only dimensions passes validation."""
     config = {
         'type': 'datatable',
         'metrics': [],
