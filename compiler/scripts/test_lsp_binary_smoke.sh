@@ -44,6 +44,21 @@ fi
 # Test 2: Binary starts (LSP server expects stdin/stdout communication)
 # We'll send an invalid request and check it doesn't crash immediately
 echo "Testing LSP binary startup..."
-echo '{"invalid": "request"}' | timeout 2 "$BINARY_PATH" > /dev/null 2>&1 || true
+
+# Use portable timeout approach (GNU timeout not available on macOS by default)
+if command -v timeout &> /dev/null; then
+    # Use GNU timeout if available (Linux)
+    echo '{"invalid": "request"}' | timeout 2 "$BINARY_PATH" > /dev/null 2>&1 || true
+elif command -v gtimeout &> /dev/null; then
+    # Use gtimeout if available (macOS with coreutils via Homebrew)
+    echo '{"invalid": "request"}' | gtimeout 2 "$BINARY_PATH" > /dev/null 2>&1 || true
+else
+    # Fallback: portable bash-based timeout for macOS
+    echo '{"invalid": "request"}' | "$BINARY_PATH" > /dev/null 2>&1 &
+    PID=$!
+    sleep 2
+    kill $PID 2>/dev/null || true
+    wait $PID 2>/dev/null || true
+fi
 
 echo "✓ LSP binary smoke tests passed"
