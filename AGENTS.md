@@ -34,10 +34,13 @@ This repository contains three main components:
 | Command | Purpose |
 | --------- | --------- |
 | `make install` | Install all dependencies (all components) |
-| `make ci` or `make check` | **Run before committing** (linting + tests across all components) |
+| `make check` | **Run before committing** (fast: lint + typecheck + unit tests) |
+| `make ci` | Comprehensive CI checks (check + e2e tests, matches GitHub Actions) |
 | `make fix` | Auto-fix linting issues (all components) |
 | `make lint-all-check` | Check all linting without fixing |
-| `make test-all` | Run all tests (all components) |
+| `make test-unit` | Run unit tests only (fast) |
+| `make test-e2e` | Run end-to-end tests (requires setup) |
+| `make test-all` | Run all tests (unit + e2e + smoke) |
 | `make clean` | Clean cache and temporary files |
 | `make clean-full` | Deep clean including virtual environments |
 
