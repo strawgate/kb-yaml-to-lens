@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docs-serve docs-build docs-build-quiet docs-deploy docker-build docker-run docker-test docker-publish test-docker-smoke build-binary test-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check
+.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary test-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -28,7 +28,7 @@ help:
 	@echo ""
 	@echo "CI and Development Workflow:"
 	@echo "  all           - Default target (alias for ci)"
-	@echo "  ci            - Run all CI checks (lint + typecheck + test + docs)"
+	@echo "  ci            - Run all CI checks (lint + typecheck + test)"
 	@echo "  check         - Alias for ci"
 	@echo "  fix           - Auto-fix linting issues"
 	@echo ""
@@ -54,11 +54,6 @@ help:
 	@echo "  compile       - Compile YAML dashboards to NDJSON"
 	@echo "  upload        - Compile and upload dashboards to Kibana"
 	@echo ""
-	@echo "Documentation:"
-	@echo "  docs-serve    - Start local documentation server"
-	@echo "  docs-build    - Build documentation static site"
-	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
-	@echo ""
 	@echo "Docker:"
 	@echo "  docker-build       - Build Docker image"
 	@echo "  docker-run         - Run Docker container"
@@ -73,6 +68,7 @@ help:
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
 	@echo "  clean-full    - Clean all including virtual environment"
+	@echo ""
 
 all: ci
 
@@ -80,7 +76,7 @@ install:
 	@echo "Installing Python dependencies..."
 	uv sync --group dev
 
-ci: lint-check typecheck test docs-build-quiet
+ci: lint-check typecheck test
 	@echo "✓ Compiler CI checks passed"
 
 check: ci
@@ -171,23 +167,6 @@ upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
 	uv run kb-dashboard compile --upload
 
-# Documentation (references parent mkdocs.yml)
-docs-serve:
-	@echo "Starting documentation server..."
-	uv run --group docs mkdocs serve -f ../mkdocs.yml
-
-docs-build:
-	@echo "Building documentation..."
-	uv run --group docs mkdocs build -f ../mkdocs.yml
-
-docs-build-quiet:
-	@echo "Building documentation (errors only)..."
-	@uv run --group docs mkdocs build --quiet --strict -f ../mkdocs.yml && echo "✓ Documentation builds successfully"
-
-docs-deploy:
-	@echo "Deploying documentation to GitHub Pages..."
-	uv run --group docs mkdocs gh-deploy --force -f ../mkdocs.yml
-
 # Docker commands
 docker-build:
 	@echo "Building Docker image..."
@@ -220,17 +199,17 @@ docker-publish:
 
 test-docker-smoke:
 	@echo "Running Docker smoke tests..."
-	@bash ../scripts/test_docker_smoke.sh
+	@bash scripts/test_docker_smoke.sh
 
 # Binary building
 build-binary:
 	@echo "Building standalone binary..."
 	@uv sync --group build
-	@uv run python ../scripts/build_binaries.py
+	@uv run python scripts/build_binaries.py
 
 test-binary-smoke:
 	@echo "Running binary smoke tests..."
-	@bash ../scripts/test_binary_smoke.sh
+	@bash scripts/test_binary_smoke.sh
 
 # Cleaning
 clean:
