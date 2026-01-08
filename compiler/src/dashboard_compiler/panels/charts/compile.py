@@ -50,7 +50,12 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
-from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
+from dashboard_compiler.queries.compile import (
+    build_esql_index_reference,
+    compile_esql_query,
+    compile_nonesql_query,
+    extract_index_pattern_from_esql,
+)
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.view import KbnReference
@@ -187,11 +192,11 @@ def compile_lens_chart_state(  # noqa: PLR0912
     )
 
 
-def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
+def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str, str]:
     """Compile an ESQLPanel into its Kibana view model representation.
 
     Returns:
-        tuple[KbnLensPanelState, str]: A tuple containing the panel state and layer ID.
+        tuple[KbnLensPanelState, str, str]: A tuple containing the panel state, layer ID, and index reference.
 
     """
     layer_id: str
@@ -222,11 +227,16 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
+    # Extract index pattern from ES|QL query and build JSON-encoded index reference
+    esql_query_string = chart.query.root
+    index_pattern = extract_index_pattern_from_esql(esql_query_string)
+    index_reference = build_esql_index_reference(index_pattern, panel.esql.time_field)
+
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
-        timeField=panel.esql.time_field,
+        index=index_reference,
     )
 
     datasource_states = KbnDataSourceState(
@@ -241,10 +251,10 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],
-        adHocDataViews={},
+        adHocDataViews={index_reference: {}},
     )
 
-    return panel_state, layer_id
+    return panel_state, layer_id, index_reference
 
 
 def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
@@ -277,9 +287,15 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
             )
             visualization_type = chart_type_to_kbn_type_lens(base_chart)
         case ESQLPanel():
-            chart_state, _ = compile_esql_chart_state(panel)
+            chart_state, layer_id, index_reference = compile_esql_chart_state(panel)
             visualization_type = chart_type_to_kbn_type_lens(panel.esql)
-            references = []
+            references = [
+                KbnReference(
+                    type='index-pattern',
+                    id=index_reference,
+                    name=f'indexpattern-datasource-layer-{layer_id}',
+                )
+            ]
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             msg = f'Unsupported panel type: {type(panel)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]

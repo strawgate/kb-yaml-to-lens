@@ -407,7 +407,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, layer_id = compile_esql_chart_state(panel)
+        state, layer_id, index_reference = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
@@ -416,7 +416,8 @@ class TestCompileESQLChartState:
 
         # Access the specific layer using returned layer_id
         first_layer = layers[layer_id]
-        assert first_layer.timeField == '@timestamp'
+        assert first_layer.index == '{"index":"logs-*","timeFieldName":"@timestamp"}'
+        assert index_reference == '{"index":"logs-*","timeFieldName":"@timestamp"}'
 
     def test_esql_metric_chart_custom_time_field(self) -> None:
         """Test that ES|QL metric chart uses custom timeField when specified."""
@@ -434,7 +435,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, layer_id = compile_esql_chart_state(panel)
+        state, layer_id, index_reference = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
@@ -443,7 +444,8 @@ class TestCompileESQLChartState:
 
         # Access the specific layer using returned layer_id
         first_layer = layers[layer_id]
-        assert first_layer.timeField == 'event.created'
+        assert first_layer.index == '{"index":"logs-*","timeFieldName":"event.created"}'
+        assert index_reference == '{"index":"logs-*","timeFieldName":"event.created"}'
 
     def test_esql_pie_chart_custom_time_field(self) -> None:
         """Test that ES|QL pie chart uses custom timeField when specified."""
@@ -462,7 +464,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, layer_id = compile_esql_chart_state(panel)
+        state, layer_id, index_reference = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
@@ -471,7 +473,8 @@ class TestCompileESQLChartState:
 
         # Access the specific layer using returned layer_id
         first_layer = layers[layer_id]
-        assert first_layer.timeField == 'timestamp'
+        assert first_layer.index == '{"index":"logs-*","timeFieldName":"timestamp"}'
+        assert index_reference == '{"index":"logs-*","timeFieldName":"timestamp"}'
 
     def test_esql_bar_chart_custom_time_field(self) -> None:
         """Test that ES|QL bar chart uses custom timeField when specified."""
@@ -490,7 +493,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, layer_id = compile_esql_chart_state(panel)
+        state, layer_id, index_reference = compile_esql_chart_state(panel)
 
         assert state.datasourceStates is not None
         assert state.datasourceStates.textBased is not None
@@ -499,4 +502,5 @@ class TestCompileESQLChartState:
 
         # Access the specific layer using returned layer_id
         first_layer = layers[layer_id]
-        assert first_layer.timeField == 'event.timestamp'
+        assert first_layer.index == '{"index":"metrics-*","timeFieldName":"event.timestamp"}'
+        assert index_reference == '{"index":"metrics-*","timeFieldName":"event.timestamp"}'
