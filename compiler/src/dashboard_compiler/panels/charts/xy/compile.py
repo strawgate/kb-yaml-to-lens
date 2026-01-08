@@ -380,20 +380,13 @@ def compile_xy_chart_visualization_state(
     y_config: list[YConfig] | None = None
     y_config_list: list[YConfig] = []
 
-    for i, metric_id in enumerate(metric_ids):
-        metric = chart.metrics[i]
-        if (hasattr(metric, 'axis') or hasattr(metric, 'color')) and any(
-            v is not None
-            for v in (
-                getattr(metric, 'axis', None),
-                getattr(metric, 'color', None),
-            )
-        ):
+    for metric_id, metric in zip(metric_ids, chart.metrics, strict=True):
+        if metric.axis is not None or metric.color is not None:
             y_config_list.append(
                 YConfig(
                     forAccessor=metric_id,
-                    axisMode=getattr(metric, 'axis', None),
-                    color=getattr(metric, 'color', None),
+                    axisMode=metric.axis,
+                    color=metric.color,
                 )
             )
 
