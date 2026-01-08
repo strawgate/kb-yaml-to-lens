@@ -16,14 +16,6 @@
 
 ---
 
-## Code Conventions
-
-@../CODE_STYLE.md
-
-@../CODERABBIT.md
-
----
-
 ## Critical Agent Rules
 
 ### Fixture Generation is Required
