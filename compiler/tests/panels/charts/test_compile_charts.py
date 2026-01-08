@@ -428,7 +428,7 @@ class TestCompileESQLChartState:
                 'esql': {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS count()',
-                    'timeField': 'event.created',
+                    'time_field': 'event.created',
                     'primary': {'field': 'count(*)', 'id': 'metric1'},
                 },
             }
@@ -455,7 +455,7 @@ class TestCompileESQLChartState:
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
-                    'timeField': 'timestamp',
+                    'time_field': 'timestamp',
                     'slice_by': [{'field': 'status', 'id': 'group1'}],
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },
@@ -483,7 +483,7 @@ class TestCompileESQLChartState:
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM metrics-* | STATS count() BY @timestamp',
-                    'timeField': 'event.timestamp',
+                    'time_field': 'event.timestamp',
                     'dimension': {'field': '@timestamp', 'id': 'dim1'},
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },

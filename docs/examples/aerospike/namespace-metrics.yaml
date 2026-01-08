@@ -24,7 +24,7 @@ dashboards:
           h: 2
         links:
           layout: horizontal
-          links:
+          items:
             - label: Overview
               dashboard: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
             - label: Node Metrics

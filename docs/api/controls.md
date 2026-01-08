@@ -31,3 +31,4 @@ Control configuration and compilation.
 ::: dashboard_compiler.controls.config.TimeSliderControl
     options:
       show_source: true
+      members: false

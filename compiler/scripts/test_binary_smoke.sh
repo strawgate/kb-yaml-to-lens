@@ -59,7 +59,7 @@ trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 "$BINARY_PATH" compile --input-dir "$COMPILER_ROOT/inputs" --output-dir "$TEMP_OUTPUT"
 
 # Verify output files exist
-if [ ! -f "$TEMP_OUTPUT/esql-controls-example.ndjson" ]; then
+if [ ! -f "$TEMP_OUTPUT/compiled_dashboards.ndjson" ]; then
   echo "✗ Expected output file not found"
   exit 1
 fi
@@ -67,7 +67,7 @@ echo "✓ Compilation works and generates output"
 
 # Test 4: Verify NDJSON format
 echo "Test 4: Verify NDJSON output format"
-if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/esql-controls-example.ndjson"; then
+if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/compiled_dashboards.ndjson"; then
   echo "✗ Output doesn't contain expected dashboard JSON"
   exit 1
 fi

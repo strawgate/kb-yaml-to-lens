@@ -1,49 +1,81 @@
 """Configuration models for heatmap chart visualizations."""
 
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
-from dashboard_compiler.panels.charts.base.config import BaseChart
+from dashboard_compiler.panels.charts.base.config import BaseChart, LegendVisibleEnum
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
+class HeatmapAxisConfig(BaseCfgModel):
+    """Configuration for a heatmap axis.
+
+    Controls visibility of axis labels and title.
+    """
+
+    show_labels: bool | None = Field(default=None)
+    """Whether to show axis labels."""
+
+    show_title: bool | None = Field(default=None)
+    """Whether to show axis title."""
+
+
+class HeatmapCellsConfig(BaseCfgModel):
+    """Configuration for heatmap cells.
+
+    Controls visibility of cell labels.
+    """
+
+    show_labels: bool | None = Field(default=None)
+    """Whether to show labels inside heatmap cells."""
+
+
 class HeatmapGridConfig(BaseCfgModel):
     """Grid configuration for heatmap visualizations.
 
-    Controls the visibility of cell labels, axis labels, and axis titles.
+    Controls the visibility of cell labels and axis configuration.
     """
 
-    is_cell_label_visible: bool | None = Field(default=None)
-    """Whether to show labels inside heatmap cells."""
+    cells: HeatmapCellsConfig | None = Field(default=None)
+    """Configuration for cell labels."""
 
-    is_x_axis_label_visible: bool | None = Field(default=None)
-    """Whether to show X-axis labels."""
+    x_axis: HeatmapAxisConfig | None = Field(default=None)
+    """Configuration for the X-axis."""
 
-    is_x_axis_title_visible: bool | None = Field(default=None)
-    """Whether to show X-axis title."""
-
-    is_y_axis_label_visible: bool | None = Field(default=None)
-    """Whether to show Y-axis labels."""
-
-    is_y_axis_title_visible: bool | None = Field(default=None)
-    """Whether to show Y-axis title."""
+    y_axis: HeatmapAxisConfig | None = Field(default=None)
+    """Configuration for the Y-axis."""
 
 
 class HeatmapLegendConfig(BaseCfgModel):
     """Legend configuration for heatmap visualizations.
 
     Controls the visibility and position of the color legend.
+    Note: Heatmaps only support 'show' and 'hide' visibility options (not 'auto').
     """
 
-    is_visible: bool | None = Field(default=None)
-    """Whether to show the legend."""
+    visible: LegendVisibleEnum | None = Field(
+        default=None,
+        strict=False,  # Allow string coercion from YAML config (e.g., 'show' -> LegendVisibleEnum.SHOW)
+    )
+    """Visibility of the legend (show or hide). Kibana defaults to show if not specified."""
 
     position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
     """Position of the legend relative to the chart."""
+
+    @model_validator(mode='after')
+    def validate_visible_not_auto(self) -> Self:
+        """Validate that visible is not 'auto' for heatmaps.
+
+        Heatmaps only support 'show' and 'hide' visibility options.
+        """
+        if self.visible == LegendVisibleEnum.AUTO:
+            msg = "Heatmap legend does not support 'auto' visibility. Use 'show' or 'hide'."
+            raise ValueError(msg)
+        return self
 
 
 class BaseHeatmapChart(BaseCfgModel):

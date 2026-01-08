@@ -88,7 +88,7 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-grid). | N/A | Yes |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-legacy). | N/A | Yes |
 | `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../queries/config.md#esql-query). | N/A | Yes |
 | `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This can be [ESQL Metric Chart](#esql-metric-chart-charttype-metric), [ESQL Pie Chart](#esql-pie-chart-charttype-pie), [ESQL Bar Chart](#esql-bar-chart-charttype-bar), [ESQL Line Chart](#esql-line-chart-charttype-line), or [ESQL Area Chart](#esql-area-chart-charttype-area). | N/A | Yes |
 

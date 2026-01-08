@@ -2,7 +2,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendWidthEnum
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendVisibleEnum, LegendWidthEnum
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes
 from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
@@ -62,7 +62,11 @@ type ESQLXYChartTypes = ESQLBarChart | ESQLLineChart | ESQLAreaChart
 class XYLegend(BaseCfgModel):
     """Represents legend formatting options for XY charts."""
 
-    visible: bool | None = Field(default=None, description='Whether the legend is visible.')
+    visible: LegendVisibleEnum | None = Field(
+        default=None,
+        strict=False,  # Turn off strict for enums
+        description='Visibility of the legend (show, hide, or auto). Kibana defaults to show if not specified.',
+    )
 
     position: Literal['top', 'bottom', 'left', 'right'] | None = Field(
         default=None,
