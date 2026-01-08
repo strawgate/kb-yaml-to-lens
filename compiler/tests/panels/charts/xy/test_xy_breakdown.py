@@ -126,11 +126,12 @@ async def test_xy_breakdown_with_collapse() -> None:
     lens_chart = LensBarChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
 
-    # Verify collapse function (this would be in the collapseFn field of the layer in full implementation)
+    # Verify collapse function is properly wired
     layer = kbn_state_visualization.layers[0]
     assert isinstance(layer, XYDataLayerConfig)
     assert layer.splitAccessors is not None
     assert len(layer.splitAccessors) == 2
+    assert layer.collapseFn == 'sum'
 
 
 async def test_xy_breakdown_with_sort() -> None:

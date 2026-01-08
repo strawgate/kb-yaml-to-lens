@@ -15,7 +15,7 @@
  * - visualization.layers[0].splitAccessors array contains all breakdown IDs
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { runIfMain } from '../generator-utils.js';
 
 export async function generateXYChartMultiFieldBreakdown(): Promise<void> {
   // This is a DATA VIEW ONLY example since ES|QL queries handle grouping differently

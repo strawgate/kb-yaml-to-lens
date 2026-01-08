@@ -13,7 +13,7 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensStaticValueColumnParams,
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions, compile_lens_terms_breakdown
-from dashboard_compiler.panels.charts.lens.dimensions.config import LensTermsBreakdown
+from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum, LensTermsBreakdown
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
     AreaChartAppearance,
@@ -353,13 +353,14 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     return series_type
 
 
-def compile_xy_chart_visualization_state(
+def compile_xy_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_id: str | None,
     metric_ids: list[str],
     breakdown: str | list[str] | None = None,
+    collapse_fn: CollapseAggregationEnum | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -369,6 +370,7 @@ def compile_xy_chart_visualization_state(
         dimension_id (str | None): The ID of the X-axis dimension.
         metric_ids (list[str]): The IDs of the metrics.
         breakdown (str | list[str] | None): The ID (single field) or IDs (multi-field) of the breakdown dimension(s).
+        collapse_fn (CollapseAggregationEnum | None): Optional collapse function for multi-field breakdowns.
 
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
@@ -437,6 +439,7 @@ def compile_xy_chart_visualization_state(
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
         splitAccessors=breakdown_ids,
+        collapseFn=collapse_fn.value if isinstance(collapse_fn, CollapseAggregationEnum) else collapse_fn,
         yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
         xScaleType=x_scale,
     )
@@ -512,6 +515,7 @@ def compile_lens_xy_chart(
         dimension_id = next(iter(kbn_dimension_columns.keys()))
 
     breakdown = None
+    collapse_fn = None
 
     if lens_xy_chart.breakdown is not None:
         if isinstance(lens_xy_chart.breakdown, LensTermsBreakdown):
@@ -522,6 +526,7 @@ def compile_lens_xy_chart(
             breakdown_ids = list(kbn_breakdown_columns.keys())
             kbn_dimension_columns.update(kbn_breakdown_columns)
             breakdown = breakdown_ids  # LIST for multi-field
+            collapse_fn = lens_xy_chart.breakdown.collapse
         else:
             # Single dimension breakdown
             kbn_breakdown_columns = compile_lens_dimensions(
@@ -542,6 +547,7 @@ def compile_lens_xy_chart(
             dimension_id=dimension_id,
             metric_ids=metric_ids,
             breakdown=breakdown,
+            collapse_fn=collapse_fn,
         ),
     )
 

@@ -16,7 +16,7 @@
  * - visualization.breakdownByAccessor: string (not an array)
  */
 
-import { generateFixture, runIfMain } from '../generator-utils.js';
+import { runIfMain } from '../generator-utils.js';
 
 export async function generateMetricMultiFieldBreakdown(): Promise<void> {
   // This fixture validates the compiled structure when the compiler receives:

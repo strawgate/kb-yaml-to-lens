@@ -163,14 +163,14 @@ class LensDateHistogramDimension(BaseLensDimension):
 class LensTermsBreakdown(BaseLensDimension):
     """Represents a terms-based breakdown with support for multiple fields.
 
-    This is used for breakdown_by in XY and Metric charts to split data
+    This is used for breakdown in XY and Metric charts to split data
     by up to 4 fields simultaneously. Unlike regular dimensions, this
     allows breaking down by multiple fields in a single breakdown operation.
 
     Examples:
         Single field breakdown:
         ```yaml
-        breakdown_by:
+        breakdown:
           operation: terms
           fields:
             - product.category
@@ -179,7 +179,7 @@ class LensTermsBreakdown(BaseLensDimension):
 
         Multi-field breakdown with options:
         ```yaml
-        breakdown_by:
+        breakdown:
           operation: terms
           fields:
             - product.category

@@ -29,7 +29,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensTopValuesDimension,
 )
 from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
-from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.config import Sort, stable_id_generator
 from dashboard_compiler.shared.defaults import default_false, default_true
 
 # Maps user-friendly granularity levels (1=finest to 7=coarsest) to Kibana's
@@ -48,6 +48,61 @@ GRANULARITY_TO_BARS = {
 }
 
 
+def _build_terms_order_by(
+    sort_config: Sort | None,
+    kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
+) -> KbnLensTermsOrderBy:
+    """Build orderBy configuration for terms operations.
+
+    Handles sort configuration with fallbacks for formula metrics and empty metrics.
+
+    Args:
+        sort_config: Optional sort configuration specifying which column to order by.
+        kbn_metric_column_by_id: Mapping of compiled metric columns by their IDs.
+
+    Returns:
+        KbnLensTermsOrderBy: The orderBy configuration for the terms operation.
+
+    Raises:
+        ValueError: If sort_config specifies a column name that doesn't exist in kbn_metric_column_by_id.
+
+    """
+    kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
+
+    if sort_config is not None:
+        if sort_config.by not in kbn_column_name_to_id:
+            msg = f'Column {sort_config.by} not found in kbn_metric_column_by_id'
+            raise ValueError(msg)
+        return KbnLensTermsOrderBy(
+            type='column',
+            columnId=kbn_column_name_to_id[sort_config.by],
+        )
+
+    if len(kbn_metric_column_by_id) > 0:
+        # Default to ordering by first metric column if it's not a formula
+        # Formula columns cannot be used for aggregation ordering in Elasticsearch
+        first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
+        first_metric = kbn_metric_column_by_id[first_metric_id]
+
+        if first_metric.operationType == 'formula':
+            # Formula columns are computed post-aggregation, use alphabetical ordering
+            return KbnLensTermsOrderBy(
+                type='alphabetical',
+                fallback=True,
+            )
+        # Non-formula metrics can be used for ordering
+        return KbnLensTermsOrderBy(
+            type='column',
+            columnId=first_metric_id,
+        )
+
+    # No metrics available, fall back to alphabetical
+    return KbnLensTermsOrderBy(
+        type='alphabetical',
+        fallback=True,
+    )
+
+
 def compile_lens_dimension(
     dimension: LensDimensionTypes,
     *,
@@ -63,8 +118,6 @@ def compile_lens_dimension(
         tuple[str, KbnLensDimensionColumnTypes]: A tuple containing the dimension ID and the compiled Kibana view model.
 
     """
-    kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
-
     custom_label = True if dimension.label is not None else None
 
     if isinstance(dimension, LensDateHistogramDimension):
@@ -86,39 +139,7 @@ def compile_lens_dimension(
     if isinstance(dimension, LensTopValuesDimension):
         dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
 
-        order_by = None
-        if dimension.sort is not None:
-            if dimension.sort.by not in kbn_column_name_to_id:
-                msg = f'Column {dimension.sort.by} not found in kbn_metric_column_by_id'
-                raise ValueError(msg)
-            order_by = KbnLensTermsOrderBy(
-                type='column',
-                columnId=kbn_column_name_to_id[dimension.sort.by],
-            )
-        elif len(kbn_metric_column_by_id) > 0:
-            # Default to ordering by first metric column if it's not a formula
-            # Formula columns cannot be used for aggregation ordering in Elasticsearch
-            first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
-            first_metric = kbn_metric_column_by_id[first_metric_id]
-
-            if first_metric.operationType == 'formula':
-                # Formula columns are computed post-aggregation, use alphabetical ordering
-                order_by = KbnLensTermsOrderBy(
-                    type='alphabetical',
-                    fallback=True,
-                )
-            else:
-                # Non-formula metrics can be used for ordering
-                order_by = KbnLensTermsOrderBy(
-                    type='column',
-                    columnId=first_metric_id,
-                )
-        else:
-            # No metrics available, fall back to alphabetical
-            order_by = KbnLensTermsOrderBy(
-                type='alphabetical',
-                fallback=True,
-            )
+        order_by = _build_terms_order_by(dimension.sort, kbn_metric_column_by_id)
 
         return dimension_id, KbnLensTermsDimensionColumn(
             label=dimension.label or f'Top {dimension.size or 3} values of {dimension.field}',
@@ -238,40 +259,10 @@ def compile_lens_terms_breakdown(
             one for each field in the breakdown.
 
     """
-    kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
-
     columns: dict[str, KbnLensDimensionColumnTypes] = {}
 
     # Build orderBy configuration
-    order_by = None
-    if breakdown.sort is not None:
-        if breakdown.sort.by not in kbn_column_name_to_id:
-            msg = f'Column {breakdown.sort.by} not found in kbn_metric_column_by_id'
-            raise ValueError(msg)
-        order_by = KbnLensTermsOrderBy(
-            type='column',
-            columnId=kbn_column_name_to_id[breakdown.sort.by],
-        )
-    elif len(kbn_metric_column_by_id) > 0:
-        # Default to ordering by first metric column if it's not a formula
-        first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
-        first_metric = kbn_metric_column_by_id[first_metric_id]
-
-        if first_metric.operationType == 'formula':
-            order_by = KbnLensTermsOrderBy(
-                type='alphabetical',
-                fallback=True,
-            )
-        else:
-            order_by = KbnLensTermsOrderBy(
-                type='column',
-                columnId=first_metric_id,
-            )
-    else:
-        order_by = KbnLensTermsOrderBy(
-            type='alphabetical',
-            fallback=True,
-        )
+    order_by = _build_terms_order_by(breakdown.sort, kbn_metric_column_by_id)
 
     # Create a terms column for each field
     for field in breakdown.fields:
