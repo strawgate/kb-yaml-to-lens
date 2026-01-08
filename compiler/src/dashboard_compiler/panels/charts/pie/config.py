@@ -25,6 +25,9 @@ class PieLegend(BaseCfgModel):
     nested: bool | None = Field(default=None)
     """Whether to show legend in nested format for multi-level pie charts. Kibana defaults to False if not specified."""
 
+    show_single_series: bool | None = Field(default=None)
+    """Whether to show legend when there is only one series. Kibana defaults to false if not specified."""
+
 
 class PieSliceValuesEnum(StrEnum):
     """Represents the possible values for slice values in a pie chart."""

@@ -305,6 +305,36 @@ class XYByReferenceAnnotationLayerConfig(BaseVwModel):
     """Timestamp of when the annotation group was last saved."""
 
 
+class XYLegendConfig(BaseVwModel):
+    """View model for XY legend configuration.
+
+    Defines how the legend should be displayed in XY charts, including visibility,
+    position, size, and label truncation settings.
+
+    See Also:
+        Kibana type definition: Related to legend types in
+        https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
+    """
+
+    isVisible: bool
+    """Whether the legend is visible."""
+
+    position: str
+    """Position of the legend ('top', 'bottom', 'left', 'right')."""
+
+    showSingleSeries: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to show legend when there is only one series."""
+
+    legendSize: Annotated[str | None, OmitIfNone()] = None
+    """Size of the legend ('auto', 'small', 'medium', 'large', 'extra_large')."""
+
+    shouldTruncate: Annotated[bool | None, OmitIfNone()] = None
+    """Whether to truncate long legend labels."""
+
+    maxLines: Annotated[int | None, OmitIfNone()] = None
+    """Maximum number of lines for legend labels."""
+
+
 class KbnXYVisualizationState(KbnBaseStateVisualization):
     """View model for XY chart visualization state after compilation to Kibana Lens format.
 
@@ -324,7 +354,7 @@ class KbnXYVisualizationState(KbnBaseStateVisualization):
     preferredSeriesType: str | None = None
     """Default series type for new layers ('bar', 'line', 'area', etc.)."""
 
-    legend: Any
+    legend: XYLegendConfig
     """Legend configuration (position, visibility, size, etc.)."""
 
     valueLabels: Literal['hide', 'show'] | None = None
