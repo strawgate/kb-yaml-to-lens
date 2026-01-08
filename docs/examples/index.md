@@ -4,8 +4,8 @@ This section provides real-world YAML dashboard examples demonstrating various f
 
 ## How to Use These Examples
 
-1. **View:** Expand the preview section for any example below to see the YAML code.
-2. **Copy:** Use the copy button in the code block to copy the preview, or click the GitHub link to view and copy the complete example.
+1. **View:** Expand the "Example YAML" section for any example below to see the complete code inline.
+2. **Copy:** Use the copy button in the code block, or click the GitHub link to view the source.
 3. **Save:** Save the content to a `.yaml` file in your `inputs/` directory (e.g., `inputs/my_example.yaml`).
 4. **Compile:** Run the compiler:
 
@@ -33,12 +33,13 @@ Demonstrates the use of dashboard controls including:
 
 **Use this when:** You need interactive filtering capabilities on your dashboard.
 
-??? abstract "Preview (first 30 lines)"
-    ```yaml
-    --8<-- "examples/controls-example.yaml:1:30"
-    ```
+[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)
 
-    [View complete example (129 lines) on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)
+??? example "Example YAML (controls-example.yaml)"
+
+```yaml
+--8<-- "examples/controls-example.yaml"
+```
 
 ### Dimensions Example
 
@@ -51,12 +52,13 @@ Shows how to configure dimensions in Lens visualizations:
 
 **Use this when:** You're building complex charts with multiple breakdowns and groupings.
 
-??? abstract "Preview (first 30 lines)"
-    ```yaml
-    --8<-- "examples/dimensions-example.yaml:1:30"
-    ```
+[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/dimensions-example.yaml)
 
-    [View complete example (220 lines) on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/dimensions-example.yaml)
+??? example "Example YAML (dimensions-example.yaml)"
+
+```yaml
+--8<-- "examples/dimensions-example.yaml"
+```
 
 ### Color Palette Example
 
@@ -72,12 +74,13 @@ Demonstrates color customization for charts including:
 
 **Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../advanced/color-assignments.md) guide for an introduction.
 
-??? abstract "Preview (first 30 lines)"
-    ```yaml
-    --8<-- "examples/color-palette-examples.yaml:1:30"
-    ```
+[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
 
-    [View complete example (191 lines) on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
+??? example "Example YAML (color-palette-examples.yaml)"
+
+```yaml
+--8<-- "examples/color-palette-examples.yaml"
+```
 
 ### Filters Example
 
@@ -92,12 +95,13 @@ Comprehensive filter demonstrations including:
 
 **Use this when:** You need to pre-filter data or provide context-specific views.
 
-??? abstract "Preview (first 30 lines)"
-    ```yaml
-    --8<-- "examples/filters-example.yaml:1:30"
-    ```
+[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
 
-    [View complete example (186 lines) on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
+??? example "Example YAML (filters-example.yaml)"
+
+```yaml
+--8<-- "examples/filters-example.yaml"
+```
 
 ### Multi-Panel Showcase
 
@@ -113,12 +117,13 @@ A complete dashboard featuring multiple panel types:
 
 **Use this when:** You want to see how different panel types work together in a single dashboard.
 
-??? abstract "Preview (first 30 lines)"
-    ```yaml
-    --8<-- "examples/multi-panel-showcase.yaml:1:30"
-    ```
+[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/multi-panel-showcase.yaml)
 
-    [View complete example (129 lines) on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/multi-panel-showcase.yaml)
+??? example "Example YAML (multi-panel-showcase.yaml)"
+
+```yaml
+--8<-- "examples/multi-panel-showcase.yaml"
+```
 
 ### Navigation Example
 
@@ -131,12 +136,13 @@ Demonstrates dashboard navigation features:
 
 **Use this when:** You're building a suite of interconnected dashboards.
 
-??? abstract "Preview (first 30 lines)"
-    ```yaml
-    --8<-- "examples/navigation-example.yaml:1:30"
-    ```
+[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/navigation-example.yaml)
 
-    [View complete example (222 lines) on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/navigation-example.yaml)
+??? example "Example YAML (navigation-example.yaml)"
+
+```yaml
+--8<-- "examples/navigation-example.yaml"
+```
 
 ### [Aerospike Monitoring Examples](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/aerospike/)
 
