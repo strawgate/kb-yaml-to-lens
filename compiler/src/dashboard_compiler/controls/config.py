@@ -163,7 +163,7 @@ class ESQLStaticSingleSelectControl(BaseControl):
     variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
     """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
 
-    available_options: list[str] = Field(...)
+    choices: list[str] = Field(...)
     """The static list of available values for this control."""
 
     title: str = Field(...)
@@ -172,14 +172,14 @@ class ESQLStaticSingleSelectControl(BaseControl):
     default: str | None = Field(default=None)
     """Default selected value."""
 
-    single_select: Literal[True] | None = Field(default=None)
-    """If true or None, only allow single selection. Must be None or True for this control type."""
+    multiple: Literal[False] | None = Field(default=None)
+    """If true, allow multiple selection. Must be None or False for this control type."""
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
-        """Validate that default value exists in available_options."""
-        if self.default is not None and self.default not in self.available_options:
-            msg = f'default contains options not in available_options: {{{self.default}}}'
+        """Validate that default value exists in choices."""
+        if self.default is not None and self.default not in self.choices:
+            msg = f'default contains options not in choices: {{{self.default}}}'
             raise ValueError(msg)
         return self
 
@@ -199,7 +199,7 @@ class ESQLStaticMultiSelectControl(BaseControl):
     variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
     """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
 
-    available_options: list[str] = Field(...)
+    choices: list[str] = Field(...)
     """The static list of available values for this control."""
 
     title: str = Field(...)
@@ -208,16 +208,16 @@ class ESQLStaticMultiSelectControl(BaseControl):
     default: list[str] | None = Field(default=None)
     """Default selected values."""
 
-    single_select: Literal[False] = Field(default=False)
-    """Must be False for this control type."""
+    multiple: Literal[True] = Field(default=True)
+    """Must be True for this control type."""
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
-        """Validate that default values exist in available_options."""
+        """Validate that default values exist in choices."""
         if self.default is not None:
-            invalid = set(self.default) - set(self.available_options)
+            invalid = set(self.default) - set(self.choices)
             if len(invalid) > 0:
-                msg = f'default contains options not in available_options: {invalid}'
+                msg = f'default contains options not in choices: {invalid}'
                 raise ValueError(msg)
         return self
 
@@ -243,5 +243,5 @@ class ESQLQueryControl(BaseControl):
     title: str = Field(...)
     """Display title for the control."""
 
-    single_select: bool | None = Field(default=None)
-    """If true, only allow single selection from the options."""
+    multiple: bool | None = Field(default=None)
+    """If true, allow multiple selection from the options."""

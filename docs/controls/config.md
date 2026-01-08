@@ -131,7 +131,7 @@ Allows users to filter ES|QL visualizations via variables. ES|QL controls can us
 
 **The control type is automatically determined based on the fields you provide:**
 
-- If you provide `available_options`, it creates a static values control
+- If you provide `choices`, it creates a static values control
 - If you provide `query`, it creates a query-driven control
 
 #### Common Fields
@@ -150,13 +150,13 @@ These fields apply to all ES|QL controls (both static and query-driven):
 
 #### Static Values Control Fields
 
-Additional fields for static values controls (when `available_options` is provided):
+Additional fields for static values controls (when `choices` is provided):
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --- | --- | --- | --- | --- |
-| `available_options` | `list of strings` | The static list of available values for this control. **Required for static values controls.** | N/A | Yes |
+| `choices` | `list of strings` | The static list of available values for this control. **Required for static values controls.** | N/A | Yes |
 | `default` | `string` or `list of strings` | Default selected value(s). If a string, auto-infers single-select mode. If a list, auto-infers multi-select mode. | `None` | No |
-| `single_select` | `boolean` | If true, only allow single selection. If not set, auto-inferred from `default` type (string=true, list=false). | Inferred from `default` | No |
+| `multiple` | `boolean` | If true, allow multiple selection. If not set, auto-inferred from `default` type (string=false, list=true). | Inferred from `default` | No |
 
 #### Query-Driven Control Fields
 
@@ -165,36 +165,36 @@ Additional fields for query-driven controls (when `query` is provided):
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --- | --- | --- | --- | --- |
 | `query` | `string` | The ES\|QL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
-| `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
+| `multiple` | `boolean` | If true, allow multiple selection from the options. | `false` | No |
 
 #### Static Values Example
 
 ```yaml
 controls:
-  # Single-select control with explicit single_select
+  # Single-select control with explicit multiple
   - type: esql
     variable_name: environment
     variable_type: values
-    available_options:
+    choices:
       - production
       - staging
       - development
     title: Environment
-    single_select: true
+    multiple: false
 
-  # Single-select control with string default (auto-infers single_select: true)
+  # Single-select control with string default (auto-infers multiple: false)
   - type: esql
     variable_name: status
     variable_type: values
-    available_options: ["200", "404", "500"]
+    choices: ["200", "404", "500"]
     title: HTTP Status
     default: "200"
 
-  # Multi-select control with list default (auto-infers single_select: false)
+  # Multi-select control with list default (auto-infers multiple: true)
   - type: esql
     variable_name: regions
     variable_type: values
-    available_options: ["us-east", "us-west", "eu-west"]
+    choices: ["us-east", "us-west", "eu-west"]
     title: Regions
     default: ["us-east", "us-west"]
 ```

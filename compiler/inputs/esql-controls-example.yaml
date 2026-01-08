@@ -11,13 +11,13 @@ dashboards:
       - type: esql
         variable_name: service_environment
         variable_type: values
-        available_options:
+        choices:
           - production
           - staging
           - development
         title: Service Environment
         width: medium
-        single_select: true
+        multiple: false
 
       # Query-driven ES|QL control
       - type: esql
@@ -26,7 +26,7 @@ dashboards:
         query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
         title: HTTP Status Code
         width: medium
-        single_select: false
+        multiple: true
 
       # Another query-driven control using the first variable
       - type: esql

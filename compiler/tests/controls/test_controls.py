@@ -407,9 +407,9 @@ async def test_esql_multi_select_control() -> None:
         'type': 'esql',
         'variable_name': 'environment',
         'variable_type': 'values',
-        'available_options': ['production', 'staging', 'development'],
+        'choices': ['production', 'staging', 'development'],
         'title': 'Environment',
-        'single_select': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -439,10 +439,10 @@ async def test_esql_single_select_control() -> None:
         'type': 'esql',
         'variable_name': 'status',
         'variable_type': 'values',
-        'available_options': ['200', '404', '500'],
+        'choices': ['200', '404', '500'],
         'title': 'HTTP Status',
         'width': 'small',
-        'single_select': True,
+        'multiple': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -503,7 +503,7 @@ async def test_esql_query_control_with_single_select() -> None:
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'title': 'Host Name',
-        'single_select': True,
+        'multiple': False,
         'width': 'large',
     }
     result = compile_control_snapshot(config)
@@ -603,9 +603,9 @@ async def test_esql_multi_select_control_alt() -> None:
         'type': 'esql',
         'variable_name': 'status',
         'variable_type': 'values',
-        'available_options': ['200', '404', '500'],
+        'choices': ['200', '404', '500'],
         'title': 'HTTP Status',
-        'single_select': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -635,7 +635,7 @@ async def test_esql_single_select_control_with_default() -> None:
         'type': 'esql',
         'variable_name': 'project_id',
         'variable_type': 'values',
-        'available_options': ['e252fee1dd6f4ff08bc91532aa922182', 'aaca5cd9be82480fa821c3f8e64e3f41'],
+        'choices': ['e252fee1dd6f4ff08bc91532aa922182', 'aaca5cd9be82480fa821c3f8e64e3f41'],
         'title': 'Project ID',
         'default': 'e252fee1dd6f4ff08bc91532aa922182',
     }
@@ -667,10 +667,10 @@ async def test_esql_multi_select_control_with_default() -> None:
         'type': 'esql',
         'variable_name': 'status',
         'variable_type': 'values',
-        'available_options': ['200', '404', '500', '503'],
+        'choices': ['200', '404', '500', '503'],
         'title': 'HTTP Status',
         'default': ['200', '404'],
-        'single_select': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -696,13 +696,13 @@ async def test_esql_multi_select_control_with_default() -> None:
 
 async def test_esql_single_select_control_default_validation() -> None:
     """Test that default value validation works for single-select controls."""
-    with pytest.raises(ValidationError, match='default contains options not in available_options'):
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
         ESQLStaticSingleSelectControl.model_validate(
             {
                 'type': 'esql',
                 'variable_name': 'project_id',
                 'variable_type': 'values',
-                'available_options': ['option1', 'option2'],
+                'choices': ['option1', 'option2'],
                 'title': 'Project',
                 'default': 'option3',
             }
@@ -711,16 +711,16 @@ async def test_esql_single_select_control_default_validation() -> None:
 
 async def test_esql_multi_select_control_default_validation() -> None:
     """Test that default value validation works for multi-select controls."""
-    with pytest.raises(ValidationError, match='default contains options not in available_options'):
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
         ESQLStaticMultiSelectControl.model_validate(
             {
                 'type': 'esql',
                 'variable_name': 'status',
                 'variable_type': 'values',
-                'available_options': ['option1', 'option2'],
+                'choices': ['option1', 'option2'],
                 'title': 'Status',
                 'default': ['option1', 'option3'],
-                'single_select': False,
+                'multiple': True,
             }
         )
 
@@ -733,7 +733,7 @@ async def test_esql_query_control_with_multi_select() -> None:
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'title': 'Host Name',
-        'single_select': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(

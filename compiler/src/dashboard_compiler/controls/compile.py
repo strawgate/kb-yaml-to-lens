@@ -155,7 +155,7 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
             title=control.title,
             selectedOptions=selected_options,
             singleSelect=True,
-            availableOptions=control.available_options,
+            availableOptions=control.choices,
         ),
     )
 
@@ -189,7 +189,7 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
             title=control.title,
             selectedOptions=selected_options,
             singleSelect=False,
-            availableOptions=control.available_options,
+            availableOptions=control.choices,
         ),
     )
 
@@ -219,7 +219,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
             controlType=EsqlControlType.VALUES_FROM_QUERY.value,
             title=control.title,
             selectedOptions=[],
-            singleSelect=return_if(var=control.single_select, is_true=True, is_false=False, default=None),
+            singleSelect=return_if(var=control.multiple, is_true=False, is_false=True, default=None),
             availableOptions=None,
         ),
     )
