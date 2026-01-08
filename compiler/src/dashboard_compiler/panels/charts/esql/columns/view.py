@@ -33,6 +33,16 @@ class KbnESQLMetricFormat(BaseVwModel):
 type KbnESQLMetricFormatTypes = KbnESQLMetricFormat
 
 
+class KbnESQLColumnMeta(BaseVwModel):
+    """Metadata about an ES|QL column type."""
+
+    type: Literal['number', 'string', 'date', 'boolean']
+    """The data type of the column."""
+
+    esType: Annotated[str | None, OmitIfNone()] = None
+    """The Elasticsearch field type (optional, e.g., 'long', 'double')."""
+
+
 class KbnESQLFieldDimensionColumn(BaseVwModel):
     """Represents a field-sourced ESQL column in the Kibana JSON structure."""
 
@@ -42,22 +52,21 @@ class KbnESQLFieldDimensionColumn(BaseVwModel):
     columnId: str
     """The ID of the column."""
 
+    label: Annotated[str | None, OmitIfNone()] = None
+    """Display label for the column."""
+
+    customLabel: Annotated[bool | None, OmitIfNone()] = None
+    """Whether the label is customized."""
+
+    meta: Annotated[KbnESQLColumnMeta | None, OmitIfNone()] = None
+    """Type metadata for the column."""
+
 
 class KbnESQLMetricColumnParams(BaseVwModel):
     """Parameters for ES|QL metric column formatting."""
 
     format: Annotated[KbnESQLMetricFormatTypes | None, OmitIfNone()] = None
     """The format configuration for this metric."""
-
-
-class KbnESQLColumnMeta(BaseVwModel):
-    """Metadata about an ES|QL column type."""
-
-    type: Literal['number', 'string', 'date', 'boolean']
-    """The data type of the column."""
-
-    esType: Annotated[str | None, OmitIfNone()] = None
-    """The Elasticsearch field type (optional, e.g., 'long', 'double')."""
 
 
 class KbnESQLFieldMetricColumn(BaseVwModel):

@@ -47,7 +47,7 @@ dashboards:
         width: "medium"
         data_view: "metrics-*"
         field: "resource.attributes.host.name"
-        singular: false
+        multiple: true
         match_technique: "contains"
       - type: range
         label: "CPU Utilization"
@@ -109,39 +109,83 @@ Allows users to select a sub-section of the dashboard's current time range. This
 
 **Note on Time Slider Offsets:** The YAML configuration expects `start_offset` and `end_offset` as float values between 0.0 (0%) and 1.0 (100%). Kibana internally represents these as percentages from 0.0 to 100.0. If not provided, Kibana defaults to `0.0` for start and `100.0` for end.
 
-### ES|QL Control
+### ES|QL Controls
 
-Allows users to filter ES|QL visualizations via variables. ES|QL controls can use either static values or query-driven values.
+ES|QL controls allow users to filter ES|QL visualizations via variables. There are two main types:
 
-**The control type is automatically determined based on the fields you provide:**
+1. **ES|QL Field/Function Controls** - For field/function selection (FIELDS, FUNCTIONS variable types)
+2. **ES|QL Value Controls** - For value selection (VALUES, MULTI_VALUES, TIME_LITERAL variable types)
 
-- If you provide `choices` with a single default value (or `multiple: false`), it creates a static single-select control
-- If you provide `choices` with a list default value (or `multiple: true`), it creates a static multi-select control
-- If you provide `query`, it creates a query-driven control
+#### ES|QL Field Control
 
-#### ES|QL Static Single-Select Control
+For field selection in ES|QL visualizations. Only supports static values via `choices`.
 
-For single-selection controls with predefined values.
+::: dashboard_compiler.controls.config.ESQLFieldControl
+    options:
+      show_root_heading: false
+      heading_level: 5
+
+#### ES|QL Function Control
+
+For function selection in ES|QL visualizations. Only supports static values via `choices`.
+
+::: dashboard_compiler.controls.config.ESQLFunctionControl
+    options:
+      show_root_heading: false
+      heading_level: 5
+
+#### Field/Function Control Examples
+
+```yaml
+controls:
+  # Field selection control
+  - type: esql
+    variable_name: selected_field
+    variable_type: fields
+    choices: ["@timestamp", "host.name", "message", "log.level"]
+    label: Select Field
+    default: "@timestamp"
+
+  # Function selection control
+  - type: esql
+    variable_name: aggregate_fn
+    variable_type: functions
+    choices: ["COUNT", "AVG", "SUM", "MAX", "MIN"]
+    label: Aggregate Function
+    default: "COUNT"
+```
+
+**Using ES|QL Variables in Panels:**
+
+ES|QL control variables can be referenced in ES|QL panel queries:
+
+- **Value variables** (VALUES, MULTI_VALUES, TIME_LITERAL) use single `?` prefix: `?variable_name`
+- **Field/function variables** (FIELDS, FUNCTIONS) use double `??` prefix: `??variable_name`
+
+```yaml
+panels:
+  # Using value variable
+  - title: Filtered Requests
+    esql:
+      type: metric
+      query:
+        - FROM logs-*
+        - WHERE http.response.status_code == ?status_code
+        - STATS total = COUNT(*)
+
+  # Using field variable
+  - title: Dynamic Field Display
+    esql:
+      type: table
+      query:
+        - FROM logs-*
+        - KEEP ??selected_field
+        - LIMIT 100
+```
+
+#### ES|QL Static Single-Select Control (DEPRECATED)
 
 ::: dashboard_compiler.controls.config.ESQLStaticSingleSelectControl
-    options:
-      show_root_heading: false
-      heading_level: 5
-
-#### ES|QL Static Multi-Select Control
-
-For multi-selection controls with predefined values.
-
-::: dashboard_compiler.controls.config.ESQLStaticMultiSelectControl
-    options:
-      show_root_heading: false
-      heading_level: 5
-
-#### ES|QL Query-Driven Control
-
-For controls that dynamically fetch values from an ES|QL query.
-
-::: dashboard_compiler.controls.config.ESQLQueryControl
     options:
       show_root_heading: false
       heading_level: 5
@@ -150,61 +194,60 @@ For controls that dynamically fetch values from an ES|QL query.
 
 ```yaml
 controls:
-  # Single-select control with explicit multiple
+  # Multi-select with explicit multiple property
   - type: esql
     variable_name: environment
     variable_type: values
-    choices:
-      - production
-      - staging
-      - development
+    choices: ["production", "staging", "development"]
     label: Environment
-    multiple: false
+    multiple: true
+    default: ["production", "staging"]
 
-  # Single-select control with string default (auto-infers multiple: false)
+  # Single-select with string default (auto-infers multiple: false)
   - type: esql
     variable_name: status
     variable_type: values
     choices: ["200", "404", "500"]
     label: HTTP Status
     default: "200"
-
-  # Multi-select control with list default (auto-infers multiple: true)
-  - type: esql
-    variable_name: regions
-    variable_type: values
-    choices: ["us-east", "us-west", "eu-west"]
-    label: Regions
-    default: ["us-east", "us-west"]
 ```
+
+#### ES|QL Static Multi-Select Control (DEPRECATED)
+
+::: dashboard_compiler.controls.config.ESQLStaticMultiSelectControl
+    options:
+      show_root_heading: false
+      heading_level: 5
+
+#### ES|QL Query-Driven Control (DEPRECATED)
+
+::: dashboard_compiler.controls.config.ESQLQueryControl
+    options:
+      show_root_heading: false
+      heading_level: 5
 
 #### Query-Driven Example
 
 ```yaml
 controls:
+  # Query-driven single-select
   - type: esql
     variable_name: status_code
     variable_type: values
-    query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
+    query: FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
     label: HTTP Status Code
+    multiple: false
+
+  # Query-driven multi-select
+  - type: esql
+    variable_name: host_names
+    variable_type: values
+    query: FROM logs-* | STATS count BY host.name | KEEP host.name
+    label: Host Names
+    multiple: true
 ```
 
 **Important**: ES|QL control queries **must return exactly one column** containing the values to display in the control. Use `KEEP` to select only the field column after aggregation.
-
-**Using ES|QL Variables in Panels:**
-
-ES|QL control variables can be referenced in ES|QL panel queries using the `?variable_name` syntax:
-
-```yaml
-panels:
-  - title: Filtered Requests
-    esql:
-      type: metric
-      query:
-        - FROM logs-*
-        - WHERE http.response.status_code == ?status_code
-        - STATS total = COUNT(*)
-```
 
 ## ES|QL Variable Types
 
