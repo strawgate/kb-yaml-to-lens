@@ -67,7 +67,7 @@
       "    y: ${8:0}}",
       "  links:",
       "    layout: ${9|horizontal,vertical|}",
-      "    links:",
+      "    items:",
       "      - label: ${10:Dashboard Link}",
       "        dashboard: ${11:dashboard-uuid-here}",
       "      - label: ${12:External Link}",
@@ -488,12 +488,17 @@
       "    value:",
       "      field: ${10:event_count}",
       "    ${15:legend:",
-      "      is_visible: ${16|true,false|}",
+      "      visible: ${16|show,hide|}",
       "      position: ${17|right,bottom,left,top|}}",
       "    ${18:grid_config:",
-      "      is_cell_label_visible: ${19|false,true|}",
-      "      is_x_axis_label_visible: ${20|true,false|}",
-      "      is_y_axis_label_visible: ${21|true,false|}}"
+      "      cells:",
+      "        show_labels: ${19|false,true|}",
+      "      x_axis:",
+      "        show_labels: ${20|true,false|}",
+      "        show_title: ${21|true,false|}",
+      "      y_axis:",
+      "        show_labels: ${22|true,false|}",
+      "        show_title: ${23|true,false|}}"
     ],
     "description": "Add an ESQL heatmap panel showing data distribution across two dimensions"
   },
@@ -527,7 +532,7 @@
       "        - metric_id: ${16:metric_1}",
       "          color: ${21:#2196F3}}}",
       "    ${22:legend:",
-      "      visible: ${23|true,false|}",
+      "      visible: ${23|show,hide,auto|}",
       "      position: ${24|right,bottom,left,top|}}"
     ],
     "description": "Add an advanced ESQL XY chart with appearance and legend options"

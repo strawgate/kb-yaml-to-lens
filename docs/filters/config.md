@@ -66,96 +66,77 @@ filters:
 
 ## Full Configuration Options
 
-All filter types can include the following base fields:
-
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `alias` | `string` | An optional alias for the filter, used for display purposes in Kibana. | `None` | No |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
-
 ### Exists Filter
 
 Checks for the existence of a specific field.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `exists` | `string` | The field name to check for existence. | N/A | Yes |
-| `alias` | `string` | An optional alias for the filter. | `None` | No |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.ExistsFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Phrase Filter
 
 Matches documents where a specific field contains an exact phrase.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `field` | `string` | The field name to apply the filter to. | N/A | Yes |
-| `equals` | `string` | The exact phrase value that the field must match. | N/A | Yes |
-| `alias` | `string` | An optional alias for the filter. | `None` | No |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.PhraseFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Phrases Filter
 
 Matches documents where a specific field contains one or more of the specified phrases.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | ----------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `field` | `string` | The field name to apply the filter to. | N/A | Yes |
-| `in` | `list of strings` | A list of phrases. Documents must match at least one of these phrases. | N/A | Yes |
-| `alias` | `string` | An optional alias for the filter. | `None` | No |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.PhrasesFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Range Filter
 
 Matches documents where a numeric or date field falls within a specified range. At least one of `gte`, `lte`, `gt`, or `lt` must be provided.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | --------- | -------------------------------------------------------------------------------- | -------------- | ----------------------- |
-| `field` | `string` | The field name to apply the filter to. | N/A | Yes |
-| `gte` | `string` | Greater than or equal to value. | `None` | No (but one must exist) |
-| `lte` | `string` | Less than or equal to value. | `None` | No (but one must exist) |
-| `gt` | `string` | Greater than value. | `None` | No (but one must exist) |
-| `lt` | `string` | Less than value. | `None` | No (but one must exist) |
-| `alias` | `string` | An optional alias for the filter. | `None` | No |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.RangeFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Custom Filter
 
 Allows for defining a custom Elasticsearch Query DSL filter.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | ---------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `dsl` | `object (dict)` | The custom Elasticsearch query definition. | N/A | Yes |
-| `alias` | `string` | An optional alias for the filter. | `None` | No |
-| `disabled` | `boolean` | If `true`, the filter is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.CustomFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Negate Filter (`not`)
 
-Excludes documents that match the nested filter. This filter itself does not have `alias` or `disabled` directly; those would apply to the filter it contains or a parent filter.
+Excludes documents that match the nested filter.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| -------- | -------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `not` | `FilterTypes` | The filter object to negate. Can be any of the other filter types or junctions. | N/A | Yes |
+::: dashboard_compiler.filters.config.NegateFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### And Filter (`and`)
 
 Matches documents that satisfy ALL of the specified nested filters.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | ----------------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `and` | `list of FilterTypes` | A list of filter objects. All filters must match for a document to be included. | N/A | Yes |
-| `alias` | `string` | An optional alias for the AND group. | `None` | No |
-| `disabled` | `boolean` | If `true`, the entire AND group is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.AndFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Or Filter (`or`)
 
 Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | ----------------------- | -------------------------------------------------------------------------------- | -------------- | -------- |
-| `or` | `list of FilterTypes` | A list of filter objects. At least one filter must match. | N/A | Yes |
-| `alias` | `string` | An optional alias for the OR group. | `None` | No |
-| `disabled` | `boolean` | If `true`, the entire OR group is defined but not applied. | `false` | No |
+::: dashboard_compiler.filters.config.OrFilter
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ## Related Documentation
 

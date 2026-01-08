@@ -29,7 +29,7 @@ dashboards:
         grid: {x: 0, y: 0, w: 48, h: 2}
         links:
           layout: horizontal
-          links:
+          items:
             - label: Overview
               dashboard: docker-otel-overview
             - label: Container Stats
@@ -110,7 +110,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'
@@ -128,7 +128,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: false
+            visible: hide
           dimension:
             field: '@timestamp'
             type: date_histogram
@@ -146,7 +146,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'
@@ -168,7 +168,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'
@@ -201,7 +201,7 @@ dashboards:
           mode: stacked
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'
@@ -219,7 +219,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: false
+            visible: hide
           dimension:
             field: '@timestamp'
             type: date_histogram
@@ -242,7 +242,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: false
+            visible: hide
           dimension:
             field: '@timestamp'
             type: date_histogram
@@ -260,7 +260,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'
@@ -282,7 +282,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'
@@ -304,7 +304,7 @@ dashboards:
           type: line
           data_view: metrics-*
           legend:
-            visible: true
+            visible: show
             position: right
           dimension:
             field: '@timestamp'

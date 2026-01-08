@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING
 
+from dashboard_compiler.panels.charts.base.config import LegendVisibleEnum
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 from dashboard_compiler.panels.charts.heatmap.view import (
     KbnHeatmapGridConfig,
@@ -11,7 +12,7 @@ from dashboard_compiler.panels.charts.heatmap.view import (
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.shared.config import get_layer_id
-from dashboard_compiler.shared.defaults import default_false, default_true
+from dashboard_compiler.shared.defaults import default_false
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -42,20 +43,31 @@ def compile_heatmap_chart_visualization_state(
     # Compile grid configuration (always present, use defaults if not provided)
     if chart.grid_config is not None:
         gc = chart.grid_config
+        # Handle nested cell configuration
+        cell_labels = default_false(gc.cells.show_labels) if gc.cells is not None else False
+        # Handle nested axis configuration
+        x_axis_labels = default_false(gc.x_axis.show_labels) if gc.x_axis is not None else False
+        x_axis_title = default_false(gc.x_axis.show_title) if gc.x_axis is not None else False
+        y_axis_labels = default_false(gc.y_axis.show_labels) if gc.y_axis is not None else False
+        y_axis_title = default_false(gc.y_axis.show_title) if gc.y_axis is not None else False
+
         grid_config = KbnHeatmapGridConfig(
-            isCellLabelVisible=default_false(gc.is_cell_label_visible),
-            isXAxisLabelVisible=default_false(gc.is_x_axis_label_visible),
-            isXAxisTitleVisible=default_false(gc.is_x_axis_title_visible),
-            isYAxisLabelVisible=default_false(gc.is_y_axis_label_visible),
-            isYAxisTitleVisible=default_false(gc.is_y_axis_title_visible),
+            isCellLabelVisible=cell_labels,
+            isXAxisLabelVisible=x_axis_labels,
+            isXAxisTitleVisible=x_axis_title,
+            isYAxisLabelVisible=y_axis_labels,
+            isYAxisTitleVisible=y_axis_title,
         )
     else:
         grid_config = KbnHeatmapGridConfig()
 
     # Compile legend configuration (always present, use defaults if not provided)
     if chart.legend is not None:
+        # Map enum values: 'show' -> True, 'hide' -> False, None -> True (Kibana default)
+        legend_visible = chart.legend.visible != LegendVisibleEnum.HIDE if chart.legend.visible is not None else True
+
         legend = KbnHeatmapLegendConfig(
-            isVisible=default_true(chart.legend.is_visible),
+            isVisible=legend_visible,
             position=chart.legend.position if chart.legend.position is not None else 'right',
         )
     else:

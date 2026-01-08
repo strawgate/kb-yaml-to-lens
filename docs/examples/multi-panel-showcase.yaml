@@ -27,7 +27,7 @@ dashboards:
           h: 3
         links:
           layout: horizontal
-          links:
+          items:
             - label: Kibana Documentation
               url: https://www.elastic.co/guide/en/kibana/current/index.html
             - label: Elasticsearch Guide

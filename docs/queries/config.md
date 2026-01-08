@@ -44,10 +44,10 @@ Queries are typically defined under a `query` key, either at the root of the `da
 
 Filters documents using the Kibana Query Language (KQL). This is often the default query language in Kibana.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| -------- | --------- | ------------------------------------------------ | -------------- | -------- |
-| `kql` | `string` | The KQL query string to apply. | N/A | Yes |
-| `query` | `object` | The parent object containing the `kql` key. | N/A | Yes |
+::: dashboard_compiler.queries.config.KqlQuery
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Usage Example (Dashboard Level):**
 
@@ -62,10 +62,10 @@ dashboards:
 
 Filters documents using the more expressive, but complex, Lucene query syntax.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| -------- | --------- | ------------------------------------------------ | -------------- | -------- |
-| `lucene` | `string` | The Lucene query string to apply. | N/A | Yes |
-| `query` | `object` | The parent object containing the `lucene` key. | N/A | Yes |
+::: dashboard_compiler.queries.config.LuceneQuery
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Usage Example (Dashboard Level):**
 
@@ -78,11 +78,12 @@ dashboards:
 
 ### ESQL Query
 
-Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQL queries are typically used by specific panel types that are designed to work with ESQL's tabular results (e.g., ESQL-driven charts or tables). The configuration is a direct string under the `query` key for such panels.
+Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQL queries are typically used by specific panel types that are designed to work with ESQL's tabular results (e.g., ESQL-driven charts or tables).
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| -------- | --------- | --------------------------------------------------------------------------- | -------------- | -------- |
-| `query` | `string` or `list[string]` | The ESQL query string, or an array of query parts to concatenate. Array parts are joined with the pipe operator (`\|`). Nested arrays (from YAML anchor expansion) are automatically flattened. | N/A | Yes |
+::: dashboard_compiler.queries.config.ESQLQuery
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Usage Example (Panel Level - String Format):**
 

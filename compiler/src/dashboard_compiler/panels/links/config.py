@@ -87,7 +87,7 @@ class LinksPanelConfig(BaseCfgModel):
     layout: Literal['horizontal', 'vertical'] | None = Field(default=None)
     """The layout of the links in the panel, either 'horizontal' or 'vertical'. Kibana defaults to 'horizontal' if not set."""
 
-    links: list[LinkTypes] = Field(default_factory=list)
+    items: list[LinkTypes] = Field(default_factory=list)
     """A list of link objects to be displayed in the panel."""
 
 
@@ -106,7 +106,7 @@ class LinksPanel(BasePanel):
               - title: "Navigate to User Details"
                 grid: { x: 0, y: 0, w: 24, h: 2 }
                 links:
-                  links:
+                  items:
                     - label: "View User Activity Dashboard"
                       dashboard: "user-activity-dashboard-id"
         ```
@@ -119,7 +119,7 @@ class LinksPanel(BasePanel):
               - title: "External Resources"
                 grid: { x: 24, y: 0, w: 24, h: 2 }
                 links:
-                  links:
+                  items:
                     - label: "Project Documentation"
                       url: "https://docs.example.com/project-alpha"
                       new_tab: true
@@ -134,7 +134,7 @@ class LinksPanel(BasePanel):
                 grid: { x: 0, y: 0, w: 48, h: 3 }
                 links:
                   layout: "vertical"
-                  links:
+                  items:
                   - label: "Service Health Dashboard"
                     dashboard: "service-health-monitor-v2"
                     with_time: true

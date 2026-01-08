@@ -316,8 +316,8 @@ class XYLegendConfig(BaseVwModel):
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/xy/types.ts
     """
 
-    isVisible: bool
-    """Whether the legend is visible."""
+    isVisible: Annotated[bool | None, OmitIfNone()] = None
+    """Whether the legend is visible. If None (from 'auto'), Kibana decides based on series count."""
 
     position: str
     """Position of the legend ('top', 'bottom', 'left', 'right')."""
