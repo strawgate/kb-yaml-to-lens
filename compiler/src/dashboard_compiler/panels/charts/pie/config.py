@@ -68,10 +68,7 @@ class PieTitlesAndText(BaseCfgModel):
 class PieChartAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for Pie charts."""
 
-    donut: Literal['small', 'medium', 'large'] | None = Field(
-        default=None,
-        examples=['small', 'medium', 'large'],
-    )
+    donut: Literal['small', 'medium', 'large'] | None = None
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
 
 
@@ -132,29 +129,13 @@ class LensPieChart(BasePieChart):
         ```
     """
 
-    data_view: str = Field(
-        default=...,
-        examples=['logs-*', 'metrics-*', 'my-data-view'],
-    )
+    data_view: str
     """The data view that determines the data for the pie chart."""
 
-    metrics: list[LensMetricTypes] = Field(
-        default=...,
-        min_length=1,
-        examples=[
-            [{'aggregation': 'count'}],
-            [{'aggregation': 'unique_count', 'field': 'user.id'}],
-        ],
-    )
+    metrics: list[LensMetricTypes] = Field(min_length=1)
     """Metrics that determine the size of slices."""
 
-    slice_by: list[LensDimensionTypes] = Field(
-        default=...,
-        examples=[
-            [{'field': 'service.name', 'type': 'values'}],
-            [{'field': 'status', 'type': 'values'}],
-        ],
-    )
+    slice_by: list[LensDimensionTypes]
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
 
 
@@ -176,21 +157,8 @@ class ESQLPieChart(BasePieChart):
         ```
     """
 
-    metrics: list[ESQLMetricTypes] = Field(
-        default=...,
-        min_length=1,
-        examples=[
-            [{'field': 'count'}],
-            [{'field': 'total_requests'}],
-        ],
-    )
+    metrics: list[ESQLMetricTypes] = Field(min_length=1)
     """Metrics that determine the size of slices."""
 
-    slice_by: list[ESQLDimensionTypes] = Field(
-        default=...,
-        examples=[
-            [{'field': 'service.name'}],
-            [{'field': 'status'}],
-        ],
-    )
+    slice_by: list[ESQLDimensionTypes]
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""

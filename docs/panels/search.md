@@ -30,80 +30,21 @@ The log detective's on patrol.
 
 ---
 
-## Minimal Configuration Example
+## Search Panel
 
-To add a Search panel, you need to specify its `grid` position and the `search` configuration with `saved_search_id`.
+::: dashboard_compiler.panels.search.config.SearchPanel
+    options:
+      show_root_heading: false
+      heading_level: 2
 
-```yaml
-dashboards:
-  - name: "Log Monitoring Dashboard"
-    panels:
-      - title: "All System Logs"
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 10
-        search:
-          saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # Example ID
-```
+## Search Panel Configuration
 
-## Complex Configuration Example (Illustrative)
-
-Search panels primarily rely on the configuration of the saved search itself (columns, sort order, query within the saved search). The panel configuration in the dashboard YAML is straightforward. This example shows it with a description and a hidden title.
-
-```yaml
-dashboards:
-  - name: "Security Incidents Overview"
-    panels:
-      - # Title is defined in the saved search, so we hide the panel's own title
-        hide_title: true
-        description: "Displays critical security alerts from the last 24 hours, as defined in the 'Critical Alerts' saved search."
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 8
-        search:
-          saved_search_id: "critical-security-alerts-saved-search"
-```
-
-## Full Configuration Options
-
-Search panels inherit from the [Base Panel Configuration](./base.md) and have one specific required field:
-
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
-| `title` | `string` | The title displayed on the panel header. This can override the title of the saved search if desired. Inherited from BasePanel. | `""` (empty string) | No |
-| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
-| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration-grid). | N/A | Yes |
-| `search` | `Search` object | Configuration for the search panel. | N/A | Yes |
-
-**Search Object Configuration:**
-
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `saved_search_id` | `string` | The ID of the saved Kibana search object (from Discover app) to display in the panel. | N/A | Yes |
+::: dashboard_compiler.panels.search.config.SearchPanelConfig
+    options:
+      show_root_heading: false
+      heading_level: 3
 
 **Note on Behavior:** The appearance, columns displayed, sort order, and underlying query of the Search panel are primarily controlled by the configuration of the saved search itself within Kibana's Discover application. The dashboard panel configuration mainly serves to embed that saved search.
-
-## Programmatic Usage (Python)
-
-You can create Search panels programmatically using Python:
-
-```python
-from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.search.config import SearchPanel, SearchPanelConfig
-
-panel = SearchPanel(
-    grid=Grid(x=0, y=0, w=48, h=20),
-    search=SearchPanelConfig(
-        saved_search_id='my-saved-search',
-    ),
-)
-```
 
 ## Related Documentation
 

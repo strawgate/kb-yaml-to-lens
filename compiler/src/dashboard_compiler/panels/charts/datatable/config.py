@@ -175,28 +175,13 @@ class LensDatatableChart(BaseChart):
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    data_view: str = Field(
-        default=...,
-        examples=['logs-*', 'metrics-*', 'my-data-view'],
-    )
+    data_view: str
     """The data view that determines the data for the datatable chart."""
 
-    metrics: list[LensMetricTypes] = Field(
-        default_factory=list,
-        examples=[
-            [{'id': 'count', 'aggregation': 'count'}],
-            [{'id': 'avg-response', 'aggregation': 'average', 'field': 'response_time'}],
-        ],
-    )
+    metrics: list[LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    rows: list[LensDimensionTypes] = Field(
-        default_factory=list,
-        examples=[
-            [{'id': 'service', 'type': 'values', 'field': 'service.name'}],
-            [{'id': 'host', 'type': 'values', 'field': 'host.name'}],
-        ],
-    )
+    rows: list[LensDimensionTypes] = Field(default_factory=list)
     """List of dimensions to use as row groupings."""
 
     rows_by: list[LensDimensionTypes] | None = Field(default=None)
@@ -261,22 +246,10 @@ class ESQLDatatableChart(BaseChart):
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    metrics: list[ESQLMetricTypes] = Field(
-        default_factory=list,
-        examples=[
-            [{'field': 'count'}],
-            [{'field': 'avg_value'}],
-        ],
-    )
+    metrics: list[ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    rows: list[ESQLDimensionTypes] = Field(
-        default_factory=list,
-        examples=[
-            [{'field': 'service.name'}],
-            [{'field': 'host.name'}],
-        ],
-    )
+    rows: list[ESQLDimensionTypes] = Field(default_factory=list)
     """List of ESQL dimensions to use as row groupings."""
 
     rows_by: list[ESQLDimensionTypes] | None = Field(default=None)

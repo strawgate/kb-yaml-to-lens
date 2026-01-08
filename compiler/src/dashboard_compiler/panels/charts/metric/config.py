@@ -38,62 +38,25 @@ class LensMetricChart(BaseChart):
         ```
     """
 
-    type: Literal['metric'] = Field(
-        default='metric',
-        examples=['metric'],
-    )
+    type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    data_view: str = Field(
-        default=...,
-        examples=['logs-*', 'metrics-*', 'my-data-view'],
-    )
+    data_view: str
     """The data view that determines the data for the metric chart."""
 
-    primary: LensMetricTypes = Field(
-        ...,
-        examples=[
-            {'aggregation': 'count', 'label': 'Total Requests'},
-            {'aggregation': 'average', 'field': 'response_time', 'label': 'Avg Response Time'},
-            {'formula': "count(kql='status:error') / count() * 100", 'label': 'Error Rate %'},
-        ],
-    )
+    primary: LensMetricTypes
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: LensMetricTypes | None = Field(
-        default=None,
-        examples=[
-            {'aggregation': 'unique_count', 'field': 'user.id', 'label': 'Unique Users'},
-            None,
-        ],
-    )
+    secondary: LensMetricTypes | None = None
     """An optional secondary metric to display alongside the primary metric."""
 
-    maximum: LensMetricTypes | None = Field(
-        default=None,
-        examples=[
-            {'value': 1000, 'label': 'Target'},
-            None,
-        ],
-    )
+    maximum: LensMetricTypes | None = None
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: LensDimensionTypes | None = Field(
-        default=None,
-        examples=[
-            {'field': 'service.name', 'label': 'By Service'},
-            None,
-        ],
-    )
+    breakdown: LensDimensionTypes | None = None
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = Field(
-        default=None,
-        examples=[
-            {'palette': 'eui_amsterdam_color_blind'},
-            None,
-        ],
-    )
+    color: ColorMapping | None = None
     """Formatting options for the chart color palette."""
 
 
@@ -124,53 +87,20 @@ class ESQLMetricChart(BaseChart):
         ```
     """
 
-    type: Literal['metric'] = Field(
-        default='metric',
-        examples=['metric'],
-    )
+    type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    primary: ESQLMetricTypes = Field(
-        ...,
-        examples=[
-            {'field': 'total_requests'},
-            {'field': 'avg_response_time'},
-        ],
-    )
+    primary: ESQLMetricTypes
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: ESQLMetricTypes | None = Field(
-        default=None,
-        examples=[
-            {'field': 'unique_users'},
-            None,
-        ],
-    )
+    secondary: ESQLMetricTypes | None = None
     """An optional secondary metric to display alongside the primary metric."""
 
-    maximum: ESQLMetricTypes | None = Field(
-        default=None,
-        examples=[
-            {'value': 1000, 'label': 'Target'},
-            None,
-        ],
-    )
+    maximum: ESQLMetricTypes | None = None
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: ESQLDimensionTypes | None = Field(
-        default=None,
-        examples=[
-            {'field': 'service_name'},
-            None,
-        ],
-    )
+    breakdown: ESQLDimensionTypes | None = None
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = Field(
-        default=None,
-        examples=[
-            {'palette': 'eui_amsterdam_color_blind'},
-            None,
-        ],
-    )
+    color: ColorMapping | None = None
     """Formatting options for the chart color palette."""

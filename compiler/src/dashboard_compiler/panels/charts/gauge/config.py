@@ -17,34 +17,19 @@ class GaugeAppearance(BaseCfgModel):
     labels, and color mode.
     """
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(
-        default=None,
-        examples=['arc', 'horizontalBullet', 'circle'],
-    )
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = None
     """The shape of the gauge visualization."""
 
-    ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(
-        default=None,
-        examples=['auto', 'bands'],
-    )
+    ticks_position: Literal['auto', 'bands', 'hidden'] | None = None
     """Position of tick marks on the gauge."""
 
-    label_major: str | None = Field(
-        default=None,
-        examples=['CPU Usage', 'Response Time'],
-    )
+    label_major: str | None = None
     """Major label text to display on the gauge."""
 
-    label_minor: str | None = Field(
-        default=None,
-        examples=['%', 'ms'],
-    )
+    label_minor: str | None = None
     """Minor label text to display on the gauge."""
 
-    color_mode: Literal['none', 'palette'] | None = Field(
-        default=None,
-        examples=['palette', 'none'],
-    )
+    color_mode: Literal['none', 'palette'] | None = None
     """Color mode for the gauge visualization."""
 
 
@@ -99,37 +84,19 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
         ```
     """
 
-    data_view: str = Field(
-        default=...,
-        examples=['logs-*', 'metrics-*', 'my-data-view'],
-    )
+    data_view: str
     """The data view that determines the data for the gauge chart."""
 
-    metric: LensMetricTypes = Field(
-        ...,
-        examples=[
-            {'aggregation': 'average', 'field': 'system.cpu.total.pct'},
-            {'aggregation': 'average', 'field': 'response_time_ms'},
-        ],
-    )
+    metric: LensMetricTypes
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: LensMetricTypes | int | float | None = Field(
-        default=None,
-        examples=[0, 0.0, {'aggregation': 'min', 'field': 'temperature'}],
-    )
+    minimum: LensMetricTypes | int | float | None = None
     """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: LensMetricTypes | int | float | None = Field(
-        default=None,
-        examples=[100, 1000.0, {'aggregation': 'max', 'field': 'temperature'}],
-    )
+    maximum: LensMetricTypes | int | float | None = None
     """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: LensMetricTypes | int | float | None = Field(
-        default=None,
-        examples=[80, 500.0, {'aggregation': 'average', 'field': 'target_value'}],
-    )
+    goal: LensMetricTypes | int | float | None = None
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
     @property
@@ -162,31 +129,16 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
         ```
     """
 
-    metric: ESQLMetricTypes = Field(
-        ...,
-        examples=[
-            {'field': 'avg_cpu'},
-            {'field': 'response_time'},
-        ],
-    )
+    metric: ESQLMetricTypes
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: ESQLMetricTypes | int | float | None = Field(
-        default=None,
-        examples=[0, 0.0, {'field': 'min_value'}],
-    )
+    minimum: ESQLMetricTypes | int | float | None = None
     """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: ESQLMetricTypes | int | float | None = Field(
-        default=None,
-        examples=[100, 1000.0, {'field': 'max_value'}],
-    )
+    maximum: ESQLMetricTypes | int | float | None = None
     """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: ESQLMetricTypes | int | float | None = Field(
-        default=None,
-        examples=[80, 500.0, {'field': 'target'}],
-    )
+    goal: ESQLMetricTypes | int | float | None = None
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
     @property
