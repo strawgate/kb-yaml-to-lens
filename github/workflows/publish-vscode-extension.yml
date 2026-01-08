@@ -42,7 +42,7 @@ jobs:
         working-directory: compiler
         run: make test-lsp-binary-smoke
       - name: Upload LSP binary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: lsp-binary-${{ matrix.platform }}
           path: compiler/dist/kb-dashboard-compiler-lsp${{ matrix.ext }}

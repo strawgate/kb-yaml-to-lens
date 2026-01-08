@@ -40,7 +40,6 @@ MISSING=0
 
 for PLATFORM in "${PLATFORMS[@]}"; do
     BINARY_NAME="${BINARY_NAMES[$PLATFORM]}"
-    OS_NAME="${SOURCE_OS_MAPPING[$PLATFORM]}"
 
     # Construct source path - binaries in dist/ don't have platform suffix, just the binary name
     SOURCE_PATH="$COMPILER_DIST/$BINARY_NAME"

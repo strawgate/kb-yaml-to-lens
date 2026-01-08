@@ -28,7 +28,7 @@ jobs:
             ext: .exe
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -45,7 +45,7 @@ jobs:
         working-directory: compiler
         run: make test-binary-smoke
       - name: Upload CLI binary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
           path: compiler/dist/kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
@@ -70,7 +70,7 @@ jobs:
             ext: .exe
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -87,7 +87,7 @@ jobs:
         working-directory: compiler
         run: make test-lsp-binary-smoke
       - name: Upload LSP binary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: kb-dashboard-compiler-lsp-${{ matrix.platform }}${{ matrix.ext }}
           path: compiler/dist/kb-dashboard-compiler-lsp${{ matrix.ext }}

@@ -83,7 +83,7 @@ def main() -> None:
     # Clean previous builds
     for d in ['build', 'dist']:
         path = COMPILER_ROOT / d
-        if path.exists() is True:
+        if path.exists():
             shutil.rmtree(path)
 
     # Build requested binaries
@@ -91,7 +91,7 @@ def main() -> None:
         build_cli_binary(platform_name)
 
     if args.binary_type in ('lsp', 'all'):
-        build_lsp_binary(platform_name)
+        build_lsp_binary()
 
     print('All requested binaries built successfully!')
 

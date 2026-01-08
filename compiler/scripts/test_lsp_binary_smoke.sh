@@ -44,6 +44,6 @@ fi
 # Test 2: Binary starts (LSP server expects stdin/stdout communication)
 # We'll send an invalid request and check it doesn't crash immediately
 echo "Testing LSP binary startup..."
-echo '{"invalid": "request"}' | timeout 2 "$BINARY_PATH" 2>&1 > /dev/null || true
+echo '{"invalid": "request"}' | timeout 2 "$BINARY_PATH" > /dev/null 2>&1 || true
 
 echo "✓ LSP binary smoke tests passed"
