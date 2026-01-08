@@ -30,8 +30,8 @@ typecheck: ## Run TypeScript type checking
 
 test: ## Run tests
 	@if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -qF "$(BASE_IMAGE)"; then \
-		echo "⚠ Skipping test (Docker image not available)"; \
-		exit 0; \
+		echo "⚠ Docker image not found, pulling..."; \
+		$(MAKE) pull; \
 	fi; \
 	$(MAKE) test-import
 
