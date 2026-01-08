@@ -33,10 +33,7 @@ type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
     | TimeSliderControl
-    | ESQLStaticSingleValueControl
-    | ESQLStaticMultiValueControl
-    | ESQLQuerySingleValueControl
-    | ESQLQueryMultiValueControl
+    | ESQLValueControl
     | ESQLFieldControl
     | ESQLFunctionControl
     | ESQLStaticSingleSelectControl
@@ -175,78 +172,47 @@ class TimeSliderControl(BaseControl):
         return self
 
 
-class ESQLStaticSingleValueControl(BaseControl):
-    """ES|QL control for single value selection from static list."""
+class ESQLValueControl(BaseControl):
+    """ES|QL control for value selection.
+
+    Supports both static (choices) and query-driven (query) modes.
+    Use multiple=True for multi-select, multiple=False or None for single-select.
+    """
 
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
     """The name of the ES|QL variable."""
 
-    variable_type: Literal[ESQLVariableType.VALUES, ESQLVariableType.TIME_LITERAL] = Field(default=ESQLVariableType.VALUES)
-    """The type of variable ('values' or 'time_literal')."""
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable (VALUES, MULTI_VALUES, or TIME_LITERAL)."""
 
-    choices: list[str] = Field(...)
-    """The static list of available values for this control."""
+    choices: list[str] | None = Field(default=None)
+    """Static list of available values. Mutually exclusive with query."""
 
-    default: str | None = Field(default=None)
-    """Default selected value."""
+    query: str | None = Field(default=None, min_length=1)
+    """ES|QL query that returns available values. Mutually exclusive with choices."""
+
+    default: str | list[str] | None = Field(default=None)
+    """Default selected value(s)."""
+
+    multiple: bool | None = Field(default=None)
+    """If true, allow multiple selection."""
 
     @model_validator(mode='after')
-    def validate_default(self) -> Self:
-        """Validate that default value exists in choices."""
-        validate_default_in_choices(self.default, self.choices)
+    def validate_choices_query_xor(self) -> Self:
+        """Ensure exactly one of choices or query is provided."""
+        if (self.choices is None) == (self.query is None):
+            msg = 'Exactly one of choices or query must be provided'
+            raise ValueError(msg)
         return self
-
-
-class ESQLStaticMultiValueControl(BaseControl):
-    """ES|QL control for multiple value selection from static list."""
-
-    type: Literal['esql'] = 'esql'
-    variable_name: str = Field(...)
-    """The name of the ES|QL variable."""
-
-    variable_type: Literal[ESQLVariableType.MULTI_VALUES] = Field(default=ESQLVariableType.MULTI_VALUES)
-    """The type of variable ('multi_values')."""
-
-    choices: list[str] = Field(...)
-    """The static list of available values for this control."""
-
-    default: list[str] | None = Field(default=None)
-    """Default selected values."""
 
     @model_validator(mode='after')
-    def validate_default(self) -> Self:
-        """Validate that default values exist in choices."""
+    def validate_default_in_choices(self) -> Self:
+        """Validate default exists in choices (static mode only)."""
+        if self.choices is None or self.default is None:
+            return self
         validate_default_in_choices(self.default, self.choices)
         return self
-
-
-class ESQLQuerySingleValueControl(BaseControl):
-    """ES|QL control for single value selection from query."""
-
-    type: Literal['esql'] = 'esql'
-    variable_name: str = Field(...)
-    """The name of the ES|QL variable."""
-
-    variable_type: Literal[ESQLVariableType.VALUES, ESQLVariableType.TIME_LITERAL] = Field(default=ESQLVariableType.VALUES)
-    """The type of variable ('values' or 'time_literal')."""
-
-    query: str = Field(..., min_length=1)
-    """The ES|QL query that returns the available values for this control."""
-
-
-class ESQLQueryMultiValueControl(BaseControl):
-    """ES|QL control for multiple value selection from query."""
-
-    type: Literal['esql'] = 'esql'
-    variable_name: str = Field(...)
-    """The name of the ES|QL variable."""
-
-    variable_type: Literal[ESQLVariableType.MULTI_VALUES] = Field(default=ESQLVariableType.MULTI_VALUES)
-    """The type of variable ('multi_values')."""
-
-    query: str = Field(..., min_length=1)
-    """The ES|QL query that returns the available values for this control."""
 
 
 class ESQLFieldControl(BaseControl):
