@@ -12,8 +12,10 @@ from dashboard_compiler.controls.compile import compile_control, compile_control
 from dashboard_compiler.controls.config import (
     ControlSettings,
     ControlTypes,
+    ESQLFieldControl,
     ESQLStaticMultiSelectControl,
     ESQLStaticSingleSelectControl,
+    ESQLValueControl,
     TimeSliderControl,
 )
 
@@ -567,6 +569,97 @@ async def test_options_list_with_multi_select() -> None:
     )
 
 
+async def test_options_list_with_multiple_true() -> None:
+    """Test options list control with multiple: true (new field)."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'aerospike.namespace',
+        'label': 'Multiple True Test',
+        'multiple': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Multiple True Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
+async def test_options_list_with_multiple_false() -> None:
+    """Test options list control with multiple: false (new field, single select)."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'aerospike.namespace',
+        'label': 'Multiple False Test',
+        'multiple': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Multiple False Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
+async def test_options_list_multiple_takes_precedence_over_singular() -> None:
+    """Test that multiple field takes precedence over deprecated singular field."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'aerospike.namespace',
+        'label': 'Precedence Test',
+        'multiple': True,
+        'singular': True,  # This should be ignored since multiple is set
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Precedence Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
 async def test_options_list_without_wait_for_results() -> None:
     """Test options list control with wait_for_results: false."""
     config = {
@@ -754,3 +847,109 @@ async def test_esql_query_control_with_multi_select() -> None:
             },
         }
     )
+
+
+async def test_esql_value_control_validation_missing_choices_and_query() -> None:
+    """Test that ESQLValueControl requires either choices or query."""
+    with pytest.raises(ValidationError, match="Either 'choices' or 'query' must be provided"):
+        ESQLValueControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'status',
+                'variable_type': 'values',
+                'label': 'Status',
+            }
+        )
+
+
+async def test_esql_value_control_validation_both_choices_and_query() -> None:
+    """Test that ESQLValueControl rejects both choices and query."""
+    with pytest.raises(ValidationError, match="Only one of 'choices' or 'query' can be provided"):
+        ESQLValueControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'status',
+                'variable_type': 'values',
+                'choices': ['200', '404'],
+                'query': 'FROM logs-* | KEEP status',
+                'label': 'Status',
+            }
+        )
+
+
+async def test_esql_value_control_default_validation_with_choices() -> None:
+    """Test that ESQLValueControl validates default against choices."""
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
+        ESQLValueControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'status',
+                'variable_type': 'values',
+                'choices': ['200', '404'],
+                'default': 'invalid',
+                'label': 'Status',
+            }
+        )
+
+
+async def test_esql_value_control_default_type_validation_list_with_single() -> None:
+    """Test that ESQLValueControl rejects list default when multiple is False."""
+    with pytest.raises(ValidationError, match='default must be a string when multiple is False'):
+        ESQLValueControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'status',
+                'variable_type': 'values',
+                'choices': ['200', '404'],
+                'default': ['200', '404'],
+                'multiple': False,
+                'label': 'Status',
+            }
+        )
+
+
+async def test_esql_value_control_default_type_validation_string_with_multi() -> None:
+    """Test that ESQLValueControl rejects string default when multiple is True."""
+    with pytest.raises(ValidationError, match='default must be a list when multiple is True'):
+        ESQLValueControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'status',
+                'variable_type': 'values',
+                'choices': ['200', '404'],
+                'default': '200',
+                'multiple': True,
+                'label': 'Status',
+            }
+        )
+
+
+async def test_esql_field_control_default_validation() -> None:
+    """Test that ESQLFieldControl validates default against choices."""
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
+        ESQLFieldControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'field',
+                'variable_type': 'fields',
+                'choices': ['field1', 'field2'],
+                'default': 'invalid',
+                'label': 'Field',
+            }
+        )
+
+
+async def test_esql_field_control_default_type_validation() -> None:
+    """Test that ESQLFieldControl validates default type."""
+    with pytest.raises(ValidationError, match='default must be a string when multiple is False'):
+        ESQLFieldControl.model_validate(
+            {
+                'type': 'esql',
+                'variable_name': 'field',
+                'variable_type': 'fields',
+                'choices': ['field1', 'field2'],
+                'default': ['field1'],
+                'multiple': False,
+                'label': 'Field',
+            }
+        )

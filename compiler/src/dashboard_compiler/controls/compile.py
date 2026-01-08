@@ -5,9 +5,11 @@ from collections.abc import Sequence
 from dashboard_compiler.controls import ControlTypes
 from dashboard_compiler.controls.config import (
     ControlSettings,
+    ESQLFieldControl,
     ESQLQueryControl,
     ESQLStaticMultiSelectControl,
     ESQLStaticSingleSelectControl,
+    ESQLValueControl,
     MatchTechnique,
     OptionsListControl,
     RangeSliderControl,
@@ -56,6 +58,19 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
     }
     stable_id = get_layer_id(control)
 
+    # Determine single_select value: multiple takes precedence over singular (deprecated)
+    # multiple=True -> singleSelect=False (allow multiple selections)
+    # multiple=False -> singleSelect=True (allow single selection)
+    # singular=True -> singleSelect=True (deprecated, backward compatibility)
+    # singular=False -> singleSelect=False (deprecated, backward compatibility)
+    single_select_value: bool | None = None
+    if control.multiple is not None:
+        # multiple takes precedence - invert the value for Kibana's singleSelect
+        single_select_value = not control.multiple
+    elif control.singular is not None:
+        # Fall back to singular for backward compatibility
+        single_select_value = control.singular
+
     return KbnOptionsListControl(
         grow=default_false(control.fill_width),
         order=order,
@@ -66,7 +81,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
             fieldName=control.field,
             title=control.label,
             runPastTimeout=return_if(var=control.wait_for_results, is_true=True, is_false=False, default=None),
-            singleSelect=return_if(var=control.singular, is_true=True, is_false=False, default=None),
+            singleSelect=return_if(var=single_select_value, is_true=True, is_false=False, default=None),
             searchTechnique=match_technique_to_search_technique.get(control.match_technique, SearchTechnique.PREFIX),
             selectedOptions=[],
             sort=KbnControlSort(by='_count', direction='desc'),
@@ -122,6 +137,132 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
             id=stable_id,
             timesliceEndAsPercentageOfTimeRange=default_if_none(control.end_offset, 100.0),
             timesliceStartAsPercentageOfTimeRange=default_if_none(control.start_offset, 0.0),
+        ),
+    )
+
+
+def compile_esql_value_control(order: int, *, control: ESQLValueControl) -> KbnESQLControl:
+    """Compile an ESQLValueControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (ESQLValueControl): The ESQLValueControl object to compile.
+
+    Returns:
+        KbnESQLControl: The compiled Kibana ES|QL control view model.
+
+    """
+    stable_id = get_layer_id(control)
+
+    # Determine if this is static or query-driven mode
+    is_static_mode = control.choices is not None
+
+    # Convert default to selectedOptions list
+    selected_options: list[str] = []
+    if control.default is not None:
+        selected_options = [control.default] if isinstance(control.default, str) else control.default
+
+    # Determine singleSelect value based on multiple field
+    # If multiple is explicitly set, use it
+    # Otherwise, infer from default type (string = single, list = multiple)
+    # If no default and no multiple in static mode, default to single select for backward compatibility
+    # If no default and no multiple in query mode, leave as None (Kibana default)
+    single_select_value: bool | None = None
+    if control.multiple is not None:
+        # Explicitly set - use it
+        single_select_value = not control.multiple
+    elif control.default is not None:
+        # Infer from default type
+        single_select_value = isinstance(control.default, str)
+    elif is_static_mode:
+        # Static mode with no multiple and no default - default to single select for backward compatibility
+        single_select_value = True
+    # else: query mode with no multiple and no default - leave as None
+
+    if is_static_mode:
+        return KbnESQLControl(
+            grow=False,
+            order=order,
+            width=default_if_none(control.width, 'medium'),
+            explicitInput=KbnESQLControlExplicitInput(
+                id=stable_id,
+                variableName=control.variable_name,
+                variableType=control.variable_type,
+                esqlQuery='',
+                controlType=EsqlControlType.STATIC_VALUES.value,
+                title=control.label,
+                selectedOptions=selected_options,
+                singleSelect=return_if(var=single_select_value, is_true=True, is_false=False, default=None),
+                availableOptions=control.choices,
+            ),
+        )
+
+    # Query-driven mode
+    return KbnESQLControl(
+        grow=False,
+        order=order,
+        width=default_if_none(control.width, 'medium'),
+        explicitInput=KbnESQLControlExplicitInput(
+            id=stable_id,
+            variableName=control.variable_name,
+            variableType=control.variable_type,
+            esqlQuery=control.query or '',
+            controlType=EsqlControlType.VALUES_FROM_QUERY.value,
+            title=control.label,
+            selectedOptions=[],
+            singleSelect=return_if(var=single_select_value, is_true=True, is_false=False, default=None),
+            availableOptions=None,
+        ),
+    )
+
+
+def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnESQLControl:
+    """Compile an ESQLFieldControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (ESQLFieldControl): The ESQLFieldControl object to compile.
+
+    Returns:
+        KbnESQLControl: The compiled Kibana ES|QL control view model.
+
+    """
+    stable_id = get_layer_id(control)
+
+    # Convert default to selectedOptions list
+    selected_options: list[str] = []
+    if control.default is not None:
+        selected_options = [control.default] if isinstance(control.default, str) else control.default
+
+    # Determine singleSelect value based on multiple field
+    # If multiple is explicitly set, use it
+    # Otherwise, infer from default type (string = single, list = multiple)
+    # If no default and no multiple, default to False (single select) for backward compatibility
+    single_select_value: bool | None = None
+    if control.multiple is not None:
+        # Explicitly set - use it
+        single_select_value = not control.multiple
+    elif control.default is not None:
+        # Infer from default type
+        single_select_value = isinstance(control.default, str)
+    else:
+        # No multiple and no default - default to single select for backward compatibility
+        single_select_value = True
+
+    return KbnESQLControl(
+        grow=False,
+        order=order,
+        width=default_if_none(control.width, 'medium'),
+        explicitInput=KbnESQLControlExplicitInput(
+            id=stable_id,
+            variableName=control.variable_name,
+            variableType=control.variable_type,
+            esqlQuery='',
+            controlType=EsqlControlType.STATIC_VALUES.value,
+            title=control.label,
+            selectedOptions=selected_options,
+            singleSelect=return_if(var=single_select_value, is_true=True, is_false=False, default=None),
+            availableOptions=control.choices,
         ),
     )
 
@@ -225,7 +366,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
     )
 
 
-def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
+def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  # noqa: PLR0911
     """Compile a single control into its Kibana view model representation.
 
     Args:
@@ -244,6 +385,12 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:
 
     if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
+
+    if isinstance(control, ESQLValueControl):
+        return compile_esql_value_control(order, control=control)
+
+    if isinstance(control, ESQLFieldControl):
+        return compile_esql_field_control(order, control=control)
 
     if isinstance(control, ESQLStaticSingleSelectControl):
         return compile_esql_static_single_select_control(order, control=control)

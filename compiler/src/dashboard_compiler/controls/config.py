@@ -12,6 +12,8 @@ type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
     | TimeSliderControl
+    | ESQLValueControl
+    | ESQLFieldControl
     | ESQLStaticSingleSelectControl
     | ESQLStaticMultiSelectControl
     | ESQLQueryControl
@@ -94,8 +96,11 @@ class OptionsListControl(BaseControl):
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
-    singular: bool | None = Field(default=None)
-    """If true, the control allows only a single selection from the options list."""
+    singular: bool | None = Field(default=None, deprecated=True)
+    """DEPRECATED: Use 'multiple' instead. If true, the control allows only a single selection from the options list."""
+
+    multiple: bool | None = Field(default=None)
+    """If false, allows only single selection. If true, allows multiple selections. Takes precedence over 'singular'."""
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
@@ -143,6 +148,146 @@ class TimeSliderControl(BaseControl):
         """Ensure that start_offset is less than end_offset."""
         if self.start_offset is not None and self.end_offset is not None and self.start_offset > self.end_offset:
             msg = 'start_offset must be less than end_offset'
+            raise ValueError(msg)
+
+        return self
+
+
+class ESQLValueControl(BaseControl):
+    """Represents an ES|QL control for value selection.
+
+    Supports both static values (via choices) and query-driven values (via query).
+    Used for VALUES, MULTI_VALUES, and TIME_LITERAL variable types.
+    """
+
+    type: Literal['esql'] = 'esql'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: Literal[ESQLVariableType.VALUES, ESQLVariableType.MULTI_VALUES, ESQLVariableType.TIME_LITERAL] = Field(
+        default=ESQLVariableType.VALUES
+    )
+    """The type of variable (values, multi_values, or time_literal)."""
+
+    choices: list[str] | None = Field(default=None)
+    """The static list of available values. Mutually exclusive with 'query'."""
+
+    query: str | None = Field(default=None, min_length=1)
+    """The ES|QL query that returns available values. Mutually exclusive with 'choices'."""
+
+    default: str | list[str] | None = Field(default=None)
+    """Default selected value(s). Must be a string for single-select, list for multi-select."""
+
+    multiple: bool | None = Field(default=None)
+    """If true, allow multiple selection from the options."""
+
+    @model_validator(mode='after')
+    def validate_choices_xor_query(self) -> Self:
+        """Ensure that exactly one of choices or query is provided."""
+        if self.choices is None and self.query is None:
+            msg = "Either 'choices' or 'query' must be provided"
+            raise ValueError(msg)
+
+        if self.choices is not None and self.query is not None:
+            msg = "Only one of 'choices' or 'query' can be provided, not both"
+            raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_defaults(self) -> Self:
+        """Validate that default value(s) exist in choices if using static mode."""
+        if self.default is None or self.choices is None:
+            return self
+
+        # Normalize default to list for validation
+        default_values = [self.default] if isinstance(self.default, str) else self.default
+
+        # Check all default values exist in choices
+        invalid = set(default_values) - set(self.choices)
+        if len(invalid) > 0:
+            msg = f'default contains options not in choices: {invalid}'
+            raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_default_type_matches_multiple(self) -> Self:
+        """Ensure default type matches the multiple setting."""
+        if self.default is None:
+            return self
+
+        is_list_default = isinstance(self.default, list)
+        is_multi_select = self.multiple is True
+
+        if is_list_default and not is_multi_select:
+            msg = 'default must be a string when multiple is False or None'
+            raise ValueError(msg)
+
+        if not is_list_default and is_multi_select:
+            msg = 'default must be a list when multiple is True'
+            raise ValueError(msg)
+
+        return self
+
+
+class ESQLFieldControl(BaseControl):
+    """Represents an ES|QL control for field selection.
+
+    Only supports static values (via choices).
+    Used for FIELDS and FUNCTIONS variable types.
+    """
+
+    type: Literal['esql'] = 'esql'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'field_name')."""
+
+    variable_type: Literal[ESQLVariableType.FIELDS, ESQLVariableType.FUNCTIONS] = Field(default=ESQLVariableType.FIELDS)
+    """The type of variable (fields or functions)."""
+
+    choices: list[str] = Field(...)
+    """The static list of available fields or functions."""
+
+    default: str | list[str] | None = Field(default=None)
+    """Default selected field(s). Must be a string for single-select, list for multi-select."""
+
+    multiple: bool | None = Field(default=None)
+    """If true, allow multiple selection from the options."""
+
+    @model_validator(mode='after')
+    def validate_defaults(self) -> Self:
+        """Validate that default value(s) exist in choices."""
+        if self.default is None:
+            return self
+
+        # Normalize default to list for validation
+        default_values = [self.default] if isinstance(self.default, str) else self.default
+
+        # Check all default values exist in choices
+        invalid = set(default_values) - set(self.choices)
+        if len(invalid) > 0:
+            msg = f'default contains options not in choices: {invalid}'
+            raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_default_type_matches_multiple(self) -> Self:
+        """Ensure default type matches the multiple setting."""
+        if self.default is None:
+            return self
+
+        is_list_default = isinstance(self.default, list)
+        is_multi_select = self.multiple is True
+
+        if is_list_default and not is_multi_select:
+            msg = 'default must be a string when multiple is False or None'
+            raise ValueError(msg)
+
+        if not is_list_default and is_multi_select:
+            msg = 'default must be a list when multiple is True'
             raise ValueError(msg)
 
         return self
