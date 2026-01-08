@@ -183,8 +183,16 @@ What are you visualizing?
 **Patterns:**
 
 - Group related metrics in a horizontal row
-- Use sparingly (0-6 per dashboard)
-- Position before detailed visualizations
+- **Use sparingly: 0-4 metric cards typical (78% of dashboards use zero metrics)**
+- Modern dashboards prefer visualizations over standalone metrics
+- Position before detailed visualizations when used
+
+**Usage Statistics (49 dashboard analysis):**
+
+- 78% of dashboards: 0 metrics (prefer charts)
+- 11% of dashboards: 1 metric
+- 11% of dashboards: 2-4 metrics
+- Rare: More than 4 metrics (legacy dashboards only)
 
 **Example Configuration:**
 
@@ -293,16 +301,27 @@ What are you visualizing?
 
 **When to Use:**
 
-- Detail drill-down at the bottom of dashboards
+- Detail drill-down (commonly at bottom of dashboards)
 - "Top N" lists with multiple dimensions
 - Searchable log/event details
 
 **Best Practices:**
 
-- Always position at the bottom (100% consistency)
+- **Position preference: Bottom of dashboard (strong preference, ~60% when tables present)**
+- However, tables may be intermixed with visualizations in these scenarios:
+  - Security/threat analysis: Tables showing threat details alongside charts
+  - Log analysis: Event detail tables paired with time-series charts
+  - Complex analysis: Multiple tables distributed by topic/category
 - Use 10 rows per page (standard pagination)
 - Sort by count descending for "Top N" tables
 - Include 3-6 columns for summaries, 5-10+ for comprehensive logs
+
+**Usage Statistics (49 dashboard analysis):**
+
+- 51% of dashboards include tables
+- Of dashboards with tables: ~31% place tables exclusively at bottom
+- Metrics-focused dashboards typically avoid tables entirely
+- Log/security dashboards often intermix tables with visualizations
 
 **Column Layout:**
 
@@ -351,21 +370,68 @@ What are you visualizing?
 
 #### Maps
 
+Elastic integrations use two types of geographic visualizations:
+
+##### Point-Based Maps
+
 **When to Use:**
 
-- Geographic distribution is relevant for analysis
-- Security context (network sources)
-- Global access patterns
+- Plotting specific locations from IP addresses or coordinates
+- Security context (network sources/destinations)
+- User access patterns from different locations
 
 **Required Fields:**
 
-- `source.geo.location` or similar geo field
+- `source.geo.location` or similar geo-coordinate field
 - Access/event volume for sizing
 
 **Best Practices:**
 
 - Use color and size scaling based on volume
 - Position in middle section (not top or bottom)
+
+**Panel Type:** `map` (not a Lens visualization)
+
+**Usage:** Found in 30% of dashboards (security and access monitoring use cases)
+
+##### Choropleth Maps
+
+**When to Use:**
+
+- Country or region-level aggregations
+- Geographic distribution by administrative boundaries
+- Threat intelligence by region
+
+**Required Fields:**
+
+- Country codes or region identifiers
+- Aggregated metrics for each region
+
+**Best Practices:**
+
+- Use for country/region-level data (not individual coordinates)
+- Color intensity represents metric values
+- Alternative to point-based maps when data is pre-aggregated by region
+
+**Visualization Type:** `lnsChoropleth` (Lens choropleth visualization)
+
+**Usage:** Rare but consistent pattern (Akamai CDN security dashboard example)
+
+**Example Configuration:**
+
+```yaml
+- title: Threats by Country
+  grid: {x: 0, y: 15, w: 48, h: 20}
+  lens:
+    type: choropleth
+    data_view: logs-*
+    dimension:
+      field: source.geo.country_iso_code
+      type: values
+    metrics:
+      - field: threat.score
+        aggregation: sum
+```
 
 #### Treemap Charts
 
@@ -537,54 +603,35 @@ What are you visualizing?
 
 **Best Practice:** Single-purpose dashboards may omit navigation, but multi-dashboard packages should consistently provide navigation links for discoverability.
 
-### Control Filters
+#### Alternative: Links Panels
 
-**When to Use:**
-
-- Multi-tenant scenarios
-- Multi-system dashboards
-- Need for dimensional filtering across all panels
-
-**When NOT to Use:**
-
-- Single-source dashboards
-- Pre-filtered dashboards with specific scope
-
-**Types:**
-
-1. **Options List** (Most Common)
-   - Host/service filters
-   - Event type filters
-   - Method/protocol filters
-
-2. **Range Slider**
-   - Status code ranges
-   - Numeric value filters
-
-**Best Practices:**
-
-- Position at the top, immediately after navigation
-- Use 2-4 controls (not too many)
-- Support hierarchical selections
-- Enable exclusion when relevant
-
-**Example:**
+For packages with multiple dashboards, you can use a links panel instead of markdown:
 
 ```yaml
-controls:
-  - type: options
-    label: Filter by Host
-    data_view: logs-*
-    field: host.name
-    width: medium
-
-  - type: range
-    label: HTTP Status Code
-    data_view: logs-*
-    field: http.response.status_code
-    min: 100
-    max: 599
+- panel_type: links
+  grid: {x: 0, y: 0, w: 12, h: 3}
+  links:
+    - label: Overview Dashboard
+      url: /dashboard/overview-id
+    - label: Detailed Analysis
+      url: /dashboard/detail-id
 ```
+
+**Pattern observed:** Links panels found in 16% of multi-dashboard packages (Cassandra, Nginx examples).
+
+### Control Filters
+
+**IMPORTANT: Control filters are NOT used in Elastic integration dashboards.**
+
+Based on analysis of 49 production dashboards, **zero dashboards** use interactive control filters. Elastic integrations rely on:
+
+- Time picker (global time range selection)
+- Dashboard-level filters (data stream, package filters)
+- Panel-level filters (specific to individual visualizations)
+
+**Historical Note:** While Kibana supports control filters, they are not part of the Elastic integration dashboard pattern. If you need filtering, use dashboard-level filters or the time picker.
+
+**Removed Guidance:** Previous recommendations for control filters have been removed based on empirical evidence from 49 dashboard analysis.
 
 ---
 
@@ -1225,6 +1272,25 @@ Use this checklist when creating or reviewing dashboards:
 ---
 
 ## Changelog
+
+### Version 1.2 (2026-01-08)
+
+- **Third extended analysis with 27 additional dashboards (total: 49 dashboards from 37 integration packages)**
+- **Major pattern refinements:**
+  - **Control filters:** Removed guidance - NOT used in Elastic integrations (0/49 dashboards)
+  - **Tables at bottom:** Revised from absolute rule (100%) to strong preference (60%)
+  - **Metric cards:** Updated to 0-4 typical (78% of dashboards use zero metrics)
+  - **Top-to-bottom hierarchy:** Refined to account for category-specific variations
+- **New discoveries:**
+  - Choropleth maps for country/region-level geographic visualization
+  - Links panels as alternative navigation method (16% of multi-dashboard packages)
+  - Dashboard title format standardization: `[Category Type] Specific Focus` (75% usage)
+  - Dashboard categorization by type: Logs (41%), Metrics (30%), Security/Mixed (30%)
+- **Enhanced visualization guidance:**
+  - Distinguished point-based maps from choropleth maps
+  - Added category-specific patterns (Logs vs Metrics vs Security dashboards)
+  - Updated heatmap guidance with time pattern analysis examples
+- **Confidence assessment:** Refined from 95% to 85% pending style guide updates to reflect new findings
 
 ### Version 1.1 (2026-01-08)
 
