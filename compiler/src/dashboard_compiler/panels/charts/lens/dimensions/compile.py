@@ -25,6 +25,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensDimensionTypes,
     LensFiltersDimension,
     LensIntervalsDimension,
+    LensTermsBreakdown,
     LensTopValuesDimension,
 )
 from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
@@ -216,3 +217,86 @@ def compile_lens_dimensions(
 
     """
     return dict(compile_lens_dimension(dimension, kbn_metric_column_by_id=kbn_metric_column_by_id) for dimension in dimensions)
+
+
+def compile_lens_terms_breakdown(
+    breakdown: LensTermsBreakdown,
+    *,
+    kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
+) -> dict[str, KbnLensDimensionColumnTypes]:
+    """Compile a LensTermsBreakdown object into multiple Kibana terms dimension columns.
+
+    For multi-field breakdowns, creates a separate terms column for each field with shared
+    configuration (size, collapse, sort, etc.).
+
+    Args:
+        breakdown (LensTermsBreakdown): The LensTermsBreakdown object to compile.
+        kbn_metric_column_by_id (Mapping[str, KbnLensMetricColumnTypes]): A mapping of compiled KbnLensFieldMetricColumn objects.
+
+    Returns:
+        dict[str, KbnLensDimensionColumnTypes]: A dictionary of compiled KbnLensTermsDimensionColumn objects,
+            one for each field in the breakdown.
+
+    """
+    kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
+
+    columns: dict[str, KbnLensDimensionColumnTypes] = {}
+
+    # Build orderBy configuration
+    order_by = None
+    if breakdown.sort is not None:
+        if breakdown.sort.by not in kbn_column_name_to_id:
+            msg = f'Column {breakdown.sort.by} not found in kbn_metric_column_by_id'
+            raise ValueError(msg)
+        order_by = KbnLensTermsOrderBy(
+            type='column',
+            columnId=kbn_column_name_to_id[breakdown.sort.by],
+        )
+    elif len(kbn_metric_column_by_id) > 0:
+        # Default to ordering by first metric column if it's not a formula
+        first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
+        first_metric = kbn_metric_column_by_id[first_metric_id]
+
+        if first_metric.operationType == 'formula':
+            order_by = KbnLensTermsOrderBy(
+                type='alphabetical',
+                fallback=True,
+            )
+        else:
+            order_by = KbnLensTermsOrderBy(
+                type='column',
+                columnId=first_metric_id,
+            )
+    else:
+        order_by = KbnLensTermsOrderBy(
+            type='alphabetical',
+            fallback=True,
+        )
+
+    # Create a terms column for each field
+    for field in breakdown.fields:
+        dimension_id = stable_id_generator([breakdown.operation, breakdown.label, field])
+        custom_label = True if breakdown.label is not None else None
+
+        columns[dimension_id] = KbnLensTermsDimensionColumn(
+            label=breakdown.label or f'Top {breakdown.size or 3} values of {field}',
+            customLabel=custom_label,
+            dataType='string',
+            operationType='terms',
+            scale='ordinal',
+            sourceField=field,
+            params=KbnLensTermsDimensionColumnParams(
+                size=breakdown.size,
+                orderBy=order_by,
+                orderDirection=breakdown.sort.direction if breakdown.sort else 'desc',
+                otherBucket=default_true(breakdown.other_bucket),
+                missingBucket=default_false(breakdown.missing_bucket),
+                parentFormat=KbnLensTermsParentFormat(),
+                include=breakdown.include or [],
+                exclude=breakdown.exclude or [],
+                includeIsRegex=breakdown.include_is_regex or False,
+                excludeIsRegex=breakdown.exclude_is_regex or False,
+            ),
+        )
+
+    return columns

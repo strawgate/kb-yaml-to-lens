@@ -9,6 +9,7 @@ from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
 
 type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
+type LensBreakdownTypes = LensDimensionTypes | LensTermsBreakdown
 
 
 class BaseDimension(BaseCfgModel):
@@ -157,3 +158,69 @@ class LensDateHistogramDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
+
+
+class LensTermsBreakdown(BaseLensDimension):
+    """Represents a terms-based breakdown with support for multiple fields.
+
+    This is used for breakdown_by in XY and Metric charts to split data
+    by up to 4 fields simultaneously. Unlike regular dimensions, this
+    allows breaking down by multiple fields in a single breakdown operation.
+
+    Examples:
+        Single field breakdown:
+        ```yaml
+        breakdown_by:
+          operation: terms
+          fields:
+            - product.category
+          size: 10
+        ```
+
+        Multi-field breakdown with options:
+        ```yaml
+        breakdown_by:
+          operation: terms
+          fields:
+            - product.category
+            - customer.region
+          size: 10
+          collapse: sum
+          sort:
+            by: Count
+            direction: desc
+        ```
+    """
+
+    operation: Literal['terms'] = 'terms'
+    """The operation type (always 'terms' for multi-field breakdowns)."""
+
+    fields: list[str] = Field(min_length=1, max_length=4)
+    """The fields to break down by. Supports 1-4 fields."""
+
+    size: int | None = Field(default=None, ge=1)
+    """The number of top terms to display. Defaults to 5 in Kibana."""
+
+    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
+    """The collapse function to apply when limits are exceeded (sum, avg, min, max)."""
+
+    sort: Sort | None = Field(default=None)
+    """The sort configuration for the terms."""
+
+    other_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for terms not included in the top size. Defaults to `false`."""
+
+    missing_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+
+    include: list[str] | None = Field(default=None)
+    """A list of terms to include. Can be used with or without `include_is_regex`."""
+
+    exclude: list[str] | None = Field(default=None)
+    """A list of terms to exclude. Can be used with or without `exclude_is_regex`."""
+
+    include_is_regex: bool | None = Field(default=None)
+    """If `true`, treat the values in the `include` list as regular expressions. Defaults to `false`."""
+
+    exclude_is_regex: bool | None = Field(default=None)
+    """If `true`, treat the values in the `exclude` list as regular expressions. Defaults to `false`."""

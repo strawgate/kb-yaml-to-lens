@@ -1,10 +1,10 @@
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes
+from dashboard_compiler.panels.charts.lens.dimensions.config import LensDimensionTypes, LensTermsBreakdown
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 
 
@@ -56,8 +56,25 @@ class LensMetricChart(BaseChart):
     breakdown: LensDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
+    breakdown_by: LensTermsBreakdown | None = Field(
+        None,
+        description=(
+            'An optional terms breakdown with support for multiple fields (1-4). '
+            'Mutually exclusive with the breakdown field. '
+            'Note: Metric charts in Kibana only use the first field from the fields array.'
+        ),
+    )
+
     color: ColorMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
+
+    @model_validator(mode='after')
+    def validate_breakdown_exclusivity(self) -> Self:
+        """Ensure breakdown and breakdown_by are mutually exclusive."""
+        if self.breakdown is not None and self.breakdown_by is not None:
+            msg = "Cannot specify both 'breakdown' and 'breakdown_by' - use one or the other"
+            raise ValueError(msg)
+        return self
 
 
 class ESQLMetricChart(BaseChart):
