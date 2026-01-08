@@ -68,7 +68,10 @@ class PieTitlesAndText(BaseCfgModel):
 class PieChartAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for Pie charts."""
 
-    donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
+    donut: Literal['small', 'medium', 'large'] | None = Field(
+        default=None,
+        examples=['small', 'medium', 'large'],
+    )
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
 
 
@@ -94,23 +97,100 @@ class LensPieChart(BasePieChart):
     """Represents a Pie chart configuration within a Lens panel.
 
     Pie charts are used to visualize the proportion of categories.
+
+    Examples:
+        Simple pie chart showing traffic sources:
+        ```yaml
+        lens:
+          type: pie
+          data_view: "logs-*"
+          slice_by:
+            - field: "source.geo.country_name"
+              type: values
+          metrics:
+            - aggregation: count
+        ```
+
+        Pie chart with custom colors:
+        ```yaml
+        lens:
+          type: pie
+          data_view: "metrics-*"
+          slice_by:
+            - field: "resource.attributes.os.type"
+              type: values
+          metrics:
+            - aggregation: unique_count
+              field: resource.attributes.host.name
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['linux']
+                color: '#00BF6F'
+              - values: ['windows']
+                color: '#006BB4'
+        ```
     """
 
-    data_view: str = Field(default=...)
+    data_view: str = Field(
+        default=...,
+        examples=['logs-*', 'metrics-*', 'my-data-view'],
+    )
     """The data view that determines the data for the pie chart."""
 
-    metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
+    metrics: list[LensMetricTypes] = Field(
+        default=...,
+        min_length=1,
+        examples=[
+            [{'aggregation': 'count'}],
+            [{'aggregation': 'unique_count', 'field': 'user.id'}],
+        ],
+    )
     """Metrics that determine the size of slices."""
 
-    slice_by: list[LensDimensionTypes] = Field(default=...)
+    slice_by: list[LensDimensionTypes] = Field(
+        default=...,
+        examples=[
+            [{'field': 'service.name', 'type': 'values'}],
+            [{'field': 'status', 'type': 'values'}],
+        ],
+    )
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
 
 
 class ESQLPieChart(BasePieChart):
-    """Represents a Pie chart configuration within an ES|QL panel."""
+    """Represents a Pie chart configuration within an ES|QL panel.
 
-    metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
+    Examples:
+        ES|QL pie chart with STATS query:
+        ```yaml
+        esql:
+          type: pie
+          query: |
+            FROM logs-*
+            | STATS count = COUNT(*) BY service.name
+          metrics:
+            - field: "count"
+          slice_by:
+            - field: "service.name"
+        ```
+    """
+
+    metrics: list[ESQLMetricTypes] = Field(
+        default=...,
+        min_length=1,
+        examples=[
+            [{'field': 'count'}],
+            [{'field': 'total_requests'}],
+        ],
+    )
     """Metrics that determine the size of slices."""
 
-    slice_by: list[ESQLDimensionTypes] = Field(default=...)
+    slice_by: list[ESQLDimensionTypes] = Field(
+        default=...,
+        examples=[
+            [{'field': 'service.name'}],
+            [{'field': 'status'}],
+        ],
+    )
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""

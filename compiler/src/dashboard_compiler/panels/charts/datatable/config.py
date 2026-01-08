@@ -132,18 +132,71 @@ class LensDatatableChart(BaseChart):
 
     Datatable charts display tabular data with customizable columns, sorting,
     pagination, and formatting options.
+
+    Examples:
+        Simple datatable with metrics and rows:
+        ```yaml
+        lens:
+          type: datatable
+          data_view: "metrics-*"
+          metrics:
+            - id: "service-count"
+              field: "service.name"
+              aggregation: count
+          rows:
+            - id: "service-breakdown"
+              type: values
+              field: "service.name"
+        ```
+
+        Datatable with sorting and pagination:
+        ```yaml
+        lens:
+          type: datatable
+          data_view: "logs-*"
+          metrics:
+            - id: "error-count"
+              aggregation: count
+              filter:
+                kql: "log.level:error"
+          rows:
+            - id: "service"
+              type: values
+              field: "service.name"
+          sorting:
+            column_id: "error-count"
+            direction: desc
+          paging:
+            enabled: true
+            page_size: 25
+        ```
     """
 
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    data_view: str = Field(default=...)
+    data_view: str = Field(
+        default=...,
+        examples=['logs-*', 'metrics-*', 'my-data-view'],
+    )
     """The data view that determines the data for the datatable chart."""
 
-    metrics: list[LensMetricTypes] = Field(default_factory=list)
+    metrics: list[LensMetricTypes] = Field(
+        default_factory=list,
+        examples=[
+            [{'id': 'count', 'aggregation': 'count'}],
+            [{'id': 'avg-response', 'aggregation': 'average', 'field': 'response_time'}],
+        ],
+    )
     """List of metrics to display as columns."""
 
-    rows: list[LensDimensionTypes] = Field(default_factory=list)
+    rows: list[LensDimensionTypes] = Field(
+        default_factory=list,
+        examples=[
+            [{'id': 'service', 'type': 'values', 'field': 'service.name'}],
+            [{'id': 'host', 'type': 'values', 'field': 'host.name'}],
+        ],
+    )
     """List of dimensions to use as row groupings."""
 
     rows_by: list[LensDimensionTypes] | None = Field(default=None)
@@ -182,15 +235,48 @@ class ESQLDatatableChart(BaseChart):
 
     Note: ESQL datatables can have empty metrics and rows lists if they rely on
     the ESQL query to define columns (e.g., STATS or KEEP commands).
+
+    Examples:
+        ES|QL datatable with STATS query:
+        ```yaml
+        esql:
+          type: datatable
+          query: |
+            FROM metrics-*
+            | STATS count = COUNT(*), avg_cpu = AVG(system.cpu.total.norm.pct) BY service.name
+          metrics:
+            - id: "count"
+              field: "count"
+            - id: "avg-cpu"
+              field: "avg_cpu"
+          rows:
+            - id: "service"
+              field: "service.name"
+          sorting:
+            column_id: "count"
+            direction: desc
+        ```
     """
 
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    metrics: list[ESQLMetricTypes] = Field(default_factory=list)
+    metrics: list[ESQLMetricTypes] = Field(
+        default_factory=list,
+        examples=[
+            [{'field': 'count'}],
+            [{'field': 'avg_value'}],
+        ],
+    )
     """List of ESQL metrics to display as columns."""
 
-    rows: list[ESQLDimensionTypes] = Field(default_factory=list)
+    rows: list[ESQLDimensionTypes] = Field(
+        default_factory=list,
+        examples=[
+            [{'field': 'service.name'}],
+            [{'field': 'host.name'}],
+        ],
+    )
     """List of ESQL dimensions to use as row groupings."""
 
     rows_by: list[ESQLDimensionTypes] | None = Field(default=None)

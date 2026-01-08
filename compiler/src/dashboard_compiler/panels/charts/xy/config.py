@@ -334,15 +334,112 @@ class BaseXYAreaChart(BaseXYLineChart):
 
 
 class LensBarChart(BaseXYBarChart, LensXYChartMixin):
-    """Represents a Bar chart configuration within a Lens panel."""
+    """Represents a Bar chart configuration within a Lens panel.
+
+    Examples:
+        Simple bar chart with time series:
+        ```yaml
+        lens:
+          type: bar
+          data_view: "logs-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: count
+        ```
+
+        Stacked bar chart with breakdown:
+        ```yaml
+        lens:
+          type: bar
+          mode: stacked
+          data_view: "logs-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          breakdown:
+            type: values
+            field: "service.name"
+          metrics:
+            - aggregation: count
+        ```
+    """
 
 
 class LensLineChart(BaseXYLineChart, LensXYChartMixin):
-    """Represents a Line chart configuration within a Lens panel."""
+    """Represents a Line chart configuration within a Lens panel.
+
+    Examples:
+        Simple line chart with time series:
+        ```yaml
+        lens:
+          type: line
+          data_view: "metrics-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: average
+              field: response_time
+        ```
+
+        Line chart with dual Y-axes:
+        ```yaml
+        lens:
+          type: line
+          data_view: "logs-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: count
+              id: "request_count"
+            - aggregation: average
+              field: "error.rate"
+              id: "error_rate"
+          appearance:
+            series:
+              - metric_id: "request_count"
+                axis: left
+              - metric_id: "error_rate"
+                axis: right
+        ```
+    """
 
 
 class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
-    """Represents an Area chart configuration within a Lens panel."""
+    """Represents an Area chart configuration within a Lens panel.
+
+    Examples:
+        Simple area chart with time series:
+        ```yaml
+        lens:
+          type: area
+          data_view: "logs-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          metrics:
+            - aggregation: count
+        ```
+
+        Stacked area chart with percentage mode:
+        ```yaml
+        lens:
+          type: area
+          mode: percentage
+          data_view: "metrics-*"
+          dimensions:
+            - type: date_histogram
+              field: "@timestamp"
+          breakdown:
+            type: values
+            field: "service.name"
+          metrics:
+            - aggregation: count
+        ```
+    """
 
 
 class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):

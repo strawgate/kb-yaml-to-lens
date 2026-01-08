@@ -17,19 +17,34 @@ class GaugeAppearance(BaseCfgModel):
     labels, and color mode.
     """
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(
+        default=None,
+        examples=['arc', 'horizontalBullet', 'circle'],
+    )
     """The shape of the gauge visualization."""
 
-    ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(default=None)
+    ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(
+        default=None,
+        examples=['auto', 'bands'],
+    )
     """Position of tick marks on the gauge."""
 
-    label_major: str | None = Field(default=None)
+    label_major: str | None = Field(
+        default=None,
+        examples=['CPU Usage', 'Response Time'],
+    )
     """Major label text to display on the gauge."""
 
-    label_minor: str | None = Field(default=None)
+    label_minor: str | None = Field(
+        default=None,
+        examples=['%', 'ms'],
+    )
     """Minor label text to display on the gauge."""
 
-    color_mode: Literal['none', 'palette'] | None = Field(default=None)
+    color_mode: Literal['none', 'palette'] | None = Field(
+        default=None,
+        examples=['palette', 'none'],
+    )
     """Color mode for the gauge visualization."""
 
 
@@ -52,21 +67,69 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
 
     Gauge charts display a single metric value with optional min/max ranges and goal indicators,
     typically used to show progress toward a target or threshold.
+
+    Examples:
+        Minimal gauge with static values:
+        ```yaml
+        lens:
+          type: gauge
+          data_view: "metrics-*"
+          metric:
+            aggregation: average
+            field: system.cpu.total.pct
+          minimum: 0
+          maximum: 100
+          goal: 80
+        ```
+
+        Gauge with custom appearance:
+        ```yaml
+        lens:
+          type: gauge
+          data_view: "logs-*"
+          metric:
+            aggregation: average
+            field: response_time_ms
+          minimum: 0
+          maximum: 1000
+          goal: 500
+          appearance:
+            shape: arc
+            color_mode: palette
+        ```
     """
 
-    data_view: str = Field(default=...)
+    data_view: str = Field(
+        default=...,
+        examples=['logs-*', 'metrics-*', 'my-data-view'],
+    )
     """The data view that determines the data for the gauge chart."""
 
-    metric: LensMetricTypes = Field(...)
+    metric: LensMetricTypes = Field(
+        ...,
+        examples=[
+            {'aggregation': 'average', 'field': 'system.cpu.total.pct'},
+            {'aggregation': 'average', 'field': 'response_time_ms'},
+        ],
+    )
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: LensMetricTypes | int | float | None = Field(default=None)
+    minimum: LensMetricTypes | int | float | None = Field(
+        default=None,
+        examples=[0, 0.0, {'aggregation': 'min', 'field': 'temperature'}],
+    )
     """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: LensMetricTypes | int | float | None = Field(default=None)
+    maximum: LensMetricTypes | int | float | None = Field(
+        default=None,
+        examples=[100, 1000.0, {'aggregation': 'max', 'field': 'temperature'}],
+    )
     """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: LensMetricTypes | int | float | None = Field(default=None)
+    goal: LensMetricTypes | int | float | None = Field(
+        default=None,
+        examples=[80, 500.0, {'aggregation': 'average', 'field': 'target_value'}],
+    )
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
     @property
@@ -80,18 +143,50 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
 
     Gauge charts display a single metric value with optional min/max ranges and goal indicators,
     typically used to show progress toward a target or threshold.
+
+    Examples:
+        ES|QL gauge with STATS query:
+        ```yaml
+        esql:
+          type: gauge
+          query: |
+            FROM metrics-*
+            | STATS avg_cpu = AVG(system.cpu.total.pct)
+          metric:
+            field: "avg_cpu"
+          minimum: 0
+          maximum: 100
+          goal: 80
+          appearance:
+            shape: arc
+        ```
     """
 
-    metric: ESQLMetricTypes = Field(...)
+    metric: ESQLMetricTypes = Field(
+        ...,
+        examples=[
+            {'field': 'avg_cpu'},
+            {'field': 'response_time'},
+        ],
+    )
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: ESQLMetricTypes | int | float | None = Field(default=None)
+    minimum: ESQLMetricTypes | int | float | None = Field(
+        default=None,
+        examples=[0, 0.0, {'field': 'min_value'}],
+    )
     """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: ESQLMetricTypes | int | float | None = Field(default=None)
+    maximum: ESQLMetricTypes | int | float | None = Field(
+        default=None,
+        examples=[100, 1000.0, {'field': 'max_value'}],
+    )
     """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: ESQLMetricTypes | int | float | None = Field(default=None)
+    goal: ESQLMetricTypes | int | float | None = Field(
+        default=None,
+        examples=[80, 500.0, {'field': 'target'}],
+    )
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
     @property
