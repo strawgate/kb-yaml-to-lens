@@ -12,7 +12,7 @@ dashboards:
         variable_name: agent_name
         variable_type: values
         query: FROM metrics-* | STATS count = COUNT(*) BY agent.name | SORT count DESC | KEEP agent.name | LIMIT 20
-        title: Agent Name
+        label: Agent Name
         width: medium
 
       # Control 2: Agent ID (query-driven, filtered by agent name)
@@ -21,7 +21,7 @@ dashboards:
         variable_type: values
         query: FROM metrics-* | WHERE agent.name IN (?agent_name) | STATS count = COUNT(*) BY agent.id | SORT count DESC | KEEP agent.id | LIMIT
           20
-        title: Agent ID
+        label: Agent ID
         width: medium
 
       # Control 3: Agent Version (query-driven, filtered by name and ID)
@@ -30,7 +30,7 @@ dashboards:
         variable_type: values
         query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version | SORT
           agent.version | KEEP agent.version | LIMIT 20
-        title: Agent Version
+        label: Agent Version
         width: medium
     panels:
       # Panel 1: Total Events Metric

@@ -143,10 +143,9 @@ These fields apply to all ES|QL controls (both static and query-driven):
 | `type` | `Literal['esql']` | Specifies the control type. | `esql` | Yes |
 | `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
 | `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
-| `label` | `string` | The display label for the control. Not used for ESQL controls - use `title` instead. | `None` | No |
+| `label` | `string` | The display label for the control. | `None` | No |
 | `variable_name` | `string` | The name of the ESQL variable (e.g., `status_code`). Used in queries as `?variable_name`. | N/A | Yes |
 | `variable_type` | `string` | The type of variable. See [ESQL Variable Types](#esql-variable-types-variable_type). | `values` | No |
-| `title` | `string` | Display title for the control shown in the UI. | N/A | Yes |
 
 #### Static Values Control Fields
 
@@ -179,7 +178,7 @@ controls:
       - production
       - staging
       - development
-    title: Environment
+    label: Environment
     multiple: false
 
   # Single-select control with string default (auto-infers multiple: false)
@@ -187,7 +186,7 @@ controls:
     variable_name: status
     variable_type: values
     choices: ["200", "404", "500"]
-    title: HTTP Status
+    label: HTTP Status
     default: "200"
 
   # Multi-select control with list default (auto-infers multiple: true)
@@ -195,7 +194,7 @@ controls:
     variable_name: regions
     variable_type: values
     choices: ["us-east", "us-west", "eu-west"]
-    title: Regions
+    label: Regions
     default: ["us-east", "us-west"]
 ```
 
@@ -207,7 +206,7 @@ controls:
     variable_name: status_code
     variable_type: values
     query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
-    title: HTTP Status Code
+    label: HTTP Status Code
 ```
 
 **Important**: ES|QL control queries **must return exactly one column** containing the values to display in the control. Use `KEEP` to select only the field column after aggregation.

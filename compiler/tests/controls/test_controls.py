@@ -408,7 +408,7 @@ async def test_esql_multi_select_control() -> None:
         'variable_name': 'environment',
         'variable_type': 'values',
         'choices': ['production', 'staging', 'development'],
-        'title': 'Environment',
+        'label': 'Environment',
         'multiple': True,
     }
     result = compile_control_snapshot(config)
@@ -440,7 +440,7 @@ async def test_esql_single_select_control() -> None:
         'variable_name': 'status',
         'variable_type': 'values',
         'choices': ['200', '404', '500'],
-        'title': 'HTTP Status',
+        'label': 'HTTP Status',
         'width': 'small',
         'multiple': False,
     }
@@ -473,7 +473,7 @@ async def test_esql_query_control() -> None:
         'variable_name': 'status_code',
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
-        'title': 'Status Code',
+        'label': 'Status Code',
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -502,7 +502,7 @@ async def test_esql_query_control_with_single_select() -> None:
         'variable_name': 'host_name',
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
-        'title': 'Host Name',
+        'label': 'Host Name',
         'multiple': False,
         'width': 'large',
     }
@@ -604,7 +604,7 @@ async def test_esql_multi_select_control_alt() -> None:
         'variable_name': 'status',
         'variable_type': 'values',
         'choices': ['200', '404', '500'],
-        'title': 'HTTP Status',
+        'label': 'HTTP Status',
         'multiple': True,
     }
     result = compile_control_snapshot(config)
@@ -636,7 +636,7 @@ async def test_esql_single_select_control_with_default() -> None:
         'variable_name': 'project_id',
         'variable_type': 'values',
         'choices': ['e252fee1dd6f4ff08bc91532aa922182', 'aaca5cd9be82480fa821c3f8e64e3f41'],
-        'title': 'Project ID',
+        'label': 'Project ID',
         'default': 'e252fee1dd6f4ff08bc91532aa922182',
     }
     result = compile_control_snapshot(config)
@@ -668,7 +668,7 @@ async def test_esql_multi_select_control_with_default() -> None:
         'variable_name': 'status',
         'variable_type': 'values',
         'choices': ['200', '404', '500', '503'],
-        'title': 'HTTP Status',
+        'label': 'HTTP Status',
         'default': ['200', '404'],
         'multiple': True,
     }
@@ -703,7 +703,7 @@ async def test_esql_single_select_control_default_validation() -> None:
                 'variable_name': 'project_id',
                 'variable_type': 'values',
                 'choices': ['option1', 'option2'],
-                'title': 'Project',
+                'label': 'Project',
                 'default': 'option3',
             }
         )
@@ -718,7 +718,7 @@ async def test_esql_multi_select_control_default_validation() -> None:
                 'variable_name': 'status',
                 'variable_type': 'values',
                 'choices': ['option1', 'option2'],
-                'title': 'Status',
+                'label': 'Status',
                 'default': ['option1', 'option3'],
                 'multiple': True,
             }
@@ -732,7 +732,7 @@ async def test_esql_query_control_with_multi_select() -> None:
         'variable_name': 'host',
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
-        'title': 'Host Name',
+        'label': 'Host Name',
         'multiple': True,
     }
     result = compile_control_snapshot(config)

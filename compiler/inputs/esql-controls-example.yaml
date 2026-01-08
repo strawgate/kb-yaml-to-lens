@@ -15,7 +15,7 @@ dashboards:
           - production
           - staging
           - development
-        title: Service Environment
+        label: Service Environment
         width: medium
         multiple: false
 
@@ -24,7 +24,7 @@ dashboards:
         variable_name: status_code
         variable_type: values
         query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
-        title: HTTP Status Code
+        label: HTTP Status Code
         width: medium
         multiple: true
 
@@ -34,7 +34,7 @@ dashboards:
         variable_type: values
         query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT
           20
-        title: Host Name
+        label: Host Name
         width: large
     panels:
       # ES|QL Metric using variables

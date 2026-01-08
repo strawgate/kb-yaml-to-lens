@@ -166,9 +166,6 @@ class ESQLStaticSingleSelectControl(BaseControl):
     choices: list[str] = Field(...)
     """The static list of available values for this control."""
 
-    title: str = Field(...)
-    """Display title for the control."""
-
     default: str | None = Field(default=None)
     """Default selected value."""
 
@@ -201,9 +198,6 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
     choices: list[str] = Field(...)
     """The static list of available values for this control."""
-
-    title: str = Field(...)
-    """Display title for the control."""
 
     default: list[str] | None = Field(default=None)
     """Default selected values."""
@@ -239,9 +233,6 @@ class ESQLQueryControl(BaseControl):
 
     query: str = Field(..., min_length=1)
     """The ES|QL query that returns the available values for this control."""
-
-    title: str = Field(...)
-    """Display title for the control."""
 
     multiple: bool | None = Field(default=None)
     """If true, allow multiple selection from the options."""
