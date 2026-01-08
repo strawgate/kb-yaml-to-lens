@@ -1,0 +1,94 @@
+---
+name: Build and Publish Binaries
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch: null
+permissions:
+  contents: write
+jobs:
+  build-cli-binaries:
+    name: Build CLI Binary - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+            ext: ''
+          - os: macos-13
+            platform: darwin-x64
+            ext: ''
+          - os: macos-latest
+            platform: darwin-arm64
+            ext: ''
+          - os: windows-latest
+            platform: windows-x64
+            ext: .exe
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install UV
+        uses: astral-sh/setup-uv@v7
+      - name: Install dependencies
+        working-directory: compiler
+        run: uv sync --group build
+      - name: Build CLI binary
+        working-directory: compiler
+        run: make build-binary
+      - name: Run smoke tests
+        working-directory: compiler
+        run: make test-binary-smoke
+      - name: Upload CLI binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
+          path: compiler/dist/kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
+          retention-days: 7
+  build-lsp-binaries:
+    name: Build LSP Binary - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+            ext: ''
+          - os: macos-13
+            platform: darwin-x64
+            ext: ''
+          - os: macos-latest
+            platform: darwin-arm64
+            ext: ''
+          - os: windows-latest
+            platform: windows-x64
+            ext: .exe
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install UV
+        uses: astral-sh/setup-uv@v7
+      - name: Install dependencies
+        working-directory: compiler
+        run: uv sync --group build
+      - name: Build LSP binary
+        working-directory: compiler
+        run: make build-lsp-binary
+      - name: Run LSP smoke tests
+        working-directory: compiler
+        run: make test-lsp-binary-smoke
+      - name: Upload LSP binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kb-dashboard-compiler-lsp-${{ matrix.platform }}${{ matrix.ext }}
+          path: compiler/dist/kb-dashboard-compiler-lsp${{ matrix.ext }}
+          retention-days: 7
