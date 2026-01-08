@@ -70,15 +70,10 @@ dashboards:
 
 ### Lens Metric Chart
 
-| YAML Key | Data Type | Description | Default | Required |
-| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
-| `type` | `Literal['metric']` | Specifies the chart type as metric. | `'metric'` | No |
-| `data_view` | `string` | The data view that determines the data for the metric chart. | N/A | Yes |
-| `primary` | `LensMetricTypes` | The primary metric to display (main value). | N/A | Yes |
-| `secondary` | `LensMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
-| `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
-| `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
-| `color` | `ColorMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
+::: dashboard_compiler.panels.charts.metric.config.LensMetricChart
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 #### Lens Metric Types
 
@@ -135,14 +130,10 @@ primary:
 
 ### ESQL Metric Chart
 
-| YAML Key | Data Type | Description | Default | Required |
-| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
-| `type` | `Literal['metric']` | Specifies the chart type as metric. | `'metric'` | No |
-| `primary` | `ESQLMetricTypes` | The primary metric to display (main value). | N/A | Yes |
-| `secondary` | `ESQLMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
-| `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
-| `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
-| `color` | `ColorMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
+::: dashboard_compiler.panels.charts.metric.config.ESQLMetricChart
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 #### ESQL Metric Types
 

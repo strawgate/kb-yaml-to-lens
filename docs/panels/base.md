@@ -83,10 +83,10 @@ The `size` object defines the panel's width and height on the dashboard grid. Th
 
 Both shorthand and verbose parameter names are supported for improved readability.
 
-| YAML Key | Verbose Alternative | Data Type | Description | Default | Required |
-| -------- | ------------------- | --------- | ------------------------------------------------------------ | ------- | -------- |
-| `w` | `width` | `integer` or `SemanticWidth` | The width of the panel. Accepts semantic values (`whole`, `half`, `third`, `quarter`, `sixth`, `eighth`) or numeric values (1-48). | `12` (quarter) | No |
-| `h` | `height` | `integer` | The height of the panel in grid units. | `8` | No |
+::: dashboard_compiler.panels.config.Size
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Semantic Width Values:**
 
@@ -116,10 +116,10 @@ size:
 
 The `position` object defines the panel's x/y coordinates on the dashboard grid. This field is **optional** - when omitted, the panel will be automatically positioned using the dashboard's layout algorithm.
 
-| YAML Key | Verbose Alternative | Data Type | Description | Default | Required |
-| -------- | ------------------- | --------- | ------------------------------------------------------------ | ------- | -------- |
-| `x` | `from_left` | `integer` or `None` | The horizontal starting position (0-based, 0-48). If `None`, position is auto-calculated. | `None` | No |
-| `y` | `from_top` | `integer` or `None` | The vertical starting position (0-based). If `None`, position is auto-calculated. | `None` | No |
+::: dashboard_compiler.panels.config.Position
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Example with fixed position:**
 
