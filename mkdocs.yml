@@ -97,6 +97,7 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+  - mkdocs-click
 nav:
   - User Guide:
       - Getting Started: index.md
