@@ -63,9 +63,9 @@ dashboards:
         grid: { x: 0, y: 2, w: 4, h: 4 }
       - lens:
           type: bar
-          dimensions:
-            - type: values
-              field: "resource.attributes.os.type"
+          dimension:
+            type: values
+            field: "resource.attributes.os.type"
           metrics:
             - aggregation: unique_count
               field: resource.attributes.host.name

@@ -225,7 +225,10 @@ class LensXYChartMixin(BaseCfgModel):
     """Shared fields for Lens-based XY charts."""
 
     data_view: str = Field(default=..., description='The data view to use for the chart.')
-    dimensions: list[LensDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
+    dimension: LensDimensionTypes | None = Field(
+        default=None,
+        description='Defines the X-axis dimension for the chart. XY charts support 0 or 1 dimension.',
+    )
     metrics: list[LensMetricTypes] = Field(
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
@@ -237,9 +240,9 @@ class LensXYChartMixin(BaseCfgModel):
         ),
     )
 
-    def add_dimension(self, lens_dimension: LensDimensionTypes) -> Self:
-        """Add a dimension to the lens Chart."""
-        self.dimensions.append(lens_dimension)
+    def set_dimension(self, lens_dimension: LensDimensionTypes) -> Self:
+        """Set the X-axis dimension for the lens Chart."""
+        self.dimension = lens_dimension
 
         return self
 
@@ -253,7 +256,10 @@ class LensXYChartMixin(BaseCfgModel):
 class ESQLXYChartMixin(BaseCfgModel):
     """Shared fields for ESQL-based XY charts."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(default_factory=list, description='Defines the dimensions for the chart.')
+    dimension: ESQLDimensionTypes | None = Field(
+        default=None,
+        description='Defines the X-axis dimension for the chart. XY charts support 0 or 1 dimension.',
+    )
 
     metrics: list[ESQLMetricTypes] = Field(
         min_length=1,
@@ -267,9 +273,9 @@ class ESQLXYChartMixin(BaseCfgModel):
         ),
     )
 
-    def add_dimension(self, esql_dimension: ESQLDimensionTypes) -> Self:
-        """Add a dimension to the ESQL Chart."""
-        self.dimensions.append(esql_dimension)
+    def set_dimension(self, esql_dimension: ESQLDimensionTypes) -> Self:
+        """Set the X-axis dimension for the ESQL Chart."""
+        self.dimension = esql_dimension
 
         return self
 

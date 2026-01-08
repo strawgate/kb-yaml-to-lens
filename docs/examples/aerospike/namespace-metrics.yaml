@@ -69,19 +69,19 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: '@timestamp'
-            - field: attributes.type
-              type: values
-              label: Top values of attributes.type + 1 other
-              size: 50
-              sort:
-                by: Queries per Second
-                direction: asc
-              other_bucket: false
-              missing_bucket: true
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: attributes.type
+            type: values
+            size: 50
+            sort:
+              by: Queries per Second
+              direction: asc
+            other_bucket: false
+            missing_bucket: true
           metrics:
             - aggregation: max
               label: Queries per Second
@@ -102,19 +102,19 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: '@timestamp'
-            - field: attributes.type
-              type: values
-              label: Top values of attributes.type + 1 other
-              size: 50
-              sort:
-                by: Queries per Second
-                direction: desc
-              other_bucket: false
-              missing_bucket: true
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: attributes.type
+            type: values
+            size: 50
+            sort:
+              by: Queries per Second
+              direction: desc
+            other_bucket: false
+            missing_bucket: true
           metrics:
             - aggregation: min
               label: Queries per Second
@@ -141,19 +141,19 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: '@timestamp'
-            - field: attributes.type
-              type: values
-              label: Top values of attributes.type + 1 other
-              size: 50
-              sort:
-                by: Transactions per Second
-                direction: desc
-              other_bucket: false
-              missing_bucket: true
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: attributes.type
+            type: values
+            size: 50
+            sort:
+              by: Transactions per Second
+              direction: desc
+            other_bucket: false
+            missing_bucket: true
           metrics:
             - aggregation: min
               label: Transactions per Second

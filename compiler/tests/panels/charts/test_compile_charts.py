@@ -60,7 +60,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'line',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -73,7 +73,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'bar',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -86,7 +86,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'area',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -109,7 +109,7 @@ class TestChartTypeToKbnTypeLens:
         area_chart = ESQLAreaChart.model_validate(
             {
                 'type': 'area',
-                'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
         )
@@ -118,7 +118,7 @@ class TestChartTypeToKbnTypeLens:
         bar_chart = ESQLBarChart.model_validate(
             {
                 'type': 'bar',
-                'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
         )
@@ -127,7 +127,7 @@ class TestChartTypeToKbnTypeLens:
         line_chart = ESQLLineChart.model_validate(
             {
                 'type': 'line',
-                'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
         )
@@ -355,7 +355,7 @@ class TestCompileLensChartState:
             {
                 'type': 'bar',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -484,7 +484,7 @@ class TestCompileESQLChartState:
                     'type': 'bar',
                     'query': 'FROM metrics-* | STATS count() BY @timestamp',
                     'timeField': 'event.timestamp',
-                    'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+                    'dimension': {'field': '@timestamp', 'id': 'dim1'},
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },
             }
