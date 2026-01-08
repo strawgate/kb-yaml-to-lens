@@ -27,14 +27,6 @@ declare -A BINARY_NAMES=(
     ["win32-x64"]="kb-dashboard-compiler-lsp.exe"
 )
 
-# Source path mapping (platform -> OS name in dist)
-declare -A SOURCE_OS_MAPPING=(
-    ["linux-x64"]="linux"
-    ["darwin-x64"]="darwin"
-    ["darwin-arm64"]="darwin"
-    ["win32-x64"]="windows"
-)
-
 COPIED=0
 MISSING=0
 
