@@ -125,62 +125,88 @@ Allows users to select a sub-section of the dashboard's current time range. This
 
 **Note on Time Slider Offsets:** The YAML configuration expects `start_offset` and `end_offset` as float values between 0.0 (0%) and 1.0 (100%). Kibana internally represents these as percentages from 0.0 to 100.0. If not provided, Kibana defaults to `0.0` for start and `100.0` for end.
 
-### ES|QL Static Values Control
+### ES|QL Control
 
-Allows users to select from a predefined list of values to filter ES|QL visualizations via variables. This control type is particularly useful for filtering ES|QL-based panels.
+Allows users to filter ES|QL visualizations via variables. ES|QL controls can use either static values or query-driven values.
+
+**The control type is automatically determined based on the fields you provide:**
+
+- If you provide `choices`, it creates a static values control
+- If you provide `query`, it creates a query-driven control
+
+#### Common Fields
+
+These fields apply to all ES|QL controls (both static and query-driven):
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
-| ------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['esql_static']` | Specifies the control type. | `esql_static` | Yes |
+| --- | --- | --- | --- | --- |
+| `type` | `Literal['esql']` | Specifies the control type. | `esql` | Yes |
 | `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
 | `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
-| `label` | `string` | The display label for the control. Not used for ESQL controls - use `title` instead. | `None` | No |
+| `label` | `string` | The display label for the control. | `None` | No |
 | `variable_name` | `string` | The name of the ESQL variable (e.g., `status_code`). Used in queries as `?variable_name`. | N/A | Yes |
 | `variable_type` | `string` | The type of variable. See [ESQL Variable Types](#esql-variable-types-variable_type). | `values` | No |
-| `available_options` | `list of strings` | The static list of available values for this control. | N/A | Yes |
-| `title` | `string` | Display title for the control shown in the UI. | N/A | Yes |
-| `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
 
-**Example:**
+#### Static Values Control Fields
+
+Additional fields for static values controls (when `choices` is provided):
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| --- | --- | --- | --- | --- |
+| `choices` | `list of strings` | The static list of available values for this control. **Required for static values controls.** | N/A | Yes |
+| `default` | `string` or `list of strings` | Default selected value(s). If a string, auto-infers single-select mode. If a list, auto-infers multi-select mode. | `None` | No |
+| `multiple` | `boolean` | If true, allow multiple selection. If not set, auto-inferred from `default` type (string=false, list=true). | Inferred from `default` | No |
+
+#### Query-Driven Control Fields
+
+Additional fields for query-driven controls (when `query` is provided):
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| --- | --- | --- | --- | --- |
+| `query` | `string` | The ES\|QL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
+| `multiple` | `boolean` | If true, allow multiple selection from the options. | `false` | No |
+
+#### Static Values Example
 
 ```yaml
 controls:
-  - type: esql_static
+  # Single-select control with explicit multiple
+  - type: esql
     variable_name: environment
     variable_type: values
-    available_options:
+    choices:
       - production
       - staging
       - development
-    title: Environment
-    single_select: true
+    label: Environment
+    multiple: false
+
+  # Single-select control with string default (auto-infers multiple: false)
+  - type: esql
+    variable_name: status
+    variable_type: values
+    choices: ["200", "404", "500"]
+    label: HTTP Status
+    default: "200"
+
+  # Multi-select control with list default (auto-infers multiple: true)
+  - type: esql
+    variable_name: regions
+    variable_type: values
+    choices: ["us-east", "us-west", "eu-west"]
+    label: Regions
+    default: ["us-east", "us-west"]
 ```
 
-### ES|QL Query Control
-
-Allows users to select from values dynamically fetched from an ES|QL query to filter ES|QL visualizations via variables.
-
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['esql_query']` | Specifies the control type. | `esql_query` | Yes |
-| `id` | `string` | A unique identifier for the control. If not provided, one will be generated. | Generated UUID | No |
-| `width` | `Literal['small', 'medium', 'large']` | The width of the control in the dashboard layout. | `medium` | No |
-| `label` | `string` | The display label for the control. Not used for ESQL controls - use `title` instead. | `None` | No |
-| `variable_name` | `string` | The name of the ESQL variable (e.g., `status_code`). Used in queries as `?variable_name`. | N/A | Yes |
-| `variable_type` | `string` | The type of variable. See [ESQL Variable Types](#esql-variable-types-variable_type). | `values` | No |
-| `esql_query` | `string` | The ESQL query that returns the available values for this control. | N/A | Yes |
-| `title` | `string` | Display title for the control shown in the UI. | N/A | Yes |
-| `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
-
-**Example:**
+#### Query-Driven Example
 
 ```yaml
 controls:
-  - type: esql_query
+  - type: esql
     variable_name: status_code
     variable_type: values
-    esql_query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
-    title: HTTP Status Code
+    query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
+    label: HTTP Status Code
 ```
 
 **Important**: ES|QL control queries **must return exactly one column** containing the values to display in the control. Use `KEEP` to select only the field column after aggregation.
@@ -204,20 +230,20 @@ panels:
 
 This defines the type of variable used in ES|QL controls. These match Kibana's `ESQLVariableType` enum.
 
-* `values`: (Default) Standard values variable type.
-* `multi_values`: Multi-value variable type.
-* `fields`: Fields variable type.
-* `time_literal`: Time literal variable type.
-* `functions`: Functions variable type.
+- `values`: (Default) Standard values variable type.
+- `multi_values`: Multi-value variable type.
+- `fields`: Fields variable type.
+- `time_literal`: Time literal variable type.
+- `functions`: Functions variable type.
 
 ## Match Technique Enum (`match_technique`)
 
 This enum defines the possible search techniques used for filtering options in an `OptionsListControl`.
 
-* `prefix`: (Default) Filters options starting with the input text.
-* `contains`: Filters options containing the input text.
-* `exact`: Filters options matching the input text exactly.
+- `prefix`: (Default) Filters options starting with the input text.
+- `contains`: Filters options containing the input text.
+- `exact`: Filters options matching the input text exactly.
 
 ## Related Documentation
 
-* [Dashboard Configuration](./../dashboard/dashboard.md)
+- [Dashboard Configuration](./../dashboard/dashboard.md)

@@ -8,33 +8,33 @@ dashboards:
         label_position: inline
     controls:
       # Static values ES|QL control
-      - type: esql_static
+      - type: esql
         variable_name: service_environment
         variable_type: values
-        available_options:
+        choices:
           - production
           - staging
           - development
-        title: Service Environment
+        label: Service Environment
         width: medium
-        single_select: true
+        multiple: false
 
       # Query-driven ES|QL control
-      - type: esql_query
+      - type: esql
         variable_name: status_code
         variable_type: values
-        esql_query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
-        title: HTTP Status Code
+        query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
+        label: HTTP Status Code
         width: medium
-        single_select: false
+        multiple: true
 
       # Another query-driven control using the first variable
-      - type: esql_query
+      - type: esql
         variable_name: host
         variable_type: values
-        esql_query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT
+        query: FROM logs-* | WHERE service.environment == ?service_environment | STATS count = COUNT(*) BY host.name | KEEP host.name | LIMIT
           20
-        title: Host Name
+        label: Host Name
         width: large
     panels:
       # ES|QL Metric using variables
