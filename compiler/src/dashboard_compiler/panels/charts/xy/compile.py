@@ -427,7 +427,7 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
-        yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
+        yConfig=y_config,
         xScaleType=x_scale,
     )
 
