@@ -1,6 +1,4 @@
-# Metric Chart Panel Configuration (POC)
-
-> **Note:** This is a proof-of-concept demonstrating auto-generated documentation using griffe-pydantic and griffe-fieldz extensions.
+# Metric Chart Panel Configuration
 
 The Metric chart panel displays a single value or a small set of key metrics, often used for KPIs or summary statistics.
 

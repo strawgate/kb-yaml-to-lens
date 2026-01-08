@@ -52,15 +52,6 @@ plugins:
             - compiler/src
           import:
             - https://docs.python.org/3/objects.inv
-          extensions:
-            - griffe_pydantic:
-                schema: true
-            - griffe_fieldz:
-                include_inherited: false
-                include_private: false
-                add_fields_to: docstring-attributes
-                remove_fields_from_members: true
-                strip_annotated: false
           options:
             show_source: false
             docstring_style: google
@@ -74,6 +65,15 @@ plugins:
             show_bases: false
             members_order: source
             show_if_no_docstring: false
+            extensions:
+              - griffe_pydantic:
+                  schema: true
+              - griffe_fieldz:
+                  include_inherited: false
+                  include_private: false
+                  add_fields_to: docstring-attributes
+                  remove_fields_from_members: true
+                  strip_annotated: false
 hooks:
   - docs/hooks/generate_llms_txt.py
 markdown_extensions:
