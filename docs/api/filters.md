@@ -37,6 +37,7 @@ Filter configuration and compilation.
 ::: dashboard_compiler.filters.config.RangeFilter
     options:
       show_source: true
+      members: false
 
 ## Negate Filter
 

@@ -87,12 +87,12 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-grid). | N/A | Yes |
+| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-legacy). | N/A | Yes |
 | `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../queries/config.md). | `None` (uses dashboard query) | No |
 | `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A | Yes |
 
-**Note**: For XY charts (line, bar, area), a `layers` field is available to add reference lines and additional data layers. See the [XY Chart Panel Configuration](xy.md#reference-lines-multi-layer-panels) documentation for details.
+**Note**: For XY charts (line, bar, area), a `layers` field is available to add reference lines and additional data layers. See the [XY Chart Panel Configuration](xy.md#reference-lines) documentation for details.
 
 ---
 
