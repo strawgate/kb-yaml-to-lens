@@ -1233,3 +1233,38 @@ async def test_esql_area_chart_validation_requires_metrics() -> None:
 
     with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         ESQLAreaChart.model_validate(config)
+
+
+async def test_lens_bar_chart_without_dimension() -> None:
+    """Test bar chart with no dimension (dimension=None)."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer_dict = kbn_state_visualization.layers[0].model_dump()
+    # When dimension is None, xAccessor should also be None
+    assert layer_dict['xAccessor'] is None
+    # Should still have the metric accessor
+    assert len(layer_dict['accessors']) == 1
+
+
+async def test_esql_line_chart_without_dimension() -> None:
+    """Test ESQL line chart with no dimension (dimension=None)."""
+    esql_config = {
+        'type': 'line',
+        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+    }
+
+    esql_chart = ESQLLineChart(**esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer_dict = kbn_state_visualization.layers[0].model_dump()
+    # When dimension is None, xAccessor should also be None
+    assert layer_dict['xAccessor'] is None
+    # Should still have the metric accessor
+    assert len(layer_dict['accessors']) == 1
