@@ -89,7 +89,6 @@ jobs:
           retention-days: 30
       - name: Comment coverage on PR
         id: coverage_comment
-        if: github.event_name == 'pull_request'
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +135,7 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --group docs
       - name: Build documentation
-        run: mkdocs build --quiet --strict
+        run: uv run --group docs mkdocs build --quiet --strict
   test-vscode-extension-python:
     name: Test VSCode Extension (Python)
     runs-on: ubuntu-latest
