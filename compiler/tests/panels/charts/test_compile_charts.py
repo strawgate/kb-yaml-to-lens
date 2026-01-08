@@ -1,5 +1,7 @@
 """Tests for chart compilation utilities."""
 
+import json
+
 import pytest
 
 from dashboard_compiler.panels.charts.compile import (
@@ -7,6 +9,7 @@ from dashboard_compiler.panels.charts.compile import (
     compile_esql_chart_state,
     compile_lens_chart_state,
 )
+from dashboard_compiler.panels.charts.config import ESQLPanel
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
@@ -394,10 +397,6 @@ class TestCompileESQLChartState:
 
     def test_esql_metric_chart_default_time_field(self) -> None:
         """Test that ES|QL metric chart uses default timeField (@timestamp)."""
-        import json
-
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
         panel = ESQLPanel.model_validate(
             {
                 'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
@@ -423,10 +422,6 @@ class TestCompileESQLChartState:
 
     def test_esql_metric_chart_custom_time_field(self) -> None:
         """Test that ES|QL metric chart uses custom timeField when specified."""
-        import json
-
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
         panel = ESQLPanel.model_validate(
             {
                 'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
@@ -453,10 +448,6 @@ class TestCompileESQLChartState:
 
     def test_esql_pie_chart_custom_time_field(self) -> None:
         """Test that ES|QL pie chart uses custom timeField when specified."""
-        import json
-
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
         panel = ESQLPanel.model_validate(
             {
                 'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
@@ -484,10 +475,6 @@ class TestCompileESQLChartState:
 
     def test_esql_bar_chart_custom_time_field(self) -> None:
         """Test that ES|QL bar chart uses custom timeField when specified."""
-        import json
-
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
         panel = ESQLPanel.model_validate(
             {
                 'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
