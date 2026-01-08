@@ -81,10 +81,10 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
           metrics:
             - aggregation: count
               label: Event Count
@@ -115,13 +115,13 @@ dashboards:
           type: bar
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: url.path
-              type: values
-              size: 10
-              sort:
-                by: Requests
-                direction: desc
+          dimension:
+            field: url.path
+            type: values
+            size: 10
+            sort:
+              by: Requests
+              direction: desc
           metrics:
             - aggregation: count
               label: Requests

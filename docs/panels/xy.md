@@ -41,9 +41,9 @@ dashboards:
         lens:
           type: line
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: count
 ```
@@ -59,9 +59,9 @@ dashboards:
         lens:
           type: line
           data_view: "metrics-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           breakdown:
             type: values
             field: "service.name"
@@ -273,9 +273,9 @@ dashboards:
         # Base data layer
         type: line
         data_view: "metrics-*"
-        dimensions:
-          - type: date_histogram
-            field: "@timestamp"
+        dimension:
+          type: date_histogram
+          field: "@timestamp"
         metrics:
           - aggregation: "average"
             field: "response_time"
@@ -333,10 +333,10 @@ dashboards:
         lens:
           type: line
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
-              id: "time"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+            id: "time"
           metrics:
             - aggregation: count
               id: "request_count"
@@ -372,9 +372,9 @@ dashboards:
         lens:
           type: line
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: average
               field: "event.duration"
@@ -402,9 +402,9 @@ dashboards:
         lens:
           type: area
           data_view: "metrics-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: sum
               field: "network.bytes"
@@ -437,9 +437,9 @@ dashboards:
         lens:
           type: line
           data_view: "metrics-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: average
               field: "system.cpu.usage"
@@ -480,7 +480,7 @@ panel = LensPanel(
     lens=LensLinePanelConfig(
         type='line',
         data_view='logs-*',
-        dimensions=[LensDateHistogramDimension(field='@timestamp')],
+        dimension=LensDateHistogramDimension(field='@timestamp'),
         metrics=[LensCountAggregatedMetric()],
         layers=[
             # Additional reference line layer

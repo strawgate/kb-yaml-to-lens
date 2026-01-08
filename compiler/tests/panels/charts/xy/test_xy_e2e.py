@@ -30,8 +30,8 @@ dashboards:
         esql:
           type: line
           query: "FROM logs-* | STATS count() BY @timestamp"
-          dimensions:
-            - field: "@timestamp"
+          dimension:
+            field: "@timestamp"
           metrics:
             - field: count()
 """
@@ -100,8 +100,8 @@ dashboards:
           type: bar
           mode: stacked
           query: "FROM metrics-* | STATS count() BY @timestamp, aerospike.namespace.name"
-          dimensions:
-            - field: "@timestamp"
+          dimension:
+            field: "@timestamp"
           metrics:
             - field: count()
           breakdown:
@@ -175,8 +175,8 @@ dashboards:
         esql:
           type: area
           query: "FROM metrics-* | STATS count() BY @timestamp, service.name"
-          dimensions:
-            - field: "@timestamp"
+          dimension:
+            field: "@timestamp"
           metrics:
             - field: count()
           breakdown:

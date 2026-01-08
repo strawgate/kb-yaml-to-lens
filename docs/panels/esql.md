@@ -205,8 +205,8 @@ dashboards:
             | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), event.category
             | ORDER timestamp_bucket ASC
           mode: stacked
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "event_count"
           breakdown:
@@ -245,8 +245,8 @@ dashboards:
             FROM logs-*
             | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), service.name
             | ORDER timestamp_bucket ASC
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "avg_response_time"
           breakdown:
@@ -287,8 +287,8 @@ dashboards:
             | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), host.name
             | ORDER timestamp_bucket ASC
           mode: stacked
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "bytes_total"
           breakdown:
@@ -354,8 +354,8 @@ dashboards:
                     success_rate = COUNT(status == 200) / COUNT(*) * 100,
                     precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
             | ORDER timestamp_bucket ASC
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "total_bytes"
               label: "Total Data"

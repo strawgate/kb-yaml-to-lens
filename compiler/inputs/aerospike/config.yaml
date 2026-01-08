@@ -49,9 +49,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - aggregation: min
               field: aerospike.node.memory.free
@@ -61,9 +61,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - aggregation: max
               field: aerospike.node.connection.open

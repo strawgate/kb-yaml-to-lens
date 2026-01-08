@@ -7,6 +7,7 @@ from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_d
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
+    KbnLensDimensionColumnTypes,
     KbnLensMetricColumnTypes,
     KbnLensStaticValueColumn,
     KbnLensStaticValueColumnParams,
@@ -312,7 +313,7 @@ def compile_xy_chart_visualization_state(
     *,
     layer_id: str,
     chart: LensXYChartTypes | ESQLXYChartTypes,
-    dimension_ids: list[str],
+    dimension_id: str | None,
     metric_ids: list[str],
     breakdown_id: str | None = None,
 ) -> KbnXYVisualizationState:
@@ -321,7 +322,7 @@ def compile_xy_chart_visualization_state(
     Args:
         layer_id (str): The ID of the layer.
         chart (LensXYChartTypes | ESQLXYChartTypes): The XY chart config object.
-        dimension_ids (list[str]): The IDs of the dimensions.
+        dimension_id (str | None): The ID of the X-axis dimension.
         metric_ids (list[str]): The IDs of the metrics.
         breakdown_id (str | None): The ID of the breakdown dimension if any.
 
@@ -381,7 +382,7 @@ def compile_xy_chart_visualization_state(
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
         accessors=metric_ids,
-        xAccessor=dimension_ids[0] if len(dimension_ids) > 0 else None,
+        xAccessor=dimension_id,
         position='top',
         seriesType=series_type,
         showGridlines=False,
@@ -460,18 +461,19 @@ def compile_lens_xy_chart(
         metric_ids.append(metric_id)
         kbn_metric_columns[metric_id] = kbn_metric
 
-    kbn_dimension_columns = compile_lens_dimensions(
-        dimensions=lens_xy_chart.dimensions,
-        kbn_metric_column_by_id=kbn_metric_columns,
-    )
-    dimension_ids = list(kbn_dimension_columns.keys())
+    kbn_dimension_columns: dict[str, KbnLensDimensionColumnTypes] = {}
+    dimension_id = None
+    if lens_xy_chart.dimension is not None:
+        kbn_dimension_columns = compile_lens_dimensions(
+            dimensions=[lens_xy_chart.dimension],
+            kbn_metric_column_by_id=kbn_metric_columns,
+        )
+        dimension_id = next(iter(kbn_dimension_columns.keys()))
 
     breakdown_id = None
     if lens_xy_chart.breakdown is not None:
         kbn_breakdown_columns = compile_lens_dimensions(dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns)
         breakdown_id = next(iter(kbn_breakdown_columns.keys()))
-
-        dimension_ids.append(breakdown_id)
 
         kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
 
@@ -483,7 +485,7 @@ def compile_lens_xy_chart(
         compile_xy_chart_visualization_state(
             layer_id=layer_id,
             chart=lens_xy_chart,
-            dimension_ids=dimension_ids,
+            dimension_id=dimension_id,
             metric_ids=metric_ids,
             breakdown_id=breakdown_id,
         ),
@@ -506,8 +508,11 @@ def compile_esql_xy_chart(
     metrics = [compile_esql_metric(esql_xy_chart.metrics[0])]  # For now just handle first metric
     metric_ids = [metric.columnId for metric in metrics]
 
-    dimensions = compile_esql_dimensions(dimensions=esql_xy_chart.dimensions)
-    dimension_ids = [column.columnId for column in dimensions]
+    dimensions = []
+    dimension_id = None
+    if esql_xy_chart.dimension is not None:
+        dimensions = compile_esql_dimensions(dimensions=[esql_xy_chart.dimension])
+        dimension_id = dimensions[0].columnId
 
     breakdown_id = None
     if esql_xy_chart.breakdown is not None:
@@ -523,7 +528,7 @@ def compile_esql_xy_chart(
         compile_xy_chart_visualization_state(
             layer_id=layer_id,
             chart=esql_xy_chart,
-            dimension_ids=dimension_ids,
+            dimension_id=dimension_id,
             metric_ids=metric_ids,
             breakdown_id=breakdown_id,
         ),
