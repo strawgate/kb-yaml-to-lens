@@ -10,7 +10,8 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensDimensionTypes,
     LensFiltersDimension,
     LensIntervalsDimension,
-    LensTopValuesDimension,
+    LensMultiTermsDimension,
+    LensTermsDimension,
 )
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
@@ -318,8 +319,11 @@ async def test_dimension_type_field_has_default() -> None:
     date_hist = LensDateHistogramDimension(field='@timestamp')
     assert date_hist.type == 'date_histogram'
 
-    top_values = LensTopValuesDimension(field='status')
-    assert top_values.type == 'values'
+    terms = LensTermsDimension(field='status')
+    assert terms.type == 'values'
+
+    multi_terms = LensMultiTermsDimension(fields=['status', 'field2'])
+    assert multi_terms.type == 'values'
 
     filters = LensFiltersDimension(filters=[])
     assert filters.type == 'filters'
@@ -681,5 +685,5 @@ async def test_validation_error_fields_with_single_item() -> None:
         'fields': ['agent.name'],
     }
 
-    with pytest.raises(ValueError, match="When using 'fields', provide at least 2 fields"):
+    with pytest.raises(ValueError, match='List should have at least 2 items'):
         TypeAdapter(LensDimensionTypes).validate_python(dimension_config)

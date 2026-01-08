@@ -1,14 +1,108 @@
 """Lens dimensions configuration for the Lens chart."""
 
 from enum import StrEnum
-from typing import Literal, Self
+from typing import Annotated, Literal
 
-from pydantic import Field, model_validator
+from pydantic import Discriminator, Field, Tag
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
 
-type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
+
+def get_dimension_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0912
+    """Extract dimension type for discriminated union validation.
+
+    Determines the specific dimension type, distinguishing between single-field
+    and multi-field values dimensions.
+
+    Args:
+        v: Either a dict (during validation) or a dimension instance.
+
+    Returns:
+        str: The dimension type identifier ('date_histogram', 'filters', 'intervals', 'terms', or 'multi_terms').
+
+    Raises:
+        ValueError: If both field and fields are present for values dimensions, or neither are present.
+
+    """
+    if isinstance(v, dict):
+        dimension_type = v.get('type')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+
+        # Handle case where type is not specified but field/fields are
+        # This allows the default type='values' to be inferred
+        if dimension_type is None:
+            has_field = 'field' in v
+            has_fields = 'fields' in v
+
+            if has_field or has_fields:
+                # This is a values dimension (type defaults to 'values')
+                if has_field and has_fields:
+                    msg = "Cannot specify both 'field' and 'fields' - use only one"
+                    raise ValueError(msg)
+
+                if has_field:
+                    return 'terms'
+                if has_fields:
+                    return 'multi_terms'
+
+        # For values dimensions with explicit type, need to check field vs fields
+        if dimension_type == 'values':
+            has_field = 'field' in v
+            has_fields = 'fields' in v
+
+            if has_field and has_fields:
+                msg = "Cannot specify both 'field' and 'fields' - use only one"
+                raise ValueError(msg)
+
+            if has_field:
+                return 'terms'
+            if has_fields:
+                return 'multi_terms'
+
+            msg = "Either 'field' (for single-field) or 'fields' (for multi-field) must be provided"
+            raise ValueError(msg)
+
+        # For other dimension types, return as-is
+        if dimension_type in ('date_histogram', 'filters', 'intervals'):
+            return str(dimension_type)
+
+        msg = f'Unknown dimension type: {dimension_type}'
+        raise ValueError(msg)
+
+    # Runtime object case
+    dimension_type = getattr(v, 'type', None)
+
+    if dimension_type == 'values':
+        has_field = hasattr(v, 'field') is True
+        has_fields = hasattr(v, 'fields') is True
+
+        if has_field and has_fields:
+            msg = "Cannot specify both 'field' and 'fields' - use only one"
+            raise ValueError(msg)
+
+        if has_field:
+            return 'terms'
+        if has_fields:
+            return 'multi_terms'
+
+        msg = "Either 'field' (for single-field) or 'fields' (for multi-field) must be provided"
+        raise ValueError(msg)
+
+    if dimension_type in ('date_histogram', 'filters', 'intervals'):
+        return str(dimension_type)
+
+    msg = f'Unknown dimension type: {dimension_type}'
+    raise ValueError(msg)
+
+
+type LensDimensionTypes = Annotated[
+    Annotated['LensTermsDimension', Tag('terms')]
+    | Annotated['LensMultiTermsDimension', Tag('multi_terms')]
+    | Annotated['LensDateHistogramDimension', Tag('date_histogram')]
+    | Annotated['LensFiltersDimension', Tag('filters')]
+    | Annotated['LensIntervalsDimension', Tag('intervals')],
+    Discriminator(get_dimension_type),
+]
 
 
 class BaseDimension(BaseCfgModel):
@@ -99,22 +193,16 @@ class LensIntervalsDimension(BaseLensDimension):
     """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
 
 
-class LensTopValuesDimension(BaseLensDimension):
-    """Represents a top values dimension configuration within a Lens chart.
+class LensTermsDimension(BaseLensDimension):
+    """Represents a single-field top values dimension configuration within a Lens chart.
 
-    Top values dimensions are used for aggregating data based on unique values of a field.
+    Terms dimensions are used for aggregating data based on unique values of a single field.
     """
 
     type: Literal['values'] = 'values'
 
-    field: str | None = Field(default=None)
-    """The name of the field in the data view that this dimension is based on. Mutually exclusive with `fields`."""
-
-    fields: list[str] | None = Field(default=None)
-    """List of field names for multi-field aggregation.
-
-    Use this for multi-term aggregations (requires at least 2 fields). Mutually exclusive with `field`.
-    """
+    field: str = Field(default=...)
+    """The name of the field in the data view that this dimension is based on."""
 
     size: int | None = Field(default=None)
     """The number of top terms to display."""
@@ -143,25 +231,45 @@ class LensTopValuesDimension(BaseLensDimension):
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
-    @model_validator(mode='after')
-    def validate_field_or_fields(self) -> Self:
-        """Ensure exactly one of 'field' or 'fields' is provided."""
-        has_field = self.field is not None
-        has_fields = self.fields is not None and len(self.fields) > 0
 
-        if not has_field and not has_fields:
-            msg = "Either 'field' (for single-field) or 'fields' (for multi-field) must be provided"
-            raise ValueError(msg)
+class LensMultiTermsDimension(BaseLensDimension):
+    """Represents a multi-field top values dimension configuration within a Lens chart.
 
-        if has_field and has_fields:
-            msg = "Cannot specify both 'field' and 'fields' - use only one"
-            raise ValueError(msg)
+    Multi-terms dimensions are used for aggregating data based on unique combinations
+    of values across multiple fields.
+    """
 
-        if has_fields and self.fields is not None and len(self.fields) == 1:
-            msg = "When using 'fields', provide at least 2 fields. For single field, use 'field' instead"
-            raise ValueError(msg)
+    type: Literal['values'] = 'values'
 
-        return self
+    fields: list[str] = Field(default=..., min_length=2)
+    """List of field names for multi-field aggregation. Requires at least 2 fields."""
+
+    size: int | None = Field(default=None)
+    """The number of top term combinations to display."""
+
+    sort: Sort | None = Field(default=None)
+    """The sort configuration for the terms."""
+
+    other_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for terms not included in the top size. Defaults to `false`."""
+
+    missing_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for documents with a missing value for any field. Defaults to `false`."""
+
+    include: list[str] | None = Field(default=None)
+    """A list of term patterns to include. Can be used with or without `include_is_regex`."""
+
+    exclude: list[str] | None = Field(default=None)
+    """A list of term patterns to exclude. Can be used with or without `exclude_is_regex`."""
+
+    include_is_regex: bool | None = Field(default=None)
+    """If `true`, treat the values in the `include` list as regular expressions. Defaults to `false`."""
+
+    exclude_is_regex: bool | None = Field(default=None)
+    """If `true`, treat the values in the `exclude` list as regular expressions. Defaults to `false`."""
+
+    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
+    """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
 
 class LensDateHistogramDimension(BaseLensDimension):

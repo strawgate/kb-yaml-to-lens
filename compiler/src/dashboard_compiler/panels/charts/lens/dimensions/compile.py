@@ -25,7 +25,8 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensDimensionTypes,
     LensFiltersDimension,
     LensIntervalsDimension,
-    LensTopValuesDimension,
+    LensMultiTermsDimension,
+    LensTermsDimension,
 )
 from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
 from dashboard_compiler.shared.config import stable_id_generator
@@ -47,7 +48,7 @@ GRANULARITY_TO_BARS = {
 }
 
 
-def compile_lens_dimension(  # noqa: PLR0912
+def compile_lens_dimension(  # noqa: PLR0912, PLR0915
     dimension: LensDimensionTypes,
     *,
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
@@ -82,33 +83,9 @@ def compile_lens_dimension(  # noqa: PLR0912
                 dropPartials=False,
             ),
         )
-    if isinstance(dimension, LensTopValuesDimension):
-        # Determine if single-field or multi-field and extract fields
-        # The validator ensures exactly one of field/fields is set
-        if dimension.fields is not None:
-            # Multi-field case
-            primary_field = dimension.fields[0]
-            secondary_fields = dimension.fields[1:] if len(dimension.fields) > 1 else []
-            dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, *dimension.fields])
-            is_multi_field = True
-        else:
-            # Single-field case (dimension.field is guaranteed non-None by validator)
-            primary_field = dimension.field or ''  # Fallback for type checker
-            secondary_fields = []
-            dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
-            is_multi_field = False
-
-        # Generate label
-        if dimension.label is not None:
-            label = dimension.label
-        elif is_multi_field:
-            num_others = len(secondary_fields)
-            if num_others == 1:
-                label = f'Top values of {primary_field} + 1 other'
-            else:
-                label = f'Top values of {primary_field} + {num_others} others'
-        else:
-            label = f'Top {dimension.size or 3} values of {primary_field}'
+    if isinstance(dimension, LensTermsDimension):
+        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
+        label = dimension.label or f'Top {dimension.size or 3} values of {dimension.field}'
 
         order_by = None
         if dimension.sort is not None:
@@ -144,8 +121,75 @@ def compile_lens_dimension(  # noqa: PLR0912
                 fallback=True,
             )
 
-        # Determine parent format
-        parent_format_id = 'multi_terms' if is_multi_field else 'terms'
+        return dimension_id, KbnLensTermsDimensionColumn(
+            label=label,
+            customLabel=custom_label,
+            dataType='string',
+            operationType='terms',
+            scale='ordinal',
+            sourceField=dimension.field,
+            params=KbnLensTermsDimensionColumnParams(
+                size=dimension.size,
+                orderBy=order_by,
+                orderDirection=dimension.sort.direction if dimension.sort else 'desc',
+                otherBucket=default_true(dimension.other_bucket),
+                missingBucket=default_false(dimension.missing_bucket),
+                parentFormat=KbnLensTermsParentFormat(id='terms'),
+                include=dimension.include or [],
+                exclude=dimension.exclude or [],
+                includeIsRegex=dimension.include_is_regex or False,
+                excludeIsRegex=dimension.exclude_is_regex or False,
+                secondaryFields=None,
+            ),
+        )
+    if isinstance(dimension, LensMultiTermsDimension):
+        primary_field = dimension.fields[0]
+        secondary_fields = dimension.fields[1:]
+        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, *dimension.fields])
+
+        # Generate label
+        if dimension.label is not None:
+            label = dimension.label
+        else:
+            num_others = len(secondary_fields)
+            if num_others == 1:
+                label = f'Top values of {primary_field} + 1 other'
+            else:
+                label = f'Top values of {primary_field} + {num_others} others'
+
+        order_by = None
+        if dimension.sort is not None:
+            if dimension.sort.by not in kbn_column_name_to_id:
+                msg = f'Column {dimension.sort.by} not found in kbn_metric_column_by_id'
+                raise ValueError(msg)
+            order_by = KbnLensTermsOrderBy(
+                type='column',
+                columnId=kbn_column_name_to_id[dimension.sort.by],
+            )
+        elif len(kbn_metric_column_by_id) > 0:
+            # Default to ordering by first metric column if it's not a formula
+            # Formula columns cannot be used for aggregation ordering in Elasticsearch
+            first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
+            first_metric = kbn_metric_column_by_id[first_metric_id]
+
+            if first_metric.operationType == 'formula':
+                # Formula columns are computed post-aggregation, use alphabetical ordering
+                order_by = KbnLensTermsOrderBy(
+                    type='alphabetical',
+                    fallback=True,
+                )
+            else:
+                # Non-formula metrics can be used for ordering
+                order_by = KbnLensTermsOrderBy(
+                    type='column',
+                    columnId=first_metric_id,
+                )
+        else:
+            # No metrics available, fall back to alphabetical
+            order_by = KbnLensTermsOrderBy(
+                type='alphabetical',
+                fallback=True,
+            )
 
         return dimension_id, KbnLensTermsDimensionColumn(
             label=label,
@@ -160,12 +204,12 @@ def compile_lens_dimension(  # noqa: PLR0912
                 orderDirection=dimension.sort.direction if dimension.sort else 'desc',
                 otherBucket=default_true(dimension.other_bucket),
                 missingBucket=default_false(dimension.missing_bucket),
-                parentFormat=KbnLensTermsParentFormat(id=parent_format_id),
+                parentFormat=KbnLensTermsParentFormat(id='multi_terms'),
                 include=dimension.include or [],
                 exclude=dimension.exclude or [],
                 includeIsRegex=dimension.include_is_regex or False,
                 excludeIsRegex=dimension.exclude_is_regex or False,
-                secondaryFields=secondary_fields if len(secondary_fields) > 0 else None,
+                secondaryFields=secondary_fields,
             ),
         )
     if isinstance(dimension, LensFiltersDimension):
