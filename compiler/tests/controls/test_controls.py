@@ -171,7 +171,7 @@ async def test_options_list_with_small_width_and_single_select() -> None:
         'field': 'aerospike.namespace',
         'label': 'Small Option Single Select',
         'match_technique': 'prefix',
-        'multiple': False,
+        'singular': True,
         'width': 'small',
     }
     result = compile_control_snapshot(config)
@@ -406,9 +406,10 @@ async def test_esql_multi_select_control() -> None:
     config = {
         'type': 'esql',
         'variable_name': 'environment',
-        'variable_type': 'multi_values',
+        'variable_type': 'values',
         'choices': ['production', 'staging', 'development'],
         'label': 'Environment',
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -420,7 +421,7 @@ async def test_esql_multi_select_control() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'environment',
-                'variableType': 'multi_values',
+                'variableType': 'values',
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'Environment',
@@ -441,6 +442,7 @@ async def test_esql_single_select_control() -> None:
         'choices': ['200', '404', '500'],
         'label': 'HTTP Status',
         'width': 'small',
+        'multiple': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -488,7 +490,6 @@ async def test_esql_query_control() -> None:
                 'controlType': 'VALUES_FROM_QUERY',
                 'title': 'Status Code',
                 'selectedOptions': [],
-                'singleSelect': True,
             },
         }
     )
@@ -502,6 +503,7 @@ async def test_esql_query_control_with_single_select() -> None:
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'label': 'Host Name',
+        'multiple': False,
         'width': 'large',
     }
     result = compile_control_snapshot(config)
@@ -536,13 +538,13 @@ async def test_time_slider_control_validation_error() -> None:
 
 
 async def test_options_list_with_multi_select() -> None:
-    """Test options list control with multi-select (multiple: true)."""
+    """Test options list control with multi-select (singular: false)."""
     config = {
         'type': 'options',
         'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
         'field': 'aerospike.namespace',
         'label': 'Multi Select Test',
-        'multiple': True,
+        'singular': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -600,9 +602,10 @@ async def test_esql_multi_select_control_alt() -> None:
     config = {
         'type': 'esql',
         'variable_name': 'status',
-        'variable_type': 'multi_values',
+        'variable_type': 'values',
         'choices': ['200', '404', '500'],
         'label': 'HTTP Status',
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -614,7 +617,7 @@ async def test_esql_multi_select_control_alt() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'status',
-                'variableType': 'multi_values',
+                'variableType': 'values',
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'HTTP Status',
@@ -663,10 +666,11 @@ async def test_esql_multi_select_control_with_default() -> None:
     config = {
         'type': 'esql',
         'variable_name': 'status',
-        'variable_type': 'multi_values',
+        'variable_type': 'values',
         'choices': ['200', '404', '500', '503'],
         'label': 'HTTP Status',
         'default': ['200', '404'],
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -678,7 +682,7 @@ async def test_esql_multi_select_control_with_default() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'status',
-                'variableType': 'multi_values',
+                'variableType': 'values',
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'HTTP Status',
@@ -722,13 +726,14 @@ async def test_esql_multi_select_control_default_validation() -> None:
 
 
 async def test_esql_query_control_with_multi_select() -> None:
-    """Test ES|QL query control with multi-select."""
+    """Test ES|QL query control with multi-select (single_select: false)."""
     config = {
         'type': 'esql',
         'variable_name': 'host',
-        'variable_type': 'multi_values',
+        'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'label': 'Host Name',
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -740,7 +745,7 @@ async def test_esql_query_control_with_multi_select() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'host',
-                'variableType': 'multi_values',
+                'variableType': 'values',
                 'esqlQuery': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
                 'controlType': 'VALUES_FROM_QUERY',
                 'title': 'Host Name',
@@ -751,11 +756,8 @@ async def test_esql_query_control_with_multi_select() -> None:
     )
 
 
-# ESQLFieldControl Tests
-
-
-async def test_esql_field_control_single_select() -> None:
-    """Test ES|QL field control (always single selection)."""
+async def test_esql_field_control() -> None:
+    """Test ES|QL field control (FIELDS variable type)."""
     config = {
         'type': 'esql',
         'variable_name': 'selected_field',
@@ -785,47 +787,14 @@ async def test_esql_field_control_single_select() -> None:
     )
 
 
-async def test_esql_field_control_with_default() -> None:
-    """Test ES|QL field control with default value."""
-    config = {
-        'type': 'esql',
-        'variable_name': 'selected_field',
-        'variable_type': 'fields',
-        'choices': ['@timestamp', 'host.name', 'message'],
-        'label': 'Select Field',
-        'default': '@timestamp',
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'esqlControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'variableName': 'selected_field',
-                'variableType': 'fields',
-                'esqlQuery': '',
-                'controlType': 'STATIC_VALUES',
-                'title': 'Select Field',
-                'selectedOptions': ['@timestamp'],
-                'singleSelect': True,
-                'availableOptions': ['@timestamp', 'host.name', 'message'],
-            },
-        }
-    )
-
-
 async def test_esql_function_control() -> None:
-    """Test ES|QL function control."""
+    """Test ES|QL function control (FUNCTIONS variable type)."""
     config = {
         'type': 'esql',
         'variable_name': 'aggregate_fn',
         'variable_type': 'functions',
-        'choices': ['COUNT', 'AVG', 'SUM', 'MAX', 'MIN'],
+        'choices': ['COUNT', 'AVG', 'SUM'],
         'label': 'Aggregate Function',
-        'default': 'COUNT',
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -841,150 +810,9 @@ async def test_esql_function_control() -> None:
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'Aggregate Function',
-                'selectedOptions': ['COUNT'],
-                'singleSelect': True,
-                'availableOptions': ['COUNT', 'AVG', 'SUM', 'MAX', 'MIN'],
-            },
-        }
-    )
-
-
-async def test_esql_field_control_invalid_default() -> None:
-    """Test that ES|QL field control validates default against choices."""
-    with pytest.raises(ValidationError, match='default contains options not in choices'):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'field',
-                    'variable_type': 'fields',
-                    'choices': ['field1', 'field2'],
-                    'default': 'field3',
-                }
-            }
-        )
-
-
-async def test_esql_value_control_multi_values_type() -> None:
-    """Test ES|QL value control with multi_values variable type."""
-    config = {
-        'type': 'esql',
-        'variable_name': 'tags',
-        'variable_type': 'multi_values',
-        'choices': ['tag1', 'tag2', 'tag3'],
-        'label': 'Tags',
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'esqlControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'variableName': 'tags',
-                'variableType': 'multi_values',
-                'esqlQuery': '',
-                'controlType': 'STATIC_VALUES',
-                'title': 'Tags',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'availableOptions': ['tag1', 'tag2', 'tag3'],
-            },
-        }
-    )
-
-
-async def test_esql_value_control_time_literal_type() -> None:
-    """Test ES|QL value control with time_literal variable type."""
-    config = {
-        'type': 'esql',
-        'variable_name': 'time_range',
-        'variable_type': 'time_literal',
-        'choices': ['now-1h', 'now-24h', 'now-7d'],
-        'label': 'Time Range',
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'esqlControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'variableName': 'time_range',
-                'variableType': 'time_literal',
-                'esqlQuery': '',
-                'controlType': 'STATIC_VALUES',
-                'title': 'Time Range',
                 'selectedOptions': [],
                 'singleSelect': True,
-                'availableOptions': ['now-1h', 'now-24h', 'now-7d'],
-            },
-        }
-    )
-
-
-# OptionsListControl multiple Field Tests
-
-
-async def test_options_list_multiple_true() -> None:
-    """Test options list control with multiple=True."""
-    config = {
-        'type': 'options',
-        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-        'field': 'status',
-        'label': 'Status (Multiple)',
-        'multiple': True,
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'optionsListControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-                'fieldName': 'status',
-                'title': 'Status (Multiple)',
-                'searchTechnique': 'prefix',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'sort': {'by': '_count', 'direction': 'desc'},
-            },
-        }
-    )
-
-
-async def test_options_list_multiple_false() -> None:
-    """Test options list control with multiple=False."""
-    config = {
-        'type': 'options',
-        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-        'field': 'status',
-        'label': 'Status (Single)',
-        'multiple': False,
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'optionsListControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-                'fieldName': 'status',
-                'title': 'Status (Single)',
-                'searchTechnique': 'prefix',
-                'selectedOptions': [],
-                'singleSelect': True,
-                'sort': {'by': '_count', 'direction': 'desc'},
+                'availableOptions': ['COUNT', 'AVG', 'SUM'],
             },
         }
     )

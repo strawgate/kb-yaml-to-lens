@@ -33,7 +33,6 @@ type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
     | TimeSliderControl
-    | ESQLValueControl
     | ESQLFieldControl
     | ESQLFunctionControl
     | ESQLStaticSingleSelectControl
@@ -118,6 +117,9 @@ class OptionsListControl(BaseControl):
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
+    singular: bool | None = Field(default=None)
+    """If true, the control allows only a single selection from the options list."""
+
     multiple: bool | None = Field(default=None)
     """If true, allow multiple selection."""
 
@@ -169,49 +171,6 @@ class TimeSliderControl(BaseControl):
             msg = 'start_offset must be less than end_offset'
             raise ValueError(msg)
 
-        return self
-
-
-class ESQLValueControl(BaseControl):
-    """ES|QL control for value selection.
-
-    Supports both static (choices) and query-driven (query) modes.
-    Use multiple=True for multi-select, multiple=False or None for single-select.
-    """
-
-    type: Literal['esql'] = 'esql'
-    variable_name: str = Field(...)
-    """The name of the ES|QL variable."""
-
-    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
-    """The type of variable (VALUES, MULTI_VALUES, or TIME_LITERAL)."""
-
-    choices: list[str] | None = Field(default=None)
-    """Static list of available values. Mutually exclusive with query."""
-
-    query: str | None = Field(default=None, min_length=1)
-    """ES|QL query that returns available values. Mutually exclusive with choices."""
-
-    default: str | list[str] | None = Field(default=None)
-    """Default selected value(s)."""
-
-    multiple: bool | None = Field(default=None)
-    """If true, allow multiple selection."""
-
-    @model_validator(mode='after')
-    def validate_choices_query_xor(self) -> Self:
-        """Ensure exactly one of choices or query is provided."""
-        if (self.choices is None) == (self.query is None):
-            msg = 'Exactly one of choices or query must be provided'
-            raise ValueError(msg)
-        return self
-
-    @model_validator(mode='after')
-    def validate_default_in_choices(self) -> Self:
-        """Validate default exists in choices (static mode only)."""
-        if self.choices is None or self.default is None:
-            return self
-        validate_default_in_choices(self.default, self.choices)
         return self
 
 
