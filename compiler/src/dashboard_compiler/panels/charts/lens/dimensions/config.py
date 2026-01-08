@@ -71,8 +71,8 @@ def get_dimension_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, 
     dimension_type = getattr(v, 'type', None)
 
     if dimension_type == 'values':
-        has_field = hasattr(v, 'field')
-        has_fields = hasattr(v, 'fields')
+        has_field = getattr(v, 'field', None) is not None
+        has_fields = getattr(v, 'fields', None) is not None
 
         if has_field and has_fields:
             msg = "Cannot specify both 'field' and 'fields' - use only one"

@@ -69,7 +69,7 @@ def _resolve_order_by(
     """
     if sort is not None:
         if sort.by not in kbn_column_name_to_id:
-            msg = f'Column {sort.by} not found in kbn_metric_column_by_id'
+            msg = f"Sort column '{sort.by}' not found in available metric columns"
             raise ValueError(msg)
         return KbnLensTermsOrderBy(
             type='column',
