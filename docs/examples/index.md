@@ -4,8 +4,8 @@ This section provides real-world YAML dashboard examples demonstrating various f
 
 ## How to Use These Examples
 
-1. **View:** Expand the "Example YAML" section for any example below to see the complete code inline. (Click the section header to expand.)
-2. **Copy:** Use the copy button in the expanded code block. Alternatively, click "View on GitHub" to access the full source file.
+1. **View:** Expand the "Dashboard Definition" section for any example below to see the complete code inline. (Click the section header to expand.)
+2. **Copy:** Use the copy button in the expanded code block.
 3. **Save:** Save the content to a `.yaml` file in your `inputs/` directory (e.g., `inputs/my_example.yaml`).
 4. **Compile:** Run the compiler:
 
@@ -33,10 +33,8 @@ Demonstrates the use of dashboard controls including:
 
 **Use this when:** You need interactive filtering capabilities on your dashboard.
 
-[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)
-
 <!-- markdownlint-disable MD046 -->
-??? example "Example YAML (controls-example.yaml)"
+??? example "Dashboard Definition (controls-example.yaml)"
 
     ```yaml
     --8<-- "examples/controls-example.yaml"
@@ -54,10 +52,8 @@ Shows how to configure dimensions in Lens visualizations:
 
 **Use this when:** You're building complex charts with multiple breakdowns and groupings.
 
-[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/dimensions-example.yaml)
-
 <!-- markdownlint-disable MD046 -->
-??? example "Example YAML (dimensions-example.yaml)"
+??? example "Dashboard Definition (dimensions-example.yaml)"
 
     ```yaml
     --8<-- "examples/dimensions-example.yaml"
@@ -78,10 +74,8 @@ Demonstrates color customization for charts including:
 
 **Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../advanced/color-assignments.md) guide for an introduction.
 
-[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
-
 <!-- markdownlint-disable MD046 -->
-??? example "Example YAML (color-palette-examples.yaml)"
+??? example "Dashboard Definition (color-palette-examples.yaml)"
 
     ```yaml
     --8<-- "examples/color-palette-examples.yaml"
@@ -101,10 +95,8 @@ Comprehensive filter demonstrations including:
 
 **Use this when:** You need to pre-filter data or provide context-specific views.
 
-[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
-
 <!-- markdownlint-disable MD046 -->
-??? example "Example YAML (filters-example.yaml)"
+??? example "Dashboard Definition (filters-example.yaml)"
 
     ```yaml
     --8<-- "examples/filters-example.yaml"
@@ -125,10 +117,8 @@ A complete dashboard featuring multiple panel types:
 
 **Use this when:** You want to see how different panel types work together in a single dashboard.
 
-[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/multi-panel-showcase.yaml)
-
 <!-- markdownlint-disable MD046 -->
-??? example "Example YAML (multi-panel-showcase.yaml)"
+??? example "Dashboard Definition (multi-panel-showcase.yaml)"
 
     ```yaml
     --8<-- "examples/multi-panel-showcase.yaml"
@@ -146,56 +136,161 @@ Demonstrates dashboard navigation features:
 
 **Use this when:** You're building a suite of interconnected dashboards.
 
-[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/navigation-example.yaml)
-
 <!-- markdownlint-disable MD046 -->
-??? example "Example YAML (navigation-example.yaml)"
+??? example "Dashboard Definition (navigation-example.yaml)"
 
     ```yaml
     --8<-- "examples/navigation-example.yaml"
     ```
 <!-- markdownlint-enable MD046 -->
 
-### [Aerospike Monitoring Examples](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/aerospike/)
+### Aerospike Monitoring Examples
 
-Real-world monitoring dashboards for Aerospike database:
-
-- **Overview Dashboard** - Cluster-level metrics and node health
-- **Node Metrics** - Detailed per-node performance monitoring
-- **Namespace Metrics** - Namespace-level storage and query statistics
+Real-world monitoring dashboards for Aerospike database.
 
 **Use this when:** Monitoring Aerospike NoSQL database deployments.
 
-### [OpenTelemetry System Dashboards](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/system_otel/)
+#### Overview Dashboard
 
-Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
+Cluster-level metrics and node health monitoring.
 
-- **Hosts Overview** - Overview of all hosts with key performance metrics
-- **Host Details - Overview** - Detailed single host overview with CPU, memory, and disk metrics
-- **Host Details - Metrics** - In-depth metrics charts for CPU, memory, disk, and load
-- **Host Details - Metadata** - Host resource attributes and metadata (ES|QL datatables)
-- **Host Details - Logs** - Host log messages (ES|QL datatable)
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aerospike/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/aerospike/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Node Metrics
+
+Detailed per-node performance monitoring.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aerospike/node-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/aerospike/node-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Namespace Metrics
+
+Namespace-level storage and query statistics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aerospike/namespace-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/aerospike/namespace-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### OpenTelemetry System Dashboards
+
+Comprehensive host monitoring dashboards for OpenTelemetry system metrics.
 
 **Use this when:** Monitoring infrastructure with OpenTelemetry Host Metrics Receiver.
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
-### [Docker OpenTelemetry Dashboards](docker_otel/)
+#### Hosts Overview
 
-Docker container monitoring dashboards for OpenTelemetry metrics:
+Overview of all hosts with key performance metrics.
 
-- **Containers Overview** - Multi-container monitoring with CPU, memory, disk I/O, and network metrics
-- **Container Stats** - Detailed single-container performance analysis and resource utilization
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_otel/01-hosts-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_otel/01-hosts-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Host Details - Overview
+
+Detailed single host overview with CPU, memory, and disk metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_otel/02-host-details-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_otel/02-host-details-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Host Details - Metrics
+
+In-depth metrics charts for CPU, memory, disk, and load.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_otel/03-host-details-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_otel/03-host-details-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Host Details - Metadata
+
+Host resource attributes and metadata (ES|QL datatables).
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_otel/04-host-details-metadata.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_otel/04-host-details-metadata.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Host Details - Logs
+
+Host log messages (ES|QL datatable).
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_otel/05-host-details-logs.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_otel/05-host-details-logs.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Docker OpenTelemetry Dashboards
+
+Docker container monitoring dashboards for OpenTelemetry metrics.
 
 **Use this when:** Monitoring Docker containers with OpenTelemetry Docker Stats Receiver.
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/docker_otel) dashboards.
 
+#### Containers Overview
+
+Multi-container monitoring with CPU, memory, disk I/O, and network metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (docker_otel/01-containers-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/docker_otel/01-containers-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Container Stats
+
+Detailed single-container performance analysis and resource utilization.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (docker_otel/02-container-stats.yaml)"
+
+    ```yaml
+    --8<-- "examples/docker_otel/02-container-stats.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:
 
-1. **Browse on GitHub:** Click any example link above to view the YAML source
+1. **View inline:** Expand any "Dashboard Definition" section above to see the complete YAML code
 2. **Clone locally:** Download the repository to experiment with examples
 3. **Compile examples:** Run `kb-dashboard compile --input-dir docs/examples --output-dir output` to generate NDJSON files
 
