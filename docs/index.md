@@ -35,12 +35,14 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Pytho
 
 ```bash
 # For development (includes testing, linting, type checking)
+cd compiler
 uv sync --group dev
 
-# For building documentation
-uv sync --group dev --group docs
+# For building documentation (from repository root)
+uv sync --group docs
 
 # For runtime usage only
+cd compiler
 uv sync
 ```
 
