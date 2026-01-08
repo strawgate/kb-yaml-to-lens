@@ -16,7 +16,7 @@ permissions:
   packages: write
 jobs:
   build-and-publish:
-    name: Build Kibana Base Image
+    name: Build Kibana Base Image (${{ matrix.kibana_version }}, ${{ matrix.platform }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,16 +24,13 @@ jobs:
         kibana_version:
           - v9.2.0
           - v8.19.0
+        # Build each architecture separately
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Free up disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          docker system prune -af
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -57,18 +54,19 @@ jobs:
         with:
           context: ./fixture-generator
           file: ./fixture-generator/Dockerfile.base
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           build-args: |
             KIBANA_VERSION=${{ matrix.kibana_version }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=kibana-${{ matrix.kibana_version }}
-          cache-to: type=gha,mode=max,scope=kibana-${{ matrix.kibana_version }}
+          cache-from: type=gha,scope=kibana-${{ matrix.kibana_version }}-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=kibana-${{ matrix.kibana_version }}-${{ matrix.platform }}
       - name: Image info
         run: |-
           echo "Built and pushed Kibana base image:"
           echo "  Version: ${{ matrix.kibana_version }}"
+          echo "  Platform: ${{ matrix.platform }}"
           echo "  Tags: ${{ steps.meta.outputs.tags }}"
           echo ""
           echo "To use this image locally:"
