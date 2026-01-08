@@ -50,16 +50,6 @@ plugins:
         python:
           paths:
             - compiler/src
-          options:
-            show_source: true
-            docstring_style: google
-            show_root_heading: true
-            show_root_full_path: false
-            show_symbol_type_heading: true
-            show_symbol_type_toc: true
-            signature_crossrefs: true
-            separate_signature: true
-            line_length: 80
           import:
             - https://docs.python.org/3/objects.inv
           extensions:
@@ -71,6 +61,16 @@ plugins:
                 add_fields_to: docstring-attributes
                 remove_fields_from_members: true
                 strip_annotated: false
+          options:
+            show_source: true
+            docstring_style: google
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            separate_signature: true
+            line_length: 80
 hooks:
   - docs/hooks/generate_llms_txt.py
 markdown_extensions:
