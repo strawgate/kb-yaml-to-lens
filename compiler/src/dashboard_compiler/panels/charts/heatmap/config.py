@@ -24,14 +24,24 @@ class HeatmapAxisConfig(BaseCfgModel):
     """Whether to show axis title."""
 
 
+class HeatmapCellsConfig(BaseCfgModel):
+    """Configuration for heatmap cells.
+
+    Controls visibility of cell labels.
+    """
+
+    show_labels: bool | None = Field(default=None)
+    """Whether to show labels inside heatmap cells."""
+
+
 class HeatmapGridConfig(BaseCfgModel):
     """Grid configuration for heatmap visualizations.
 
     Controls the visibility of cell labels and axis configuration.
     """
 
-    show_cell_labels: bool | None = Field(default=None)
-    """Whether to show labels inside heatmap cells."""
+    cells: HeatmapCellsConfig | None = Field(default=None)
+    """Configuration for cell labels."""
 
     x_axis: HeatmapAxisConfig | None = Field(default=None)
     """Configuration for the X-axis."""

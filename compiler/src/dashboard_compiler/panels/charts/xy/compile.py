@@ -284,7 +284,6 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
 
     if chart.legend is not None:
         if chart.legend.visible is not None:
-            # Map enum values: 'show' -> True, 'hide' -> False, 'auto' -> True (default behavior)
             match chart.legend.visible:
                 case LegendVisibleEnum.SHOW | LegendVisibleEnum.AUTO:
                     legend_visible = True

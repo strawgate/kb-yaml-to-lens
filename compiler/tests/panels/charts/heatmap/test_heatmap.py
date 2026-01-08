@@ -221,7 +221,9 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'show_cell_labels': True,
+            'cells': {
+                'show_labels': True,
+            },
             'x_axis': {
                 'show_labels': True,
                 'show_title': True,
@@ -272,7 +274,9 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'show_cell_labels': True,
+            'cells': {
+                'show_labels': True,
+            },
             'x_axis': {
                 'show_labels': True,
                 'show_title': True,
@@ -408,7 +412,9 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'show_cell_labels': True,
+            'cells': {
+                'show_labels': True,
+            },
             'x_axis': {
                 'show_labels': True,
                 'show_title': True,
@@ -468,7 +474,9 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'show_cell_labels': True,
+            'cells': {
+                'show_labels': True,
+            },
             'x_axis': {
                 'show_labels': True,
                 'show_title': True,
@@ -527,7 +535,9 @@ def test_compile_heatmap_chart_partial_grid_config() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'show_cell_labels': True,
+            'cells': {
+                'show_labels': True,
+            },
         },
     }
 
