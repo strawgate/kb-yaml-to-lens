@@ -1,9 +1,9 @@
 """Lens dimensions configuration for the Lens chart."""
 
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
@@ -107,8 +107,14 @@ class LensTopValuesDimension(BaseLensDimension):
 
     type: Literal['values'] = 'values'
 
-    field: str = Field(default=...)
-    """The name of the field in the data view that this dimension is based on."""
+    field: str | None = Field(default=None)
+    """The name of the field in the data view that this dimension is based on. Mutually exclusive with `fields`."""
+
+    fields: list[str] | None = Field(default=None)
+    """List of field names for multi-field aggregation.
+
+    Use this for multi-term aggregations (requires at least 2 fields). Mutually exclusive with `field`.
+    """
 
     size: int | None = Field(default=None)
     """The number of top terms to display."""
@@ -136,6 +142,26 @@ class LensTopValuesDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
+
+    @model_validator(mode='after')
+    def validate_field_or_fields(self) -> Self:
+        """Ensure exactly one of 'field' or 'fields' is provided."""
+        has_field = self.field is not None
+        has_fields = self.fields is not None and len(self.fields) > 0
+
+        if not has_field and not has_fields:
+            msg = "Either 'field' (for single-field) or 'fields' (for multi-field) must be provided"
+            raise ValueError(msg)
+
+        if has_field and has_fields:
+            msg = "Cannot specify both 'field' and 'fields' - use only one"
+            raise ValueError(msg)
+
+        if has_fields and self.fields is not None and len(self.fields) == 1:
+            msg = "When using 'fields', provide at least 2 fields. For single field, use 'field' instead"
+            raise ValueError(msg)
+
+        return self
 
 
 class LensDateHistogramDimension(BaseLensDimension):

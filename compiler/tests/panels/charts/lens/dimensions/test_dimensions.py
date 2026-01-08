@@ -411,3 +411,275 @@ async def test_terms_dimension_without_metrics_uses_alphabetical_ordering() -> N
     # Should use alphabetical ordering when no metrics available
     assert dimension_result['params']['orderBy'] == snapshot({'type': 'alphabetical', 'fallback': True})
     assert dimension_result['params']['orderDirection'] == 'desc'
+
+
+async def test_multi_field_top_values_two_fields() -> None:
+    """Test multi-field top values dimension with 2 fields."""
+    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'values',
+        'fields': ['agent.name', 'agent.type'],
+        'size': 5,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result == snapshot(
+        {
+            'label': 'Top values of agent.name + 1 other',
+            'dataType': 'string',
+            'operationType': 'terms',
+            'isBucketed': True,
+            'scale': 'ordinal',
+            'params': {
+                'size': 5,
+                'orderBy': {'type': 'column', 'columnId': IsUUID},
+                'orderDirection': 'desc',
+                'otherBucket': True,
+                'missingBucket': False,
+                'parentFormat': {'id': 'multi_terms'},
+                'include': [],
+                'exclude': [],
+                'includeIsRegex': False,
+                'excludeIsRegex': False,
+                'secondaryFields': ['agent.type'],
+            },
+            'sourceField': 'agent.name',
+        }
+    )
+
+
+async def test_multi_field_top_values_three_fields() -> None:
+    """Test multi-field top values dimension with 3+ fields."""
+    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'values',
+        'fields': ['agent.name', 'agent.type', 'agent.version'],
+        'size': 10,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result == snapshot(
+        {
+            'label': 'Top values of agent.name + 2 others',
+            'dataType': 'string',
+            'operationType': 'terms',
+            'isBucketed': True,
+            'scale': 'ordinal',
+            'params': {
+                'size': 10,
+                'orderBy': {'type': 'column', 'columnId': IsUUID},
+                'orderDirection': 'desc',
+                'otherBucket': True,
+                'missingBucket': False,
+                'parentFormat': {'id': 'multi_terms'},
+                'include': [],
+                'exclude': [],
+                'includeIsRegex': False,
+                'excludeIsRegex': False,
+                'secondaryFields': ['agent.type', 'agent.version'],
+            },
+            'sourceField': 'agent.name',
+        }
+    )
+
+
+async def test_multi_field_top_values_with_custom_label() -> None:
+    """Test multi-field top values dimension with custom label."""
+    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'values',
+        'fields': ['agent.name', 'agent.type'],
+        'label': 'Agent Info',
+        'size': 5,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result == snapshot(
+        {
+            'label': 'Agent Info',
+            'customLabel': True,
+            'dataType': 'string',
+            'operationType': 'terms',
+            'isBucketed': True,
+            'scale': 'ordinal',
+            'params': {
+                'size': 5,
+                'orderBy': {'type': 'column', 'columnId': IsUUID},
+                'orderDirection': 'desc',
+                'otherBucket': True,
+                'missingBucket': False,
+                'parentFormat': {'id': 'multi_terms'},
+                'include': [],
+                'exclude': [],
+                'includeIsRegex': False,
+                'excludeIsRegex': False,
+                'secondaryFields': ['agent.type'],
+            },
+            'sourceField': 'agent.name',
+        }
+    )
+
+
+async def test_multi_field_top_values_with_sort_and_filters() -> None:
+    """Test multi-field top values dimension with sorting and filters."""
+    metric_config = {'aggregation': 'count', 'label': 'Count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'values',
+        'fields': ['agent.name', 'agent.type'],
+        'size': 5,
+        'sort': {'by': 'Count', 'direction': 'asc'},
+        'include': ['pattern1', 'pattern2'],
+        'exclude': ['excluded'],
+        'include_is_regex': True,
+        'other_bucket': False,
+        'missing_bucket': True,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result == snapshot(
+        {
+            'label': 'Top values of agent.name + 1 other',
+            'dataType': 'string',
+            'operationType': 'terms',
+            'isBucketed': True,
+            'scale': 'ordinal',
+            'params': {
+                'size': 5,
+                'orderBy': {'type': 'column', 'columnId': IsUUID},
+                'orderDirection': 'asc',
+                'otherBucket': False,
+                'missingBucket': True,
+                'parentFormat': {'id': 'multi_terms'},
+                'include': ['pattern1', 'pattern2'],
+                'exclude': ['excluded'],
+                'includeIsRegex': True,
+                'excludeIsRegex': False,
+                'secondaryFields': ['agent.type'],
+            },
+            'sourceField': 'agent.name',
+        }
+    )
+
+
+async def test_single_field_backward_compatibility() -> None:
+    """Test that existing single-field syntax still works."""
+    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'values',
+        'field': 'agent.name',
+        'size': 5,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    metric_id, kbn_metric_column = compile_lens_metric(metric)
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result == snapshot(
+        {
+            'label': 'Top 5 values of agent.name',
+            'dataType': 'string',
+            'operationType': 'terms',
+            'isBucketed': True,
+            'scale': 'ordinal',
+            'params': {
+                'size': 5,
+                'orderBy': {'type': 'column', 'columnId': IsUUID},
+                'orderDirection': 'desc',
+                'otherBucket': True,
+                'missingBucket': False,
+                'parentFormat': {'id': 'terms'},
+                'include': [],
+                'exclude': [],
+                'includeIsRegex': False,
+                'excludeIsRegex': False,
+            },
+            'sourceField': 'agent.name',
+        }
+    )
+
+
+async def test_validation_error_both_field_and_fields() -> None:
+    """Test validation error when both field and fields are provided."""
+    import pytest
+
+    dimension_config = {
+        'type': 'values',
+        'field': 'agent.name',
+        'fields': ['agent.name', 'agent.type'],
+    }
+
+    with pytest.raises(ValueError, match="Cannot specify both 'field' and 'fields'"):
+        TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+
+
+async def test_validation_error_neither_field_nor_fields() -> None:
+    """Test validation error when neither field nor fields is provided."""
+    import pytest
+
+    dimension_config = {
+        'type': 'values',
+        'size': 5,
+    }
+
+    with pytest.raises(ValueError, match=r"Either 'field' .* or 'fields' .* must be provided"):
+        TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+
+
+async def test_validation_error_fields_with_single_item() -> None:
+    """Test validation error when fields contains only one item."""
+    import pytest
+
+    dimension_config = {
+        'type': 'values',
+        'fields': ['agent.name'],
+    }
+
+    with pytest.raises(ValueError, match="When using 'fields', provide at least 2 fields"):
+        TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
