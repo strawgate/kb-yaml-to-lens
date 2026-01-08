@@ -14,10 +14,7 @@ class BaseChart(BaseCfgModel):
 
 
 class LegendWidthEnum(StrEnum):
-    """Represents the possible values for the width of the legend in a pie chart."""
-
-    AUTO = 'auto'
-    """Automatically determine the width of the legend based on the data."""
+    """Represents the possible values for the width/size of the legend."""
 
     SMALL = 'small'
     """Small legend."""
