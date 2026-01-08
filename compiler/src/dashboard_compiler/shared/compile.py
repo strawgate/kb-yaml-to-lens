@@ -88,3 +88,29 @@ def split_dimensions(all_dimension_ids: list[str]) -> tuple[list[str], list[str]
     primary = [all_dimension_ids[0]] if len(all_dimension_ids) > 0 else []
     secondary = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
     return primary, secondary
+
+
+T_Dimension = TypeVar('T_Dimension')
+
+
+def normalize_breakdown(
+    breakdown: T_Dimension | None,
+    breakdown_by: list[T_Dimension] | None,
+) -> list[T_Dimension] | None:
+    """Normalize breakdown fields to a list.
+
+    Converts the legacy single breakdown field or new breakdown_by list into a normalized list format.
+
+    Args:
+        breakdown: Legacy single breakdown dimension (deprecated)
+        breakdown_by: New multi-field breakdown dimensions (1-4 fields)
+
+    Returns:
+        List of breakdown dimensions, or None if neither is specified
+
+    """
+    if breakdown_by is not None:
+        return breakdown_by
+    if breakdown is not None:
+        return [breakdown]
+    return None

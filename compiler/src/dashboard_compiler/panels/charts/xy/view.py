@@ -160,7 +160,10 @@ class XYDataLayerConfig(BaseVwModel):
     """Configuration for each Y-axis series (colors, line styles, etc.)."""
 
     splitAccessor: Annotated[str | None, OmitIfNone()] = None
-    """Field accessor ID for breaking down data into multiple series."""
+    """Field accessor ID for breaking down data into a single series (deprecated: use splitAccessors for multi-field)."""
+
+    splitAccessors: Annotated[list[str] | None, OmitIfNone()] = None
+    """Field accessor IDs for breaking down data into multiple series (1-4 fields)."""
 
     palette: Annotated[Any | None, OmitIfNone()] = None
     """Color palette configuration for the layer."""

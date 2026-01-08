@@ -235,10 +235,27 @@ class LensXYChartMixin(BaseCfgModel):
     )
     breakdown: LensDimensionTypes | None = Field(
         None,
-        description=(
-            'An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.'
-        ),
+        description='An optional single breakdown dimension (deprecated: use breakdown_by for multi-field breakdowns).',
     )
+    breakdown_by: list[LensDimensionTypes] | None = Field(
+        default=None,
+        min_length=1,
+        max_length=4,
+        description='An optional list of breakdown dimensions (1-4 fields) for multi-field breakdowns.',
+    )
+
+    @model_validator(mode='after')
+    def validate_breakdown_exclusivity(self) -> Self:
+        """Validate that breakdown and breakdown_by are mutually exclusive.
+
+        Raises:
+            ValueError: If both breakdown and breakdown_by are specified.
+
+        """
+        if self.breakdown is not None and self.breakdown_by is not None:
+            msg = "Cannot specify both 'breakdown' and 'breakdown_by'. Use 'breakdown_by' for multi-field breakdowns."
+            raise ValueError(msg)
+        return self
 
     def set_dimension(self, lens_dimension: LensDimensionTypes) -> Self:
         """Set the X-axis dimension for the lens Chart."""
@@ -268,10 +285,28 @@ class ESQLXYChartMixin(BaseCfgModel):
 
     breakdown: ESQLDimensionTypes | None = Field(
         None,
-        description=(
-            'An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.'
-        ),
+        description='An optional single breakdown dimension (deprecated: use breakdown_by for multi-field breakdowns).',
     )
+
+    breakdown_by: list[ESQLDimensionTypes] | None = Field(
+        default=None,
+        min_length=1,
+        max_length=4,
+        description='An optional list of breakdown dimensions (1-4 fields) for multi-field breakdowns.',
+    )
+
+    @model_validator(mode='after')
+    def validate_breakdown_exclusivity(self) -> Self:
+        """Validate that breakdown and breakdown_by are mutually exclusive.
+
+        Raises:
+            ValueError: If both breakdown and breakdown_by are specified.
+
+        """
+        if self.breakdown is not None and self.breakdown_by is not None:
+            msg = "Cannot specify both 'breakdown' and 'breakdown_by'. Use 'breakdown_by' for multi-field breakdowns."
+            raise ValueError(msg)
+        return self
 
     def set_dimension(self, esql_dimension: ESQLDimensionTypes) -> Self:
         """Set the X-axis dimension for the ESQL Chart."""

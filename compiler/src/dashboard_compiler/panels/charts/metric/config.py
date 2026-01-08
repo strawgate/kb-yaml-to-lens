@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -36,6 +36,20 @@ class LensMetricChart(BaseChart):
             format:
               type: percent
         ```
+
+        Multi-field breakdown metric:
+        ```yaml
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+          breakdown_by:
+            - field: "service.name"
+              type: values
+            - field: "host.name"
+              type: values
+        ```
     """
 
     type: Literal['metric'] = Field(default='metric')
@@ -54,10 +68,26 @@ class LensMetricChart(BaseChart):
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
     breakdown: LensDimensionTypes | None = Field(default=None)
-    """An optional breakdown metric to display, often used for comparison or thresholds."""
+    """An optional single breakdown dimension (deprecated: use breakdown_by for multi-field breakdowns)."""
+
+    breakdown_by: list[LensDimensionTypes] | None = Field(default=None, min_length=1, max_length=4)
+    """An optional list of breakdown dimensions (1-4 fields) for multi-field breakdowns."""
 
     color: ColorMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
+
+    @model_validator(mode='after')
+    def validate_breakdown_exclusivity(self) -> Self:
+        """Validate that breakdown and breakdown_by are mutually exclusive.
+
+        Raises:
+            ValueError: If both breakdown and breakdown_by are specified.
+
+        """
+        if self.breakdown is not None and self.breakdown_by is not None:
+            msg = "Cannot specify both 'breakdown' and 'breakdown_by'. Use 'breakdown_by' for multi-field breakdowns."
+            raise ValueError(msg)
+        return self
 
 
 class ESQLMetricChart(BaseChart):
@@ -85,6 +115,20 @@ class ESQLMetricChart(BaseChart):
           maximum:
             field: "error_rate"
         ```
+
+        Multi-field breakdown ESQL example:
+        ```yaml
+        esql:
+          type: metric
+          query: |
+            FROM logs-*
+            | STATS total = COUNT(*) BY service.name, host.name
+          primary:
+            field: "total"
+          breakdown_by:
+            - field: "service.name"
+            - field: "host.name"
+        ```
     """
 
     type: Literal['metric'] = Field(default='metric')
@@ -100,7 +144,23 @@ class ESQLMetricChart(BaseChart):
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
     breakdown: ESQLDimensionTypes | None = Field(default=None)
-    """An optional breakdown metric to display, often used for comparison or thresholds."""
+    """An optional single breakdown dimension (deprecated: use breakdown_by for multi-field breakdowns)."""
+
+    breakdown_by: list[ESQLDimensionTypes] | None = Field(default=None, min_length=1, max_length=4)
+    """An optional list of breakdown dimensions (1-4 fields) for multi-field breakdowns."""
 
     color: ColorMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
+
+    @model_validator(mode='after')
+    def validate_breakdown_exclusivity(self) -> Self:
+        """Validate that breakdown and breakdown_by are mutually exclusive.
+
+        Raises:
+            ValueError: If both breakdown and breakdown_by are specified.
+
+        """
+        if self.breakdown is not None and self.breakdown_by is not None:
+            msg = "Cannot specify both 'breakdown' and 'breakdown_by'. Use 'breakdown_by' for multi-field breakdowns."
+            raise ValueError(msg)
+        return self

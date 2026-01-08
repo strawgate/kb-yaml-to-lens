@@ -22,6 +22,7 @@ from dashboard_compiler.panels.charts.metric.view import (
     KbnMetricVisualizationState,
     KbnSecondaryTrendNone,
 )
+from dashboard_compiler.shared.compile import normalize_breakdown
 from dashboard_compiler.shared.config import get_layer_id
 
 
@@ -85,10 +86,15 @@ def compile_lens_metric_chart(
     # Initialize kbn_columns_by_id as empty dict
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
 
+    # Normalize breakdown fields (supports both legacy breakdown and new breakdown_by)
+    # Note: Kibana metric charts currently only support single-field breakdowns
+    # so we use only the first field from the normalized list
+    normalized_breakdowns = normalize_breakdown(lens_metric_chart.breakdown, lens_metric_chart.breakdown_by)
+
     # Add breakdown dimension FIRST (if present) - Kibana requires dimensions before metrics in columnOrder
-    if lens_metric_chart.breakdown:
+    if normalized_breakdowns is not None and len(normalized_breakdowns) > 0:
         breakdown_dimension_id, breakdown_dimension = compile_lens_dimension(
-            dimension=lens_metric_chart.breakdown, kbn_metric_column_by_id=kbn_metric_columns_by_id
+            dimension=normalized_breakdowns[0], kbn_metric_column_by_id=kbn_metric_columns_by_id
         )
         kbn_columns_by_id[breakdown_dimension_id] = breakdown_dimension
 
@@ -143,8 +149,13 @@ def compile_esql_metric_chart(
     breakdown_dimension: KbnESQLFieldDimensionColumn | None = None
     breakdown_dimension_id: str | None = None
 
-    if esql_metric_chart.breakdown:
-        breakdown_dimension = compile_esql_dimension(esql_metric_chart.breakdown)
+    # Normalize breakdown fields (supports both legacy breakdown and new breakdown_by)
+    # Note: Kibana metric charts currently only support single-field breakdowns
+    # so we use only the first field from the normalized list
+    normalized_breakdowns = normalize_breakdown(esql_metric_chart.breakdown, esql_metric_chart.breakdown_by)
+
+    if normalized_breakdowns is not None and len(normalized_breakdowns) > 0:
+        breakdown_dimension = compile_esql_dimension(normalized_breakdowns[0])
         breakdown_dimension_id = breakdown_dimension.columnId
         kbn_columns.append(breakdown_dimension)
 
