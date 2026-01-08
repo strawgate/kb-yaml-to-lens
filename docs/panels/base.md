@@ -69,7 +69,7 @@ These fields are available for all panel types and are inherited from the `BaseP
 | `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
 | `size` | `Size` object | **Recommended:** Defines the panel's width and height. See [Size Object Configuration](#size-object-configuration-size) below. | `w: 12, h: 8` | No* |
 | `position` | `Position` object | **Optional:** Defines the panel's x/y coordinates. Omit for automatic positioning. See [Position Object Configuration](#position-object-configuration-position) below. | Auto-calculated | No |
-| `grid` | `Grid` object | **Legacy:** Combined position and size. See [Grid Object Configuration](#grid-object-configuration-grid---legacy) below. Use `size` + `position` instead. | N/A | No* |
+| `grid` | `Grid` object | **Legacy:** Combined position and size. See [Grid Object Configuration](#grid-object-configuration-legacy) below. Use `size` + `position` instead. | N/A | No* |
 
 \* Either `grid` OR (`size` + optional `position`) must be provided. The `size` + `position` approach is recommended for new dashboards.
 
@@ -143,7 +143,7 @@ size:
   h: 8
 ```
 
-### Grid Object Configuration (`grid`) - Legacy
+### Grid Object Configuration (Legacy)
 
 **Note:** The `grid` field is supported for backward compatibility, but the `size` + `position` approach is recommended for new dashboards.
 
