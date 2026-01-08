@@ -30,103 +30,19 @@ Thanks to documentation found in-line!
 
 ---
 
-## Minimal Configuration Example
+## Markdown Panel
 
-To add a simple Markdown panel, you need to specify its `grid` position and the `markdown` configuration with `content`.
+::: dashboard_compiler.panels.markdown.config.MarkdownPanel
+    options:
+      show_root_heading: false
+      heading_level: 2
 
-```yaml
-dashboards:
-  - name: "Dashboard with Markdown"
-    panels:
-      - title: "Welcome Note"
-        grid:
-          x: 0
-          y: 0
-          w: 48
-          h: 3
-        markdown:
-          content: |
-            ## Welcome to the Dashboard!
-            This panel provides an overview of the key metrics and reports available.
+## Markdown Panel Configuration
 
-            - Item 1
-            - Item 2
-```
-
-## Complex Configuration Example
-
-This example demonstrates a Markdown panel with a custom font size and a setting for how links are opened.
-
-```yaml
-dashboards:
-  - name: "Informational Dashboard"
-    panels:
-      - title: "Important Instructions & Links"
-        description: "Follow these steps for system setup."
-        grid:
-          x: 0
-          y: 0
-          w: 32
-          h: 5
-        markdown:
-          content: |
-            # Setup Guide
-
-            Please follow the [official documentation](https://example.com/docs) for detailed setup instructions.
-
-            Key steps include:
-            1.  **Download** the installer.
-            2.  **Configure** the `config.yaml` file.
-            3.  **Run** the start script.
-
-            For issues, refer to the [Troubleshooting Page](https://example.com/troubleshooting).
-          font_size: 14
-          links_in_new_tab: false # Links will open in the same tab
-```
-
-## Full Configuration Options
-
-Markdown panels inherit from the [Base Panel Configuration](./base.md) and have the following specific fields:
-
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------- |
-| `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
-| `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
-| `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
-| `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](./base.md#grid-object-configuration-grid). | N/A | Yes |
-| `markdown` | `Markdown` object | Configuration for the markdown panel content. | N/A | Yes |
-
-**Markdown Object Configuration:**
-
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------- |
-| `content` | `string` | The Markdown content to be displayed in the panel. You can use YAML multi-line string syntax (e.g., `\|` or `>`) for readability. | N/A | Yes |
-| `font_size` | `integer` | The font size for the Markdown content, in pixels. | `12` | No |
-| `links_in_new_tab` | `boolean` | If `true`, links in the Markdown content will open in a new tab. | `false` | No |
-
-## Programmatic Usage (Python)
-
-You can also create Markdown panels programmatically using Python:
-
-```python
-from dashboard_compiler.panels.config import Grid
-from dashboard_compiler.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
-
-panel = MarkdownPanel(
-    grid=Grid(x=0, y=0, w=24, h=15),
-    markdown=MarkdownPanelConfig(
-        content="""
-# Dashboard Title
-
-This is a **markdown** panel with:
-- Lists
-- **Bold** and *italic* text
-- [Links](https://example.com)
-        """,
-    ),
-)
-```
+::: dashboard_compiler.panels.markdown.config.MarkdownPanelConfig
+    options:
+      show_root_heading: false
+      heading_level: 3
 
 ## Related Documentation
 

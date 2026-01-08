@@ -28,6 +28,31 @@ class ImagePanel(BasePanel):
     """Represents an Image panel configuration.
 
     Image panels are used to display images.
+
+    Examples:
+        Minimal image panel:
+        ```yaml
+        dashboards:
+          - name: "Branded Dashboard"
+            panels:
+              - title: "Company Logo"
+                grid: { x: 0, y: 0, w: 16, h: 3 }
+                image:
+                  from_url: "https://example.com/path/to/your/logo.png"
+        ```
+
+        Image panel with custom fit and background:
+        ```yaml
+        dashboards:
+          - name: "Dashboard with Diagram"
+            panels:
+              - title: "System Architecture Diagram"
+                grid: { x: 0, y: 0, w: 48, h: 6 }
+                image:
+                  from_url: "https://example.com/path/to/architecture.svg"
+                  fit: "contain"
+                  background_color: "#f0f0f0"
+        ```
     """
 
     image: ImagePanelConfig = Field(...)

@@ -30,118 +30,34 @@ Their data in words, big and free!
 
 ---
 
-## Minimal Configuration Example (Lens)
+## Lens Tagcloud Charts
 
-```yaml
-dashboards:
-- name: "Log Analysis"
-  panels:
-    - title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 48, h: 6 }
-      lens:
-        type: tagcloud
-        data_view: "logs-*"
-        tags:
-          type: values
-          field: "error.message"
-        metrics:
-          aggregation: count
-```
+::: dashboard_compiler.panels.charts.tagcloud.config.LensTagcloudChart
+    options:
+      show_root_heading: false
+      heading_level: 3
 
-## Minimal Configuration Example (ES|QL)
+## ESQL Tagcloud Charts
 
-```yaml
-dashboards:
-- name: "Log Analysis"
-  panels:
-    - title: "Top Error Messages"
-      grid: { x: 0, y: 0, w: 48, h: 6 }
-      esql:
-        type: tagcloud
-        query: "FROM logs-* | STATS error_count = count(*) BY error.message"
-        tags:
-          field: "error.message"
-        metrics:
-          field: "error_count"
-```
+::: dashboard_compiler.panels.charts.tagcloud.config.ESQLTagcloudChart
+    options:
+      show_root_heading: false
+      heading_level: 3
 
-## Full Configuration Options
+## Tagcloud Appearance
 
-### LensTagcloudChart
+::: dashboard_compiler.panels.charts.tagcloud.config.TagcloudAppearance
+    options:
+      show_root_heading: false
+      heading_level: 3
 
-| YAML Key | Data Type | Description | Default | Required |
-| ------------ | ------------------------ | ---------------------------------------------- | -------- | -------- |
-| `type` | `Literal['tagcloud']` | Specifies the chart type. | tagcloud | Yes |
-| `data_view` | `string` | The data view that determines the data source. | - | Yes |
-| `tags` | `LensDimensionTypes` | The dimension for grouping (terms/tags). | - | Yes |
-| `metrics` | `LensMetricTypes` | The metric for sizing each tag. | - | Yes |
-| `appearance` | `TagcloudAppearance \| None` | Appearance settings (fonts, orientation). See [TagcloudAppearance Options](#tagcloudappearance-options) below. | None | No |
-| `color` | `ColorMapping \| None` | Color palette configuration. See [Color Mapping Configuration](base.md#color-mapping-configuration). | None | No |
-
-### ESQLTagcloudChart
-
-| YAML Key | Data Type | Description | Default | Required |
-| ------------ | ----------------------- | ------------------------------------------ | -------- | -------- |
-| `type` | `Literal['tagcloud']` | Specifies the chart type. | tagcloud | Yes |
-| `esql` | `string` | The ES\|QL query that determines the data. | - | Yes |
-| `tags` | `ESQLDimensionTypes` | The dimension for grouping (terms/tags). | - | Yes |
-| `metrics` | `ESQLMetricTypes` | The metric for sizing each tag. | - | Yes |
-| `appearance` | `TagcloudAppearance \| None` | Appearance settings (fonts, orientation). See [TagcloudAppearance Options](#tagcloudappearance-options) below. | None | No |
-| `color` | `ColorMapping \| None` | Color palette configuration. See [Color Mapping Configuration](base.md#color-mapping-configuration). | None | No |
-
-### TagcloudAppearance Options
-
-Controls the visual appearance of tags in the cloud.
-
-| YAML Key | Data Type | Description | Default | Required |
-| --------------- | ------------------------- | -------------------------------- | ------- | -------- |
-| `min_font_size` | `int` (1-100) | Minimum font size for tags (in points). Smaller tags represent lower metric values. | 12 | No |
-| `max_font_size` | `int` (1-200) | Maximum font size for tags (in points). Larger tags represent higher metric values. | 72 | No |
-| `orientation` | `TagcloudOrientationEnum` | Text orientation configuration. Controls how tags are rotated in the cloud. | single | No |
-| `show_label` | `boolean` | Toggle for label visibility. When false, hides the legend/labels. | true | No |
-
-#### Orientation Options
+### Orientation Options
 
 The `orientation` field controls how tags are rotated in the cloud:
 
 - **`single`**: All tags horizontal (0°) - cleanest, most readable
 - **`right angled`**: Mix of horizontal (0°) and vertical (90°) orientations - classic word cloud style
 - **`multiple`**: Multiple angles including diagonal - most artistic but potentially less readable
-
-**Example:**
-
-```yaml
-appearance:
-  min_font_size: 18        # Smallest tag size (18pt) - lower values have smaller visual impact
-  max_font_size: 96        # Largest tag size (96pt) - higher values have greater visual impact
-  orientation: "multiple"  # Multiple angles (most artistic but less readable than "single" or "right angled")
-  show_label: false        # Hide legend/labels
-```
-
-## Advanced Configuration Example
-
-```yaml
-dashboards:
-- name: "Advanced Tag Cloud"
-  panels:
-    - title: "Service Labels"
-      grid: { x: 0, y: 0, w: 48, h: 8 }
-      lens:
-        type: tagcloud
-        data_view: "logs-*"
-        tags:
-          type: values
-          field: "service.name"
-        metrics:
-          aggregation: count
-        appearance:
-          min_font_size: 12
-          max_font_size: 96
-          orientation: "multiple"
-          show_label: false
-        color:
-          palette: "kibana_palette"
-```
 
 ## Related
 

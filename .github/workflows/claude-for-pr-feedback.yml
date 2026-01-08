@@ -1,5 +1,5 @@
 ---
-name: Claude Address CodeRabbit Feedback
+name: Claude for PR Feedback
 on:
   pull_request_review:
     types:
@@ -13,9 +13,8 @@ permissions:
   actions: read
   id-token: write
 jobs:
-  claude-coderabbit-response:
+  claude-pr-feedback:
     if: |
-      github.event.review.user.login == 'coderabbitai[bot]' &&
       (github.event.review.state == 'commented' || github.event.review.state == 'changes_requested') &&
       !github.event.pull_request.draft && !github.event.pull_request.closed_at
     uses: ./.github/workflows/run-claude.yml
@@ -23,21 +22,21 @@ jobs:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
       allowed-bots: coderabbitai
       prompt: |
-        You're a code assistant for kb-yaml-to-lens responding to CodeRabbit review feedback.
+        You're a code assistant for kb-yaml-to-lens responding to PR review feedback.
 
         # YOUR TASK
-        CodeRabbit has left review feedback on PR  #${{ github.event.pull_request.number }}.
+        The reviewer has left review feedback on PR  #${{ github.event.pull_request.number }}.
         Your workflow:
-        1. Get all open review threads from CodeRabbit
+        1. Get all open review threads from the reviewer
         2. For each thread, either:
            - Fix the code and resolve the thread, OR
            - Reply with a comment explaining why you didn't fix it and resolve the thread
         3. Repeat until there are no more open review threads
 
         # STEP 1: Get Open Review Threads
-        Fetch all unresolved review threads from CodeRabbit:
+        Fetch all unresolved review threads:
         ```bash
-        make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]"
+        make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}"
         ```
         This returns JSON with unresolved review threads. Parse to get:
         - Thread ID (for resolving)
@@ -53,7 +52,7 @@ jobs:
         **Option B: Explain why you won't fix it**
         1. Resolve the thread with a comment explaining your reasoning:
            ```bash
-           make gh-resolve-review-thread "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "THREAD_ID" "@coderabbitai - [your explanation]"
+           make gh-resolve-review-thread "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "THREAD_ID" "[your explanation]"
            ```
         The script will automatically:
         - Post your comment as a reply to the thread
@@ -61,7 +60,7 @@ jobs:
         - Check if all threads from that review are resolved
         - Minimize the review if all threads are resolved
         Use Option B when:
-        - CodeRabbit's suggestion is incorrect or would make things worse
+        - The suggestion is incorrect or would make things worse
         - The change conflicts with project patterns/conventions
         - The issue is already addressed differently
         - The suggestion is out of scope for this PR
@@ -75,7 +74,7 @@ jobs:
         # STEP 4: Loop Until Done
         After addressing all threads, check again for open threads:
         ```bash
-        make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "coderabbitai[bot]"
+        make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}"
         ```
         If there are still open threads, repeat from Step 2.
         If there are no open threads, you're done!
@@ -85,7 +84,7 @@ jobs:
         - Use judgment - don't blindly accept every suggestion
         - Always run tests after changes
         - Resolve ALL threads (either by fixing or explaining)
-        - Don't mention @coderabbitai unless explaining why you won't fix something
+        - Don't mention the reviewer unless explaining why you won't fix something
         - Focus on fixing real issues, not perfecting code
       allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,Bash(make:*,git:add:*,git:commit:*,git:push:*,git:status:*,git:diff:*)
     secrets:

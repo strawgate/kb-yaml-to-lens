@@ -96,6 +96,53 @@ class LinksPanel(BasePanel):
 
     Links panels are used to display a collection of links to other dashboards,
     saved objects, or external URLs.
+
+    Examples:
+        Linking to another Dashboard:
+        ```yaml
+        dashboards:
+          - name: "Main Overview"
+            panels:
+              - title: "Navigate to User Details"
+                grid: { x: 0, y: 0, w: 24, h: 2 }
+                links:
+                  links:
+                    - label: "View User Activity Dashboard"
+                      dashboard: "user-activity-dashboard-id"
+        ```
+
+        Linking to an External URL:
+        ```yaml
+        dashboards:
+          - name: "Main Overview"
+            panels:
+              - title: "External Resources"
+                grid: { x: 24, y: 0, w: 24, h: 2 }
+                links:
+                  links:
+                    - label: "Project Documentation"
+                      url: "https://docs.example.com/project-alpha"
+                      new_tab: true
+        ```
+
+        Complex configuration with multiple link types:
+        ```yaml
+        dashboards:
+          - name: "Operations Hub"
+            panels:
+              - title: "Quick Access"
+                grid: { x: 0, y: 0, w: 48, h: 3 }
+                links:
+                  layout: "vertical"
+                  links:
+                  - label: "Service Health Dashboard"
+                    dashboard: "service-health-monitor-v2"
+                    with_time: true
+                    with_filters: true
+                  - label: "Runbook Wiki"
+                    url: "https://internal.wiki/ops/runbooks"
+                    new_tab: true
+        ```
     """
 
     links_config: LinksPanelConfig = Field(..., alias='links')

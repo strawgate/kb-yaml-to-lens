@@ -1,5 +1,5 @@
 ---
-name: Claude Issue Creator
+name: Claude with Issues
 on:
   issue_comment:
     types:

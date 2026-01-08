@@ -132,6 +132,44 @@ class LensDatatableChart(BaseChart):
 
     Datatable charts display tabular data with customizable columns, sorting,
     pagination, and formatting options.
+
+    Examples:
+        Simple datatable with metrics and rows:
+        ```yaml
+        lens:
+          type: datatable
+          data_view: "metrics-*"
+          metrics:
+            - id: "service-count"
+              field: "service.name"
+              aggregation: count
+          rows:
+            - id: "service-breakdown"
+              type: values
+              field: "service.name"
+        ```
+
+        Datatable with sorting and pagination:
+        ```yaml
+        lens:
+          type: datatable
+          data_view: "logs-*"
+          metrics:
+            - id: "error-count"
+              aggregation: count
+              filter:
+                kql: "log.level:error"
+          rows:
+            - id: "service"
+              type: values
+              field: "service.name"
+          sorting:
+            column_id: "error-count"
+            direction: desc
+          paging:
+            enabled: true
+            page_size: 25
+        ```
     """
 
     type: Literal['datatable'] = Field(default='datatable')
@@ -182,6 +220,27 @@ class ESQLDatatableChart(BaseChart):
 
     Note: ESQL datatables can have empty metrics and rows lists if they rely on
     the ESQL query to define columns (e.g., STATS or KEEP commands).
+
+    Examples:
+        ES|QL datatable with STATS query:
+        ```yaml
+        esql:
+          type: datatable
+          query: |
+            FROM metrics-*
+            | STATS count = COUNT(*), avg_cpu = AVG(system.cpu.total.norm.pct) BY service.name
+          metrics:
+            - id: "count"
+              field: "count"
+            - id: "avg-cpu"
+              field: "avg_cpu"
+          rows:
+            - id: "service"
+              field: "service.name"
+          sorting:
+            column_id: "count"
+            direction: desc
+        ```
     """
 
     type: Literal['datatable'] = Field(default='datatable')
