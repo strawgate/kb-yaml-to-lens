@@ -1,0 +1,257 @@
+---
+dashboards:
+  - id: docker-otel-overview
+    name: '[Metrics Docker] Overview'
+    description: ''
+    controls:
+      - type: options
+        label: Container image
+        data_view: metrics-*
+        field: container.image.name
+      - type: options
+        label: Container name
+        data_view: metrics-*
+        field: container.name
+      - type: options
+        label: Container hostname
+        data_view: metrics-*
+        field: container.hostname
+      - type: options
+        label: Container ID
+        data_view: metrics-*
+        field: container.id
+    filters:
+      - field: data_stream.dataset
+        equals: dockerstatsreceiver.otel
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        links:
+          layout: horizontal
+          links:
+            - label: Overview
+              dashboard: docker-otel-overview
+            - label: Container Stats
+              dashboard: docker-otel-container-stats
+      - grid: {x: 0, y: 2, w: 6, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(container.id, reducedTimeRange='1h')
+            label: Active Containers
+      - grid: {x: 6, y: 2, w: 6, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(container.id)
+            label: Total Containers
+      - grid: {x: 12, y: 2, w: 36, h: 6}
+        lens:
+          type: bar
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - field: container.id
+              aggregation: unique_count
+              label: Containers
+      - title: Containers by Runtime
+        grid: {x: 0, y: 8, w: 16, h: 11}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          rows:
+            - id: runtime
+              type: values
+              field: container.runtime
+              label: Runtime
+              size: 5
+          metrics:
+            - id: containers
+              field: container.id
+              aggregation: unique_count
+              label: Containers
+      - title: Containers by Image
+        grid: {x: 16, y: 8, w: 16, h: 11}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          rows:
+            - id: images
+              type: values
+              field: container.image.name
+              label: Images
+              size: 50
+          metrics:
+            - id: containers
+              field: container.id
+              aggregation: unique_count
+              label: Containers
+      - title: Containers by Name
+        grid: {x: 32, y: 8, w: 16, h: 11}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          rows:
+            - id: names
+              type: values
+              field: container.name
+              label: Names
+              size: 50
+          metrics:
+            - id: containers
+              field: container.id
+              aggregation: unique_count
+              label: Containers
+      - title: CPU Usage
+        grid: {x: 0, y: 19, w: 48, h: 8}
+        hide_title: true
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: false
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 20
+          metrics:
+            - formula: median(container.cpu.utilization)/100
+              label: CPU Usage
+              format:
+                type: percent
+      - title: Memory Usage
+        grid: {x: 0, y: 27, w: 24, h: 8}
+        hide_title: true
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: false
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 20
+          metrics:
+            - formula: median(container.memory.percent)/100
+              label: Memory Usage
+              format:
+                type: percent
+      - title: Memory Usage (Bytes)
+        grid: {x: 24, y: 27, w: 24, h: 8}
+        hide_title: true
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: false
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 20
+          metrics:
+            - field: container.memory.usage.total
+              aggregation: median
+              label: Memory Usage
+              format:
+                type: bytes
+      - title: Disk I/O - Read
+        grid: {x: 0, y: 35, w: 24, h: 8}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: false
+          filters:
+            - field: attributes.operation
+              equals: read
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 30
+          metrics:
+            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+              label: Bytes
+              format:
+                type: bytes
+      - title: Disk I/O - Write
+        grid: {x: 24, y: 35, w: 24, h: 8}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: false
+          filters:
+            - field: attributes.operation
+              equals: write
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 30
+          metrics:
+            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+              label: Bytes
+              format:
+                type: bytes
+      - title: Network I/O - Received
+        grid: {x: 0, y: 43, w: 24, h: 8}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: false
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 30
+          metrics:
+            - formula: counter_rate(max(container.network.io.usage.rx_bytes))
+              label: Bytes
+              format:
+                type: bytes
+      - title: Network I/O - Transmitted
+        grid: {x: 24, y: 43, w: 24, h: 8}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: false
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: container.id
+            type: values
+            size: 30
+          metrics:
+            - formula: counter_rate(max(container.network.io.usage.tx_bytes))
+              label: Bytes
+              format:
+                type: bytes
