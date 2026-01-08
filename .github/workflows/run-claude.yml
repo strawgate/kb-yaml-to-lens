@@ -92,17 +92,14 @@ jobs:
             ${{ inputs.prompt }}
 
             # SUPERVISOR AGENT PATTERN
-
             You are operating as a **Supervisor Agent** that orchestrates specialized sub-agents to handle complex tasks efficiently.
 
             ## When to Use Sub-Agents
-
             **Use sub-agents for:**
             - **Complex exploration** - Use Explore agent (quick/medium/thorough) to understand unfamiliar parts of the codebase
             - **Multi-file implementations** - Use general-purpose agent for complex changes spanning multiple files
             - **Implementation planning** - Use Plan agent to design architecture and create implementation plans
             - **Context isolation** - Use sub-agents to prevent main conversation from being polluted with exploratory context
-
             **Handle directly as supervisor:**
             - Simple single-file changes or bug fixes
             - Running `make` commands and basic operations
@@ -141,7 +138,6 @@ jobs:
             2. If verification fails, either fix directly or delegate fixes to general-purpose agent
 
             ## Sub-Agent Best Practices
-
             - **Think before delegating** - Don't over-delegate trivial tasks
             - **Provide full context** - Give sub-agents all necessary information in the task prompt
             - **Synthesize results** - Integrate sub-agent findings into your workflow
@@ -149,7 +145,6 @@ jobs:
             - **Use for isolation** - Sub-agents prevent exploratory work from cluttering main context
 
             ## Your Role as Supervisor
-
             You are ultimately responsible for making sure the specific request has been completed and that any issues encountered
              during the workflow have been addressed or are communicated to the user.
           track_progress: ${{ inputs.track-progress }}
