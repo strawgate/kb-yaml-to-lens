@@ -4,7 +4,7 @@ from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendWidthEnum
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes, LensTermsBreakdown
+from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
@@ -257,18 +257,6 @@ class LensXYChartMixin(BaseCfgModel):
             'An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.'
         ),
     )
-    breakdown_by: LensTermsBreakdown | None = Field(
-        None,
-        description=('An optional terms breakdown with support for multiple fields (1-4). Mutually exclusive with the breakdown field.'),
-    )
-
-    @model_validator(mode='after')
-    def validate_breakdown_exclusivity(self) -> Self:
-        """Ensure breakdown and breakdown_by are mutually exclusive."""
-        if self.breakdown is not None and self.breakdown_by is not None:
-            msg = "Cannot specify both 'breakdown' and 'breakdown_by' - use one or the other"
-            raise ValueError(msg)
-        return self
 
     def set_dimension(self, lens_dimension: LensDimensionTypes) -> Self:
         """Set the X-axis dimension for the lens Chart."""

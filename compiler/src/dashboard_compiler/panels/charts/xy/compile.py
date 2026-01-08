@@ -12,7 +12,7 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensStaticValueColumn,
     KbnLensStaticValueColumnParams,
 )
-from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions, compile_lens_terms_breakdown
+from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
     AreaChartAppearance,
@@ -358,7 +358,7 @@ def compile_xy_chart_visualization_state(
     chart: LensXYChartTypes | ESQLXYChartTypes,
     dimension_id: str | None,
     metric_ids: list[str],
-    breakdown: str | list[str] | None = None,
+    breakdown_id: str | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -367,14 +367,11 @@ def compile_xy_chart_visualization_state(
         chart (LensXYChartTypes | ESQLXYChartTypes): The XY chart config object.
         dimension_id (str | None): The ID of the X-axis dimension.
         metric_ids (list[str]): The IDs of the metrics.
-        breakdown (str | list[str] | None): The ID (single field) or IDs (multi-field) of the breakdown dimension(s).
+        breakdown_id (str | None): The ID of the breakdown dimension if any.
 
     Returns:
         KbnXYVisualizationState: The compiled visualization state.
     """
-    # Parse breakdown into splitAccessor (single) or splitAccessors (multi)
-    breakdown_id = breakdown if isinstance(breakdown, str) else None
-    breakdown_ids = breakdown if isinstance(breakdown, list) else None
     series_type: str = compile_series_type(chart=chart)
 
     kbn_color_mapping = compile_color_mapping(chart.color)
@@ -435,7 +432,6 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
-        splitAccessors=breakdown_ids,
         yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
         xScaleType=x_scale,
     )
@@ -510,20 +506,12 @@ def compile_lens_xy_chart(
         )
         dimension_id = next(iter(kbn_dimension_columns.keys()))
 
-    breakdown = None
-
+    breakdown_id = None
     if lens_xy_chart.breakdown is not None:
         kbn_breakdown_columns = compile_lens_dimensions(dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns)
         breakdown_id = next(iter(kbn_breakdown_columns.keys()))
+
         kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
-        breakdown = breakdown_id
-    elif lens_xy_chart.breakdown_by is not None:
-        kbn_breakdown_columns = compile_lens_terms_breakdown(
-            breakdown=lens_xy_chart.breakdown_by, kbn_metric_column_by_id=kbn_metric_columns
-        )
-        breakdown_ids = list(kbn_breakdown_columns.keys())
-        kbn_dimension_columns.update(kbn_breakdown_columns)
-        breakdown = breakdown_ids
 
     kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
 
@@ -535,7 +523,7 @@ def compile_lens_xy_chart(
             chart=lens_xy_chart,
             dimension_id=dimension_id,
             metric_ids=metric_ids,
-            breakdown=breakdown,
+            breakdown_id=breakdown_id,
         ),
     )
 
@@ -562,11 +550,11 @@ def compile_esql_xy_chart(
         dimensions = compile_esql_dimensions(dimensions=[esql_xy_chart.dimension])
         dimension_id = dimensions[0].columnId
 
-    breakdown = None
+    breakdown_id = None
     if esql_xy_chart.breakdown is not None:
-        breakdown_dim = compile_esql_dimensions(dimensions=[esql_xy_chart.breakdown])
-        breakdown = breakdown_dim[0].columnId
-        dimensions.extend(breakdown_dim)
+        breakdown = compile_esql_dimensions(dimensions=[esql_xy_chart.breakdown])
+        breakdown_id = breakdown[0].columnId
+        dimensions.extend(breakdown)
 
     kbn_columns = [*metrics, *dimensions]
 
@@ -578,6 +566,6 @@ def compile_esql_xy_chart(
             chart=esql_xy_chart,
             dimension_id=dimension_id,
             metric_ids=metric_ids,
-            breakdown=breakdown,
+            breakdown_id=breakdown_id,
         ),
     )

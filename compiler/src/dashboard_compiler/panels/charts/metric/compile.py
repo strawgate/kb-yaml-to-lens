@@ -15,7 +15,7 @@ if TYPE_CHECKING:
         KbnLensMetricColumnTypes,
     )
     from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
-from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension, compile_lens_terms_breakdown
+from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.metric.view import (
     KbnESQLMetricVisualizationState,
@@ -91,14 +91,6 @@ def compile_lens_metric_chart(
             dimension=lens_metric_chart.breakdown, kbn_metric_column_by_id=kbn_metric_columns_by_id
         )
         kbn_columns_by_id[breakdown_dimension_id] = breakdown_dimension
-    elif lens_metric_chart.breakdown_by is not None:
-        # For breakdown_by with multiple fields, Metric charts only use the FIRST field
-        kbn_breakdown_columns = compile_lens_terms_breakdown(
-            breakdown=lens_metric_chart.breakdown_by, kbn_metric_column_by_id=kbn_metric_columns_by_id
-        )
-        # Take only the first breakdown column (Metric charts support only one breakdown field)
-        breakdown_dimension_id = next(iter(kbn_breakdown_columns.keys()))
-        kbn_columns_by_id[breakdown_dimension_id] = kbn_breakdown_columns[breakdown_dimension_id]
 
     # Add metrics AFTER breakdown dimension
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
