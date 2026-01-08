@@ -232,27 +232,9 @@ dashboards:
               format:
                 type: percent
 
-      # Second Disk I/O panel (split by device_major)
-      - title: Disk I/O
-        grid: {x: 0, y: 65, w: 48, h: 9}
-        lens:
-          type: area
-          data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-            - field: attributes.device_major
-              type: values
-              size: 1000
-          metrics:
-            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
-              label: Bytes
-              format:
-                type: bytes
-
       # Network - Received Bytes (left half)
       - title: Network - Received Bytes
-        grid: {x: 0, y: 74, w: 24, h: 9}
+        grid: {x: 0, y: 65, w: 24, h: 9}
         lens:
           type: area
           data_view: metrics-*
@@ -270,7 +252,7 @@ dashboards:
 
       # Network - Transmitted Bytes (right half)
       - title: Network - Transmitted Bytes
-        grid: {x: 24, y: 74, w: 24, h: 9}
+        grid: {x: 24, y: 65, w: 24, h: 9}
         lens:
           type: area
           data_view: metrics-*
