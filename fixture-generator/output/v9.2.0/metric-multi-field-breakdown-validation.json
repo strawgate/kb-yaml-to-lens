@@ -1,0 +1,79 @@
+{
+  "title": "Metric with Multi-Field breakdown_by (Validation Fixture)",
+  "visualizationType": "lnsMetric",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "breakdown_accessor",
+              "metric_count"
+            ],
+            "columns": {
+              "breakdown_accessor": {
+                "label": "Top 10 values of product.category",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "product.category",
+                "isBucketed": true,
+                "params": {
+                  "size": 10,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              },
+              "metric_count": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "Count",
+                "params": {
+                  "formula": "count()"
+                },
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_count",
+      "showBar": false,
+      "breakdownByAccessor": "breakdown_accessor"
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}

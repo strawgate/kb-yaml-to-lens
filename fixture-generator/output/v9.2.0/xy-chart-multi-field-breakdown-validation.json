@@ -1,0 +1,157 @@
+{
+  "title": "XY Chart with Multi-Field Breakdown (Validation Fixture)",
+  "visualizationType": "lnsXY",
+  "references": [
+    {
+      "type": "index-pattern",
+      "id": "logs-*",
+      "name": "indexpattern-datasource-layer-layer_0"
+    }
+  ],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "x_date_histogram",
+              "breakdown_0",
+              "breakdown_1",
+              "metric_count"
+            ],
+            "columns": {
+              "x_date_histogram": {
+                "label": "@timestamp",
+                "dataType": "date",
+                "operationType": "date_histogram",
+                "sourceField": "@timestamp",
+                "isBucketed": true,
+                "scale": "interval",
+                "params": {
+                  "interval": "auto",
+                  "includeEmptyRows": true,
+                  "dropPartials": false
+                }
+              },
+              "breakdown_0": {
+                "label": "Top 10 values of product.category",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "product.category",
+                "isBucketed": true,
+                "params": {
+                  "size": 10,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              },
+              "breakdown_1": {
+                "label": "Top 10 values of customer.region",
+                "dataType": "string",
+                "operationType": "terms",
+                "scale": "ordinal",
+                "sourceField": "customer.region",
+                "isBucketed": true,
+                "params": {
+                  "size": 10,
+                  "orderBy": {
+                    "type": "alphabetical",
+                    "fallback": false
+                  },
+                  "orderDirection": "asc",
+                  "otherBucket": false,
+                  "missingBucket": false,
+                  "parentFormat": {
+                    "id": "terms"
+                  },
+                  "include": [],
+                  "exclude": [],
+                  "includeIsRegex": false,
+                  "excludeIsRegex": false
+                }
+              },
+              "metric_count": {
+                "label": "Count",
+                "dataType": "number",
+                "operationType": "count",
+                "isBucketed": false,
+                "scale": "ratio",
+                "sourceField": "___records___",
+                "params": {
+                  "emptyAsNull": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "legend": {
+        "isVisible": true,
+        "position": "right"
+      },
+      "valueLabels": "hide",
+      "fittingFunction": "None",
+      "yLeftScale": "linear",
+      "axisTitlesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "tickLabelsVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "labelsOrientation": {
+        "x": 0,
+        "yLeft": 0,
+        "yRight": 0
+      },
+      "gridlinesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "preferredSeriesType": "bar",
+      "layers": [
+        {
+          "layerId": "layer_0",
+          "layerType": "data",
+          "seriesType": "bar",
+          "accessors": [
+            "metric_count"
+          ],
+          "xAccessor": "x_date_histogram",
+          "splitAccessors": [
+            "breakdown_0",
+            "breakdown_1"
+          ]
+        }
+      ]
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}
