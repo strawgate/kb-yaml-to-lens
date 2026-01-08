@@ -99,9 +99,11 @@ Demonstrates dashboard navigation features:
 
 Real-world monitoring dashboards for Aerospike database:
 
-- **Overview Dashboard** - Cluster-level metrics and node health
-- **Node Metrics** - Detailed per-node performance monitoring
-- **Namespace Metrics** - Namespace-level storage and query statistics
+**Dashboards:**
+
+- **[Overview Dashboard](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/aerospike/overview.yaml)** - Cluster-level metrics and node health
+- **[Node Metrics](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/aerospike/node-metrics.yaml)** - Detailed per-node performance monitoring
+- **[Namespace Metrics](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/aerospike/namespace-metrics.yaml)** - Namespace-level storage and query statistics
 
 **Use this when:** Monitoring Aerospike NoSQL database deployments.
 
@@ -109,22 +111,26 @@ Real-world monitoring dashboards for Aerospike database:
 
 Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
 
-- **Hosts Overview** - Overview of all hosts with key performance metrics
-- **Host Details - Overview** - Detailed single host overview with CPU, memory, and disk metrics
-- **Host Details - Metrics** - In-depth metrics charts for CPU, memory, disk, and load
-- **Host Details - Metadata** - Host resource attributes and metadata (ES|QL datatables)
-- **Host Details - Logs** - Host log messages (ES|QL datatable)
+**Dashboards:**
+
+- **[Hosts Overview](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/01-hosts-overview.yaml)** - Overview of all hosts with key performance metrics
+- **[Host Details - Overview](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/02-host-details-overview.yaml)** - Detailed single host overview with CPU, memory, and disk metrics
+- **[Host Details - Metrics](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/03-host-details-metrics.yaml)** - In-depth metrics charts for CPU, memory, disk, and load
+- **[Host Details - Metadata](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/04-host-details-metadata.yaml)** - Host resource attributes and metadata (ES|QL datatables)
+- **[Host Details - Logs](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/system_otel/05-host-details-logs.yaml)** - Host log messages (ES|QL datatable)
 
 **Use this when:** Monitoring infrastructure with OpenTelemetry hostmetricsreceiver.
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
-### [Docker OpenTelemetry Dashboards](docker_otel/)
+### [Docker OpenTelemetry Dashboards](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/docker_otel/)
 
 Docker container monitoring dashboards for OpenTelemetry metrics:
 
-- **Containers Overview** - Multi-container monitoring with CPU, memory, disk I/O, and network metrics
-- **Container Stats** - Detailed single-container performance analysis and resource utilization
+**Dashboards:**
+
+- **[Containers Overview](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/docker_otel/01-containers-overview.yaml)** - Multi-container monitoring with CPU, memory, disk I/O, and network metrics
+- **[Container Stats](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/docker_otel/02-container-stats.yaml)** - Detailed single-container performance analysis and resource utilization
 
 **Use this when:** Monitoring Docker containers with OpenTelemetry Docker Stats Receiver.
 
