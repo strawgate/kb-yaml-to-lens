@@ -229,6 +229,13 @@ reportUnknownVariableType = false
 reportUnknownArgumentType = false
 
 [[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/controls/config.py"
+# Discriminator function needs to work with untyped dict data
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+
+[[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"
 
 [tool.coverage.run]

@@ -1,21 +1,36 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import Annotated, Literal, Self
+from typing import Annotated, Any, Literal, Self
 
-from pydantic import Field, model_validator
+from pydantic import Discriminator, Field, Tag, model_validator
 
 from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
+
+def _control_discriminator(v: Any) -> str:
+    """Discriminate control types, with special handling for ES|QL controls."""
+    if isinstance(v, dict):
+        control_type: str | None = v.get('type')
+        if control_type == 'esql':
+            # Discriminate ES|QL controls by presence of available_options vs esql_query
+            if 'available_options' in v:
+                return 'esql_static'
+            if 'esql_query' in v:
+                return 'esql_query'
+        if control_type is not None:
+            return control_type
+    return 'options'  # Fallback
+
+
 type ControlTypes = Annotated[
-    RangeSliderControl
-    | OptionsListControl
-    | TimeSliderControl
-    | ESQLStaticSingleSelectControl
-    | ESQLStaticMultiSelectControl
-    | ESQLQueryControl,
-    Field(discriminator='type'),
+    Annotated[RangeSliderControl, Tag('range')]
+    | Annotated[OptionsListControl, Tag('options')]
+    | Annotated[TimeSliderControl, Tag('time')]
+    | Annotated[ESQLStaticControl, Tag('esql_static')]
+    | Annotated[ESQLQueryControl, Tag('esql_query')],
+    Discriminator(_control_discriminator),
 ]
 
 
@@ -149,14 +164,14 @@ class TimeSliderControl(BaseControl):
         return self
 
 
-class ESQLStaticSingleSelectControl(BaseControl):
-    """Represents an ES|QL control with static values and single selection.
+class ESQLStaticControl(BaseControl):
+    """Represents an ES|QL control with static values.
 
-    This control allows users to select a single value from a predefined list
+    This control allows users to select one or more values from a predefined list
     to filter ES|QL visualizations via variables.
     """
 
-    type: Literal['esql_single_select'] = 'esql_single_select'
+    type: Literal['esql'] = 'esql'
 
     variable_name: str = Field(...)
     """The name of the ES|QL variable (e.g., 'status_code')."""
@@ -170,51 +185,30 @@ class ESQLStaticSingleSelectControl(BaseControl):
     title: str = Field(...)
     """Display title for the control."""
 
-    default: str | None = Field(default=None)
-    """Default selected value."""
+    default: str | list[str] | None = Field(default=None)
+    """Default selected value(s). String for single-select, list for multi-select."""
+
+    single_select: bool | None = Field(default=None)
+    """If true, only allow single selection. If not set, inferred from default type (str=true, list=false)."""
 
     @model_validator(mode='after')
-    def validate_default_in_available(self) -> Self:
-        """Ensure default exists in available_options."""
-        if self.default is not None and self.default not in self.available_options:
-            msg = f'default value "{self.default}" not in available_options'
-            raise ValueError(msg)
-        return self
-
-
-class ESQLStaticMultiSelectControl(BaseControl):
-    """Represents an ES|QL control with static values and multi-selection.
-
-    This control allows users to select multiple values from a predefined list
-    to filter ES|QL visualizations via variables.
-    """
-
-    type: Literal['esql_multi_select'] = 'esql_multi_select'
-
-    variable_name: str = Field(...)
-    """The name of the ES|QL variable (e.g., 'status_code')."""
-
-    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
-    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
-
-    available_options: list[str] = Field(...)
-    """The static list of available values for this control."""
-
-    title: str = Field(...)
-    """Display title for the control."""
-
-    default: list[str] | None = Field(default=None)
-    """Default selected values."""
-
-    @model_validator(mode='after')
-    def validate_default_in_available(self) -> Self:
-        """Ensure all default values exist in available_options."""
+    def validate_defaults(self) -> Self:
+        """Validate that default values exist in available_options."""
         if self.default is not None:
-            invalid = set(self.default) - set(self.available_options)
+            defaults = [self.default] if isinstance(self.default, str) else self.default
+            invalid = set(defaults) - set(self.available_options)
             if invalid:
                 msg = f'default contains options not in available_options: {invalid}'
                 raise ValueError(msg)
         return self
+
+    def get_inferred_single_select(self) -> bool | None:
+        """Get the effective single_select value, inferring from default type if not explicitly set."""
+        if self.single_select is not None:
+            return self.single_select
+        if self.default is not None:
+            return isinstance(self.default, str)
+        return None
 
 
 class ESQLQueryControl(BaseControl):
@@ -224,7 +218,7 @@ class ESQLQueryControl(BaseControl):
     to filter ES|QL visualizations via variables.
     """
 
-    type: Literal['esql_query'] = 'esql_query'
+    type: Literal['esql'] = 'esql'
 
     variable_name: str = Field(...)
     """The name of the ES|QL variable (e.g., 'status_code')."""
