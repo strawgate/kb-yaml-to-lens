@@ -114,6 +114,7 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
+    index: str
     timeField: str
 
 

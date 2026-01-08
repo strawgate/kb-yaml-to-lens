@@ -1,3 +1,4 @@
+import json
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
@@ -222,10 +223,14 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
+    # Create JSON string with only timeFieldName
+    index_json = json.dumps({'timeFieldName': panel.esql.time_field})
+
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
+        index=index_json,
         timeField=panel.esql.time_field,
     )
 
