@@ -12,7 +12,7 @@ from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig
 
 
 async def test_xy_single_field_breakdown() -> None:
-    """Test XY chart with single field multi-field breakdown."""
+    """Test XY chart with single-field breakdown."""
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
@@ -76,14 +76,14 @@ async def test_xy_two_field_breakdown() -> None:
         assert column.operationType == 'terms'
         assert column.params.size == 10
 
-    # Check that each column has the right field
+    # Check that each column has the right field in the correct order
     fields: list[str] = []
     for accessor_id in layer.splitAccessors:
         column = kbn_columns[accessor_id]
         assert isinstance(column, KbnLensTermsDimensionColumn)
         fields.append(column.sourceField)
-    assert 'product.category' in fields
-    assert 'customer.region' in fields
+    assert fields[0] == 'product.category'
+    assert fields[1] == 'customer.region'
 
 
 async def test_xy_four_field_breakdown() -> None:

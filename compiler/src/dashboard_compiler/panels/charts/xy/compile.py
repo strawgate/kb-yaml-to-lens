@@ -1,6 +1,6 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
-from typing import Literal
+from typing import Literal, cast
 
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
@@ -360,7 +360,7 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
     dimension_id: str | None,
     metric_ids: list[str],
     breakdown: str | list[str] | None = None,
-    collapse_fn: CollapseAggregationEnum | None = None,
+    collapse_fn: CollapseAggregationEnum | str | None = None,
 ) -> KbnXYVisualizationState:
     """Compile an XY chart config object into a Kibana XY visualization state.
 
@@ -439,7 +439,10 @@ def compile_xy_chart_visualization_state(  # noqa: PLR0913
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
         splitAccessors=breakdown_ids,
-        collapseFn=collapse_fn.value if isinstance(collapse_fn, CollapseAggregationEnum) else collapse_fn,
+        collapseFn=cast(
+            "Literal['sum', 'avg', 'min', 'max'] | None",
+            collapse_fn.value if isinstance(collapse_fn, CollapseAggregationEnum) else collapse_fn,
+        ),
         yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
         xScaleType=x_scale,
     )
