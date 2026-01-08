@@ -29,7 +29,7 @@ typecheck: ## Run TypeScript type checking
 		bash -c "tsc --noEmit --project tsconfig.json"
 
 test: ## Run tests
-	@if ! docker images | grep -q "kibana-base"; then \
+	@if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -qF "$(BASE_IMAGE)"; then \
 		echo "⚠ Skipping test (Docker image not available)"; \
 		exit 0; \
 	fi; \
