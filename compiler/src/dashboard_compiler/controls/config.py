@@ -1,46 +1,21 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import Annotated, Any, Literal, Self
+from typing import Literal, Self
 
-from pydantic import Discriminator, Field, Tag, model_validator
+from pydantic import Field, model_validator
 
 from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
-
-def _control_discriminator(v: Any) -> str:  # pyright: ignore[reportAny]
-    """Discriminate control types, with special handling for ES|QL controls."""
-    if isinstance(v, dict):
-        control_type: str | None = v.get('type')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        if control_type == 'esql':
-            # Discriminate ES|QL controls by presence of available_options vs esql_query
-            if 'available_options' in v:
-                # For static controls, discriminate by single_select field
-                single_select = v.get('single_select')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                if single_select is False:
-                    return 'esql_static_multi_select'
-                # single_select is None or True -> single select
-                return 'esql_static_single_select'
-            if 'esql_query' in v:
-                return 'esql_query'
-            # ES|QL control must have either available_options or esql_query
-            msg = "ES|QL control must have either 'available_options' (for static values) or 'esql_query' (for query-driven values)"
-            raise ValueError(msg)
-        if control_type is not None:
-            return control_type  # pyright: ignore[reportUnknownVariableType]
-    return 'options'  # Fallback
-
-
-type ControlTypes = Annotated[
-    Annotated[RangeSliderControl, Tag('range')]
-    | Annotated[OptionsListControl, Tag('options')]
-    | Annotated[TimeSliderControl, Tag('time')]
-    | Annotated[ESQLStaticSingleSelectControl, Tag('esql_static_single_select')]
-    | Annotated[ESQLStaticMultiSelectControl, Tag('esql_static_multi_select')]
-    | Annotated[ESQLQueryControl, Tag('esql_query')],
-    Discriminator(_control_discriminator),
-]
+type ControlTypes = (
+    RangeSliderControl
+    | OptionsListControl
+    | TimeSliderControl
+    | ESQLStaticSingleSelectControl
+    | ESQLStaticMultiSelectControl
+    | ESQLQueryControl
+)
 
 
 class ControlSettings(BaseCfgModel):
