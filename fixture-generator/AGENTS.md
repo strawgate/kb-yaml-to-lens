@@ -4,7 +4,19 @@
 
 ---
 
-## Critical Rules
+## Quick Start
+
+@README.md
+
+---
+
+## Development Guidelines
+
+@FIXTURES.md
+
+---
+
+## Critical Agent Rules
 
 ### Fixture Generation is Required
 
@@ -24,142 +36,7 @@ We're building a compiler targeting Kibana's JSON format. The fixture generator 
 
 ---
 
-## Quick Reference
-
-### Commands
-
-| Command | Purpose |
-| ------- | ------- |
-| `make ci` | Run CI checks (typecheck + pull + test) |
-| `make typecheck` | Run TypeScript type checking |
-| `make pull` | Pull pre-built base image from GHCR |
-| `make build-base` | Build base image locally (for testing changes) |
-| `make run` | Generate all fixtures |
-| `make run-example EXAMPLE=file.ts` | Generate single fixture |
-| `make shell` | Debug in container |
-| `make test-import` | Test LensConfigBuilder import |
-| `make clean` | Clean output directory |
-
-### Workflow
-
-```bash
-cd fixture-generator && make pull                            # First time (pulls pre-built base)
-make run                                                     # All fixtures
-make run-example EXAMPLE=metric-basic.ts                    # Single fixture
-cat output/metric-basic.json | python -m json.tool | head   # Verify
-```
-
----
-
-## TypeScript Type Checking
-
-Generators use TypeScript with strict type checking to catch invalid LensConfigBuilder properties at development time.
-
-**Benefits:** Catch errors early, IDE autocomplete, no runtime overhead, future-proof when Kibana updates
-
-**Usage:**
-
-- Import types: `import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder';`
-- Annotate configs: `const esqlConfig: LensMetricConfig = { ... };`
-- Run checks: `make typecheck` or `make ci`
-
----
-
-## Verification
-
-Created/modified `examples/` generator → `make typecheck` → `make pull` (if needed) → `make run-example EXAMPLE=<file>.ts` → verify output files exist → inspect JSON (`python -m json.tool | head`) → `make ci` from root → commit
-
----
-
-## Development Workflow
-
-1. Edit `examples/` generator (TypeScript `.ts` files)
-2. Test: `make run-example EXAMPLE=your-generator.ts`
-3. Verify: `cat output/your-generator.json | python -m json.tool | head`
-4. Full test: `cd .. && make ci`
-5. Commit only after: Type check ✅ Generator runs in Docker ✅ Output created ✅ Valid JSON ✅ `make ci` passes ✅
-
----
-
-## Creating Dual Generators
-
-Most new generators should create both ES|QL and Data View variants:
-
-```typescript
-#!/usr/bin/env node
-import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
-import { generateDualFixture, runIfMain } from '../generator-utils.js';
-
-export async function generateMyChart(): Promise<void> {
-  const sharedConfig: Partial<LensXYConfig> = {
-    chartType: 'xy',
-    // ... shared properties
-  };
-
-  // ES|QL variant
-  const esqlConfig: LensXYConfig = {
-    ...sharedConfig,
-    chartType: 'xy',
-    title: 'My Chart',
-    dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp'
-    },
-    // ... ES|QL-specific (use column names from query)
-  };
-
-  // Data View variant
-  const dataviewConfig: LensXYConfig = {
-    ...sharedConfig,
-    chartType: 'xy',
-    title: 'My Chart (Data View)',
-    dataset: {
-      index: 'logs-*',
-      timeFieldName: '@timestamp'
-    },
-    // ... Data View-specific (use aggregation functions)
-  };
-
-  await generateDualFixture(
-    'my-chart',
-    esqlConfig,
-    dataviewConfig,
-    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
-    import.meta.url
-  );
-}
-
-runIfMain(generateMyChart, import.meta.url);
-```
-
-**Key differences:**
-
-- **Dataset**: `{ esql: 'query' }` vs `{ index: 'pattern' }`
-- **Metrics**: Column names vs aggregation functions
-- **XY Charts**: String xAxis vs object `{ type: 'dateHistogram', field: '@timestamp' }`
-
----
-
-## Common Issues
-
-**"Cannot find module '@kbn/lens-embeddable-utils'"**: Trying to run outside Docker. Use `make run`.
-
-**"Docker image not found"**: Run `make pull`.
-
-**"Generator runs but no output"**: Check console output. Debug with `make shell` then `node examples/your-generator.ts`.
-
-**"Output JSON invalid"**: Check against [Kibana Lens Config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx).
-
----
-
-## File Locations
-
-- **Generator scripts**: `fixture-generator/examples/*.ts`
-- **Utilities**: `fixture-generator/generator-utils.js`
-- **Output**: `fixture-generator/output/*.json`
-
----
-
-## Summary
+## Summary Checklist
 
 **Before commit:** `make typecheck` → `make run-example EXAMPLE=your-file.ts` → verify output exists → validate JSON (`python -m json.tool`) → `make ci` from root → commit
 

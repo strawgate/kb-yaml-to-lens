@@ -40,40 +40,41 @@ dashboards:
         grid: { x: 0, y: 0, w: 24, h: 6 }
         lens:
           type: pie
-          data_view: "traffic-data"
+          data_view: "metrics-*"
           slice_by:
-            - field: "source"
+            - field: "resource.attributes.os.type"
               type: values
           metrics:
-            - aggregation: sum
-              field: visits
+            - aggregation: unique_count
+              field: resource.attributes.host.name
 ```
 
 ## Example with Custom Colors
 
 ```yaml
 dashboards:
-  - name: "HTTP Status Codes"
+  - name: "Operating System Distribution"
     panels:
-      - title: "Response Status Distribution"
+      - title: "Host Count by OS Type"
         grid: { x: 0, y: 0, w: 6, h: 6 }
         lens:
           type: pie
-          data_view: "logs-*"
+          data_view: "metrics-*"
           slice_by:
-            - field: "http.response.status_code"
+            - field: "resource.attributes.os.type"
               type: values
           metrics:
-            - aggregation: count
+            - aggregation: unique_count
+              field: resource.attributes.host.name
           color:
             palette: 'eui_amsterdam_color_blind'
             assignments:
-              - values: ['200']
-                color: '#00BF6F'  # Green for success
-              - values: ['404']
-                color: '#FFA500'  # Orange for not found
-              - values: ['500']
-                color: '#BD271E'  # Red for server errors
+              - values: ['linux']
+                color: '#00BF6F'  # Green for Linux
+              - values: ['windows']
+                color: '#006BB4'  # Blue for Windows
+              - values: ['darwin']
+                color: '#98A2B3'  # Gray for macOS
 ```
 
 ## Full Configuration Options

@@ -140,40 +140,40 @@ This example demonstrates a datatable with custom column configurations, sorting
 
 ```yaml
 dashboards:
-  - name: "Service Performance Dashboard"
+  - name: "Host Performance Dashboard"
     panels:
       - lens:
           type: datatable
-          data_view: "apm-*"
+          data_view: "metrics-*"
           metrics:
-            - id: "request-count"
-              field: "transaction.name"
-              aggregation: count
-            - id: "avg-duration"
-              field: "transaction.duration.us"
+            - id: "cpu-util"
+              field: "metrics.system.cpu.utilization"
+              aggregation: average
+            - id: "mem-util"
+              field: "metrics.system.memory.utilization"
               aggregation: average
           rows:
-            - id: "service-name"
+            - id: "hostname"
               type: values
-              field: "service.name"
+              field: "resource.attributes.host.name"
               size: 50
           columns:
-            - column_id: "service-name"
+            - column_id: "hostname"
               width: 250
               alignment: left
           metric_columns:
-            - column_id: "request-count"
+            - column_id: "cpu-util"
               width: 150
               alignment: right
               summary_row: sum
-              summary_label: "Total Requests"
-            - column_id: "avg-duration"
+              summary_label: "Total CPU Utilization"
+            - column_id: "mem-util"
               width: 150
               alignment: right
               summary_row: avg
-              summary_label: "Overall Avg"
+              summary_label: "Overall Avg Memory"
           sorting:
-            column_id: "request-count"
+            column_id: "cpu-util"
             direction: desc
           paging:
             enabled: true
@@ -181,7 +181,7 @@ dashboards:
           appearance:
             row_height: single
             density: compact
-        title: "Top Services by Request Count"
+        title: "Top Hosts by CPU Utilization"
         grid: { x: 0, y: 0, w: 12, h: 8 }
 ```
 

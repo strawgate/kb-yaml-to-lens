@@ -36,14 +36,14 @@ The most important number ever seen!
 dashboards:
   - name: "KPI Dashboard"
     panels:
-      - title: "Total Revenue"
+      - title: "Total Hosts"
         grid: { x: 0, y: 0, w: 12, h: 2 }
         lens:
           type: metric
-          data_view: "sales-data"
+          data_view: "metrics-*"
           primary:
-            aggregation: sum
-            field: revenue
+            aggregation: unique_count
+            field: resource.attributes.host.name
 ```
 
 ## Formula Metric Example
