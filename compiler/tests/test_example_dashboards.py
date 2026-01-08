@@ -7,8 +7,17 @@ import pytest
 from dashboard_compiler.dashboard_compiler import load
 
 # Find all YAML files in docs/examples (recursively)
-example_dir = Path('docs/examples')
+# Use absolute path since tests run from compiler/ directory
+_project_root = Path(__file__).parent.parent.parent
+example_dir = _project_root / 'docs' / 'examples'
 example_files = sorted(example_dir.rglob('*.yaml'))
+
+# Ensure we actually found example files (fail fast if path is wrong)
+assert len(example_files) > 0, (
+    f'No example YAML files found in {example_dir}. '
+    f'Expected to find files but got empty list. '
+    f'This indicates a test infrastructure bug - please check the path configuration.'
+)
 
 
 @pytest.mark.parametrize('example_path', example_files, ids=lambda p: str(p))
