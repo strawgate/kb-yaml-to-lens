@@ -164,7 +164,7 @@ Additional fields for query-driven controls (when `query` is provided):
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --- | --- | --- | --- | --- |
-| `query` | `string` | The ES|QL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
+| `query` | `string` | The ES\|QL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
 | `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
 
 #### Static Values Example
