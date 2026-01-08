@@ -53,11 +53,10 @@ Their data in words, big and free!
 
 ### Orientation Options
 
-The `orientation` field controls how tags are rotated in the cloud:
-
-- **`single`**: All tags horizontal (0°) - cleanest, most readable
-- **`right angled`**: Mix of horizontal (0°) and vertical (90°) orientations - classic word cloud style
-- **`multiple`**: Multiple angles including diagonal - most artistic but potentially less readable
+::: dashboard_compiler.panels.charts.tagcloud.config.TagcloudOrientationEnum
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ## Related
 

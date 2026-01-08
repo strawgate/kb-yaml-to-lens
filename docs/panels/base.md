@@ -217,32 +217,19 @@ Many chart panel types (Pie, XY, Metric) support color customization through the
 
 ### ColorMapping Object
 
-| YAML Key | Data Type | Description | Default | Required |
-| -------- | --------- | ----------- | ------- | -------- |
-| `palette` | `string` | The color palette ID to use for unassigned colors. | `'eui_amsterdam_color_blind'` | No |
-| `assignments` | `list[ColorAssignment]` | Manual color assignments to specific data values. | `[]` | No |
+::: dashboard_compiler.panels.charts.base.config.ColorMapping
+    options:
+      show_root_heading: false
+      heading_level: 4
 
-#### Available Color Palettes
-
-The `palette` field accepts the following palette IDs:
-
-* `'eui_amsterdam_color_blind'` - Color-blind safe palette (default, recommended)
-* `'default'` - Standard EUI palette
-* `'kibana_palette'` or `'legacy'` - Legacy Kibana colors
-* `'elastic_brand'` - Elastic brand colors
-* `'gray'` - Grayscale palette
-
-#### ColorAssignment Object (Advanced)
+### ColorAssignment Object
 
 Manual color assignments are an advanced feature. For an introduction and examples, see the [Custom Color Assignments](../advanced/color-assignments.md) guide.
 
-| YAML Key | Data Type | Description | Required |
-| -------- | --------- | ----------- | -------- |
-| `value` | `string` | Single data value to assign this color to. | No* |
-| `values` | `list[str]` | List of data values to assign this color to. | No* |
-| `color` | `string` | Hex color code (e.g., '#FF0000'). | Yes |
-
-\* At least one of `value` or `values` must be provided.
+::: dashboard_compiler.panels.charts.base.config.ColorAssignment
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ### Color Mapping Examples
 

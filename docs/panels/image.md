@@ -44,15 +44,6 @@ That shows what numbers never knew.
       show_root_heading: false
       heading_level: 3
 
-### Fit Options
-
-The `fit` field controls how the image is sized within the panel:
-
-- **`contain`**: (Default) Scales the image to fit within the panel while maintaining its aspect ratio. The entire image will be visible.
-- **`cover`**: Scales the image to fill the panel while maintaining its aspect ratio. Some parts of the image may be cropped to achieve this.
-- **`fill`**: Stretches or compresses the image to fill the panel completely, potentially altering its original aspect ratio.
-- **`none`**: Displays the image at its original size. If the image is larger than the panel, it will be cropped. If smaller, it will sit within the panel, respecting its original dimensions.
-
 ## Related Documentation
 
 - [Base Panel Configuration](./base.md)

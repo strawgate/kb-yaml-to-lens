@@ -391,31 +391,31 @@ primary:
 
 ## Metric Formatting (`format` field within a metric)
 
-Defines how metric values are displayed.
+Defines how metric values are displayed in visualizations.
 
-### Standard Format (`format.type: number` / `bytes` / `bits` / `percent` / `duration`)
+### Standard Format
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| --------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The general type of formatting. | N/A | Yes |
-| `suffix` | `string` | A suffix to append to the value (e.g., "ms", " GB"). | `None` | No |
-| `compact` | `boolean` | If `true`, uses compact notation (e.g., "1K" instead of "1000"). | `None` (false) | No |
-| `pattern` | `string` | A Numeral.js format pattern (used if `type` is `number` or `percent`). | Default for type | No |
+::: dashboard_compiler.panels.charts.lens.metrics.config.LensMetricFormat
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Default Decimal Places (Kibana):**
 
-* `number`: 2
-* `bytes`: 2
-* `bits`: 0
-* `percent`: 2
-* `duration`: 0 (Kibana often uses smart duration formatting like "1m 30s")
+When no `pattern` is specified, Kibana applies these defaults:
 
-### Custom Format (`format.type: custom`)
+* `number`: 2 decimal places
+* `bytes`: 2 decimal places
+* `bits`: 0 decimal places
+* `percent`: 2 decimal places
+* `duration`: 0 decimal places (uses smart duration formatting like "1m 30s")
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| --------- | --------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `type` | `Literal['custom']` | Specifies custom formatting. | `custom` | Yes |
-| `pattern` | `string` | A Numeral.js format pattern. | N/A | Yes |
+### Custom Format
+
+::: dashboard_compiler.panels.charts.lens.metrics.config.LensCustomMetricFormat
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ---
 
