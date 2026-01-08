@@ -132,7 +132,7 @@ class LensPieChart(BasePieChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the pie chart."""
 
-    metrics: list[LensMetricTypes] = Field(min_length=1)
+    metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
     slice_by: list[LensDimensionTypes] = Field(default=...)
@@ -157,7 +157,7 @@ class ESQLPieChart(BasePieChart):
         ```
     """
 
-    metrics: list[ESQLMetricTypes] = Field(min_length=1)
+    metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
     slice_by: list[ESQLDimensionTypes] = Field(default=...)

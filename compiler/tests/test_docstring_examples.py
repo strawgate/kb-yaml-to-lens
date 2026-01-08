@@ -25,7 +25,7 @@ def find_docstring_yaml_examples() -> list[dict[str, str]]:
         # 1. Docstring start: """
         # 2. Examples: section
         # 3. Code block with yaml language marker
-        pattern = r'"""[^"]*Examples:\s*\n(.*?)```yaml\n(.*?)```'
+        pattern = r'""".*?Examples:\s*\n(.*?)```yaml\n(.*?)```'
 
         for match in re.finditer(pattern, content, re.DOTALL):
             yaml_content = match.group(2)
