@@ -114,22 +114,14 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
-    timeField: str
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):
     root: dict[str, KbnTextBasedDataSourceStateLayer] = Field(default_factory=dict)
 
 
-class KbnIndexPatternRef(BaseVwModel):
-    id: str
-    title: str
-    timeField: str
-
-
 class KbnTextBasedDataSourceState(BaseVwModel):
     layers: KbnTextBasedDataSourceStateLayerById | None = Field(default=None)
-    indexPatternRefs: Annotated[list[KbnIndexPatternRef] | None, OmitIfNone()] = None
 
 
 # endregion Text Data Source

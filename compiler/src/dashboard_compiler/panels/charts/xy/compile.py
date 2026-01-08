@@ -4,7 +4,7 @@ from typing import Literal
 
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.base.config import LegendVisibleEnum
-from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
+from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metrics
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
@@ -547,7 +547,7 @@ def compile_esql_xy_chart(
     """
     layer_id = get_layer_id(esql_xy_chart)
 
-    metrics = [compile_esql_metric(esql_xy_chart.metrics[0])]  # For now just handle first metric
+    metrics = compile_esql_metrics(esql_xy_chart.metrics)
     metric_ids = [metric.columnId for metric in metrics]
 
     dimensions = []

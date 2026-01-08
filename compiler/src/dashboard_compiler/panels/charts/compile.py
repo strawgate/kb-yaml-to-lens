@@ -226,13 +226,10 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
-        timeField=panel.esql.time_field,
     )
 
     datasource_states = KbnDataSourceState(
-        textBased=KbnTextBasedDataSourceState(
-            layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id),
-        )
+        textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id))
     )
 
     panel_state = KbnLensPanelState(
