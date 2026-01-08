@@ -8,7 +8,7 @@ on:
       - docs/**
       - mkdocs.yml
       - compiler/src/**
-      - github/workflows/deploy-gh-pages.yml
+      - .github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
 permissions:
   contents: read
