@@ -20,6 +20,7 @@ class LensStaticValue(BaseMetric):
 
     Used to display a fixed numeric value rather than aggregating from data.
     Commonly used for gauge min/max/goal values or reference lines.
+
     """
 
     value: int | float = Field(...)
@@ -85,6 +86,7 @@ class LensCountAggregatedMetric(BaseLensMetric):
     """Represents a count metric configuration within a Lens chart.
 
     Count metrics are used to count the number of documents in a data view.
+
     """
 
     aggregation: Literal['count', 'unique_count'] = 'count'
@@ -100,6 +102,7 @@ class LensSumAggregatedMetric(BaseLensMetric):
     """Represents a sum metric configuration within a Lens chart.
 
     Sum metrics are used to sum the values of a field.
+
     """
 
     aggregation: Literal['sum'] = 'sum'
@@ -123,6 +126,7 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
     """Represents a last value metric configuration within a Lens chart.
 
     Last value metrics are used to retrieve the most recent value of a field based on a specified sort order.
+
     """
 
     aggregation: Literal['last_value'] = 'last_value'
@@ -140,6 +144,7 @@ class LensPercentileRankAggregatedMetric(BaseLensMetric):
     """Represents a percentile rank metric configuration within a Lens chart.
 
     Percentile rank metrics are used to determine the rank of a value in a data set.
+
     """
 
     aggregation: Literal['percentile_rank'] = 'percentile_rank'
@@ -153,6 +158,7 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
     """Represents a percentile metric configuration within a Lens chart.
 
     Percentile metrics are used to determine the value at a specific percentile in a data set.
+
     """
 
     aggregation: Literal['percentile'] = 'percentile'
@@ -173,6 +179,7 @@ class LensFormulaMetric(BaseLensMetric):
     - Simple arithmetic: "count() / 100"
     - Field aggregations: "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
     - With filters: "count(kql='status:error') / count() * 100"
+
     """
 
     formula: str = Field(...)

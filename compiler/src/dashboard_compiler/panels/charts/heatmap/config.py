@@ -15,6 +15,7 @@ class HeatmapGridConfig(BaseCfgModel):
     """Grid configuration for heatmap visualizations.
 
     Controls the visibility of cell labels, axis labels, and axis titles.
+
     """
 
     is_cell_label_visible: bool | None = Field(default=None)
@@ -37,6 +38,7 @@ class HeatmapLegendConfig(BaseCfgModel):
     """Legend configuration for heatmap visualizations.
 
     Controls the visibility and position of the color legend.
+
     """
 
     is_visible: bool | None = Field(default=None)

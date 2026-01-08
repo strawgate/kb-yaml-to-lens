@@ -19,6 +19,7 @@ class ESQLMetricFormat(BaseCfgModel):
 
     Supports standard format types like number, bytes, bits, percent, and duration.
     This is separate from LensMetricFormat as ES|QL and Lens formatting may diverge in the future.
+
     """
 
     type: Literal['number', 'bytes', 'bits', 'percent', 'duration']
@@ -41,6 +42,7 @@ class ESQLCustomMetricFormat(BaseCfgModel):
 
     Allows specifying a custom number format pattern.
     This is separate from LensCustomMetricFormat as ES|QL and Lens formatting may diverge in the future.
+
     """
 
     type: Literal['custom'] = 'custom'
@@ -84,6 +86,7 @@ class ESQLStaticValue(BaseESQLColumn):
 
     Used to display a fixed numeric value rather than querying from data.
     Commonly used for gauge min/max/goal values or reference lines.
+
     """
 
     value: int | float = Field(...)

@@ -15,6 +15,7 @@ class KqlQuery(BaseCfgModel):
     """Represents a KQL (Kibana Query Language) query configuration.
 
     KQL is the default query language in Kibana and provides a simplified syntax for filtering data.
+
     """
 
     kql: str = Field(...)
@@ -25,6 +26,7 @@ class LuceneQuery(BaseCfgModel):
     """Represents a Lucene query configuration.
 
     Lucene provides a more powerful and flexible, but less friendly, syntax for querying data compared to KQL.
+
     """
 
     lucene: str = Field(...)

@@ -12,6 +12,7 @@ class BaseLink(BaseCfgModel):
     """Base class for defining link objects within a Links panel.
 
     Specific link types (e.g., DashboardLink, UrlLink) inherit from this base class.
+
     """
 
     id: str | None = Field(default=None)

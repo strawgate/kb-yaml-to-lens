@@ -58,6 +58,7 @@ class Size(BaseCfgModel):
 
     Determines the width and height of a panel on the dashboard grid.
     Width accepts semantic values ('whole', 'half', etc.) or integers.
+
     """
 
     w: int | SemanticWidth = Field(
@@ -92,6 +93,7 @@ class Position(BaseCfgModel):
 
     Determines the x/y coordinates of a panel on the dashboard grid.
     If not specified, the panel will be auto-positioned.
+
     """
 
     x: int | None = Field(default=None, ge=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('x', 'from_left'))
@@ -105,6 +107,7 @@ class Grid(BaseCfgModel):
     """Represents the grid layout configuration for a panel.
 
     This determines the panel's position and size on the dashboard grid.
+
     """
 
     x: int = Field(..., ge=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('x', 'from_left'))

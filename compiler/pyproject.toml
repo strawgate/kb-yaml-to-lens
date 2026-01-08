@@ -112,6 +112,7 @@ ignore = [
     "D203",    # incorrect-blank-line-before-class
     "D213",    # multi-line-summary-second-line
     "D413",    # multi-line-summary-second-line
+    "D414",    # Section has no content - used for griffe-fieldz Attributes sections
     "D100",    # Ignore missing docstrings for modules
     "A002",    # Allow shadowing builtin names (e.g., 'filter')
     "ANN401",  # We use Pyright for Any checking

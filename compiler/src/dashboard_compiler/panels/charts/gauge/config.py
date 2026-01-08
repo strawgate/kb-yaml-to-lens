@@ -15,6 +15,7 @@ class GaugeAppearance(BaseCfgModel):
 
     Groups all visual styling options for gauge charts including shape, tick positioning,
     labels, and color mode.
+
     """
 
     shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)

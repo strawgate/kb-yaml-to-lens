@@ -95,6 +95,7 @@ class AxisExtent(BaseCfgModel):
     - 'full': Use the full extent of the data
     - 'custom': Specify custom bounds with min/max values
     - 'data_bounds': Fit to the actual data bounds
+
     """
 
     mode: Literal['full', 'custom', 'data_bounds'] = Field(default='full')
@@ -142,6 +143,7 @@ class BaseXYChartAppearance(BaseCfgModel):
 
     Includes axis configuration for left Y-axis, right Y-axis, and X-axis,
     as well as per-series visual styling. Not intended to be used directly by users.
+
     """
 
     x_axis: AxisConfig | None = Field(default=None)
@@ -161,6 +163,7 @@ class BarChartAppearance(BaseXYChartAppearance):
     """Represents bar chart appearance formatting options.
 
     Extends BaseXYChartAppearance to include bar-specific options.
+
     """
 
     min_bar_height: float | None = Field(default=None, description='The minimum height for bars in bar charts.')
@@ -170,6 +173,7 @@ class LineChartAppearance(BaseXYChartAppearance):
     """Represents line chart appearance formatting options.
 
     Extends BaseXYChartAppearance to include line-specific options.
+
     """
 
     missing_values: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
@@ -208,6 +212,7 @@ class XYSeries(BaseCfgModel):
 
     Defines how a specific metric should be displayed, including axis assignment
     and color customization.
+
     """
 
     metric_id: str = Field(...)

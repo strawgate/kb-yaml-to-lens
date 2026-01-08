@@ -57,6 +57,7 @@ class DatatableColumnConfig(BaseCfgModel):
     """Configuration for a single datatable column.
 
     The column_id must reference the ID of a metric or row column.
+
     """
 
     column_id: str = Field(...)
@@ -79,6 +80,7 @@ class DatatableMetricColumnConfig(DatatableColumnConfig):
     """Configuration for a metric column in a datatable.
 
     Extends DatatableColumnConfig with metric-specific options like summary rows.
+
     """
 
     summary_row: DatatableSummaryRowEnum | None = Field(default=None, strict=False)

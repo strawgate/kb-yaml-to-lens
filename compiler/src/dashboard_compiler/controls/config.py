@@ -45,6 +45,7 @@ class BaseControl(BaseCfgModel):
 
     These controls are used to filter data or adjust visualization settings
     on a dashboard.
+
     """
 
     id: str | None = Field(default=None)
@@ -75,6 +76,7 @@ class OptionsListControl(BaseControl):
 
     This control allows users to select one or more values from a list
     to filter data.
+
     """
 
     type: Literal['options'] = 'options'
@@ -106,6 +108,7 @@ class RangeSliderControl(BaseControl):
 
     This control allows users to select a range of numeric or date values
     to filter data.
+
     """
 
     type: Literal['range'] = 'range'
@@ -128,6 +131,7 @@ class TimeSliderControl(BaseControl):
 
     This control allows users to select a time range to filter data
     by adjusting start and end offsets within the global time range.
+
     """
 
     type: Literal['time'] = 'time'
@@ -153,6 +157,7 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
     This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
+
     """
 
     type: Literal['esql'] = 'esql'
@@ -186,6 +191,7 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
     This control allows users to select multiple values from a predefined list
     to filter ES|QL visualizations via variables.
+
     """
 
     type: Literal['esql'] = 'esql'
@@ -221,6 +227,7 @@ class ESQLQueryControl(BaseControl):
 
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
+
     """
 
     type: Literal['esql'] = 'esql'

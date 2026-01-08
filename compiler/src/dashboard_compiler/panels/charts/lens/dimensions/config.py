@@ -50,6 +50,7 @@ class LensFiltersDimension(BaseLensDimension):
     """Represents a filters dimension configuration within a Lens chart.
 
     Filters dimensions are used for filtering data based on a field.
+
     """
 
     type: Literal['filters'] = 'filters'
@@ -78,6 +79,7 @@ class LensIntervalsDimension(BaseLensDimension):
     """Represents an intervals dimension configuration within a Lens chart.
 
     Intervals dimensions are used for aggregating data based on numeric ranges.
+
     """
 
     type: Literal['intervals'] = 'intervals'
@@ -103,6 +105,7 @@ class LensTopValuesDimension(BaseLensDimension):
     """Represents a top values dimension configuration within a Lens chart.
 
     Top values dimensions are used for aggregating data based on unique values of a field.
+
     """
 
     type: Literal['values'] = 'values'
@@ -142,6 +145,7 @@ class LensDateHistogramDimension(BaseLensDimension):
     """Represents a histogram dimension configuration within a Lens chart.
 
     Date histogram dimensions are used for aggregating data into buckets based on numeric ranges.
+
     """
 
     type: Literal['date_histogram'] = 'date_histogram'

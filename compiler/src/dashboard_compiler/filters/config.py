@@ -100,6 +100,7 @@ class ExistsFilter(BaseFilter):
     """Represents an 'exists' filter configuration in the Config schema.
 
     This filter checks for the existence or non-existence of a specific field.
+
     """
 
     exists: str = Field(...)
@@ -110,6 +111,7 @@ class CustomFilter(BaseFilter):
     """Represents a custom filter configuration in the Config schema.
 
     This filter allows for custom query definitions that do not fit into the standard filters.
+
     """
 
     dsl: dict[str, Any] = Field(...)
@@ -120,6 +122,7 @@ class PhraseFilter(BaseFilter):
     """Represents a 'phrase' filter configuration in the Config schema.
 
     This filter matches documents where a specific field contains an exact phrase.
+
     """
 
     field: str = Field(...)
@@ -134,6 +137,7 @@ class PhrasesFilter(BaseFilter):
 
     This filter matches documents where a specific field contains one or more
     of the specified phrases.
+
     """
 
     field: str = Field(...)
@@ -147,6 +151,7 @@ class RangeFilter(BaseFilter):
     """Represents a 'range' filter configuration in the Config schema.
 
     This filter matches documents where a numeric or date field falls within a specified range.
+
     """
 
     field: str = Field(...)
@@ -182,6 +187,7 @@ class NegateFilter(BaseCfgModel):
     rather than BaseFilter, so it does not support 'alias' or 'disabled' fields.
     This is intentional - negation is a logical modifier that wraps another filter,
     and aliasing/disabling should be applied to the wrapped filter itself.
+
     """
 
     not_filter: 'FilterTypes' = Field(..., validation_alias='not')
@@ -192,6 +198,7 @@ class AndFilter(BaseFilter):
     """Represents an 'and' filter configuration in the Config schema.
 
     This filter matches documents that satisfy all of the specified filters.
+
     """
 
     and_filters: list['FilterTypes'] = Field(..., alias='and')
@@ -202,6 +209,7 @@ class OrFilter(BaseFilter):
     """Represents an 'or' filter configuration in the Config schema.
 
     This filter matches documents that satisfy at least one of the specified filters.
+
     """
 
     or_filters: list['FilterTypes'] = Field(..., alias='or')
