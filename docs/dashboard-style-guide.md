@@ -2,7 +2,7 @@
 
 **Based on:** Analysis of Elastic Integrations repository dashboards
 **Last Updated:** 2026-01-08
-**Version:** 1.0
+**Version:** 1.1
 
 ---
 
@@ -32,7 +32,7 @@ This style guide documents best practices for designing Kibana dashboards, based
 
 All dashboards should follow this top-to-bottom structure:
 
-```
+```text
 1. Context Layer    - Navigation, title, description
 2. Control Layer    - Interactive filters (when needed)
 3. Summary Layer    - Key metrics and KPIs
@@ -41,7 +41,8 @@ All dashboards should follow this top-to-bottom structure:
 ```
 
 **Example Flow:**
-```
+
+```text
 [Navigation Links - Markdown Panel]
 [Control: Filter by Host] [Control: Filter by Event Type]
 [Metric: Total Events] [Metric: Success Rate]
@@ -54,7 +55,7 @@ All dashboards should follow this top-to-bottom structure:
 Kibana uses a 48-column grid. Standard panel widths:
 
 | Panel Type | Width (columns) | Use Case |
-|-----------|----------------|----------|
+| ---------- | --------------- | -------- |
 | Full-width markdown | 48 | Navigation, section headers |
 | Single metric card | 8-12 | Individual KPIs |
 | Small chart | 12-16 | Pie/donut charts |
@@ -73,12 +74,14 @@ Kibana uses a 48-column grid. Standard panel widths:
 **Format:** `[Category PackageName] Specific Focus`
 
 **Examples:**
+
 - `[Logs IIS] Access and error logs`
 - `[Metrics Golang] Heap`
 - `[Auditd Manager] Sockets`
 - `[Logs Cisco Secure Email Gateway] AMP Engine`
 
 **Category Prefixes:**
+
 - `[Logs ...]` - Log analysis dashboards
 - `[Metrics ...]` - Performance/metric dashboards
 - `[Traces ...]` - APM trace dashboards
@@ -87,17 +90,20 @@ Kibana uses a 48-column grid. Standard panel widths:
 ### Panel Titles
 
 **Guidelines:**
+
 - Be concise and descriptive
 - Avoid redundant prefixes like "Chart of" or "Graph of"
 - Include the dimension when relevant (e.g., "by Time", "by Category")
 
 **Good Examples:**
+
 - "Socket Syscalls Time Series"
 - "Top 10 Malware Threats"
 - "Browsers Breakdown"
 - "Response Codes Over Time"
 
 **Avoid:**
+
 - "Chart showing socket syscalls over time"
 - "A graph of the top 10 malware threats"
 - "Browser distribution pie chart"
@@ -110,7 +116,7 @@ Kibana uses a 48-column grid. Standard panel widths:
 
 Use this guide to select the appropriate visualization type:
 
-```
+```text
 What are you visualizing?
 │
 ├─ Single KPI/Count
@@ -139,6 +145,18 @@ What are you visualizing?
 │     └─ Use: Line Chart
 │        Example: Memory usage, CPU utilization
 │
+├─ Hierarchical Categorical Data (proportions with hierarchy)
+│  └─ Use: Treemap
+│     Example: Event categories with subcategories, protocol types
+│
+├─ Bounded Metrics (0-100% range, current state)
+│  └─ Use: Gauge Chart
+│     Example: Memory usage %, disk capacity %, pool utilization
+│
+├─ Performance Percentiles Over Time
+│  └─ Use: Heatmap
+│     Example: 95th percentile latency, request duration distribution
+│
 ├─ Top N with Details
 │  └─ Use: Data Table
 │     Example: Top 10 threats, top users with counts
@@ -157,16 +175,19 @@ What are you visualizing?
 #### Metric Cards
 
 **When to Use:**
+
 - High-level KPIs at the top of the dashboard
 - Single counts or aggregated values
 - Status breakdowns (success/failure counts)
 
 **Patterns:**
+
 - Group related metrics in a horizontal row
 - Use sparingly (0-6 per dashboard)
 - Position before detailed visualizations
 
 **Example Configuration:**
+
 ```yaml
 - title: Total Requests
   grid: {x: 0, y: 3, w: 12, h: 8}
@@ -180,23 +201,27 @@ What are you visualizing?
 #### Pie and Donut Charts
 
 **When to Use:**
+
 - Showing proportional distribution of categories
 - Comparing parts of a whole
 - "Top N" categorical breakdowns
 
 **Best Practices:**
+
 - Show top 5-10 categories (not all categories)
 - Display as percentages
 - Use donut over pie for cleaner appearance
 - Width: 12-16 columns
 
 **Common Use Cases:**
+
 - File type distribution
 - Browser/OS breakdown
 - Protocol distribution
 - Event category proportions
 
 **Example Configuration:**
+
 ```yaml
 - title: File Type Distribution
   grid: {x: 0, y: 15, w: 16, h: 15}
@@ -216,70 +241,78 @@ What are you visualizing?
 **Chart Type Selection:**
 
 **Area Charts** (Most Common):
+
 - Use for: Event frequency over time, volume trends
 - Stacking: Show categorical breakdown while maintaining total volume
 - Visual weight: Filled area indicates volume
 
 **Line Charts**:
+
 - Use for: Precise metric tracking, performance monitoring
 - Best for: Memory usage, CPU metrics, latency
 - Dual-axis: Compare different metric scales
 
 **Bar Charts**:
+
 - Use for: Discrete time-bucketed events
 - Stacking: Show status code or category distribution
 - Best for: HTTP responses, error counts
 
 **Best Practices:**
+
 - Use automatic time interval binning (most common)
 - Add legends on the right side
 - Stack when showing categorical breakdowns
 - Use 30-day moving averages for smoothing trends (performance dashboards)
 
 **Example Configuration:**
+
 ```yaml
 - title: Events Over Time by Category
   grid: {x: 0, y: 30, w: 48, h: 15}
   lens:
     type: area
     data_view: logs-*
-    dimensions:
-      - field: '@timestamp'
-        type: date_histogram
+    dimension:
+      field: '@timestamp'
+      type: date_histogram
     breakdown:
-      - field: event.category
-        type: values
-        size: 10
+      field: event.category
+      type: values
+      size: 10
     metrics:
       - aggregation: count
-    display:
-      stacked: true
+    mode: stacked
 ```
 
 #### Data Tables
 
 **When to Use:**
+
 - Detail drill-down at the bottom of dashboards
 - "Top N" lists with multiple dimensions
 - Searchable log/event details
 
 **Best Practices:**
+
 - Always position at the bottom (100% consistency)
 - Use 10 rows per page (standard pagination)
 - Sort by count descending for "Top N" tables
 - Include 3-6 columns for summaries, 5-10+ for comprehensive logs
 
 **Column Layout:**
+
 - Count/frequency column (first or last)
 - Primary dimension (what happened)
 - Secondary dimensions (who, where, when)
 
 **Example Configuration:**
+
 ```yaml
 - title: Top 10 Users by Failed Login
   grid: {x: 0, y: 60, w: 48, h: 15}
   lens:
-    type: table
+    type: datatable
     data_view: logs-*
     dimensions:
       - field: user.name
@@ -295,29 +328,163 @@ What are you visualizing?
 **Orientation Guidelines:**
 
 **Horizontal Bars:**
+
 - Use when: Labels are long (URLs, usernames, regions)
 - Benefit: Better readability for text-heavy categories
 - Example: Top users, top URLs
+- Also use for: Percentile distributions (1st, 5th, 25th, 50th, 75th, 95th, 99th)
 
 **Vertical Bars:**
+
 - Use when: Short category labels
 - Use for: Standard category comparisons
 - Stacking more common with vertical orientation
 
+**Note:** Horizontal bars serve two distinct purposes:
+
+1. **Categorical ranking** - Comparing named categories by volume
+2. **Percentile distributions** - Showing statistical distribution of a performance metric
+
 #### Maps
 
 **When to Use:**
+
 - Geographic distribution is relevant for analysis
 - Security context (network sources)
 - Global access patterns
 
 **Required Fields:**
+
 - `source.geo.location` or similar geo field
 - Access/event volume for sizing
 
 **Best Practices:**
+
 - Use color and size scaling based on volume
 - Position in middle section (not top or bottom)
+
+#### Treemap Charts
+
+**When to Use:**
+
+- Hierarchical categorical data with proportional relationships
+- Event categories with subcategories
+- Protocol types with subtypes
+- Alternative to pie/donut when hierarchy matters
+
+**Best Practices:**
+
+- Show hierarchical structure (parent categories containing child categories)
+- Display proportions at each level
+- Use when data has natural hierarchical groupings
+- Particularly effective for network/security dashboards
+
+**Common Use Cases:**
+
+- Firewall event categories and subcategories
+- Network protocol distribution by type
+- File system hierarchies with size information
+- Multi-level security event classification
+
+**Example Configuration:**
+
+```yaml
+- title: Event Category Breakdown
+  grid: {x: 0, y: 15, w: 24, h: 15}
+  lens:
+    type: treemap
+    data_view: logs-*
+    dimensions:
+      - field: event.category
+        type: values
+      - field: event.subcategory
+        type: values
+    metrics:
+      - aggregation: count
+```
+
+#### Heatmap Charts
+
+**When to Use:**
+
+- Performance analysis over time dimensions
+- Percentile tracking across multiple dimensions
+- Multi-dimensional correlation analysis
+- Latency distribution patterns
+
+**Best Practices:**
+
+- Use for 95th/99th percentile analysis over time
+- Show request/response size distributions
+- Combine time dimension with categorical dimension
+- Apply to performance monitoring dashboards
+
+**Common Use Cases:**
+
+- Request duration percentiles by endpoint over time
+- Response size distribution by service
+- Query performance across database tables
+- API latency patterns by region
+
+**Example Configuration:**
+
+```yaml
+- title: 95th Percentile Response Time
+  grid: {x: 0, y: 30, w: 48, h: 15}
+  lens:
+    type: heatmap
+    data_view: metrics-*
+    dimensions:
+      - field: '@timestamp'
+        type: date_histogram
+      - field: service.name
+        type: values
+    metrics:
+      - field: http.response.duration
+        aggregation: percentile
+        percentile: 95
+```
+
+#### Gauge Charts
+
+**When to Use:**
+
+- Current state of bounded metrics (0-100%)
+- Utilization percentages
+- Capacity indicators
+- Real-time status visualization
+
+**Best Practices:**
+
+- Use for metrics with clear minimum and maximum bounds
+- Display current value with visual arc indicator
+- Position with other metrics in summary layer
+- Limit to 3-6 gauges per dashboard
+
+**Common Use Cases:**
+
+- Memory usage percentage
+- Disk capacity utilization
+- Connection pool usage
+- Cache hit rate
+- Thread pool utilization
+
+**Example Configuration:**
+
+```yaml
+- title: Memory Usage
+  grid: {x: 0, y: 3, w: 12, h: 8}
+  lens:
+    type: gauge
+    data_view: metrics-*
+    metrics:
+      - field: system.memory.used.pct
+        aggregation: average
+    display:
+      min: 0
+      max: 100
+      format: percent
+```
 
 ---
 
@@ -329,11 +496,19 @@ What are you visualizing?
 
 **Positioning:** Always at the top
 
+**When to Use:**
+
+- **Standard for multi-dashboard packages** - Packages with 3+ dashboards should include navigation
+- Position at top-left (x: 0, y: 0)
+- Typical width: 10-18 columns for navigation, 48 columns for section headers
+
 **Content Types:**
 
-1. **Navigation Links**
+1. **Navigation Links** (Most Common)
    - Links to related dashboards in the package
    - Table of contents for multi-dashboard sets
+   - Header: "Navigation" or "Table of Contents"
+   - Bulleted list of dashboard links
 
 2. **Section Headers**
    - Visual separation between dashboard areas
@@ -343,6 +518,7 @@ What are you visualizing?
    - Brief explanations when title isn't self-explanatory
 
 **Example:**
+
 ```yaml
 - markdown:
     content: |
@@ -351,17 +527,22 @@ What are you visualizing?
       Related Dashboards:
       - [Overview Dashboard](#/dashboard/overview-id)
       - [Detailed Analysis](#/dashboard/detail-id)
-  grid: {x: 0, y: 0, w: 48, h: 3}
+      - [Performance Metrics](#/dashboard/metrics-id)
+  grid: {x: 0, y: 0, w: 12, h: 3}
 ```
+
+**Best Practice:** Single-purpose dashboards may omit navigation, but multi-dashboard packages should consistently provide navigation links for discoverability.
 
 ### Control Filters
 
 **When to Use:**
+
 - Multi-tenant scenarios
 - Multi-system dashboards
 - Need for dimensional filtering across all panels
 
 **When NOT to Use:**
+
 - Single-source dashboards
 - Pre-filtered dashboards with specific scope
 
@@ -377,12 +558,14 @@ What are you visualizing?
    - Numeric value filters
 
 **Best Practices:**
+
 - Position at the top, immediately after navigation
 - Use 2-4 controls (not too many)
 - Support hierarchical selections
 - Enable exclusion when relevant
 
 **Example:**
+
 ```yaml
 controls:
   - type: options
@@ -408,13 +591,15 @@ controls:
 **Standard Pattern:** Filter by dataset
 
 **Best Practice:**
+
 ```yaml
 filters:
-  - field: data_stream.dataset
-    value: package.dataset_name
+  - equals: package.dataset_name
+    field: data_stream.dataset
 ```
 
 **Multiple Datasets:**
+
 ```yaml
 filters:
   - query: "data_stream.dataset: (iis.access OR iis.error)"
@@ -423,17 +608,19 @@ filters:
 ### Panel-Level Filters
 
 **Common Patterns:**
+
 - Event type/category filters
 - Status code filters
 - Field existence checks
 
 **Example:**
+
 ```yaml
 filters:
-  - field: event.type
-    value: connection
-  - field: auditd.data.syscall
-    value: bind
+  - equals: connection
+    field: event.type
+  - equals: bind
+    field: auditd.data.syscall
   - query: "NOT auditd.data.addr: netlink"
 ```
 
@@ -450,6 +637,7 @@ filters:
 **Best Practice:** Use Kibana's default color palette
 
 **Avoid:**
+
 - Custom color overrides (use sparingly)
 - Too many colors (limit to 5-10 categories)
 
@@ -462,7 +650,7 @@ filters:
 ### Number Formatting
 
 | Data Type | Format | Example |
-|-----------|--------|---------|
+| --------- | ------ | ------- |
 | Bytes | 2 decimal precision | 1.23 GB |
 | Counts | Integer | 1,234 |
 | Percentages | Display on pie/donut | 45.2% |
@@ -475,13 +663,15 @@ filters:
 ### Security Dashboards
 
 **Characteristics:**
+
 - Heavy use of categorical breakdowns (pie/donut charts)
 - Focus on "Top N" patterns (threats, users, actions)
 - Data tables for audit trails
 - Control filters for multi-tenant scenarios
 
 **Example Layout:**
-```
+
+```text
 [Navigation]
 [Controls: By Host, By Event Type]
 [Chart: Events Over Time] [Pie: Event Categories]
@@ -492,13 +682,15 @@ filters:
 ### Performance Dashboards
 
 **Characteristics:**
+
 - Exclusive use of line charts for precision
 - Dual-axis comparisons
 - Moving averages for smoothing
 - No pie charts (metrics don't have categorical proportions)
 
 **Example Layout:**
-```
+
+```text
 [Navigation]
 [Control: By Service]
 [Chart: CPU Over Time] [Chart: Memory Over Time]
@@ -509,13 +701,15 @@ filters:
 ### Infrastructure Dashboards
 
 **Characteristics:**
+
 - Mix of metrics, time series, and categorical breakdowns
 - Geographic maps when relevant
 - Browser/OS distribution analysis
 - Error rate and status code tracking
 
 **Example Layout:**
-```
+
+```text
 [Navigation]
 [Metrics: Total Requests, Avg Response Time, Error Rate]
 [Map: Geographic Access Distribution]
@@ -524,6 +718,106 @@ filters:
 [Table: Top URLs by Response Code]
 ```
 
+### Dashboard Complexity Spectrum
+
+Understanding the appropriate complexity level helps maintain dashboard clarity and usability.
+
+#### Simple Dashboards (3-6 panels)
+
+**Characteristics:**
+
+- Single-purpose monitoring
+- 1-2 visualization types
+- Minimal or no controls
+- Focused on one specific aspect
+
+**When to Use:**
+
+- Specialized performance tracking (e.g., memory heap analysis)
+- Single-service monitoring
+- Focused security audit views
+
+**Example Packages:**
+
+- CoreDNS Overview (4 panels: metrics + bar + area)
+- Entro Security Audit (3 panels: metrics + table)
+- Golang Heap (6 panels: all line charts for heap metrics)
+
+**Panel Mix:**
+
+- 0-2 metric cards
+- 2-4 charts
+- 0-1 tables
+
+---
+
+#### Standard Dashboards (7-12 panels)
+
+**Characteristics:**
+
+- Multi-perspective monitoring
+- 3-4 visualization types
+- Optional controls for filtering
+- Balanced overview and detail
+
+**When to Use:**
+
+- General-purpose monitoring
+- Package overview dashboards
+- Balanced security/performance analysis
+
+**Example Packages:**
+
+- ActiveMQ Broker (6 panels: area charts + gauges)
+- Mattermost Audit (9 panels: markdown + metrics + line + bar + table)
+- Okta Overview (5 panels: map + pie + line + table)
+
+**Panel Mix:**
+
+- 2-4 metric cards
+- 4-6 charts
+- 1-2 tables
+- 0-1 markdown navigation
+
+---
+
+#### Complex Dashboards (13+ panels)
+
+**Characteristics:**
+
+- Comprehensive monitoring
+- 5-6 visualization types
+- Multiple control filters
+- Deep drill-down capabilities
+
+**When to Use:**
+
+- Enterprise-wide monitoring
+- Multi-dimensional analysis requirements
+- Central security operation centers
+- Complex service architectures
+
+**Example Packages:**
+
+- Elastic Package Registry (14 panels: line + heatmap + pie + donut + table + controls)
+- Fortinet FortiGate (16 panels: treemap + line + map + bar)
+- WatchGuard Firebox (13 panels: markdown + metrics + line + pie + table)
+
+**Panel Mix:**
+
+- 3-6 metric cards
+- 7-12 charts (varied types)
+- 2-4 tables
+- 1-2 markdown sections
+- 2-4 control filters
+
+**Design Considerations:**
+
+- Use markdown sections to visually separate dashboard areas
+- Group related visualizations together
+- Ensure vertical flow remains logical despite increased complexity
+- Consider breaking into multiple dashboards if exceeding 20 panels
+
 ---
 
 ## Time Configuration
@@ -531,6 +825,7 @@ filters:
 ### Time Range
 
 **Default Ranges:**
+
 - Infrastructure monitoring: 15 minutes
 - Security dashboards: User-selected (flexible)
 - Performance monitoring: 1 hour to 24 hours
@@ -542,6 +837,7 @@ filters:
 **Standard:** Enable cursor synchronization across time-series panels
 
 **Configuration:**
+
 ```yaml
 sync_cursor: true
 sync_tooltips: false
@@ -554,6 +850,7 @@ sync_tooltips: false
 ### Panel Sizing
 
 **Minimum Heights:**
+
 - Metric cards: 8 grid units
 - Charts: 12-15 grid units
 - Tables: 15-20 grid units (allow for pagination)
@@ -561,6 +858,7 @@ sync_tooltips: false
 ### Panel Ordering
 
 **Vertical Flow Best Practices:**
+
 1. Navigation and context (top)
 2. Controls (immediately after navigation)
 3. Key metrics (before detailed charts)
@@ -570,6 +868,7 @@ sync_tooltips: false
 ### Responsive Considerations
 
 **Best Practices:**
+
 - Avoid panels narrower than 12 columns
 - Test dashboard at different screen sizes
 - Ensure tables have horizontal scroll when needed
@@ -608,9 +907,9 @@ dashboards:
         lens:
           type: area
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - aggregation: count
 
@@ -631,7 +930,7 @@ dashboards:
       - title: Recent Events
         grid: {x: 0, y: 41, w: 48, h: 15}
         lens:
-          type: table
+          type: datatable
           data_view: logs-*
           dimensions:
             - field: '@timestamp'
@@ -644,8 +943,8 @@ dashboards:
             - aggregation: count
 
     filters:
-      - field: data_stream.dataset
-        value: package.dataset_name
+      - equals: package.dataset_name
+        field: data_stream.dataset
 ```
 
 ### Security Dashboard Template
@@ -681,16 +980,15 @@ dashboards:
         lens:
           type: area
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
-            - field: event.severity
-              type: values
+            field: event.severity
+            type: values
           metrics:
             - aggregation: count
-          display:
-            stacked: true
+          mode: stacked
 
       - title: Top 10 Threat Types
         grid: {x: 0, y: 18, w: 24, h: 15}
@@ -719,7 +1017,7 @@ dashboards:
       - title: Detailed Security Events
         grid: {x: 0, y: 33, w: 48, h: 20}
         lens:
-          type: table
+          type: datatable
           data_view: logs-*
           dimensions:
             - field: '@timestamp'
@@ -757,9 +1055,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - field: system.cpu.total.norm.pct
               aggregation: average
@@ -770,23 +1068,24 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - field: system.memory.used.bytes
               aggregation: average
               label: Memory Used
-              format: bytes
+              format:
+                type: bytes
 
       - title: Garbage Collection Activity
         grid: {x: 0, y: 18, w: 48, h: 15}
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - field: golang.heap.gc.next_gc_limit
               aggregation: average
@@ -803,6 +1102,7 @@ dashboards:
 Use this checklist when creating or reviewing dashboards:
 
 ### Structure
+
 - [ ] Title follows `[Category Package] Focus` format
 - [ ] Description added when title needs context
 - [ ] Panels follow top-to-bottom hierarchy (context → control → summary → analysis → detail)
@@ -810,37 +1110,46 @@ Use this checklist when creating or reviewing dashboards:
 - [ ] Data tables positioned at bottom
 
 ### Visualizations
+
 - [ ] Visualization types match data characteristics (not aesthetic preference)
 - [ ] Area charts used for time-series event counts
 - [ ] Line charts used for precise metrics
 - [ ] Pie/donut charts used for categorical proportions
+- [ ] Treemap charts used for hierarchical categorical data
+- [ ] Heatmap charts used for performance percentiles over time
+- [ ] Gauge charts used for bounded metrics (0-100%)
 - [ ] Data tables used for drill-down details
 - [ ] Metric cards used sparingly (0-6 per dashboard)
 
 ### Naming
+
 - [ ] Panel titles are concise and descriptive
 - [ ] No redundant prefixes ("Chart of", "Graph of")
 - [ ] Field labels are human-readable
 
 ### Layout
+
 - [ ] Panels use standard widths (12, 16, 24, or 48 columns)
 - [ ] Related visualizations grouped together
 - [ ] No panels narrower than 12 columns
 - [ ] Charts have appropriate heights (12-15 grid units minimum)
 
 ### Filters and Controls
+
 - [ ] Global filter for `data_stream.dataset`
 - [ ] Controls used only when needed (multi-tenant/multi-system)
 - [ ] Panel-level filters are specific and purposeful
 - [ ] KQL syntax used consistently
 
 ### Accessibility
+
 - [ ] Legend positioning doesn't obscure data
 - [ ] Number formatting appropriate for data type
 - [ ] Time range configured appropriately
 - [ ] Cursor synchronization enabled for time-series
 
 ### Testing
+
 - [ ] Dashboard tested at different time ranges
 - [ ] All filters work correctly
 - [ ] Tables paginate properly (10 rows default)
@@ -858,8 +1167,8 @@ Use this checklist when creating or reviewing dashboards:
 ❌ **Wrong:** Too many metric cards (10+)
 ✅ **Right:** Use 0-6 metric cards, focus on visualizations
 
-❌ **Wrong:** No navigation for multi-dashboard packages
-✅ **Right:** Add markdown panel with links to related dashboards
+❌ **Wrong:** No navigation for multi-dashboard packages (3+ dashboards)
+✅ **Right:** Add markdown panel with navigation links at top (standard practice)
 
 ### Visualization Choices
 
@@ -893,15 +1202,18 @@ Use this checklist when creating or reviewing dashboards:
 ## Additional Resources
 
 ### Related Documentation
+
 - [Dashboard Decompiling Guide](dashboard-decompiling-guide.md) - Converting Kibana JSON to YAML
 - [Panel Types Documentation](panels/base.md) - Detailed panel configuration
 - [Controls Documentation](controls/config.md) - Dashboard control configuration
 - [Filters Documentation](filters/config.md) - Filter and query configuration
 
 ### Analysis Reference
+
 - [Dashboard Pattern Analysis](../dashboard-pattern-analysis.md) - Detailed analysis of Elastic dashboards
 
 ### External Resources
+
 - [Kibana Lens Documentation](https://www.elastic.co/guide/en/kibana/current/lens.html)
 - [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html)
 - [Kibana Query Language (KQL)](https://www.elastic.co/guide/en/kibana/current/kuery-query.html)
@@ -910,7 +1222,22 @@ Use this checklist when creating or reviewing dashboards:
 
 ## Changelog
 
+### Version 1.1 (2026-01-08)
+
+- Extended analysis with 15 additional dashboards (total: 22 dashboards)
+- **Confirmed all original patterns** with 95-100% consistency
+- **Added new visualization types:**
+  - Treemap charts for hierarchical categorical data
+  - Heatmap charts for performance percentiles over time
+  - Gauge charts for bounded metrics (0-100%)
+- **Enhanced guidance:**
+  - Strengthened markdown navigation pattern (standard for 3+ dashboard packages)
+  - Added horizontal bar chart guidance for percentile distributions
+  - Documented dashboard complexity spectrum (simple/standard/complex)
+- **Pattern validation:** All core patterns validated across diverse use cases (databases, application servers, security tools, identity systems)
+
 ### Version 1.0 (2026-01-08)
+
 - Initial release based on analysis of 7 Elastic integration dashboards
 - Documented visualization selection patterns
 - Established naming conventions
