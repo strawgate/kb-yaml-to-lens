@@ -508,3 +508,115 @@ async def test_pie_chart_with_nested_legend() -> None:
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     assert layer.nestedLegend is True
+
+
+async def test_pie_chart_with_show_single_series() -> None:
+    """Test pie chart with show_single_series enabled."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'slice_by': [
+            {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        ],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+        'legend': {'show_single_series': True},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+            'showSingleSeries': True,
+        }
+    )
+
+
+async def test_pie_chart_with_show_single_series_false() -> None:
+    """Test pie chart with show_single_series disabled."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'slice_by': [
+            {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        ],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+        'legend': {'show_single_series': False},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+            'showSingleSeries': False,
+        }
+    )
+
+
+async def test_pie_chart_with_show_single_series_omitted() -> None:
+    """Test pie chart with show_single_series omitted."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'slice_by': [
+            {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        ],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+        }
+    )
