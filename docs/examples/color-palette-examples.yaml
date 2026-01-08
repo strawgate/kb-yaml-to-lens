@@ -5,31 +5,32 @@ dashboards:
   - name: Color Palette Examples
     panels:
       # Example 1: Categorical colors with custom palette
-      - title: HTTP Status Codes (Custom Colors)
+      - title: CPU States (Custom Colors)
         grid: {x: 0, y: 0, w: 12, h: 8}
         lens:
           type: pie
-          data_view: logs-*
+          data_view: metrics-*
           slice_by:
-            - field: http.response.status_code
+            - field: attributes.state
               type: values
           metrics:
-            - aggregation: count
+            - aggregation: average
+              field: metrics.system.cpu.utilization
           color:
             palette: eui_amsterdam_color_blind
             assignments:
-              - value: '200'
-                color: '#00BF6F'  # Green for success
-              - value: '404'
-                color: '#FFA500'  # Orange for not found
+              - value: idle
+                color: '#00BF6F'  # Green for idle
+              - value: user
+                color: '#0077CC'  # Blue for user
               - values:
-                  - '500'
-                  - '502'
-                  - '503'
-                color: '#BD271E'  # Red for server errors
+                  - system
+                  - nice
+                  - iowait
+                color: '#FFA500'  # Orange for system processes
 
-      # Example 2: Line chart with service-specific colors
-      - title: Response Time by Service
+      # Example 2: Line chart with OS-specific colors
+      - title: CPU Load by OS Type
         grid: {x: 12, y: 0, w: 12, h: 8}
         lens:
           type: line
@@ -38,150 +39,153 @@ dashboards:
             - field: '@timestamp'
               type: date_histogram
           breakdown:
-            field: service.name
+            field: resource.attributes.os.type
             type: values
           metrics:
             - aggregation: average
-              field: response_time
+              field: metrics.system.cpu.load_average.1m
           color:
             palette: eui_amsterdam_color_blind
             assignments:
-              - value: web-frontend
+              - value: linux
                 color: '#00BF6F'  # Green
-              - value: api-gateway
+              - value: darwin
                 color: '#0077CC'  # Blue
-              - value: database
+              - value: windows
                 color: '#FFA500'  # Orange
-              - value: cache
+              - value: solaris
                 color: '#9170B8'  # Purple
 
-      # Example 3: Bar chart with status colors
-      - title: Deployment Status by Environment
+      # Example 3: Bar chart with memory state colors
+      - title: Memory Utilization by State
         grid: {x: 24, y: 0, w: 24, h: 8}
         lens:
           type: bar
           mode: stacked
-          data_view: deployments-*
+          data_view: metrics-*
           dimensions:
-            - field: environment
+            - field: resource.attributes.host.name
               type: values
           breakdown:
-            field: status
+            field: attributes.state
             type: values
           metrics:
-            - aggregation: count
+            - aggregation: average
+              field: metrics.system.memory.utilization
           color:
             palette: default
             assignments:
-              - value: success
-                color: '#00BF6F'  # Green
-              - value: failed
+              - value: used
                 color: '#BD271E'  # Red
-              - value: in_progress
-                color: '#FFA500'  # Orange
-              - value: pending
+              - value: free
+                color: '#00BF6F'  # Green
+              - value: cached
+                color: '#0077CC'  # Blue
+              - value: buffered
                 color: '#98A2B3'  # Gray
 
       # Example 4: Area chart with elastic brand palette
-      - title: Network Traffic (Elastic Brand Colors)
+      - title: Disk Operations by Device (Elastic Brand Colors)
         grid: {x: 0, y: 8, w: 12, h: 8}
         lens:
           type: area
           mode: stacked
-          data_view: network-*
+          data_view: metrics-*
           dimensions:
             - field: '@timestamp'
               type: date_histogram
           breakdown:
-            field: network.protocol
+            field: attributes.device
             type: values
           metrics:
-            - aggregation: sum
-              field: bytes
+            - aggregation: average
+              field: metrics.system.disk.operations
           color:
             palette: elastic_brand
 
       # Example 5: Pie chart with grayscale palette
-      - title: Document Types (Grayscale)
+      - title: Filesystem Usage by Mount Point (Grayscale)
         grid: {x: 12, y: 8, w: 12, h: 8}
         lens:
           type: pie
-          data_view: documents-*
+          data_view: metrics-*
           slice_by:
-            - field: document.type
+            - field: attributes.mountpoint
               type: values
           metrics:
-            - aggregation: count
+            - aggregation: average
+              field: metrics.system.filesystem.utilization
           color:
             palette: gray
 
       # Example 6: Multi-value assignment example
-      - title: Log Levels (Grouped Colors)
+      - title: OS Types (Grouped Colors)
         grid: {x: 24, y: 8, w: 12, h: 8}
         lens:
           type: pie
-          data_view: logs-*
+          data_view: metrics-*
           slice_by:
-            - field: log.level
+            - field: resource.attributes.os.type
               type: values
           metrics:
-            - aggregation: count
+            - aggregation: unique_count
+              field: resource.attributes.host.name
           color:
             palette: eui_amsterdam_color_blind
             assignments:
               - values:
-                  - DEBUG
-                  - TRACE
-                  - INFO
-                color: '#00BF6F'  # Green for informational
+                  - linux
+                  - darwin
+                color: '#00BF6F'  # Green for Unix-like
               - values:
-                  - WARN
-                  - WARNING
-                color: '#FFA500'  # Orange for warnings
+                  - windows
+                color: '#0077CC'  # Blue for Windows
               - values:
-                  - ERROR
-                  - FATAL
-                  - CRITICAL
-                color: '#BD271E'  # Red for errors
+                  - solaris
+                  - aix
+                  - hpux
+                color: '#FFA500'  # Orange for other Unix
 
       # Example 7: Legacy Kibana palette
-      - title: User Activity by Browser (Legacy Colors)
+      - title: Hosts by Cloud Provider (Legacy Colors)
         grid: {x: 36, y: 8, w: 12, h: 8}
         lens:
           type: bar
-          data_view: web-analytics-*
+          data_view: metrics-*
           dimensions:
-            - field: user_agent.browser
+            - field: resource.attributes.cloud.provider
               type: values
           metrics:
-            - aggregation: count
+            - aggregation: unique_count
+              field: resource.attributes.host.name
           color:
             palette: kibana_palette
 
       # Example 8: XY chart with custom breakdown colors
-      - title: Request Count by Method
+      - title: CPU Utilization by State Over Time
         grid: {x: 0, y: 16, w: 12, h: 8}
         lens:
           type: line
-          data_view: api-logs-*
+          data_view: metrics-*
           dimensions:
             - field: '@timestamp'
               type: date_histogram
           breakdown:
-            field: http.request.method
+            field: attributes.state
             type: values
           metrics:
-            - aggregation: count
+            - aggregation: average
+              field: metrics.system.cpu.utilization
           color:
             palette: eui_amsterdam_color_blind
             assignments:
-              - value: GET
+              - value: idle
                 color: '#00BF6F'  # Green
-              - value: POST
+              - value: user
                 color: '#0077CC'  # Blue
-              - value: PUT
+              - value: system
                 color: '#FFA500'  # Orange
-              - value: DELETE
+              - value: iowait
                 color: '#BD271E'  # Red
-              - value: PATCH
+              - value: nice
                 color: '#9170B8'  # Purple

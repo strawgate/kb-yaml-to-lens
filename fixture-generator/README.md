@@ -1,22 +1,13 @@
 # Kibana Dashboard Fixture Generator
 
-A simple helper tool for generating Kibana dashboard JSON fixtures using Kibana's `LensConfigBuilder` API. These fixtures are used as test data for the `kb-yaml-to-lens` Python compiler.
+Docker-based TypeScript fixture generator using Kibana's `LensConfigBuilder` API to produce known-good Kibana dashboard JSON for testing the `kb-yaml-to-lens` compiler.
 
-## Purpose
-
-Generate **known-good** Kibana dashboard JSON by:
-
-1. Using Kibana's **LensConfigBuilder API** directly
-2. Building visualizations programmatically with the config builder
-3. Exporting JSON fixtures for Python test suite validation
-4. Supporting multiple Kibana versions for compatibility testing
-
-## Why This Approach?
+## Overview
 
 - **Authoritative**: Uses Kibana's actual config builder API, not reverse-engineering
-- **Simple**: TypeScript files that call the API and export JSON
 - **Version Flexible**: Easy to regenerate fixtures for different Kibana versions
 - **Zero Local Builds**: Pull pre-built base images, mount your scripts via volumes
+- **Type Safe**: TypeScript with strict checking catches errors at development time
 
 ## System Requirements
 
@@ -109,6 +100,8 @@ Both generate valid Kibana Lens visualizations for testing different data source
 
 **Example**: See `examples/metric-basic.ts` for a minimal example.
 
+**For detailed guidance**, see [FIXTURES.md](FIXTURES.md).
+
 ## Chart Types
 
 The LensConfigBuilder supports:
@@ -191,30 +184,15 @@ make build-base KIBANA_VERSION=v9.2.0
 # Go to: Actions → Build and Publish Kibana Base Images → Run workflow
 ```
 
-### Before Committing Fixture Changes
-
-Always run verification steps:
-
-1. Generate fixture: `make run-example EXAMPLE=your-file.ts`
-2. Verify output exists in `fixture-generator/output/v9.2.0/`
-3. Validate JSON: `python -m json.tool output/v9.2.0/your-file.json > /dev/null`
-4. Run typecheck: `cd .. && make typecheck`
-5. Run full CI from root: `cd .. && make ci`
-6. Commit both generator script and output files
-
 ### Invalid Configuration
 
 Check [Kibana's Lens config API docs](https://github.com/elastic/kibana/blob/main/dev_docs/lens/config_api.mdx) for valid options.
 
+**For more troubleshooting and development guidance**, see [FIXTURES.md](FIXTURES.md).
+
 ## Contributing
 
-When adding new visualization types:
-
-1. Create `examples/new-viz.ts`
-2. Use `generateDualFixture()` to create both ES|QL and Data View variants
-3. Run generator and verify output
-4. Copy fixtures to Python tests
-5. Update Python compiler to match (if needed)
+See [FIXTURES.md](FIXTURES.md) for detailed development workflow and best practices.
 
 ## Documentation
 
