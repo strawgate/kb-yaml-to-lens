@@ -1,5 +1,5 @@
 ---
-name: Claude Code Assistant
+name: Helpful Claude
 on:
   issue_comment:
     types:
