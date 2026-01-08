@@ -174,7 +174,7 @@ dashboards:
               label: "Avg Disk Operations"
           slice_by:
             - type: values
-              field: "attributes.device"
+              field: "resource.attributes.device"
               size: 5
               label: "Device"
           appearance:
