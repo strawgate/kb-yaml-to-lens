@@ -17,10 +17,10 @@ class HeatmapAxisConfig(BaseCfgModel):
     Controls visibility of axis labels and title.
     """
 
-    labels: bool | None = Field(default=None)
+    show_labels: bool | None = Field(default=None)
     """Whether to show axis labels."""
 
-    title: bool | None = Field(default=None)
+    show_title: bool | None = Field(default=None)
     """Whether to show axis title."""
 
 
@@ -30,7 +30,7 @@ class HeatmapGridConfig(BaseCfgModel):
     Controls the visibility of cell labels and axis configuration.
     """
 
-    cell_labels: bool | None = Field(default=None)
+    show_cell_labels: bool | None = Field(default=None)
     """Whether to show labels inside heatmap cells."""
 
     x_axis: HeatmapAxisConfig | None = Field(default=None)

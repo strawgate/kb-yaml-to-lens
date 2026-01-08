@@ -221,14 +221,14 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'cell_labels': True,
+            'show_cell_labels': True,
             'x_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
             'y_axis': {
-                'labels': False,
-                'title': False,
+                'show_labels': False,
+                'show_title': False,
             },
         },
     }
@@ -272,14 +272,14 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'cell_labels': True,
+            'show_cell_labels': True,
             'x_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
             'y_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
         },
     }
@@ -408,14 +408,14 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'cell_labels': True,
+            'show_cell_labels': True,
             'x_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
             'y_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
         },
         'legend': {
@@ -468,14 +468,14 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'cell_labels': True,
+            'show_cell_labels': True,
             'x_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
             'y_axis': {
-                'labels': True,
-                'title': True,
+                'show_labels': True,
+                'show_title': True,
             },
         },
         'legend': {
@@ -527,7 +527,7 @@ def test_compile_heatmap_chart_partial_grid_config() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'cell_labels': True,
+            'show_cell_labels': True,
         },
     }
 

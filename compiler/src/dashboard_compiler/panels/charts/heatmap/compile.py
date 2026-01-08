@@ -43,13 +43,13 @@ def compile_heatmap_chart_visualization_state(
     if chart.grid_config is not None:
         gc = chart.grid_config
         # Handle nested axis configuration
-        x_axis_labels = default_false(gc.x_axis.labels) if gc.x_axis is not None else False
-        x_axis_title = default_false(gc.x_axis.title) if gc.x_axis is not None else False
-        y_axis_labels = default_false(gc.y_axis.labels) if gc.y_axis is not None else False
-        y_axis_title = default_false(gc.y_axis.title) if gc.y_axis is not None else False
+        x_axis_labels = default_false(gc.x_axis.show_labels) if gc.x_axis is not None else False
+        x_axis_title = default_false(gc.x_axis.show_title) if gc.x_axis is not None else False
+        y_axis_labels = default_false(gc.y_axis.show_labels) if gc.y_axis is not None else False
+        y_axis_title = default_false(gc.y_axis.show_title) if gc.y_axis is not None else False
 
         grid_config = KbnHeatmapGridConfig(
-            isCellLabelVisible=default_false(gc.cell_labels),
+            isCellLabelVisible=default_false(gc.show_cell_labels),
             isXAxisLabelVisible=x_axis_labels,
             isXAxisTitleVisible=x_axis_title,
             isYAxisLabelVisible=y_axis_labels,
