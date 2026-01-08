@@ -134,7 +134,7 @@ class LensDatatableChart(BaseChart):
     pagination, and formatting options.
 
     Examples:
-        Simple datatable with metrics and rows:
+        Simple datatable with metrics and dimensions:
         ```yaml
         lens:
           type: datatable
@@ -143,7 +143,7 @@ class LensDatatableChart(BaseChart):
             - id: "service-count"
               field: "service.name"
               aggregation: count
-          rows:
+          dimensions:
             - id: "service-breakdown"
               type: values
               field: "service.name"
@@ -159,7 +159,7 @@ class LensDatatableChart(BaseChart):
               aggregation: count
               filter:
                 kql: "log.level:error"
-          rows:
+          dimensions:
             - id: "service"
               type: values
               field: "service.name"
@@ -181,10 +181,10 @@ class LensDatatableChart(BaseChart):
     metrics: list[LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    rows: list[LensDimensionTypes] = Field(default_factory=list)
+    dimensions: list[LensDimensionTypes] = Field(default_factory=list)
     """List of dimensions to use as row groupings."""
 
-    rows_by: list[LensDimensionTypes] | None = Field(default=None)
+    dimensions_by: list[LensDimensionTypes] | None = Field(default=None)
     """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
 
     columns: list[DatatableColumnConfig] | None = Field(default=None)
@@ -203,14 +203,14 @@ class LensDatatableChart(BaseChart):
     """Optional pagination configuration."""
 
     @model_validator(mode='after')
-    def validate_has_metrics_or_rows(self) -> Self:
-        """Validate that datatable has at least one metric or row.
+    def validate_has_metrics_or_dimensions(self) -> Self:
+        """Validate that datatable has at least one metric or dimension.
 
-        Kibana requires datatables to have either metrics or rows (or both).
+        Kibana requires datatables to have either metrics or dimensions (or both).
         An empty datatable with neither will render as a blank panel.
         """
-        if len(self.metrics) == 0 and len(self.rows) == 0:
-            msg = 'Datatable must have at least one metric or one row dimension'
+        if len(self.metrics) == 0 and len(self.dimensions) == 0:
+            msg = 'Datatable must have at least one metric or one dimension'
             raise ValueError(msg)
         return self
 
@@ -234,7 +234,7 @@ class ESQLDatatableChart(BaseChart):
               field: "count"
             - id: "avg-cpu"
               field: "avg_cpu"
-          rows:
+          dimensions:
             - id: "service"
               field: "service.name"
           sorting:
@@ -249,10 +249,10 @@ class ESQLDatatableChart(BaseChart):
     metrics: list[ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    rows: list[ESQLDimensionTypes] = Field(default_factory=list)
+    dimensions: list[ESQLDimensionTypes] = Field(default_factory=list)
     """List of ESQL dimensions to use as row groupings."""
 
-    rows_by: list[ESQLDimensionTypes] | None = Field(default=None)
+    dimensions_by: list[ESQLDimensionTypes] | None = Field(default=None)
     """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
 
     columns: list[DatatableColumnConfig] | None = Field(default=None)

@@ -257,7 +257,7 @@ dashboards:
         lens:
           type: pie
           data_view: "logs-*"
-          slice_by:
+          dimensions:
             - field: "region"
               type: values
           metrics:
@@ -280,7 +280,7 @@ dashboards:
         lens:
           type: pie
           data_view: "logs-*"
-          slice_by:
+          dimensions:
             - field: "http.response.status_code"
               type: values
           metrics:

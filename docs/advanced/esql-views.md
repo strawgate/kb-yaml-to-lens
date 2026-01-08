@@ -50,7 +50,7 @@ dashboards:
             - STATS count = COUNT() BY http.response.status_code
           metrics:
             - field: count
-          slice_by:
+          dimensions:
             - field: http.response.status_code
 
       - title: "Average Response Time"
@@ -155,7 +155,7 @@ dashboards:
             - LIMIT 10
           metrics:
             - field: count
-          slice_by:
+          dimensions:
             - field: url.path
 ```
 

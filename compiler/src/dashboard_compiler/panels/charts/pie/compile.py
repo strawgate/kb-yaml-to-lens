@@ -130,13 +130,13 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
         kbn_metric_column_by_id[metric_id] = metric
         metric_ids.append(metric_id)
 
-    slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.slice_by, kbn_metric_column_by_id=kbn_metric_column_by_id)
+    slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
 
     primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
     collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim_id in zip(lens_pie_chart.slice_by, all_dimension_ids, strict=True):
+    for dim_config, compiled_dim_id in zip(lens_pie_chart.dimensions, all_dimension_ids, strict=True):
         if dim_config.collapse:
             if collapse_fns is None:
                 collapse_fns = {}
@@ -175,13 +175,13 @@ def compile_esql_pie_chart(
     metrics = [compile_esql_metric(m) for m in esql_pie_chart.metrics]
     metric_ids = [m.columnId for m in metrics]
 
-    dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.slice_by)
+    dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.dimensions)
     all_dimension_ids = [d.columnId for d in dimensions]
 
     primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
     collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim in zip(esql_pie_chart.slice_by, dimensions, strict=True):
+    for dim_config, compiled_dim in zip(esql_pie_chart.dimensions, dimensions, strict=True):
         if dim_config.collapse:
             if collapse_fns is None:
                 collapse_fns = {}

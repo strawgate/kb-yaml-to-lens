@@ -71,7 +71,7 @@ dashboards:
             | LIMIT 5
           metrics:
             - field: "event_count"
-          slice_by:
+          dimensions:
             - field: "event.category"
 ```
 
@@ -165,7 +165,7 @@ dashboards:
             | LIMIT 10
           metrics:
             - field: "error_count"
-          slice_by:
+          dimensions:
             - field: "error_type"
           appearance:
             donut: "small"

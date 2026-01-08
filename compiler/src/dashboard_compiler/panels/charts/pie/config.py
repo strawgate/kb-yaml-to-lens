@@ -104,7 +104,7 @@ class LensPieChart(BasePieChart):
         lens:
           type: pie
           data_view: "logs-*"
-          slice_by:
+          dimensions:
             - field: "source.geo.country_name"
               type: values
           metrics:
@@ -116,7 +116,7 @@ class LensPieChart(BasePieChart):
         lens:
           type: pie
           data_view: "metrics-*"
-          slice_by:
+          dimensions:
             - field: "resource.attributes.os.type"
               type: values
           metrics:
@@ -138,7 +138,7 @@ class LensPieChart(BasePieChart):
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
-    slice_by: list[LensDimensionTypes] = Field(default=...)
+    dimensions: list[LensDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
 
 
@@ -155,7 +155,7 @@ class ESQLPieChart(BasePieChart):
             | STATS count = COUNT(*) BY service.name
           metrics:
             - field: "count"
-          slice_by:
+          dimensions:
             - field: "service.name"
         ```
     """
@@ -163,5 +163,5 @@ class ESQLPieChart(BasePieChart):
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
-    slice_by: list[ESQLDimensionTypes] = Field(default=...)
+    dimensions: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""

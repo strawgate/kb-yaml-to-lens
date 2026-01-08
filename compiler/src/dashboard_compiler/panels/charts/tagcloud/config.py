@@ -69,10 +69,10 @@ class LensTagcloudChart(BaseTagcloudChart):
               lens:
                 type: tagcloud
                 data_view: "logs-*"
-                tags:
+                dimension:
                   type: values
                   field: "error.message"
-                metrics:
+                metric:
                   aggregation: count
         ```
 
@@ -86,10 +86,10 @@ class LensTagcloudChart(BaseTagcloudChart):
               lens:
                 type: tagcloud
                 data_view: "logs-*"
-                tags:
+                dimension:
                   type: values
                   field: "service.name"
-                metrics:
+                metric:
                   aggregation: count
                 appearance:
                   min_font_size: 12
@@ -104,10 +104,10 @@ class LensTagcloudChart(BaseTagcloudChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the tagcloud chart."""
 
-    tags: LensDimensionTypes = Field(default=...)
+    dimension: LensDimensionTypes = Field(default=...)
     """The dimension for grouping (terms). This determines the tags shown in the cloud."""
 
-    metrics: LensMetricTypes = Field(default=...)
+    metric: LensMetricTypes = Field(default=...)
     """The metric for sizing. This determines the size of each tag."""
 
 
@@ -125,15 +125,15 @@ class ESQLTagcloudChart(BaseTagcloudChart):
               esql:
                 type: tagcloud
                 query: "FROM logs-* | STATS error_count = count(*) BY error.message"
-                tags:
+                dimension:
                   field: "error.message"
-                metrics:
+                metric:
                   field: "error_count"
         ```
     """
 
-    tags: ESQLDimensionTypes = Field(default=...)
+    dimension: ESQLDimensionTypes = Field(default=...)
     """The dimension for grouping (terms). This determines the tags shown in the cloud."""
 
-    metrics: ESQLMetricTypes = Field(default=...)
+    metric: ESQLMetricTypes = Field(default=...)
     """The metric for sizing. This determines the size of each tag."""

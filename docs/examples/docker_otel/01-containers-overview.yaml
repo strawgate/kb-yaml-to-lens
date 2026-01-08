@@ -63,7 +63,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          rows:
+          dimensions:
             - id: runtime
               type: values
               field: container.runtime
@@ -79,7 +79,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          rows:
+          dimensions:
             - id: images
               type: values
               field: container.image.name
@@ -95,7 +95,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          rows:
+          dimensions:
             - id: names
               type: values
               field: container.name

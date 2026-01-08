@@ -37,6 +37,6 @@ dashboards:
             - SORT @timestamp DESC
             - LIMIT 1000
             - KEEP message, @timestamp
-          rows:
+          dimensions:
             - field: '@timestamp'
             - field: message

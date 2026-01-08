@@ -59,7 +59,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          rows:
+          dimensions:
             - id: container-name
               type: values
               field: container.name
