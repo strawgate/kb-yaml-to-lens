@@ -79,6 +79,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     if chart.legend and chart.legend.nested is not None:
         nested_legend = chart.legend.nested
 
+    show_single_series = None
+    if chart.legend and chart.legend.show_single_series is not None:
+        show_single_series = chart.legend.show_single_series
+
     kbn_color_mapping = compile_color_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
@@ -101,6 +105,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         legendSize=legend_size,
         truncateLegend=False if truncate_legend == 0 else None,
         legendMaxLines=legend_max_lines,
+        showSingleSeries=show_single_series,
     )
 
     return KbnPieVisualizationState(shape=shape, layers=[kbn_layer_visualization])
