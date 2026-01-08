@@ -53,15 +53,13 @@ class LensMetricChart(BaseChart):
     maximum: LensMetricTypes | None = Field(default=None)
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: LensBreakdownTypes | None = Field(
-        default=None,
-        description=(
-            'An optional breakdown to split the metric by. '
-            'Can be a single dimension (e.g., values, date_histogram, filters) '
-            'or a multi-field terms breakdown (1-4 fields) using the operation: terms structure. '
-            'Note: Metric charts in Kibana only use the first field from multi-field breakdowns.'
-        ),
-    )
+    breakdown: LensBreakdownTypes | None = Field(default=None)
+    """An optional breakdown to split the metric by.
+
+    Can be a single dimension (e.g., values, date_histogram, filters)
+    or a multi-field terms breakdown (1-4 fields) using the operation: terms structure.
+    Note: Metric charts in Kibana only use the first field from multi-field breakdowns.
+    """
 
     color: ColorMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""

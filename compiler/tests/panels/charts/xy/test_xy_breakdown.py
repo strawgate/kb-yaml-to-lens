@@ -159,7 +159,6 @@ async def test_xy_breakdown_with_sort() -> None:
     assert layer.splitAccessors is not None
 
     # Check the breakdown column has the correct sort configuration
-    assert layer.splitAccessors is not None
     breakdown_column = kbn_columns[layer.splitAccessors[0]]
     assert isinstance(breakdown_column, KbnLensTermsDimensionColumn)
     assert breakdown_column.params.orderDirection == 'asc'

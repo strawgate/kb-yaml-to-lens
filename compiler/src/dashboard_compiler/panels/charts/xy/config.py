@@ -251,14 +251,12 @@ class LensXYChartMixin(BaseCfgModel):
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
     )
-    breakdown: LensBreakdownTypes | None = Field(
-        None,
-        description=(
-            'An optional breakdown to split the series by. '
-            'Can be a single dimension (e.g., values, date_histogram, filters) '
-            'or a multi-field terms breakdown (1-4 fields) using the operation: terms structure.'
-        ),
-    )
+    breakdown: LensBreakdownTypes | None = Field(default=None)
+    """An optional breakdown to split the series by.
+
+    Can be a single dimension (e.g., values, date_histogram, filters)
+    or a multi-field terms breakdown (1-4 fields) using the operation: terms structure.
+    """
 
     def set_dimension(self, lens_dimension: LensDimensionTypes) -> Self:
         """Set the X-axis dimension for the lens Chart."""

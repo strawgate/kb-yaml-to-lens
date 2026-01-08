@@ -91,6 +91,7 @@ async def test_metric_breakdown_with_options() -> None:
     lens_chart = LensMetricChart(**lens_config)
     _layer_id, kbn_columns, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
 
+    assert kbn_state_visualization.breakdownByAccessor is not None
     breakdown_column = kbn_columns[kbn_state_visualization.breakdownByAccessor]
     assert isinstance(breakdown_column, KbnLensTermsDimensionColumn)
     assert breakdown_column.params.size == 20
@@ -120,6 +121,7 @@ async def test_metric_breakdown_with_include_exclude() -> None:
     lens_chart = LensMetricChart(**lens_config)
     _layer_id, kbn_columns, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
 
+    assert kbn_state_visualization.breakdownByAccessor is not None
     breakdown_column = kbn_columns[kbn_state_visualization.breakdownByAccessor]
     assert isinstance(breakdown_column, KbnLensTermsDimensionColumn)
     assert breakdown_column.params.include == ['success', 'pending']

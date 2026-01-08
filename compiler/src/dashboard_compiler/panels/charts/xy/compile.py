@@ -532,9 +532,8 @@ def compile_lens_xy_chart(
             kbn_breakdown_columns = compile_lens_dimensions(
                 dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns
             )
-            breakdown_id = next(iter(kbn_breakdown_columns.keys()))
-            kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
-            breakdown = breakdown_id  # STRING for single field
+            kbn_dimension_columns.update(kbn_breakdown_columns)
+            breakdown = next(iter(kbn_breakdown_columns.keys()))  # STRING for single field
 
     kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
 
