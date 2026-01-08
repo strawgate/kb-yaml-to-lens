@@ -333,26 +333,28 @@ def compile_xy_chart_visualization_state(
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
-    # Build yConfig from series configuration if provided
+    # Build yConfig from metric appearance properties
     y_config: list[YConfig] | None = None
-    if chart.appearance is not None and chart.appearance.series is not None:
-        y_config = []
-        for series_cfg in chart.appearance.series:
-            # Only create YConfig if at least one property is set
-            if any(
-                v is not None
-                for v in (
-                    series_cfg.axis,
-                    series_cfg.color,
+    y_config_list: list[YConfig] = []
+
+    for i, metric_id in enumerate(metric_ids):
+        metric = chart.metrics[i]
+        if (hasattr(metric, 'axis') or hasattr(metric, 'color')) and any(
+            v is not None
+            for v in (
+                getattr(metric, 'axis', None),
+                getattr(metric, 'color', None),
+            )
+        ):
+            y_config_list.append(
+                YConfig(
+                    forAccessor=metric_id,
+                    axisMode=getattr(metric, 'axis', None),
+                    color=getattr(metric, 'color', None),
                 )
-            ):
-                y_config.append(
-                    YConfig(
-                        forAccessor=series_cfg.metric_id,
-                        axisMode=series_cfg.axis,
-                        color=series_cfg.color,
-                    )
-                )
+            )
+
+    y_config = y_config_list if len(y_config_list) > 0 else None
 
     # Build axis configuration from appearance settings
     x_title = None
