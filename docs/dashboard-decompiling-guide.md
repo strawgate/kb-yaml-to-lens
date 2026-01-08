@@ -315,32 +315,9 @@ For thorough validation, use this round-trip workflow to verify the compiled out
 
    This will show panel counts, types, and identify any mismatches.
 
-4. **Deep panel verification:**
+4. **Verify panel structure and configuration:**
 
-   For each Lens panel, compare the original and compiled JSON to verify:
-
-   **XY Charts (line, bar, area):**
-   - ✅ Chart type (`seriesType`): Verify `line`, `bar`, or `area` match exactly
-   - ✅ Stacking mode: If original has `yConfig[].axisMode: stacked`, YAML must have `mode: stacked`
-   - ✅ Legend settings: Compare `legend.isVisible` and `legend.position` (right/bottom/top/left)
-   - ✅ Dimensions: XY charts support max 1 dimension (typically `@timestamp`)
-     - Original dimension columns → YAML `dimensions` array
-     - Split series columns → YAML `breakdown` field (NOT dimensions)
-   - ✅ Breakdown field names: Verify exact field names (e.g., `attributes.device_major` not `attributes.device`)
-   - ✅ Breakdown sizes: Check `params.size` matches original (default is 5, but originals may use 10, 30, 1000, etc.)
-
-   **Datatables:**
-   - ✅ Row dimensions: Count columns with `isBucketed: true` in original
-     - All bucketed columns must appear in YAML `rows` array
-     - Common mistake: Only including 1 row when original has 5+ rows
-   - ✅ Row sizes: Verify `params.size` for each row dimension matches original
-
-   **All Lens panels:**
-   - ✅ Metric formulas: Verify aggregation functions match (median, average, sum, etc.)
-   - ✅ Field names: Exact field name matching (including namespace prefixes)
-   - ✅ Format settings: Check number formatters (percent, bytes, etc.)
-
-   **Example verification command:**
+   Use `jq` to compare specific panel configurations between original and compiled:
 
    ```bash
    # Compare specific panel JSON structures
@@ -349,38 +326,43 @@ For thorough validation, use this round-trip workflow to verify the compiled out
      <(jq '.embeddableConfig.attributes.state' /tmp/compiled_disassembled/panels/003_panel-4_lens.json)
    ```
 
-**Expected discrepancies:**
+   **What to verify for each panel type:**
 
-- Panel IDs will differ (UUIDs are regenerated)
-- Minor formatting differences in filters/queries are acceptable
-- Panel order may differ if grid positions are identical
+   **XY Charts (line, bar, area):**
+   - Chart type matches (`seriesType` in original → `type` in YAML)
+   - Stacking mode preserved (if `yConfig[].axisMode: stacked` exists)
+   - Legend configuration matches (`legend.isVisible`, `legend.position`)
+   - Dimensions properly mapped (count columns by `isBucketed: true`)
+   - Breakdown configurations match (field names, size parameters)
 
-**Discrepancies requiring investigation:**
+   **Datatables:**
+   - All bucketed columns appear as row dimensions
+   - Size parameters match for each dimension
+   - Metric columns preserve aggregation functions
 
-- Different panel counts (unless intentionally excluding unsupported panels)
-- Different visualization types (lnsXY vs lnsPie, etc.)
-- Different chart types within XY (line vs area vs bar)
-- Missing columns/dimensions/breakdowns
-- Different field names
-- Different aggregation functions
-- Missing legend configuration
+   **All Lens panels:**
+   - Aggregation functions match (median, average, sum, etc.)
+   - Field names are exact (including namespace prefixes)
+   - Format settings preserved (percent, bytes, number, etc.)
 
-**Critical verification checklist:**
+**Understanding discrepancies:**
 
-Before considering a conversion complete, verify:
+When comparing original and compiled dashboards, some differences are expected:
 
-- [ ] All panels compile without errors
-- [ ] Panel count matches (or discrepancies are documented)
-- [ ] All XY chart types match original (`seriesType`: line/bar/area)
-- [ ] All XY charts have correct `mode: stacked` if original is stacked
-- [ ] All XY charts have legend settings matching original
-- [ ] All dimensions are in the `dimensions` array (max 1 for XY charts)
-- [ ] All split series are in `breakdown` field (NOT in dimensions)
-- [ ] All breakdown field names match exactly (check device fields, interface names, etc.)
-- [ ] All breakdown sizes match original (not just using defaults)
-- [ ] All datatable row dimensions are included (count bucketed columns)
-- [ ] All metric formulas use correct aggregation functions
-- [ ] All field names match exactly (including namespace prefixes)
+- ✅ **Expected (safe):** Panel IDs differ, minor query formatting, panel order variations
+- ⚠️ **Needs investigation:** Panel count mismatch, visualization type changes, missing dimensions/metrics, field name differences
+
+**Verification checklist:**
+
+Before considering a conversion complete:
+
+- [ ] YAML compiles without errors
+- [ ] Panel counts match (or differences are documented)
+- [ ] Panel types match (lens, visualization, links, markdown)
+- [ ] Chart configurations preserved (type, stacking, legends)
+- [ ] All dimensions and breakdowns accounted for
+- [ ] Size parameters match original values
+- [ ] Field names and aggregations verified
 
 ## Common Patterns
 

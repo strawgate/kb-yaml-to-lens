@@ -27,16 +27,16 @@ fi
 echo "Panel Count Comparison:"
 echo "======================="
 echo -n "Original panels: "
-jq '.attributes.panelsJSON | fromjson | length' "$ORIGINAL"
+jq '.attributes.panelsJSON | if type == "string" then fromjson else . end | length' "$ORIGINAL"
 echo -n "Compiled panels: "
-jq '.attributes.panelsJSON | fromjson | length' "$COMPILED"
+jq '.attributes.panelsJSON | if type == "string" then fromjson else . end | length' "$COMPILED"
 echo
 
 echo "Panel Types (Original):"
 echo "======================="
-jq -r '.attributes.panelsJSON | fromjson | .[].type' "$ORIGINAL" | sort | uniq -c
+jq -r '.attributes.panelsJSON | if type == "string" then fromjson else . end | .[].type' "$ORIGINAL" | sort | uniq -c
 echo
 
 echo "Panel Types (Compiled):"
 echo "======================="
-jq -r '.attributes.panelsJSON | fromjson | .[].type' "$COMPILED" | sort | uniq -c
+jq -r '.attributes.panelsJSON | if type == "string" then fromjson else . end | .[].type' "$COMPILED" | sort | uniq -c
