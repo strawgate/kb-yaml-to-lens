@@ -380,29 +380,29 @@
   "Control - ESQL Static Values": {
     "prefix": "control-esql-static",
     "body": [
-      "- type: esql_static",
+      "- type: esql",
       "  variable_name: ${1:variable_name}",
       "  variable_type: ${2|values,multi_values,fields,time_literal,functions|}",
-      "  available_options:",
+      "  choices:",
       "    - ${3:option1}",
       "    - ${4:option2}",
       "    - ${5:option3}",
-      "  title: ${6:Filter Title}",
+      "  label: ${6:Filter Label}",
       "  ${7:width: ${8|small,medium,large|}}",
-      "  ${9:single_select: ${10|true,false|}}"
+      "  ${9:multiple: ${10|true,false|}}"
     ],
     "description": "Add an ESQL static values control with predefined options for filtering ESQL visualizations"
   },
   "Control - ESQL Query": {
     "prefix": "control-esql-query",
     "body": [
-      "- type: esql_query",
+      "- type: esql",
       "  variable_name: ${1:variable_name}",
       "  variable_type: ${2|values,multi_values,fields,time_literal,functions|}",
-      "  esql_query: ${3:FROM logs-* | STATS count = COUNT(*) BY ${4:field_name} | KEEP ${4:field_name} | LIMIT 20}",
-      "  title: ${5:Filter Title}",
+      "  query: ${3:FROM logs-* | STATS count = COUNT(*) BY ${4:field_name} | KEEP ${4:field_name} | LIMIT 20}",
+      "  label: ${5:Filter Label}",
       "  ${6:width: ${7|small,medium,large|}}",
-      "  ${8:single_select: ${9|true,false|}}"
+      "  ${8:multiple: ${9|true,false|}}"
     ],
     "description": "Add an ESQL query control that dynamically fetches filter values from an ESQL query"
   },

@@ -8,29 +8,29 @@ dashboards:
         label_position: inline
     controls:
       # Control 1: Agent Name (query-driven)
-      - type: esql_query
+      - type: esql
         variable_name: agent_name
         variable_type: values
-        esql_query: FROM metrics-* | STATS count = COUNT(*) BY agent.name | SORT count DESC | KEEP agent.name | LIMIT 20
-        title: Agent Name
+        query: FROM metrics-* | STATS count = COUNT(*) BY agent.name | SORT count DESC | KEEP agent.name | LIMIT 20
+        label: Agent Name
         width: medium
 
       # Control 2: Agent ID (query-driven, filtered by agent name)
-      - type: esql_query
+      - type: esql
         variable_name: agent_id
         variable_type: values
-        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) | STATS count = COUNT(*) BY agent.id | SORT count DESC | KEEP agent.id
-          | LIMIT 20
-        title: Agent ID
+        query: FROM metrics-* | WHERE agent.name IN (?agent_name) | STATS count = COUNT(*) BY agent.id | SORT count DESC | KEEP agent.id | LIMIT
+          20
+        label: Agent ID
         width: medium
 
       # Control 3: Agent Version (query-driven, filtered by name and ID)
-      - type: esql_query
+      - type: esql
         variable_name: agent_version
         variable_type: values
-        esql_query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version |
-          SORT agent.version | KEEP agent.version | LIMIT 20
-        title: Agent Version
+        query: FROM metrics-* | WHERE agent.name IN (?agent_name) AND agent.id IN (?agent_id) | STATS count = COUNT(*) BY agent.version | SORT
+          agent.version | KEEP agent.version | LIMIT 20
+        label: Agent Version
         width: medium
     panels:
       # Panel 1: Total Events Metric
