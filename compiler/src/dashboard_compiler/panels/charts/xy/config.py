@@ -2,7 +2,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
+from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendWidthEnum
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
@@ -67,6 +67,24 @@ class XYLegend(BaseCfgModel):
     position: Literal['top', 'bottom', 'left', 'right'] | None = Field(
         default=None,
         description="Position of the legend. Kibana defaults to 'right' if not specified.",
+    )
+
+    show_single_series: bool | None = Field(
+        default=None,
+        description='Whether to show legend when there is only one series. Kibana defaults to false if not specified.',
+    )
+
+    size: LegendWidthEnum | None = Field(
+        default=None,
+        strict=False,  # Turn off strict for enums
+        description='Size of the legend (small, medium, large, extra_large). If not specified, Kibana uses automatic sizing.',
+    )
+
+    truncate_labels: int | None = Field(
+        default=None,
+        ge=0,
+        le=5,
+        description='Number of lines to truncate legend labels to. Set to 0 to disable truncation. Kibana defaults to 1 if not specified.',
     )
 
 

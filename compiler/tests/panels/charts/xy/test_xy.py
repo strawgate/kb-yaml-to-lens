@@ -22,6 +22,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     XYReferenceLine,
     XYReferenceLineValue,
 )
+from dashboard_compiler.panels.charts.xy.view import XYLegendConfig
 
 
 async def test_bar_stacked_chart() -> None:
@@ -710,7 +711,9 @@ async def test_xy_chart_with_legend_position() -> None:
     lens_chart = LensLineChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
-    assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'top'})
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='top', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
+    )
 
 
 async def test_xy_chart_with_legend_hidden() -> None:
@@ -726,7 +729,9 @@ async def test_xy_chart_with_legend_hidden() -> None:
     lens_chart = LensBarChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
-    assert kbn_state_visualization.legend == snapshot({'isVisible': False, 'position': 'right'})
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=False, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
+    )
 
 
 async def test_xy_chart_with_legend_bottom_position() -> None:
@@ -742,7 +747,81 @@ async def test_xy_chart_with_legend_bottom_position() -> None:
     lens_chart = LensAreaChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
-    assert kbn_state_visualization.legend == snapshot({'isVisible': True, 'position': 'bottom'})
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='bottom', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
+    )
+
+
+async def test_xy_chart_with_legend_size() -> None:
+    """Test XY chart with custom legend size."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'size': 'large'},
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize='large', shouldTruncate=None, maxLines=None)
+    )
+
+
+async def test_xy_chart_with_legend_truncate() -> None:
+    """Test XY chart with legend label truncation."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'truncate_labels': 2},
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=True, maxLines=2)
+    )
+
+
+async def test_xy_chart_with_legend_no_truncate() -> None:
+    """Test XY chart with legend label truncation disabled."""
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'truncate_labels': 0},
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=False, maxLines=None)
+    )
+
+
+async def test_xy_chart_with_show_single_series() -> None:
+    """Test XY chart with show_single_series enabled."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'show_single_series': True},
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='right', showSingleSeries=True, legendSize=None, shouldTruncate=None, maxLines=None)
+    )
 
 
 async def test_dual_axis_chart() -> None:

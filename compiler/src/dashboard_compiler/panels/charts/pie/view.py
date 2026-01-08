@@ -62,6 +62,9 @@ class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     legendMaxLines: Annotated[int | None, OmitIfNone()] = Field(None)
     """Maximum number of lines to display in legend labels."""
 
+    showSingleSeries: Annotated[bool | None, OmitIfNone()] = Field(None)
+    """Whether to show legend when there is only one series."""
+
 
 class KbnPieVisualizationState(KbnBaseStateVisualization):
     """View model for pie chart visualization state after compilation to Kibana Lens format.

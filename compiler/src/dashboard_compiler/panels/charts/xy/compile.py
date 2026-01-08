@@ -37,6 +37,7 @@ from dashboard_compiler.panels.charts.xy.view import (
     AxisTitlesVisibilitySettings,
     KbnXYVisualizationState,
     XYDataLayerConfig,
+    XYLegendConfig,
     XYReferenceLineLayerConfig,
     YConfig,
 )
@@ -264,6 +265,48 @@ def _extract_chart_type_specific_appearance(
     )
 
 
+def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLegendConfig:
+    """Compile legend configuration from chart config.
+
+    Args:
+        chart: The XY chart configuration.
+
+    Returns:
+        XYLegendConfig: The compiled legend configuration.
+    """
+    legend_visible = True
+    legend_position = 'right'
+    legend_show_single_series = None
+    legend_size = None
+    legend_should_truncate = None
+    legend_max_lines = None
+
+    if chart.legend is not None:
+        if chart.legend.visible is not None:
+            legend_visible = chart.legend.visible
+        if chart.legend.position is not None:
+            legend_position = chart.legend.position
+        if chart.legend.show_single_series is not None:
+            legend_show_single_series = chart.legend.show_single_series
+        if chart.legend.size is not None:
+            legend_size = chart.legend.size
+        if chart.legend.truncate_labels is not None:
+            if chart.legend.truncate_labels == 0:
+                legend_should_truncate = False
+            else:
+                legend_should_truncate = True
+                legend_max_lines = chart.legend.truncate_labels
+
+    return XYLegendConfig(
+        isVisible=legend_visible,
+        position=legend_position,
+        showSingleSeries=legend_show_single_series,
+        legendSize=legend_size,
+        shouldTruncate=legend_should_truncate,
+        maxLines=legend_max_lines,
+    )
+
+
 def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     """Determine the Kibana series type based on the chart configuration.
 
@@ -394,14 +437,7 @@ def compile_xy_chart_visualization_state(
     )
 
     # Configure legend
-    legend_visible = True
-    legend_position = 'right'
-
-    if chart.legend is not None:
-        if chart.legend.visible is not None:
-            legend_visible = chart.legend.visible
-        if chart.legend.position is not None:
-            legend_position = chart.legend.position
+    legend_config = _compile_legend_config(chart)
 
     # Extract chart-type-specific appearance properties
     (
@@ -418,7 +454,7 @@ def compile_xy_chart_visualization_state(
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
         layers=[kbn_layer_visualization],
-        legend={'isVisible': legend_visible, 'position': legend_position},
+        legend=legend_config,
         valueLabels='hide',
         xTitle=x_title,
         yTitle=y_left_title,  # Legacy field for backward compatibility - Kibana requires both yTitle and yLeftTitle
