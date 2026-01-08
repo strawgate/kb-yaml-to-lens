@@ -86,13 +86,6 @@ That show exactly where things are.
       show_root_heading: false
       heading_level: 3
 
-## Series Configuration
-
-::: dashboard_compiler.panels.charts.xy.config.XYSeries
-    options:
-      show_root_heading: false
-      heading_level: 3
-
 ## Legend Configuration
 
 ::: dashboard_compiler.panels.charts.xy.config.XYLegend
