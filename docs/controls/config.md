@@ -219,7 +219,7 @@ Allows users to select fields or functions for use in ES|QL visualizations. Only
 | `variable_type` | `Literal['fields', 'functions']` | The type of variable. See [ES\|QL Variable Types](#esql-variable-types-variable_type). | `fields` | No |
 | `choices` | `list of strings` | The static list of available fields or functions. **REQUIRED.** | N/A | Yes |
 | `default` | `string` or `list of strings` | Default selected value(s). Must be a string for single-select, list for multi-select. | `None` | No |
-| `multiple` | `boolean` | If true, allow multiple selection. If not set, auto-inferred from `default` type or defaults to true. | Auto-inferred | No |
+| `multiple` | `boolean` | If true, allow multiple selection. If not set, auto-inferred from `default` type or defaults to false (single-select). | Auto-inferred | No |
 
 ##### Field Control Example
 

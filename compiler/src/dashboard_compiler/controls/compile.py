@@ -40,6 +40,27 @@ from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false, default_if_none
 
 
+def infer_single_select(*, multiple: bool | None, default: str | list[str] | None, is_static_mode: bool) -> bool | None:
+    """Infer singleSelect value from control settings.
+
+    Args:
+        multiple (bool | None): The multiple selection setting.
+        default (str | list[str] | None): The default value(s).
+        is_static_mode (bool): Whether the control is in static mode.
+
+    Returns:
+        bool | None: The inferred singleSelect value, or None if it should not be set.
+
+    """
+    if multiple is not None:
+        return not multiple
+    if default is not None:
+        return isinstance(default, str)
+    if is_static_mode:
+        return True  # Backward compat default
+    return None
+
+
 def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
     """Compile an OptionsListControl into its Kibana view model representation.
 
@@ -155,14 +176,11 @@ def compile_esql_value_control(order: int, *, control: ESQLValueControl) -> KbnE
         selected_options = [control.default] if isinstance(control.default, str) else control.default
 
     # Determine singleSelect value
-    single_select_value: bool | None = None
-    if control.multiple is not None:
-        single_select_value = not control.multiple
-    elif control.default is not None:
-        single_select_value = isinstance(control.default, str)
-    elif is_static_mode:
-        single_select_value = True  # Backward compat default
-    # else: query mode, leave as None
+    single_select_value = infer_single_select(
+        multiple=control.multiple,
+        default=control.default,
+        is_static_mode=is_static_mode,
+    )
 
     if is_static_mode:
         return KbnESQLControl(
@@ -219,14 +237,12 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
     if control.default is not None:
         selected_options = [control.default] if isinstance(control.default, str) else control.default
 
-    # Determine singleSelect value
-    single_select_value: bool | None = None
-    if control.multiple is not None:
-        single_select_value = not control.multiple
-    elif control.default is not None:
-        single_select_value = isinstance(control.default, str)
-    else:
-        single_select_value = True  # Backward compat default
+    # Determine singleSelect value (field controls are always static mode)
+    single_select_value = infer_single_select(
+        multiple=control.multiple,
+        default=control.default,
+        is_static_mode=True,
+    )
 
     return KbnESQLControl(
         grow=False,

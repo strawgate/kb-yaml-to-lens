@@ -8,6 +8,50 @@ from pydantic import Field, model_validator
 from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
+
+def validate_default_in_choices(default: str | list[str] | None, choices: list[str] | None) -> None:
+    """Validate that all default values exist in choices.
+
+    Args:
+        default (str | list[str] | None): The default value(s) to validate.
+        choices (list[str] | None): The available choices to validate against.
+
+    Raises:
+        ValueError: If any default value is not in choices.
+
+    """
+    if default is None or choices is None:
+        return
+    default_list = [default] if isinstance(default, str) else default
+    invalid = [v for v in default_list if v not in choices]
+    if len(invalid) > 0:
+        msg = f'default contains options not in choices: {invalid}'
+        raise ValueError(msg)
+
+
+def validate_default_matches_multiple(default: str | list[str] | None, multiple: bool | None) -> None:
+    """Validate that default type matches the multiple setting.
+
+    Args:
+        default (str | list[str] | None): The default value(s) to validate.
+        multiple (bool | None): The multiple selection setting.
+
+    Raises:
+        ValueError: If default type doesn't match the multiple setting.
+
+    """
+    if default is None:
+        return
+    is_list_default = isinstance(default, list)
+    is_multi_select = multiple is True
+    if is_list_default and not is_multi_select:
+        msg = 'default must be a string when multiple is False or None'
+        raise ValueError(msg)
+    if not is_list_default and is_multi_select:
+        msg = 'default must be a list when multiple is True'
+        raise ValueError(msg)
+
+
 type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
@@ -190,36 +234,18 @@ class ESQLValueControl(BaseControl):
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
-        """Ensure default values exist in choices (static mode only)."""
-        if self.default is None or self.choices is None:
-            return self
+        """Ensure default values exist in choices (static mode only).
 
-        default_list = [self.default] if isinstance(self.default, str) else self.default
-        invalid = [v for v in default_list if v not in self.choices]
-
-        if len(invalid) > 0:
-            msg = f'default contains options not in choices: {invalid}'
-            raise ValueError(msg)
-
+        In query mode (choices=None), defaults cannot be validated against
+        available options since they're fetched dynamically.
+        """
+        validate_default_in_choices(self.default, self.choices)
         return self
 
     @model_validator(mode='after')
     def validate_default_type_matches_multiple(self) -> Self:
         """Ensure default type matches the multiple setting."""
-        if self.default is None:
-            return self
-
-        is_list_default = isinstance(self.default, list)
-        is_multi_select = self.multiple is True
-
-        if is_list_default and not is_multi_select:
-            msg = 'default must be a string when multiple is False or None'
-            raise ValueError(msg)
-
-        if not is_list_default and is_multi_select:
-            msg = 'default must be a list when multiple is True'
-            raise ValueError(msg)
-
+        validate_default_matches_multiple(self.default, self.multiple)
         return self
 
 
@@ -243,35 +269,13 @@ class ESQLFieldControl(BaseControl):
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
         """Ensure default values exist in choices."""
-        if self.default is None:
-            return self
-
-        default_list = [self.default] if isinstance(self.default, str) else self.default
-        invalid = [v for v in default_list if v not in self.choices]
-
-        if len(invalid) > 0:
-            msg = f'default contains options not in choices: {invalid}'
-            raise ValueError(msg)
-
+        validate_default_in_choices(self.default, self.choices)
         return self
 
     @model_validator(mode='after')
     def validate_default_type_matches_multiple(self) -> Self:
         """Ensure default type matches the multiple setting."""
-        if self.default is None:
-            return self
-
-        is_list_default = isinstance(self.default, list)
-        is_multi_select = self.multiple is True
-
-        if is_list_default and not is_multi_select:
-            msg = 'default must be a string when multiple is False or None'
-            raise ValueError(msg)
-
-        if not is_list_default and is_multi_select:
-            msg = 'default must be a list when multiple is True'
-            raise ValueError(msg)
-
+        validate_default_matches_multiple(self.default, self.multiple)
         return self
 
 
