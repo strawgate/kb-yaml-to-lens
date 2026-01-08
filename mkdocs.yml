@@ -64,6 +64,7 @@ plugins:
             - https://docs.python.org/3/objects.inv
           extensions:
             - griffe_pydantic
+            - griffe_fieldz
 hooks:
   - docs/hooks/generate_llms_txt.py
 markdown_extensions:
