@@ -26,9 +26,9 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv==0.9.18
 
 # Copy project files
-COPY pyproject.toml /app/
+COPY compiler/pyproject.toml /app/
 COPY README.md /app/
-COPY src/ /app/src/
+COPY compiler/src/ /app/src/
 
 # Install dependencies using uv and create directories
 RUN uv pip install --system --no-cache . && \

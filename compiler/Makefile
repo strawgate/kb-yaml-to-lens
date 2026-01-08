@@ -173,7 +173,7 @@ upload:
 # Docker commands
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t $(DOCKER_IMAGE) -f Dockerfile .
+	docker build -t $(DOCKER_IMAGE) -f Dockerfile ..
 
 docker-run:
 	@echo "Running Docker container..."
