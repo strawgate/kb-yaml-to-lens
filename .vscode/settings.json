@@ -4,5 +4,6 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "yamlDashboard.pythonPath": ".venv/bin/python"
+    "python.venvPath": "compiler/.venv",
+    "python.defaultInterpreterPath": "compiler/.venv/bin/python",
 }

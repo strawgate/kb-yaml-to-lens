@@ -19,16 +19,16 @@
             "module": "dashboard_compiler.cli",
             "args": ["compile"],
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}/compiler"
         },
         {
             "name": "Compile Dashboards and Upload",
             "type": "debugpy",
             "request": "launch",
             "module": "dashboard_compiler.cli",
-            "args": ["compile", "--upload"],
+            "args": ["compile", "--input-dir", "../docs/examples", "--upload"],
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}/compiler"
         }
     ]
 }
