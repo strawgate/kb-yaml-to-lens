@@ -520,7 +520,7 @@
       "    query: |",
       "      FROM ${10:logs-*}",
       "      | STATS ${11:metric_value} = ${12|COUNT(*),AVG(field),SUM(field)|} BY ${13:time_bucket} = BUCKET(@timestamp, 1 hour)",
-      "      ${14:| ORDER ${13:time_bucket} ASC}",
+      "      ${14:| SORT ${13:time_bucket} ASC}",
       "    metrics:",
       "      - field: ${11:metric_value}",
       "        ${15:id: ${16:metric_1}}",
