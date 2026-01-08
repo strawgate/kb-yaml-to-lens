@@ -157,7 +157,7 @@ dashboards:
               format:
                 type: bytes
       - title: Network Transmitted
-        grid: {x: 0, y: 41, w: 24, h: 11}
+        grid: {x: 24, y: 41, w: 24, h: 11}
         lens:
           type: area
           data_view: metrics-*

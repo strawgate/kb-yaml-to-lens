@@ -119,7 +119,7 @@ Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
-### [Docker OpenTelemetry Dashboards](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/docker_otel/)
+### [Docker OpenTelemetry Dashboards](docker_otel/)
 
 Docker container monitoring dashboards for OpenTelemetry metrics:
 

@@ -48,11 +48,10 @@ These dashboards expect data from the OpenTelemetry Docker Stats Receiver with t
 
 ### Metrics
 
-- `container.cpu.usage.total` - Total CPU usage
-- `container.memory.usage.total` - Total memory usage
+- `container.cpu.utilization` - CPU utilization percentage
+- `container.memory.usage.total` - Total memory usage in bytes
 - `container.memory.percent` - Memory utilization percentage
-- `container.blockio.io_service_bytes_recursive.read` - Disk read I/O
-- `container.blockio.io_service_bytes_recursive.write` - Disk write I/O
+- `container.blockio.io_service_bytes_recursive` - Disk I/O bytes (filtered by `attributes.operation`: "read" or "write")
 - `container.network.io.usage.rx_bytes` - Network bytes received
 - `container.network.io.usage.tx_bytes` - Network bytes transmitted
 
