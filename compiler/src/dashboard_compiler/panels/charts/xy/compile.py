@@ -290,6 +290,10 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
                 legend_visible = False
             elif chart.legend.visible == 'auto':
                 legend_visible = True
+            else:
+                # This should never happen due to Pydantic enum validation, but we handle it defensively
+                msg = f'Unknown legend visibility value: {chart.legend.visible}'
+                raise ValueError(msg)
         if chart.legend.position is not None:
             legend_position = chart.legend.position
         if chart.legend.show_single_series is not None:
