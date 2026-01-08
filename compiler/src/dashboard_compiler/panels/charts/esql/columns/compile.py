@@ -137,9 +137,17 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
     """
     dimension_id = get_layer_id(dimension)
 
+    # Add meta information for date fields if data_type is explicitly set
+    meta = None
+    if dimension.data_type == 'date':
+        meta = KbnESQLColumnMeta(type='date', esType='date')
+
     return KbnESQLFieldDimensionColumn(
         fieldName=dimension.field,
         columnId=dimension_id,
+        label=dimension.field,
+        customLabel=False,
+        meta=meta,
     )
 
 

@@ -171,7 +171,7 @@ async def test_options_list_with_small_width_and_single_select() -> None:
         'field': 'aerospike.namespace',
         'label': 'Small Option Single Select',
         'match_technique': 'prefix',
-        'singular': True,
+        'multiple': False,
         'width': 'small',
     }
     result = compile_control_snapshot(config)
@@ -538,13 +538,13 @@ async def test_time_slider_control_validation_error() -> None:
 
 
 async def test_options_list_with_multi_select() -> None:
-    """Test options list control with multi-select (singular: false)."""
+    """Test options list control with multi-select (multiple: true)."""
     config = {
         'type': 'options',
         'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
         'field': 'aerospike.namespace',
         'label': 'Multi Select Test',
-        'singular': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -751,6 +751,194 @@ async def test_esql_query_control_with_multi_select() -> None:
                 'title': 'Host Name',
                 'selectedOptions': [],
                 'singleSelect': False,
+            },
+        }
+    )
+
+
+async def test_esql_field_control() -> None:
+    """Test ES|QL field control (FIELDS variable type)."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'selected_field',
+        'variable_type': 'fields',
+        'choices': ['@timestamp', 'host.name', 'message'],
+        'label': 'Select Field',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'selected_field',
+                'variableType': 'fields',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Select Field',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'availableOptions': ['@timestamp', 'host.name', 'message'],
+            },
+        }
+    )
+
+
+async def test_esql_function_control() -> None:
+    """Test ES|QL function control (FUNCTIONS variable type)."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'aggregate_fn',
+        'variable_type': 'functions',
+        'choices': ['COUNT', 'AVG', 'SUM'],
+        'label': 'Aggregate Function',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'aggregate_fn',
+                'variableType': 'functions',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Aggregate Function',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'availableOptions': ['COUNT', 'AVG', 'SUM'],
+            },
+        }
+    )
+
+
+async def test_esql_field_control_default_validation() -> None:
+    """Test that default value validation works for field controls."""
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'selected_field',
+                    'variable_type': 'fields',
+                    'choices': ['@timestamp', 'host.name'],
+                    'default': 'invalid_field',
+                }
+            }
+        )
+
+
+async def test_esql_field_control_with_default() -> None:
+    """Test ES|QL field control with default value."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'selected_field',
+        'variable_type': 'fields',
+        'choices': ['@timestamp', 'host.name', 'message'],
+        'label': 'Select Field',
+        'default': '@timestamp',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'selected_field',
+                'variableType': 'fields',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Select Field',
+                'selectedOptions': ['@timestamp'],
+                'singleSelect': True,
+                'availableOptions': ['@timestamp', 'host.name', 'message'],
+            },
+        }
+    )
+
+
+async def test_esql_function_control_default_validation() -> None:
+    """Test that default value validation works for function controls."""
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'aggregate_fn',
+                    'variable_type': 'functions',
+                    'choices': ['COUNT', 'AVG', 'SUM'],
+                    'default': 'INVALID_FN',
+                }
+            }
+        )
+
+
+async def test_esql_function_control_with_default() -> None:
+    """Test ES|QL function control with default value."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'aggregate_fn',
+        'variable_type': 'functions',
+        'choices': ['COUNT', 'AVG', 'SUM'],
+        'label': 'Aggregate Function',
+        'default': 'COUNT',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'aggregate_fn',
+                'variableType': 'functions',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Aggregate Function',
+                'selectedOptions': ['COUNT'],
+                'singleSelect': True,
+                'availableOptions': ['COUNT', 'AVG', 'SUM'],
+            },
+        }
+    )
+
+
+async def test_options_list_with_multiple_true() -> None:
+    """Test options list control with multiple: true (new property)."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'aerospike.namespace',
+        'label': 'Multiple Test',
+        'multiple': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'aerospike.namespace',
+                'title': 'Multiple Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
             },
         }
     )

@@ -8,10 +8,33 @@ from pydantic import Field, model_validator
 from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
+
+def validate_default_in_choices(default: str | list[str] | None, choices: list[str] | None) -> None:
+    """Validate that all default values exist in choices.
+
+    Args:
+        default (str | list[str] | None): The default value(s) to validate.
+        choices (list[str] | None): The available choices to validate against.
+
+    Raises:
+        ValueError: If any default value is not in choices.
+
+    """
+    if default is None or choices is None:
+        return
+    default_list = [default] if isinstance(default, str) else default
+    invalid = [v for v in default_list if v not in choices]
+    if len(invalid) > 0:
+        msg = f'default contains options not in choices: {invalid}'
+        raise ValueError(msg)
+
+
 type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
     | TimeSliderControl
+    | ESQLFieldControl
+    | ESQLFunctionControl
     | ESQLStaticSingleSelectControl
     | ESQLStaticMultiSelectControl
     | ESQLQueryControl
@@ -94,8 +117,8 @@ class OptionsListControl(BaseControl):
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
-    singular: bool | None = Field(default=None)
-    """If true, the control allows only a single selection from the options list."""
+    multiple: bool | None = Field(default=None)
+    """If true, allow multiple selection."""
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
@@ -145,6 +168,52 @@ class TimeSliderControl(BaseControl):
             msg = 'start_offset must be less than end_offset'
             raise ValueError(msg)
 
+        return self
+
+
+class ESQLFieldControl(BaseControl):
+    """ES|QL control for single field selection from static list."""
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.FIELDS] = Field(default=ESQLVariableType.FIELDS)
+    """The type of variable ('fields')."""
+
+    choices: list[str] = Field(...)
+    """The static list of available fields for this control."""
+
+    default: str | None = Field(default=None)
+    """Default selected field."""
+
+    @model_validator(mode='after')
+    def validate_default(self) -> Self:
+        """Validate that default value exists in choices."""
+        validate_default_in_choices(self.default, self.choices)
+        return self
+
+
+class ESQLFunctionControl(BaseControl):
+    """ES|QL control for single function selection from static list."""
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.FUNCTIONS] = Field(default=ESQLVariableType.FUNCTIONS)
+    """The type of variable ('functions')."""
+
+    choices: list[str] = Field(...)
+    """The static list of available functions for this control."""
+
+    default: str | None = Field(default=None)
+    """Default selected function."""
+
+    @model_validator(mode='after')
+    def validate_default(self) -> Self:
+        """Validate that default value exists in choices."""
+        validate_default_in_choices(self.default, self.choices)
         return self
 
 
