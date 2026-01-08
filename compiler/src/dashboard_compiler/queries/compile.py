@@ -1,27 +1,8 @@
 """Compile dashboard queries into their Kibana view model representation."""
 
-import re
-
 from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
-
-
-def extract_index_pattern_from_esql(query: ESQLQueryTypes) -> str | None:
-    """Extract the index pattern from an ES|QL query.
-
-    Args:
-        query: The ES|QL query object
-
-    Returns:
-        The index pattern (e.g., "logs-*") or None if not found
-    """
-    # ES|QL queries start with FROM <index-pattern>
-    # Extract the first index pattern after FROM
-    match = re.search(r'FROM\s+([^\s|]+)', query.root, re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
-    return None
 
 
 def compile_esql_query(query: ESQLQueryTypes) -> KbnESQLQuery:

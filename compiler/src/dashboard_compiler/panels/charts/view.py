@@ -114,23 +114,14 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
-    index: str
-    timeField: str
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):
     root: dict[str, KbnTextBasedDataSourceStateLayer] = Field(default_factory=dict)
 
 
-class KbnIndexPatternRef(BaseVwModel):
-    id: str
-    title: str
-    timeField: str
-
-
 class KbnTextBasedDataSourceState(BaseVwModel):
     layers: KbnTextBasedDataSourceStateLayerById | None = Field(default=None)
-    indexPatternRefs: Annotated[list[KbnIndexPatternRef] | None, OmitIfNone()] = None
 
 
 # endregion Text Data Source
@@ -185,22 +176,6 @@ class KbnVisualizationTypeEnum(StrEnum):
     TAGCLOUD = 'lnsTagcloud'
 
 
-class KbnAdHocDataView(BaseVwModel):
-    """Represents an ad-hoc data view for ES|QL queries."""
-
-    id: str
-    title: str
-    timeFieldName: str
-    sourceFilters: list[Any] = Field(default_factory=list)
-    type: Literal['esql'] = 'esql'
-    fieldFormats: dict[str, Any] = Field(default_factory=dict)
-    runtimeFieldMap: dict[str, Any] = Field(default_factory=dict)
-    allowNoIndex: bool = False
-    name: str
-    allowHidden: bool = False
-    managed: bool = False
-
-
 class KbnLensPanelState(BaseVwModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
@@ -209,7 +184,7 @@ class KbnLensPanelState(BaseVwModel):
     filters: list[KbnFilter] = Field(...)
     datasourceStates: KbnDataSourceState = Field(...)
     internalReferences: list[Any] = Field(...)
-    adHocDataViews: dict[str, KbnAdHocDataView] = Field(...)
+    adHocDataViews: dict[str, Any] = Field(...)
 
 
 class KbnLensPanelAttributes(BaseVwModel):
