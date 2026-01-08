@@ -18,13 +18,19 @@ The extension will automatically fall back to using Python + the `dashboard_comp
 ### Building LSP Binary (Current Platform)
 
 ```bash
-cd vscode-extension
-npm run build-lsp-binary
+# From repository root
+make build-extension-binaries
+
+# Or build compiler binary and copy separately
+cd compiler
+make build-lsp-binary
+cd ../vscode-extension
+make copy-lsp-binary
 ```
 
 Creates `bin/{platform}-{arch}/kb-dashboard-compiler-lsp` for your current platform.
 
-**Prerequisites**: Python 3.12+, pyinstaller (`pip install pyinstaller`), dashboard_compiler package installed
+**Prerequisites**: Python 3.12+, uv package manager, dashboard_compiler package installed
 
 ### Creating Platform-Specific VSIX
 
@@ -54,9 +60,19 @@ Platform directories:
 - `bin/darwin-arm64/` - macOS Apple Silicon
 - `bin/win32-x64/` - Windows x86_64
 
+### Binary Build Process
+
+The LSP binary is built using the compiler's unified binary builder:
+
+1. **Compiler builds binary**: `compiler/scripts/build_binaries.py` creates the LSP binary using PyInstaller
+2. **Extension copies binary**: `vscode-extension/scripts/copy_lsp_binary.sh` copies the binary to the correct platform directory
+3. **Packaging includes binary**: When creating VSIX packages, the binary is bundled with the extension
+
+This approach eliminates duplicate Python dependencies in the extension and ensures consistency between the compiler and extension binaries.
+
 ### What Gets Bundled
 
-- ✅ **LSP server binary**: Compiled from `src/dashboard_compiler/lsp/server.py` using PyInstaller
+- ✅ **LSP server binary**: Built from `compiler/src/dashboard_compiler/lsp/server.py` using the compiler's build system
 - ✅ **Compiled TypeScript**: JavaScript output in `out/` directory
 - ❌ **Grid scripts**: Not bundled - require Python runtime (used by grid editor feature)
 
@@ -101,8 +117,9 @@ pip install pyinstaller
 #### "LSP server script not found"
 
 ```bash
-# Install dashboard_compiler package
-pip install -e .  # from repository root
+# Install dashboard_compiler package using uv
+cd compiler
+uv sync --group build
 ```
 
 ### Binary Not Found in Production
@@ -117,7 +134,7 @@ If the extension falls back to Python in production:
 
 If the VSIX is ~180kb instead of ~18MB, the binary wasn't included:
 
-1. Ensure you ran `npm run build-lsp-binary` before packaging
+1. Ensure you ran `make build-extension-binaries` before packaging
 2. Check that `bin/{platform}-{arch}/kb-dashboard-compiler-lsp` exists
 3. Verify the binary is ~18MB: `ls -lh bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
 
