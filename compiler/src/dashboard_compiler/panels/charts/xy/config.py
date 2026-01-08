@@ -3,9 +3,9 @@ from typing import Literal, Self
 from pydantic import Field, model_validator
 
 from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping, LegendWidthEnum
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
+from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes
 from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
-from dashboard_compiler.panels.charts.lens.metrics import LensMetricTypes
+from dashboard_compiler.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
@@ -140,8 +140,8 @@ class AxisConfig(BaseCfgModel):
 class BaseXYChartAppearance(BaseCfgModel):
     """Base class for XY chart appearance formatting options.
 
-    Includes axis configuration for left Y-axis, right Y-axis, and X-axis,
-    as well as per-series visual styling. Not intended to be used directly by users.
+    Includes axis configuration for left Y-axis, right Y-axis, and X-axis.
+    Not intended to be used directly by users.
     """
 
     x_axis: AxisConfig | None = Field(default=None)
@@ -152,9 +152,6 @@ class BaseXYChartAppearance(BaseCfgModel):
 
     y_right_axis: AxisConfig | None = Field(default=None)
     """Configuration for the right Y-axis."""
-
-    series: list['XYSeries'] | None = Field(default=None)
-    """Per-series visual configuration (axis assignment, colors, line styles, etc.)."""
 
 
 class BarChartAppearance(BaseXYChartAppearance):
@@ -203,23 +200,6 @@ class XYTitlesAndText(BaseCfgModel):
     """Represents titles and text formatting options for XY charts."""
 
 
-class XYSeries(BaseCfgModel):
-    """Represents per-series visual configuration for XY charts.
-
-    Defines how a specific metric should be displayed, including axis assignment
-    and color customization.
-    """
-
-    metric_id: str = Field(...)
-    """The ID of the metric this series configuration applies to."""
-
-    axis: Literal['left', 'right'] | None = Field(default=None)
-    """Which Y-axis to assign this series to ('left' or 'right')."""
-
-    color: str | None = Field(default=None)
-    """Custom color for this series (hex color code, e.g., '#2196F3')."""
-
-
 class BaseXYChart(BaseChart):
     """Base model for defining XY chart objects."""
 
@@ -247,7 +227,7 @@ class LensXYChartMixin(BaseCfgModel):
         default=None,
         description='Defines the X-axis dimension for the chart. XY charts support 0 or 1 dimension.',
     )
-    metrics: list[LensMetricTypes] = Field(
+    metrics: list[LensXYMetricTypes] = Field(
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
     )
@@ -264,7 +244,7 @@ class LensXYChartMixin(BaseCfgModel):
 
         return self
 
-    def add_metric(self, lens_metric: LensMetricTypes) -> Self:
+    def add_metric(self, lens_metric: LensXYMetricTypes) -> Self:
         """Add a metric to the lens Chart."""
         self.metrics.append(lens_metric)
 
@@ -279,7 +259,7 @@ class ESQLXYChartMixin(BaseCfgModel):
         description='Defines the X-axis dimension for the chart. XY charts support 0 or 1 dimension.',
     )
 
-    metrics: list[ESQLMetricTypes] = Field(
+    metrics: list[ESQLXYMetricTypes] = Field(
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
     )
@@ -297,7 +277,7 @@ class ESQLXYChartMixin(BaseCfgModel):
 
         return self
 
-    def add_metric(self, esql_metric: ESQLMetricTypes) -> Self:
+    def add_metric(self, esql_metric: ESQLXYMetricTypes) -> Self:
         """Add a metric to the ESQL Chart."""
         self.metrics.append(esql_metric)
 
@@ -419,15 +399,11 @@ class LensLineChart(BaseXYLineChart, LensXYChartMixin):
           metrics:
             - aggregation: count
               id: "request_count"
+              axis: left
             - aggregation: average
               field: "error.rate"
               id: "error_rate"
-          appearance:
-            series:
-              - metric_id: "request_count"
-                axis: left
-              - metric_id: "error_rate"
-                axis: right
+              axis: right
         ```
     """
 

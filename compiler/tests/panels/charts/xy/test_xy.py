@@ -22,7 +22,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     XYReferenceLine,
     XYReferenceLineValue,
 )
-from dashboard_compiler.panels.charts.xy.view import XYLegendConfig
+from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig, XYLegendConfig
 
 
 async def test_bar_stacked_chart() -> None:
@@ -825,26 +825,22 @@ async def test_xy_chart_with_show_single_series() -> None:
 
 
 async def test_dual_axis_chart() -> None:
-    """Test dual Y-axis chart with per-series configuration.
+    """Test dual Y-axis chart with per-metric configuration.
 
-    Uses the new series-based configuration structure where visual properties
-    are defined in the appearance.series section, separate from metric definitions.
+    Uses the metric-based configuration structure where visual properties
+    are defined directly on metric definitions.
     """
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [
-            {'aggregation': 'count', 'id': 'metric1'},
-            {'aggregation': 'average', 'field': 'error_rate', 'id': 'metric2'},
+            {'aggregation': 'count', 'id': 'metric1', 'axis': 'left', 'color': '#2196F3'},
+            {'aggregation': 'average', 'field': 'error_rate', 'id': 'metric2', 'axis': 'right', 'color': '#FF5252'},
         ],
         'appearance': {
             'y_left_axis': {'title': 'Count', 'scale': 'linear'},
             'y_right_axis': {'title': 'Error Rate (%)', 'scale': 'linear'},
-            'series': [
-                {'metric_id': 'metric1', 'axis': 'left', 'color': '#2196F3'},
-                {'metric_id': 'metric2', 'axis': 'right', 'color': '#FF5252'},
-            ],
         },
     }
     lens_chart = LensLineChart.model_validate(lens_config)
@@ -890,25 +886,19 @@ async def test_dual_axis_chart() -> None:
 
 
 async def test_styled_series_chart() -> None:
-    """Test chart with styled series using the new series configuration.
+    """Test chart with styled series using metric-based configuration.
 
-    Uses the series-based configuration where visual properties like color
-    are defined in the appearance.series section.
+    Uses the metric-based configuration where visual properties like color
+    are defined directly on metric definitions.
     """
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [
-            {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1'},
-            {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2'},
+            {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1', 'color': '#4CAF50'},
+            {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2', 'color': '#FF9800'},
         ],
-        'appearance': {
-            'series': [
-                {'metric_id': 'metric1', 'color': '#4CAF50'},
-                {'metric_id': 'metric2', 'color': '#FF9800'},
-            ],
-        },
     }
 
     lens_chart = LensAreaChart.model_validate(lens_config)
@@ -1347,3 +1337,101 @@ async def test_esql_line_chart_without_dimension() -> None:
     assert layer_dict['xAccessor'] is None
     # Should still have the metric accessor
     assert len(layer_dict['accessors']) == 1
+
+
+async def test_metric_with_axis_only() -> None:
+    """Test metric with only axis configuration (no color)."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [
+            {'aggregation': 'count', 'id': 'metric1', 'axis': 'left'},
+            {'aggregation': 'average', 'field': 'response_time', 'id': 'metric2', 'axis': 'right'},
+        ],
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify yConfig contains only axis settings
+    layer = kbn_state_visualization.layers[0]
+    assert isinstance(layer, XYDataLayerConfig)
+    assert layer.yConfig is not None
+    assert len(layer.yConfig) == 2
+    assert layer.yConfig[0].model_dump() == snapshot({'forAccessor': 'metric1', 'axisMode': 'left'})
+    assert layer.yConfig[1].model_dump() == snapshot({'forAccessor': 'metric2', 'axisMode': 'right'})
+
+
+async def test_metric_with_color_only() -> None:
+    """Test metric with only color configuration (no axis)."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [
+            {'aggregation': 'count', 'id': 'metric1', 'color': '#FF0000'},
+            {'aggregation': 'sum', 'field': 'bytes', 'id': 'metric2', 'color': '#00FF00'},
+        ],
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify yConfig contains only color settings
+    layer = kbn_state_visualization.layers[0]
+    assert isinstance(layer, XYDataLayerConfig)
+    assert layer.yConfig is not None
+    assert len(layer.yConfig) == 2
+    assert layer.yConfig[0].model_dump() == snapshot({'forAccessor': 'metric1', 'color': '#FF0000'})
+    assert layer.yConfig[1].model_dump() == snapshot({'forAccessor': 'metric2', 'color': '#00FF00'})
+
+
+async def test_metric_with_no_appearance() -> None:
+    """Test metric with no appearance configuration (no axis or color)."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [
+            {'aggregation': 'count', 'id': 'metric1'},
+            {'aggregation': 'average', 'field': 'response_time', 'id': 'metric2'},
+        ],
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify no yConfig is created when metrics have no appearance properties
+    layer = kbn_state_visualization.layers[0]
+    assert isinstance(layer, XYDataLayerConfig)
+    assert layer.yConfig is None
+
+
+async def test_mixed_metrics_some_with_appearance() -> None:
+    """Test chart with mix of metrics with and without appearance properties."""
+    lens_config = {
+        'type': 'area',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [
+            {'aggregation': 'count', 'id': 'metric1', 'color': '#FF0000'},
+            {'aggregation': 'average', 'field': 'response_time', 'id': 'metric2'},
+            {'aggregation': 'sum', 'field': 'bytes', 'id': 'metric3', 'axis': 'right', 'color': '#0000FF'},
+        ],
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+
+    # Verify yConfig only includes metrics with appearance properties
+    layer = kbn_state_visualization.layers[0]
+    assert isinstance(layer, XYDataLayerConfig)
+    assert layer.yConfig is not None
+    assert len(layer.yConfig) == 2  # Only metric1 and metric3
+    assert layer.yConfig[0].model_dump() == snapshot({'forAccessor': 'metric1', 'color': '#FF0000'})
+    assert layer.yConfig[1].model_dump() == snapshot({'forAccessor': 'metric3', 'axisMode': 'right', 'color': '#0000FF'})

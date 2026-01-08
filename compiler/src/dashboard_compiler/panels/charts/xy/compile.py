@@ -376,26 +376,21 @@ def compile_xy_chart_visualization_state(
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
-    # Build yConfig from series configuration if provided
+    # Build yConfig from metric appearance properties
     y_config: list[YConfig] | None = None
-    if chart.appearance is not None and chart.appearance.series is not None:
-        y_config = []
-        for series_cfg in chart.appearance.series:
-            # Only create YConfig if at least one property is set
-            if any(
-                v is not None
-                for v in (
-                    series_cfg.axis,
-                    series_cfg.color,
+    y_config_list: list[YConfig] = []
+
+    for metric_id, metric in zip(metric_ids, chart.metrics, strict=True):
+        if metric.axis is not None or metric.color is not None:
+            y_config_list.append(
+                YConfig(
+                    forAccessor=metric_id,
+                    axisMode=metric.axis,
+                    color=metric.color,
                 )
-            ):
-                y_config.append(
-                    YConfig(
-                        forAccessor=series_cfg.metric_id,
-                        axisMode=series_cfg.axis,
-                        color=series_cfg.color,
-                    )
-                )
+            )
+
+    y_config = y_config_list if len(y_config_list) > 0 else None
 
     # Build axis configuration from appearance settings
     x_title = None
@@ -432,7 +427,7 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
-        yConfig=y_config if y_config is not None and len(y_config) > 0 else None,
+        yConfig=y_config,
         xScaleType=x_scale,
     )
 
