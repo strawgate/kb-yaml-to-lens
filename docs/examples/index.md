@@ -176,7 +176,7 @@ Comprehensive host monitoring dashboards for OpenTelemetry system metrics:
 - **Host Details - Metadata** - Host resource attributes and metadata (ES|QL datatables)
 - **Host Details - Logs** - Host log messages (ES|QL datatable)
 
-**Use this when:** Monitoring infrastructure with OpenTelemetry hostmetricsreceiver.
+**Use this when:** Monitoring infrastructure with OpenTelemetry Host Metrics Receiver.
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
