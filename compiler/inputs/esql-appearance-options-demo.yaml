@@ -1,0 +1,175 @@
+dashboards:
+  - name: ES|QL Appearance Options Demo
+    description: Comprehensive demonstration of all ES|QL metric appearance options
+    panels:
+      # Metric visualization with format options
+      - title: Metric Chart - Format Options
+        grid: { x: 0, y: 0, w: 24, h: 12 }
+        esql:
+          type: metric
+          query: |
+            FROM logs-*
+            | STATS
+                total_bytes = SUM(bytes),
+                avg_duration = AVG(event.duration),
+                event_count = COUNT(*),
+                success_rate = COUNT(event.outcome == "success") / COUNT(*) * 100
+          primary:
+            field: total_bytes
+            label: Total Data Transfer
+            format:
+              type: bytes
+              decimals: 3
+              suffix: /sec
+          secondary:
+            field: avg_duration
+            label: Avg Duration
+            format:
+              type: duration
+              decimals: 2
+
+      # Bar chart with series appearance options
+      - title: Bar Chart - Series Color & Axis Options
+        grid: { x: 24, y: 0, w: 24, h: 12 }
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS
+                event_count = COUNT(*),
+                total_bytes = SUM(bytes),
+                avg_duration = AVG(event.duration)
+              BY time_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER time_bucket ASC
+          mode: unstacked
+          dimensions:
+            - field: time_bucket
+          metrics:
+            - field: event_count
+              id: events_metric
+              label: Event Count
+              format:
+                type: number
+                decimals: 0
+            - field: total_bytes
+              id: bytes_metric
+              label: Data Volume
+              format:
+                type: bytes
+                decimals: 1
+            - field: avg_duration
+              id: duration_metric
+              label: Avg Duration
+              format:
+                type: number
+                decimals: 2
+                suffix: ms
+          appearance:
+            y_left_axis:
+              title: Events & Duration
+            y_right_axis:
+              title: Data Volume (bytes)
+            series:
+              - metric_id: events_metric
+                color: '#68BC00'
+                axis: left
+              - metric_id: bytes_metric
+                color: '#009CE0'
+                axis: right
+              - metric_id: duration_metric
+                color: '#F04E98'
+                axis: left
+
+      # Line chart with all format types
+      - title: Line Chart - All Format Types
+        grid: { x: 0, y: 12, w: 48, h: 12 }
+        esql:
+          type: line
+          query: |
+            FROM logs-*
+            | STATS
+                bit_count = SUM(bits),
+                byte_count = SUM(bytes),
+                percent_success = COUNT(event.outcome == "success") / COUNT(*) * 100,
+                event_count = COUNT(*)
+              BY time_bucket = BUCKET(@timestamp, 30 minutes)
+            | ORDER time_bucket ASC
+          dimensions:
+            - field: time_bucket
+          metrics:
+            - field: bit_count
+              id: bits_metric
+              label: Bits Transferred
+              format:
+                type: bits
+                decimals: 1
+            - field: byte_count
+              id: bytes_metric
+              label: Bytes Transferred
+              format:
+                type: bytes
+                decimals: 2
+                compact: true
+            - field: percent_success
+              id: percent_metric
+              label: Success Rate
+              format:
+                type: percent
+                decimals: 1
+            - field: event_count
+              id: count_metric
+              label: Events
+              format:
+                type: number
+                decimals: 0
+                suffix: events
+          appearance:
+            series:
+              - metric_id: bits_metric
+                color: '#FEC514'
+                axis: left
+              - metric_id: bytes_metric
+                color: '#7DE2D1'
+                axis: left
+              - metric_id: percent_metric
+                color: '#BD271E'
+                axis: right
+              - metric_id: count_metric
+                color: '#490092'
+                axis: right
+
+      # Area chart with custom patterns
+      - title: Area Chart - Custom Format Patterns
+        grid: { x: 0, y: 24, w: 48, h: 12 }
+        esql:
+          type: area
+          query: |
+            FROM logs-*
+            | STATS
+                precise_value = AVG(response.size),
+                rounded_value = AVG(response.time)
+              BY time_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER time_bucket ASC
+          mode: stacked
+          dimensions:
+            - field: time_bucket
+          metrics:
+            - field: precise_value
+              id: precise_metric
+              label: Precise (4 decimals)
+              format:
+                type: custom
+                pattern: '0,0.0000'
+            - field: rounded_value
+              id: rounded_metric
+              label: Rounded
+              format:
+                type: number
+                decimals: 0
+                pattern: '0,0'
+          appearance:
+            series:
+              - metric_id: precise_metric
+                color: '#FF6692'
+              - metric_id: rounded_metric
+                color: '#54B399'
