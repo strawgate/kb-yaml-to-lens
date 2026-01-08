@@ -69,8 +69,6 @@ help:
 	@echo "  clean         - Clean cache and temporary files"
 	@echo "  clean-full    - Clean all including virtual environment"
 	@echo ""
-	@echo "Note: Documentation commands (docs-*) have been moved to the root Makefile."
-	@echo "      Run 'make docs-serve' or 'make docs-build' from the repository root."
 
 all: ci
 
