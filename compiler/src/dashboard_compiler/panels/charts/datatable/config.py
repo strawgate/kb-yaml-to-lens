@@ -175,7 +175,7 @@ class LensDatatableChart(BaseChart):
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    data_view: str
+    data_view: str = Field(default=...)
     """The data view that determines the data for the datatable chart."""
 
     metrics: list[LensMetricTypes] = Field(default_factory=list)

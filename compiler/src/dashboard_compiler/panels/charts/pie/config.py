@@ -68,7 +68,7 @@ class PieTitlesAndText(BaseCfgModel):
 class PieChartAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for Pie charts."""
 
-    donut: Literal['small', 'medium', 'large'] | None = None
+    donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
 
 
@@ -129,13 +129,13 @@ class LensPieChart(BasePieChart):
         ```
     """
 
-    data_view: str
+    data_view: str = Field(default=...)
     """The data view that determines the data for the pie chart."""
 
     metrics: list[LensMetricTypes] = Field(min_length=1)
     """Metrics that determine the size of slices."""
 
-    slice_by: list[LensDimensionTypes]
+    slice_by: list[LensDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
 
 
@@ -160,5 +160,5 @@ class ESQLPieChart(BasePieChart):
     metrics: list[ESQLMetricTypes] = Field(min_length=1)
     """Metrics that determine the size of slices."""
 
-    slice_by: list[ESQLDimensionTypes]
+    slice_by: list[ESQLDimensionTypes] = Field(default=...)
     """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""

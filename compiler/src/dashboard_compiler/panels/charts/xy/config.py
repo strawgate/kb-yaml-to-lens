@@ -22,10 +22,10 @@ class XYReferenceLineValue(BaseCfgModel):
 class XYReferenceLine(BaseCfgModel):
     """Configuration for a single reference line in an XY chart."""
 
-    id: str | None = None
+    id: str | None = Field(default=None)
     """Optional ID for the reference line."""
 
-    label: str | None = None
+    label: str | None = Field(default=None)
     """Optional label for the reference line."""
 
     value: XYReferenceLineValue | float
@@ -34,22 +34,22 @@ class XYReferenceLine(BaseCfgModel):
     axis: Literal['left', 'right'] | None = 'left'
     """The axis to assign the reference line to."""
 
-    color: str | None = None
+    color: str | None = Field(default=None)
     """The color of the reference line."""
 
     line_width: int | None = Field(default=None, ge=1, le=10)
     """The width of the reference line (1-10)."""
 
-    line_style: Literal['solid', 'dashed', 'dotted'] | None = None
+    line_style: Literal['solid', 'dashed', 'dotted'] | None = Field(default=None)
     """The style of the reference line."""
 
-    fill: Literal['above', 'below', 'none'] | None = None
+    fill: Literal['above', 'below', 'none'] | None = Field(default=None)
     """Fill area above or below the line."""
 
-    icon: str | None = None
+    icon: str | None = Field(default=None)
     """Icon to display on the reference line."""
 
-    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = None
+    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(default=None)
     """Position of the icon on the reference line."""
 
 
@@ -468,7 +468,7 @@ class LensReferenceLineLayer(BaseChart):
     type: Literal['reference_line'] = 'reference_line'
     """The type of layer. Always 'reference_line'."""
 
-    data_view: str
+    data_view: str = Field(default=...)
     """The data view to use for the layer (required for Kibana compatibility)."""
 
     reference_lines: list[XYReferenceLine] = Field(default_factory=list)

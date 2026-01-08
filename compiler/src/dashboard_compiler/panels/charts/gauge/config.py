@@ -17,19 +17,19 @@ class GaugeAppearance(BaseCfgModel):
     labels, and color mode.
     """
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = None
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)
     """The shape of the gauge visualization."""
 
-    ticks_position: Literal['auto', 'bands', 'hidden'] | None = None
+    ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(default=None)
     """Position of tick marks on the gauge."""
 
-    label_major: str | None = None
+    label_major: str | None = Field(default=None)
     """Major label text to display on the gauge."""
 
-    label_minor: str | None = None
+    label_minor: str | None = Field(default=None)
     """Minor label text to display on the gauge."""
 
-    color_mode: Literal['none', 'palette'] | None = None
+    color_mode: Literal['none', 'palette'] | None = Field(default=None)
     """Color mode for the gauge visualization."""
 
 
@@ -84,19 +84,19 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
         ```
     """
 
-    data_view: str
+    data_view: str = Field(default=...)
     """The data view that determines the data for the gauge chart."""
 
-    metric: LensMetricTypes
+    metric: LensMetricTypes = Field(default=...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: LensMetricTypes | int | float | None = None
+    minimum: LensMetricTypes | int | float | None = Field(default=None)
     """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: LensMetricTypes | int | float | None = None
+    maximum: LensMetricTypes | int | float | None = Field(default=None)
     """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: LensMetricTypes | int | float | None = None
+    goal: LensMetricTypes | int | float | None = Field(default=None)
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
     @property
@@ -129,16 +129,16 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
         ```
     """
 
-    metric: ESQLMetricTypes
+    metric: ESQLMetricTypes = Field(default=...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: ESQLMetricTypes | int | float | None = None
+    minimum: ESQLMetricTypes | int | float | None = Field(default=None)
     """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    maximum: ESQLMetricTypes | int | float | None = None
+    maximum: ESQLMetricTypes | int | float | None = Field(default=None)
     """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
 
-    goal: ESQLMetricTypes | int | float | None = None
+    goal: ESQLMetricTypes | int | float | None = Field(default=None)
     """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
 
     @property

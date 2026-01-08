@@ -41,22 +41,22 @@ class LensMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    data_view: str
+    data_view: str = Field(default=...)
     """The data view that determines the data for the metric chart."""
 
-    primary: LensMetricTypes
+    primary: LensMetricTypes = Field(default=...)
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: LensMetricTypes | None = None
+    secondary: LensMetricTypes | None = Field(default=None)
     """An optional secondary metric to display alongside the primary metric."""
 
-    maximum: LensMetricTypes | None = None
+    maximum: LensMetricTypes | None = Field(default=None)
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: LensDimensionTypes | None = None
+    breakdown: LensDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = None
+    color: ColorMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
 
@@ -90,17 +90,17 @@ class ESQLMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    primary: ESQLMetricTypes
+    primary: ESQLMetricTypes = Field(default=...)
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: ESQLMetricTypes | None = None
+    secondary: ESQLMetricTypes | None = Field(default=None)
     """An optional secondary metric to display alongside the primary metric."""
 
-    maximum: ESQLMetricTypes | None = None
+    maximum: ESQLMetricTypes | None = Field(default=None)
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: ESQLDimensionTypes | None = None
+    breakdown: ESQLDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = None
+    color: ColorMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
