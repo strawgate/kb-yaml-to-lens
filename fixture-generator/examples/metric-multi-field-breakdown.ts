@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Example: Generate Metric chart with multi-field breakdown_by (Data View only)
+ * Example: Generate Metric chart with multi-field breakdown (Data View only)
  *
- * Demonstrates the compiled structure for metric charts with breakdown_by.
+ * Demonstrates the compiled structure for metric charts with multi-field breakdown.
  * Note: Kibana's Metric visualization only supports ONE breakdown field,
- * so even when breakdown_by specifies multiple fields, only the first is used.
+ * so even when breakdown specifies multiple fields, only the first is used.
  *
  * This validates that the compiler correctly:
- * 1. Accepts multiple fields in breakdown_by
+ * 1. Accepts multiple fields in breakdown
  * 2. Uses only the first field for metric charts
  * 3. Generates the correct single breakdownByAccessor (not an array)
  *
@@ -20,7 +20,7 @@ import { generateFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricMultiFieldBreakdown(): Promise<void> {
   // This fixture validates the compiled structure when the compiler receives:
-  // breakdown_by:
+  // breakdown:
   //   operation: terms
   //   fields:
   //     - product.category

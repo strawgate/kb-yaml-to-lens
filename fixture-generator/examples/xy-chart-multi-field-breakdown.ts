@@ -3,11 +3,11 @@
  * Example: Generate XY chart with multi-field breakdown (Data View only)
  *
  * Demonstrates creating XY charts with multiple breakdown fields.
- * This validates the breakdown_by feature which supports 1-4 fields.
+ * This validates the multi-field breakdown feature which supports 1-4 fields.
  *
  * Note: The LensConfigBuilder API doesn't expose multi-field breakdown directly
  * in the config interface. This example creates the compiled JSON structure
- * that the compiler should produce when breakdown_by has multiple fields.
+ * that the compiler should produce when breakdown has multiple fields.
  *
  * Expected compiler output structure:
  * - Multiple columns with IDs ending in _breakdown_0, _breakdown_1, etc.
@@ -20,7 +20,7 @@ import { generateFixture, runIfMain } from '../generator-utils.js';
 export async function generateXYChartMultiFieldBreakdown(): Promise<void> {
   // This is a DATA VIEW ONLY example since ES|QL queries handle grouping differently
   // The compiler will generate this structure when given:
-  // breakdown_by:
+  // breakdown:
   //   operation: terms
   //   fields:
   //     - product.category

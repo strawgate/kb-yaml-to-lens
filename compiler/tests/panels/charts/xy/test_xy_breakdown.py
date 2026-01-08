@@ -1,4 +1,4 @@
-"""Test the multi-field breakdown_by functionality for XY charts."""
+"""Test the breakdown functionality for XY charts (single and multi-field)."""
 
 import pytest
 from dirty_equals import IsUUID
@@ -11,14 +11,14 @@ from dashboard_compiler.panels.charts.xy.config import LensBarChart, LensLineCha
 from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig
 
 
-async def test_xy_single_field_breakdown_by() -> None:
-    """Test XY chart with single field breakdown_by."""
+async def test_xy_single_field_breakdown() -> None:
+    """Test XY chart with single field multi-field breakdown."""
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim-1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric-1'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'size': 5,
@@ -45,14 +45,14 @@ async def test_xy_single_field_breakdown_by() -> None:
     assert breakdown_column.params.size == 5
 
 
-async def test_xy_two_field_breakdown_by() -> None:
-    """Test XY chart with two field breakdown_by."""
+async def test_xy_two_field_breakdown() -> None:
+    """Test XY chart with two field breakdown."""
     lens_config = {
         'type': 'line',
         'data_view': 'logs-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['product.category', 'customer.region'],
             'size': 10,
@@ -86,14 +86,14 @@ async def test_xy_two_field_breakdown_by() -> None:
     assert 'customer.region' in fields
 
 
-async def test_xy_four_field_breakdown_by() -> None:
-    """Test XY chart with maximum (4) fields in breakdown_by."""
+async def test_xy_four_field_breakdown() -> None:
+    """Test XY chart with maximum (4) fields in breakdown."""
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'sum', 'field': 'bytes'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['field1', 'field2', 'field3', 'field4'],
         },
@@ -108,14 +108,14 @@ async def test_xy_four_field_breakdown_by() -> None:
     assert len(layer.splitAccessors) == 4
 
 
-async def test_xy_breakdown_by_with_collapse() -> None:
-    """Test breakdown_by with collapse function."""
+async def test_xy_breakdown_with_collapse() -> None:
+    """Test breakdown with collapse function."""
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name', 'host.name'],
             'size': 10,
@@ -133,14 +133,14 @@ async def test_xy_breakdown_by_with_collapse() -> None:
     assert len(layer.splitAccessors) == 2
 
 
-async def test_xy_breakdown_by_with_sort() -> None:
-    """Test breakdown_by with sort configuration."""
+async def test_xy_breakdown_with_sort() -> None:
+    """Test breakdown with sort configuration."""
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count', 'label': 'Count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'sort': {
@@ -166,14 +166,14 @@ async def test_xy_breakdown_by_with_sort() -> None:
     assert breakdown_column.params.orderBy.type == 'column'
 
 
-async def test_xy_breakdown_by_with_include_exclude() -> None:
-    """Test breakdown_by with include and exclude options."""
+async def test_xy_breakdown_with_include_exclude() -> None:
+    """Test breakdown with include and exclude options."""
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'include': ['service-a', 'service-b'],
@@ -197,14 +197,14 @@ async def test_xy_breakdown_by_with_include_exclude() -> None:
     assert breakdown_column.params.excludeIsRegex is False
 
 
-async def test_xy_breakdown_by_with_other_bucket() -> None:
-    """Test breakdown_by with other_bucket and missing_bucket options."""
+async def test_xy_breakdown_with_other_bucket() -> None:
+    """Test breakdown with other_bucket and missing_bucket options."""
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'other_bucket': True,
@@ -224,33 +224,15 @@ async def test_xy_breakdown_by_with_other_bucket() -> None:
     assert breakdown_column.params.missingBucket is True
 
 
-async def test_xy_breakdown_and_breakdown_by_mutual_exclusion() -> None:
-    """Test that breakdown and breakdown_by are mutually exclusive."""
-    lens_config = {
-        'type': 'bar',
-        'data_view': 'metrics-*',
-        'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
-        'metrics': [{'aggregation': 'count'}],
-        'breakdown': {'type': 'values', 'field': 'service.name'},
-        'breakdown_by': {
-            'operation': 'terms',
-            'fields': ['host.name'],
-        },
-    }
-
-    with pytest.raises(ValidationError, match="Cannot specify both 'breakdown' and 'breakdown_by'"):
-        LensBarChart(**lens_config)
-
-
-async def test_xy_breakdown_by_field_count_validation() -> None:
-    """Test that breakdown_by enforces min/max field count."""
+async def test_xy_breakdown_field_count_validation() -> None:
+    """Test that breakdown enforces min/max field count for multi-field breakdowns."""
     # Test empty fields list
     lens_config_empty = {
         'type': 'bar',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': [],
         },
@@ -265,7 +247,7 @@ async def test_xy_breakdown_by_field_count_validation() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['f1', 'f2', 'f3', 'f4', 'f5'],
         },
@@ -275,15 +257,15 @@ async def test_xy_breakdown_by_field_count_validation() -> None:
         LensBarChart(**lens_config_too_many)
 
 
-async def test_xy_breakdown_by_full_snapshot() -> None:
-    """Test complete layer snapshot with breakdown_by."""
+async def test_xy_breakdown_full_snapshot() -> None:
+    """Test complete layer snapshot with multi-field breakdown."""
     lens_config = {
         'type': 'bar',
         'mode': 'stacked',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name', 'host.name'],
             'size': 10,

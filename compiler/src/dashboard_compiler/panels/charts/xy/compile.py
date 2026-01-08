@@ -13,6 +13,7 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensStaticValueColumnParams,
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimensions, compile_lens_terms_breakdown
+from dashboard_compiler.panels.charts.lens.dimensions.config import LensTermsBreakdown
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.xy.config import (
     AreaChartAppearance,
@@ -513,17 +514,22 @@ def compile_lens_xy_chart(
     breakdown = None
 
     if lens_xy_chart.breakdown is not None:
-        kbn_breakdown_columns = compile_lens_dimensions(dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns)
-        breakdown_id = next(iter(kbn_breakdown_columns.keys()))
-        kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
-        breakdown = breakdown_id
-    elif lens_xy_chart.breakdown_by is not None:
-        kbn_breakdown_columns = compile_lens_terms_breakdown(
-            breakdown=lens_xy_chart.breakdown_by, kbn_metric_column_by_id=kbn_metric_columns
-        )
-        breakdown_ids = list(kbn_breakdown_columns.keys())
-        kbn_dimension_columns.update(kbn_breakdown_columns)
-        breakdown = breakdown_ids
+        if isinstance(lens_xy_chart.breakdown, LensTermsBreakdown):
+            # Multi-field terms breakdown
+            kbn_breakdown_columns = compile_lens_terms_breakdown(
+                breakdown=lens_xy_chart.breakdown, kbn_metric_column_by_id=kbn_metric_columns
+            )
+            breakdown_ids = list(kbn_breakdown_columns.keys())
+            kbn_dimension_columns.update(kbn_breakdown_columns)
+            breakdown = breakdown_ids  # LIST for multi-field
+        else:
+            # Single dimension breakdown
+            kbn_breakdown_columns = compile_lens_dimensions(
+                dimensions=[lens_xy_chart.breakdown], kbn_metric_column_by_id=kbn_metric_columns
+            )
+            breakdown_id = next(iter(kbn_breakdown_columns.keys()))
+            kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
+            breakdown = breakdown_id  # STRING for single field
 
     kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
 

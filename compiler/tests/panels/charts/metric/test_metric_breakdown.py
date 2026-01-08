@@ -1,4 +1,4 @@
-"""Test the multi-field breakdown_by functionality for Metric charts."""
+"""Test the breakdown functionality for Metric charts (single and multi-field)."""
 
 import pytest
 from pydantic import ValidationError
@@ -8,13 +8,13 @@ from dashboard_compiler.panels.charts.metric.compile import compile_lens_metric_
 from dashboard_compiler.panels.charts.metric.config import LensMetricChart
 
 
-async def test_metric_single_field_breakdown_by() -> None:
-    """Test Metric chart with single field breakdown_by."""
+async def test_metric_single_field_breakdown() -> None:
+    """Test Metric chart with single field multi-field breakdown."""
     lens_config = {
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'size': 5,
@@ -37,8 +37,8 @@ async def test_metric_single_field_breakdown_by() -> None:
     assert breakdown_column.params.size == 5
 
 
-async def test_metric_multi_field_breakdown_by_uses_only_first() -> None:
-    """Test that Metric chart only uses the first field from breakdown_by.
+async def test_metric_multi_field_breakdown_uses_only_first() -> None:
+    """Test that Metric chart only uses the first field from multi-field breakdown.
 
     Note: Kibana's Metric charts only support a single breakdown field,
     so we only use the first field even when multiple are specified.
@@ -47,7 +47,7 @@ async def test_metric_multi_field_breakdown_by_uses_only_first() -> None:
         'type': 'metric',
         'data_view': 'logs-*',
         'primary': {'aggregation': 'count'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['product.category', 'customer.region', 'extra.field'],
             'size': 10,
@@ -69,13 +69,13 @@ async def test_metric_multi_field_breakdown_by_uses_only_first() -> None:
     assert breakdown_column.params.size == 10
 
 
-async def test_metric_breakdown_by_with_options() -> None:
-    """Test breakdown_by with various options."""
+async def test_metric_breakdown_with_options() -> None:
+    """Test breakdown with various options."""
     lens_config = {
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'sum', 'field': 'bytes', 'label': 'Total Bytes'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'size': 20,
@@ -101,13 +101,13 @@ async def test_metric_breakdown_by_with_options() -> None:
     assert breakdown_column.params.missingBucket is False
 
 
-async def test_metric_breakdown_by_with_include_exclude() -> None:
-    """Test breakdown_by with include and exclude patterns."""
+async def test_metric_breakdown_with_include_exclude() -> None:
+    """Test breakdown with include and exclude patterns."""
     lens_config = {
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['status'],
             'include': ['success', 'pending'],
@@ -128,31 +128,14 @@ async def test_metric_breakdown_by_with_include_exclude() -> None:
     assert breakdown_column.params.excludeIsRegex is True
 
 
-async def test_metric_breakdown_and_breakdown_by_mutual_exclusion() -> None:
-    """Test that breakdown and breakdown_by are mutually exclusive."""
-    lens_config = {
-        'type': 'metric',
-        'data_view': 'metrics-*',
-        'primary': {'aggregation': 'count'},
-        'breakdown': {'type': 'values', 'field': 'service.name'},
-        'breakdown_by': {
-            'operation': 'terms',
-            'fields': ['host.name'],
-        },
-    }
-
-    with pytest.raises(ValidationError, match="Cannot specify both 'breakdown' and 'breakdown_by'"):
-        LensMetricChart(**lens_config)
-
-
-async def test_metric_breakdown_by_field_count_validation() -> None:
-    """Test that breakdown_by enforces min/max field count."""
+async def test_metric_breakdown_field_count_validation() -> None:
+    """Test that breakdown enforces min/max field count for multi-field breakdowns."""
     # Test empty fields list
     lens_config_empty = {
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': [],
         },
@@ -166,7 +149,7 @@ async def test_metric_breakdown_by_field_count_validation() -> None:
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['f1', 'f2', 'f3', 'f4', 'f5'],
         },
@@ -176,7 +159,7 @@ async def test_metric_breakdown_by_field_count_validation() -> None:
         LensMetricChart(**lens_config_too_many)
 
 
-async def test_metric_breakdown_by_column_order() -> None:
+async def test_metric_breakdown_column_order() -> None:
     """Test that breakdown column comes before metrics in column order.
 
     Kibana requires dimensions to be ordered before metrics in the columnOrder array.
@@ -186,7 +169,7 @@ async def test_metric_breakdown_by_column_order() -> None:
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count', 'id': 'primary-metric'},
         'secondary': {'aggregation': 'average', 'field': 'duration', 'id': 'secondary-metric'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'id': 'breakdown-dim',
@@ -212,13 +195,13 @@ async def test_metric_breakdown_by_column_order() -> None:
     assert breakdown_index < secondary_index
 
 
-async def test_metric_breakdown_by_full_snapshot() -> None:
-    """Test complete visualization state snapshot with breakdown_by."""
+async def test_metric_breakdown_full_snapshot() -> None:
+    """Test complete visualization state snapshot with multi-field breakdown."""
     lens_config = {
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count', 'id': 'metric-primary'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name', 'host.name'],  # Only first will be used
             'size': 10,
@@ -237,14 +220,14 @@ async def test_metric_breakdown_by_full_snapshot() -> None:
     assert result['secondaryLabelPosition'] == 'before'
 
 
-async def test_metric_with_primary_secondary_and_breakdown_by() -> None:
-    """Test Metric chart with primary, secondary metrics and breakdown_by."""
+async def test_metric_with_primary_secondary_and_breakdown() -> None:
+    """Test Metric chart with primary, secondary metrics and breakdown."""
     lens_config = {
         'type': 'metric',
         'data_view': 'metrics-*',
         'primary': {'aggregation': 'count'},
         'secondary': {'aggregation': 'average', 'field': 'response_time'},
-        'breakdown_by': {
+        'breakdown': {
             'operation': 'terms',
             'fields': ['service.name'],
             'size': 15,

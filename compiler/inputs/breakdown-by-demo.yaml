@@ -1,8 +1,8 @@
 ---
-# Demo dashboard showing breakdown_by feature for XY and Metric charts
-# This demonstrates the new multi-field breakdown capability
+# Demo dashboard showing breakdown feature for XY and Metric charts
+# This demonstrates the multi-field breakdown capability
 title: Multi-Field Breakdown Demo
-description: Demonstrates the breakdown_by feature with 1-4 fields for XY and Metric charts
+description: Demonstrates the breakdown feature with 1-4 fields for XY and Metric charts
 panels:
   # XY Chart with single-field breakdown
   - title: XY Chart - Single Field Breakdown
@@ -13,7 +13,7 @@ panels:
       field: '@timestamp'
     metrics:
       - aggregation: count
-    breakdown_by:
+    breakdown:
       operation: terms
       fields:
         - product.category
@@ -29,7 +29,7 @@ panels:
     metrics:
       - aggregation: sum
         field: bytes
-    breakdown_by:
+    breakdown:
       operation: terms
       fields:
         - product.category
@@ -49,7 +49,7 @@ panels:
     metrics:
       - aggregation: avg
         field: response_time
-    breakdown_by:
+    breakdown:
       operation: terms
       fields:
         - service.name
@@ -64,7 +64,7 @@ panels:
     data_view: logs-*
     primary:
       aggregation: count
-    breakdown_by:
+    breakdown:
       operation: terms
       fields:
         - service.name
@@ -78,7 +78,7 @@ panels:
       aggregation: sum
       field: bytes
       label: Total Bytes
-    breakdown_by:
+    breakdown:
       operation: terms
       fields:
         - product.category  # This field is used
@@ -89,7 +89,7 @@ panels:
         direction: desc
       other_bucket: true
 
-  # XY Chart with breakdown_by and all options
+  # XY Chart with breakdown and all options
   - title: XY Chart - Breakdown with All Options
     type: bar
     data_view: logs-*
@@ -99,7 +99,7 @@ panels:
     metrics:
       - aggregation: count
         label: Event Count
-    breakdown_by:
+    breakdown:
       operation: terms
       fields:
         - geo.src
