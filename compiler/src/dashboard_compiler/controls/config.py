@@ -221,9 +221,7 @@ class ESQLFunctionControl(BaseControl):
 
 
 class ESQLStaticSingleSelectControl(BaseControl):
-    """DEPRECATED: Use ESQLStaticSingleValueControl instead.
-
-    Represents an ES|QL control with static values for single selection.
+    """Represents an ES|QL control with static values for single selection.
 
     This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
@@ -256,9 +254,7 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
 
 class ESQLStaticMultiSelectControl(BaseControl):
-    """DEPRECATED: Use ESQLStaticMultiValueControl instead.
-
-    Represents an ES|QL control with static values for multiple selection.
+    """Represents an ES|QL control with static values for multiple selection.
 
     This control allows users to select multiple values from a predefined list
     to filter ES|QL visualizations via variables.
@@ -293,9 +289,7 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
 
 class ESQLQueryControl(BaseControl):
-    """DEPRECATED: Use ESQLQuerySingleValueControl or ESQLQueryMultiValueControl instead.
-
-    Represents an ES|QL control with query-driven values.
+    """Represents an ES|QL control with query-driven values.
 
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
