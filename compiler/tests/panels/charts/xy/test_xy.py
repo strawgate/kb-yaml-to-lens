@@ -734,6 +734,24 @@ async def test_xy_chart_with_legend_hidden() -> None:
     )
 
 
+async def test_xy_chart_with_legend_auto() -> None:
+    """Test XY chart with legend visibility set to auto."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
+        'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
+        'legend': {'visible': 'auto'},
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.legend == snapshot(
+        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
+    )
+
+
 async def test_xy_chart_with_legend_bottom_position() -> None:
     """Test XY chart with legend at bottom."""
     lens_config = {
