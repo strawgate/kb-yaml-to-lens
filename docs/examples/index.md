@@ -4,7 +4,7 @@ This section provides real-world YAML dashboard examples demonstrating various f
 
 ## How to Use These Examples
 
-1. **View:** Expand the "Example YAML" section for any example below to see the complete code inline.
+1. **View:** Expand the "Example YAML" section for any example below to see the complete code inline. (Click the section header to expand.)
 2. **Copy:** Use the copy button in the expanded code block. Alternatively, click "View on GitHub" to access the full source file.
 3. **Save:** Save the content to a `.yaml` file in your `inputs/` directory (e.g., `inputs/my_example.yaml`).
 4. **Compile:** Run the compiler:
