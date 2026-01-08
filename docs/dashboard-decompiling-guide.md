@@ -277,14 +277,10 @@ kb-dashboard compile --input-dir my-yaml/ --output-dir compiled/
 
 ### Compare Structure
 
-```bash
-# Panel count
-jq '.attributes.panelsJSON | fromjson | length' original.ndjson
-jq '.attributes.panelsJSON | fromjson | length' compiled/output.ndjson
+Use the comparison helper script to quickly check panel counts and types:
 
-# Panel types
-jq -r '.attributes.panelsJSON | fromjson | .[].type' original.ndjson | sort
-jq -r '.attributes.panelsJSON | fromjson | .[].type' compiled/output.ndjson | sort
+```bash
+scripts/compare_panel_counts.sh original.ndjson compiled/output.ndjson
 ```
 
 ### Verification Workflow (Round-Trip Testing)
@@ -311,37 +307,13 @@ For thorough validation, use this round-trip workflow to verify the compiled out
 
 3. **Compare panel structures:**
 
+   Use the comparison helper script to analyze differences:
+
    ```bash
-   # Compare panel counts
-   echo "Original panels: $(ls /tmp/original_disassembled/panels/ | wc -l)"
-   echo "Compiled panels: $(ls /tmp/compiled_disassembled/panels/ | wc -l)"
-
-   # Compare panel types and titles
-   python3 << 'EOF'
-   import json
-   import os
-
-   def get_panel_info(dir_path):
-       panels = []
-       for fname in sorted(os.listdir(f"{dir_path}/panels/")):
-           with open(f"{dir_path}/panels/{fname}", 'r') as f:
-               panel = json.load(f)
-               ptype = panel.get('type', 'unknown')
-               title = panel.get('title', panel.get('panelConfig', {}).get('title', '(no title)'))
-               panels.append((fname, ptype, title))
-       return panels
-
-   orig = get_panel_info('/tmp/original_disassembled')
-   comp = get_panel_info('/tmp/compiled_disassembled')
-
-   print("Original panels:", len(orig))
-   print("Compiled panels:", len(comp))
-   print("\nPanel comparison:")
-   for i, ((of, ot, otitle), (cf, ct, ctitle)) in enumerate(zip(orig, comp)):
-       match = "✓" if ot == ct else "✗"
-       print(f"  {match} Panel {i}: {ot:15s} | {otitle}")
-   EOF
+   python3 scripts/compare_dashboards.py /tmp/original_disassembled /tmp/compiled_disassembled
    ```
+
+   This will show panel counts, types, and identify any mismatches.
 
 4. **Deep panel verification:**
 
@@ -409,80 +381,6 @@ Before considering a conversion complete, verify:
 - [ ] All datatable row dimensions are included (count bucketed columns)
 - [ ] All metric formulas use correct aggregation functions
 - [ ] All field names match exactly (including namespace prefixes)
-
-### Common Conversion Pitfalls
-
-#### 1. Confusing dimensions and breakdowns in XY charts
-
-❌ **Wrong:**
-
-```yaml
-lens:
-  type: line
-  dimensions:
-    - field: '@timestamp'
-      type: date_histogram
-    - field: container.id  # Split series should NOT be here
-      type: values
-```
-
-✅ **Correct:**
-
-```yaml
-lens:
-  type: line
-  dimensions:
-    - field: '@timestamp'
-      type: date_histogram
-  breakdown:  # Split series goes here
-    field: container.id
-    type: values
-    size: 20  # Don't forget to check the size
-```
-
-#### 2. Using invalid field names
-
-❌ **Wrong:** `stacked: true` (not a valid field)
-✅ **Correct:** `mode: stacked` (for area/bar charts)
-
-❌ **Wrong:** `attributes.device` (field doesn't exist)
-✅ **Correct:** `attributes.device_major` (actual field name)
-
-#### 3. Omitting legend configuration
-
-Original JSON always has `legend.isVisible` and `legend.position`. These must be included:
-
-```yaml
-lens:
-  type: line
-  legend:
-    visible: true
-    position: right
-```
-
-#### 4. Using default sizes instead of original values
-
-The default breakdown size is 5, but originals often use different values:
-
-- Network interfaces: size 30
-- Device IDs: size 1000
-- Container lists: size 10 or 20
-
-Always check `params.size` in the original column configuration.
-
-#### 5. Missing datatable row dimensions
-
-Datatables often have 5+ row dimensions. Count all columns with `isBucketed: true` and ensure they all appear in the YAML `rows` array.
-
-#### 6. Wrong chart types
-
-Original JSON `seriesType` field specifies the chart type:
-
-- `seriesType: "line"` → `type: line`
-- `seriesType: "bar"` → `type: bar`
-- `seriesType: "area"` → `type: area`
-
-Don't assume all time series charts are line charts.
 
 ## Common Patterns
 
