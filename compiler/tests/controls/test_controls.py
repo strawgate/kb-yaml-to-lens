@@ -171,7 +171,7 @@ async def test_options_list_with_small_width_and_single_select() -> None:
         'field': 'aerospike.namespace',
         'label': 'Small Option Single Select',
         'match_technique': 'prefix',
-        'singular': True,
+        'multiple': False,
         'width': 'small',
     }
     result = compile_control_snapshot(config)
@@ -406,10 +406,9 @@ async def test_esql_multi_select_control() -> None:
     config = {
         'type': 'esql',
         'variable_name': 'environment',
-        'variable_type': 'values',
+        'variable_type': 'multi_values',
         'choices': ['production', 'staging', 'development'],
         'label': 'Environment',
-        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -421,7 +420,7 @@ async def test_esql_multi_select_control() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'environment',
-                'variableType': 'values',
+                'variableType': 'multi_values',
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'Environment',
@@ -442,7 +441,6 @@ async def test_esql_single_select_control() -> None:
         'choices': ['200', '404', '500'],
         'label': 'HTTP Status',
         'width': 'small',
-        'multiple': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -490,6 +488,7 @@ async def test_esql_query_control() -> None:
                 'controlType': 'VALUES_FROM_QUERY',
                 'title': 'Status Code',
                 'selectedOptions': [],
+                'singleSelect': True,
             },
         }
     )
@@ -503,7 +502,6 @@ async def test_esql_query_control_with_single_select() -> None:
         'variable_type': 'values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'label': 'Host Name',
-        'multiple': False,
         'width': 'large',
     }
     result = compile_control_snapshot(config)
@@ -538,13 +536,13 @@ async def test_time_slider_control_validation_error() -> None:
 
 
 async def test_options_list_with_multi_select() -> None:
-    """Test options list control with multi-select (singular: false)."""
+    """Test options list control with multi-select (multiple: true)."""
     config = {
         'type': 'options',
         'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
         'field': 'aerospike.namespace',
         'label': 'Multi Select Test',
-        'singular': False,
+        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -602,10 +600,9 @@ async def test_esql_multi_select_control_alt() -> None:
     config = {
         'type': 'esql',
         'variable_name': 'status',
-        'variable_type': 'values',
+        'variable_type': 'multi_values',
         'choices': ['200', '404', '500'],
         'label': 'HTTP Status',
-        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -617,7 +614,7 @@ async def test_esql_multi_select_control_alt() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'status',
-                'variableType': 'values',
+                'variableType': 'multi_values',
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'HTTP Status',
@@ -666,11 +663,10 @@ async def test_esql_multi_select_control_with_default() -> None:
     config = {
         'type': 'esql',
         'variable_name': 'status',
-        'variable_type': 'values',
+        'variable_type': 'multi_values',
         'choices': ['200', '404', '500', '503'],
         'label': 'HTTP Status',
         'default': ['200', '404'],
-        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -682,7 +678,7 @@ async def test_esql_multi_select_control_with_default() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'status',
-                'variableType': 'values',
+                'variableType': 'multi_values',
                 'esqlQuery': '',
                 'controlType': 'STATIC_VALUES',
                 'title': 'HTTP Status',
@@ -726,14 +722,13 @@ async def test_esql_multi_select_control_default_validation() -> None:
 
 
 async def test_esql_query_control_with_multi_select() -> None:
-    """Test ES|QL query control with multi-select (single_select: false)."""
+    """Test ES|QL query control with multi-select."""
     config = {
         'type': 'esql',
         'variable_name': 'host',
-        'variable_type': 'values',
+        'variable_type': 'multi_values',
         'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'label': 'Host Name',
-        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -745,7 +740,7 @@ async def test_esql_query_control_with_multi_select() -> None:
             'explicitInput': {
                 'id': IsUUID,
                 'variableName': 'host',
-                'variableType': 'values',
+                'variableType': 'multi_values',
                 'esqlQuery': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
                 'controlType': 'VALUES_FROM_QUERY',
                 'title': 'Host Name',
@@ -760,14 +755,13 @@ async def test_esql_query_control_with_multi_select() -> None:
 
 
 async def test_esql_field_control_single_select() -> None:
-    """Test ES|QL field control with single selection."""
+    """Test ES|QL field control (always single selection)."""
     config = {
         'type': 'esql',
         'variable_name': 'selected_field',
         'variable_type': 'fields',
         'choices': ['@timestamp', 'host.name', 'message'],
         'label': 'Select Field',
-        'multiple': False,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -786,38 +780,6 @@ async def test_esql_field_control_single_select() -> None:
                 'selectedOptions': [],
                 'singleSelect': True,
                 'availableOptions': ['@timestamp', 'host.name', 'message'],
-            },
-        }
-    )
-
-
-async def test_esql_field_control_multi_select() -> None:
-    """Test ES|QL field control with multi selection."""
-    config = {
-        'type': 'esql',
-        'variable_name': 'selected_fields',
-        'variable_type': 'fields',
-        'choices': ['@timestamp', 'host.name', 'message', 'log.level'],
-        'label': 'Select Fields',
-        'multiple': True,
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'esqlControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'variableName': 'selected_fields',
-                'variableType': 'fields',
-                'esqlQuery': '',
-                'controlType': 'STATIC_VALUES',
-                'title': 'Select Fields',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'availableOptions': ['@timestamp', 'host.name', 'message', 'log.level'],
             },
         }
     )
@@ -903,123 +865,6 @@ async def test_esql_field_control_invalid_default() -> None:
         )
 
 
-async def test_esql_field_control_string_default_with_multiple_true() -> None:
-    """Test that ES|QL field control rejects string default with multiple=True."""
-    with pytest.raises(ValidationError, match='default must be a list when multiple is True'):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'fields',
-                    'variable_type': 'fields',
-                    'choices': ['field1', 'field2'],
-                    'default': 'field1',
-                    'multiple': True,
-                }
-            }
-        )
-
-
-async def test_esql_field_control_list_default_with_multiple_false() -> None:
-    """Test that ES|QL field control rejects list default with multiple=False."""
-    with pytest.raises(ValidationError, match='default must be a string when multiple is False'):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'field',
-                    'variable_type': 'fields',
-                    'choices': ['field1', 'field2'],
-                    'default': ['field1'],
-                    'multiple': False,
-                }
-            }
-        )
-
-
-# ESQLValueControl Tests
-
-
-async def test_esql_value_control_requires_choices_or_query() -> None:
-    """Test that ES|QL value control requires either choices or query."""
-    with pytest.raises(ValidationError, match="Either 'choices' or 'query' must be provided"):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'test',
-                    'variable_type': 'values',
-                }
-            }
-        )
-
-
-async def test_esql_value_control_not_both_choices_and_query() -> None:
-    """Test that ES|QL value control rejects both choices and query."""
-    with pytest.raises(ValidationError, match="Only one of 'choices' or 'query' can be provided"):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'test',
-                    'variable_type': 'values',
-                    'choices': ['a', 'b'],
-                    'query': 'FROM logs-*',
-                }
-            }
-        )
-
-
-async def test_esql_value_control_string_default_with_multiple_true() -> None:
-    """Test that ES|QL value control rejects string default with multiple=True."""
-    with pytest.raises(ValidationError, match='default must be a list when multiple is True'):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'test',
-                    'variable_type': 'values',
-                    'choices': ['a', 'b'],
-                    'default': 'a',
-                    'multiple': True,
-                }
-            }
-        )
-
-
-async def test_esql_value_control_list_default_with_multiple_false() -> None:
-    """Test that ES|QL value control rejects list default with multiple=False."""
-    with pytest.raises(ValidationError, match='default must be a string when multiple is False'):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'test',
-                    'variable_type': 'values',
-                    'choices': ['a', 'b'],
-                    'default': ['a'],
-                    'multiple': False,
-                }
-            }
-        )
-
-
-async def test_esql_value_control_invalid_default() -> None:
-    """Test that ES|QL value control validates default against choices."""
-    with pytest.raises(ValidationError, match='default contains options not in choices'):
-        ControlHolder.model_validate(
-            {
-                'control': {
-                    'type': 'esql',
-                    'variable_name': 'test',
-                    'variable_type': 'values',
-                    'choices': ['a', 'b'],
-                    'default': 'c',
-                }
-            }
-        )
-
-
 async def test_esql_value_control_multi_values_type() -> None:
     """Test ES|QL value control with multi_values variable type."""
     config = {
@@ -1028,7 +873,6 @@ async def test_esql_value_control_multi_values_type() -> None:
         'variable_type': 'multi_values',
         'choices': ['tag1', 'tag2', 'tag3'],
         'label': 'Tags',
-        'multiple': True,
     }
     result = compile_control_snapshot(config)
     assert result == snapshot(
@@ -1140,37 +984,6 @@ async def test_options_list_multiple_false() -> None:
                 'searchTechnique': 'prefix',
                 'selectedOptions': [],
                 'singleSelect': True,
-                'sort': {'by': '_count', 'direction': 'desc'},
-            },
-        }
-    )
-
-
-async def test_options_list_multiple_precedence() -> None:
-    """Test that multiple takes precedence over singular in options list."""
-    config = {
-        'type': 'options',
-        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-        'field': 'status',
-        'label': 'Precedence Test',
-        'multiple': True,
-        'singular': True,
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'optionsListControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-                'fieldName': 'status',
-                'title': 'Precedence Test',
-                'searchTechnique': 'prefix',
-                'selectedOptions': [],
-                'singleSelect': False,
                 'sort': {'by': '_count', 'direction': 'desc'},
             },
         }

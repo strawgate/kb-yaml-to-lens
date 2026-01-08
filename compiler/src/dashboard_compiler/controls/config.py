@@ -56,8 +56,12 @@ type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
     | TimeSliderControl
-    | ESQLValueControl
+    | ESQLStaticSingleValueControl
+    | ESQLStaticMultiValueControl
+    | ESQLQuerySingleValueControl
+    | ESQLQueryMultiValueControl
     | ESQLFieldControl
+    | ESQLFunctionControl
     | ESQLStaticSingleSelectControl
     | ESQLStaticMultiSelectControl
     | ESQLQueryControl
@@ -141,10 +145,7 @@ class OptionsListControl(BaseControl):
     """A list of options that are preselected when the control is initialized."""
 
     multiple: bool | None = Field(default=None)
-    """If true, allow multiple selection. Takes precedence over 'singular' field."""
-
-    singular: bool | None = Field(default=None, deprecated=True)
-    """DEPRECATED: Use 'multiple' instead. If true, only allow single selection."""
+    """If true, allow multiple selection."""
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
@@ -197,85 +198,133 @@ class TimeSliderControl(BaseControl):
         return self
 
 
-class ESQLValueControl(BaseControl):
-    """ES|QL control for value selection (VALUES, MULTI_VALUES, TIME_LITERAL).
-
-    Supports both static values (via choices) and query-driven values (via query).
-    Either choices or query must be provided, but not both.
-    """
+class ESQLStaticSingleValueControl(BaseControl):
+    """ES|QL control for single value selection from static list."""
 
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
-    variable_type: Literal[
-        ESQLVariableType.VALUES,
-        ESQLVariableType.MULTI_VALUES,
-        ESQLVariableType.TIME_LITERAL,
-    ] = Field(default=ESQLVariableType.VALUES)
-    choices: list[str] | None = Field(default=None)
-    query: str | None = Field(default=None, min_length=1)
-    default: str | list[str] | None = Field(default=None)
-    multiple: bool | None = Field(default=None)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.VALUES, ESQLVariableType.TIME_LITERAL] = Field(default=ESQLVariableType.VALUES)
+    """The type of variable ('values' or 'time_literal')."""
+
+    choices: list[str] = Field(...)
+    """The static list of available values for this control."""
+
+    default: str | None = Field(default=None)
+    """Default selected value."""
 
     @model_validator(mode='after')
-    def validate_choices_xor_query(self) -> Self:
-        """Ensure exactly one of choices or query is provided."""
-        has_choices = self.choices is not None
-        has_query = self.query is not None
-
-        if not has_choices and not has_query:
-            msg = "Either 'choices' or 'query' must be provided"
+    def validate_default(self) -> Self:
+        """Validate that default value exists in choices."""
+        if self.default is not None and self.default not in self.choices:
+            msg = f'default "{self.default}" not in choices'
             raise ValueError(msg)
-
-        if has_choices and has_query:
-            msg = "Only one of 'choices' or 'query' can be provided, not both"
-            raise ValueError(msg)
-
         return self
+
+
+class ESQLStaticMultiValueControl(BaseControl):
+    """ES|QL control for multiple value selection from static list."""
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.MULTI_VALUES] = Field(default=ESQLVariableType.MULTI_VALUES)
+    """The type of variable ('multi_values')."""
+
+    choices: list[str] = Field(...)
+    """The static list of available values for this control."""
+
+    default: list[str] | None = Field(default=None)
+    """Default selected values."""
 
     @model_validator(mode='after')
-    def validate_defaults(self) -> Self:
-        """Ensure default values exist in choices (static mode only).
-
-        In query mode (choices=None), defaults cannot be validated against
-        available options since they're fetched dynamically.
-        """
-        validate_default_in_choices(self.default, self.choices)
+    def validate_default(self) -> Self:
+        """Validate that default values exist in choices."""
+        if self.default is not None:
+            invalid = [v for v in self.default if v not in self.choices]
+            if len(invalid) > 0:
+                msg = f'default contains values not in choices: {invalid}'
+                raise ValueError(msg)
         return self
 
-    @model_validator(mode='after')
-    def validate_default_type_matches_multiple(self) -> Self:
-        """Ensure default type matches the multiple setting."""
-        validate_default_matches_multiple(self.default, self.multiple)
-        return self
+
+class ESQLQuerySingleValueControl(BaseControl):
+    """ES|QL control for single value selection from query."""
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.VALUES, ESQLVariableType.TIME_LITERAL] = Field(default=ESQLVariableType.VALUES)
+    """The type of variable ('values' or 'time_literal')."""
+
+    query: str = Field(..., min_length=1)
+    """The ES|QL query that returns the available values for this control."""
+
+
+class ESQLQueryMultiValueControl(BaseControl):
+    """ES|QL control for multiple value selection from query."""
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.MULTI_VALUES] = Field(default=ESQLVariableType.MULTI_VALUES)
+    """The type of variable ('multi_values')."""
+
+    query: str = Field(..., min_length=1)
+    """The ES|QL query that returns the available values for this control."""
 
 
 class ESQLFieldControl(BaseControl):
-    """ES|QL control for field/function selection (FIELDS, FUNCTIONS).
-
-    Only supports static values (via choices). Query-driven mode is not supported
-    for field/function controls.
-    """
+    """ES|QL control for single field selection from static list."""
 
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
-    variable_type: Literal[
-        ESQLVariableType.FIELDS,
-        ESQLVariableType.FUNCTIONS,
-    ] = Field(default=ESQLVariableType.FIELDS)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.FIELDS] = Field(default=ESQLVariableType.FIELDS)
+    """The type of variable ('fields')."""
+
     choices: list[str] = Field(...)
-    default: str | list[str] | None = Field(default=None)
-    multiple: bool | None = Field(default=None)
+    """The static list of available fields for this control."""
+
+    default: str | None = Field(default=None)
+    """Default selected field."""
 
     @model_validator(mode='after')
-    def validate_defaults(self) -> Self:
-        """Ensure default values exist in choices."""
-        validate_default_in_choices(self.default, self.choices)
+    def validate_default(self) -> Self:
+        """Validate that default value exists in choices."""
+        if self.default is not None and self.default not in self.choices:
+            msg = f'default "{self.default}" not in choices'
+            raise ValueError(msg)
         return self
 
+
+class ESQLFunctionControl(BaseControl):
+    """ES|QL control for single function selection from static list."""
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable."""
+
+    variable_type: Literal[ESQLVariableType.FUNCTIONS] = Field(default=ESQLVariableType.FUNCTIONS)
+    """The type of variable ('functions')."""
+
+    choices: list[str] = Field(...)
+    """The static list of available functions for this control."""
+
+    default: str | None = Field(default=None)
+    """Default selected function."""
+
     @model_validator(mode='after')
-    def validate_default_type_matches_multiple(self) -> Self:
-        """Ensure default type matches the multiple setting."""
-        validate_default_matches_multiple(self.default, self.multiple)
+    def validate_default(self) -> Self:
+        """Validate that default value exists in choices."""
+        if self.default is not None and self.default not in self.choices:
+            msg = f'default "{self.default}" not in choices'
+            raise ValueError(msg)
         return self
 
 

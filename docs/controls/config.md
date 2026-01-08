@@ -47,7 +47,7 @@ dashboards:
         width: "medium"
         data_view: "metrics-*"
         field: "resource.attributes.host.name"
-        singular: false
+        multiple: true
         match_technique: "contains"
       - type: range
         label: "CPU Utilization"
