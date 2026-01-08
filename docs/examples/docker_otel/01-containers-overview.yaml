@@ -112,6 +112,8 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -128,8 +130,11 @@ dashboards:
         grid: {x: 0, y: 27, w: 24, h: 8}
         hide_title: true
         lens:
-          type: line
+          type: area
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -147,7 +152,10 @@ dashboards:
         hide_title: true
         lens:
           type: area
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -165,7 +173,10 @@ dashboards:
         grid: {x: 0, y: 35, w: 24, h: 8}
         lens:
           type: area
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: false
           filters:
             - field: attributes.operation
               equals: read
@@ -185,7 +196,10 @@ dashboards:
         grid: {x: 24, y: 35, w: 24, h: 8}
         lens:
           type: area
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: false
           filters:
             - field: attributes.operation
               equals: write
@@ -205,7 +219,10 @@ dashboards:
         grid: {x: 0, y: 43, w: 24, h: 8}
         lens:
           type: area
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -222,7 +239,10 @@ dashboards:
         grid: {x: 24, y: 43, w: 24, h: 8}
         lens:
           type: area
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram

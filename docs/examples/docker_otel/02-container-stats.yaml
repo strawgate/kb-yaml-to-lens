@@ -103,12 +103,15 @@ dashboards:
               format:
                 type: bytes
 
-      # First CPU Usage panel (line chart)
+      # CPU Usage (line chart) - y=8
       - title: CPU Usage
         grid: {x: 0, y: 8, w: 48, h: 9}
         lens:
           type: line
           data_view: metrics-*
+          legend:
+            visible: true
+            position: right
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -118,12 +121,14 @@ dashboards:
               format:
                 type: percent
 
-      # First Memory Usage panel (area chart)
+      # Memory Usage (line chart) - y=17
       - title: Memory Usage
         grid: {x: 0, y: 17, w: 48, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -134,36 +139,44 @@ dashboards:
               format:
                 type: bytes
 
-      # First Disk I/O panel (full width)
+      # Disk I/O (line chart by device) - y=26
       - title: Disk I/O
         grid: {x: 0, y: 26, w: 48, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: true
+            position: right
           dimensions:
             - field: '@timestamp'
               type: date_histogram
-            - field: attributes.device_major
-              type: values
-              size: 1000
+          breakdown:
+            field: attributes.device_major
+            type: values
+            size: 1000
           metrics:
             - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
               label: Bytes
               format:
                 type: bytes
 
-      # Network I/O panel (full width)
+      # Network I/O (line chart with rx and tx) - y=35
       - title: Network I/O
         grid: {x: 0, y: 35, w: 48, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: true
+            position: right
           dimensions:
             - field: '@timestamp'
               type: date_histogram
-            - field: attributes.interface
-              type: values
-              size: 30
+          breakdown:
+            field: attributes.interface
+            type: values
+            size: 30
           metrics:
             - formula: counter_rate(max(container.network.io.usage.rx_bytes))
               label: Received Bytes
@@ -174,19 +187,22 @@ dashboards:
               format:
                 type: bytes
 
-      # "Detailed information" markdown panel
+      # "Detailed information" markdown panel - y=44
       - grid: {x: 0, y: 44, w: 48, h: 3}
         markdown:
           content: '## Detailed information'
           font_size: 12
 
-      # Second CPU Usage panel (different visualization - area stacked)
+      # CPU Usage (area stacked chart) - y=47
       - title: CPU Usage
         grid: {x: 0, y: 47, w: 48, h: 9}
         lens:
           type: area
-          stacked: true
+          mode: stacked
           data_view: metrics-*
+          legend:
+            visible: true
+            position: right
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -196,12 +212,14 @@ dashboards:
               format:
                 type: percent
 
-      # Memory Usage with limit (left half)
+      # Memory Usage with limit (line chart) - y=56 left
       - title: Memory Usage with limit
         grid: {x: 0, y: 56, w: 24, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -217,12 +235,14 @@ dashboards:
               format:
                 type: bytes
 
-      # Second Memory Usage panel (right half)
+      # Memory Usage (line chart percentage) - y=56 right
       - title: Memory Usage
         grid: {x: 24, y: 56, w: 24, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: false
           dimensions:
             - field: '@timestamp'
               type: date_histogram
@@ -232,36 +252,67 @@ dashboards:
               format:
                 type: percent
 
-      # Network - Received Bytes (left half)
-      - title: Network - Received Bytes
-        grid: {x: 0, y: 65, w: 24, h: 9}
+      # Disk I/O (line chart by device) - y=65
+      # Note: This is NOT a duplicate - it's a second visualization of disk I/O
+      - title: Disk I/O
+        grid: {x: 0, y: 65, w: 48, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: true
+            position: right
           dimensions:
             - field: '@timestamp'
               type: date_histogram
-            - field: attributes.interface
-              type: values
-              size: 30
+          breakdown:
+            field: attributes.device_major
+            type: values
+            size: 1000
+          metrics:
+            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+              label: Bytes
+              format:
+                type: bytes
+
+      # Network - Received Bytes (line chart) - y=74 left
+      - title: Network - Received Bytes
+        grid: {x: 0, y: 74, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: true
+            position: right
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          breakdown:
+            field: attributes.interface
+            type: values
+            size: 30
           metrics:
             - formula: counter_rate(max(container.network.io.usage.rx_bytes))
               label: Bytes
               format:
                 type: bytes
 
-      # Network - Transmitted Bytes (right half)
+      # Network - Transmitted Bytes (line chart) - y=74 right
       - title: Network - Transmitted Bytes
-        grid: {x: 24, y: 65, w: 24, h: 9}
+        grid: {x: 24, y: 74, w: 24, h: 9}
         lens:
-          type: area
+          type: line
           data_view: metrics-*
+          legend:
+            visible: true
+            position: right
           dimensions:
             - field: '@timestamp'
               type: date_histogram
-            - field: attributes.interface
-              type: values
-              size: 30
+          breakdown:
+            field: attributes.interface
+            type: values
+            size: 30
           metrics:
             - formula: counter_rate(max(container.network.io.usage.tx_bytes))
               label: Bytes
