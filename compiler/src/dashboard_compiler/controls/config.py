@@ -24,6 +24,9 @@ def _control_discriminator(v: Any) -> str:  # pyright: ignore[reportAny]
                 return 'esql_static_single_select'
             if 'esql_query' in v:
                 return 'esql_query'
+            # ES|QL control must have either available_options or esql_query
+            msg = "ES|QL control must have either 'available_options' (for static values) or 'esql_query' (for query-driven values)"
+            raise ValueError(msg)
         if control_type is not None:
             return control_type  # pyright: ignore[reportUnknownVariableType]
     return 'options'  # Fallback
