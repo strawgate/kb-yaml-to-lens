@@ -116,7 +116,7 @@ class ESQLPanelFieldsMixin(BaseCfgModel):
     query: 'ESQLQueryTypes' = Field(...)
     """The ES|QL query to execute."""
 
-    time_field: str = Field(default='@timestamp', alias='timeField')
+    time_field: str = Field(default='@timestamp')
     """The time field to use for the dashboard time picker. Defaults to '@timestamp'."""
 
 

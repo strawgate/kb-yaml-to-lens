@@ -271,11 +271,12 @@
       "    y: ${8:0}}",
       "  esql:",
       "    type: metric",
-      "    query:",
-      "      esql: |",
-      "        FROM ${9:logs-*}",
-      "        | ${10:STATS count()}",
-      "        ${11:| WHERE field == \"value\"}"
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:total_count} = ${11:COUNT(*)}",
+      "      ${12:| WHERE field == \"value\"}",
+      "    primary:",
+      "      field: ${10:total_count}"
     ],
     "description": "Add an ESQL metric panel using ES|QL query language"
   },
@@ -292,11 +293,12 @@
       "    y: ${8:0}}",
       "  esql:",
       "    type: line",
-      "    query:",
-      "      esql: |",
-      "        FROM ${9:logs-*}",
-      "        | ${10:STATS count() BY @timestamp}",
-      "        ${11:| WHERE field == \"value\"}"
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:time_bucket} = BUCKET(@timestamp, 1 hour)",
+      "      ${13:| WHERE field == \"value\"}",
+      "    metrics:",
+      "      - field: ${10:metric_value}"
     ],
     "description": "Add an ESQL line chart using ES|QL query language"
   },
@@ -313,12 +315,13 @@
       "    y: ${8:0}}",
       "  esql:",
       "    type: bar",
-      "    query:",
-      "      esql: |",
-      "        FROM ${9:logs-*}",
-      "        | ${10:STATS count() BY category_field}",
-      "        ${11:| SORT count() DESC}",
-      "        ${12:| LIMIT 10}"
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:category_field}",
+      "      ${13:| SORT ${10:metric_value} DESC}",
+      "      ${14:| LIMIT 10}",
+      "    metrics:",
+      "      - field: ${10:metric_value}"
     ],
     "description": "Add an ESQL bar chart using ES|QL query language"
   },
@@ -335,13 +338,12 @@
       "    y: ${8:0}}",
       "  esql:",
       "    type: datatable",
-      "    query:",
-      "      esql: |",
-      "        FROM ${9:logs-*}",
-      "        ${10:| WHERE field == \"value\"}",
-      "        ${11:| KEEP @timestamp, message, host.name}",
-      "        ${12:| SORT @timestamp DESC}",
-      "        | LIMIT ${13:100}"
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      ${10:| WHERE field == \"value\"}",
+      "      ${11:| KEEP @timestamp, message, host.name}",
+      "      ${12:| SORT @timestamp DESC}",
+      "      | LIMIT ${13:100}"
     ],
     "description": "Add an ESQL datatable using ES|QL query language"
   },
@@ -518,22 +520,17 @@
       "    query: |",
       "      FROM ${10:logs-*}",
       "      | STATS ${11:metric_value} = ${12|COUNT(*),AVG(field),SUM(field)|} BY ${13:time_bucket} = BUCKET(@timestamp, 1 hour)",
-      "      ${14:| ORDER ${13:time_bucket} ASC}",
-      "    dimensions:",
-      "      - field: ${13:time_bucket}",
+      "      ${14:| SORT ${13:time_bucket} ASC}",
       "    metrics:",
       "      - field: ${11:metric_value}",
       "        ${15:id: ${16:metric_1}}",
       "    ${17:appearance:",
       "      y_left_axis:",
       "        title: ${18:Y-Axis Title}",
-      "        scale: ${19|linear,log,sqrt|}",
-      "      ${20:series:",
-      "        - metric_id: ${16:metric_1}",
-      "          color: ${21:#2196F3}}}",
-      "    ${22:legend:",
-      "      visible: ${23|show,hide,auto|}",
-      "      position: ${24|right,bottom,left,top|}}"
+      "        scale: ${19|linear,log,sqrt|}}",
+      "    ${20:legend:",
+      "      visible: ${21|show,hide,auto|}",
+      "      position: ${22|right,bottom,left,top|}}"
     ],
     "description": "Add an advanced ESQL XY chart with appearance and legend options"
   },
