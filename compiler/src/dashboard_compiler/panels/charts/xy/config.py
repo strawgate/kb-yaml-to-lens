@@ -76,8 +76,8 @@ class XYLegend(BaseCfgModel):
 
     size: LegendWidthEnum | None = Field(
         default=None,
-        strict=False,
-        description="Size of the legend. Kibana defaults to 'auto' if not specified.",
+        strict=False,  # Turn off strict for enums
+        description='Size of the legend (small, medium, large, extra_large). If not specified, Kibana uses automatic sizing.',
     )
 
     truncate_labels: int | None = Field(

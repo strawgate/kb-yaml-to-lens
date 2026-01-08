@@ -757,7 +757,7 @@ async def test_xy_chart_with_legend_size() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'size': 'large'},
     }
@@ -775,7 +775,7 @@ async def test_xy_chart_with_legend_truncate() -> None:
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'truncate_labels': 2},
     }
@@ -793,7 +793,7 @@ async def test_xy_chart_with_legend_no_truncate() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'truncate_labels': 0},
     }
@@ -811,7 +811,7 @@ async def test_xy_chart_with_show_single_series() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'show_single_series': True},
     }

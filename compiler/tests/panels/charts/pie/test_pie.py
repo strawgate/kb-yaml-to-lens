@@ -519,6 +519,7 @@ async def test_pie_chart_with_show_single_series() -> None:
         'slice_by': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
         'legend': {'show_single_series': True},
     }
 
@@ -556,6 +557,7 @@ async def test_pie_chart_with_show_single_series_false() -> None:
         'slice_by': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
         'legend': {'show_single_series': False},
     }
 
@@ -593,6 +595,7 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
         'slice_by': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
