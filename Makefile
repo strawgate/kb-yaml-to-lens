@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector build-extension-binaries package-extension gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: check
 
@@ -32,6 +32,10 @@ help:
 	@echo "  docs-build    - Build documentation static site"
 	@echo "  docs-build-quiet - Build documentation (errors only)"
 	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
+	@echo ""
+	@echo "VS Code Extension:"
+	@echo "  build-extension-binaries - Build LSP binaries for extension (current platform)"
+	@echo "  package-extension        - Package extension with binaries"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -179,6 +183,20 @@ docs-build-quiet:
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
 	uv run --group docs mkdocs gh-deploy --force
+
+# VS Code Extension
+build-extension-binaries:
+	@echo "Building LSP binaries for VS Code extension..."
+	@echo ""
+	$(call run-in-component,compiler,build-lsp-binary)
+	$(call run-in-component,vscode-extension,copy-lsp-binary)
+	@echo "✓ Extension binaries ready"
+
+package-extension: build-extension-binaries
+	@echo "Packaging VS Code extension..."
+	@echo ""
+	$(call run-in-component,vscode-extension,package)
+	@echo "✓ Extension packaged"
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:

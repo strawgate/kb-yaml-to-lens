@@ -14,6 +14,13 @@ classifiers = [
     "Topic :: Software Development :: Code Generators",
 ]
 
+dependencies = [
+    "dashboard-compiler",
+]
+
+[tool.uv.sources]
+dashboard-compiler = { path = "compiler", editable = true }
+
 [dependency-groups]
 docs = [
     "mkdocs>=1.6.0",

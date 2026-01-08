@@ -160,7 +160,7 @@
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
     "lint": "eslint src --ext ts",
-    "build-lsp-binary": "python3 scripts/build_lsp_binary.py",
+    "copy-lsp-binary": "bash scripts/copy_lsp_binary.sh",
     "package": "vsce package",
     "package:linux": "npm run package-bundle && vsce package --target linux-x64",
     "package:macos-x64": "npm run package-bundle && vsce package --target darwin-x64",
