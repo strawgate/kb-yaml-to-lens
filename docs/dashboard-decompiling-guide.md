@@ -277,15 +277,92 @@ kb-dashboard compile --input-dir my-yaml/ --output-dir compiled/
 
 ### Compare Structure
 
-```bash
-# Panel count
-jq '.attributes.panelsJSON | fromjson | length' original.ndjson
-jq '.attributes.panelsJSON | fromjson | length' compiled/output.ndjson
+Use the comparison helper script to quickly check panel counts and types:
 
-# Panel types
-jq -r '.attributes.panelsJSON | fromjson | .[].type' original.ndjson | sort
-jq -r '.attributes.panelsJSON | fromjson | .[].type' compiled/output.ndjson | sort
+```bash
+scripts/compare_panel_counts.sh original.ndjson compiled/output.ndjson
 ```
+
+### Verification Workflow (Round-Trip Testing)
+
+For thorough validation, use this round-trip workflow to verify the compiled output matches the original:
+
+1. **Compile YAML to JSON:**
+
+   ```bash
+   kb-dashboard compile --input-dir my-yaml/ --output-dir /tmp/compiled/
+   ```
+
+   **IMPORTANT:** Fix any compilation errors before proceeding. The YAML must compile successfully.
+
+2. **Disassemble both original and compiled dashboards:**
+
+   ```bash
+   # Disassemble original
+   kb-dashboard disassemble original.ndjson -o /tmp/original_disassembled/
+
+   # Disassemble compiled
+   kb-dashboard disassemble /tmp/compiled/output.ndjson -o /tmp/compiled_disassembled/
+   ```
+
+3. **Compare panel structures:**
+
+   Use the comparison helper script to analyze differences:
+
+   ```bash
+   python3 scripts/compare_dashboards.py /tmp/original_disassembled /tmp/compiled_disassembled
+   ```
+
+   This will show panel counts, types, and identify any mismatches.
+
+4. **Verify panel structure and configuration:**
+
+   Use `jq` to compare specific panel configurations between original and compiled:
+
+   ```bash
+   # Compare specific panel JSON structures
+   diff -u \
+     <(jq '.embeddableConfig.attributes.state' /tmp/original_disassembled/panels/003_panel-4_lens.json) \
+     <(jq '.embeddableConfig.attributes.state' /tmp/compiled_disassembled/panels/003_panel-4_lens.json)
+   ```
+
+   **What to verify for each panel type:**
+
+   **XY Charts (line, bar, area):**
+   - Chart type matches (`seriesType` in original → `type` in YAML)
+   - Stacking mode preserved (if `yConfig[].axisMode: stacked` exists)
+   - Legend configuration matches (`legend.isVisible`, `legend.position`)
+   - Dimensions properly mapped (count columns by `isBucketed: true`)
+   - Breakdown configurations match (field names, size parameters)
+
+   **Datatables:**
+   - All bucketed columns appear as row dimensions
+   - Size parameters match for each dimension
+   - Metric columns preserve aggregation functions
+
+   **All Lens panels:**
+   - Aggregation functions match (median, average, sum, etc.)
+   - Field names are exact (including namespace prefixes)
+   - Format settings preserved (percent, bytes, number, etc.)
+
+**Understanding discrepancies:**
+
+When comparing original and compiled dashboards, some differences are expected:
+
+- ✅ **Expected (safe):** Panel IDs differ, minor query formatting, panel order variations
+- ⚠️ **Needs investigation:** Panel count mismatch, visualization type changes, missing dimensions/metrics, field name differences
+
+**Verification checklist:**
+
+Before considering a conversion complete:
+
+- [ ] YAML compiles without errors
+- [ ] Panel counts match (or differences are documented)
+- [ ] Panel types match (lens, visualization, links, markdown)
+- [ ] Chart configurations preserved (type, stacking, legends)
+- [ ] All dimensions and breakdowns accounted for
+- [ ] Size parameters match original values
+- [ ] Field names and aggregations verified
 
 ## Common Patterns
 
