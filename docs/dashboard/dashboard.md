@@ -42,13 +42,12 @@ dashboards:
     filters:
       - field: "geo.country_iso_code"
         equals: "US"
-      - field: "service.environment"
-        in: ["production", "staging"]
+      - exists: resource.attributes.host.name
     controls:
       - type: options
-        label: "Filter by Region"
-        data_view: "user-sessions-*"
-        field: "user.geo.region_name"
+        label: "Filter by Host"
+        data_view: "metrics-*"
+        field: "resource.attributes.host.name"
         width: "medium"
     panels:
       - markdown:
@@ -57,19 +56,21 @@ dashboards:
       - lens:
           type: metric
           primary:
-            aggregation: count
-          data_view: "apm-traces-*"
-        title: "Total Requests"
+            aggregation: unique_count
+            field: resource.attributes.host.name
+          data_view: "metrics-*"
+        title: "Total Hosts"
         grid: { x: 0, y: 2, w: 4, h: 4 }
       - lens:
           type: bar
           dimensions:
             - type: values
-              field: "http.response.status_code"
+              field: "resource.attributes.os.type"
           metrics:
-            - aggregation: count
-          data_view: "apm-traces-*"
-        title: "Requests by Response Code"
+            - aggregation: unique_count
+              field: resource.attributes.host.name
+          data_view: "metrics-*"
+        title: "Hosts by OS Type"
         grid: { x: 4, y: 2, w: 8, h: 4 }
 ```
 

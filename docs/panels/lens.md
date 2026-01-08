@@ -163,20 +163,20 @@ dashboards:
   - name: "Lens Pie Chart Example"
     description: "Example of Lens pie chart with appearance and legend options"
     panels:
-      - title: "Order Value by Category"
+      - title: "Disk Operations by Device"
         grid: { x: 0, y: 0, w: 24, h: 15 }
         lens:
           type: pie
-          data_view: "ecommerce-orders"
+          data_view: "metrics-*"
           metrics:
-            - aggregation: "sum"
-              field: "order_value"
-              label: "Total Order Value"
+            - aggregation: "average"
+              field: "metrics.system.disk.operations"
+              label: "Avg Disk Operations"
           slice_by:
             - type: values
-              field: "product.category"
+              field: "resource.attributes.device"
               size: 5
-              label: "Product Category"
+              label: "Device"
           appearance:
             donut: "medium"
           legend:
