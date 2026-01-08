@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e test-links clean clean-full lint-markdown lint-markdown-check lint-yaml lint-yaml-check docs-serve docs-build docs-build-quiet docs-deploy inspector gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: check
 
@@ -21,11 +21,14 @@ help:
 	@echo "  lint-all-check    - Check all linting without fixing"
 	@echo "  lint-markdown     - Auto-fix markdown linting"
 	@echo "  lint-markdown-check - Check markdown without fixing"
+	@echo "  lint-yaml         - Auto-fix YAML linting"
+	@echo "  lint-yaml-check   - Check YAML without fixing"
 	@echo ""
 	@echo "Testing:"
 	@echo "  test-unit     - Run unit tests only (fast)"
 	@echo "  test-e2e      - Run end-to-end tests (requires setup)"
 	@echo "  test-all      - Run all tests (unit + e2e + smoke)"
+	@echo "  test-links    - Check documentation links"
 	@echo ""
 	@echo "Documentation:"
 	@echo "  docs-serve    - Start local documentation server"
@@ -75,6 +78,11 @@ install:
 	else \
 		echo "⚠ Skipping markdownlint-cli (npm not installed)"; \
 	fi
+	@if command -v uv > /dev/null 2>&1; then \
+		uv sync --group lint --group docs; \
+	else \
+		echo "⚠ Skipping global Python tools (uv not installed)"; \
+	fi
 	@echo ""
 	@echo "✓ All dependencies installed"
 
@@ -85,6 +93,8 @@ check:
 	$(call run-in-component,vscode-extension,ci)
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
+	@echo "→ Checking YAML..."
+	@$(MAKE) lint-yaml-check
 	@echo ""
 	@echo "✓ All fast checks passed!"
 
@@ -98,6 +108,8 @@ fix:
 	$(call run-in-component,vscode-extension,fix)
 	@echo "→ Fixing markdown issues..."
 	@$(MAKE) lint-markdown
+	@echo "→ Fixing YAML issues..."
+	@$(MAKE) lint-yaml
 	@echo ""
 	@echo "✓ All fixes complete"
 
@@ -108,6 +120,8 @@ lint-all-check:
 	$(call run-in-component,vscode-extension,lint-check)
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
+	@echo "→ Checking YAML..."
+	@$(MAKE) lint-yaml-check
 	@echo ""
 	@echo "✓ All linting checks passed"
 
@@ -127,10 +141,15 @@ test-e2e:
 test-all: test-unit test-e2e
 	@echo "Running additional tests..."
 	@echo ""
-	$(call run-in-component,compiler,test-links)
+	@$(MAKE) test-links
 	$(call run-in-component,compiler,test-smoke)
 	$(call run-in-component,fixture-generator,test)
 	@echo "✓ All tests passed"
+
+# Link checking (global)
+test-links:
+	@echo "Checking documentation links..."
+	@uv run --group lint pytest --check-links docs/ README.md CONTRIBUTING.md -o addopts="" --tb=line --no-header -q
 
 # Markdown linting (global)
 lint-markdown:
@@ -140,6 +159,24 @@ lint-markdown:
 lint-markdown-check:
 	@echo "Running markdownlint..."
 	@markdownlint -c .markdownlint.jsonc . > /dev/null 2>&1 && echo "✓ Markdown checks passed" || (markdownlint -c .markdownlint.jsonc . && exit 1)
+
+# YAML linting (global)
+# Exclusions for virtual environments and node_modules
+YAMLFIX_EXCLUDE := \
+	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
+	--exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" \
+	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
+	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
+	--exclude "fixture-generator/node_modules/**/*.yaml" --exclude "fixture-generator/node_modules/**/*.yml" \
+	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
+
+lint-yaml:
+	@echo "Running yamlfix..."
+	uv run --group lint yamlfix $(YAMLFIX_EXCLUDE) .
+
+lint-yaml-check:
+	@echo "Running yamlfix --check..."
+	@uv run --group lint yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || uv run --group lint yamlfix --check $(YAMLFIX_EXCLUDE) .
 
 # Cleaning
 clean:
