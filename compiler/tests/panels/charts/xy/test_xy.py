@@ -31,14 +31,14 @@ async def test_bar_stacked_chart() -> None:
         'type': 'bar',
         'mode': 'stacked',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'bar',
         'mode': 'stacked',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
@@ -96,14 +96,14 @@ async def test_bar_unstacked_chart() -> None:
         'type': 'bar',
         'mode': 'unstacked',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'bar',
         'mode': 'unstacked',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
@@ -160,13 +160,13 @@ async def test_line_chart() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'line',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
@@ -223,13 +223,13 @@ async def test_area_chart() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'area',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
@@ -287,13 +287,13 @@ async def test_bar_percentage_chart() -> None:
         'type': 'bar',
         'mode': 'percentage',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
     }
     esql_config = {
         'type': 'bar',
         'mode': 'percentage',
-        'dimensions': [{'field': '@timestamp'}],
+        'dimension': {'field': '@timestamp'},
         'metrics': [{'field': 'count(*)'}],
     }
 
@@ -348,14 +348,14 @@ async def test_area_percentage_chart() -> None:
         'type': 'area',
         'mode': 'percentage',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'type': 'values', 'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
     esql_config = {
         'type': 'area',
         'mode': 'percentage',
-        'dimensions': [{'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'field': 'count(*)', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'breakdown': {'field': 'aerospike.namespace.name', 'id': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9'},
     }
@@ -413,13 +413,13 @@ async def test_area_unstacked_chart() -> None:
         'type': 'area',
         'mode': 'unstacked',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
         'metrics': [{'aggregation': 'count'}],
     }
     esql_config = {
         'type': 'area',
         'mode': 'unstacked',
-        'dimensions': [{'field': '@timestamp'}],
+        'dimension': {'field': '@timestamp'},
         'metrics': [{'field': 'count(*)'}],
     }
 
@@ -703,7 +703,7 @@ async def test_xy_chart_with_legend_position() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'position': 'top'},
     }
@@ -721,7 +721,7 @@ async def test_xy_chart_with_legend_hidden() -> None:
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'visible': False},
     }
@@ -739,7 +739,7 @@ async def test_xy_chart_with_legend_bottom_position() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
         'legend': {'visible': True, 'position': 'bottom'},
     }
@@ -833,7 +833,7 @@ async def test_dual_axis_chart() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [
             {'aggregation': 'count', 'id': 'metric1'},
             {'aggregation': 'average', 'field': 'error_rate', 'id': 'metric2'},
@@ -898,7 +898,7 @@ async def test_styled_series_chart() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [
             {'aggregation': 'sum', 'field': 'bytes_in', 'id': 'metric1'},
             {'aggregation': 'sum', 'field': 'bytes_out', 'id': 'metric2'},
@@ -943,7 +943,7 @@ async def test_axis_extent_configuration() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'x_axis': {'title': 'Time', 'extent': {'mode': 'custom', 'min': 0, 'max': 100, 'enforce': True}},
@@ -980,7 +980,7 @@ async def test_line_chart_with_fitting_function() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'missing_values': 'Linear',
@@ -1005,7 +1005,7 @@ async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'missing_values': fitting_func,
@@ -1023,7 +1023,7 @@ async def test_area_chart_with_fitting_and_fill_opacity() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'missing_values': 'Carry',
@@ -1047,7 +1047,7 @@ async def test_line_chart_with_time_series_features() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'show_current_time_marker': True,
         'hide_endzones': True,
@@ -1067,7 +1067,7 @@ async def test_area_chart_with_time_series_features() -> None:
     lens_config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'show_current_time_marker': False,
         'hide_endzones': False,
@@ -1087,7 +1087,7 @@ async def test_line_chart_with_all_advanced_features() -> None:
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'missing_values': 'Average',
@@ -1128,7 +1128,7 @@ async def test_line_style_mapping(config_value: str, expected_kibana_value: str)
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'line_style': config_value,
@@ -1145,7 +1145,7 @@ async def test_esql_line_chart_with_advanced_features() -> None:
     """Test ESQL line chart with advanced features."""
     esql_config = {
         'type': 'line',
-        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
             'missing_values': 'Lookahead',
@@ -1170,7 +1170,7 @@ async def test_esql_area_chart_with_fitting_and_fill_opacity() -> None:
     """Test ESQL area chart with fitting function and fill opacity."""
     esql_config = {
         'type': 'area',
-        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
             'missing_values': 'Carry',
@@ -1198,7 +1198,7 @@ async def test_bar_chart_with_min_bar_height() -> None:
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'min_bar_height': 5.0,
@@ -1218,7 +1218,7 @@ async def test_bar_chart_with_min_bar_height_and_axis_config() -> None:
     lens_config = {
         'type': 'bar',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
             'min_bar_height': 3.5,
@@ -1244,7 +1244,7 @@ async def test_lens_bar_chart_validation_requires_metrics() -> None:
     config = {
         'type': 'bar',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [],
     }
 
@@ -1257,7 +1257,7 @@ async def test_lens_line_chart_validation_requires_metrics() -> None:
     config = {
         'type': 'line',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [],
     }
 
@@ -1270,7 +1270,7 @@ async def test_lens_area_chart_validation_requires_metrics() -> None:
     config = {
         'type': 'area',
         'data_view': 'metrics-*',
-        'dimensions': [{'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [],
     }
 
@@ -1282,7 +1282,7 @@ async def test_esql_bar_chart_validation_requires_metrics() -> None:
     """Test that ESQL bar chart validation fails when metrics list is empty."""
     config = {
         'type': 'bar',
-        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [],
     }
 
@@ -1294,7 +1294,7 @@ async def test_esql_line_chart_validation_requires_metrics() -> None:
     """Test that ESQL line chart validation fails when metrics list is empty."""
     config = {
         'type': 'line',
-        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [],
     }
 
@@ -1306,9 +1306,44 @@ async def test_esql_area_chart_validation_requires_metrics() -> None:
     """Test that ESQL area chart validation fails when metrics list is empty."""
     config = {
         'type': 'area',
-        'dimensions': [{'field': '@timestamp', 'id': 'dim1'}],
+        'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [],
     }
 
     with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
         ESQLAreaChart.model_validate(config)
+
+
+async def test_lens_bar_chart_without_dimension() -> None:
+    """Test bar chart with no dimension (dimension=None)."""
+    lens_config = {
+        'type': 'bar',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer_dict = kbn_state_visualization.layers[0].model_dump()
+    # When dimension is None, xAccessor should also be None
+    assert layer_dict['xAccessor'] is None
+    # Should still have the metric accessor
+    assert len(layer_dict['accessors']) == 1
+
+
+async def test_esql_line_chart_without_dimension() -> None:
+    """Test ESQL line chart with no dimension (dimension=None)."""
+    esql_config = {
+        'type': 'line',
+        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+    }
+
+    esql_chart = ESQLLineChart(**esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer_dict = kbn_state_visualization.layers[0].model_dump()
+    # When dimension is None, xAccessor should also be None
+    assert layer_dict['xAccessor'] is None
+    # Should still have the metric accessor
+    assert len(layer_dict['accessors']) == 1

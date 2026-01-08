@@ -182,7 +182,7 @@ Displays bar chart visualizations with data sourced from an ESQL query. Supports
 | `type` | `Literal['bar']` | Specifies the chart type as an ESQL Bar visualization. | `bar` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `mode` | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for bar charts. | `'stacked'` | No |
-| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine the X-axis. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `dimension` | `ESQLDimension` object | A single dimension that determines the X-axis (0 or 1 dimension allowed). The `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `metrics` | `list of ESQLMetric` objects | One or more metrics that determine the Y-axis values. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
@@ -205,8 +205,8 @@ dashboards:
             | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), event.category
             | ORDER timestamp_bucket ASC
           mode: stacked
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "event_count"
           breakdown:
@@ -223,7 +223,7 @@ Displays line chart visualizations with data sourced from an ESQL query. The `fi
 | ------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['line']` | Specifies the chart type as an ESQL Line visualization. | `line` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
-| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine the X-axis. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `dimension` | `ESQLDimension` object | A single dimension that determines the X-axis (0 or 1 dimension allowed). The `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `metrics` | `list of ESQLMetric` objects | One or more metrics that determine the Y-axis values. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
@@ -245,8 +245,8 @@ dashboards:
             FROM logs-*
             | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), service.name
             | ORDER timestamp_bucket ASC
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "avg_response_time"
           breakdown:
@@ -264,7 +264,7 @@ Displays area chart visualizations with data sourced from an ESQL query. Support
 | `type` | `Literal['area']` | Specifies the chart type as an ESQL Area visualization. | `area` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `mode` | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for area charts. | `'stacked'` | No |
-| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine the X-axis. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `dimension` | `ESQLDimension` object | A single dimension that determines the X-axis (0 or 1 dimension allowed). The `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `metrics` | `list of ESQLMetric` objects | One or more metrics that determine the Y-axis values. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
@@ -287,8 +287,8 @@ dashboards:
             | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), host.name
             | ORDER timestamp_bucket ASC
           mode: stacked
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "bytes_total"
           breakdown:
@@ -354,8 +354,8 @@ dashboards:
                     success_rate = COUNT(status == 200) / COUNT(*) * 100,
                     precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
             | ORDER timestamp_bucket ASC
-          dimensions:
-            - field: "timestamp_bucket"
+          dimension:
+            field: "timestamp_bucket"
           metrics:
             - field: "total_bytes"
               label: "Total Data"

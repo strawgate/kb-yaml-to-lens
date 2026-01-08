@@ -112,9 +112,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - formula: median(container.cpu.utilization)/100
               label: CPU Usage
@@ -129,9 +129,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - field: container.memory.usage.total
               aggregation: median
@@ -148,9 +148,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.device_major
             type: values
@@ -170,9 +170,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.interface
             type: values
@@ -203,9 +203,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - formula: median(container.cpu.utilization)/100
               label: CPU %
@@ -220,9 +220,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - field: container.memory.usage.total
               aggregation: median
@@ -243,9 +243,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - formula: median(container.memory.percent)/100
               label: Memory %
@@ -262,9 +262,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.device_major
             type: values
@@ -284,9 +284,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.interface
             type: values
@@ -306,9 +306,9 @@ dashboards:
           legend:
             visible: true
             position: right
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.interface
             type: values

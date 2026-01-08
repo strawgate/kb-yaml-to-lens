@@ -100,10 +100,10 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
           metrics:
             - aggregation: count
               label: Events per interval
@@ -141,13 +141,13 @@ dashboards:
           type: bar
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: host.name
-              type: values
-              size: 10
-              sort:
-                by: Event Count
-                direction: desc
+          dimension:
+            field: host.name
+            type: values
+            size: 10
+            sort:
+              by: Event Count
+              direction: desc
           metrics:
             - aggregation: count
               label: Event Count
@@ -197,9 +197,9 @@ dashboards:
           type: area
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - aggregation: count
           breakdown:
