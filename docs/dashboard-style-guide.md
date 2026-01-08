@@ -236,6 +236,8 @@ What are you visualizing?
       - aggregation: count
 ```
 
+*See [Lens Panel Configuration](panels/lens.md) for complete field descriptions and all available options.*
+
 #### Time Series Charts (XY Charts)
 
 **Chart Type Selection:**
@@ -284,6 +286,8 @@ What are you visualizing?
       - aggregation: count
     mode: stacked
 ```
+
+*See [Lens Panel Configuration](panels/lens.md) for complete field descriptions and all available options.*
 
 #### Data Tables
 
@@ -1216,7 +1220,7 @@ Use this checklist when creating or reviewing dashboards:
 
 - [Kibana Lens Documentation](https://www.elastic.co/guide/en/kibana/current/lens.html)
 - [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html)
-- [Kibana Query Language (KQL)](https://www.elastic.co/guide/en/kibana/current/kuery-query.html)
+- [Kibana Query Language (KQL)](https://www.elastic.co/docs/explore-analyze/query-filter/languages/kql)
 
 ---
 
