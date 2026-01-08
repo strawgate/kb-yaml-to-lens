@@ -167,16 +167,17 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
-            - field: log.level
-              type: values
-              size: 5
-              sort:
-                by: Count
-                direction: desc
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: log.level
+            type: values
+            size: 5
+            sort:
+              by: Count
+              direction: desc
           metrics:
             - aggregation: count
               label: Count

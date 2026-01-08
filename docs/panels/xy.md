@@ -88,7 +88,7 @@ dashboards:
 | `type` | `Literal['bar']` | Specifies the chart type as bar. | `'bar'` | No |
 | `mode` | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for bar charts. | `'stacked'` | No |
 | `data_view` | `string` | The data view to use for the chart. | N/A | Yes |
-| `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
+| `dimension` | `LensDimensionTypes \| None` | Defines the X-axis dimension for the chart (0 or 1 dimension allowed). | `None` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
 | `appearance` | `BarChartAppearance \| None` | Chart appearance formatting options including axis configuration, series styling, and bar-specific options (min_bar_height). | `None` | No |
@@ -102,7 +102,7 @@ dashboards:
 | ----------------- | ------------------------------- | -------------------------------------------------------------------- | -------- | -------- |
 | `type` | `Literal['line']` | Specifies the chart type as line. | `'line'` | No |
 | `data_view` | `string` | The data view to use for the chart. | N/A | Yes |
-| `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
+| `dimension` | `LensDimensionTypes \| None` | Defines the X-axis dimension for the chart (0 or 1 dimension allowed). | `None` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
 | `appearance` | `LineChartAppearance \| None` | Chart appearance formatting options including axis configuration, series styling, and line-specific options (missing_values, show_as_dotted, end_values, line_style). | `None` | No |
@@ -119,7 +119,7 @@ dashboards:
 | `type` | `Literal['area']` | Specifies the chart type as area. | `'area'` | No |
 | `mode` | `Literal['stacked', 'unstacked', 'percentage']` | Stacking mode for area charts. | `'stacked'` | No |
 | `data_view` | `string` | The data view to use for the chart. | N/A | Yes |
-| `dimensions` | `list[LensDimensionTypes]` | Defines the dimensions (e.g., X-axis) for the chart. | `[]` | No |
+| `dimension` | `LensDimensionTypes \| None` | Defines the X-axis dimension for the chart (0 or 1 dimension allowed). | `None` | No |
 | `metrics` | `list[LensMetricTypes]` | Defines the metrics (e.g., Y-axis values) for the chart. | `[]` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional dimension to split the series by (creates multiple series). | `None` | No |
 | `appearance` | `AreaChartAppearance \| None` | Chart appearance formatting options including axis configuration, series styling, line-specific options (missing_values, show_as_dotted, end_values, line_style), and area-specific options (fill_opacity). | `None` | No |
