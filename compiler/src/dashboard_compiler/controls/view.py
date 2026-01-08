@@ -192,7 +192,7 @@ class KbnESQLControlExplicitInput(KbnBaseControlExplicitInput):
     controlType: str = Field(...)
     """The control type ('STATIC_VALUES' or 'VALUES_FROM_QUERY')."""
 
-    title: str = Field(...)
+    title: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Display title for the control."""
 
     selectedOptions: list[str] = Field(default_factory=list)
