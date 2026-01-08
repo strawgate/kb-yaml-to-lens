@@ -198,7 +198,7 @@ docker-publish:
 		--platform linux/amd64,linux/arm64 \
 		-t $(GHCR_REGISTRY) \
 		-f Dockerfile \
-		--push .
+		--push ..
 
 test-docker-smoke:
 	@echo "Running Docker smoke tests..."

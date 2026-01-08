@@ -51,8 +51,3 @@ node_modules
 .yamlfix.toml
 compiler/Makefile
 compiler/.dockerignore
-
-# GitHub workflows and other root files
-.github
-*.md
-!README.md
