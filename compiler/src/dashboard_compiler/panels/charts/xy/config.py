@@ -348,9 +348,9 @@ class LensBarChart(BaseXYBarChart, LensXYChartMixin):
         lens:
           type: bar
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: count
         ```
@@ -361,9 +361,9 @@ class LensBarChart(BaseXYBarChart, LensXYChartMixin):
           type: bar
           mode: stacked
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           breakdown:
             type: values
             field: "service.name"
@@ -382,9 +382,9 @@ class LensLineChart(BaseXYLineChart, LensXYChartMixin):
         lens:
           type: line
           data_view: "metrics-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: average
               field: response_time
@@ -395,9 +395,9 @@ class LensLineChart(BaseXYLineChart, LensXYChartMixin):
         lens:
           type: line
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: count
               id: "request_count"
@@ -423,9 +423,9 @@ class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
         lens:
           type: area
           data_view: "logs-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           metrics:
             - aggregation: count
         ```
@@ -436,9 +436,9 @@ class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
           type: area
           mode: percentage
           data_view: "metrics-*"
-          dimensions:
-            - type: date_histogram
-              field: "@timestamp"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
           breakdown:
             type: values
             field: "service.name"
