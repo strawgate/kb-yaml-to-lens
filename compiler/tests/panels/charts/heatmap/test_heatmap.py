@@ -221,11 +221,15 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'is_cell_label_visible': True,
-            'is_x_axis_label_visible': True,
-            'is_x_axis_title_visible': True,
-            'is_y_axis_label_visible': False,
-            'is_y_axis_title_visible': False,
+            'cell_labels': True,
+            'x_axis': {
+                'labels': True,
+                'title': True,
+            },
+            'y_axis': {
+                'labels': False,
+                'title': False,
+            },
         },
     }
 
@@ -268,11 +272,15 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'is_cell_label_visible': True,
-            'is_x_axis_label_visible': True,
-            'is_x_axis_title_visible': True,
-            'is_y_axis_label_visible': True,
-            'is_y_axis_title_visible': True,
+            'cell_labels': True,
+            'x_axis': {
+                'labels': True,
+                'title': True,
+            },
+            'y_axis': {
+                'labels': True,
+                'title': True,
+            },
         },
     }
 
@@ -318,7 +326,7 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
             'id': 'value_accessor',
         },
         'legend': {
-            'is_visible': False,
+            'visible': False,
             'position': 'bottom',
         },
     }
@@ -400,14 +408,18 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'is_cell_label_visible': True,
-            'is_x_axis_label_visible': True,
-            'is_x_axis_title_visible': True,
-            'is_y_axis_label_visible': True,
-            'is_y_axis_title_visible': True,
+            'cell_labels': True,
+            'x_axis': {
+                'labels': True,
+                'title': True,
+            },
+            'y_axis': {
+                'labels': True,
+                'title': True,
+            },
         },
         'legend': {
-            'is_visible': True,
+            'visible': True,
             'position': 'left',
         },
     }
@@ -456,14 +468,18 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'is_cell_label_visible': True,
-            'is_x_axis_label_visible': True,
-            'is_x_axis_title_visible': True,
-            'is_y_axis_label_visible': True,
-            'is_y_axis_title_visible': True,
+            'cell_labels': True,
+            'x_axis': {
+                'labels': True,
+                'title': True,
+            },
+            'y_axis': {
+                'labels': True,
+                'title': True,
+            },
         },
         'legend': {
-            'is_visible': False,
+            'visible': False,
             'position': 'top',
         },
     }
@@ -511,7 +527,7 @@ def test_compile_heatmap_chart_partial_grid_config() -> None:
             'id': 'value_accessor',
         },
         'grid_config': {
-            'is_cell_label_visible': True,
+            'cell_labels': True,
         },
     }
 
@@ -541,7 +557,7 @@ def test_compile_heatmap_chart_partial_legend_config() -> None:
             'id': 'value_accessor',
         },
         'legend': {
-            'is_visible': False,
+            'visible': False,
         },
     }
 

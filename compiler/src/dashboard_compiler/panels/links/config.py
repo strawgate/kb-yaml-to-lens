@@ -87,7 +87,7 @@ class LinksPanelConfig(BaseCfgModel):
     layout: Literal['horizontal', 'vertical'] | None = Field(default=None)
     """The layout of the links in the panel, either 'horizontal' or 'vertical'. Kibana defaults to 'horizontal' if not set."""
 
-    links: list[LinkTypes] = Field(default_factory=list)
+    items: list[LinkTypes] = Field(default_factory=list)
     """A list of link objects to be displayed in the panel."""
 
 

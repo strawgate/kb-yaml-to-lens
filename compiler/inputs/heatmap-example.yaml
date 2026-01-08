@@ -39,14 +39,16 @@ dashboards:
             field: event_count
             id: metric_count
           legend:
-            is_visible: true
+            visible: true
             position: right
           grid_config:
-            is_cell_label_visible: false
-            is_x_axis_label_visible: true
-            is_y_axis_label_visible: true
-            is_x_axis_title_visible: true
-            is_y_axis_title_visible: true
+            cell_labels: false
+            x_axis:
+              labels: true
+              title: true
+            y_axis:
+              labels: true
+              title: true
           query:
             - FROM metrics-*
             - STATS event_count = COUNT(*) BY agent.name, agent.id
@@ -65,7 +67,7 @@ dashboards:
             field: event_count
             id: metric_count
           legend:
-            is_visible: true
+            visible: true
             position: bottom
           query:
             - FROM metrics-*

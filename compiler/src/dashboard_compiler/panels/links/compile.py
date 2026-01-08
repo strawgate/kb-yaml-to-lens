@@ -151,7 +151,7 @@ def compile_links_panel_config(links_panel: LinksPanel) -> tuple[list[KbnReferen
         tuple: A tuple containing the compiled references and the Kibana embeddable configuration.
 
     """
-    kbn_references, kbn_links = compile_links(links_panel.links_config.links)
+    kbn_references, kbn_links = compile_links(links_panel.links_config.items)
 
     return kbn_references, KbnLinksPanelEmbeddableConfig(
         hidePanelTitles=links_panel.hide_title,

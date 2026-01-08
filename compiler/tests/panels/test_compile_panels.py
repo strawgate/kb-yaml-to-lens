@@ -23,7 +23,7 @@ class TestGetPanelTypeName:
     def test_returns_links_for_links_panel(self) -> None:
         """Test that 'links' is returned for a LinksPanel."""
         panel = LinksPanel(
-            links=LinksPanelConfig(links=[UrlLink(url='https://example.com')]), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+            links=LinksPanelConfig(items=[UrlLink(url='https://example.com')]), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
         )
         assert get_panel_type_name(panel) == 'links'
 
@@ -46,7 +46,7 @@ class TestCompileDashboardPanel:
     def test_compiles_links_panel(self) -> None:
         """Test that a LinksPanel is compiled correctly."""
         panel = LinksPanel(
-            links=LinksPanelConfig(links=[UrlLink(url='https://example.com', label='Example')]),
+            links=LinksPanelConfig(items=[UrlLink(url='https://example.com', label='Example')]),
             position={'x': 0, 'y': 0},
             size={'w': 12, 'h': 4},
         )

@@ -43,11 +43,11 @@ def compile_heatmap_chart_visualization_state(
     if chart.grid_config is not None:
         gc = chart.grid_config
         grid_config = KbnHeatmapGridConfig(
-            isCellLabelVisible=default_false(gc.is_cell_label_visible),
-            isXAxisLabelVisible=default_false(gc.is_x_axis_label_visible),
-            isXAxisTitleVisible=default_false(gc.is_x_axis_title_visible),
-            isYAxisLabelVisible=default_false(gc.is_y_axis_label_visible),
-            isYAxisTitleVisible=default_false(gc.is_y_axis_title_visible),
+            isCellLabelVisible=default_false(gc.cell_labels),
+            isXAxisLabelVisible=default_false(gc.x_axis.labels if gc.x_axis is not None else None),
+            isXAxisTitleVisible=default_false(gc.x_axis.title if gc.x_axis is not None else None),
+            isYAxisLabelVisible=default_false(gc.y_axis.labels if gc.y_axis is not None else None),
+            isYAxisTitleVisible=default_false(gc.y_axis.title if gc.y_axis is not None else None),
         )
     else:
         grid_config = KbnHeatmapGridConfig()
@@ -55,7 +55,7 @@ def compile_heatmap_chart_visualization_state(
     # Compile legend configuration (always present, use defaults if not provided)
     if chart.legend is not None:
         legend = KbnHeatmapLegendConfig(
-            isVisible=default_true(chart.legend.is_visible),
+            isVisible=default_true(chart.legend.visible),
             position=chart.legend.position if chart.legend.position is not None else 'right',
         )
     else:

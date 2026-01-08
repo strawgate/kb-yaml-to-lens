@@ -41,7 +41,7 @@ dashboards:
       - title: "Navigate to User Details"
         grid: { x: 0, y: 0, w: 24, h: 2 }
         links:
-          links:
+          items:
             - label: "View User Activity Dashboard"
               dashboard: "user-activity-dashboard-id"
 ```
@@ -55,7 +55,7 @@ dashboards:
       - title: "External Resources"
         grid: { x: 24, y: 0, w: 24, h: 2 }
         links:
-          links:
+          items:
             - label: "Project Documentation"
               url: "https://docs.example.com/project-alpha"
               new_tab: true # Open this external link in a new tab
@@ -74,7 +74,7 @@ dashboards:
         grid: { x: 0, y: 0, w: 48, h: 3 }
         links:
           layout: "vertical" # Display links one above the other
-          links:
+          items:
           - label: "Service Health Dashboard"
             dashboard: "service-health-monitor-v2"
             with_time: true      # Carry over current time range
@@ -112,11 +112,11 @@ Defines the main container for a list of links. It inherits from the [Base Panel
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ----------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
 | `layout` | `Literal['horizontal', 'vertical']` | The layout of the links in the panel. | `horizontal` | No |
-| `links` | `list of LinkTypes` | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list) | Yes |
+| `items` | `list of LinkTypes` | A list of link objects to be displayed. Each object can be a [Dashboard Link](#dashboard-link) or a [URL Link](#url-link). | `[]` (empty list) | Yes |
 
 ### Link Types
 
-Each item in the `links` list will be one of the following types. They share common base fields.
+Each item in the `items` list will be one of the following types. They share common base fields.
 
 #### Base Link Fields (Common to DashboardLink and UrlLink)
 
@@ -161,7 +161,7 @@ from dashboard_compiler.panels.links.config import LinksPanel, LinksPanelConfig,
 panel = LinksPanel(
     grid=Grid(x=0, y=0, w=24, h=10),
     links=LinksPanelConfig(
-        links=[
+        items=[
             UrlLink(
                 label='Documentation',
                 url='https://example.com/docs',
@@ -188,7 +188,7 @@ links = [
 
 panel = LinksPanel(
     grid=Grid(x=0, y=0, w=24, h=10),
-    links=LinksPanelConfig(links=links),
+    links=LinksPanelConfig(items=links),
 )
 ```
 

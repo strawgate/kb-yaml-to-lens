@@ -20,7 +20,7 @@ dashboards:
         description: Links to Aerospike documentation and other resources
         links:
           layout: horizontal
-          links:
+          items:
             - label: Overview
               dashboard: 0aa67124-5f70-a811-7ec5-063c196c5e6e
             - label: Node Metrics

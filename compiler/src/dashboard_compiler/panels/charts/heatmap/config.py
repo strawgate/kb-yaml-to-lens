@@ -11,26 +11,30 @@ from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
+class HeatmapAxisConfig(BaseCfgModel):
+    """Configuration for a single heatmap axis."""
+
+    labels: bool | None = Field(default=None)
+    """Whether to show axis labels."""
+
+    title: bool | None = Field(default=None)
+    """Whether to show axis title."""
+
+
 class HeatmapGridConfig(BaseCfgModel):
     """Grid configuration for heatmap visualizations.
 
     Controls the visibility of cell labels, axis labels, and axis titles.
     """
 
-    is_cell_label_visible: bool | None = Field(default=None)
+    cell_labels: bool | None = Field(default=None)
     """Whether to show labels inside heatmap cells."""
 
-    is_x_axis_label_visible: bool | None = Field(default=None)
-    """Whether to show X-axis labels."""
+    x_axis: HeatmapAxisConfig | None = Field(default=None)
+    """Configuration for the X-axis visibility."""
 
-    is_x_axis_title_visible: bool | None = Field(default=None)
-    """Whether to show X-axis title."""
-
-    is_y_axis_label_visible: bool | None = Field(default=None)
-    """Whether to show Y-axis labels."""
-
-    is_y_axis_title_visible: bool | None = Field(default=None)
-    """Whether to show Y-axis title."""
+    y_axis: HeatmapAxisConfig | None = Field(default=None)
+    """Configuration for the Y-axis visibility."""
 
 
 class HeatmapLegendConfig(BaseCfgModel):
@@ -39,7 +43,7 @@ class HeatmapLegendConfig(BaseCfgModel):
     Controls the visibility and position of the color legend.
     """
 
-    is_visible: bool | None = Field(default=None)
+    visible: bool | None = Field(default=None)
     """Whether to show the legend."""
 
     position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
