@@ -29,29 +29,6 @@ def validate_default_in_choices(default: str | list[str] | None, choices: list[s
         raise ValueError(msg)
 
 
-def validate_default_matches_multiple(default: str | list[str] | None, multiple: bool | None) -> None:
-    """Validate that default type matches the multiple setting.
-
-    Args:
-        default (str | list[str] | None): The default value(s) to validate.
-        multiple (bool | None): The multiple selection setting.
-
-    Raises:
-        ValueError: If default type doesn't match the multiple setting.
-
-    """
-    if default is None:
-        return
-    is_list_default = isinstance(default, list)
-    is_multi_select = multiple is True
-    if is_list_default and not is_multi_select:
-        msg = 'default must be a string when multiple is False or None'
-        raise ValueError(msg)
-    if not is_list_default and is_multi_select:
-        msg = 'default must be a list when multiple is True'
-        raise ValueError(msg)
-
-
 type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
