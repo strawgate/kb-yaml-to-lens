@@ -60,6 +60,10 @@ plugins:
             signature_crossrefs: true
             separate_signature: true
             line_length: 80
+          import:
+            - https://docs.python.org/3/objects.inv
+          extensions:
+            - griffe_pydantic
 hooks:
   - docs/hooks/generate_llms_txt.py
 markdown_extensions:
