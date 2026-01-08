@@ -1,5 +1,6 @@
 """Test the compilation of Lens dimensions from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 from pydantic import TypeAdapter
@@ -651,8 +652,6 @@ async def test_single_field_backward_compatibility() -> None:
 
 async def test_validation_error_both_field_and_fields() -> None:
     """Test validation error when both field and fields are provided."""
-    import pytest
-
     dimension_config = {
         'type': 'values',
         'field': 'agent.name',
@@ -665,8 +664,6 @@ async def test_validation_error_both_field_and_fields() -> None:
 
 async def test_validation_error_neither_field_nor_fields() -> None:
     """Test validation error when neither field nor fields is provided."""
-    import pytest
-
     dimension_config = {
         'type': 'values',
         'size': 5,
@@ -678,8 +675,6 @@ async def test_validation_error_neither_field_nor_fields() -> None:
 
 async def test_validation_error_fields_with_single_item() -> None:
     """Test validation error when fields contains only one item."""
-    import pytest
-
     dimension_config = {
         'type': 'values',
         'fields': ['agent.name'],
