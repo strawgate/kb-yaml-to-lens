@@ -114,6 +114,7 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
+    index: str
     timeField: str
 
 
@@ -184,6 +185,22 @@ class KbnVisualizationTypeEnum(StrEnum):
     TAGCLOUD = 'lnsTagcloud'
 
 
+class KbnAdHocDataView(BaseVwModel):
+    """Represents an ad-hoc data view for ES|QL queries."""
+
+    id: str
+    title: str
+    timeFieldName: str
+    sourceFilters: list[Any] = Field(default_factory=list)
+    type: Literal['esql'] = 'esql'
+    fieldFormats: dict[str, Any] = Field(default_factory=dict)
+    runtimeFieldMap: dict[str, Any] = Field(default_factory=dict)
+    allowNoIndex: bool = False
+    name: str
+    allowHidden: bool = False
+    managed: bool = False
+
+
 class KbnLensPanelState(BaseVwModel):
     """Represents the 'state' object within a Lens panel in the Kibana JSON structure."""
 
@@ -192,7 +209,7 @@ class KbnLensPanelState(BaseVwModel):
     filters: list[KbnFilter] = Field(...)
     datasourceStates: KbnDataSourceState = Field(...)
     internalReferences: list[Any] = Field(...)
-    adHocDataViews: dict[str, Any] = Field(...)
+    adHocDataViews: dict[str, KbnAdHocDataView] = Field(...)
 
 
 class KbnLensPanelAttributes(BaseVwModel):

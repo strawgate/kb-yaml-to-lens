@@ -1,3 +1,4 @@
+import hashlib
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
@@ -25,12 +26,14 @@ from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieCha
 from dashboard_compiler.panels.charts.tagcloud.compile import compile_esql_tagcloud_chart, compile_lens_tagcloud_chart
 from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 from dashboard_compiler.panels.charts.view import (
+    KbnAdHocDataView,
     KbnDataSourceState,
     KbnFormBasedDataSourceState,
     KbnFormBasedDataSourceStateLayer,
     KbnFormBasedDataSourceStateLayerById,
     KbnIndexPatternBasedDataSourceState,
     KbnIndexPatternBasedDataSourceStateById,
+    KbnIndexPatternRef,
     KbnLensPanelAttributes,
     KbnLensPanelEmbeddableConfig,
     KbnLensPanelState,
@@ -50,7 +53,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
-from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
+from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query, extract_index_pattern_from_esql
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.view import KbnReference
@@ -60,6 +63,21 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
     from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
     from dashboard_compiler.panels.charts.xy.view import XYReferenceLineLayerConfig
+
+
+def generate_dataview_id(index_pattern: str, time_field: str) -> str:
+    """Generate a unique hash ID for an ad-hoc dataview.
+
+    Args:
+        index_pattern: The index pattern (e.g., "logs-*")
+        time_field: The time field name (e.g., "@timestamp")
+
+    Returns:
+        A SHA256 hash string to use as the dataview ID
+    """
+    # Combine index pattern and time field to generate a unique ID
+    content = f'{index_pattern}:{time_field}'
+    return hashlib.sha256(content.encode()).hexdigest()
 
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
@@ -222,16 +240,41 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
+    # Extract index pattern from query and generate dataview ID
+    index_pattern = extract_index_pattern_from_esql(chart.query)
+    if not index_pattern:
+        msg = 'Could not extract index pattern from ES|QL query'
+        raise ValueError(msg)
+
+    dataview_id = generate_dataview_id(index_pattern, panel.esql.time_field)
+
+    # Create ad-hoc dataview
+    adhoc_dataview = KbnAdHocDataView(
+        id=dataview_id,
+        title=index_pattern,
+        timeFieldName=panel.esql.time_field,
+        name=index_pattern,
+    )
+
+    # Create index pattern ref
+    index_pattern_ref = KbnIndexPatternRef(
+        id=dataview_id,
+        title=index_pattern,
+        timeField=panel.esql.time_field,
+    )
+
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
+        index=dataview_id,
         timeField=panel.esql.time_field,
     )
 
     datasource_states = KbnDataSourceState(
         textBased=KbnTextBasedDataSourceState(
             layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id),
+            indexPatternRefs=[index_pattern_ref],
         )
     )
 
@@ -241,7 +284,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],
-        adHocDataViews={},
+        adHocDataViews={dataview_id: adhoc_dataview},
     )
 
     return panel_state, layer_id
