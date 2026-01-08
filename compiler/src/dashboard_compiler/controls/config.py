@@ -216,7 +216,7 @@ class ESQLStaticMultiSelectControl(BaseControl):
         """Validate that default values exist in available_options."""
         if self.default is not None:
             invalid = set(self.default) - set(self.available_options)
-            if invalid:
+            if len(invalid) > 0:
                 msg = f'default contains options not in available_options: {invalid}'
                 raise ValueError(msg)
         return self
