@@ -472,7 +472,7 @@ async def test_esql_query_control() -> None:
         'type': 'esql',
         'variable_name': 'status_code',
         'variable_type': 'values',
-        'esql_query': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
+        'query': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
         'title': 'Status Code',
     }
     result = compile_control_snapshot(config)
@@ -501,7 +501,7 @@ async def test_esql_query_control_with_single_select() -> None:
         'type': 'esql',
         'variable_name': 'host_name',
         'variable_type': 'values',
-        'esql_query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+        'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'title': 'Host Name',
         'single_select': True,
         'width': 'large',
@@ -731,7 +731,7 @@ async def test_esql_query_control_with_multi_select() -> None:
         'type': 'esql',
         'variable_name': 'host',
         'variable_type': 'values',
-        'esql_query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+        'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
         'title': 'Host Name',
         'single_select': False,
     }

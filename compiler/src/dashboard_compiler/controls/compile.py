@@ -215,7 +215,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
             id=stable_id,
             variableName=control.variable_name,
             variableType=control.variable_type,
-            esqlQuery=control.esql_query,
+            esqlQuery=control.query,
             controlType=EsqlControlType.VALUES_FROM_QUERY.value,
             title=control.title,
             selectedOptions=[],

@@ -132,7 +132,7 @@ Allows users to filter ES|QL visualizations via variables. ES|QL controls can us
 **The control type is automatically determined based on the fields you provide:**
 
 - If you provide `available_options`, it creates a static values control
-- If you provide `esql_query`, it creates a query-driven control
+- If you provide `query`, it creates a query-driven control
 
 #### Common Fields
 
@@ -160,11 +160,11 @@ Additional fields for static values controls (when `available_options` is provid
 
 #### Query-Driven Control Fields
 
-Additional fields for query-driven controls (when `esql_query` is provided):
+Additional fields for query-driven controls (when `query` is provided):
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --- | --- | --- | --- | --- |
-| `esql_query` | `string` | The ESQL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
+| `query` | `string` | The ES|QL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
 | `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
 
 #### Static Values Example
@@ -206,7 +206,7 @@ controls:
   - type: esql
     variable_name: status_code
     variable_type: values
-    esql_query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
+    query: FROM logs-* | STATS count = COUNT(*) BY http.response.status_code | KEEP http.response.status_code | LIMIT 20
     title: HTTP Status Code
 ```
 

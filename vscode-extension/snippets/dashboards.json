@@ -380,7 +380,7 @@
   "Control - ESQL Static Values": {
     "prefix": "control-esql-static",
     "body": [
-      "- type: esql_static",
+      "- type: esql",
       "  variable_name: ${1:variable_name}",
       "  variable_type: ${2|values,multi_values,fields,time_literal,functions|}",
       "  available_options:",
@@ -396,10 +396,10 @@
   "Control - ESQL Query": {
     "prefix": "control-esql-query",
     "body": [
-      "- type: esql_query",
+      "- type: esql",
       "  variable_name: ${1:variable_name}",
       "  variable_type: ${2|values,multi_values,fields,time_literal,functions|}",
-      "  esql_query: ${3:FROM logs-* | STATS count = COUNT(*) BY ${4:field_name} | KEEP ${4:field_name} | LIMIT 20}",
+      "  query: ${3:FROM logs-* | STATS count = COUNT(*) BY ${4:field_name} | KEEP ${4:field_name} | LIMIT 20}",
       "  title: ${5:Filter Title}",
       "  ${6:width: ${7|small,medium,large|}}",
       "  ${8:single_select: ${9|true,false|}}"
