@@ -25,10 +25,10 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
           metrics:
             - aggregation: count
               label: Events
@@ -42,19 +42,19 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
-            - field: log.level
-              type: values
-              label: Log Level
-              size: 5
-              sort:
-                by: Event Count
-                direction: desc
-              other_bucket: true
-              missing_bucket: false
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: log.level
+            type: values
+            size: 5
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -69,16 +69,16 @@ dashboards:
           type: bar
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: host.name
-              type: values
-              label: Host
-              size: 10
-              sort:
-                by: Event Count
-                direction: desc
-              other_bucket: true
-              missing_bucket: false
+          dimension:
+            field: host.name
+            type: values
+            label: Host
+            size: 10
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -92,10 +92,10 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
           metrics:
             - aggregation: count
               label: Request Count
@@ -118,10 +118,10 @@ dashboards:
           type: area
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
           metrics:
             - aggregation: count
               label: Events
@@ -144,14 +144,14 @@ dashboards:
           type: bar
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: http.request.method
-              type: values
-              label: HTTP Method
-              size: 10
-              sort:
-                by: Request Count
-                direction: desc
+          dimension:
+            field: http.request.method
+            type: values
+            label: HTTP Method
+            size: 10
+            sort:
+              by: Request Count
+              direction: desc
           metrics:
             - aggregation: count
               label: Request Count
@@ -172,10 +172,10 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: Time
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
           metrics:
             - aggregation: median
               field: http.response.time
@@ -203,14 +203,14 @@ dashboards:
           type: bar
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - field: service.name
-              type: values
-              label: Service
-              size: 8
-              sort:
-                by: Unique Users
-                direction: desc
+          dimension:
+            field: service.name
+            type: values
+            label: Service
+            size: 8
+            sort:
+              by: Unique Users
+              direction: desc
           metrics:
             - aggregation: unique_count
               field: user.id

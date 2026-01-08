@@ -71,19 +71,19 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: '@timestamp'
-            - field: aerospike.node.name
-              type: values
-              label: Top 15 values of aerospike.node.name
-              size: 15
-              sort:
-                by: Free Memory
-                direction: asc
-              other_bucket: true
-              missing_bucket: false
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: aerospike.node.name
+            type: values
+            size: 15
+            sort:
+              by: Free Memory
+              direction: asc
+            other_bucket: true
+            missing_bucket: false
           metrics:
             - aggregation: min
               label: Free Memory
@@ -99,19 +99,19 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: '@timestamp'
-            - field: aerospike.node.name
-              type: values
-              label: Top 15 values of aerospike.node.name
-              size: 15
-              sort:
-                by: Used Memory
-                direction: desc
-              other_bucket: true
-              missing_bucket: false
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: aerospike.node.name
+            type: values
+            size: 15
+            sort:
+              by: Used Memory
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
           metrics:
             - aggregation: min
               label: Used Memory
@@ -127,19 +127,19 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-              label: '@timestamp'
-            - field: attributes.type
-              type: values
-              label: Top 15 values of attributes.type
-              size: 15
-              sort:
-                by: Open Connections
-                direction: desc
-              other_bucket: true
-              missing_bucket: false
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: attributes.type
+            type: values
+            size: 15
+            sort:
+              by: Open Connections
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
           metrics:
             - aggregation: max
               field: aerospike.node.connection.open

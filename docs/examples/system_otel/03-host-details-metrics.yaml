@@ -38,9 +38,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - formula: >-
                 1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
@@ -53,11 +53,12 @@ dashboards:
         lens:
           type: area
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-            - field: attributes.state
-              label: State
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.state
           metrics:
             - aggregation: average
               field: metrics.system.cpu.utilization
@@ -67,9 +68,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - aggregation: average
               field: metrics.system.cpu.load_average.1m
@@ -85,9 +86,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
               label: Normalized Load
@@ -102,9 +103,9 @@ dashboards:
         lens:
           type: area
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
               label: Memory Utilization
@@ -115,11 +116,12 @@ dashboards:
         lens:
           type: area
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-            - field: attributes.state
-              label: State
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.state
           metrics:
             - aggregation: average
               field: metrics.system.memory.utilization
@@ -133,11 +135,12 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-            - field: attributes.mountpoint
-              label: Mount Point
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.mountpoint
           metrics:
             - aggregation: average
               field: metrics.system.filesystem.utilization
@@ -149,11 +152,12 @@ dashboards:
         lens:
           type: area
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-            - field: attributes.device
-              label: Device
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
           metrics:
             - aggregation: average
               field: metrics.system.disk.operations

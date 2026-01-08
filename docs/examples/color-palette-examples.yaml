@@ -35,9 +35,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: resource.attributes.os.type
             type: values
@@ -63,9 +63,9 @@ dashboards:
           type: bar
           mode: stacked
           data_view: metrics-*
-          dimensions:
-            - field: resource.attributes.host.name
-              type: values
+          dimension:
+            field: resource.attributes.host.name
+            type: values
           breakdown:
             field: attributes.state
             type: values
@@ -91,9 +91,9 @@ dashboards:
           type: area
           mode: stacked
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.device
             type: values
@@ -152,9 +152,9 @@ dashboards:
         lens:
           type: bar
           data_view: metrics-*
-          dimensions:
-            - field: resource.attributes.cloud.provider
-              type: values
+          dimension:
+            field: resource.attributes.cloud.provider
+            type: values
           metrics:
             - aggregation: unique_count
               field: resource.attributes.host.name
@@ -167,9 +167,9 @@ dashboards:
         lens:
           type: line
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: attributes.state
             type: values

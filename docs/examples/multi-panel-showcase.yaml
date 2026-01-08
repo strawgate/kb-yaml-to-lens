@@ -72,9 +72,9 @@ dashboards:
         lens:
           type: line
           data_view: logs-*
-          dimensions:
-            - type: date_histogram
-              field: '@timestamp'
+          dimension:
+            type: date_histogram
+            field: '@timestamp'
           metrics:
             - aggregation: count
       - title: Top Hosts by Event Count
@@ -88,9 +88,9 @@ dashboards:
           type: bar
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - type: values
-              field: host.name
+          dimension:
+            type: values
+            field: host.name
           metrics:
             - aggregation: count
       - title: Cumulative Events
@@ -104,9 +104,9 @@ dashboards:
           type: area
           mode: stacked
           data_view: logs-*
-          dimensions:
-            - type: date_histogram
-              field: '@timestamp'
+          dimension:
+            type: date_histogram
+            field: '@timestamp'
           metrics:
             - aggregation: count
           breakdown:

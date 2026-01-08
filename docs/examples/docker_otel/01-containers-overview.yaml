@@ -51,9 +51,9 @@ dashboards:
         lens:
           type: bar
           data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - field: container.id
               aggregation: unique_count
@@ -114,9 +114,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
@@ -135,9 +135,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
@@ -156,9 +156,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
@@ -180,9 +180,9 @@ dashboards:
           filters:
             - field: attributes.operation
               equals: read
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
@@ -203,9 +203,9 @@ dashboards:
           filters:
             - field: attributes.operation
               equals: write
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
@@ -223,9 +223,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
@@ -243,9 +243,9 @@ dashboards:
           data_view: metrics-*
           legend:
             visible: false
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           breakdown:
             field: container.id
             type: values
