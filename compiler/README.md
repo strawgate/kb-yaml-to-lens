@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD041 MD033 -->
 ![project-banner-smaller](https://github.com/user-attachments/assets/2cf8c18b-32e1-4b32-9a15-41f0d0d657f7)
 
 # YAML ➤ Lens Dashboard Compiler
@@ -59,57 +59,95 @@ No Python installation required!
 
 ### Compile Your First Dashboard
 
-All future commands that use uv should start with `uv run kb-dashboard <command>`.
+1. **Create the inputs directory:**
 
-All future commands that use Docker should start with:
+   ```bash
+   mkdir inputs
+   ```
 
-```bash
-docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
-  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest <command>
-```
+2. **Create a YAML dashboard file** (e.g., `inputs/my_dashboard.yaml`):
 
-All future commands that use the standalone binary should start with:
+   ```yaml
+   dashboards:
+     - name: My First Dashboard
+       description: A simple dashboard with markdown
+       panels:
+         - title: Welcome
+           grid: { x: 0, y: 0, w: 24, h: 15 }
+           markdown:
+             content: |
+               # Welcome to Kibana!
+               This is my first dashboard compiled from YAML.
+   ```
 
-```bash
-./kb-dashboard-<platform> <command>
-```
+3. **Run the compiler:**
 
-1. Create a YAML dashboard file in `inputs/` directory:
+   Choose the command for your installation method:
 
-```yaml
-dashboards:
-- name: My First Dashboard
-  description: A simple dashboard with markdown
-  panels:
-    - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
-      markdown:
-        content: |
-          # Welcome to Kibana!
+   <details open>
+   <summary><strong>Option 1: Using uv (Recommended)</strong></summary>
 
-          This is my first dashboard compiled from YAML.
-```
+   ```bash
+   # Compile to NDJSON
+   uv run --directory compiler kb-dashboard compile
 
-1. Compile to NDJSON:
+   # Compile and Upload
+   uv run --directory compiler kb-dashboard compile --upload \
+     --kibana-url http://localhost:5601 \
+     --kibana-username elastic \
+     --kibana-password changeme
+   ```
 
-```bash
-<compiler-command> compile --input-dir inputs --output-dir output
-```
+   </details>
 
-1. (Optional) Upload directly to Kibana:
+   <details>
+   <summary><strong>Option 2: Using Docker</strong></summary>
 
-```bash
-<compiler-command> compile --input-dir inputs --output-dir output --upload --kibana-url http://localhost:5601 --kibana-username elastic --kibana-password changeme
-```
+   ```bash
+   # Compile to NDJSON
+   docker run --rm \
+     -v $(pwd)/inputs:/inputs \
+     -v $(pwd)/output:/output \
+     ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+     compile --input-dir /inputs --output-dir /output
 
-The `--upload` flag will automatically open your dashboard in the browser upon successful upload.
+   # Compile and Upload
+   docker run --rm \
+     -v $(pwd)/inputs:/inputs \
+     -v $(pwd)/output:/output \
+     ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+     compile --input-dir /inputs --output-dir /output --upload \
+     --kibana-url http://host.docker.internal:5601 \
+     --kibana-username elastic \
+     --kibana-password changeme
+   ```
+
+   </details>
+
+   <details>
+   <summary><strong>Option 3: Standalone Binary</strong></summary>
+
+   ```bash
+   # Compile to NDJSON
+   ./kb-dashboard-linux-x64 compile
+
+   # Compile and Upload
+   ./kb-dashboard-linux-x64 compile --upload \
+     --kibana-url http://localhost:5601 \
+     --kibana-username elastic \
+     --kibana-password changeme
+   ```
+
+   </details>
+
+   The `--upload` flag will automatically open your dashboard in the browser upon successful upload.
 
 ## Documentation
 
 - **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with getting started guide and API reference
-- **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
-- **[Architecture](docs/architecture.md)** – Technical design and data flow overview
-- **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities
+- **[Programmatic Usage Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/programmatic-usage.md)** – Create dashboards entirely in Python code
+- **[Architecture](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/architecture.md)** – Technical design and data flow overview
+- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new capabilities
 
 ## License
 
