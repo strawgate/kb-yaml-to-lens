@@ -90,14 +90,7 @@ Both shorthand and verbose parameter names are supported for improved readabilit
 
 **Semantic Width Values:**
 
-| Value | Grid Units | Description |
-| ----- | ---------- | ----------- |
-| `whole` | 48 | Full dashboard width |
-| `half` | 24 | Half width |
-| `third` | 16 | One-third width |
-| `quarter` | 12 | Quarter width |
-| `sixth` | 8 | One-sixth width |
-| `eighth` | 6 | One-eighth width |
+--8<-- "docs/_generated/constants.md:semantic-width-constants-table"
 
 **Example:**
 

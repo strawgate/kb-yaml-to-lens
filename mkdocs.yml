@@ -76,6 +76,8 @@ plugins:
                   strip_annotated: false
 hooks:
   - docs/hooks/generate_llms_txt.py
+  - docs/hooks/generate_type_registry.py
+  - docs/hooks/extract_constants.py
 markdown_extensions:
   - admonition
   - pymdownx.details

@@ -10,6 +10,7 @@ references
 reference
 plan-*
 site/
+docs/_generated/
 *.ndjson
 dashboards.ndjson
 *.env

@@ -76,6 +76,14 @@ dashboards:
 
 ## Full Configuration Options
 
+### Available Chart Types
+
+The following chart types are available for Lens and ES|QL panels:
+
+--8<-- "docs/_generated/type_registry.md:chart-types-table"
+
+For detailed configuration options for each chart type, see the sections below and the individual chart type documentation pages.
+
 ### Lens Panel (`type: charts`)
 
 This is the main object for a Lens-based visualization. It inherits from the [Base Panel Configuration](base.md).
