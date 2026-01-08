@@ -754,3 +754,424 @@ async def test_esql_query_control_with_multi_select() -> None:
             },
         }
     )
+
+
+# ESQLFieldControl Tests
+
+
+async def test_esql_field_control_single_select() -> None:
+    """Test ES|QL field control with single selection."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'selected_field',
+        'variable_type': 'fields',
+        'choices': ['@timestamp', 'host.name', 'message'],
+        'label': 'Select Field',
+        'multiple': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'selected_field',
+                'variableType': 'fields',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Select Field',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'availableOptions': ['@timestamp', 'host.name', 'message'],
+            },
+        }
+    )
+
+
+async def test_esql_field_control_multi_select() -> None:
+    """Test ES|QL field control with multi selection."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'selected_fields',
+        'variable_type': 'fields',
+        'choices': ['@timestamp', 'host.name', 'message', 'log.level'],
+        'label': 'Select Fields',
+        'multiple': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'selected_fields',
+                'variableType': 'fields',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Select Fields',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'availableOptions': ['@timestamp', 'host.name', 'message', 'log.level'],
+            },
+        }
+    )
+
+
+async def test_esql_field_control_with_default() -> None:
+    """Test ES|QL field control with default value."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'selected_field',
+        'variable_type': 'fields',
+        'choices': ['@timestamp', 'host.name', 'message'],
+        'label': 'Select Field',
+        'default': '@timestamp',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'selected_field',
+                'variableType': 'fields',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Select Field',
+                'selectedOptions': ['@timestamp'],
+                'singleSelect': True,
+                'availableOptions': ['@timestamp', 'host.name', 'message'],
+            },
+        }
+    )
+
+
+async def test_esql_function_control() -> None:
+    """Test ES|QL function control."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'aggregate_fn',
+        'variable_type': 'functions',
+        'choices': ['COUNT', 'AVG', 'SUM', 'MAX', 'MIN'],
+        'label': 'Aggregate Function',
+        'default': 'COUNT',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'aggregate_fn',
+                'variableType': 'functions',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Aggregate Function',
+                'selectedOptions': ['COUNT'],
+                'singleSelect': True,
+                'availableOptions': ['COUNT', 'AVG', 'SUM', 'MAX', 'MIN'],
+            },
+        }
+    )
+
+
+async def test_esql_field_control_invalid_default() -> None:
+    """Test that ES|QL field control validates default against choices."""
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'field',
+                    'variable_type': 'fields',
+                    'choices': ['field1', 'field2'],
+                    'default': 'field3',
+                }
+            }
+        )
+
+
+async def test_esql_field_control_string_default_with_multiple_true() -> None:
+    """Test that ES|QL field control rejects string default with multiple=True."""
+    with pytest.raises(ValidationError, match='default must be a list when multiple is True'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'fields',
+                    'variable_type': 'fields',
+                    'choices': ['field1', 'field2'],
+                    'default': 'field1',
+                    'multiple': True,
+                }
+            }
+        )
+
+
+async def test_esql_field_control_list_default_with_multiple_false() -> None:
+    """Test that ES|QL field control rejects list default with multiple=False."""
+    with pytest.raises(ValidationError, match='default must be a string when multiple is False'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'field',
+                    'variable_type': 'fields',
+                    'choices': ['field1', 'field2'],
+                    'default': ['field1'],
+                    'multiple': False,
+                }
+            }
+        )
+
+
+# ESQLValueControl Tests
+
+
+async def test_esql_value_control_requires_choices_or_query() -> None:
+    """Test that ES|QL value control requires either choices or query."""
+    with pytest.raises(ValidationError, match="Either 'choices' or 'query' must be provided"):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'test',
+                    'variable_type': 'values',
+                }
+            }
+        )
+
+
+async def test_esql_value_control_not_both_choices_and_query() -> None:
+    """Test that ES|QL value control rejects both choices and query."""
+    with pytest.raises(ValidationError, match="Only one of 'choices' or 'query' can be provided"):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'test',
+                    'variable_type': 'values',
+                    'choices': ['a', 'b'],
+                    'query': 'FROM logs-*',
+                }
+            }
+        )
+
+
+async def test_esql_value_control_string_default_with_multiple_true() -> None:
+    """Test that ES|QL value control rejects string default with multiple=True."""
+    with pytest.raises(ValidationError, match='default must be a list when multiple is True'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'test',
+                    'variable_type': 'values',
+                    'choices': ['a', 'b'],
+                    'default': 'a',
+                    'multiple': True,
+                }
+            }
+        )
+
+
+async def test_esql_value_control_list_default_with_multiple_false() -> None:
+    """Test that ES|QL value control rejects list default with multiple=False."""
+    with pytest.raises(ValidationError, match='default must be a string when multiple is False'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'test',
+                    'variable_type': 'values',
+                    'choices': ['a', 'b'],
+                    'default': ['a'],
+                    'multiple': False,
+                }
+            }
+        )
+
+
+async def test_esql_value_control_invalid_default() -> None:
+    """Test that ES|QL value control validates default against choices."""
+    with pytest.raises(ValidationError, match='default contains options not in choices'):
+        ControlHolder.model_validate(
+            {
+                'control': {
+                    'type': 'esql',
+                    'variable_name': 'test',
+                    'variable_type': 'values',
+                    'choices': ['a', 'b'],
+                    'default': 'c',
+                }
+            }
+        )
+
+
+async def test_esql_value_control_multi_values_type() -> None:
+    """Test ES|QL value control with multi_values variable type."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'tags',
+        'variable_type': 'multi_values',
+        'choices': ['tag1', 'tag2', 'tag3'],
+        'label': 'Tags',
+        'multiple': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'tags',
+                'variableType': 'multi_values',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Tags',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'availableOptions': ['tag1', 'tag2', 'tag3'],
+            },
+        }
+    )
+
+
+async def test_esql_value_control_time_literal_type() -> None:
+    """Test ES|QL value control with time_literal variable type."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'time_range',
+        'variable_type': 'time_literal',
+        'choices': ['now-1h', 'now-24h', 'now-7d'],
+        'label': 'Time Range',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'time_range',
+                'variableType': 'time_literal',
+                'esqlQuery': '',
+                'controlType': 'STATIC_VALUES',
+                'title': 'Time Range',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'availableOptions': ['now-1h', 'now-24h', 'now-7d'],
+            },
+        }
+    )
+
+
+# OptionsListControl multiple Field Tests
+
+
+async def test_options_list_multiple_true() -> None:
+    """Test options list control with multiple=True."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'status',
+        'label': 'Status (Multiple)',
+        'multiple': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'status',
+                'title': 'Status (Multiple)',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
+async def test_options_list_multiple_false() -> None:
+    """Test options list control with multiple=False."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'status',
+        'label': 'Status (Single)',
+        'multiple': False,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'status',
+                'title': 'Status (Single)',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': True,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )
+
+
+async def test_options_list_multiple_precedence() -> None:
+    """Test that multiple takes precedence over singular in options list."""
+    config = {
+        'type': 'options',
+        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+        'field': 'status',
+        'label': 'Precedence Test',
+        'multiple': True,
+        'singular': True,
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'optionsListControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'fieldName': 'status',
+                'title': 'Precedence Test',
+                'searchTechnique': 'prefix',
+                'selectedOptions': [],
+                'singleSelect': False,
+                'sort': {'by': '_count', 'direction': 'desc'},
+            },
+        }
+    )

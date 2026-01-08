@@ -12,6 +12,8 @@ type ControlTypes = (
     RangeSliderControl
     | OptionsListControl
     | TimeSliderControl
+    | ESQLValueControl
+    | ESQLFieldControl
     | ESQLStaticSingleSelectControl
     | ESQLStaticMultiSelectControl
     | ESQLQueryControl
@@ -94,8 +96,11 @@ class OptionsListControl(BaseControl):
     preselected: list[str] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
-    singular: bool | None = Field(default=None)
-    """If true, the control allows only a single selection from the options list."""
+    multiple: bool | None = Field(default=None)
+    """If true, allow multiple selection. Takes precedence over 'singular' field."""
+
+    singular: bool | None = Field(default=None, deprecated=True)
+    """DEPRECATED: Use 'multiple' instead. If true, only allow single selection."""
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
@@ -148,8 +153,132 @@ class TimeSliderControl(BaseControl):
         return self
 
 
+class ESQLValueControl(BaseControl):
+    """ES|QL control for value selection (VALUES, MULTI_VALUES, TIME_LITERAL).
+
+    Supports both static values (via choices) and query-driven values (via query).
+    Either choices or query must be provided, but not both.
+    """
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    variable_type: Literal[
+        ESQLVariableType.VALUES,
+        ESQLVariableType.MULTI_VALUES,
+        ESQLVariableType.TIME_LITERAL,
+    ] = Field(default=ESQLVariableType.VALUES)
+    choices: list[str] | None = Field(default=None)
+    query: str | None = Field(default=None, min_length=1)
+    default: str | list[str] | None = Field(default=None)
+    multiple: bool | None = Field(default=None)
+
+    @model_validator(mode='after')
+    def validate_choices_xor_query(self) -> Self:
+        """Ensure exactly one of choices or query is provided."""
+        has_choices = self.choices is not None
+        has_query = self.query is not None
+
+        if not has_choices and not has_query:
+            msg = "Either 'choices' or 'query' must be provided"
+            raise ValueError(msg)
+
+        if has_choices and has_query:
+            msg = "Only one of 'choices' or 'query' can be provided, not both"
+            raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_defaults(self) -> Self:
+        """Ensure default values exist in choices (static mode only)."""
+        if self.default is None or self.choices is None:
+            return self
+
+        default_list = [self.default] if isinstance(self.default, str) else self.default
+        invalid = [v for v in default_list if v not in self.choices]
+
+        if len(invalid) > 0:
+            msg = f'default contains options not in choices: {invalid}'
+            raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_default_type_matches_multiple(self) -> Self:
+        """Ensure default type matches the multiple setting."""
+        if self.default is None:
+            return self
+
+        is_list_default = isinstance(self.default, list)
+        is_multi_select = self.multiple is True
+
+        if is_list_default and not is_multi_select:
+            msg = 'default must be a string when multiple is False or None'
+            raise ValueError(msg)
+
+        if not is_list_default and is_multi_select:
+            msg = 'default must be a list when multiple is True'
+            raise ValueError(msg)
+
+        return self
+
+
+class ESQLFieldControl(BaseControl):
+    """ES|QL control for field/function selection (FIELDS, FUNCTIONS).
+
+    Only supports static values (via choices). Query-driven mode is not supported
+    for field/function controls.
+    """
+
+    type: Literal['esql'] = 'esql'
+    variable_name: str = Field(...)
+    variable_type: Literal[
+        ESQLVariableType.FIELDS,
+        ESQLVariableType.FUNCTIONS,
+    ] = Field(default=ESQLVariableType.FIELDS)
+    choices: list[str] = Field(...)
+    default: str | list[str] | None = Field(default=None)
+    multiple: bool | None = Field(default=None)
+
+    @model_validator(mode='after')
+    def validate_defaults(self) -> Self:
+        """Ensure default values exist in choices."""
+        if self.default is None:
+            return self
+
+        default_list = [self.default] if isinstance(self.default, str) else self.default
+        invalid = [v for v in default_list if v not in self.choices]
+
+        if len(invalid) > 0:
+            msg = f'default contains options not in choices: {invalid}'
+            raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_default_type_matches_multiple(self) -> Self:
+        """Ensure default type matches the multiple setting."""
+        if self.default is None:
+            return self
+
+        is_list_default = isinstance(self.default, list)
+        is_multi_select = self.multiple is True
+
+        if is_list_default and not is_multi_select:
+            msg = 'default must be a string when multiple is False or None'
+            raise ValueError(msg)
+
+        if not is_list_default and is_multi_select:
+            msg = 'default must be a list when multiple is True'
+            raise ValueError(msg)
+
+        return self
+
+
 class ESQLStaticSingleSelectControl(BaseControl):
-    """Represents an ES|QL control with static values for single selection.
+    """DEPRECATED: Use ESQLValueControl with choices and multiple=False instead.
+
+    Represents an ES|QL control with static values for single selection.
 
     This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
@@ -182,7 +311,9 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
 
 class ESQLStaticMultiSelectControl(BaseControl):
-    """Represents an ES|QL control with static values for multiple selection.
+    """DEPRECATED: Use ESQLValueControl with choices and multiple=True instead.
+
+    Represents an ES|QL control with static values for multiple selection.
 
     This control allows users to select multiple values from a predefined list
     to filter ES|QL visualizations via variables.
@@ -217,7 +348,9 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
 
 class ESQLQueryControl(BaseControl):
-    """Represents an ES|QL control with query-driven values.
+    """DEPRECATED: Use ESQLValueControl with query instead.
+
+    Represents an ES|QL control with query-driven values.
 
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
