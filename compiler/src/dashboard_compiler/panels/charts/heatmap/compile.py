@@ -60,13 +60,8 @@ def compile_heatmap_chart_visualization_state(
 
     # Compile legend configuration (always present, use defaults if not provided)
     if chart.legend is not None:
-        # Map enum values: 'show' -> True, 'hide' -> False
-        legend_visible = True
-        if chart.legend.visible is not None:
-            if chart.legend.visible == 'show':
-                legend_visible = True
-            elif chart.legend.visible == 'hide':
-                legend_visible = False
+        # Map enum values: 'show' -> True, 'hide' -> False, None -> True (Kibana default)
+        legend_visible = chart.legend.visible != 'hide' if chart.legend.visible is not None else True
 
         legend = KbnHeatmapLegendConfig(
             isVisible=legend_visible,

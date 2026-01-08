@@ -49,7 +49,7 @@ class HeatmapLegendConfig(BaseCfgModel):
 
     visible: LegendVisibleEnum | None = Field(
         default=None,
-        strict=False,  # Turn off strict for enums
+        strict=False,  # Allow string coercion from YAML config (e.g., 'show' -> LegendVisibleEnum.SHOW)
     )
     """Visibility of the legend (show or hide). Kibana defaults to show if not specified."""
 
@@ -62,7 +62,7 @@ class HeatmapLegendConfig(BaseCfgModel):
 
         Heatmaps only support 'show' and 'hide' visibility options.
         """
-        if self.visible == 'auto':
+        if self.visible == LegendVisibleEnum.AUTO:
             msg = "Heatmap legend does not support 'auto' visibility. Use 'show' or 'hide'."
             raise ValueError(msg)
         return self
