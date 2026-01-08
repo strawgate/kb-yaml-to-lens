@@ -27,14 +27,24 @@ async function main() {
         // The path to the extension test script
         const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
+        // The workspace folder to open (repository root, where compiler/ lives)
+        const workspaceFolder = path.resolve(__dirname, '../../../');
+
         // Download VS Code, unzip it and run the integration test
         await runTests({
             vscodeExecutablePath,
             extensionDevelopmentPath,
-            extensionTestsPath
+            extensionTestsPath,
             // Note: --disable-extensions is not used because it would disable redhat.vscode-yaml
             // which is a required dependency. The extension is installed above and will be
             // available during testing.
+            launchArgs: [
+                workspaceFolder,
+                // Chromium flags for headless CI execution (prevents X server errors and SIGSEGVs)
+                '--disable-gpu',
+                '--no-sandbox',
+                '--disable-dev-shm-usage'
+            ]
         });
     } catch (err) {
         console.error('Failed to run tests:', err);
