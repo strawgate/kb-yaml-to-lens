@@ -175,10 +175,6 @@ dashboards:
               label: CPU %
               format:
                 type: percent
-            - formula: (median(container.cpu.usage.total) / median(container.cpu.usage.limit)) * 100
-              label: CPU % with Limit
-              format:
-                type: percent
 
       # Memory Usage with limit (left half)
       - title: Memory Usage with limit
