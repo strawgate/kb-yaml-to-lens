@@ -8,7 +8,7 @@ on:
       - docs/**
       - mkdocs.yml
       - compiler/src/**
-      - .github/workflows/docs.yml
+      - github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
 permissions:
   contents: read
@@ -31,7 +31,7 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --group docs
       - name: Build documentation
-        run: mkdocs build --strict
+        run: uv run --group docs mkdocs build --strict
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
