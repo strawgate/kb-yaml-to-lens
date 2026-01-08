@@ -50,8 +50,8 @@ plugins:
         python:
           paths:
             - compiler/src
-          import:
-            - https://docs.python.org/3/objects.inv
+          inventories:
+            - url: https://docs.python.org/3/objects.inv
           options:
             show_source: false
             docstring_style: google

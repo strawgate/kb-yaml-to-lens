@@ -28,7 +28,7 @@ fi
 
 BINARY_PATH="${BINARY_PATH:-dist/$BINARY_NAME}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 if [ ! -f "$BINARY_PATH" ]; then
   echo "✗ Binary not found at $BINARY_PATH"
@@ -56,7 +56,7 @@ echo "Test 3: Compile sample YAML"
 TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
-"$BINARY_PATH" compile --input-dir "$PROJECT_ROOT/inputs" --output-dir "$TEMP_OUTPUT"
+"$BINARY_PATH" compile --input-dir "$COMPILER_ROOT/inputs" --output-dir "$TEMP_OUTPUT"
 
 # Verify output files exist
 if [ ! -f "$TEMP_OUTPUT/esql-controls-example.ndjson" ]; then

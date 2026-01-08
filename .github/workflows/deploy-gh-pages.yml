@@ -8,7 +8,7 @@ on:
       - docs/**
       - mkdocs.yml
       - compiler/src/**
-      - .github/workflows/docs.yml
+      - .github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
 permissions:
   contents: read
@@ -29,17 +29,15 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
-        working-directory: compiler
         run: uv sync --group docs
       - name: Build documentation
-        working-directory: compiler
-        run: make docs-build
+        run: uv run --group docs mkdocs build --strict
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: compiler/site
+          path: site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
