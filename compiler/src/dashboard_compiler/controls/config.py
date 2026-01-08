@@ -9,15 +9,15 @@ from dashboard_compiler.controls.types import ESQLVariableType
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
-def _control_discriminator(v: Any) -> str:
+def _control_discriminator(v: Any) -> str:  # pyright: ignore[reportAny]
     """Discriminate control types, with special handling for ES|QL controls."""
     if isinstance(v, dict):
-        control_type: str | None = v.get('type')
+        control_type: str | None = v.get('type')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if control_type == 'esql':
             # Discriminate ES|QL controls by presence of available_options vs esql_query
             if 'available_options' in v:
                 # For static controls, discriminate by single_select field
-                single_select = v.get('single_select')
+                single_select = v.get('single_select')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
                 if single_select is False:
                     return 'esql_static_multi_select'
                 # single_select is None or True -> single select
@@ -25,7 +25,7 @@ def _control_discriminator(v: Any) -> str:
             if 'esql_query' in v:
                 return 'esql_query'
         if control_type is not None:
-            return control_type
+            return control_type  # pyright: ignore[reportUnknownVariableType]
     return 'options'  # Fallback
 
 

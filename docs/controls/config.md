@@ -134,6 +134,10 @@ Allows users to filter ES|QL visualizations via variables. ES|QL controls can us
 - If you provide `available_options`, it creates a static values control
 - If you provide `esql_query`, it creates a query-driven control
 
+#### Common Fields
+
+These fields apply to all ES|QL controls (both static and query-driven):
+
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | --- | --- | --- | --- | --- |
 | `type` | `Literal['esql']` | Specifies the control type. | `esql` | Yes |
@@ -143,12 +147,24 @@ Allows users to filter ES|QL visualizations via variables. ES|QL controls can us
 | `variable_name` | `string` | The name of the ESQL variable (e.g., `status_code`). Used in queries as `?variable_name`. | N/A | Yes |
 | `variable_type` | `string` | The type of variable. See [ESQL Variable Types](#esql-variable-types-variable_type). | `values` | No |
 | `title` | `string` | Display title for the control shown in the UI. | N/A | Yes |
-| **For Static Values:** | | | | |
-| `available_options` | `list of strings` | The static list of available values for this control. **Required for static values controls.** | N/A | Conditional |
+
+#### Static Values Control Fields
+
+Additional fields for static values controls (when `available_options` is provided):
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| --- | --- | --- | --- | --- |
+| `available_options` | `list of strings` | The static list of available values for this control. **Required for static values controls.** | N/A | Yes |
 | `default` | `string` or `list of strings` | Default selected value(s). If a string, auto-infers single-select mode. If a list, auto-infers multi-select mode. | `None` | No |
 | `single_select` | `boolean` | If true, only allow single selection. If not set, auto-inferred from `default` type (string=true, list=false). | Inferred from `default` | No |
-| **For Query-Driven:** | | | | |
-| `esql_query` | `string` | The ESQL query that returns the available values. **Required for query-driven controls.** | N/A | Conditional |
+
+#### Query-Driven Control Fields
+
+Additional fields for query-driven controls (when `esql_query` is provided):
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| --- | --- | --- | --- | --- |
+| `esql_query` | `string` | The ESQL query that returns the available values. **Required for query-driven controls.** | N/A | Yes |
 | `single_select` | `boolean` | If true, only allow single selection from the options. | `false` | No |
 
 #### Static Values Example
