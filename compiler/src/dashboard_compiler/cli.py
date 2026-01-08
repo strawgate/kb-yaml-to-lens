@@ -217,7 +217,6 @@ def cli(ctx: click.Context) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-@click.pass_context
 def compile_dashboards(  # noqa: PLR0913, PLR0912
     ctx: click.Context,
     input_dir: Path,
@@ -379,7 +378,6 @@ async def upload_to_kibana(
     help='Directory containing YAML dashboard files with sample data.',
 )
 @elasticsearch_options
-@click.pass_context
 def load_sample_data_command(
     ctx: click.Context,
     input_dir: Path,
@@ -467,7 +465,6 @@ def load_sample_data_command(
     help='Maximum number of documents to extract (default: 1000).',
 )
 @elasticsearch_options
-@click.pass_context
 def extract_sample_data_command(
     ctx: click.Context,
     index: str,
@@ -569,7 +566,6 @@ def extract_sample_data_command(
     help='Maximum time in seconds to wait for screenshot generation. Increase for complex dashboards. Default: 300',
 )
 @kibana_options
-@click.pass_context
 def screenshot_dashboard(  # noqa: PLR0913
     ctx: click.Context,
     dashboard_id: str,
@@ -816,7 +812,6 @@ async def load_all_sample_data(
     is_flag=True,
     help='Do not open browser automatically with pre-filled issue.',
 )
-@click.pass_context
 def export_for_issue(
     ctx: click.Context,
     dashboard_id: str,
