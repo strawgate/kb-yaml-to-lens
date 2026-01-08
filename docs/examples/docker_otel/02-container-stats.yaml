@@ -60,11 +60,31 @@ dashboards:
           type: datatable
           data_view: metrics-*
           rows:
+            - id: container-name
+              type: values
+              field: container.name
+              label: Container Name
+              size: 3
+            - id: container-image
+              type: values
+              field: container.image.name
+              label: Container Image
+              size: 3
+            - id: container-runtime
+              type: values
+              field: container.runtime
+              label: Runtime
+              size: 3
             - id: container-id
               type: values
               field: container.id
               label: Container ID
-              size: 100
+              size: 3
+            - id: container-hostname
+              type: values
+              field: container.hostname
+              label: Hostname
+              size: 5
           metrics:
             - id: cpu-usage
               formula: median(container.cpu.utilization)/100
@@ -123,9 +143,9 @@ dashboards:
           dimensions:
             - field: '@timestamp'
               type: date_histogram
-            - field: attributes.device
+            - field: attributes.device_major
               type: values
-              size: 10
+              size: 1000
           metrics:
             - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
               label: Bytes
@@ -143,7 +163,7 @@ dashboards:
               type: date_histogram
             - field: attributes.interface
               type: values
-              size: 10
+              size: 30
           metrics:
             - formula: counter_rate(max(container.network.io.usage.rx_bytes))
               label: Received Bytes
@@ -212,7 +232,7 @@ dashboards:
               format:
                 type: percent
 
-      # Second Disk I/O panel (split by operation)
+      # Second Disk I/O panel (split by device_major)
       - title: Disk I/O
         grid: {x: 0, y: 65, w: 48, h: 9}
         lens:
@@ -221,9 +241,9 @@ dashboards:
           dimensions:
             - field: '@timestamp'
               type: date_histogram
-            - field: attributes.operation
+            - field: attributes.device_major
               type: values
-              size: 10
+              size: 1000
           metrics:
             - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
               label: Bytes
@@ -241,7 +261,7 @@ dashboards:
               type: date_histogram
             - field: attributes.interface
               type: values
-              size: 10
+              size: 30
           metrics:
             - formula: counter_rate(max(container.network.io.usage.rx_bytes))
               label: Bytes
@@ -259,7 +279,7 @@ dashboards:
               type: date_histogram
             - field: attributes.interface
               type: values
-              size: 10
+              size: 30
           metrics:
             - formula: counter_rate(max(container.network.io.usage.tx_bytes))
               label: Bytes

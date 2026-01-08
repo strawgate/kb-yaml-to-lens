@@ -61,8 +61,9 @@ These dashboards expect data from the OpenTelemetry Docker Stats Receiver with t
 - `container.name` - Container name
 - `container.image.name` - Container image name
 - `container.runtime` - Container runtime (e.g., docker, containerd)
-- `host.name` - Host name where container is running
-- `device` - Device identifier for disk I/O metrics
+- `container.hostname` - Container hostname
+- `attributes.device_major` - Major device number for disk I/O metrics
+- `attributes.interface` - Network interface name for network I/O metrics
 
 ### Data View
 
