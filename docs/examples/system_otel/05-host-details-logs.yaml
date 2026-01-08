@@ -16,7 +16,7 @@ dashboards:
         description: Links to related dashboards
         links:
           layout: horizontal
-          links:
+          items:
             - label: Hosts Overview
               dashboard: otel-hosts-overview
             - label: Host Overview

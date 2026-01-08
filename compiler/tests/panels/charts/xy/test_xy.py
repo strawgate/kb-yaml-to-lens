@@ -723,7 +723,7 @@ async def test_xy_chart_with_legend_hidden() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'legend': {'visible': False},
+        'legend': {'visible': 'hide'},
     }
 
     lens_chart = LensBarChart(**lens_config)
@@ -741,7 +741,7 @@ async def test_xy_chart_with_legend_bottom_position() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'legend': {'visible': True, 'position': 'bottom'},
+        'legend': {'visible': 'show', 'position': 'bottom'},
     }
 
     lens_chart = LensAreaChart(**lens_config)

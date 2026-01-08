@@ -283,7 +283,13 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
 
     if chart.legend is not None:
         if chart.legend.visible is not None:
-            legend_visible = chart.legend.visible
+            # Map enum values: 'show' -> True, 'hide' -> False, 'auto' -> True (default behavior)
+            if chart.legend.visible == 'show':
+                legend_visible = True
+            elif chart.legend.visible == 'hide':
+                legend_visible = False
+            elif chart.legend.visible == 'auto':
+                legend_visible = True
         if chart.legend.position is not None:
             legend_position = chart.legend.position
         if chart.legend.show_single_series is not None:

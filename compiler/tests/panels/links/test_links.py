@@ -26,7 +26,7 @@ def test_compile_links_panel_basic_url() -> None:
     references, result = compile_links_panel_snapshot(
         {
             'links': {
-                'links': [
+                'items': [
                     {'url': 'https://elastic.co'},
                 ],
             },
@@ -49,7 +49,7 @@ def test_compile_links_panel_custom_id() -> None:
     references, result = compile_links_panel_snapshot(
         {
             'links': {
-                'links': [
+                'items': [
                     {
                         'url': 'https://elastic.co',
                         'id': '16da766e-c67a-4d2e-9eec-c477af79f374',
@@ -75,7 +75,7 @@ def test_compile_links_panel_with_label() -> None:
     references, result = compile_links_panel_snapshot(
         {
             'links': {
-                'links': [
+                'items': [
                     {'url': 'https://elastic.co', 'label': 'Custom Label'},
                 ],
             },
@@ -98,7 +98,7 @@ def test_compile_links_panel_inverted_options() -> None:
     references, result = compile_links_panel_snapshot(
         {
             'links': {
-                'links': [
+                'items': [
                     {'url': 'https://elastic.co', 'label': 'Custom Label', 'new_tab': False, 'encode': False},
                 ],
             },
@@ -132,7 +132,7 @@ def test_compile_links_panel_dashboard_link() -> None:
             'id': '74522ed1-eb91-4b8a-bcbe-ffa0ff9c9abf',
             'links': {
                 'layout': 'vertical',
-                'links': [
+                'items': [
                     {
                         'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
                         'label': 'Go to Dashboard',
@@ -171,7 +171,7 @@ def test_compile_links_panel_dashboard_link_inverted_options() -> None:
             'id': '71a1e537-eb91-4b8a-bcbe-ffa0ff9c9abf',
             'links': {
                 'layout': 'vertical',
-                'links': [
+                'items': [
                     {
                         'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
                         'label': 'Go to Dashboard',
