@@ -194,9 +194,7 @@ class ESQLStaticSingleValueControl(BaseControl):
     @model_validator(mode='after')
     def validate_default(self) -> Self:
         """Validate that default value exists in choices."""
-        if self.default is not None and self.default not in self.choices:
-            msg = f'default "{self.default}" not in choices'
-            raise ValueError(msg)
+        validate_default_in_choices(self.default, self.choices)
         return self
 
 
@@ -219,11 +217,7 @@ class ESQLStaticMultiValueControl(BaseControl):
     @model_validator(mode='after')
     def validate_default(self) -> Self:
         """Validate that default values exist in choices."""
-        if self.default is not None:
-            invalid = [v for v in self.default if v not in self.choices]
-            if len(invalid) > 0:
-                msg = f'default contains values not in choices: {invalid}'
-                raise ValueError(msg)
+        validate_default_in_choices(self.default, self.choices)
         return self
 
 
@@ -274,9 +268,7 @@ class ESQLFieldControl(BaseControl):
     @model_validator(mode='after')
     def validate_default(self) -> Self:
         """Validate that default value exists in choices."""
-        if self.default is not None and self.default not in self.choices:
-            msg = f'default "{self.default}" not in choices'
-            raise ValueError(msg)
+        validate_default_in_choices(self.default, self.choices)
         return self
 
 
@@ -299,14 +291,12 @@ class ESQLFunctionControl(BaseControl):
     @model_validator(mode='after')
     def validate_default(self) -> Self:
         """Validate that default value exists in choices."""
-        if self.default is not None and self.default not in self.choices:
-            msg = f'default "{self.default}" not in choices'
-            raise ValueError(msg)
+        validate_default_in_choices(self.default, self.choices)
         return self
 
 
 class ESQLStaticSingleSelectControl(BaseControl):
-    """DEPRECATED: Use ESQLValueControl with choices and multiple=False instead.
+    """DEPRECATED: Use ESQLStaticSingleValueControl instead.
 
     Represents an ES|QL control with static values for single selection.
 
@@ -341,7 +331,7 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
 
 class ESQLStaticMultiSelectControl(BaseControl):
-    """DEPRECATED: Use ESQLValueControl with choices and multiple=True instead.
+    """DEPRECATED: Use ESQLStaticMultiValueControl instead.
 
     Represents an ES|QL control with static values for multiple selection.
 
@@ -378,7 +368,7 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
 
 class ESQLQueryControl(BaseControl):
-    """DEPRECATED: Use ESQLValueControl with query instead.
+    """DEPRECATED: Use ESQLQuerySingleValueControl or ESQLQueryMultiValueControl instead.
 
     Represents an ES|QL control with query-driven values.
 
