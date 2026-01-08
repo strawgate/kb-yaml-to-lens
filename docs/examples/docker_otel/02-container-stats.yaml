@@ -24,6 +24,7 @@ dashboards:
       - field: data_stream.dataset
         equals: dockerstatsreceiver.otel
     panels:
+      # Navigation Links
       - title: Navigation Links
         grid: {x: 0, y: 0, w: 48, h: 2}
         links:
@@ -33,6 +34,14 @@ dashboards:
               dashboard: docker-otel-overview
             - label: Container Stats
               dashboard: docker-otel-container-stats
+
+      # Warning markdown panel
+      - grid: {x: 0, y: 2, w: 48, h: 2}
+        markdown:
+          content: This dashboard is only intended to be used when filtered to one container at a time.
+          font_size: 12
+
+      # Container count metric
       - title: Containers count
         grid: {x: 0, y: 4, w: 7, h: 4}
         hide_title: true
@@ -43,8 +52,10 @@ dashboards:
             field: container.id
             aggregation: unique_count
             label: Selected Containers
-      - title: Container stats
-        grid: {x: 7, y: 2, w: 41, h: 6}
+
+      # Container info table
+      - title: Container info
+        grid: {x: 7, y: 4, w: 41, h: 4}
         lens:
           type: datatable
           data_view: metrics-*
@@ -71,8 +82,10 @@ dashboards:
               label: Memory (Bytes)
               format:
                 type: bytes
+
+      # First CPU Usage panel (line chart)
       - title: CPU Usage
-        grid: {x: 0, y: 8, w: 24, h: 11}
+        grid: {x: 0, y: 8, w: 48, h: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -84,21 +97,10 @@ dashboards:
               label: CPU Usage
               format:
                 type: percent
-      - title: Memory %
-        grid: {x: 24, y: 8, w: 24, h: 11}
-        lens:
-          type: line
-          data_view: metrics-*
-          dimensions:
-            - field: '@timestamp'
-              type: date_histogram
-          metrics:
-            - formula: median(container.memory.percent)/100
-              label: Memory %
-              format:
-                type: percent
+
+      # First Memory Usage panel (area chart)
       - title: Memory Usage
-        grid: {x: 0, y: 19, w: 24, h: 11}
+        grid: {x: 0, y: 17, w: 48, h: 9}
         lens:
           type: area
           data_view: metrics-*
@@ -111,59 +113,157 @@ dashboards:
               label: Memory Usage
               format:
                 type: bytes
-      - title: I/O Read
-        grid: {x: 24, y: 19, w: 24, h: 11}
+
+      # First Disk I/O panel (full width)
+      - title: Disk I/O
+        grid: {x: 0, y: 26, w: 48, h: 9}
         lens:
           type: area
           data_view: metrics-*
-          filters:
-            - field: attributes.operation
-              equals: read
           dimensions:
             - field: '@timestamp'
               type: date_histogram
+            - field: attributes.device
+              type: values
+              size: 10
           metrics:
             - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
               label: Bytes
               format:
                 type: bytes
-      - title: I/O Write
-        grid: {x: 0, y: 30, w: 24, h: 11}
+
+      # Network I/O panel (full width)
+      - title: Network I/O
+        grid: {x: 0, y: 35, w: 48, h: 9}
         lens:
           type: area
           data_view: metrics-*
-          filters:
-            - field: attributes.operation
-              equals: write
           dimensions:
             - field: '@timestamp'
               type: date_histogram
+            - field: attributes.interface
+              type: values
+              size: 10
+          metrics:
+            - formula: counter_rate(max(container.network.io.usage.rx_bytes))
+              label: Received Bytes
+              format:
+                type: bytes
+            - formula: counter_rate(max(container.network.io.usage.tx_bytes))
+              label: Transmitted Bytes
+              format:
+                type: bytes
+
+      # "Detailed information" markdown panel
+      - grid: {x: 0, y: 44, w: 48, h: 3}
+        markdown:
+          content: '## Detailed information'
+          font_size: 12
+
+      # Second CPU Usage panel (different visualization - area stacked)
+      - title: CPU Usage
+        grid: {x: 0, y: 47, w: 48, h: 9}
+        lens:
+          type: area
+          stacked: true
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: median(container.cpu.utilization)/100
+              label: CPU %
+              format:
+                type: percent
+            - formula: (median(container.cpu.usage.total) / median(container.cpu.usage.limit)) * 100
+              label: CPU % with Limit
+              format:
+                type: percent
+
+      # Memory Usage with limit (left half)
+      - title: Memory Usage with limit
+        grid: {x: 0, y: 56, w: 24, h: 9}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - field: container.memory.usage.total
+              aggregation: median
+              label: Memory Usage
+              format:
+                type: bytes
+            - field: container.memory.usage.limit
+              aggregation: median
+              label: Memory Limit
+              format:
+                type: bytes
+
+      # Second Memory Usage panel (right half)
+      - title: Memory Usage
+        grid: {x: 24, y: 56, w: 24, h: 9}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+          metrics:
+            - formula: median(container.memory.percent)/100
+              label: Memory %
+              format:
+                type: percent
+
+      # Second Disk I/O panel (split by operation)
+      - title: Disk I/O
+        grid: {x: 0, y: 65, w: 48, h: 9}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimensions:
+            - field: '@timestamp'
+              type: date_histogram
+            - field: attributes.operation
+              type: values
+              size: 10
           metrics:
             - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
               label: Bytes
               format:
                 type: bytes
-      - title: Network Received
-        grid: {x: 24, y: 30, w: 24, h: 11}
+
+      # Network - Received Bytes (left half)
+      - title: Network - Received Bytes
+        grid: {x: 0, y: 74, w: 24, h: 9}
         lens:
           type: area
           data_view: metrics-*
           dimensions:
             - field: '@timestamp'
               type: date_histogram
+            - field: attributes.interface
+              type: values
+              size: 10
           metrics:
             - formula: counter_rate(max(container.network.io.usage.rx_bytes))
               label: Bytes
               format:
                 type: bytes
-      - title: Network Transmitted
-        grid: {x: 24, y: 41, w: 24, h: 11}
+
+      # Network - Transmitted Bytes (right half)
+      - title: Network - Transmitted Bytes
+        grid: {x: 24, y: 74, w: 24, h: 9}
         lens:
           type: area
           data_view: metrics-*
           dimensions:
             - field: '@timestamp'
               type: date_histogram
+            - field: attributes.interface
+              type: values
+              size: 10
           metrics:
             - formula: counter_rate(max(container.network.io.usage.tx_bytes))
               label: Bytes
