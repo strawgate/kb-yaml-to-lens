@@ -33,13 +33,15 @@ Demonstrates the use of dashboard controls including:
 
 **Use this when:** You need interactive filtering capabilities on your dashboard.
 
-[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)
+[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/controls-example.yaml)
 
+<!-- markdownlint-disable MD046 -->
 ??? example "Example YAML (controls-example.yaml)"
 
-```yaml
---8<-- "examples/controls-example.yaml"
-```
+    ```yaml
+    --8<-- "examples/controls-example.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### Dimensions Example
 
@@ -52,13 +54,15 @@ Shows how to configure dimensions in Lens visualizations:
 
 **Use this when:** You're building complex charts with multiple breakdowns and groupings.
 
-[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/dimensions-example.yaml)
+[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/dimensions-example.yaml)
 
+<!-- markdownlint-disable MD046 -->
 ??? example "Example YAML (dimensions-example.yaml)"
 
-```yaml
---8<-- "examples/dimensions-example.yaml"
-```
+    ```yaml
+    --8<-- "examples/dimensions-example.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### Color Palette Example
 
@@ -74,13 +78,15 @@ Demonstrates color customization for charts including:
 
 **Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../advanced/color-assignments.md) guide for an introduction.
 
-[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
+[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml)
 
+<!-- markdownlint-disable MD046 -->
 ??? example "Example YAML (color-palette-examples.yaml)"
 
-```yaml
---8<-- "examples/color-palette-examples.yaml"
-```
+    ```yaml
+    --8<-- "examples/color-palette-examples.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### Filters Example
 
@@ -95,13 +101,15 @@ Comprehensive filter demonstrations including:
 
 **Use this when:** You need to pre-filter data or provide context-specific views.
 
-[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
+[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/filters-example.yaml)
 
+<!-- markdownlint-disable MD046 -->
 ??? example "Example YAML (filters-example.yaml)"
 
-```yaml
---8<-- "examples/filters-example.yaml"
-```
+    ```yaml
+    --8<-- "examples/filters-example.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### Multi-Panel Showcase
 
@@ -117,13 +125,15 @@ A complete dashboard featuring multiple panel types:
 
 **Use this when:** You want to see how different panel types work together in a single dashboard.
 
-[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/multi-panel-showcase.yaml)
+[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/multi-panel-showcase.yaml)
 
+<!-- markdownlint-disable MD046 -->
 ??? example "Example YAML (multi-panel-showcase.yaml)"
 
-```yaml
---8<-- "examples/multi-panel-showcase.yaml"
-```
+    ```yaml
+    --8<-- "examples/multi-panel-showcase.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### Navigation Example
 
@@ -136,13 +146,15 @@ Demonstrates dashboard navigation features:
 
 **Use this when:** You're building a suite of interconnected dashboards.
 
-[View complete example on GitHub →](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/navigation-example.yaml)
+[View on GitHub](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/navigation-example.yaml)
 
+<!-- markdownlint-disable MD046 -->
 ??? example "Example YAML (navigation-example.yaml)"
 
-```yaml
---8<-- "examples/navigation-example.yaml"
-```
+    ```yaml
+    --8<-- "examples/navigation-example.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### [Aerospike Monitoring Examples](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/aerospike/)
 
