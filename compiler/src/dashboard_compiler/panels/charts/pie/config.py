@@ -94,6 +94,39 @@ class LensPieChart(BasePieChart):
     """Represents a Pie chart configuration within a Lens panel.
 
     Pie charts are used to visualize the proportion of categories.
+
+    Examples:
+        Simple pie chart showing traffic sources:
+        ```yaml
+        lens:
+          type: pie
+          data_view: "logs-*"
+          slice_by:
+            - field: "source.geo.country_name"
+              type: values
+          metrics:
+            - aggregation: count
+        ```
+
+        Pie chart with custom colors:
+        ```yaml
+        lens:
+          type: pie
+          data_view: "metrics-*"
+          slice_by:
+            - field: "resource.attributes.os.type"
+              type: values
+          metrics:
+            - aggregation: unique_count
+              field: resource.attributes.host.name
+          color:
+            palette: 'eui_amsterdam_color_blind'
+            assignments:
+              - values: ['linux']
+                color: '#00BF6F'
+              - values: ['windows']
+                color: '#006BB4'
+        ```
     """
 
     data_view: str = Field(default=...)
@@ -107,7 +140,22 @@ class LensPieChart(BasePieChart):
 
 
 class ESQLPieChart(BasePieChart):
-    """Represents a Pie chart configuration within an ES|QL panel."""
+    """Represents a Pie chart configuration within an ES|QL panel.
+
+    Examples:
+        ES|QL pie chart with STATS query:
+        ```yaml
+        esql:
+          type: pie
+          query: |
+            FROM logs-*
+            | STATS count = COUNT(*) BY service.name
+          metrics:
+            - field: "count"
+          slice_by:
+            - field: "service.name"
+        ```
+    """
 
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""

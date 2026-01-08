@@ -22,10 +22,10 @@ class XYReferenceLineValue(BaseCfgModel):
 class XYReferenceLine(BaseCfgModel):
     """Configuration for a single reference line in an XY chart."""
 
-    id: str | None = None
+    id: str | None = Field(default=None)
     """Optional ID for the reference line."""
 
-    label: str | None = None
+    label: str | None = Field(default=None)
     """Optional label for the reference line."""
 
     value: XYReferenceLineValue | float
@@ -34,22 +34,22 @@ class XYReferenceLine(BaseCfgModel):
     axis: Literal['left', 'right'] | None = 'left'
     """The axis to assign the reference line to."""
 
-    color: str | None = None
+    color: str | None = Field(default=None)
     """The color of the reference line."""
 
     line_width: int | None = Field(default=None, ge=1, le=10)
     """The width of the reference line (1-10)."""
 
-    line_style: Literal['solid', 'dashed', 'dotted'] | None = None
+    line_style: Literal['solid', 'dashed', 'dotted'] | None = Field(default=None)
     """The style of the reference line."""
 
-    fill: Literal['above', 'below', 'none'] | None = None
+    fill: Literal['above', 'below', 'none'] | None = Field(default=None)
     """Fill area above or below the line."""
 
-    icon: str | None = None
+    icon: str | None = Field(default=None)
     """Icon to display on the reference line."""
 
-    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = None
+    icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(default=None)
     """Position of the icon on the reference line."""
 
 
@@ -340,15 +340,112 @@ class BaseXYAreaChart(BaseXYLineChart):
 
 
 class LensBarChart(BaseXYBarChart, LensXYChartMixin):
-    """Represents a Bar chart configuration within a Lens panel."""
+    """Represents a Bar chart configuration within a Lens panel.
+
+    Examples:
+        Simple bar chart with time series:
+        ```yaml
+        lens:
+          type: bar
+          data_view: "logs-*"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          metrics:
+            - aggregation: count
+        ```
+
+        Stacked bar chart with breakdown:
+        ```yaml
+        lens:
+          type: bar
+          mode: stacked
+          data_view: "logs-*"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          breakdown:
+            type: values
+            field: "service.name"
+          metrics:
+            - aggregation: count
+        ```
+    """
 
 
 class LensLineChart(BaseXYLineChart, LensXYChartMixin):
-    """Represents a Line chart configuration within a Lens panel."""
+    """Represents a Line chart configuration within a Lens panel.
+
+    Examples:
+        Simple line chart with time series:
+        ```yaml
+        lens:
+          type: line
+          data_view: "metrics-*"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          metrics:
+            - aggregation: average
+              field: response_time
+        ```
+
+        Line chart with dual Y-axes:
+        ```yaml
+        lens:
+          type: line
+          data_view: "logs-*"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          metrics:
+            - aggregation: count
+              id: "request_count"
+            - aggregation: average
+              field: "error.rate"
+              id: "error_rate"
+          appearance:
+            series:
+              - metric_id: "request_count"
+                axis: left
+              - metric_id: "error_rate"
+                axis: right
+        ```
+    """
 
 
 class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
-    """Represents an Area chart configuration within a Lens panel."""
+    """Represents an Area chart configuration within a Lens panel.
+
+    Examples:
+        Simple area chart with time series:
+        ```yaml
+        lens:
+          type: area
+          data_view: "logs-*"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          metrics:
+            - aggregation: count
+        ```
+
+        Stacked area chart with percentage mode:
+        ```yaml
+        lens:
+          type: area
+          mode: percentage
+          data_view: "metrics-*"
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          breakdown:
+            type: values
+            field: "service.name"
+          metrics:
+            - aggregation: count
+        ```
+    """
 
 
 class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
@@ -377,7 +474,7 @@ class LensReferenceLineLayer(BaseChart):
     type: Literal['reference_line'] = 'reference_line'
     """The type of layer. Always 'reference_line'."""
 
-    data_view: str
+    data_view: str = Field(default=...)
     """The data view to use for the layer (required for Kibana compatibility)."""
 
     reference_lines: list[XYReferenceLine] = Field(default_factory=list)

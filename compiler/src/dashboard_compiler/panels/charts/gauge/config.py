@@ -52,12 +52,42 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
 
     Gauge charts display a single metric value with optional min/max ranges and goal indicators,
     typically used to show progress toward a target or threshold.
+
+    Examples:
+        Minimal gauge with static values:
+        ```yaml
+        lens:
+          type: gauge
+          data_view: "metrics-*"
+          metric:
+            aggregation: average
+            field: system.cpu.total.pct
+          minimum: 0
+          maximum: 100
+          goal: 80
+        ```
+
+        Gauge with custom appearance:
+        ```yaml
+        lens:
+          type: gauge
+          data_view: "logs-*"
+          metric:
+            aggregation: average
+            field: response_time_ms
+          minimum: 0
+          maximum: 1000
+          goal: 500
+          appearance:
+            shape: arc
+            color_mode: palette
+        ```
     """
 
     data_view: str = Field(default=...)
     """The data view that determines the data for the gauge chart."""
 
-    metric: LensMetricTypes = Field(...)
+    metric: LensMetricTypes = Field(default=...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
     minimum: LensMetricTypes | int | float | None = Field(default=None)
@@ -80,9 +110,26 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
 
     Gauge charts display a single metric value with optional min/max ranges and goal indicators,
     typically used to show progress toward a target or threshold.
+
+    Examples:
+        ES|QL gauge with STATS query:
+        ```yaml
+        esql:
+          type: gauge
+          query: |
+            FROM metrics-*
+            | STATS avg_cpu = AVG(system.cpu.total.pct)
+          metric:
+            field: "avg_cpu"
+          minimum: 0
+          maximum: 100
+          goal: 80
+          appearance:
+            shape: arc
+        ```
     """
 
-    metric: ESQLMetricTypes = Field(...)
+    metric: ESQLMetricTypes = Field(default=...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
     minimum: ESQLMetricTypes | int | float | None = Field(default=None)

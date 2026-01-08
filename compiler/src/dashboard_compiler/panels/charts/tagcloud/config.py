@@ -57,6 +57,48 @@ class LensTagcloudChart(BaseTagcloudChart):
     """Represents a Tagcloud chart configuration within a Lens panel.
 
     Tagcloud charts are used to visualize term frequency as word/tag clouds.
+
+    Examples:
+        Minimal tagcloud:
+        ```yaml
+        dashboards:
+        - name: "Log Analysis"
+          panels:
+            - title: "Top Error Messages"
+              grid: { x: 0, y: 0, w: 48, h: 6 }
+              lens:
+                type: tagcloud
+                data_view: "logs-*"
+                tags:
+                  type: values
+                  field: "error.message"
+                metrics:
+                  aggregation: count
+        ```
+
+        Advanced tagcloud with appearance customization:
+        ```yaml
+        dashboards:
+        - name: "Advanced Tag Cloud"
+          panels:
+            - title: "Service Labels"
+              grid: { x: 0, y: 0, w: 48, h: 8 }
+              lens:
+                type: tagcloud
+                data_view: "logs-*"
+                tags:
+                  type: values
+                  field: "service.name"
+                metrics:
+                  aggregation: count
+                appearance:
+                  min_font_size: 12
+                  max_font_size: 96
+                  orientation: "multiple"
+                  show_label: false
+                color:
+                  palette: "kibana_palette"
+        ```
     """
 
     data_view: str = Field(default=...)
@@ -70,7 +112,25 @@ class LensTagcloudChart(BaseTagcloudChart):
 
 
 class ESQLTagcloudChart(BaseTagcloudChart):
-    """Represents a Tagcloud chart configuration within an ES|QL panel."""
+    """Represents a Tagcloud chart configuration within an ES|QL panel.
+
+    Examples:
+        ES|QL tagcloud:
+        ```yaml
+        dashboards:
+        - name: "Log Analysis"
+          panels:
+            - title: "Top Error Messages"
+              grid: { x: 0, y: 0, w: 48, h: 6 }
+              esql:
+                type: tagcloud
+                query: "FROM logs-* | STATS error_count = count(*) BY error.message"
+                tags:
+                  field: "error.message"
+                metrics:
+                  field: "error_count"
+        ```
+    """
 
     tags: ESQLDimensionTypes = Field(default=...)
     """The dimension for grouping (terms). This determines the tags shown in the cloud."""
