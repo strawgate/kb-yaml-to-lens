@@ -1218,7 +1218,7 @@ Use this checklist when creating or reviewing dashboards:
 
 ### External Resources
 
-- [Kibana Lens Documentation](https://www.elastic.co/guide/en/kibana/current/lens.html)
+- [Kibana Lens Documentation](https://www.elastic.co/docs/explore-analyze/visualize/lens)
 - [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html)
 - [Kibana Query Language (KQL)](https://www.elastic.co/docs/explore-analyze/query-filter/languages/kql)
 
