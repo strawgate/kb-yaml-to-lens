@@ -712,7 +712,7 @@ async def test_xy_chart_with_legend_position() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=True, position='top', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
+        XYLegendConfig(isVisible=None, position='top', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
     )
 
 
@@ -735,7 +735,11 @@ async def test_xy_chart_with_legend_hidden() -> None:
 
 
 async def test_xy_chart_with_legend_auto() -> None:
-    """Test XY chart with legend visibility set to auto."""
+    """Test XY chart with legend visibility set to auto.
+
+    When visibility is 'auto', isVisible should be None (omitted from output),
+    allowing Kibana to automatically determine legend visibility based on series count.
+    """
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
@@ -748,7 +752,7 @@ async def test_xy_chart_with_legend_auto() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
+        XYLegendConfig(isVisible=None, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=None, maxLines=None)
     )
 
 
@@ -784,7 +788,7 @@ async def test_xy_chart_with_legend_size() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize='large', shouldTruncate=None, maxLines=None)
+        XYLegendConfig(isVisible=None, position='right', showSingleSeries=None, legendSize='large', shouldTruncate=None, maxLines=None)
     )
 
 
@@ -802,7 +806,7 @@ async def test_xy_chart_with_legend_truncate() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=True, maxLines=2)
+        XYLegendConfig(isVisible=None, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=True, maxLines=2)
     )
 
 
@@ -820,7 +824,7 @@ async def test_xy_chart_with_legend_no_truncate() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=True, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=False, maxLines=None)
+        XYLegendConfig(isVisible=None, position='right', showSingleSeries=None, legendSize=None, shouldTruncate=False, maxLines=None)
     )
 
 
@@ -838,7 +842,7 @@ async def test_xy_chart_with_show_single_series() -> None:
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=True, position='right', showSingleSeries=True, legendSize=None, shouldTruncate=None, maxLines=None)
+        XYLegendConfig(isVisible=None, position='right', showSingleSeries=True, legendSize=None, shouldTruncate=None, maxLines=None)
     )
 
 

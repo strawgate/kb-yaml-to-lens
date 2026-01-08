@@ -275,7 +275,7 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
     Returns:
         XYLegendConfig: The compiled legend configuration.
     """
-    legend_visible = True
+    legend_visible = None  # Default to None (omit field, let Kibana decide)
     legend_position = 'right'
     legend_show_single_series = None
     legend_size = None
@@ -285,10 +285,12 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
     if chart.legend is not None:
         if chart.legend.visible is not None:
             match chart.legend.visible:
-                case LegendVisibleEnum.SHOW | LegendVisibleEnum.AUTO:
+                case LegendVisibleEnum.SHOW:
                     legend_visible = True
                 case LegendVisibleEnum.HIDE:
                     legend_visible = False
+                case LegendVisibleEnum.AUTO:
+                    legend_visible = None  # Omit field, let Kibana decide based on series count
                 case _:  # pyright: ignore[reportUnnecessaryComparison]
                     # This should never happen due to Pydantic enum validation, but we handle it defensively
                     msg = f'Unknown legend visibility value: {chart.legend.visible}'
