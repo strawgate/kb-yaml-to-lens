@@ -423,6 +423,57 @@ lens:
       size: 10  # Top N count
 ```
 
+### Configuration Options Reference
+
+The following table provides a comprehensive reference for all configuration keys used in the examples above:
+
+| YAML Key | Data Type | Description | Default | Required |
+|----------|-----------|-------------|---------|----------|
+| `controls[]` | array | List of interactive filter controls | `[]` | No |
+| `controls[].type` | string | Control type (`options` for dropdown, `range` for slider) | - | Yes |
+| `controls[].label` | string | Display label shown to users | - | Yes |
+| `controls[].width` | string | Control width (`small`, `medium`, `large`) | `medium` | No |
+| `controls[].data_view` | string | Data view pattern to query (e.g., `logs-*`) | - | Yes |
+| `controls[].field` | string | Field name to filter on | - | Yes |
+| `controls[].match_technique` | string | Match type (`exact`, `contains`, `prefix`) | `exact` | No |
+| `filters[]` | array | Dashboard-level filters applied to all panels | `[]` | No |
+| `filters[].field` | string | Field name to filter | - | Yes |
+| `filters[].equals` | string | Value to match | - | Yes (unless using `or`/`and`) |
+| `filters[].or` | array | Logical OR of multiple filter conditions | - | No |
+| `filters[].and` | array | Logical AND of multiple filter conditions | - | No |
+| `filters[].not` | object | Negation of a filter condition | - | No |
+| `lens` | object | Lens visualization configuration | - | Yes (for panels) |
+| `lens.type` | string | Visualization type (`pie`, `bar`, `line`, `metric`, `area`) | - | Yes |
+| `lens.mode` | string | Chart mode (e.g., `stacked` for bar/area charts) | varies | No |
+| `lens.data_view` | string | Data view pattern (e.g., `logs-*`) | - | Yes |
+| `lens.appearance` | object | Visual styling options | - | No |
+| `lens.appearance.donut` | string | Donut size for pie charts (`small`, `medium`, `large`) | - | No |
+| `lens.dimensions[]` | array | Chart dimensions (x-axis, categories) | - | Yes (except metric) |
+| `lens.dimensions[].field` | string | Field name for dimension | - | Yes |
+| `lens.dimensions[].type` | string | Dimension type (`values`, `date_histogram`, `range`) | - | Yes |
+| `lens.dimensions[].size` | integer | Maximum number of values to show (for `values` type) | `5` | No |
+| `lens.dimensions[].label` | string | Custom label for dimension | field name | No |
+| `lens.dimensions[].sort` | object | Sort configuration | - | No |
+| `lens.dimensions[].sort.by` | string | Field or metric to sort by | - | Yes (if sort used) |
+| `lens.dimensions[].sort.direction` | string | Sort direction (`asc`, `desc`) | `desc` | No |
+| `lens.dimensions[].other_bucket` | boolean | Include "Other" bucket for remaining values | `false` | No |
+| `lens.dimensions[].missing_bucket` | boolean | Include bucket for missing values | `false` | No |
+| `lens.breakdown` | object | Breakdown dimension for stacked/multi-series charts | - | No |
+| `lens.breakdown.field` | string | Field name for breakdown | - | Yes (if breakdown used) |
+| `lens.breakdown.type` | string | Breakdown type (`values`) | - | Yes (if breakdown used) |
+| `lens.breakdown.size` | integer | Maximum number of breakdown values | `5` | No |
+| `lens.metrics[]` | array | Metric calculations (y-axis, values) | - | Yes |
+| `lens.metrics[].aggregation` | string | Aggregation type (`count`, `sum`, `avg`, `max`, `min`, etc.) | - | Yes |
+| `lens.metrics[].label` | string | Custom label for metric | aggregation name | No |
+| `lens.metrics[].field` | string | Field name (required for aggregations other than `count`) | - | Conditional |
+| `lens.filters[]` | array | Panel-specific filters (in addition to dashboard filters) | `[]` | No |
+
+**Notes:**
+- All filter keys (`filters[].field`, `filters[].equals`, etc.) also apply to `lens.filters[]` for panel-specific filtering
+- For `controls[]`, the `match_technique` determines how the filter matches: `exact` for exact equality, `contains` for substring match, `prefix` for starts-with match
+- Dashboard-level `filters[]` apply to all panels; panel-level `lens.filters[]` apply only to that panel
+- The `or` and `and` filter operators allow combining multiple conditions; each contains an array of filter objects
+
 ---
 
 ## References
