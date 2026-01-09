@@ -1,0 +1,82 @@
+---
+dashboards:
+  - name: '[AWS VPC OTEL] VPC Flow Logs Overview'
+    filters:
+      - field: data_stream.dataset
+        equals: aws.vpcflow.otel
+    panels:
+      # Markdown header panel
+      - markdown:
+          content: |
+            ## AWS VPC Flow Logs Overview
+            Use this dashboard to visualize VPC Flow Logs.
+            You could use this data to:
+            - Diagnose overly restrictive security group rules
+            - Monitor the traffic that is reaching (or not reaching) your instance
+        grid: {x: 0, y: 0, w: 24, h: 12}
+
+      # Bar chart showing top 10 source IP addresses
+      - title: Top 10 IP Source Addresses
+        grid: {x: 24, y: 0, w: 24, h: 12}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - STATS total = count() BY source.address
+            - WHERE source.address IS NOT NULL
+            - KEEP total, source.address
+            - SORT total DESC
+            - LIMIT 10
+          dimension:
+            field: source.address
+          metrics:
+            - field: total
+              label: IP Address
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Flow logs records
+
+      # Area chart showing total flow logs over time by action
+      - title: VPC Flow Total Requests
+        grid: {x: 0, y: 12, w: 48, h: 14}
+        esql:
+          type: area
+          query:
+            - FROM logs-*
+            - WHERE aws.vpc.flow.action IS NOT NULL
+            - STATS total = COUNT() by aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - KEEP total, aws.vpc.flow.action, time_bucket
+            - SORT time_bucket ASC
+          mode: stacked
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: total
+          breakdown:
+            field: aws.vpc.flow.action
+          appearance:
+            x_axis:
+              title: '@timestamp'
+            y_left_axis:
+              title: Flow logs records
+
+      # Datatable panel showing rejected VPC flow logs
+      - title: VPC Flow Reject Logs
+        grid: {x: 0, y: 26, w: 48, h: 15}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE aws.vpc.flow.action == "REJECT"
+            - KEEP @timestamp, source.address, source.port, aws.vpc.flow.bytes
+            - SORT @timestamp DESC
+          dimensions:
+            - field: '@timestamp'
+            - field: source.address
+            - field: source.port
+          metrics:
+            - field: aws.vpc.flow.bytes
+              format:
+                type: bytes
