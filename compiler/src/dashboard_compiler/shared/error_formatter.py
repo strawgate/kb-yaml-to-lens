@@ -59,20 +59,32 @@ def loc_to_path(loc: tuple[str | int, ...]) -> str:
         'dashboards'
         >>> loc_to_path(())
         '<root>'
+        >>> loc_to_path(('dashboards', 0, 'panels', 0, 'markdown', 'markdown', 'content'))
+        'dashboards[0].panels[0].markdown.content'
 
     """
     if len(loc) == 0:
         return '<root>'
 
     parts: list[str] = []
+    prev_str: str | None = None
+
     for item in loc:
         if isinstance(item, int):
             parts.append(f'[{item}]')
+            prev_str = None
         else:
-            # item is str - add dot separator if there's a previous part
+            # item is str
+            # Skip consecutive duplicate string segments (e.g., 'markdown', 'markdown')
+            if item == prev_str:
+                continue
+
+            # Add dot separator if there's a previous part
             if len(parts) > 0:
                 parts.append('.')
             parts.append(item)
+            prev_str = item
+
     return ''.join(parts)
 
 
