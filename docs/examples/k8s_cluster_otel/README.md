@@ -251,7 +251,7 @@ spec:
       serviceAccountName: otel-collector
       containers:
         - name: otel-collector
-          image: otel/opentelemetry-collector-contrib:0.115.1
+          image: otel/opentelemetry-collector-contrib:0.142.0
           args:
             - --config=/conf/config.yaml
           resources:

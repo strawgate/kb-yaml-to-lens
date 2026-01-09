@@ -621,10 +621,6 @@ dashboards:
             - field: k8s.hpa.max_replicas
               aggregation: max
               label: Max
-            - formula: (max(k8s.hpa.current_replicas) - max(k8s.hpa.min_replicas)) / (max(k8s.hpa.max_replicas) - max(k8s.hpa.min_replicas))
-              label: Capacity %
-              format:
-                type: percent
           filters:
             - exists: k8s.hpa.name
 
@@ -783,10 +779,6 @@ dashboards:
               label: Containers
             - formula: sum(k8s.container.restarts)
               label: Total Restarts
-            - formula: count(k8s.container.ready == 1) / count()
-              label: Ready %
-              format:
-                type: percent
           filters:
             - exists: k8s.container.name
       - title: Container Resource Summary by Pod
