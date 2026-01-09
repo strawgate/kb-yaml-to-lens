@@ -219,7 +219,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: pool_name
+            field: memory_pool_name
             type: values
             size: 10
           metrics:
@@ -237,7 +237,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: pool_name
+            field: memory_pool_name
             type: values
             size: 10
           metrics:

@@ -110,8 +110,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "average(elasticsearch.os.memory, kql='memory_state: used') / max(average(elasticsearch.os.memory, kql='memory_state: used')\
-                \ + average(elasticsearch.os.memory, kql='memory_state: free'), 1)"
+            - formula: "average(elasticsearch.os.memory, kql='memory_state: used') / (average(elasticsearch.os.memory, kql='memory_state: used')\
+                \ + average(elasticsearch.os.memory, kql='memory_state: free') + 0.000001)"
               label: Memory %
               format:
                 type: percent
@@ -144,7 +144,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: 1 - (average(elasticsearch.node.fs.disk.available) / max(average(elasticsearch.node.fs.disk.total), 1))
+            - formula: 1 - (average(elasticsearch.node.fs.disk.available) / (average(elasticsearch.node.fs.disk.total) + 0.000001))
               label: Disk Usage %
               format:
                 type: percent

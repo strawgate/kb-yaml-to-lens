@@ -157,8 +157,8 @@ dashboards:
               size: 20
           metrics:
             - id: indices
-              aggregation: average
-              field: elasticsearch.cluster.indices
+              aggregation: unique_count
+              field: elasticsearch.index.name
               label: Indices
             - id: state_queue
               aggregation: average

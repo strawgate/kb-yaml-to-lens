@@ -55,7 +55,7 @@ dashboards:
           data_view: metrics-*
           primary:
             aggregation: sum
-            field: elasticsearch.index.size
+            field: elasticsearch.index.shards.size
             label: Total Size
       - title: Total Segment Count
         grid: {x: 24, y: 4, w: 12, h: 6}
@@ -89,7 +89,7 @@ dashboards:
           metrics:
             - id: size
               aggregation: average
-              field: elasticsearch.index.size
+              field: elasticsearch.index.shards.size
               label: Size
               format:
                 type: bytes

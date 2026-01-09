@@ -47,20 +47,15 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.cluster.name IS NOT NULL
-            - STATS nodes = AVG(elasticsearch.cluster.nodes), data_nodes = AVG(elasticsearch.cluster.data_nodes), indices = AVG(elasticsearch.cluster.indices),
-              shards = AVG(elasticsearch.cluster.shards.active) BY cluster = elasticsearch.cluster.name
+            - STATS nodes = AVG(elasticsearch.cluster.nodes), data_nodes = AVG(elasticsearch.cluster.data_nodes) BY cluster = elasticsearch.cluster.name
             - EVAL nodes_int = TO_INTEGER(nodes)
             - EVAL data_nodes_int = TO_INTEGER(data_nodes)
-            - EVAL indices_int = TO_INTEGER(indices)
-            - EVAL shards_int = TO_INTEGER(shards)
-            - KEEP cluster, nodes_int, data_nodes_int, indices_int, shards_int
-            - RENAME nodes_int AS `Total Nodes`, data_nodes_int AS `Data Nodes`, indices_int AS Indices, shards_int AS `Active Shards`
+            - KEEP cluster, nodes_int, data_nodes_int
+            - RENAME nodes_int AS `Total Nodes`, data_nodes_int AS `Data Nodes`
           dimensions:
             - field: cluster
             - field: Total Nodes
             - field: Data Nodes
-            - field: Indices
-            - field: Active Shards
       - title: Cluster Health Status
         grid: {x: 24, y: 4, w: 24, h: 12}
         esql:
@@ -111,17 +106,16 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS cpu_usage = AVG(elasticsearch.process.cpu.usage), mem_used = AVG(elasticsearch.os.memory) BY node = elasticsearch.node.name,
-              mem_state = memory_state
+            - WHERE memory_state == "used"
+            - STATS cpu_usage = AVG(elasticsearch.process.cpu.usage), mem_used = AVG(elasticsearch.os.memory) BY node = elasticsearch.node.name
             - EVAL cpu_percent = ROUND(cpu_usage * 100, 1)
             - EVAL mem_gb = ROUND(mem_used / 1073741824, 2)
-            - KEEP node, cpu_percent, mem_state, mem_gb
-            - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory (GB)`, mem_state AS `State`
+            - KEEP node, cpu_percent, mem_gb
+            - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory Used (GB)`
           dimensions:
             - field: node
             - field: CPU %
-            - field: State
-            - field: Memory (GB)
+            - field: Memory Used (GB)
       - title: Node Disk Usage
         grid: {x: 24, y: 35, w: 24, h: 15}
         esql:
@@ -153,7 +147,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.index.name IS NOT NULL
-            - STATS size = AVG(elasticsearch.index.size), segments = AVG(elasticsearch.index.segments.count), segment_size = AVG(elasticsearch.index.segments.size)
+            - STATS size = AVG(elasticsearch.index.shards.size), segments = AVG(elasticsearch.index.segments.count), segment_size = AVG(elasticsearch.index.segments.size)
               BY index_name = elasticsearch.index.name
             - EVAL size_mb = ROUND(size / 1048576, 2)
             - EVAL segments_int = TO_INTEGER(segments)
