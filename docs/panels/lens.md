@@ -67,7 +67,7 @@ dashboards:
           metrics:
             - aggregation: "count"
               label: "Sessions"
-          slice_by:
+          dimensions:
             - type: values
               field: "source.medium"
               label: "Traffic Source"
@@ -107,7 +107,7 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
-| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | `None` | No |
+| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | `None` | No |
 
 **Example (Lens Metric Chart):**
 
@@ -150,7 +150,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `data_view` | `string` | The ID or title of the data view (index pattern) for this pie chart. | N/A | Yes |
 | `metrics` | `LensMetricTypes \| list[LensMetricTypes]` object | A single metric or list of metrics that determine the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
-| `slice_by` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-slice_by-for-pie). | N/A | Yes |
+| `dimensions` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field). | `None` | No |
@@ -172,7 +172,7 @@ dashboards:
             - aggregation: "average"
               field: "metrics.system.disk.operations"
               label: "Avg Disk Operations"
-          slice_by:
+          dimensions:
             - type: values
               field: "resource.attributes.device"
               size: 5
@@ -189,7 +189,7 @@ dashboards:
 
 ---
 
-## Lens Dimensions (`breakdown` for Metric, `slice_by` for Pie)
+## Lens Dimensions (`breakdown` for Metric, `dimensions` for Pie)
 
 Dimensions define how data is grouped or bucketed in Lens visualizations.
 
@@ -411,31 +411,31 @@ primary:
 
 ## Metric Formatting (`format` field within a metric)
 
-Defines how metric values are displayed.
+Defines how metric values are displayed in visualizations.
 
-### Standard Format (`format.type: number` / `bytes` / `bits` / `percent` / `duration`)
+### Standard Format
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| --------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `type` | `Literal['number', 'bytes', 'bits', 'percent', 'duration']` | The general type of formatting. | N/A | Yes |
-| `suffix` | `string` | A suffix to append to the value (e.g., "ms", " GB"). | `None` | No |
-| `compact` | `boolean` | If `true`, uses compact notation (e.g., "1K" instead of "1000"). | `None` (false) | No |
-| `pattern` | `string` | A Numeral.js format pattern (used if `type` is `number` or `percent`). | Default for type | No |
+::: dashboard_compiler.panels.charts.lens.metrics.config.LensMetricFormat
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 **Default Decimal Places (Kibana):**
 
-* `number`: 2
-* `bytes`: 2
-* `bits`: 0
-* `percent`: 2
-* `duration`: 0 (Kibana often uses smart duration formatting like "1m 30s")
+When no `pattern` is specified, Kibana applies these defaults:
 
-### Custom Format (`format.type: custom`)
+* `number`: 2 decimal places
+* `bytes`: 2 decimal places
+* `bits`: 0 decimal places
+* `percent`: 2 decimal places
+* `duration`: 0 decimal places (uses smart duration formatting like "1m 30s")
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| --------- | --------------------- | ------------------------------------------------ | ---------------- | -------- |
-| `type` | `Literal['custom']` | Specifies custom formatting. | `custom` | Yes |
-| `pattern` | `string` | A Numeral.js format pattern. | N/A | Yes |
+### Custom Format
+
+::: dashboard_compiler.panels.charts.lens.metrics.config.LensCustomMetricFormat
+    options:
+      show_root_heading: false
+      heading_level: 4
 
 ---
 

@@ -98,7 +98,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          slice_by:
+          dimensions:
             - field: service.name
               type: values
               size: 8

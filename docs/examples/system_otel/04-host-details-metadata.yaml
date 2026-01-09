@@ -47,7 +47,7 @@ dashboards:
             - EVAL `Resource Attribute` = MV_FIRST(pairs), value = MV_LAST(pairs)
             - KEEP `Resource Attribute`, value
             - STATS `Value` = MV_DEDUPE(TOP(value, 400, "asc")) BY `Resource Attribute`
-          rows:
+          dimensions:
             - field: Resource Attribute
             - field: Value
       - title: Host CPU Metadata
@@ -69,7 +69,7 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
-          rows:
+          dimensions:
             - field: Resource Attribute
             - field: Value
       - title: Operating System Metadata
@@ -88,7 +88,7 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
-          rows:
+          dimensions:
             - field: Resource Attribute
             - field: Value
       - title: Cloud Metadata
@@ -109,7 +109,7 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
-          rows:
+          dimensions:
             - field: Resource Attribute
             - field: Value
       - title: Kubernetes Metadata
@@ -124,6 +124,6 @@ dashboards:
             - STATS BY resource.attributes.k8s.cluster.name
             - EVAL `Resource Attribute` = "k8s.cluster.name", `Value` = resource.attributes.k8s.cluster.name
             - KEEP `Resource Attribute`, `Value`
-          rows:
+          dimensions:
             - field: Resource Attribute
             - field: Value

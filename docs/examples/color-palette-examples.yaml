@@ -10,7 +10,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          slice_by:
+          dimensions:
             - field: attributes.state
               type: values
           metrics:
@@ -109,7 +109,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          slice_by:
+          dimensions:
             - field: attributes.mountpoint
               type: values
           metrics:
@@ -124,7 +124,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          slice_by:
+          dimensions:
             - field: resource.attributes.os.type
               type: values
           metrics:

@@ -168,24 +168,24 @@ def compile_lens_datatable_chart(
         metric_id, compiled_metric = compile_lens_metric(metric)
         kbn_metric_columns_by_id[metric_id] = compiled_metric
 
-    # Compile row dimensions (these come FIRST in column order for datatables)
-    for row in lens_datatable_chart.rows:
-        row_id, compiled_row = compile_lens_dimension(
-            dimension=row,
+    # Compile dimensions (these come FIRST in column order for datatables)
+    for dimension in lens_datatable_chart.dimensions:
+        dimension_id, compiled_dimension = compile_lens_dimension(
+            dimension=dimension,
             kbn_metric_column_by_id=kbn_metric_columns_by_id,
         )
-        kbn_columns_by_id[row_id] = compiled_row
-        column_order.append(row_id)
+        kbn_columns_by_id[dimension_id] = compiled_dimension
+        column_order.append(dimension_id)
 
-    # Compile rows_by dimensions (split metrics by)
-    if lens_datatable_chart.rows_by is not None:
-        for rows_by_dim in lens_datatable_chart.rows_by:
-            rows_by_id, compiled_rows_by = compile_lens_dimension(
-                dimension=rows_by_dim,
+    # Compile dimensions_by (split metrics by)
+    if lens_datatable_chart.dimensions_by is not None:
+        for dimensions_by_dim in lens_datatable_chart.dimensions_by:
+            dimensions_by_id, compiled_dimensions_by = compile_lens_dimension(
+                dimension=dimensions_by_dim,
                 kbn_metric_column_by_id=kbn_metric_columns_by_id,
             )
-            kbn_columns_by_id[rows_by_id] = compiled_rows_by
-            column_order.append(rows_by_id)
+            kbn_columns_by_id[dimensions_by_id] = compiled_dimensions_by
+            column_order.append(dimensions_by_id)
 
     # Add metrics to kbn_columns_by_id AFTER dimensions (preserves insertion order)
     for metric_id, compiled_metric in kbn_metric_columns_by_id.items():
@@ -238,18 +238,18 @@ def compile_esql_datatable_chart(
         compiled_metrics.append(compiled_metric)
         metric_column_ids.append(compiled_metric.columnId)
 
-    # Compile row dimensions (these come FIRST in column order for datatables)
-    for row in esql_datatable_chart.rows:
-        compiled_row: KbnESQLFieldDimensionColumn = compile_esql_dimension(row)
-        kbn_columns.append(compiled_row)
-        column_order.append(compiled_row.columnId)
+    # Compile dimensions (these come FIRST in column order for datatables)
+    for dimension in esql_datatable_chart.dimensions:
+        compiled_dimension: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimension)
+        kbn_columns.append(compiled_dimension)
+        column_order.append(compiled_dimension.columnId)
 
-    # Compile rows_by dimensions (split metrics by)
-    if esql_datatable_chart.rows_by is not None:
-        for rows_by_dim in esql_datatable_chart.rows_by:
-            compiled_rows_by: KbnESQLFieldDimensionColumn = compile_esql_dimension(rows_by_dim)
-            kbn_columns.append(compiled_rows_by)
-            column_order.append(compiled_rows_by.columnId)
+    # Compile dimensions_by (split metrics by)
+    if esql_datatable_chart.dimensions_by is not None:
+        for dimensions_by_dim in esql_datatable_chart.dimensions_by:
+            compiled_dimensions_by: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimensions_by_dim)
+            kbn_columns.append(compiled_dimensions_by)
+            column_order.append(compiled_dimensions_by.columnId)
 
     # Add metrics to kbn_columns AFTER dimensions
     kbn_columns.extend(compiled_metrics)

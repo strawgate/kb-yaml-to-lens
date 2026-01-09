@@ -42,12 +42,12 @@ def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot: CompileTagcl
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
-        'tags': {
+        'dimension': {
             'type': 'values',
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metrics': {
+        'metric': {
             'aggregation': 'count',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -73,11 +73,11 @@ def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot: CompileTagcl
     config = {
         'type': 'tagcloud',
         'query': 'FROM logs-* | STATS count(*) by tags',
-        'tags': {
+        'dimension': {
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metrics': {
+        'metric': {
             'field': 'count(*)',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -103,12 +103,12 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: Co
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
-        'tags': {
+        'dimension': {
             'type': 'values',
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metrics': {
+        'metric': {
             'aggregation': 'count',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -143,11 +143,11 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: Co
     config = {
         'type': 'tagcloud',
         'query': 'FROM logs-* | STATS count(*) by tags',
-        'tags': {
+        'dimension': {
             'field': 'tags',
             'id': '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
         },
-        'metrics': {
+        'metric': {
             'field': 'count(*)',
             'id': '6p5o4n3m2l1k-0j9i-8h7g-6f5e-4d3c2b1a',
         },
@@ -182,12 +182,12 @@ def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot:
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
-        'tags': {
+        'dimension': {
             'type': 'values',
             'field': 'tags',
             'id': 'tag-id-123',
         },
-        'metrics': {
+        'metric': {
             'aggregation': 'count',
             'id': 'metric-id-456',
         },
@@ -216,12 +216,12 @@ def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot: Compi
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
-        'tags': {
+        'dimension': {
             'type': 'values',
             'field': 'tags',
             'id': 'tag-id-789',
         },
-        'metrics': {
+        'metric': {
             'aggregation': 'sum',
             'field': 'bytes',
             'id': 'metric-id-abc',
@@ -252,11 +252,11 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: Compile
     config = {
         'type': 'tagcloud',
         'query': 'FROM logs-* | STATS total = SUM(bytes) BY host.name',
-        'tags': {
+        'dimension': {
             'field': 'host.name',
             'id': 'host-dimension',
         },
-        'metrics': {
+        'metric': {
             'field': 'total',
             'id': 'bytes-metric',
         },
@@ -285,12 +285,12 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
     config = {
         'type': 'tagcloud',
         'data_view': 'logs-*',
-        'tags': {
+        'dimension': {
             'type': 'values',
             'field': 'user.name',
             'id': 'user-id',
         },
-        'metrics': {
+        'metric': {
             'aggregation': 'count',
             'id': 'count-id',
         },
@@ -326,11 +326,11 @@ def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: Compile
         config = {
             'type': 'tagcloud',
             'query': 'FROM logs-* | STATS count(*) BY service.name',
-            'tags': {
+            'dimension': {
                 'field': 'service.name',
                 'id': 'service-tag',
             },
-            'metrics': {
+            'metric': {
                 'field': 'count(*)',
                 'id': 'service-count',
             },

@@ -65,7 +65,7 @@ def test_compile_datatable_chart_with_rows_lens() -> None:
                 'aggregation': 'count',
             }
         ],
-        'rows': [
+        'dimensions': [
             {
                 'type': 'values',
                 'field': 'agent.name',
@@ -232,7 +232,7 @@ def test_compile_datatable_chart_with_rows_esql() -> None:
                 'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             }
         ],
-        'rows': [
+        'dimensions': [
             {
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
@@ -267,14 +267,14 @@ def test_compile_datatable_chart_with_rows_by_lens() -> None:
                 'aggregation': 'count',
             }
         ],
-        'rows': [
+        'dimensions': [
             {
                 'type': 'values',
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
             }
         ],
-        'rows_by': [
+        'dimensions_by': [
             {
                 'type': 'values',
                 'field': 'host.name',
@@ -308,13 +308,13 @@ def test_compile_datatable_chart_with_rows_by_esql() -> None:
                 'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             }
         ],
-        'rows': [
+        'dimensions': [
             {
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
             }
         ],
-        'rows_by': [
+        'dimensions_by': [
             {
                 'field': 'host.name',
                 'id': 'split-by-host',
@@ -349,7 +349,7 @@ def test_compile_datatable_chart_with_row_column_config_lens() -> None:
                 'aggregation': 'count',
             }
         ],
-        'rows': [
+        'dimensions': [
             {
                 'type': 'values',
                 'field': 'agent.name',
@@ -408,7 +408,7 @@ def test_compile_datatable_chart_with_formula_metrics_lens() -> None:
                 'id': 'mem-util',
             },
         ],
-        'rows': [
+        'dimensions': [
             {
                 'type': 'values',
                 'field': 'host.name',
@@ -436,10 +436,10 @@ def test_lens_datatable_validation_requires_metrics_or_rows() -> None:
         'type': 'datatable',
         'data_view': 'metrics-*',
         'metrics': [],
-        'rows': [],
+        'dimensions': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric or one row'):
+    with pytest.raises(ValidationError, match='at least one metric or one dimension'):
         LensDatatableChart.model_validate(config)
 
 
@@ -449,42 +449,42 @@ def test_lens_datatable_validation_with_only_metrics_succeeds() -> None:
         'type': 'datatable',
         'data_view': 'metrics-*',
         'metrics': [{'field': 'test', 'id': 'test-id', 'aggregation': 'count'}],
-        'rows': [],
+        'dimensions': [],
     }
 
     chart = LensDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 1
-    assert len(chart.rows) == 0
+    assert len(chart.dimensions) == 0
 
 
-def test_lens_datatable_validation_with_only_rows_succeeds() -> None:
-    """Test that Lens datatable with only rows passes validation."""
+def test_lens_datatable_validation_with_only_dimensions_succeeds() -> None:
+    """Test that Lens datatable with only dimensions passes validation."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
         'metrics': [],
-        'rows': [{'field': 'test', 'id': 'test-id', 'type': 'values'}],
+        'dimensions': [{'field': 'test', 'id': 'test-id', 'type': 'values'}],
     }
 
     chart = LensDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 0
-    assert len(chart.rows) == 1
+    assert len(chart.dimensions) == 1
 
 
-def test_esql_datatable_allows_empty_metrics_and_rows() -> None:
-    """Test that ESQL datatable allows empty metrics and rows (columns inferred from query)."""
+def test_esql_datatable_allows_empty_metrics_and_dimensions() -> None:
+    """Test that ESQL datatable allows empty metrics and dimensions (columns inferred from query)."""
     config = {
         'type': 'datatable',
         'metrics': [],
-        'rows': [],
+        'dimensions': [],
     }
 
     chart = ESQLDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 0
-    assert len(chart.rows) == 0
+    assert len(chart.dimensions) == 0
 
 
 def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
@@ -492,24 +492,24 @@ def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
     config = {
         'type': 'datatable',
         'metrics': [{'field': 'count(*)', 'id': 'test-id'}],
-        'rows': [],
+        'dimensions': [],
     }
 
     chart = ESQLDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 1
-    assert len(chart.rows) == 0
+    assert len(chart.dimensions) == 0
 
 
-def test_esql_datatable_validation_with_only_rows_succeeds() -> None:
-    """Test that ESQL datatable with only rows passes validation."""
+def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
+    """Test that ESQL datatable with only dimensions passes validation."""
     config = {
         'type': 'datatable',
         'metrics': [],
-        'rows': [{'field': 'test', 'id': 'test-id'}],
+        'dimensions': [{'field': 'test', 'id': 'test-id'}],
     }
 
     chart = ESQLDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 0
-    assert len(chart.rows) == 1
+    assert len(chart.dimensions) == 1

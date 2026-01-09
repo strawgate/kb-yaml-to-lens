@@ -71,7 +71,7 @@ dashboards:
             | LIMIT 5
           metrics:
             - field: "event_count"
-          slice_by:
+          dimensions:
             - field: "event.category"
 ```
 
@@ -141,7 +141,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `type` | `Literal['pie']` | Specifies the chart type as an ESQL Pie visualization. | `pie` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `metrics` | `ESQLMetric \| list[ESQLMetric]` object | A single metric or list of metrics that determine the size of each slice. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
-| `slice_by` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens). | `None` | No |
@@ -165,7 +165,7 @@ dashboards:
             | LIMIT 10
           metrics:
             - field: "error_count"
-          slice_by:
+          dimensions:
             - field: "error_type"
           appearance:
             donut: "small"
@@ -299,7 +299,7 @@ dashboards:
 
 ## ESQL Columns
 
-For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metrics`, `slice_by` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
+For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metrics`, `dimensions` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
 
 ### ESQL Metric Column
 

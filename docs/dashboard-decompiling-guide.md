@@ -203,7 +203,7 @@ dashboards:
   lens:
     type: pie
     data_view: logs-*
-    slice_by:
+    dimensions:
       - field: status
         type: values
         size: 5

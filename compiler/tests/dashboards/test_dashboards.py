@@ -90,7 +90,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
                             'id': '21cb2847-7b10-404e-9672-4ee2f2beca6e',
                             'data_view': 'metrics-*',
                             'color': {'palette': 'default'},
-                            'slice_by': [
+                            'dimensions': [
                                 {
                                     'field': 'aerospike.namespace',
                                     'type': 'values',

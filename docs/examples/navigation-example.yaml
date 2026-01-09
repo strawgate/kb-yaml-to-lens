@@ -161,7 +161,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          slice_by:
+          dimensions:
             - field: log.level
               type: values
               size: 10
@@ -215,8 +215,8 @@ dashboards:
         lens:
           type: tagcloud
           data_view: logs-*
-          tags:
+          dimension:
             type: values
             field: tags
-          metrics:
+          metric:
             aggregation: count

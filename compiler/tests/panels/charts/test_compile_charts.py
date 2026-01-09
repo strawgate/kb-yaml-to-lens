@@ -35,7 +35,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'pie',
                 'data_view': 'metrics-*',
-                'slice_by': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -47,7 +47,7 @@ class TestChartTypeToKbnTypeLens:
         chart = ESQLPieChart.model_validate(
             {
                 'type': 'pie',
-                'slice_by': [{'field': 'status', 'id': 'group1'}],
+                'dimensions': [{'field': 'status', 'id': 'group1'}],
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
         )
@@ -233,8 +233,8 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'tagcloud',
                 'data_view': 'metrics-*',
-                'tags': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
-                'metrics': {'aggregation': 'count', 'id': 'metric1'},
+                'dimension': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -245,8 +245,8 @@ class TestChartTypeToKbnTypeLens:
         chart = ESQLTagcloudChart.model_validate(
             {
                 'type': 'tagcloud',
-                'tags': {'field': 'tag', 'id': 'tags1'},
-                'metrics': {'field': 'count(*)', 'id': 'metric1'},
+                'dimension': {'field': 'tag', 'id': 'tags1'},
+                'metric': {'field': 'count(*)', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -325,8 +325,8 @@ class TestCompileLensChartState:
             {
                 'type': 'tagcloud',
                 'data_view': 'metrics-*',
-                'tags': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
-                'metrics': {'aggregation': 'count', 'id': 'metric1'},
+                'dimension': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[tagcloud_chart])
@@ -340,7 +340,7 @@ class TestCompileLensChartState:
             {
                 'type': 'pie',
                 'data_view': 'metrics-*',
-                'slice_by': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -458,7 +458,7 @@ class TestCompileESQLChartState:
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
                     'time_field': 'timestamp',
-                    'slice_by': [{'field': 'status', 'id': 'group1'}],
+                    'dimensions': [{'field': 'status', 'id': 'group1'}],
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },
             }

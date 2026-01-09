@@ -51,7 +51,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          rows:
+          dimensions:
             - id: hostname
               type: values
               field: resource.attributes.host.name
