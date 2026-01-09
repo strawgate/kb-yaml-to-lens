@@ -101,11 +101,11 @@ jobs:
         run: |
           echo "Coverage Vars: ${{ tojson(steps.coverage_comment.outputs) }}"
       - name: Enforce minimum Overall coverage does not decrease
-        if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
+        if: ${{ fromJSON(steps.coverage_comment.outputs.new_percent_covered) < fromJSON(steps.coverage_comment.outputs.reference_percent_covered) }}
         run: |
           echo "Overall coverage decreased from ${{ steps.coverage_comment.outputs.reference_percent_covered }}% to ${{ steps.coverage_comment.outputs.new_percent_covered }}%." && exit 1
       - name: Enforce minimum PR coverage of 90%
-        if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 90 }}
+        if: ${{ fromJSON(steps.coverage_comment.outputs.diff_total_percent_covered) < 90 }}
         run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
   test-python-cli:
     name: Test Python CLI
@@ -178,7 +178,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb x11-utils
           Xvfb :99 -screen 0 1024x768x24 > /tmp/xvfb.log 2>&1 &
-          XVFB_PID=$!
 
           # Wait for Xvfb to be ready (up to 10 seconds)
           for i in {1..10}; do
