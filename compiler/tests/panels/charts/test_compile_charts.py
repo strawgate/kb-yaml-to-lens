@@ -407,7 +407,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, references = compile_esql_chart_state(panel)
+        state, layer_id = compile_esql_chart_state(panel)
 
         # Get the layer
         assert state.datasourceStates.textBased is not None
@@ -419,8 +419,8 @@ class TestCompileESQLChartState:
         # Verify timeField is set to default
         assert layer.timeField == '@timestamp'
 
-        # Verify no references are generated
-        assert len(references) == 0
+        # Verify layer_id is returned
+        assert layer_id in layers
 
         # Verify adHocDataViews is empty
         assert state.adHocDataViews == {}
@@ -441,7 +441,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, references = compile_esql_chart_state(panel)
+        state, layer_id = compile_esql_chart_state(panel)
 
         # Get the layer
         assert state.datasourceStates.textBased is not None
@@ -452,8 +452,8 @@ class TestCompileESQLChartState:
         # Verify timeField is set to custom value
         assert layer.timeField == 'event.created'
 
-        # Verify no references
-        assert len(references) == 0
+        # Verify layer_id is returned
+        assert layer_id in layers
 
     def test_esql_pie_chart_custom_time_field(self) -> None:
         """Test that ES|QL pie chart correctly compiles with custom time field."""
@@ -564,7 +564,7 @@ class TestCompileESQLChartState:
         for chart_config in test_cases:
             panel = ESQLPanel.model_validate({'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15}, 'esql': chart_config})
 
-            state, references = compile_esql_chart_state(panel)
+            state, layer_id = compile_esql_chart_state(panel)
             assert state.datasourceStates.textBased is not None
             assert state.datasourceStates.textBased.layers is not None
             layers = state.datasourceStates.textBased.layers.root
@@ -573,8 +573,8 @@ class TestCompileESQLChartState:
             # Verify timeField exists and has default value
             assert layer.timeField == '@timestamp', f'Chart type {chart_config["type"]} missing or incorrect timeField'
 
-            # Verify no references or adHocDataViews
-            assert len(references) == 0
+            # Verify layer_id is returned and adHocDataViews is empty
+            assert layer_id in layers
             assert state.adHocDataViews == {}
 
 

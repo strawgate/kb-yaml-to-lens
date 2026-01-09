@@ -187,11 +187,11 @@ def compile_lens_chart_state(  # noqa: PLR0912
     )
 
 
-def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, list[KbnReference]]:
+def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
     """Compile an ESQLPanel into its Kibana view model representation.
 
     Returns:
-        tuple[KbnLensPanelState, list[KbnReference]]: A tuple containing the panel state and references.
+        tuple[KbnLensPanelState, str]: A tuple containing the panel state and layer ID.
 
     """
     layer_id: str
@@ -242,7 +242,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, list[
         adHocDataViews={},
     )
 
-    return panel_state, []
+    return panel_state, layer_id
 
 
 def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:
@@ -275,8 +275,9 @@ def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPane
             )
             visualization_type = chart_type_to_kbn_type_lens(base_chart)
         case ESQLPanel():
-            chart_state, references = compile_esql_chart_state(panel)
+            chart_state, _ = compile_esql_chart_state(panel)
             visualization_type = chart_type_to_kbn_type_lens(panel.esql)
+            references = []
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             msg = f'Unsupported panel type: {type(panel)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
