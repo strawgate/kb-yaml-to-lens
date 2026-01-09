@@ -7,7 +7,8 @@ from .config import (
     LensFiltersDimensionFilter,
     LensIntervalsDimension,
     LensIntervalsDimensionInterval,
-    LensTopValuesDimension,
+    LensMultiTermsDimension,
+    LensTermsDimension,
 )
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     'LensFiltersDimensionFilter',
     'LensIntervalsDimension',
     'LensIntervalsDimensionInterval',
-    'LensTopValuesDimension',
+    'LensMultiTermsDimension',
+    'LensTermsDimension',
 ]
