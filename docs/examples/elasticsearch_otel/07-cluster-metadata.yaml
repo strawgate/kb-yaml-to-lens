@@ -70,7 +70,7 @@ dashboards:
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.cluster.name IS NOT NULL
             - STATS pending_tasks = AVG(elasticsearch.cluster.pending_tasks), in_flight = AVG(elasticsearch.cluster.in_flight_fetch), state_queue
-              = AVG(elasticsearch.cluster.state_queue) BY cluster = elasticsearch.cluster.name, health = health_status
+              = AVG(elasticsearch.cluster.state_queue) BY cluster = elasticsearch.cluster.name, health = status
             - EVAL pending_tasks_int = TO_INTEGER(pending_tasks)
             - EVAL in_flight_int = TO_INTEGER(in_flight)
             - EVAL state_queue_int = TO_INTEGER(state_queue)

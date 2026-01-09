@@ -142,9 +142,9 @@ exporters:
       enabled: false
 
     # Index/data stream naming
-    # The default pattern creates: metrics-{namespace}-{data_stream.dataset}
-    # With namespace="default" and dataset below, creates: metrics-elasticsearchreceiver.otel-default
-    index: metrics-elasticsearchreceiver.otel
+    # The default pattern creates: metrics-{dataset}-{namespace}
+    # With dataset and namespace below, creates: metrics-elasticsearchreceiver.otel-default
+    # Note: Do not set 'index' field here as it overrides dynamic data stream routing
 
     # Data stream dataset identifier
     # This value appears in the data_stream.dataset field used by dashboard filters

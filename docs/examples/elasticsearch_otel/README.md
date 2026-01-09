@@ -842,15 +842,15 @@ service:
 - **OpenTelemetry Documentation**: <https://opentelemetry.io/docs/>
 - **Elasticsearch Receiver**: <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/elasticsearchreceiver>
 - **Elasticsearch Exporter**: <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/elasticsearchexporter>
-- **kb-yaml-to-lens**: <https://github.com/kelnetic/kb-yaml-to-lens>
+- **kb-yaml-to-lens**: <https://github.com/strawgate/kb-yaml-to-lens>
 - **Elasticsearch Monitoring Guide**: <https://www.elastic.co/guide/en/elasticsearch/reference/current/monitor-elasticsearch-cluster.html>
 
 ## Support and Contributing
 
 Found an issue or have a suggestion?
 
-1. **Issues**: Open an issue at <https://github.com/kelnetic/kb-yaml-to-lens/issues>
-2. **Discussions**: Join discussions at <https://github.com/kelnetic/kb-yaml-to-lens/discussions>
+1. **Issues**: Open an issue at <https://github.com/strawgate/kb-yaml-to-lens/issues>
+2. **Discussions**: Join discussions at <https://github.com/strawgate/kb-yaml-to-lens/discussions>
 3. **Contributing**: See CONTRIBUTING.md for contribution guidelines
 
 ## License
