@@ -37,7 +37,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Install dependencies
         working-directory: compiler
-        run: uv sync --group build --group lsp
+        run: uv sync --group build
       - name: Build unified binary
         working-directory: compiler
         run: make build-binary

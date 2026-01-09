@@ -25,10 +25,9 @@ def build_cli_binary(platform_name: str) -> Path:
         binary_name += '.exe'
 
     print(f'Building unified binary: {binary_name}...')
-    print('Installing LSP dependencies...')
 
-    # Install LSP dependencies before building
-    subprocess.run(['uv', 'sync', '--group', 'lsp'], check=True, cwd=COMPILER_ROOT)  # noqa: S607
+    # Sync dependencies (LSP is now a main dependency, no extra group needed)
+    subprocess.run(['uv', 'sync', '--group', 'build'], check=True, cwd=COMPILER_ROOT)  # noqa: S607
 
     # Build with PyInstaller
     cli_path = COMPILER_ROOT / 'src' / 'dashboard_compiler' / 'cli.py'
