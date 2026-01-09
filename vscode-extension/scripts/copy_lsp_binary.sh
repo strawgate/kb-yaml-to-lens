@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy LSP binary from compiler dist/ to extension bin/ directory
+# Copy unified binary from compiler dist/ to extension bin/ directory
 
 set -euo pipefail
 
@@ -12,30 +12,48 @@ COMPILER_DIST="$PROJECT_ROOT/compiler/dist"
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
 
-if [[ "$ARCH" == "x86_64" || "$ARCH" == "amd64" ]]; then
-    ARCH="x64"
-elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
-    ARCH="arm64"
-fi
+# Normalize OS name (match Python's platform.system().lower())
+case "$OS" in
+  msys*|mingw*|cygwin*) OS="windows" ;;
+  darwin*) OS="darwin" ;;
+  linux*) OS="linux" ;;
+esac
+
+# Normalize architecture (match build_binaries.py)
+case "$ARCH" in
+  x86_64|amd64) ARCH="x64" ;;
+  aarch64|arm64) ARCH="arm64" ;;
+esac
 
 PLATFORM="${OS}-${ARCH}"
-BINARY_NAME="kb-dashboard-compiler-lsp"
-if [[ "$OS" == "mingw"* || "$OS" == "msys"* || "$OS" == "cygwin"* ]]; then
+BINARY_NAME="kb-dashboard-${PLATFORM}"
+if [[ "$OS" == "windows" ]]; then
     BINARY_NAME="${BINARY_NAME}.exe"
 fi
 
 SOURCE_PATH="$COMPILER_DIST/$BINARY_NAME"
-TARGET_DIR="$EXTENSION_ROOT/bin/$PLATFORM"
-TARGET_PATH="$TARGET_DIR/$BINARY_NAME"
 
-echo "Copying LSP binary for platform: $PLATFORM"
+# Target uses different naming convention for platform directory
+TARGET_PLATFORM="${OS}-${ARCH}"
+if [[ "$OS" == "windows" ]]; then
+    TARGET_PLATFORM="win32-${ARCH}"
+fi
+
+TARGET_DIR="$EXTENSION_ROOT/bin/$TARGET_PLATFORM"
+TARGET_BINARY_NAME="kb-dashboard"
+if [[ "$OS" == "windows" ]]; then
+    TARGET_BINARY_NAME="${TARGET_BINARY_NAME}.exe"
+fi
+TARGET_PATH="$TARGET_DIR/$TARGET_BINARY_NAME"
+
+echo "Copying unified binary for platform: $PLATFORM"
 echo "  Source: $SOURCE_PATH"
 echo "  Target: $TARGET_PATH"
 
 # Check source exists
 if [[ ! -f "$SOURCE_PATH" ]]; then
-    echo "Error: LSP binary not found at $SOURCE_PATH"
-    echo "Run 'cd compiler && make build-lsp-binary' first"
+    echo "Error: Unified binary not found at $SOURCE_PATH"
+    echo "Run 'cd compiler && make build-binary' first"
     exit 1
 fi
 
@@ -46,9 +64,9 @@ mkdir -p "$TARGET_DIR"
 cp "$SOURCE_PATH" "$TARGET_PATH"
 
 # Make executable (Unix-like systems)
-if [[ "$OS" != "mingw"* && "$OS" != "msys"* && "$OS" != "cygwin"* ]]; then
+if [[ "$OS" != "windows" ]]; then
     chmod +x "$TARGET_PATH"
 fi
 
 SIZE_MB=$(du -m "$TARGET_PATH" | cut -f1)
-echo "✓ Copied LSP binary (${SIZE_MB}MB) to $TARGET_PATH"
+echo "✓ Copied unified binary (${SIZE_MB}MB) to $TARGET_PATH"

@@ -62,11 +62,8 @@ help:
 	@echo "  test-docker-smoke  - Run Docker smoke tests"
 	@echo ""
 	@echo "Binary Distribution:"
-	@echo "  build-binary          - Build standalone CLI binary"
-	@echo "  build-lsp-binary      - Build standalone LSP binary"
-	@echo "  build-all-binaries    - Build all standalone binaries"
-	@echo "  test-binary-smoke     - Run CLI binary smoke tests"
-	@echo "  test-lsp-binary-smoke - Run LSP binary smoke tests"
+	@echo "  build-binary       - Build standalone unified binary (CLI + LSP)"
+	@echo "  test-binary-smoke  - Run binary smoke tests (CLI + LSP)"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -206,27 +203,13 @@ test-docker-smoke:
 
 # Binary building
 build-binary:
-	@echo "Building standalone CLI binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py cli
-
-build-lsp-binary:
-	@echo "Building standalone LSP binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py lsp
-
-build-all-binaries:
-	@echo "Building all standalone binaries..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py all
+	@echo "Building standalone unified binary..."
+	@uv sync --group build --group lsp
+	@uv run python scripts/build_binaries.py
 
 test-binary-smoke:
-	@echo "Running binary smoke tests..."
+	@echo "Running unified binary smoke tests..."
 	@bash scripts/test_binary_smoke.sh
-
-test-lsp-binary-smoke:
-	@echo "Running LSP binary smoke tests..."
-	@bash scripts/test_lsp_binary_smoke.sh
 
 # Cleaning
 clean:

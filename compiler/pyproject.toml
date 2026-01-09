@@ -33,6 +33,7 @@ lsp = [
 
 [project.scripts]
 kb-dashboard = "dashboard_compiler.cli:cli"
+# Backward compatibility - this entry point is deprecated, use 'kb-dashboard lsp' instead
 kb-dashboard-lsp = "dashboard_compiler.lsp.server:main"
 
 [tool.pytest.ini_options]

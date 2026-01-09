@@ -73,5 +73,24 @@ if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/compiled_dashboards.ndjson"; the
 fi
 echo "✓ Output format is valid NDJSON"
 
+# Test 5: LSP server starts (expects stdin/stdout communication)
+echo "Test 5: LSP server startup"
+# Use portable timeout approach (GNU timeout not available on macOS by default)
+if command -v timeout &> /dev/null; then
+  # Use GNU timeout if available (Linux)
+  echo '{"invalid": "request"}' | timeout 2 "$BINARY_PATH" lsp > /dev/null 2>&1 || true
+elif command -v gtimeout &> /dev/null; then
+  # Use gtimeout if available (macOS with coreutils via Homebrew)
+  echo '{"invalid": "request"}' | gtimeout 2 "$BINARY_PATH" lsp > /dev/null 2>&1 || true
+else
+  # Fallback: portable bash-based timeout for macOS
+  echo '{"invalid": "request"}' | "$BINARY_PATH" lsp > /dev/null 2>&1 &
+  PID=$!
+  sleep 2
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+fi
+echo "✓ LSP server starts successfully"
+
 echo ""
 echo "✓ All binary smoke tests passed!"

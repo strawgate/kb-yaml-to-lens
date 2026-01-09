@@ -30,6 +30,15 @@ from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
 
+# Try to import LSP server - may not be available if lsp group not installed
+try:
+    from dashboard_compiler.lsp.server import main as lsp_main
+
+    _lsp_available = True
+except ImportError:
+    lsp_main = None  # type: ignore[assignment]
+    _lsp_available = False
+
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 # This prevents ANSI escape sequences from appearing in mkdocs-click generated docs
 if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
@@ -1003,6 +1012,28 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     except (ValueError, OSError) as e:
         msg = f'Error disassembling dashboard: {e}'
         raise click.ClickException(msg) from e
+
+
+@cli.command('lsp')
+def lsp_command() -> None:
+    """Start the Language Server Protocol (LSP) server for IDE integration.
+
+    The LSP server provides real-time compilation, validation, and code
+    completion for YAML dashboard files in supported IDEs like VS Code.
+
+    This server communicates via stdin/stdout using the Language Server
+    Protocol specification.
+
+    Note: This command requires the LSP dependencies to be installed.
+    Install them with: uv sync --group lsp
+    """
+    if not _lsp_available or lsp_main is None:
+        console.print('[red]Error: LSP server dependencies not installed.[/red]')
+        console.print('Install with: uv sync --group lsp')
+        msg = 'LSP dependencies not available'
+        raise click.ClickException(msg)
+
+    lsp_main()
 
 
 if __name__ == '__main__':
