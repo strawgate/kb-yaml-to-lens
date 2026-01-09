@@ -172,19 +172,19 @@ inspector:
 # Documentation
 docs-serve:
 	@echo "Starting documentation server..."
-	uv run --group docs mkdocs serve
+	NO_COLOR=1 uv run --group docs mkdocs serve
 
 docs-build:
 	@echo "Building documentation..."
-	uv run --group docs mkdocs build
+	NO_COLOR=1 uv run --group docs mkdocs build
 
 docs-build-quiet:
 	@echo "Building documentation (errors only)..."
-	@uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+	@NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
-	uv run --group docs mkdocs gh-deploy --force
+	NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
 
 # VS Code Extension
 build-extension-binaries:
