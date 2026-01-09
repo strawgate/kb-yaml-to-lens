@@ -1,6 +1,6 @@
 # Elasticsearch OpenTelemetry Receiver Dashboards
 
-A comprehensive set of Kibana dashboards for monitoring Elasticsearch clusters using OpenTelemetry's Elasticsearch receiver. These dashboards provide deep visibility into cluster health, node performance, JVM metrics, index statistics, and circuit breaker behavior.
+A comprehensive set of Kibana dashboards for monitoring Elasticsearch clusters using OpenTelemetry's Elasticsearch receiver. These dashboards provide detailed visibility into cluster health, node performance, JVM metrics, index statistics, and circuit breaker behavior.
 
 ## Overview
 
@@ -178,7 +178,7 @@ kb-yaml-to-lens import \
 
 ### Step 5: View Dashboards
 
-1. Open Kibana: <http://localhost:5601>
+1. Open Kibana: `http://localhost:5601`
 2. Navigate to **Analytics → Dashboards**
 3. Search for "Elasticsearch OTel"
 4. Click on "[Elasticsearch OTel] Cluster Overview" to start
@@ -267,7 +267,7 @@ The `collection_interval` setting controls how often metrics are scraped:
 
 - **10s** (default): Good for most clusters, provides detailed time-series data
 - **30s**: Recommended for large clusters (100+ nodes) to reduce API load
-- **60s+**: For very large clusters or when detailed granularity isn't needed
+- **60s+**: For large-scale clusters or when detailed granularity isn't needed
 
 Consider cluster size and API load when tuning:
 

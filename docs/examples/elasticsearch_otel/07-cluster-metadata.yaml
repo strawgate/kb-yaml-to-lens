@@ -94,7 +94,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
+            - STATS doc_count = COUNT(*) BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
             - KEEP node, cluster
           dimensions:
             - field: node
@@ -269,7 +269,7 @@ dashboards:
               breaker = circuit_breaker_name
             - EVAL estimated_mb = ROUND(estimated / 1048576, 2)
             - EVAL limit_mb = ROUND(limit / 1048576, 2)
-            - EVAL utilization_pct = ROUND((estimated / limit) * 100, 1)
+            - EVAL utilization_pct = CASE(limit == 0 OR limit IS NULL, null, ROUND((estimated / limit) * 100, 1))
             - KEEP node, breaker, estimated_mb, limit_mb, utilization_pct
             - RENAME estimated_mb AS `Estimated (MB)`, limit_mb AS `Limit (MB)`, utilization_pct AS `Utilization %`
           dimensions:

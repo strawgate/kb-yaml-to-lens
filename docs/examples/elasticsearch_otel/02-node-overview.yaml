@@ -165,10 +165,10 @@ dashboards:
               size: 50
           metrics:
             - id: field_data_evictions
-              formula: "average(elasticsearch.node.cache.evictions, kql='cache_name: fielddata')"
+              formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name: fielddata')"
               label: Field Data
             - id: query_cache_evictions
-              formula: "average(elasticsearch.node.cache.evictions, kql='cache_name: query')"
+              formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name: query')"
               label: Query Cache
       - title: Cache Memory Usage
         grid: {x: 24, y: 32, w: 24, h: 8}

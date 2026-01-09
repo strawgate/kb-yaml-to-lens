@@ -321,5 +321,5 @@ dashboards:
             type: values
             size: 10
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.thread_pool.tasks.finished), kql='task_state: rejected')"
+            - formula: "counter_rate(max(elasticsearch.node.thread_pool.tasks.finished), kql='state: rejected')"
               label: Rejections/sec
