@@ -942,7 +942,7 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
 
 
 @cli.command('fetch')
-@click.argument('url_or_id_or_name', type=str, required=True)
+@click.argument('url_or_id', type=str, required=True)
 @click.option(
     '-o',
     '--output',
@@ -953,7 +953,7 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
 @kibana_options
 def fetch(
     ctx: click.Context,
-    url_or_id_or_name: str,
+    url_or_id: str,
     output: Path,
 ) -> None:
     r"""Fetch a dashboard from Kibana and save it to a file.
@@ -962,7 +962,7 @@ def fetch(
     The dashboard and all its dependent objects (panels, data views) are exported and saved
     to the specified output file.
 
-    URL_OR_ID_OR_NAME can be:
+    URL_OR_ID can be:
     - A Kibana dashboard URL (e.g., https://kibana.example.com/app/dashboards#/view/my-id)
     - A plain dashboard ID (e.g., my-dashboard-id)
 
@@ -993,7 +993,7 @@ def fetch(
         msg = 'Kibana client not configured'
         raise click.ClickException(msg)
 
-    asyncio.run(_fetch_dashboard(cli_context.kibana_client, url_or_id=url_or_id_or_name, output=output))
+    asyncio.run(_fetch_dashboard(cli_context.kibana_client, url_or_id=url_or_id, output=output))
 
 
 async def _fetch_dashboard(
