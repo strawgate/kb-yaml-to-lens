@@ -215,7 +215,7 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
 
 
 @server.feature('dashboard/uploadToKibana')
-async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]  # noqa: PLR0911
     """Upload a compiled dashboard to Kibana.
 
     Args:
@@ -239,10 +239,17 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     username = params_dict.get('username')
     password = params_dict.get('password')
     api_key = params_dict.get('api_key')
-    ssl_verify = params_dict.get('ssl_verify', True)
+    ssl_verify_raw = params_dict.get('ssl_verify', True)
 
     if path is None or len(path) == 0 or kibana_url is None or len(kibana_url) == 0:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
+
+    if isinstance(ssl_verify_raw, bool):
+        ssl_verify = ssl_verify_raw
+    elif isinstance(ssl_verify_raw, str):
+        ssl_verify = ssl_verify_raw.lower() in ('true', '1', 'yes')
+    else:
+        return {'success': False, 'error': 'Invalid ssl_verify parameter: expected boolean'}
 
     try:
         # Compile the dashboard first
@@ -273,7 +280,11 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
 
             if result.success is True:
                 # Extract dashboard ID
-                dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+                dashboard_ids = [
+                    obj.destination_id if (obj.destination_id is not None and len(obj.destination_id) > 0) else obj.id
+                    for obj in result.success_results
+                    if obj.type == 'dashboard'
+                ]
 
                 if len(dashboard_ids) > 0:
                     dashboard_url = client.get_dashboard_url(dashboard_ids[0])

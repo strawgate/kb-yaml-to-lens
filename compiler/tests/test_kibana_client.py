@@ -135,8 +135,11 @@ class TestKibanaClient:
         """Test that using KibanaClient as context manager closes session."""
         async with KibanaClient(url='http://localhost:5601') as client:
             session = client._get_session()
+            connector = client._connector
             assert session is not None
             assert not session.closed
 
         # After exiting context, session should be closed
         assert session.closed
+        assert connector is not None
+        assert connector.closed
