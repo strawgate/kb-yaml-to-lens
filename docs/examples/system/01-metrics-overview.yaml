@@ -11,6 +11,7 @@ dashboards:
           - system.cpu
           - system.memory
           - system.network
+          - system.load
     controls:
       - type: options
         label: Host name
@@ -153,7 +154,7 @@ dashboards:
             label: Load 5m
           filters:
             - field: data_stream.dataset
-              equals: system.cpu
+              equals: system.load
       - title: Number of CPUs
         grid: {x: 36, y: 30, w: 12, h: 7}
         lens:

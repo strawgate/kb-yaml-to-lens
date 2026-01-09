@@ -44,16 +44,16 @@ dashboards:
               label: Events
           breakdown:
             type: values
-            field: event.code
+            field: winlog.event_id
             size: 10
-      - title: Event Codes
+      - title: Event IDs
         grid: {x: 0, y: 18, w: 16, h: 15}
         lens:
           type: pie
           data_view: logs-*
           dimensions:
             - type: values
-              field: event.code
+              field: winlog.event_id
               size: 10
           metrics:
             - aggregation: count
@@ -91,9 +91,9 @@ dashboards:
             - id: hostname
               type: values
               field: host.hostname
-            - id: event-code
+            - id: event-id
               type: values
-              field: event.code
+              field: winlog.event_id
             - id: action
               type: values
               field: event.action

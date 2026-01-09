@@ -31,6 +31,10 @@ dashboards:
           items:
             - label: Windows Overview
               dashboard: system-windows-overview
+            - label: User Management
+              dashboard: system-windows-user-management
+            - label: Group Management
+              dashboard: system-windows-group-management
             - label: Directory Monitoring
               dashboard: system-windows-directory-monitoring
             - label: System & Process

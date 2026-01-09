@@ -20,8 +20,6 @@ dashboards:
               dashboard: system-sudo-commands
             - label: SSH logins
               dashboard: system-ssh-logins
-            - label: New users and groups
-              dashboard: system-users-groups
       - title: User and group events over time
         grid: {x: 0, y: 3, w: 48, h: 15}
         lens:
@@ -80,15 +78,19 @@ dashboards:
             - id: timestamp
               field: '@timestamp'
               type: date_histogram
+              label: Timestamp
             - id: hostname
               type: values
               field: host.hostname
+              label: Host
             - id: action
               type: values
               field: event.action
+              label: Action
             - id: user
               type: values
               field: user.name
+              label: User
           metrics:
             - id: count
               aggregation: count

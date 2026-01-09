@@ -45,17 +45,19 @@ dashboards:
             type: values
             field: winlog.event_id
             size: 10
-      - title: Total Logons
+      - title: Total Logon Attempts
         grid: {x: 0, y: 18, w: 12, h: 8}
         lens:
           type: metric
           data_view: logs-*
           primary:
             aggregation: count
-            label: Logons
+            label: Attempts
           filters:
             - field: winlog.event_id
-              equals: '4624'
+              in:
+                - '4624'
+                - '4625'
       - title: Successful Logons
         grid: {x: 12, y: 18, w: 12, h: 8}
         lens:

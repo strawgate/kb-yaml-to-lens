@@ -29,6 +29,10 @@ dashboards:
           items:
             - label: Windows Overview
               dashboard: system-windows-overview
+            - label: User Logons
+              dashboard: system-windows-logons
+            - label: Failed Accounts
+              dashboard: system-windows-failed-blocked
             - label: User Management
               dashboard: system-windows-user-management
             - label: Group Management
