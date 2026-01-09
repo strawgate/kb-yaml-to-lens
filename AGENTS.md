@@ -41,10 +41,19 @@ This repository contains three main components:
 | `make test-unit` | Run unit tests only (fast) |
 | `make test-e2e` | Run end-to-end tests (requires setup) |
 | `make test-all` | Run all tests (unit + e2e + smoke) |
+| `make docs-build-strict` | Build docs with strict mode (fails on warnings) |
 | `make build-extension-binaries` | Build LSP binaries for VS Code extension (current platform) |
 | `make package-extension` | Package VS Code extension with binaries |
 | `make clean` | Clean cache and temporary files |
 | `make clean-full` | Deep clean including virtual environments |
+
+**Compiler-specific commands** (run from `compiler/` directory):
+
+| Command | Purpose |
+| --------- | --------- |
+| `make build` | Build Python package for PyPI |
+| `make publish` | Publish package to PyPI (requires credentials) |
+| `make publish-test` | Publish to TestPyPI for testing |
 
 **Troubleshooting CI failures:** When GitHub Actions CI fails, run `make ci` locally to reproduce the exact checks that run in CI.
 
