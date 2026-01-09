@@ -42,13 +42,13 @@ Best practices for designing effective Kibana dashboards, based on analysis of 4
 
 Curated navigation file with links to key documentation sections. Perfect for LLMs to understand the project structure and available resources.
 
-**Access:** [llms.txt](https://strawgate.github.io/kb-yaml-to-lens/llms.txt)
+**Access:** [llms.txt](../llms.txt)
 
 ### llms-full.txt
 
 Complete concatenation of all project documentation in navigation order. Provides comprehensive context for LLM-based dashboard creation and conversion.
 
-**Access:** [llms-full.txt](https://strawgate.github.io/kb-yaml-to-lens/llms-full.txt)
+**Access:** [llms-full.txt](../llms-full.txt)
 
 **Note:** Both files are auto-generated during documentation builds via the `generate_llms_txt.py` MkDocs hook.
 
