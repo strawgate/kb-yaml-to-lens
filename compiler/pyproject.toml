@@ -59,6 +59,7 @@ dev = [
     "yamlfix>=1.17.0",
     "pygls>=2.0.0",
     "lsprotocol>=2024.0.0",
+    "pytest-docker>=3.2.0",
 ]
 build = [
     "pyinstaller>=6.0",
@@ -191,6 +192,7 @@ root = "tests"
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
+reportUnknownMemberType = false
 reportAny = false
 reportArgumentType = false
 reportCallIssue = false
@@ -201,6 +203,8 @@ reportImplicitOverride = false
 reportPrivateUsage = false
 reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
+reportUnusedParameter = false
+reportUnnecessaryTypeIgnoreComment = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler/lsp"

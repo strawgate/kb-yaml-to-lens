@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary build-lsp-binary build-all-binaries test-binary-smoke test-lsp-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check
+.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke test-integration test-integration-up test-integration-down lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary build-lsp-binary build-all-binaries test-binary-smoke test-lsp-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -49,6 +49,9 @@ help:
 	@echo "  coverage-report   - Open HTML coverage report"
 	@echo "  test-links        - Check documentation links"
 	@echo "  test-smoke        - Run smoke tests"
+	@echo "  test-integration       - Run integration tests (starts Docker services)"
+	@echo "  test-integration-up    - Start integration test Docker services"
+	@echo "  test-integration-down  - Stop integration test Docker services"
 	@echo ""
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON"
@@ -123,11 +126,11 @@ typecheck:
 # Testing
 test:
 	@echo "Running pytest..."
-	@uv run pytest -o addopts="" --tb=line --no-header -q
+	@uv run pytest -o addopts="" --tb=line --no-header -q --ignore=tests/integration
 
 test-coverage:
 	@echo "Running pytest with coverage..."
-	@uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+	@uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json --ignore=tests/integration
 	@echo ""
 	@echo "✓ Coverage report generated:"
 	@echo "  • HTML report: htmlcov/index.html"
@@ -149,6 +152,29 @@ test-links:
 
 test-smoke:
 	uv run kb-dashboard --help
+
+# Integration testing with Docker (Elasticsearch + Kibana)
+INTEGRATION_COMPOSE := tests/integration/docker-compose.yml
+INTEGRATION_PROJECT := kb-yaml-integration-tests
+
+test-integration:
+	@echo "Running integration tests with Elasticsearch and Kibana..."
+	@echo "Note: This will start Docker containers and may take a few minutes on first run."
+	@uv run pytest tests/integration/ -v --tb=short
+
+test-integration-up:
+	@echo "Starting integration test Docker services..."
+	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) up -d
+	@echo "Waiting for services to be healthy..."
+	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) ps
+	@echo ""
+	@echo "Services started. Elasticsearch: http://localhost:9200, Kibana: http://localhost:5601"
+	@echo "Run 'make test-integration-down' to stop services when done."
+
+test-integration-down:
+	@echo "Stopping integration test Docker services..."
+	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) down -v
+	@echo "Services stopped and volumes removed."
 
 # Dependency management
 setup:
