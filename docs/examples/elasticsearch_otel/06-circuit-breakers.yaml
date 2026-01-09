@@ -1,0 +1,285 @@
+---
+dashboards:
+  - id: elasticsearch-otel-circuit-breakers
+    name: '[Elasticsearch OTel] Circuit Breakers'
+    description: Elasticsearch circuit breaker monitoring
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    controls:
+      - type: options
+        label: Cluster Name
+        data_view: metrics-*
+        field: elasticsearch.cluster.name
+      - type: options
+        label: Node Name
+        data_view: metrics-*
+        field: elasticsearch.node.name
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: Circuit Breaker Overview Section
+        grid: {x: 0, y: 2, w: 48, h: 2}
+        markdown:
+          content: '### Circuit Breaker Overview'
+      - title: Circuit Breaker Utilization %
+        grid: {x: 0, y: 4, w: 48, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: node
+              type: values
+              field: elasticsearch.node.name
+              label: Node
+              size: 50
+            - id: breaker
+              type: values
+              field: circuit_breaker_name
+              label: Circuit Breaker
+              size: 20
+          metrics:
+            - id: current
+              aggregation: average
+              field: elasticsearch.node.breaker.memory.estimated
+              label: Current (Bytes)
+              format:
+                type: bytes
+            - id: limit
+              aggregation: average
+              field: elasticsearch.node.breaker.memory.limit
+              label: Limit (Bytes)
+              format:
+                type: bytes
+            - id: utilization
+              formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+              label: Utilization %
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 20
+      - title: Circuit Breaker Memory Usage Section
+        grid: {x: 0, y: 16, w: 48, h: 2}
+        markdown:
+          content: '### Circuit Breaker Memory Usage'
+      - title: Request Circuit Breaker
+        grid: {x: 0, y: 18, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: circuit_breaker_name
+              equals: request
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.estimated
+              label: Estimated
+              format:
+                type: bytes
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.limit
+              label: Limit
+              format:
+                type: bytes
+      - title: Request Breaker Utilization %
+        grid: {x: 24, y: 18, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: circuit_breaker_name
+              equals: request
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+              label: Utilization %
+              format:
+                type: percent
+      - title: Field Data Circuit Breaker
+        grid: {x: 0, y: 28, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: circuit_breaker_name
+              equals: fielddata
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.estimated
+              label: Estimated
+              format:
+                type: bytes
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.limit
+              label: Limit
+              format:
+                type: bytes
+      - title: Field Data Breaker Utilization %
+        grid: {x: 24, y: 28, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: circuit_breaker_name
+              equals: fielddata
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+              label: Utilization %
+              format:
+                type: percent
+      - title: Parent Circuit Breaker
+        grid: {x: 0, y: 38, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: circuit_breaker_name
+              equals: parent
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.estimated
+              label: Estimated
+              format:
+                type: bytes
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.limit
+              label: Limit
+              format:
+                type: bytes
+      - title: Parent Breaker Utilization %
+        grid: {x: 24, y: 38, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: circuit_breaker_name
+              equals: parent
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+              label: Utilization %
+              format:
+                type: percent
+      - title: Circuit Breaker Trips Section
+        grid: {x: 0, y: 48, w: 48, h: 2}
+        markdown:
+          content: '### Circuit Breaker Trips'
+      - title: Trip Events by Breaker
+        grid: {x: 0, y: 50, w: 48, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: circuit_breaker_name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.node.breaker.tripped))
+              label: Trips/sec
+      - title: Trip Events by Node
+        grid: {x: 0, y: 60, w: 48, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: node
+              type: values
+              field: elasticsearch.node.name
+              label: Node
+              size: 50
+            - id: breaker
+              type: values
+              field: circuit_breaker_name
+              label: Circuit Breaker
+              size: 20
+          metrics:
+            - id: trips
+              formula: counter_rate(max(elasticsearch.node.breaker.tripped))
+              label: Trips/sec
+          paging:
+            enabled: true
+            page_size: 20
+      - title: All Circuit Breakers Section
+        grid: {x: 0, y: 72, w: 48, h: 2}
+        markdown:
+          content: '### All Circuit Breakers'
+      - title: All Breakers Memory Usage
+        grid: {x: 0, y: 74, w: 48, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: circuit_breaker_name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.breaker.memory.estimated
+              label: Estimated
+              format:
+                type: bytes

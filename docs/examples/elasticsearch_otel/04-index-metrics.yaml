@@ -1,0 +1,280 @@
+---
+dashboards:
+  - id: elasticsearch-otel-index-metrics
+    name: '[Elasticsearch OTel] Index Metrics'
+    description: Elasticsearch index-level metrics and operations
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    controls:
+      - type: options
+        label: Cluster Name
+        data_view: metrics-*
+        field: elasticsearch.cluster.name
+      - type: options
+        label: Index Name
+        data_view: metrics-*
+        field: elasticsearch.index.name
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: Index Overview Section
+        grid: {x: 0, y: 2, w: 48, h: 2}
+        markdown:
+          content: '### Index Overview'
+      - title: Total Indices
+        grid: {x: 0, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: elasticsearch.index.name
+            label: Indices
+      - title: Total Index Size
+        grid: {x: 12, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: elasticsearch.index.size
+            label: Total Size
+      - title: Total Segment Count
+        grid: {x: 24, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: elasticsearch.index.segments.count
+            label: Segments
+      - title: Total Shard Size
+        grid: {x: 36, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: elasticsearch.index.shard.size
+            label: Shard Size
+      - title: Index Size Distribution
+        grid: {x: 0, y: 10, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: index
+              type: values
+              field: elasticsearch.index.name
+              label: Index
+              size: 100
+          metrics:
+            - id: size
+              aggregation: average
+              field: elasticsearch.index.size
+              label: Size
+              format:
+                type: bytes
+            - id: segments
+              aggregation: average
+              field: elasticsearch.index.segments.count
+              label: Segments
+            - id: segment_size
+              aggregation: average
+              field: elasticsearch.index.segments.size
+              label: Segment Size
+              format:
+                type: bytes
+          paging:
+            enabled: true
+            page_size: 20
+      - title: Index Shard Distribution
+        grid: {x: 24, y: 10, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: index
+              type: values
+              field: elasticsearch.index.name
+              label: Index
+              size: 100
+          metrics:
+            - id: shard_size
+              aggregation: average
+              field: elasticsearch.index.shard.size
+              label: Shard Size
+              format:
+                type: bytes
+          paging:
+            enabled: true
+            page_size: 20
+      - title: Operations Section
+        grid: {x: 0, y: 22, w: 48, h: 2}
+        markdown:
+          content: '### Operations'
+      - title: Index Operations Rate
+        grid: {x: 0, y: 24, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: operation
+              equals: index
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.index.operations.completed))
+              label: Index Ops/sec
+      - title: Index Operation Time
+        grid: {x: 24, y: 24, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: operation
+              equals: index
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.index.operations.time))
+              label: Time (ms/sec)
+      - title: Search Operations Rate
+        grid: {x: 0, y: 34, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: operation
+              equals: search
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.index.operations.completed))
+              label: Search Ops/sec
+      - title: Search Operation Time
+        grid: {x: 24, y: 34, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: operation
+              equals: search
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.index.operations.time))
+              label: Time (ms/sec)
+      - title: Merge Operations Rate
+        grid: {x: 0, y: 44, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: operation
+              equals: merge
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.index.operations.completed))
+              label: Merge Ops/sec
+      - title: Merge Operation Time
+        grid: {x: 24, y: 44, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: operation
+              equals: merge
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.index.operations.time))
+              label: Time (ms/sec)
+      - title: Segments Section
+        grid: {x: 0, y: 54, w: 48, h: 2}
+        markdown:
+          content: '### Segments'
+      - title: Segment Count Over Time
+        grid: {x: 0, y: 56, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.index.segments.count
+              label: Segment Count
+      - title: Segment Memory Usage
+        grid: {x: 24, y: 56, w: 24, h: 10}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.index.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.index.segments.memory
+              label: Memory
+              format:
+                type: bytes

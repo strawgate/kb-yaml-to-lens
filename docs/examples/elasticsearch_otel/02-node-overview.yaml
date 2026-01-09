@@ -1,0 +1,222 @@
+---
+dashboards:
+  - id: elasticsearch-otel-node-overview
+    name: '[Elasticsearch OTel] Node Overview'
+    description: Overview of Elasticsearch node health and key metrics
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    controls:
+      - type: options
+        label: Cluster Name
+        data_view: metrics-*
+        field: elasticsearch.cluster.name
+      - type: options
+        label: Node Name
+        data_view: metrics-*
+        field: elasticsearch.node.name
+    panels:
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: Node Health Section
+        grid: {x: 0, y: 2, w: 48, h: 2}
+        markdown:
+          content: '### Node Health'
+      - title: Document Count
+        grid: {x: 0, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: elasticsearch.node.documents
+            label: Documents
+      - title: Open Files
+        grid: {x: 12, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: elasticsearch.node.open.files.count
+            label: Open Files
+      - title: HTTP Connections
+        grid: {x: 24, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: elasticsearch.node.http.connections
+            label: Connections
+      - title: Active Nodes
+        grid: {x: 36, y: 4, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: elasticsearch.node.name
+            label: Nodes
+      - title: CPU & Memory Section
+        grid: {x: 0, y: 10, w: 48, h: 2}
+        markdown:
+          content: '### CPU & Memory'
+      - title: CPU Usage by Node
+        grid: {x: 0, y: 12, w: 24, h: 8}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.cpu.percent
+              label: CPU %
+              format:
+                type: percent
+      - title: Memory Usage by Node
+        grid: {x: 24, y: 12, w: 24, h: 8}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: average(elasticsearch.node.memory.used) / average(elasticsearch.node.memory.total)
+              label: Memory %
+              format:
+                type: percent
+      - title: Disk Space Section
+        grid: {x: 0, y: 20, w: 48, h: 2}
+        markdown:
+          content: '### Disk Space'
+      - title: Disk Space Available
+        grid: {x: 0, y: 22, w: 24, h: 8}
+        lens:
+          type: bar
+          data_view: metrics-*
+          dimension:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.disk.available
+              label: Available Bytes
+              format:
+                type: bytes
+      - title: Disk Usage %
+        grid: {x: 24, y: 22, w: 24, h: 8}
+        lens:
+          type: bar
+          data_view: metrics-*
+          dimension:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: 1 - (average(elasticsearch.node.disk.available) / average(elasticsearch.node.disk.total))
+              label: Disk Usage %
+              format:
+                type: percent
+      - title: Cache Performance Section
+        grid: {x: 0, y: 30, w: 48, h: 2}
+        markdown:
+          content: '### Cache Performance'
+      - title: Cache Evictions
+        grid: {x: 0, y: 32, w: 24, h: 8}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: node
+              type: values
+              field: elasticsearch.node.name
+              label: Node
+              size: 50
+          metrics:
+            - id: field_data_evictions
+              formula: "average(elasticsearch.node.cache.evictions.count, kql='cache_name: fielddata')"
+              label: Field Data
+            - id: query_cache_evictions
+              formula: "average(elasticsearch.node.cache.evictions.count, kql='cache_name: query')"
+              label: Query Cache
+      - title: Cache Memory Usage
+        grid: {x: 24, y: 32, w: 24, h: 8}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: node
+              type: values
+              field: elasticsearch.node.name
+              label: Node
+              size: 50
+          metrics:
+            - id: field_data_size
+              formula: "average(elasticsearch.node.cache.memory.usage, kql='cache_name: fielddata')"
+              label: Field Data
+              format:
+                type: bytes
+            - id: query_cache_size
+              formula: "average(elasticsearch.node.cache.memory.usage, kql='cache_name: query')"
+              label: Query Cache
+              format:
+                type: bytes
+      - title: Thread Pool Overview Section
+        grid: {x: 0, y: 40, w: 48, h: 2}
+        markdown:
+          content: '### Thread Pool Overview'
+      - title: Thread Pool Queue Size
+        grid: {x: 0, y: 42, w: 48, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: node
+              type: values
+              field: elasticsearch.node.name
+              label: Node
+              size: 50
+            - id: pool
+              type: values
+              field: thread_pool_name
+              label: Pool
+              size: 20
+          metrics:
+            - id: queue
+              aggregation: average
+              field: elasticsearch.node.thread_pool.queue.count
+              label: Queue Size
+            - id: active
+              aggregation: average
+              field: elasticsearch.node.thread_pool.threads.count
+              label: Active Threads
