@@ -151,6 +151,10 @@ export class DashboardCompilerLSP {
             throw new Error(result.error || 'Compilation failed');
         }
 
+        if (result.data === undefined) {
+            throw new Error('Compilation returned no data');
+        }
+
         return result.data as CompiledDashboard;
     }
 
