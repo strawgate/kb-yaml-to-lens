@@ -423,6 +423,69 @@ lens:
       size: 10  # Top N count
 ```
 
+### Complete Minimal Dashboard Example
+
+The following shows how all components integrate into a complete dashboard:
+
+```yaml
+---
+dashboards:
+  - id: crowdstrike-custom-minimal
+    name: '[CrowdStrike] Minimal Dashboard'
+    description: Minimal dashboard template showing core components
+    filters:
+      - field: data_stream.dataset
+        equals: crowdstrike.alert
+    controls:
+      - type: options
+        label: Severity
+        width: medium
+        data_view: logs-*
+        field: crowdstrike.alert.severity
+        match_technique: exact
+    panels:
+      - title: Alert Count
+        grid:
+          x: 0
+          y: 0
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          metrics:
+            - aggregation: count
+              label: Total Alerts
+      - title: Alerts by Severity
+        grid:
+          x: 12
+          y: 0
+          w: 12
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.alert.severity
+              type: values
+              size: 5
+              sort:
+                by: Count
+                direction: desc
+          metrics:
+            - aggregation: count
+              label: Count
+```
+
+This example demonstrates:
+- Dashboard metadata (id, name, description)
+- Global filters applied to all panels
+- Interactive control filters for user selection
+- Panel definitions with grid positioning
+- Different visualization types (metric, pie chart)
+
 ### Configuration Options Reference
 
 The following table provides a comprehensive reference for all configuration keys used in the examples above:
