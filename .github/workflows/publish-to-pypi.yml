@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Build package
         working-directory: compiler
-        run: uv build
+        run: make build
       - name: Publish to PyPI
         working-directory: compiler
-        run: uv publish
+        run: make publish
