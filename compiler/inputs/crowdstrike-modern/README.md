@@ -139,7 +139,7 @@ This directory contains 4 workflow-centric dashboards designed for modern securi
 
 ## Dashboard Structure
 
-All dashboards follow the same 5-layer structure as defined in the [Dashboard Style Guide](../../docs/dashboard-style-guide.md):
+All dashboards follow the same 5-layer structure as defined in the [Dashboard Style Guide](../../../docs/dashboard-style-guide.md):
 
 ### 1. Context Layer (y: 0)
 - **Navigation Panel**: Horizontal links to all 4 dashboards
@@ -277,17 +277,28 @@ compiler/outputs/crowdstrike-modern-compliance.ndjson
 
 ### Import to Kibana
 
+**Option 1: Combine and import as single file**
+
 ```bash
-# Import all modern dashboards
-curl -X POST "http://localhost:5601/api/saved_objects/_import" \
+# Combine all NDJSON files and import
+cat compiler/outputs/crowdstrike-modern-*.ndjson > combined.ndjson
+curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
   -H "kbn-xsrf: true" \
-  --form file=@compiler/outputs/crowdstrike-modern-soc.ndjson \
-  --form file=@compiler/outputs/crowdstrike-modern-investigation.ndjson \
-  --form file=@compiler/outputs/crowdstrike-modern-assets.ndjson \
-  --form file=@compiler/outputs/crowdstrike-modern-compliance.ndjson
+  --form file=@combined.ndjson
 ```
 
-Or use Kibana UI:
+**Option 2: Import each file separately**
+
+```bash
+# Import each dashboard file individually
+for file in compiler/outputs/crowdstrike-modern-*.ndjson; do
+  curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
+    -H "kbn-xsrf: true" \
+    --form file=@"$file"
+done
+```
+
+**Option 3: Use Kibana UI**
 1. Navigate to **Stack Management** → **Saved Objects**
 2. Click **Import**
 3. Select the NDJSON files
