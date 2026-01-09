@@ -111,6 +111,8 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
+    index: Annotated[str | None, OmitIfNone()] = None
+    """JSON string containing index pattern and time field: {"index":"logs-*","timeFieldName":"@timestamp"}"""
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
