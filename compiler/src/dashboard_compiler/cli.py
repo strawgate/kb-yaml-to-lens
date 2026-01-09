@@ -1024,8 +1024,8 @@ async def _fetch_dashboard(
         dashboard_id: str | None = None
         lookup_method = ''
 
-        # Check if it looks like a URL (contains :// or /)
-        if '://' in url_or_id_or_name or '/' in url_or_id_or_name:
+        # Check if it looks like a URL (contains ://)
+        if '://' in url_or_id_or_name:
             # Extract dashboard ID from URL
             dashboard_id = extract_dashboard_id_from_url(url_or_id_or_name)
             lookup_method = 'URL'

@@ -1,6 +1,7 @@
 """Utility functions for dashboard compiler."""
 
 import re
+import urllib.parse
 
 
 def extract_dashboard_id_from_url(url_or_id: str) -> str:
@@ -41,8 +42,6 @@ def extract_dashboard_id_from_url(url_or_id: str) -> str:
     if match is not None:
         dashboard_id = match.group(1)
         # URL decode any %20 (spaces) or other encoded characters
-        import urllib.parse
-
         return urllib.parse.unquote(dashboard_id)
 
     # If no URL pattern found, check if it looks like a URL
