@@ -77,6 +77,16 @@ plugins:
                   strip_annotated: false
 hooks:
   - docs/hooks/generate_llms_txt.py
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: info
+  links:
+    not_found: info
+    anchors: warn
+    absolute_links: info
+    unrecognized_links: info
 markdown_extensions:
   - admonition
   - pymdownx.details
