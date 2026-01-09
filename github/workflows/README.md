@@ -55,7 +55,7 @@ All new commands are documented in `CLAUDE.md` and in the respective Makefile he
 
 #### `build-binaries.yml`
 
-- Builds unified binaries for all 4 platforms (linux-x64, darwin-arm64, darwin-x64, win32-x64)
+- Builds unified binaries for all 4 platforms (linux-x64, darwin-arm64, darwin-x64, windows-x64)
 - Runs smoke tests on each platform
 - Uploads binaries to GitHub releases on version tags (`v*`)
 

@@ -4,7 +4,7 @@ Releases are **tag-based and fully automated**. Push a version tag (`v*`) to tri
 
 - GitHub release with changelog and binaries (4 unified binaries)
 - Docker image (multi-arch: `ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler`)
-- PyPI package (`dashboard-compiler`)
+- PyPI package (`kb-dashboard-compiler`)
 - VS Code extension (marketplace + Open VSX)
 
 ## Quick Start
@@ -47,7 +47,7 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 - [ ] All workflows complete (~10-15 min total)
 - [ ] GitHub release has 4 binaries attached
 - [ ] Docker: `docker pull ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0`
-- [ ] PyPI: `pip install dashboard-compiler==1.0.0`
+- [ ] PyPI: `pip install kb-dashboard-compiler==1.0.0`
 - [ ] VS Code extension updated on marketplace
 
 ## Troubleshooting

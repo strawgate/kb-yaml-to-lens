@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector build-extension-binaries package-extension gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: check
 
@@ -28,14 +28,17 @@ help:
 	@echo "  test-all      - Run all tests (unit + e2e + smoke)"
 	@echo ""
 	@echo "Documentation:"
-	@echo "  docs-serve    - Start local documentation server"
-	@echo "  docs-build    - Build documentation static site"
-	@echo "  docs-build-quiet - Build documentation (errors only)"
-	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
+	@echo "  docs-serve         - Start local documentation server"
+	@echo "  docs-build         - Build documentation static site"
+	@echo "  docs-build-quiet   - Build documentation (errors only)"
+	@echo "  docs-build-strict  - Build documentation with strict mode (fails on warnings)"
+	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "VS Code Extension:"
-	@echo "  build-extension-binaries - Build LSP binaries for extension (current platform)"
+	@echo "  build-extension-binaries - Build unified binary for extension (current platform)"
 	@echo "  package-extension        - Package extension with binaries"
+	@echo "  install-extension-vscode - Build, package, and install extension into VS Code"
+	@echo "  install-extension-cursor - Build, package, and install extension into Cursor"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -170,33 +173,50 @@ inspector:
 # Documentation
 docs-serve:
 	@echo "Starting documentation server..."
-	uv run --group docs mkdocs serve
+	NO_COLOR=1 uv run --group docs mkdocs serve
 
 docs-build:
 	@echo "Building documentation..."
-	uv run --group docs mkdocs build
+	NO_COLOR=1 uv run --group docs mkdocs build
 
 docs-build-quiet:
 	@echo "Building documentation (errors only)..."
-	@uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+	@NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+
+docs-build-strict:
+	@echo "Building documentation with strict mode..."
+	NO_COLOR=1 uv run --group docs mkdocs build --strict
+	@echo "✓ Documentation builds successfully (strict mode)"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
-	uv run --group docs mkdocs gh-deploy --force
+	NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
 
 # VS Code Extension
 build-extension-binaries:
-	@echo "Building LSP binaries for VS Code extension..."
+	@echo "Building unified binary for VS Code extension..."
 	@echo ""
-	$(call run-in-component,compiler,build-lsp-binary)
-	$(call run-in-component,vscode-extension,copy-lsp-binary)
-	@echo "✓ Extension binaries ready"
+	$(call run-in-component,compiler,build-binary)
+	$(call run-in-component,vscode-extension,copy-binary)
+	@echo "✓ Extension binary ready"
 
 package-extension: build-extension-binaries
 	@echo "Packaging VS Code extension..."
 	@echo ""
 	$(call run-in-component,vscode-extension,package)
 	@echo "✓ Extension packaged"
+
+install-extension-vscode: package-extension
+	@echo "Installing extension into VS Code..."
+	@echo ""
+	$(call run-in-component,vscode-extension,install-vscode)
+	@echo "✓ Extension installed in VS Code"
+
+install-extension-cursor: package-extension
+	@echo "Installing extension into Cursor..."
+	@echo ""
+	$(call run-in-component,vscode-extension,install-cursor)
+	@echo "✓ Extension installed in Cursor"
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:

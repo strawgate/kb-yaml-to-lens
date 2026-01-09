@@ -94,55 +94,95 @@ export class GridEditorPanel {
         }
     }
 
-    private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
+    private async runPythonScript<T = unknown>(
+        args: string[],
+        errorContext: string,
+        parseResult: (stdout: string) => T,
+        timeout: number = 30000
+    ): Promise<T> {
         const resolver = new BinaryResolver(this.extensionPath, this.configService);
         const pythonPath = resolver.resolvePythonForScripts();
 
         return new Promise((resolve, reject) => {
-            const process = spawn(pythonPath, ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()], {
+            let settled = false;
+            const settleReject = (err: Error) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                reject(err);
+            };
+            const settleResolve = (val: T) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                resolve(val);
+            };
+
+            const child = spawn(pythonPath, args, {
                 cwd: path.join(this.extensionPath, '..')
             });
 
             let stdout = '';
             let stderr = '';
 
-            const timeout = setTimeout(() => {
-                process.kill();
-                reject(new Error('Grid extraction timed out after 30 seconds'));
-            }, 30000);
+            const timeoutHandle = setTimeout(() => {
+                try {
+                    child.kill();
+                } catch {
+                    // ignore
+                }
+                settleReject(new Error(`${errorContext} timed out after ${timeout / 1000} seconds. stderr: ${stderr || '(empty)'}`));
+            }, timeout);
 
-            process.on('error', (err) => {
-                clearTimeout(timeout);
-                reject(new Error(`Failed to start Python: ${err.message}`));
+            child.on('error', (err) => {
+                clearTimeout(timeoutHandle);
+                settleReject(new Error(`Failed to start Python: ${err.message}`));
             });
 
-            process.stdout.on('data', (data) => {
+            child.stdout.on('data', (data) => {
                 stdout += data.toString();
             });
 
-            process.stderr.on('data', (data) => {
+            child.stderr.on('data', (data) => {
                 stderr += data.toString();
             });
 
-            process.on('close', (code) => {
-                clearTimeout(timeout);
+            child.on('close', (code) => {
+                clearTimeout(timeoutHandle);
+                if (settled) {
+                    return;
+                }
                 if (code !== 0) {
-                    reject(new Error(`Grid extraction failed: ${stderr || stdout}`));
+                    settleReject(new Error(`${errorContext} failed: ${stderr || stdout}`));
                     return;
                 }
 
                 try {
-                    const result = JSON.parse(stdout);
-                    if (result.error) {
-                        reject(new Error(result.error));
-                    } else {
-                        resolve(result);
-                    }
+                    settleResolve(parseResult(stdout));
                 } catch (error) {
-                    reject(new Error(`Failed to parse grid info: ${error}`));
+                    settleReject(new Error(`Failed to parse result: ${error instanceof Error ? error.message : String(error)}`));
                 }
             });
         });
+    }
+
+    private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
+        return this.runPythonScript(
+            ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()],
+            'Grid extraction',
+            (stdout) => {
+                const result = JSON.parse(stdout.trim());
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                if (!result || typeof result !== 'object' || !Array.isArray(result.panels)) {
+                    throw new Error('Invalid grid extractor output (expected { title, description, panels[] })');
+                }
+                return result;
+            }
+        );
     }
 
     private async updatePanelGrid(panelId: string, grid: { x: number; y: number; w: number; h: number }): Promise<string | undefined> {
@@ -150,49 +190,16 @@ export class GridEditorPanel {
             return;
         }
 
-        const resolver = new BinaryResolver(this.extensionPath, this.configService);
-        const pythonPath = resolver.resolvePythonForScripts();
-
-        return new Promise((resolve, reject) => {
-            const process = spawn(
-                pythonPath,
-                ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath!, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
-                {
-                    cwd: path.join(this.extensionPath, '..')
-                }
+        try {
+            return await this.runPythonScript(
+                ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
+                'Grid update',
+                (stdout) => stdout
             );
-
-            let stdout = '';
-            let stderr = '';
-
-            const timeout = setTimeout(() => {
-                process.kill();
-                reject(new Error('Grid update timed out after 30 seconds'));
-            }, 30000);
-
-            process.on('error', (err) => {
-                clearTimeout(timeout);
-                reject(new Error(`Failed to start Python: ${err.message}`));
-            });
-
-            process.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-
-            process.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-
-            process.on('close', (code) => {
-                clearTimeout(timeout);
-                if (code !== 0) {
-                    vscode.window.showErrorMessage(`Failed to update grid: ${stderr || stdout}`);
-                    reject(new Error(stderr || stdout));
-                } else {
-                    resolve(stdout);
-                }
-            });
-        });
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to update grid: ${error instanceof Error ? error.message : String(error)}`);
+            return;
+        }
     }
 
     private isPathInWorkspace(filePath: string): boolean {

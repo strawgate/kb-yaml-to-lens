@@ -6,7 +6,55 @@ This guide provides instructions for converting Kibana dashboard JSON files into
 
 **Complete Documentation**: For full schema reference and examples, use [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt) which contains all project documentation.
 
-**Workflow**: `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+**Workflow**: `kb-dashboard fetch` → `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+
+## Fetching Dashboard from Kibana
+
+Retrieve a dashboard directly from Kibana using a URL or ID:
+
+```bash
+# Using dashboard URL
+kb-dashboard fetch "https://kibana.example.com/app/dashboards#/view/my-id" \
+    --output dashboard.ndjson
+
+# Using dashboard ID
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson
+```
+
+**Input Types:**
+
+The `fetch` command accepts two types of input:
+
+1. **Dashboard URL** - Full Kibana dashboard URL (e.g., `https://kibana.example.com/app/dashboards#/view/my-id`)
+2. **Dashboard ID** - Plain dashboard ID (e.g., `my-dashboard-id`)
+
+**How it works:**
+
+- If the input looks like a URL, the dashboard ID is extracted from the URL
+- Otherwise, the input is treated as a plain dashboard ID
+
+**Authentication Options:**
+
+```bash
+# API Key authentication (recommended)
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+    --kibana-api-key "your-api-key"
+
+# Username/password authentication
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+    --kibana-username user --kibana-password pass
+
+# Specific Kibana space
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+    --kibana-space-id "my-space"
+```
+
+**Input Formats Supported:**
+
+- **URL (standard):** `https://kibana.example.com/app/dashboards#/view/{id}`
+- **URL (with space):** `https://kibana.example.com/s/{space}/app/dashboards#/view/{id}`
+- **URL (with query params):** `https://kibana.example.com/app/dashboards#/view/{id}?_g=...`
+- **Plain dashboard ID:** `my-dashboard-id` or `dashboard-123`
 
 ## Disassembly
 

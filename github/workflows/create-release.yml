@@ -17,27 +17,29 @@ jobs:
           fetch-depth: 0
       - name: Extract version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
       - name: Generate changelog
         id: changelog
         run: |
-          PREV_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
-          CURRENT_TAG=$(git tag --sort=-v:refname | head -n 1)
+          PREV_TAG="$(git tag --sort=-v:refname | head -n 2 | tail -n 1)"
+          CURRENT_TAG="$(git tag --sort=-v:refname | head -n 1)"
           if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
-            echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s (%h)" >> $GITHUB_OUTPUT
-            echo "" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            {
+              echo "CHANGELOG<<EOF"
+              git log "${PREV_TAG}..${CURRENT_TAG}" --pretty=format:"- %s (%h)"
+              echo ""
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "CHANGELOG=Initial release" >> $GITHUB_OUTPUT
+            echo "CHANGELOG=Initial release" >> "$GITHUB_OUTPUT"
           fi
       - name: Determine if prerelease
         id: prerelease
         run: |
           if [[ "${{ github.ref_name }}" =~ -(rc|alpha|beta|dev) ]]; then
-            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+            echo "IS_PRERELEASE=true" >> "$GITHUB_OUTPUT"
           else
-            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+            echo "IS_PRERELEASE=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -51,7 +53,7 @@ jobs:
             ## Installation
             **Python Package:**
             ```bash
-            pip install dashboard-compiler==${{ steps.get_version.outputs.VERSION }}
+            pip install kb-dashboard-compiler==${{ steps.get_version.outputs.VERSION }}
             ```
             **Docker:**
             ```bash

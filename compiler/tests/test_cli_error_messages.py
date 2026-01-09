@@ -45,6 +45,14 @@ class TestLocToPath:
         """Test path with multiple consecutive indices."""
         assert loc_to_path(('items', 0, 1, 2)) == 'items[0][1][2]'
 
+    def test_duplicate_consecutive_strings(self) -> None:
+        """Test that consecutive duplicate string segments are collapsed."""
+        assert loc_to_path(('dashboards', 0, 'panels', 0, 'markdown', 'markdown', 'content')) == 'dashboards[0].panels[0].markdown.content'
+
+    def test_non_consecutive_duplicates_preserved(self) -> None:
+        """Test that non-consecutive duplicate strings are preserved."""
+        assert loc_to_path(('name', 'value', 'name')) == 'name.value.name'
+
 
 class TestFormatErrorMessage:
     """Tests for format_error_message function."""

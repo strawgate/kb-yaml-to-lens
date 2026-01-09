@@ -24,7 +24,7 @@ jobs:
             platform: darwin-x64
             ext: ''
           - os: windows-latest
-            platform: win32-x64
+            platform: windows-x64
             ext: .exe
     steps:
       - name: Checkout repository

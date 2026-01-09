@@ -23,6 +23,11 @@ on:
         description: Prompt to pass to Claude
         required: true
         type: string
+      model:
+        description: Model to use for Claude
+        required: false
+        type: string
+        default: claude-opus-4-5
       allowed-tools:
         description: Comma-separated list of allowed tools for Claude
         required: true
@@ -152,4 +157,5 @@ jobs:
           claude_args: |-
             --allowed-tools ${{ inputs.allowed-tools }}
             --mcp-config /tmp/mcp-config/mcp-servers.json
+            --model ${{ inputs.model }}
             ${{ inputs.claude-args }}

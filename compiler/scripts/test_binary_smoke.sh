@@ -73,5 +73,48 @@ if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/compiled_dashboards.ndjson"; the
 fi
 echo "✓ Output format is valid NDJSON"
 
+# Test 5: LSP server responds to initialization
+echo "Test 5: LSP server responds to initialization"
+TEMP_LSP_LOG=$(mktemp)
+trap 'rm -rf "$TEMP_OUTPUT"; rm -f "$TEMP_LSP_LOG"' EXIT
+
+# Valid LSP initialize request (Content-Length required for LSP protocol)
+INIT_REQUEST='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}'
+CONTENT_LENGTH=${#INIT_REQUEST}
+LSP_TIMEOUT_SECONDS=${LSP_TIMEOUT_SECONDS:-5}
+
+if command -v timeout &> /dev/null; then
+  printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | timeout "$LSP_TIMEOUT_SECONDS" "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 || true
+elif command -v gtimeout &> /dev/null; then
+  printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | gtimeout "$LSP_TIMEOUT_SECONDS" "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 || true
+else
+  printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 &
+  PID=$!
+  # Poll for process completion instead of sleeping full duration
+  for _ in $(seq 1 "$LSP_TIMEOUT_SECONDS"); do
+    if ! kill -0 "$PID" 2>/dev/null; then
+      break
+    fi
+    sleep 1
+  done
+  kill "$PID" 2>/dev/null || true
+  wait "$PID" 2>/dev/null || true
+fi
+
+# Check if LSP server responded with valid JSON-RPC response
+if grep -Eq '"error"\s*:' "$TEMP_LSP_LOG"; then
+  echo "✗ LSP server returned an error response"
+  cat "$TEMP_LSP_LOG"
+  exit 1
+elif grep -Eq '"jsonrpc"\s*:\s*"2\.0"' "$TEMP_LSP_LOG" && \
+   grep -Eq '"id"\s*:\s*1' "$TEMP_LSP_LOG" && \
+   grep -Eq '"result"\s*:' "$TEMP_LSP_LOG"; then
+  echo "✓ LSP server responds correctly to initialize request"
+else
+  echo "✗ LSP server did not respond correctly"
+  cat "$TEMP_LSP_LOG"
+  exit 1
+fi
+
 echo ""
 echo "✓ All binary smoke tests passed!"
