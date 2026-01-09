@@ -127,6 +127,17 @@ dashboards:
           metrics:
             - aggregation: count
               label: Events
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4742'
+                - '4743'
+                - '4768'
+                - '4769'
+                - '4770'
+                - '4771'
+                - '4772'
+                - '4776'
       - title: Events by Source
         grid: {x: 0, y: 41, w: 24, h: 15}
         lens:
@@ -153,12 +164,15 @@ dashboards:
             - id: timestamp
               field: '@timestamp'
               type: date_histogram
+              label: Time
             - id: event-id
               type: values
               field: winlog.event_id
+              label: Event ID
             - id: user
               type: values
               field: user.name
+              label: User
           metrics:
             - id: count
               aggregation: count

@@ -41,6 +41,10 @@ dashboards:
           items:
             - label: Windows Overview
               dashboard: system-windows-overview
+            - label: User Logons
+              dashboard: system-windows-logons
+            - label: Failed Accounts
+              dashboard: system-windows-failed-blocked
             - label: User Management
               dashboard: system-windows-user-management
             - label: Group Management
@@ -49,8 +53,6 @@ dashboards:
               dashboard: system-windows-directory-monitoring
             - label: System & Process
               dashboard: system-windows-system-process
-            - label: Policy & Object
-              dashboard: system-windows-policy-object
       - title: Policy & Object Events Over Time
         grid: {x: 0, y: 3, w: 48, h: 15}
         lens:

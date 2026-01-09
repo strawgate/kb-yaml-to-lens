@@ -24,7 +24,7 @@ dashboards:
         markdown:
           content: |
             # System overview
-            To view host details, select a host from the list below by clicking the respective label.
+            View metrics for all monitored hosts. Use the Host name control to filter by specific hosts.
           font_size: 12
       - title: Total Hosts
         grid: {x: 0, y: 3, w: 12, h: 7}

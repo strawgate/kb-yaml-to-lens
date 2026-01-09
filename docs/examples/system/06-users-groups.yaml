@@ -1,8 +1,8 @@
 ---
 dashboards:
   - id: system-users-groups
-    name: '[Logs System] New users and groups'
-    description: New users and groups from the System integration
+    name: '[Logs System] User and Group Management'
+    description: User and group management events from the System integration
     filters:
       - field: event.module
         equals: system

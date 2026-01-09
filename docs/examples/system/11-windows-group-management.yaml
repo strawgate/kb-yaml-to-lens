@@ -27,6 +27,7 @@ dashboards:
           - '4760'
           - '4761'
           - '4762'
+          - '4763'
           - '4764'
     panels:
       - title: Windows Dashboards
@@ -74,6 +75,7 @@ dashboards:
                 - '4727'
                 - '4731'
                 - '4754'
+                - '4759'
       - title: Member Added
         grid: {x: 10, y: 18, w: 10, h: 8}
         lens:
@@ -88,6 +90,7 @@ dashboards:
                 - '4728'
                 - '4732'
                 - '4756'
+                - '4761'
       - title: Group Modified
         grid: {x: 20, y: 18, w: 8, h: 8}
         lens:
@@ -102,10 +105,7 @@ dashboards:
                 - '4735'
                 - '4737'
                 - '4755'
-                - '4759'
                 - '4760'
-                - '4761'
-                - '4762'
                 - '4764'
       - title: Member Removed
         grid: {x: 28, y: 18, w: 10, h: 8}
@@ -121,6 +121,7 @@ dashboards:
                 - '4729'
                 - '4733'
                 - '4757'
+                - '4762'
       - title: Group Deleted
         grid: {x: 38, y: 18, w: 10, h: 8}
         lens:
@@ -135,6 +136,7 @@ dashboards:
                 - '4730'
                 - '4734'
                 - '4758'
+                - '4763'
       - title: Event Distribution
         grid: {x: 0, y: 26, w: 24, h: 15}
         lens:

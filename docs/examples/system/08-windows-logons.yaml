@@ -29,6 +29,12 @@ dashboards:
               dashboard: system-windows-user-management
             - label: Group Management
               dashboard: system-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-windows-system-process
+            - label: Policy & Object
+              dashboard: system-windows-policy-object
       - title: Logon Events Over Time
         grid: {x: 0, y: 3, w: 48, h: 15}
         lens:
