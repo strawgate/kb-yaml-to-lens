@@ -42,7 +42,7 @@ This repository contains three main components:
 | `make test-e2e` | Run end-to-end tests (requires setup) |
 | `make test-all` | Run all tests (unit + e2e + smoke) |
 | `make docs-build-strict` | Build docs with strict mode (fails on warnings) |
-| `make build-extension-binaries` | Build LSP binaries for VS Code extension (current platform) |
+| `make build-extension-binaries` | Build unified binary for VS Code extension (current platform) |
 | `make package-extension` | Package VS Code extension with binaries |
 | `make clean` | Clean cache and temporary files |
 | `make clean-full` | Deep clean including virtual environments |

@@ -20,9 +20,7 @@ Run from `compiler/` directory or use `cd compiler && make <command>`:
 | `make compile` | Compile YAML dashboards to NDJSON |
 | `make docs-serve` | Start local documentation server |
 | `make docker-build` | Build Docker image |
-| `make build-binary` | Build standalone CLI binary |
-| `make build-lsp-binary` | Build standalone LSP server binary |
-| `make build-all-binaries` | Build all standalone binaries (CLI + LSP) |
+| `make build-binary` | Build standalone unified binary (CLI + LSP) |
 
 See `make help` for complete command list.
 

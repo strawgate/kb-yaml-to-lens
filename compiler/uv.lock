@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -811,16 +811,12 @@ dependencies = [
     { name = "click" },
     { name = "elasticsearch" },
     { name = "humanize" },
+    { name = "lsprotocol" },
     { name = "prison" },
     { name = "pydantic" },
+    { name = "pygls" },
     { name = "pyyaml" },
     { name = "rich-click" },
-]
-
-[package.optional-dependencies]
-lsp = [
-    { name = "lsprotocol" },
-    { name = "pygls" },
 ]
 
 [package.dev-dependencies]
@@ -832,8 +828,6 @@ dev = [
     { name = "deepdiff" },
     { name = "dirty-equals" },
     { name = "inline-snapshot" },
-    { name = "lsprotocol" },
-    { name = "pygls" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-check-links" },
@@ -851,14 +845,13 @@ requires-dist = [
     { name = "click", specifier = ">=8.3" },
     { name = "elasticsearch", specifier = ">=8.16.2" },
     { name = "humanize", specifier = ">=4.15" },
-    { name = "lsprotocol", marker = "extra == 'lsp'", specifier = ">=2024.0.0" },
+    { name = "lsprotocol", specifier = ">=2024.0.0" },
     { name = "prison", specifier = ">=0.2.1" },
     { name = "pydantic", specifier = ">=2.12" },
-    { name = "pygls", marker = "extra == 'lsp'", specifier = ">=2.0.0" },
+    { name = "pygls", specifier = ">=2.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rich-click", specifier = ">=1.9.0" },
 ]
-provides-extras = ["lsp"]
 
 [package.metadata.requires-dev]
 build = [{ name = "pyinstaller", specifier = ">=6.0" }]
@@ -867,8 +860,6 @@ dev = [
     { name = "deepdiff", specifier = ">=8.4.2" },
     { name = "dirty-equals", specifier = ">=0.8.0" },
     { name = "inline-snapshot", specifier = ">=0.31.1" },
-    { name = "lsprotocol", specifier = ">=2024.0.0" },
-    { name = "pygls", specifier = ">=2.0.0" },
     { name = "pytest", specifier = ">=9.0" },
     { name = "pytest-asyncio", specifier = ">=1.3" },
     { name = "pytest-check-links", specifier = ">=0.9.0" },
