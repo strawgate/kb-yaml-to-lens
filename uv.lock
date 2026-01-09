@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -533,6 +533,7 @@ docs = [
     { name = "griffe-fieldz" },
     { name = "griffe-pydantic" },
     { name = "mkdocs" },
+    { name = "mkdocs-click" },
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extra = ["python"] },
     { name = "pymdown-extensions" },
@@ -546,6 +547,7 @@ docs = [
     { name = "griffe-fieldz", specifier = ">=0.4.0" },
     { name = "griffe-pydantic", specifier = ">=1.1.8" },
     { name = "mkdocs", specifier = ">=1.6.0" },
+    { name = "mkdocs-click", specifier = ">=0.8.0" },
     { name = "mkdocs-material", specifier = ">=9.5.32" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
     { name = "pymdown-extensions", specifier = ">=10.0" },
