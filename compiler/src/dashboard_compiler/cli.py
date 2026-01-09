@@ -32,7 +32,7 @@ from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_nd
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 # This prevents ANSI escape sequences from appearing in mkdocs-click generated docs
-if os.environ.get('NO_COLOR') or not sys.stdout.isatty():
+if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
     click.rich_click.COLOR_SYSTEM = None
     click.rich_click.FORCE_TERMINAL = False
 
