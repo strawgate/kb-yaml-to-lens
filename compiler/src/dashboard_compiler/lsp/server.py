@@ -256,37 +256,40 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         ndjson_content = json.dumps(compile_result['data'])
         logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
 
-        # Create Kibana client
+        # Create Kibana client and upload
         logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
-        client = KibanaClient(
+        async with KibanaClient(
             url=kibana_url,
             username=username if (username is not None and len(username) > 0) else None,
             password=password if (password is not None and len(password) > 0) else None,
             api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
             ssl_verify=ssl_verify,
-        )
+        ) as client:
+            # Upload to Kibana
+            result = await client.upload_ndjson(ndjson_content, overwrite=True)
+            logger.debug(
+                f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
+            )
 
-        # Upload to Kibana
-        result = await client.upload_ndjson(ndjson_content, overwrite=True)
-        logger.debug(
-            f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
-        )
+            if result.success is True:
+                # Extract dashboard ID
+                dashboard_ids = [
+                    obj.destination_id if (obj.destination_id is not None and len(obj.destination_id) > 0) else obj.id
+                    for obj in result.success_results
+                    if obj.type == 'dashboard'
+                ]
 
-        if result.success is True:
-            # Extract dashboard ID
-            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+                if len(dashboard_ids) > 0:
+                    dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                    logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
+                    return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
 
-            if len(dashboard_ids) > 0:
-                dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
-                return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
+                logger.error('No dashboard found in upload results')
+                return {'success': False, 'error': 'No dashboard found in upload results'}
 
-            logger.error('No dashboard found in upload results')
-            return {'success': False, 'error': 'No dashboard found in upload results'}
-
-        error_messages = [str(err) for err in result.errors]
-        logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
-        return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
+            error_messages = [str(err) for err in result.errors]
+            logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
+            return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
 
     except Exception as e:
         logger.exception('Upload error occurred')

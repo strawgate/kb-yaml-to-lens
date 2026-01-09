@@ -241,3 +241,103 @@ def test_sample_data_load_result() -> None:
     assert result_with_errors.success is False
     assert result_with_errors.success_count == 3
     assert len(result_with_errors.errors) == 2
+
+
+@pytest.mark.asyncio
+async def test_load_sample_data_with_bulk_error_details() -> None:
+    """Test loading sample data with detailed bulk operation errors."""
+    mock_es_client = AsyncMock()
+
+    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+        # Return list of failed items with error details
+        failed_items = [
+            {'index': {'error': {'type': 'mapper_parsing_exception', 'reason': 'failed to parse field [@timestamp]'}}},
+            {'index': {'error': {'type': 'version_conflict_engine_exception', 'reason': 'version conflict'}}},
+        ]
+        mock_bulk.return_value = (1, failed_items)
+
+        sample_data = SampleData(
+            source='inline',
+            index_pattern='logs-*',
+            documents=[
+                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+            ],
+        )
+
+        result = await load_sample_data(mock_es_client, sample_data)
+
+        assert result.success is False
+        assert result.success_count == 1
+        assert len(result.errors) == 2
+        assert any('mapper_parsing_exception' in e for e in result.errors)
+        assert any('version_conflict_engine_exception' in e for e in result.errors)
+
+
+@pytest.mark.asyncio
+async def test_load_sample_data_with_bulk_error_count() -> None:
+    """Test loading sample data when bulk returns error count instead of list."""
+    mock_es_client = AsyncMock()
+
+    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+        # Return error count as integer
+        mock_bulk.return_value = (5, 3)
+
+        sample_data = SampleData(
+            source='inline',
+            index_pattern='logs-*',
+            documents=[
+                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+            ],
+        )
+
+        result = await load_sample_data(mock_es_client, sample_data)
+
+        assert result.success is False
+        assert result.success_count == 5
+        assert len(result.errors) == 1
+        assert '3 document(s) failed' in result.errors[0]
+
+
+@pytest.mark.asyncio
+async def test_load_sample_data_with_non_dict_error() -> None:
+    """Test loading sample data when error item is not a dict."""
+    mock_es_client = AsyncMock()
+
+    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+        # Return list with non-dict items
+        failed_items = ['error1', 'error2']
+        mock_bulk.return_value = (1, failed_items)
+
+        sample_data = SampleData(
+            source='inline',
+            index_pattern='logs-*',
+            documents=[
+                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+            ],
+        )
+
+        result = await load_sample_data(mock_es_client, sample_data)
+
+        assert result.success is False
+        assert len(result.errors) == 2
+
+
+def test_read_documents_ndjson_with_empty_lines(tmp_path: Path) -> None:
+    """Test reading NDJSON file with empty lines."""
+    ndjson_file = tmp_path / 'sample.ndjson'
+    _ = ndjson_file.write_text(
+        '{"@timestamp": "2024-01-01T00:00:00Z", "message": "line1"}\n\n{"@timestamp": "2024-01-01T01:00:00Z", "message": "line2"}\n\n\n'
+    )
+
+    sample_data = SampleData(
+        source='file',
+        index_pattern='logs-*',
+        file_path=ndjson_file,
+    )
+
+    documents = read_documents(sample_data)
+
+    # Empty lines should be skipped
+    assert len(documents) == 2
+    assert documents[0]['message'] == 'line1'
+    assert documents[1]['message'] == 'line2'

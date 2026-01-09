@@ -47,6 +47,13 @@ def generate_llms_txt(site_dir: Path, config: dict[str, Any]) -> None:
 - [Filters and Queries]({site_url}/filters/config/): Data filtering and query configuration
 - [Complete Examples]({site_url}/examples/): Real-world YAML dashboard examples
 
+## LLM-Driven Workflows
+
+- [LLM Workflows Overview]({site_url}/llm-workflows/): Complete guide for using LLMs with kb-yaml-to-lens
+- [Dashboard Decompiling Guide]({site_url}/dashboard-decompiling-guide/): Convert Kibana JSON to YAML
+- [Dashboard Style Guide]({site_url}/dashboard-style-guide/): Best practices for dashboard design
+- [llms-full.txt]({site_url}/llms-full.txt): Complete documentation for LLM context
+
 ## Developer Guide
 
 - [Programmatic Usage]({site_url}/programmatic-usage/): Python API for dynamic dashboard generation

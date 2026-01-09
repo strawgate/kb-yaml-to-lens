@@ -1,6 +1,7 @@
 """Tests for timestamp transformation utilities."""
 
 from datetime import UTC, datetime
+from typing import Any
 
 from dashboard_compiler.sample_data.config import TimestampTransform
 from dashboard_compiler.sample_data.timestamps import (
@@ -176,3 +177,57 @@ def test_transform_documents_preserves_original() -> None:
     _ = transform_documents(documents, transform)
 
     assert original_doc['@timestamp'] == '2024-01-01T12:00:00Z'
+
+
+def test_find_max_timestamp_with_invalid_timestamps() -> None:
+    """Test finding max timestamp when timestamps fail to parse."""
+    documents = [
+        {'@timestamp': 'invalid-timestamp', 'message': 'bad'},
+        {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'good'},
+        {'@timestamp': '2024-01-01T02:00:00Z', 'message': 'good2'},
+    ]
+
+    max_ts = find_max_timestamp(documents, '@timestamp')
+
+    assert max_ts is not None
+    assert max_ts == parse_timestamp('2024-01-01T02:00:00Z')
+
+
+def test_find_max_timestamp_empty_list() -> None:
+    """Test finding max timestamp in empty document list."""
+    documents: list[dict[str, Any]] = []
+
+    max_ts = find_max_timestamp(documents, '@timestamp')
+
+    assert max_ts is None
+
+
+def test_transform_documents_with_invalid_timestamps() -> None:
+    """Test transformation silently skips documents with invalid timestamps."""
+    documents = [
+        {'@timestamp': 'not-a-timestamp', 'message': 'invalid'},
+        {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'valid'},
+    ]
+    transform = TimestampTransform(enabled=True)
+
+    result = transform_documents(documents, transform)
+
+    assert len(result) == 2
+    invalid = next(doc for doc in result if doc.get('message') == 'invalid')
+    valid = next(doc for doc in result if doc.get('message') == 'valid')
+    assert invalid['@timestamp'] == 'not-a-timestamp'
+    assert valid['@timestamp'] != '2024-01-01T00:00:00Z'
+
+
+def test_transform_documents_all_invalid_timestamps() -> None:
+    """Test transformation when all timestamps are invalid (no max found)."""
+    documents = [
+        {'@timestamp': 'invalid1', 'message': 'bad1'},
+        {'@timestamp': 'invalid2', 'message': 'bad2'},
+    ]
+    transform = TimestampTransform(enabled=True)
+
+    result = transform_documents(documents, transform)
+
+    # Should return documents unchanged since no valid max timestamp
+    assert result == documents
