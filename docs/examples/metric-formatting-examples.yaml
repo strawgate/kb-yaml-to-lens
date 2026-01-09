@@ -1,0 +1,430 @@
+---
+dashboards:
+  - id: metric-formatting-examples-001
+    name: '[Example] Metric Formatting'
+    description: Comprehensive examples of metric number formatting options
+    panels:
+      - title: Metric Formatting Examples Overview
+        grid:
+          x: 0
+          y: 0
+          w: 48
+          h: 5
+        markdown:
+          content: "# Metric Formatting Examples\nThis dashboard demonstrates various number formatting options for metric charts:\n- **Suffix\
+            \ formatting** - Add custom text after numbers (\" requests/sec\", \" users\")\n- **Compact notation** - Display large numbers as\
+            \ 1.2K, 500M, etc.\n- **Custom patterns** - Use numeral.js patterns for precise formatting\n- **Built-in formats** - Bytes, duration,\
+            \ percent, etc.\n- **Combined options** - Mix multiple formatting features\n"
+          font_size: 12
+
+      # Suffix Formatting Examples
+      - title: Request Rate
+        description: Using suffix to add units
+        grid:
+          x: 0
+          y: 5
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Requests
+            format:
+              type: number
+              suffix: ' req/sec'
+      - title: Active Users
+        description: Suffix for context
+        grid:
+          x: 12
+          y: 5
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: user.id
+            label: Active Users
+            format:
+              type: number
+              suffix: ' users'
+      - title: Temperature
+        description: Suffix with units
+        grid:
+          x: 24
+          y: 5
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.cpu.temperature
+            label: CPU Temp
+            format:
+              type: number
+              pattern: '0.0'
+              suffix: °C
+      - title: API Calls
+        description: Suffix with period
+        grid:
+          x: 36
+          y: 5
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: API Calls
+            format:
+              type: number
+              suffix: ' calls/hour'
+
+      # Compact Notation Examples
+      - title: Total Events (Compact)
+        description: Compact notation for large numbers
+        grid:
+          x: 0
+          y: 13
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Total Events
+            format:
+              type: number
+              compact: true
+      - title: Unique IPs (Compact)
+        description: Compact with custom suffix
+        grid:
+          x: 12
+          y: 13
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: source.ip
+            label: Unique IPs
+            format:
+              type: number
+              compact: true
+              suffix: ' IPs'
+      - title: Data Processed
+        description: Bytes format with compact notation
+        grid:
+          x: 24
+          y: 13
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: sum
+            field: http.request.bytes
+            label: Data Processed
+            format:
+              type: bytes
+              compact: true
+      - title: Response Time
+        description: Duration format
+        grid:
+          x: 36
+          y: 13
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: average
+            field: event.duration
+            label: Avg Response
+            format:
+              type: duration
+
+      # Custom Pattern Examples
+      - title: Revenue
+        description: Currency pattern with 2 decimals
+        grid:
+          x: 0
+          y: 21
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: sales-*
+          primary:
+            aggregation: sum
+            field: transaction.amount
+            label: Total Revenue
+            format:
+              type: number
+              pattern: 0,0.00
+              suffix: ' USD'
+      - title: Success Rate
+        description: Pattern with abbreviation
+        grid:
+          x: 12
+          y: 21
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            formula: count(kql='status:success') / count() * 100
+            label: Success Rate
+            format:
+              type: number
+              pattern: 0.0a
+              suffix: '%'
+      - title: Cache Hit Ratio
+        description: Percentage with 3 decimals
+        grid:
+          x: 24
+          y: 21
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            formula: count(kql='cache.hit:true') / count() * 100
+            label: Cache Hits
+            format:
+              type: percent
+      - title: Error Count
+        description: No decimals with thousands separator
+        grid:
+          x: 36
+          y: 21
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            filter:
+              kql: log.level:error
+            label: Total Errors
+            format:
+              type: number
+              pattern: 0,0
+
+      # Built-in Format Examples
+      - title: Network Throughput
+        description: Bytes format
+        grid:
+          x: 0
+          y: 29
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: network.bytes
+            label: Throughput
+            format:
+              type: bytes
+      - title: Network Bits
+        description: Bits format
+        grid:
+          x: 12
+          y: 29
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: network.bits
+            label: Network Traffic
+            format:
+              type: bits
+      - title: CPU Usage
+        description: Percent format
+        grid:
+          x: 24
+          y: 29
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.cpu.usage
+            label: CPU Usage
+            format:
+              type: percent
+      - title: Uptime
+        description: Duration format
+        grid:
+          x: 36
+          y: 29
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: system.uptime
+            label: Uptime
+            format:
+              type: duration
+
+      # Combined Format Options
+      - title: Bandwidth Usage
+        description: Combining multiple format options
+        grid:
+          x: 0
+          y: 37
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: network-*
+          primary:
+            aggregation: sum
+            field: network.bytes
+            label: Daily Bandwidth
+            format:
+              type: bytes
+              compact: true
+              suffix: /day
+      - title: Transaction Volume
+        description: Compact with custom pattern
+        grid:
+          x: 12
+          y: 37
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: sales-*
+          primary:
+            aggregation: count
+            label: Transactions
+            format:
+              type: number
+              compact: true
+              pattern: 0.0a
+              suffix: ' txn'
+      - title: Average Latency
+        description: Duration with custom suffix
+        grid:
+          x: 24
+          y: 37
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: average
+            field: response.latency
+            label: Avg Latency
+            format:
+              type: duration
+              suffix: ' (avg)'
+      - title: Data Transfer Rate
+        description: Bits with rate suffix
+        grid:
+          x: 36
+          y: 37
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: network-*
+          primary:
+            aggregation: average
+            field: network.bits
+            label: Transfer Rate
+            format:
+              type: bits
+              compact: true
+              suffix: /s
+
+      # Custom Format Type
+      - title: Custom Format Example
+        description: Using custom format type
+        grid:
+          x: 0
+          y: 45
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Event Count
+            format:
+              type: custom
+              pattern: 0,0.0a
+      - title: Precise Decimal Control
+        description: Custom pattern for precise control
+        grid:
+          x: 12
+          y: 45
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: performance.score
+            label: Performance Score
+            format:
+              type: custom
+              pattern: '0.000'
+      - title: No Formatting
+        description: Plain number without formatting
+        grid:
+          x: 24
+          y: 45
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Raw Count
+      - title: Formula with Formatting
+        description: Formula metric with custom format
+        grid:
+          x: 36
+          y: 45
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            formula: count(kql='log.level:error') / count() * 100
+            label: Error Rate
+            format:
+              type: number
+              pattern: '0.00'
+              suffix: '%'
