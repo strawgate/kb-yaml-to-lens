@@ -106,6 +106,13 @@ lint-python-check:
 	@echo "Running ruff check..."
 	@uv run ruff check . --quiet
 
+# Python linting with GitHub Actions annotations (for CI)
+lint-python-check-ci:
+	@echo "Running ruff format --check..."
+	@uv run ruff format . --check --quiet
+	@echo "Running ruff check with GitHub annotations..."
+	@uv run ruff check . --output-format=github
+
 # YAML linting (operates on parent directory)
 lint-yaml:
 	@echo "Running yamlfix..."
