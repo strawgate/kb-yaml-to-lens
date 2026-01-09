@@ -45,7 +45,17 @@ Install directly from the VS Code Extensions marketplace.
 ### From VSIX (Manual)
 
 1. Download the platform-specific `.vsix` file from releases
-2. In VS Code: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+2. In VS Code/Cursor: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+
+Or use the Makefile for automated installation:
+
+```bash
+# From repository root - install to VS Code
+make install-extension-vscode
+
+# From repository root - install to Cursor
+make install-extension-cursor
+```
 
 ### For Development
 

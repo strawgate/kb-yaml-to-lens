@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector build-extension-binaries package-extension gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: check
 
@@ -36,6 +36,8 @@ help:
 	@echo "VS Code Extension:"
 	@echo "  build-extension-binaries - Build LSP binaries for extension (current platform)"
 	@echo "  package-extension        - Package extension with binaries"
+	@echo "  install-extension-vscode - Build, package, and install extension into VS Code"
+	@echo "  install-extension-cursor - Build, package, and install extension into Cursor"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -197,6 +199,18 @@ package-extension: build-extension-binaries
 	@echo ""
 	$(call run-in-component,vscode-extension,package)
 	@echo "✓ Extension packaged"
+
+install-extension-vscode: package-extension
+	@echo "Installing extension into VS Code..."
+	@echo ""
+	$(call run-in-component,vscode-extension,install-vscode)
+	@echo "✓ Extension installed in VS Code"
+
+install-extension-cursor: package-extension
+	@echo "Installing extension into Cursor..."
+	@echo ""
+	$(call run-in-component,vscode-extension,install-cursor)
+	@echo "✓ Extension installed in Cursor"
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:
