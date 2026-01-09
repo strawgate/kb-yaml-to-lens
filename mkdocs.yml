@@ -128,7 +128,10 @@ nav:
           - Filters: filters/config.md
           - Queries: queries/config.md
       - Advanced Topics:
-          - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
+          - LLM-Driven Workflows:
+              - Overview: llm-workflows/index.md
+              - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
+              - Dashboard Style Guide: dashboard-style-guide.md
           - Custom Color Assignments: advanced/color-assignments.md
           - ES|QL "views": advanced/esql-views.md
   - Developer Guide:
