@@ -42,7 +42,7 @@ graph TB
 
 ### Choose Your Path
 
-#### VS Code Extension (Recommended)
+#### ⭐ VS Code Extension (Recommended)
 
 **Best for interactive development** - Live preview, visual editing, built-in snippets
 
@@ -52,7 +52,6 @@ graph TB
 
 1. **Install the extension:**
    - **OpenVSX Registry** (Cursor, VS Code forks): Search "Kibana Dashboard Compiler"
-   - **VS Code Marketplace** (Coming Soon): Search "Kibana Dashboard Compiler"
    - **Manual**: Download `.vsix` from [releases](https://github.com/strawgate/kb-yaml-to-lens/releases)
 
 2. **Create your first dashboard:**
@@ -61,7 +60,12 @@ graph TB
    - Modify the template with your content
    - Save (Ctrl+S) to auto-compile
 
-3. **Preview and upload:**
+3. **Verify installation:**
+   - Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+   - Type "YAML Dashboard" - you should see extension commands
+   - Create test file, type `dashboard` + Tab to verify snippets work
+
+4. **Preview and upload:**
    - Command Palette (Ctrl+Shift+P): **"YAML Dashboard: Preview Dashboard"**
    - Configure Kibana URL in VS Code settings
    - Command: **"YAML Dashboard: Open in Kibana"**

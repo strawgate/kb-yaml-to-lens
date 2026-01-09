@@ -64,11 +64,7 @@ Works with Cursor, VSCodium, and other VS Code forks:
 2. Search for "Kibana Dashboard Compiler"
 3. Click Install
 
-#### Option 2: Install from VS Code Marketplace (Coming Soon)
-
-Available directly in VS Code Extensions marketplace.
-
-#### Option 3: Manual Installation (VSIX)
+#### Option 2: Manual Installation (VSIX)
 
 For restricted environments or offline installation:
 
@@ -77,6 +73,24 @@ For restricted environments or offline installation:
 3. Select the downloaded `.vsix` file
 
 **That's it!** The extension includes everything needed - no additional setup required.
+
+### Verify Installation
+
+After installation, confirm the extension is working:
+
+1. **Check extension is active:**
+   - Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P on Mac)
+   - Type "YAML Dashboard" - you should see multiple commands listed
+
+2. **Test snippet functionality:**
+   - Create a new file: `test-dashboard.yaml`
+   - Type `dashboard` and press Tab
+   - A complete dashboard structure should be inserted
+
+3. **Troubleshooting:**
+   - If commands don't appear: Restart VS Code
+   - If snippets don't work: Ensure file extension is `.yaml`
+   - Check Output panel: View → Output → "Kibana Dashboard Compiler"
 
 ### For Extension Developers
 

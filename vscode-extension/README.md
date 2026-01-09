@@ -61,14 +61,21 @@ Only needed if you're developing the extension itself:
 
 Note: Cursor and other VS Code forks use the [OpenVSX Registry](https://open-vsx.org/) instead of the VS Code Marketplace.
 
-### From VS Code Marketplace (Coming Soon)
-
-Install directly from the VS Code Extensions marketplace.
-
 ### From VSIX (Manual)
 
 1. Download the platform-specific `.vsix` file from releases
 2. In VS Code/Cursor: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+
+### Verify Installation
+
+Confirm the extension is working correctly:
+
+1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P on Mac)
+2. Type "YAML Dashboard" - you should see extension commands
+3. Create test file: `test-dashboard.yaml`
+4. Type `dashboard` + Tab - snippet should insert template
+
+If commands don't appear, restart VS Code and check Output panel (View → Output → "Kibana Dashboard Compiler").
 
 Or use the Makefile for automated installation:
 

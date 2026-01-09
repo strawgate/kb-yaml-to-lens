@@ -17,7 +17,7 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 
 ## Prerequisites
 
-**For VS Code Extension (Recommended):**
+**For ⭐ VS Code Extension (Recommended):**
 - VS Code 1.85.0+ or compatible editor (Cursor, VSCodium, etc.)
 - No Python installation required - bundled binary included!
 
@@ -27,7 +27,7 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 
 ## Quick Start
 
-### Option 1: VS Code Extension (Recommended for Getting Started)
+### Option 1: ⭐ VS Code Extension (Recommended for Getting Started)
 
 **Best for:** Interactive dashboard development, visual editing, live preview
 
@@ -45,11 +45,19 @@ The VS Code extension is the fastest way to start building Kibana dashboards. It
 2. Search for "Kibana Dashboard Compiler"
 3. Click Install
 
-**From VS Code Marketplace (Coming Soon):**
-Search "Kibana Dashboard Compiler" in VS Code Extensions
-
 **Manual VSIX Install:**
 Download platform-specific `.vsix` from [releases page](https://github.com/strawgate/kb-yaml-to-lens/releases)
+
+#### Verify Installation
+
+After installation, verify the extension is working:
+
+1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+2. Type "YAML Dashboard" - you should see all extension commands
+3. Create a test file: `test-dashboard.yaml`
+4. Type `dashboard` and press Tab - a snippet should insert
+
+If commands don't appear, restart VS Code and check the Output panel (View → Output → "Kibana Dashboard Compiler").
 
 #### Your First Dashboard in VS Code
 

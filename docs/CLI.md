@@ -2,6 +2,13 @@
 
 The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations to Kibana's NDJSON format and optionally upload them directly to Kibana.
 
+## Prerequisites
+
+- **Python 3.12+** - Required for CLI usage
+- **[uv](https://github.com/astral-sh/uv)** (recommended) or pip for dependency management
+
+**Note:** The VS Code Extension does not require Python - it includes a bundled binary. See [VS Code Extension Documentation](vscode-extension.md) for zero-configuration setup.
+
 ## When to Use the CLI
 
 **Use the CLI when:**
