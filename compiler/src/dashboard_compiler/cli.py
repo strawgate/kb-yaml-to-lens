@@ -30,6 +30,8 @@ from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
 
+logger = logging.getLogger(__name__)
+
 # Try to import LSP server - may not be available if lsp group not installed
 try:
     from dashboard_compiler.lsp.server import main as lsp_main
@@ -38,6 +40,7 @@ try:
 except ImportError:
     lsp_main = None  # type: ignore[assignment]
     _lsp_available = False
+    logger.debug('LSP server import failed, LSP disabled', exc_info=True)
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 # This prevents ANSI escape sequences from appearing in mkdocs-click generated docs
@@ -48,8 +51,6 @@ if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
-
-logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
@@ -1025,11 +1026,11 @@ def lsp_command() -> None:
     Protocol specification.
 
     Note: This command requires the LSP dependencies to be installed.
-    Install them with: uv sync --group lsp
+    Install them with: uv sync --extra lsp
     """
     if not _lsp_available or lsp_main is None:
-        console.print('[red]Error: LSP server dependencies not installed.[/red]')
-        console.print('Install with: uv sync --group lsp')
+        click.echo('Error: LSP server dependencies not installed.', err=True)
+        click.echo('Install with: uv sync --extra lsp', err=True)
         msg = 'LSP dependencies not available'
         raise click.ClickException(msg)
 

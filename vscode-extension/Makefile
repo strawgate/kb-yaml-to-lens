@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean copy-lsp-binary clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean copy-binary clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"

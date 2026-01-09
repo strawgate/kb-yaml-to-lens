@@ -34,7 +34,7 @@ lsp = [
 [project.scripts]
 kb-dashboard = "dashboard_compiler.cli:cli"
 # Backward compatibility - this entry point is deprecated, use 'kb-dashboard lsp' instead
-kb-dashboard-lsp = "dashboard_compiler.lsp.server:main"
+kb-dashboard-lsp = "dashboard_compiler.lsp.entrypoint:main"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

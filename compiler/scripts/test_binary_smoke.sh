@@ -73,24 +73,35 @@ if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/compiled_dashboards.ndjson"; the
 fi
 echo "✓ Output format is valid NDJSON"
 
-# Test 5: LSP server starts (expects stdin/stdout communication)
-echo "Test 5: LSP server startup"
-# Use portable timeout approach (GNU timeout not available on macOS by default)
+# Test 5: LSP server responds to initialization
+echo "Test 5: LSP server responds to initialization"
+TEMP_LSP_LOG=$(mktemp)
+trap 'rm -f "$TEMP_LSP_LOG"' EXIT
+
+# Valid LSP initialize request (Content-Length required for LSP protocol)
+INIT_REQUEST='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}'
+CONTENT_LENGTH=${#INIT_REQUEST}
+
 if command -v timeout &> /dev/null; then
-  # Use GNU timeout if available (Linux)
-  echo '{"invalid": "request"}' | timeout 2 "$BINARY_PATH" lsp > /dev/null 2>&1 || true
+  printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | timeout 2 "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 || true
 elif command -v gtimeout &> /dev/null; then
-  # Use gtimeout if available (macOS with coreutils via Homebrew)
-  echo '{"invalid": "request"}' | gtimeout 2 "$BINARY_PATH" lsp > /dev/null 2>&1 || true
+  printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | gtimeout 2 "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 || true
 else
-  # Fallback: portable bash-based timeout for macOS
-  echo '{"invalid": "request"}' | "$BINARY_PATH" lsp > /dev/null 2>&1 &
+  printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 &
   PID=$!
   sleep 2
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
 fi
-echo "✓ LSP server starts successfully"
+
+# Check if LSP server responded with valid JSON-RPC response
+if grep -q '"result"' "$TEMP_LSP_LOG"; then
+  echo "✓ LSP server responds correctly to initialize request"
+else
+  echo "✗ LSP server did not respond correctly"
+  cat "$TEMP_LSP_LOG"
+  exit 1
+fi
 
 echo ""
 echo "✓ All binary smoke tests passed!"
