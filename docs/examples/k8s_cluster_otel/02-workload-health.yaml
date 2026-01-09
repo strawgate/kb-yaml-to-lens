@@ -51,7 +51,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: count()
+            formula: unique_count(k8s.container.name)
             label: Ready
           filters:
             - field: k8s.container.ready
@@ -62,7 +62,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: count()
+            formula: unique_count(k8s.container.name)
             label: Not Ready
           filters:
             - field: k8s.container.ready
@@ -83,7 +83,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: count()
+            formula: unique_count(k8s.container.name)
             label: With Restarts
           filters:
             - field: k8s.container.restarts
@@ -180,7 +180,8 @@ dashboards:
             type: values
             size: 2
           metrics:
-            - aggregation: count
+            - aggregation: unique_count
+              field: k8s.container.name
               label: Containers
           color:
             palette: eui_amsterdam_color_blind

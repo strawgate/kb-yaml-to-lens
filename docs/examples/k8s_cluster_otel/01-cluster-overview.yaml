@@ -47,7 +47,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: count()
+            formula: unique_count(k8s.pod.name)
             label: Running
           filters:
             - field: k8s.pod.phase
@@ -58,7 +58,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: count()
+            formula: unique_count(k8s.pod.name)
             label: Pending
           filters:
             - field: k8s.pod.phase
@@ -69,7 +69,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: count()
+            formula: unique_count(k8s.pod.name)
             label: Failed
           filters:
             - field: k8s.pod.phase
@@ -99,7 +99,8 @@ dashboards:
               label: Status
               size: 5
           metrics:
-            - aggregation: count
+            - aggregation: unique_count
+              field: k8s.pod.name
               label: Pods
           color:
             palette: eui_amsterdam_color_blind
@@ -128,7 +129,8 @@ dashboards:
             type: values
             size: 5
           metrics:
-            - aggregation: count
+            - aggregation: unique_count
+              field: k8s.pod.name
               label: Pods
           color:
             palette: eui_amsterdam_color_blind

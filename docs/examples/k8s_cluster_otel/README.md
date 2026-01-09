@@ -148,6 +148,21 @@ receivers:
 - `allocatable_types_to_report` - Node resource types to report
 - `metadata_collection_interval: 5m` - How often to collect entity metadata (default: 5m)
 
+### Receiver Configuration Options
+
+| YAML Key | Type | Description | Default | Required |
+|----------|------|-------------|---------|----------|
+| `auth_type` | string | Kubernetes API authentication method (`serviceAccount`, `kubeConfig`) | `serviceAccount` | No |
+| `collection_interval` | duration | Metric collection frequency | `10s` | No |
+| `node_conditions_to_report` | list | Node conditions to monitor | `[Ready]` | No |
+| `distribution` | string | Cluster type (`kubernetes`, `openshift`) | `kubernetes` | No |
+| `allocatable_types_to_report` | list | Node resource types to report | `[cpu, memory, ephemeral-storage, storage]` | No |
+| `metadata_collection_interval` | duration | Entity metadata collection frequency | `5m` | No |
+| `namespaces` | list | Limit observation to specific namespaces | (cluster-wide) | No |
+| `k8s_leader_elector` | string | K8s leader elector extension for HA mode | (disabled) | No |
+
+For additional metric and attribute filtering options, consult the [official k8sclusterreceiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sclusterreceiver).
+
 ### Exporters Configuration
 
 Configure exporters to send metrics to Elasticsearch:
@@ -188,9 +203,28 @@ service:
       exporters: [elasticsearch]
 ```
 
+### Minimal Configuration Example
+
+For a quick start with default settings:
+
+```yaml
+receivers:
+  k8s_cluster:
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://elasticsearch:9200"]
+
+service:
+  pipelines:
+    metrics:
+      receivers: [k8s_cluster]
+      exporters: [elasticsearch]
+```
+
 ### Complete Configuration Example
 
-Here's a complete OpenTelemetry Collector configuration:
+Here's a complete OpenTelemetry Collector configuration with all recommended options:
 
 ```yaml
 receivers:
@@ -251,7 +285,7 @@ spec:
       serviceAccountName: otel-collector
       containers:
         - name: otel-collector
-          image: otel/opentelemetry-collector-contrib:0.142.0
+          image: otel/opentelemetry-collector-contrib:0.143.1
           args:
             - --config=/conf/config.yaml
           resources:
@@ -571,7 +605,7 @@ If metrics appear delayed or some are missing:
 **Potential causes:**
 
 1. **Collection interval too high** - Reduce `collection_interval` in receiver config (default: 10s)
-2. **Throttling from API server** - Check for rate limiting in collector logs
+2. **Throttling from API server** - Check for rate-limiting in collector logs
 3. **Network issues** - Verify connectivity between collector and Kubernetes API
 4. **Resource constraints** - Check collector CPU/memory usage and increase if needed
 
