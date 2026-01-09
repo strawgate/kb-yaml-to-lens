@@ -28,10 +28,6 @@ dashboards:
               dashboard: postgresql-otel-overview-lens
             - label: Overview (ES|QL)
               dashboard: postgresql-otel-overview-esql
-            - label: Database Details
-              dashboard: postgresql-otel-details
-            - label: Performance Analysis
-              dashboard: postgresql-otel-performance
 
       # ES|QL Note
       - grid: {x: 0, y: 2, w: 48, h: 2}

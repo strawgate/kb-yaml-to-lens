@@ -28,10 +28,6 @@ dashboards:
               dashboard: postgresql-otel-overview-lens
             - label: Overview (ES|QL)
               dashboard: postgresql-otel-overview-esql
-            - label: Database Details
-              dashboard: postgresql-otel-details
-            - label: Performance Analysis
-              dashboard: postgresql-otel-performance
 
       # KPI Metrics Row
       - title: Total Databases
