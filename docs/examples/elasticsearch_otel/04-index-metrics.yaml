@@ -66,15 +66,6 @@ dashboards:
             aggregation: sum
             field: elasticsearch.index.segments.count
             label: Segments
-      - title: Total Shard Size
-        grid: {x: 36, y: 4, w: 12, h: 6}
-        lens:
-          type: metric
-          data_view: metrics-*
-          primary:
-            aggregation: sum
-            field: elasticsearch.index.shards.size
-            label: Shard Size
       - title: Index Size Distribution
         grid: {x: 0, y: 10, w: 24, h: 12}
         lens:

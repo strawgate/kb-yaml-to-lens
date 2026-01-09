@@ -47,7 +47,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.cluster.name IS NOT NULL
-            - STATS nodes = AVG(elasticsearch.cluster.nodes), data_nodes = AVG(elasticsearch.cluster.data_nodes) BY cluster = elasticsearch.cluster.name
+            - STATS nodes = MAX(elasticsearch.cluster.nodes), data_nodes = MAX(elasticsearch.cluster.data_nodes) BY cluster = elasticsearch.cluster.name
             - EVAL nodes_int = TO_INTEGER(nodes)
             - EVAL data_nodes_int = TO_INTEGER(data_nodes)
             - KEEP cluster, nodes_int, data_nodes_int
@@ -64,8 +64,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.cluster.name IS NOT NULL
-            - STATS pending_tasks = AVG(elasticsearch.cluster.pending_tasks), in_flight = AVG(elasticsearch.cluster.in_flight_fetch), state_queue
-              = AVG(elasticsearch.cluster.state_queue) BY cluster = elasticsearch.cluster.name, health = status
+            - STATS pending_tasks = MAX(elasticsearch.cluster.pending_tasks), in_flight = MAX(elasticsearch.cluster.in_flight_fetch), state_queue
+              = MAX(elasticsearch.cluster.state_queue) BY cluster = elasticsearch.cluster.name, health = status
             - EVAL pending_tasks_int = TO_INTEGER(pending_tasks)
             - EVAL in_flight_int = TO_INTEGER(in_flight)
             - EVAL state_queue_int = TO_INTEGER(state_queue)
@@ -89,7 +89,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS doc_count = COUNT(*) BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
+            - STATS count = COUNT(*) BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
             - KEEP node, cluster
           dimensions:
             - field: node
