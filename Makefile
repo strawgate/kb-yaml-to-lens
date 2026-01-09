@@ -170,7 +170,7 @@ inspector:
 # Documentation
 docs-serve:
 	@echo "Starting documentation server..."
-	uv run --group docs mkdocs serve
+	NO_COLOR=1 uv run --group docs mkdocs serve
 
 docs-build:
 	@echo "Building documentation..."
