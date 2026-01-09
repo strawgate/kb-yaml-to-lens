@@ -248,16 +248,16 @@ gh-check-repo-activity:
 
 # Version bumping
 bump-patch:
-	@python scripts/bump-version.py patch
+	@python3 scripts/bump-version.py patch
 
 bump-minor:
-	@python scripts/bump-version.py minor
+	@python3 scripts/bump-version.py minor
 
 bump-major:
-	@python scripts/bump-version.py major
+	@python3 scripts/bump-version.py major
 
 bump-version-show:
-	@python scripts/bump-version.py --show
+	@python3 scripts/bump-version.py --show
 
 # Prevent make from trying to build targets passed as arguments to scripts
 %:
