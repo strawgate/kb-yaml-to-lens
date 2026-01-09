@@ -53,7 +53,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.cpu.percent
+              field: elasticsearch.process.cpu.usage
               label: CPU %
               format:
                 type: percent
@@ -71,8 +71,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - aggregation: average
-              field: elasticsearch.node.memory.used
+            - formula: "average(elasticsearch.os.memory, kql='memory_state: used')"
               label: Memory Used
               format:
                 type: bytes
@@ -93,7 +92,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.operations.count), kql='operation: read')"
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: read')"
               label: Read Ops/sec
       - title: Disk Write Operations
         grid: {x: 24, y: 16, w: 24, h: 10}
@@ -108,7 +107,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.operations.count), kql='operation: write')"
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: write')"
               label: Write Ops/sec
       - title: Operations Section
         grid: {x: 0, y: 26, w: 48, h: 2}
@@ -143,7 +142,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.operations.count), kql='operation: index')"
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: index')"
               label: Index Ops/sec
       - title: Cache Performance Section
         grid: {x: 0, y: 38, w: 48, h: 2}
@@ -165,7 +164,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: counter_rate(max(elasticsearch.node.cache.evictions.count))
+            - formula: counter_rate(max(elasticsearch.node.cache.evictions))
               label: Evictions/sec
       - title: Query Cache Evictions
         grid: {x: 24, y: 40, w: 24, h: 10}
@@ -183,7 +182,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: counter_rate(max(elasticsearch.node.cache.evictions.count))
+            - formula: counter_rate(max(elasticsearch.node.cache.evictions))
               label: Evictions/sec
       - title: Field Data Cache Size
         grid: {x: 0, y: 50, w: 24, h: 10}
@@ -250,7 +249,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.thread_pool.queue.count
+              field: elasticsearch.node.thread_pool.tasks.queued
               label: Queue Size
       - title: Thread Pool Queue Size - Write
         grid: {x: 24, y: 62, w: 24, h: 10}
@@ -269,7 +268,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.thread_pool.queue.count
+              field: elasticsearch.node.thread_pool.tasks.queued
               label: Queue Size
       - title: Thread Pool Active Threads - Search
         grid: {x: 0, y: 72, w: 24, h: 10}
@@ -288,7 +287,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.thread_pool.threads.count
+              field: elasticsearch.node.thread_pool.threads
               label: Active Threads
       - title: Thread Pool Active Threads - Write
         grid: {x: 24, y: 72, w: 24, h: 10}
@@ -307,7 +306,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.thread_pool.threads.count
+              field: elasticsearch.node.thread_pool.threads
               label: Active Threads
       - title: Thread Pool Rejections
         grid: {x: 0, y: 82, w: 48, h: 10}
@@ -322,5 +321,5 @@ dashboards:
             type: values
             size: 10
           metrics:
-            - formula: counter_rate(max(elasticsearch.node.thread_pool.tasks.rejected))
+            - formula: "counter_rate(max(elasticsearch.node.thread_pool.tasks.finished), kql='task_state: rejected')"
               label: Rejections/sec

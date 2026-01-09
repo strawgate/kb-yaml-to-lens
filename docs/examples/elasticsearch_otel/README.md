@@ -119,11 +119,19 @@ curl -u elastic:password "http://localhost:9200/metrics-elasticsearchreceiver.ot
 
 You should see documents with fields like:
 
-- `elasticsearch.cluster.name`
-- `elasticsearch.node.name`
-- `elasticsearch.cluster.nodes`
-- `elasticsearch.node.cpu.percent`
-- `data_stream.dataset: "elasticsearchreceiver.otel"`
+- `elasticsearch.cluster.name` - Cluster identifier
+- `elasticsearch.node.name` - Node identifier
+- `elasticsearch.cluster.nodes` - Node count metric
+- `elasticsearch.process.cpu.usage` - CPU usage metric
+- `jvm.memory.heap.used` - JVM heap memory metric
+- `data_stream.dataset: "elasticsearchreceiver.otel"` - Data stream identifier
+
+**Important:** Note the metric naming conventions:
+
+- JVM metrics use `jvm.*` prefix (no elasticsearch prefix)
+- Elasticsearch-specific metrics use `elasticsearch.*` prefix
+- Process metrics use `elasticsearch.process.*` prefix
+- OS metrics use `elasticsearch.os.*` prefix
 
 ### Step 4: Import Dashboards to Kibana
 
@@ -181,7 +189,23 @@ Use the navigation links at the top of each dashboard to switch between views.
 
 ### Metrics Collected
 
-The Elasticsearch receiver collects 100+ metrics across these categories:
+The Elasticsearch receiver collects 100+ metrics across these categories.
+
+**Critical Naming Convention:** The receiver uses two distinct metric naming patterns:
+
+1. **JVM Metrics** - Use `jvm.*` prefix (NO `elasticsearch.` prefix):
+   - `jvm.memory.heap.used`, `jvm.memory.heap.max`, `jvm.gc.collections.count`, etc.
+   - These are standard JVM metrics shared across all JVM-based applications
+
+2. **Elasticsearch Metrics** - Use `elasticsearch.*` prefix:
+   - Cluster: `elasticsearch.cluster.*`
+   - Node: `elasticsearch.node.*`
+   - Index: `elasticsearch.index.*`
+   - Process: `elasticsearch.process.*`
+   - OS: `elasticsearch.os.*`
+   - Breaker: `elasticsearch.breaker.*` (note: NOT `elasticsearch.node.breaker.*`)
+
+This dual naming convention reflects the different sources of the metrics and enables consistent monitoring across OpenTelemetry-instrumented applications.
 
 #### Cluster Metrics
 
@@ -202,11 +226,13 @@ The Elasticsearch receiver collects 100+ metrics across these categories:
 
 #### JVM Metrics
 
-- **Memory**: Heap used/committed/max, non-heap usage
-- **Garbage Collection**: Collection count and time (by collector: young, old)
-- **Threads**: Thread count, peak threads
-- **Classes**: Loaded classes, unloaded classes
-- **Memory Pools**: Usage by pool (eden, survivor, old gen, etc.)
+**Note:** JVM metrics use `jvm.*` prefix (no `elasticsearch.` prefix)
+
+- **Memory**: `jvm.memory.heap.used`, `jvm.memory.heap.committed`, `jvm.memory.heap.max`, `jvm.memory.nonheap.used`
+- **Garbage Collection**: `jvm.gc.collections.count`, `jvm.gc.collections.elapsed` (by collector_name attribute)
+- **Threads**: `jvm.threads.count`
+- **Classes**: `jvm.classes.loaded`
+- **Memory Pools**: `jvm.memory.pool.used`, `jvm.memory.pool.max` (by pool_name attribute)
 
 #### Index Metrics
 
@@ -217,9 +243,11 @@ The Elasticsearch receiver collects 100+ metrics across these categories:
 
 #### Circuit Breaker Metrics
 
-- **Memory**: Estimated usage, configured limit
-- **Trips**: Trip count (breaker activation events)
-- **Breakers**: Parent, request, fielddata, in-flight requests, accounting, model inference
+**Note:** Circuit breaker metrics use `elasticsearch.breaker.*` prefix (no `.node` in path)
+
+- **Memory**: `elasticsearch.breaker.memory.estimated`, `elasticsearch.breaker.memory.limit`
+- **Trips**: `elasticsearch.breaker.tripped` (breaker activation events)
+- **Breakers**: Parent, request, fielddata, in-flight requests, accounting, model inference (by circuit_breaker_name attribute)
 
 All metrics include dimensional attributes for filtering:
 

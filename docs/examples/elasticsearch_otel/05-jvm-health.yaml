@@ -52,7 +52,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: average(elasticsearch.node.jvm.memory.heap.used) / average(elasticsearch.node.jvm.memory.heap.max)
+            - formula: average(jvm.memory.heap.used) / average(jvm.memory.heap.max)
               label: Heap Usage %
               format:
                 type: percent
@@ -71,7 +71,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.memory.heap.used
+              field: jvm.memory.heap.used
               label: Heap Used
               format:
                 type: bytes
@@ -89,7 +89,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.memory.heap.committed
+              field: jvm.memory.heap.committed
               label: Heap Committed
               format:
                 type: bytes
@@ -108,7 +108,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.memory.nonheap.used
+              field: jvm.memory.nonheap.used
               label: Non-Heap Used
               format:
                 type: bytes
@@ -129,7 +129,7 @@ dashboards:
             type: values
             size: 10
           metrics:
-            - formula: counter_rate(max(elasticsearch.node.jvm.gc.collections.count))
+            - formula: counter_rate(max(jvm.gc.collections.count))
               label: Collections/sec
       - title: GC Collection Time
         grid: {x: 24, y: 26, w: 24, h: 10}
@@ -144,7 +144,7 @@ dashboards:
             type: values
             size: 10
           metrics:
-            - formula: counter_rate(max(elasticsearch.node.jvm.gc.collections.elapsed))
+            - formula: counter_rate(max(jvm.gc.collections.elapsed))
               label: Time (ms/sec)
       - title: GC Collectors by Node
         grid: {x: 0, y: 36, w: 48, h: 12}
@@ -164,10 +164,10 @@ dashboards:
               size: 10
           metrics:
             - id: count
-              formula: counter_rate(max(elasticsearch.node.jvm.gc.collections.count))
+              formula: counter_rate(max(jvm.gc.collections.count))
               label: Collections/sec
             - id: time
-              formula: counter_rate(max(elasticsearch.node.jvm.gc.collections.elapsed))
+              formula: counter_rate(max(jvm.gc.collections.elapsed))
               label: Time (ms/sec)
       - title: Thread Management Section
         grid: {x: 0, y: 48, w: 48, h: 2}
@@ -187,7 +187,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.threads.count
+              field: jvm.threads.count
               label: Thread Count
       - title: JVM Classes Loaded
         grid: {x: 24, y: 50, w: 24, h: 10}
@@ -203,7 +203,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.classes.loaded
+              field: jvm.classes.loaded
               label: Classes Loaded
       - title: Memory Pool Usage Section
         grid: {x: 0, y: 60, w: 48, h: 2}
@@ -224,7 +224,7 @@ dashboards:
             size: 10
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.memory.pool.used
+              field: jvm.memory.pool.used
               label: Used
               format:
                 type: bytes
@@ -242,7 +242,7 @@ dashboards:
             size: 10
           metrics:
             - aggregation: average
-              field: elasticsearch.node.jvm.memory.pool.max
+              field: jvm.memory.pool.max
               label: Max
               format:
                 type: bytes

@@ -55,7 +55,7 @@ dashboards:
           data_view: metrics-*
           primary:
             aggregation: average
-            field: elasticsearch.node.open.files.count
+            field: elasticsearch.node.open_files
             label: Open Files
       - title: HTTP Connections
         grid: {x: 24, y: 4, w: 12, h: 6}
@@ -93,7 +93,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.cpu.percent
+              field: elasticsearch.process.cpu.usage
               label: CPU %
               format:
                 type: percent
@@ -110,7 +110,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: average(elasticsearch.node.memory.used) / average(elasticsearch.node.memory.total)
+            - formula: "average(elasticsearch.os.memory, kql='memory_state: used') / (average(elasticsearch.os.memory, kql='memory_state: used')\
+                \ + average(elasticsearch.os.memory, kql='memory_state: free'))"
               label: Memory %
               format:
                 type: percent
@@ -129,7 +130,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.disk.available
+              field: elasticsearch.node.fs.disk.available
               label: Available Bytes
               format:
                 type: bytes
@@ -143,7 +144,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: 1 - (average(elasticsearch.node.disk.available) / average(elasticsearch.node.disk.total))
+            - formula: 1 - (average(elasticsearch.node.fs.disk.available) / average(elasticsearch.node.fs.disk.total))
               label: Disk Usage %
               format:
                 type: percent
@@ -164,10 +165,10 @@ dashboards:
               size: 50
           metrics:
             - id: field_data_evictions
-              formula: "average(elasticsearch.node.cache.evictions.count, kql='cache_name: fielddata')"
+              formula: "average(elasticsearch.node.cache.evictions, kql='cache_name: fielddata')"
               label: Field Data
             - id: query_cache_evictions
-              formula: "average(elasticsearch.node.cache.evictions.count, kql='cache_name: query')"
+              formula: "average(elasticsearch.node.cache.evictions, kql='cache_name: query')"
               label: Query Cache
       - title: Cache Memory Usage
         grid: {x: 24, y: 32, w: 24, h: 8}
@@ -214,9 +215,9 @@ dashboards:
           metrics:
             - id: queue
               aggregation: average
-              field: elasticsearch.node.thread_pool.queue.count
+              field: elasticsearch.node.thread_pool.tasks.queued
               label: Queue Size
             - id: active
               aggregation: average
-              field: elasticsearch.node.thread_pool.threads.count
+              field: elasticsearch.node.thread_pool.threads
               label: Active Threads

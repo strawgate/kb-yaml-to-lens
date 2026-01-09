@@ -58,18 +58,18 @@ dashboards:
           metrics:
             - id: current
               aggregation: average
-              field: elasticsearch.node.breaker.memory.estimated
+              field: elasticsearch.breaker.memory.estimated
               label: Current (Bytes)
               format:
                 type: bytes
             - id: limit
               aggregation: average
-              field: elasticsearch.node.breaker.memory.limit
+              field: elasticsearch.breaker.memory.limit
               label: Limit (Bytes)
               format:
                 type: bytes
             - id: utilization
-              formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+              formula: average(elasticsearch.breaker.memory.estimated) / average(elasticsearch.breaker.memory.limit)
               label: Utilization %
               format:
                 type: percent
@@ -97,12 +97,12 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.estimated
+              field: elasticsearch.breaker.memory.estimated
               label: Estimated
               format:
                 type: bytes
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.limit
+              field: elasticsearch.breaker.memory.limit
               label: Limit
               format:
                 type: bytes
@@ -122,7 +122,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+            - formula: average(elasticsearch.breaker.memory.estimated) / average(elasticsearch.breaker.memory.limit)
               label: Utilization %
               format:
                 type: percent
@@ -143,12 +143,12 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.estimated
+              field: elasticsearch.breaker.memory.estimated
               label: Estimated
               format:
                 type: bytes
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.limit
+              field: elasticsearch.breaker.memory.limit
               label: Limit
               format:
                 type: bytes
@@ -168,7 +168,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+            - formula: average(elasticsearch.breaker.memory.estimated) / average(elasticsearch.breaker.memory.limit)
               label: Utilization %
               format:
                 type: percent
@@ -189,12 +189,12 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.estimated
+              field: elasticsearch.breaker.memory.estimated
               label: Estimated
               format:
                 type: bytes
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.limit
+              field: elasticsearch.breaker.memory.limit
               label: Limit
               format:
                 type: bytes
@@ -214,7 +214,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: average(elasticsearch.node.breaker.memory.estimated) / average(elasticsearch.node.breaker.memory.limit)
+            - formula: average(elasticsearch.breaker.memory.estimated) / average(elasticsearch.breaker.memory.limit)
               label: Utilization %
               format:
                 type: percent
@@ -235,7 +235,7 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: counter_rate(max(elasticsearch.node.breaker.tripped))
+            - formula: counter_rate(max(elasticsearch.breaker.tripped))
               label: Trips/sec
       - title: Trip Events by Node
         grid: {x: 0, y: 60, w: 48, h: 12}
@@ -255,7 +255,7 @@ dashboards:
               size: 20
           metrics:
             - id: trips
-              formula: counter_rate(max(elasticsearch.node.breaker.tripped))
+              formula: counter_rate(max(elasticsearch.breaker.tripped))
               label: Trips/sec
           paging:
             enabled: true
@@ -279,7 +279,7 @@ dashboards:
             size: 20
           metrics:
             - aggregation: average
-              field: elasticsearch.node.breaker.memory.estimated
+              field: elasticsearch.breaker.memory.estimated
               label: Estimated
               format:
                 type: bytes

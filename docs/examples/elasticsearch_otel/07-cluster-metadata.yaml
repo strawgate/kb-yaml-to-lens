@@ -111,18 +111,17 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS cpu_pct = AVG(elasticsearch.node.cpu.percent), mem_used = AVG(elasticsearch.node.memory.used), mem_total = AVG(elasticsearch.node.memory.total)
-              BY node = elasticsearch.node.name
-            - EVAL cpu_percent = ROUND(cpu_pct * 100, 1)
-            - EVAL mem_used_gb = ROUND(mem_used / 1073741824, 2)
-            - EVAL mem_total_gb = ROUND(mem_total / 1073741824, 2)
-            - KEEP node, cpu_percent, mem_used_gb, mem_total_gb
-            - RENAME cpu_percent AS `CPU %`, mem_used_gb AS `Memory Used (GB)`, mem_total_gb AS `Memory Total (GB)`
+            - STATS cpu_usage = AVG(elasticsearch.process.cpu.usage), mem_used = AVG(elasticsearch.os.memory) BY node = elasticsearch.node.name,
+              mem_state = memory_state
+            - EVAL cpu_percent = ROUND(cpu_usage * 100, 1)
+            - EVAL mem_gb = ROUND(mem_used / 1073741824, 2)
+            - KEEP node, cpu_percent, mem_state, mem_gb
+            - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory (GB)`, mem_state AS `State`
           dimensions:
             - field: node
             - field: CPU %
-            - field: Memory Used (GB)
-            - field: Memory Total (GB)
+            - field: State
+            - field: Memory (GB)
       - title: Node Disk Usage
         grid: {x: 24, y: 35, w: 24, h: 15}
         esql:
@@ -131,7 +130,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS disk_avail = AVG(elasticsearch.node.disk.available), disk_total = AVG(elasticsearch.node.disk.total) BY node = elasticsearch.node.name
+            - STATS disk_avail = AVG(elasticsearch.node.fs.disk.available), disk_total = AVG(elasticsearch.node.fs.disk.total) BY node = elasticsearch.node.name
             - EVAL disk_avail_gb = ROUND(disk_avail / 1073741824, 2)
             - EVAL disk_total_gb = ROUND(disk_total / 1073741824, 2)
             - EVAL disk_used_pct = ROUND((1 - (disk_avail / disk_total)) * 100, 1)
@@ -180,8 +179,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS threads = AVG(elasticsearch.node.thread_pool.threads.count), queue = AVG(elasticsearch.node.thread_pool.queue.count) BY node
-              = elasticsearch.node.name, pool = thread_pool_name
+            - STATS threads = AVG(elasticsearch.node.thread_pool.threads), queue = AVG(elasticsearch.node.thread_pool.tasks.queued) BY node =
+              elasticsearch.node.name, pool = thread_pool_name
             - EVAL threads_int = TO_INTEGER(threads)
             - EVAL queue_int = TO_INTEGER(queue)
             - KEEP node, pool, threads_int, queue_int
@@ -225,8 +224,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS heap_max = AVG(elasticsearch.node.jvm.memory.heap.max), heap_used = AVG(elasticsearch.node.jvm.memory.heap.used), nonheap_used
-              = AVG(elasticsearch.node.jvm.memory.nonheap.used) BY node = elasticsearch.node.name
+            - STATS heap_max = AVG(jvm.memory.heap.max), heap_used = AVG(jvm.memory.heap.used), nonheap_used = AVG(jvm.memory.nonheap.used) BY
+              node = elasticsearch.node.name
             - EVAL heap_max_gb = ROUND(heap_max / 1073741824, 2)
             - EVAL heap_used_gb = ROUND(heap_used / 1073741824, 2)
             - EVAL nonheap_used_mb = ROUND(nonheap_used / 1048576, 2)
@@ -245,7 +244,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS threads = AVG(elasticsearch.node.jvm.threads.count), classes = AVG(elasticsearch.node.jvm.classes.loaded) BY node = elasticsearch.node.name
+            - STATS threads = AVG(jvm.threads.count), classes = AVG(jvm.classes.loaded) BY node = elasticsearch.node.name
             - EVAL threads_int = TO_INTEGER(threads)
             - EVAL classes_int = TO_INTEGER(classes)
             - KEEP node, threads_int, classes_int
@@ -266,8 +265,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - STATS estimated = AVG(elasticsearch.node.breaker.memory.estimated), limit = AVG(elasticsearch.node.breaker.memory.limit) BY node
-              = elasticsearch.node.name, breaker = circuit_breaker_name
+            - STATS estimated = AVG(elasticsearch.breaker.memory.estimated), limit = AVG(elasticsearch.breaker.memory.limit) BY node = elasticsearch.node.name,
+              breaker = circuit_breaker_name
             - EVAL estimated_mb = ROUND(estimated / 1048576, 2)
             - EVAL limit_mb = ROUND(limit / 1048576, 2)
             - EVAL utilization_pct = ROUND((estimated / limit) * 100, 1)
