@@ -6,6 +6,28 @@ import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 export class PreviewPanel {
     private static readonly gridColumns = 48;
     private static readonly scaleFactor = 10; // pixels per grid unit
+    private static readonly chartTypeRegistry: Record<string, { icon: string; label: string }> = {
+        'line': { icon: '\u{1F4C8}', label: 'Line Chart' },
+        'bar': { icon: '\u{1F4CA}', label: 'Bar Chart' },
+        'area': { icon: '\u{1F5FB}', label: 'Area Chart' },
+        'pie': { icon: '\u{1F967}', label: 'Pie Chart' },
+        'metric': { icon: '\u{0023}\u{FE0F}\u{20E3}', label: 'Metric' },
+        'gauge': { icon: '\u{1F3AF}', label: 'Gauge' },
+        'datatable': { icon: '\u{1F4CB}', label: 'Data Table' },
+        'tagcloud': { icon: '\u{2601}\u{FE0F}', label: 'Tag Cloud' },
+        'markdown': { icon: '\u{1F4DD}', label: 'Markdown' },
+        'search': { icon: '\u{1F50D}', label: 'Search' },
+        'links': { icon: '\u{1F517}', label: 'Links' },
+        'image': { icon: '\u{1F5BC}\u{FE0F}', label: 'Image' },
+        'esqlmetric': { icon: '\u{0023}\u{FE0F}\u{20E3}', label: 'ES|QL Metric' },
+        'esqlgauge': { icon: '\u{1F3AF}', label: 'ES|QL Gauge' },
+        'esqlpie': { icon: '\u{1F967}', label: 'ES|QL Pie' },
+        'esqlbar': { icon: '\u{1F4CA}', label: 'ES|QL Bar' },
+        'esqlline': { icon: '\u{1F4C8}', label: 'ES|QL Line' },
+        'esqlarea': { icon: '\u{1F5FB}', label: 'ES|QL Area' },
+        'esqldatatable': { icon: '\u{1F4CB}', label: 'ES|QL Table' },
+        'esqltagcloud': { icon: '\u{2601}\u{FE0F}', label: 'ES|QL Cloud' },
+    };
 
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
@@ -344,58 +366,11 @@ export class PreviewPanel {
     }
 
     private getChartTypeIcon(type: string): string {
-        const icons: Record<string, string> = {
-            // Chart types
-            'line': '\u{1F4C8}',      // chart increasing
-            'bar': '\u{1F4CA}',       // bar chart
-            'area': '\u{1F5FB}',      // mountain (area chart)
-            'pie': '\u{1F967}',       // pie
-            'metric': '\u{0023}\u{FE0F}\u{20E3}', // keycap #
-            'gauge': '\u{1F3AF}',     // target/gauge
-            'datatable': '\u{1F4CB}', // clipboard (table)
-            'tagcloud': '\u{2601}\u{FE0F}', // cloud
-            // Non-chart types
-            'markdown': '\u{1F4DD}',  // memo
-            'search': '\u{1F50D}',    // magnifying glass
-            'links': '\u{1F517}',     // link
-            'image': '\u{1F5BC}\u{FE0F}', // framed picture
-            // ESQL variants (same icons as lens)
-            'esqlmetric': '\u{0023}\u{FE0F}\u{20E3}',
-            'esqlgauge': '\u{1F3AF}',
-            'esqlpie': '\u{1F967}',
-            'esqlbar': '\u{1F4CA}',
-            'esqlline': '\u{1F4C8}',
-            'esqlarea': '\u{1F5FB}',
-            'esqldatatable': '\u{1F4CB}',
-            'esqltagcloud': '\u{2601}\u{FE0F}',
-        };
-        return icons[type.toLowerCase()] || '\u{1F4C4}'; // default: page facing up
+        return PreviewPanel.chartTypeRegistry[type.toLowerCase()]?.icon || '\u{1F4C4}';
     }
 
     private getChartTypeLabel(type: string): string {
-        const labels: Record<string, string> = {
-            'line': 'Line Chart',
-            'bar': 'Bar Chart',
-            'area': 'Area Chart',
-            'pie': 'Pie Chart',
-            'metric': 'Metric',
-            'gauge': 'Gauge',
-            'datatable': 'Data Table',
-            'tagcloud': 'Tag Cloud',
-            'markdown': 'Markdown',
-            'search': 'Search',
-            'links': 'Links',
-            'image': 'Image',
-            'esqlmetric': 'ES|QL Metric',
-            'esqlgauge': 'ES|QL Gauge',
-            'esqlpie': 'ES|QL Pie',
-            'esqlbar': 'ES|QL Bar',
-            'esqlline': 'ES|QL Line',
-            'esqlarea': 'ES|QL Area',
-            'esqldatatable': 'ES|QL Table',
-            'esqltagcloud': 'ES|QL Cloud',
-        };
-        return labels[type.toLowerCase()] || type;
+        return PreviewPanel.chartTypeRegistry[type.toLowerCase()]?.label || type;
     }
 
     private generateJsonFieldsHtml(dashboardData: Record<string, unknown>): string {
@@ -517,7 +492,7 @@ export class PreviewPanel {
             const typeLabel = this.getChartTypeLabel(panel.type);
 
             panelsHtml += `
-                <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${typeLabel})">
+                <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${escapeHtml(typeLabel)})">
                     <div class="panel-header">
                         <span class="panel-icon">${icon}</span>
                         <span class="panel-type-label">${escapeHtml(typeLabel)}: ${escapeHtml(panel.title || 'Untitled')}</span>

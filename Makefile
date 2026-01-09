@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
 
 all: check
 
@@ -28,10 +28,11 @@ help:
 	@echo "  test-all      - Run all tests (unit + e2e + smoke)"
 	@echo ""
 	@echo "Documentation:"
-	@echo "  docs-serve    - Start local documentation server"
-	@echo "  docs-build    - Build documentation static site"
-	@echo "  docs-build-quiet - Build documentation (errors only)"
-	@echo "  docs-deploy   - Deploy documentation to GitHub Pages"
+	@echo "  docs-serve         - Start local documentation server"
+	@echo "  docs-build         - Build documentation static site"
+	@echo "  docs-build-quiet   - Build documentation (errors only)"
+	@echo "  docs-build-strict  - Build documentation with strict mode (fails on warnings)"
+	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "VS Code Extension:"
 	@echo "  build-extension-binaries - Build LSP binaries for extension (current platform)"
@@ -181,6 +182,11 @@ docs-build:
 docs-build-quiet:
 	@echo "Building documentation (errors only)..."
 	@NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+
+docs-build-strict:
+	@echo "Building documentation with strict mode..."
+	NO_COLOR=1 uv run --group docs mkdocs build --strict
+	@echo "✓ Documentation builds successfully (strict mode)"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
