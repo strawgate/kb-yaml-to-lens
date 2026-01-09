@@ -306,9 +306,9 @@ This example includes 5 focused dashboards designed for SRE/DevOps workflows:
 | Dashboard | File | Description |
 |-----------|------|-------------|
 | **Overview** | `01-cluster-overview.yaml` | Entry point for cluster health triage |
-| **Resources** | `02-resource-utilization.yaml` | Capacity planning and quota analysis |
-| **Workloads** | `03-workload-health.yaml` | Deployment and container health |
-| **Batch Jobs** | `04-batch-workloads.yaml` | Job and CronJob monitoring |
+| **Workloads** | `02-workload-health.yaml` | Deployment and container health |
+| **Resources** | `03-resource-allocation.yaml` | Capacity planning and quota analysis |
+| **Batch Jobs** | `04-batch-jobs.yaml` | Job and CronJob monitoring |
 | **Autoscaling** | `05-autoscaling.yaml` | HPA scaling behavior |
 
 **Option 1: Compile and Upload All Dashboards**
@@ -351,43 +351,27 @@ This example provides comprehensive cluster monitoring across 5 focused dashboar
 **Purpose:** Entry point for incident triage - "Is my cluster healthy? Where should I look?"
 
 **Key Panels:**
-- **Cluster Summary:** Total nodes, pods, namespaces, deployments
-- **Health Status:** Running, pending, and failed pods; container restarts
-- **Pod Analysis:** Pod phase distribution and trends over time
-- **Workload Distribution:** Controller type breakdown and restart rates by namespace
-- **Resource Preview:** CPU and memory request/limit trends
+- **Cluster Health:** Running pods (green), pending pods (yellow), failed pods (red), container restarts
+- **Pod Health Distribution:** Donut chart showing pod phase breakdown
+- **Pod Health Over Time:** Stacked area chart of pod phases
+- **Workload Health Preview:** Deployments desired vs available, restarts by namespace
+- **Unhealthy Deployments:** Table showing deployments with missing replicas
 
 **Controls:** Namespace filter for broad filtering
 
-**SRE Workflow:** Start here during incidents. Red metrics indicate where to drill down to other dashboards.
+**SRE Workflow:** Start here during incidents. Red/yellow metrics indicate where to drill down to other dashboards.
 
 ---
 
-### 2. Resource Utilization (`02-resource-utilization.yaml`)
-
-**Purpose:** Capacity planning and resource analysis - "Am I running out of resources?"
-
-**Key Panels:**
-- **Cluster Resources:** CPU, memory, and storage requests vs limits over time
-- **Resource Quotas:** Quota usage by resource type
-- **Namespace Analysis:** CPU and memory allocation by namespace
-- **Pod Details:** Container counts and resource summary tables
-
-**Controls:** Namespace and Node filters for capacity segmentation
-
-**SRE Workflow:** Use when investigating OOMKilled pods, analyzing resource quotas, or identifying over/under-provisioned workloads.
-
----
-
-### 3. Workload Health (`03-workload-health.yaml`)
+### 2. Workload Health (`02-workload-health.yaml`)
 
 **Purpose:** Application health monitoring - "Are my deployments healthy? What's crashing?"
 
 **Key Panels:**
+- **Container Health:** Ready vs not ready containers, restarts, and restarting containers
 - **Deployment Health:** Desired vs available replicas for Deployments, StatefulSets, DaemonSets, ReplicaSets
-- **Workload Status:** Detailed status tables for each controller type
-- **Container Health:** Ready vs not ready containers, restart patterns
-- **Crash Analysis:** Top containers by restart count
+- **Container Analysis:** Readiness over time, top restarting containers
+- **Workload Details:** Detailed status tables for Deployments and StatefulSets
 
 **Controls:** Namespace and Deployment filters for app-specific analysis
 
@@ -395,7 +379,23 @@ This example provides comprehensive cluster monitoring across 5 focused dashboar
 
 ---
 
-### 4. Batch Workloads (`04-batch-workloads.yaml`)
+### 3. Resource Allocation (`03-resource-allocation.yaml`)
+
+**Purpose:** Capacity planning and resource analysis - "Am I running out of resources?"
+
+**Key Panels:**
+- **Cluster Capacity:** CPU, memory, and storage requests vs limits over time
+- **Resource Quotas:** Quota usage by resource type (used vs available)
+- **Namespace Allocation:** CPU and memory allocation by namespace
+- **Pod Details:** Comprehensive resource summary table
+
+**Controls:** Namespace and Node filters for capacity segmentation
+
+**SRE Workflow:** Use when investigating OOMKilled pods, analyzing resource quotas, or identifying over/under-provisioned workloads.
+
+---
+
+### 4. Batch Jobs (`04-batch-jobs.yaml`)
 
 **Purpose:** Job and CronJob monitoring - "Are my jobs completing? What's failing?"
 

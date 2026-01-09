@@ -1,15 +1,19 @@
 ---
-# Kubernetes Cluster Overview Dashboard
-# SRE Entry Point: "Is my cluster healthy? Where should I look?"
+# Kubernetes Workload Health Dashboard
+# SRE Question: "Are my deployments healthy? What's crashing?"
 dashboards:
-  - id: k8s-cluster-overview
-    name: '[Metrics K8s Cluster] Overview'
-    description: High-level Kubernetes cluster health for rapid SRE triage
+  - id: k8s-cluster-workloads
+    name: '[Metrics K8s Cluster] Workload Health'
+    description: Deployment, StatefulSet, DaemonSet, and container health monitoring
     controls:
       - type: options
         label: Namespace
         data_view: metrics-*
         field: k8s.namespace.name
+      - type: options
+        label: Deployment
+        data_view: metrics-*
+        field: k8s.deployment.name
     filters:
       - field: data_stream.dataset
         equals: kubernetesclusterreceiver.otel
@@ -34,48 +38,37 @@ dashboards:
               dashboard: k8s-cluster-hpa
 
       # ═══════════════════════════════════════════════════════════════════════
-      # CLUSTER HEALTH SUMMARY (4 metric cards - at-a-glance health)
+      # CONTAINER HEALTH SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
-      - title: Cluster Health
+      - title: Container Health
         grid: {x: 0, y: 3, w: 48, h: 2}
         markdown:
-          content: '## 🏥 Cluster Health'
+          content: '## 🐳 Container Health'
           font_size: 14
-      - title: Running Pods
+      - title: Ready Containers
         grid: {x: 0, y: 5, w: 12, h: 8}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: count()
-            label: Running
+            label: Ready
           filters:
-            - field: k8s.pod.phase
-              equals: '2'
-      - title: Pending Pods
+            - field: k8s.container.ready
+              equals: '1'
+      - title: Not Ready Containers
         grid: {x: 12, y: 5, w: 12, h: 8}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: count()
-            label: Pending
+            label: Not Ready
           filters:
-            - field: k8s.pod.phase
-              equals: '1'
-      - title: Failed Pods
+            - field: k8s.container.ready
+              equals: '0'
+      - title: Total Restarts
         grid: {x: 24, y: 5, w: 12, h: 8}
-        lens:
-          type: metric
-          data_view: metrics-*
-          primary:
-            formula: count()
-            label: Failed
-          filters:
-            - field: k8s.pod.phase
-              equals: '4'
-      - title: Container Restarts
-        grid: {x: 36, y: 5, w: 12, h: 8}
         lens:
           type: metric
           data_view: metrics-*
@@ -84,76 +77,28 @@ dashboards:
             label: Restarts
           filters:
             - exists: k8s.container.restarts
+      - title: Containers Restarting
+        grid: {x: 36, y: 5, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: count()
+            label: With Restarts
+          filters:
+            - field: k8s.container.restarts
+              gt: '0'
 
       # ═══════════════════════════════════════════════════════════════════════
-      # ANALYSIS: Pod Health Distribution & Trends
+      # DEPLOYMENT HEALTH
       # ═══════════════════════════════════════════════════════════════════════
-      - title: Pod Health Distribution
-        grid: {x: 0, y: 13, w: 20, h: 14}
-        lens:
-          type: pie
-          data_view: metrics-*
-          dimensions:
-            - field: k8s.pod.phase
-              type: values
-              label: Status
-              size: 5
-          metrics:
-            - aggregation: count
-              label: Pods
-          color:
-            palette: eui_amsterdam_color_blind
-            assignments:
-              - value: '1'
-                color: '#FEC514'
-              - value: '2'
-                color: '#54B399'
-              - value: '3'
-                color: '#6092C0'
-              - value: '4'
-                color: '#D36086'
-              - value: '5'
-                color: '#9170B8'
-      - title: Pod Health Over Time
-        grid: {x: 20, y: 13, w: 28, h: 14}
-        lens:
-          type: area
-          mode: stacked
-          data_view: metrics-*
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: k8s.pod.phase
-            type: values
-            size: 5
-          metrics:
-            - aggregation: count
-              label: Pods
-          color:
-            palette: eui_amsterdam_color_blind
-            assignments:
-              - value: '1'
-                color: '#FEC514'
-              - value: '2'
-                color: '#54B399'
-              - value: '3'
-                color: '#6092C0'
-              - value: '4'
-                color: '#D36086'
-              - value: '5'
-                color: '#9170B8'
-
-      # ═══════════════════════════════════════════════════════════════════════
-      # WORKLOAD HEALTH PREVIEW
-      # ═══════════════════════════════════════════════════════════════════════
-      - title: Workload Health
-        grid: {x: 0, y: 27, w: 48, h: 2}
+      - title: Deployment Health
+        grid: {x: 0, y: 13, w: 48, h: 2}
         markdown:
-          content: '## 🚀 Workload Health Preview'
+          content: '## 🚀 Deployment Health (Desired vs Available)'
           font_size: 14
-      - title: Deployments - Desired vs Available
-        grid: {x: 0, y: 29, w: 24, h: 12}
+      - title: Deployments
+        grid: {x: 0, y: 15, w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -167,41 +112,120 @@ dashboards:
               label: Available
           filters:
             - exists: k8s.deployment.name
-      - title: Container Restarts by Namespace
-        grid: {x: 24, y: 29, w: 24, h: 12}
+      - title: StatefulSets
+        grid: {x: 24, y: 15, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.statefulset.desired_pods)
+              label: Desired
+            - formula: sum(k8s.statefulset.ready_pods)
+              label: Ready
+          filters:
+            - exists: k8s.statefulset.name
+      - title: DaemonSets
+        grid: {x: 0, y: 27, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.daemonset.desired_scheduled_nodes)
+              label: Desired Nodes
+            - formula: sum(k8s.daemonset.ready_nodes)
+              label: Ready Nodes
+          filters:
+            - exists: k8s.daemonset.name
+      - title: ReplicaSets
+        grid: {x: 24, y: 27, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.replicaset.desired)
+              label: Desired
+            - formula: sum(k8s.replicaset.available)
+              label: Available
+          filters:
+            - exists: k8s.replicaset.name
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # CONTAINER ANALYSIS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Container Analysis
+        grid: {x: 0, y: 39, w: 48, h: 2}
+        markdown:
+          content: '## 📊 Container Analysis'
+          font_size: 14
+      - title: Container Readiness Over Time
+        grid: {x: 0, y: 41, w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: k8s.container.ready
+            type: values
+            size: 2
+          metrics:
+            - aggregation: count
+              label: Containers
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: '1'
+                color: '#54B399'
+              - value: '0'
+                color: '#D36086'
+      - title: Top Restarting Containers
+        grid: {x: 24, y: 41, w: 24, h: 12}
         lens:
           type: bar
           data_view: metrics-*
           dimension:
-            field: k8s.namespace.name
+            field: k8s.container.name
             type: values
-            size: 10
+            size: 15
             sort:
               by: Restarts
               direction: desc
           metrics:
-            - formula: sum(k8s.container.restarts)
+            - field: k8s.container.restarts
+              aggregation: max
               label: Restarts
           filters:
-            - exists: k8s.container.restarts
+            - field: k8s.container.restarts
+              gt: '0'
 
       # ═══════════════════════════════════════════════════════════════════════
-      # DETAIL: Unhealthy Deployments Table
+      # DETAIL TABLES
       # ═══════════════════════════════════════════════════════════════════════
-      - title: Unhealthy Deployments
-        grid: {x: 0, y: 41, w: 48, h: 2}
+      - title: Workload Details
+        grid: {x: 0, y: 53, w: 48, h: 2}
         markdown:
-          content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
+          content: '## 🔍 Workload Status Details'
           font_size: 14
-      - title: Deployments Missing Replicas
-        grid: {x: 0, y: 43, w: 48, h: 12}
+      - title: Deployment Status
+        grid: {x: 0, y: 55, w: 24, h: 12}
         lens:
           type: datatable
           data_view: metrics-*
           dimensions:
             - field: k8s.deployment.name
               type: values
-              size: 25
+              size: 20
               label: Deployment
             - field: k8s.namespace.name
               type: values
@@ -214,7 +238,31 @@ dashboards:
             - field: k8s.deployment.available
               aggregation: max
               label: Available
-            - formula: max(k8s.deployment.desired) - max(k8s.deployment.available)
-              label: Missing
           filters:
             - exists: k8s.deployment.name
+      - title: StatefulSet Status
+        grid: {x: 24, y: 55, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.statefulset.name
+              type: values
+              size: 20
+              label: StatefulSet
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - field: k8s.statefulset.desired_pods
+              aggregation: max
+              label: Desired
+            - field: k8s.statefulset.ready_pods
+              aggregation: max
+              label: Ready
+            - field: k8s.statefulset.current_pods
+              aggregation: max
+              label: Current
+          filters:
+            - exists: k8s.statefulset.name
