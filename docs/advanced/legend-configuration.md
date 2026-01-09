@@ -43,13 +43,13 @@ dashboards:
 
 **Available Options:**
 
-| Option | Values | Description | Default |
-| ------ | ------ | ----------- | ------- |
-| `visible` | `show`, `hide`, `auto` | Control legend visibility | `show` |
-| `position` | `top`, `bottom`, `left`, `right` | Legend placement | `right` |
-| `size` | `small`, `medium`, `large`, `extra_large` | Legend width/height | Auto |
-| `show_single_series` | `true`, `false` | Show legend for single series | `false` |
-| `truncate_labels` | `0` to `5` | Lines before truncation (0 = no truncation) | `1` |
+| Option | Values | Description | Default | Required |
+| ------ | ------ | ----------- | ------- | -------- |
+| `visible` | `show`, `hide`, `auto` | Control legend visibility | `show` | No |
+| `position` | `top`, `bottom`, `left`, `right` | Legend placement | `right` | No |
+| `size` | `small`, `medium`, `large`, `extra_large` | Legend width/height | Auto | No |
+| `show_single_series` | `true`, `false` | Show legend for single series | `false` | No |
+| `truncate_labels` | `0` to `5` | Lines before truncation (0 = no truncation) | `1` | No |
 
 ### Pie Chart Legends
 
@@ -79,13 +79,13 @@ dashboards:
 
 **Available Options:**
 
-| Option | Values | Description | Default |
-| ------ | ------ | ----------- | ------- |
-| `visible` | `show`, `hide`, `auto` | Control legend visibility | `auto` |
-| `width` | `small`, `medium`, `large`, `extra_large` | Legend width | `medium` |
-| `truncate_labels` | `0` to `5` | Lines before truncation (0 = no truncation) | `1` |
-| `nested` | `true`, `false` | Nested format for multi-level pies | `false` |
-| `show_single_series` | `true`, `false` | Show legend for single series | `false` |
+| Option | Values | Description | Default | Required |
+| ------ | ------ | ----------- | ------- | -------- |
+| `visible` | `show`, `hide`, `auto` | Control legend visibility | `auto` | No |
+| `width` | `small`, `medium`, `large`, `extra_large` | Legend width | `medium` | No |
+| `truncate_labels` | `0` to `5` | Lines before truncation (0 = no truncation) | `1` | No |
+| `nested` | `true`, `false` | Nested format for multi-level pies | `false` | No |
+| `show_single_series` | `true`, `false` | Show legend for single series | `false` | No |
 
 ### Heatmap Chart Legends
 
@@ -115,10 +115,10 @@ dashboards:
 
 **Available Options:**
 
-| Option | Values | Description | Default |
-| ------ | ------ | ----------- | ------- |
-| `visible` | `show`, `hide` | Control legend visibility (auto not supported) | `show` |
-| `position` | `top`, `bottom`, `left`, `right` | Legend placement | `right` |
+| Option | Values | Description | Default | Required |
+| ------ | ------ | ----------- | ------- | -------- |
+| `visible` | `show`, `hide` | Control legend visibility (auto not supported) | `show` | No |
+| `position` | `top`, `bottom`, `left`, `right` | Legend placement | `right` | No |
 
 **Note:** Heatmap legends do not support the `auto` visibility option. Use `show` or `hide` explicitly.
 

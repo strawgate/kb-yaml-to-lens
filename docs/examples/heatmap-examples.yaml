@@ -80,6 +80,7 @@ dashboards:
           x_axis:
             field: '@timestamp'
             type: date_histogram
+            minimum_interval: 1h
             label: Hour
           y_axis:
             field: host.name
