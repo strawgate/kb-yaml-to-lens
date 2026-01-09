@@ -93,6 +93,7 @@ install-vscode:
 	@echo "Installing extension into VS Code..."
 	@set -e; \
 	EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
+	EXTENSION_PUBLISHER=$$(node -p "require('./package.json').publisher"); \
 	EXTENSION_VERSION=$$(node -p "require('./package.json').version"); \
 	VSIX_FILE="$${EXTENSION_NAME}-$${EXTENSION_VERSION}.vsix"; \
 	if [ ! -f "$$VSIX_FILE" ]; then \
@@ -104,7 +105,7 @@ install-vscode:
 		exit 1; \
 	fi; \
 	code --install-extension "$$VSIX_FILE" --force; \
-	if ! code --list-extensions | grep -q "^$${EXTENSION_NAME}$$"; then \
+	if ! code --list-extensions | grep -q "^$${EXTENSION_PUBLISHER}.$${EXTENSION_NAME}$$"; then \
 		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
 		exit 1; \
 	fi; \
@@ -114,6 +115,7 @@ install-cursor:
 	@echo "Installing extension into Cursor..."
 	@set -e; \
 	EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
+	EXTENSION_PUBLISHER=$$(node -p "require('./package.json').publisher"); \
 	EXTENSION_VERSION=$$(node -p "require('./package.json').version"); \
 	VSIX_FILE="$${EXTENSION_NAME}-$${EXTENSION_VERSION}.vsix"; \
 	if [ ! -f "$$VSIX_FILE" ]; then \
@@ -125,7 +127,7 @@ install-cursor:
 		exit 1; \
 	fi; \
 	cursor --install-extension "$$VSIX_FILE" --force; \
-	if ! cursor --list-extensions | grep -q "^$${EXTENSION_NAME}$$"; then \
+	if ! cursor --list-extensions | grep -q "^$${EXTENSION_PUBLISHER}.$${EXTENSION_NAME}$$"; then \
 		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
 		exit 1; \
 	fi; \

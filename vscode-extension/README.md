@@ -58,10 +58,12 @@ make install-extension-cursor
 ```
 
 **Prerequisites for Makefile installation:**
+- Node.js and npm (required to package the extension and read package.json metadata)
 - The `code` (VS Code) or `cursor` (Cursor) CLI must be installed and available in your PATH
 - The packaged VSIX file must exist (automatically built by the Makefile targets)
 - The extension package name follows the format: `<extension-name>-<version>.vsix`
-  - Example: `kb-dashboard-compiler-0.1.1.vsix`
+  - Derived from `vscode-extension/package.json` `name` and `version` fields
+  - Example: `kb-dashboard-compiler-0.1.0.vsix` (current version)
 
 ### For Development
 
