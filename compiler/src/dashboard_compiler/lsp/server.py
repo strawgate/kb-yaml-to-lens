@@ -296,10 +296,10 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         return {'success': False, 'error': f'Upload error: {e!s}'}
 
 
-def main() -> None:
-    """Entry point for LSP server."""
+def start_server() -> None:
+    """Start the LSP server via stdio."""
     server.start_io()
 
 
 if __name__ == '__main__':
-    main()
+    start_server()

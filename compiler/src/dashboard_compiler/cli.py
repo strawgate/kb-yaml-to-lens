@@ -26,7 +26,7 @@ from dashboard_compiler.cli_options import (
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
-from dashboard_compiler.lsp.server import main as lsp_main
+from dashboard_compiler.lsp.server import start_server as start_lsp_server
 from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
@@ -1010,8 +1010,8 @@ def disassemble(input_file: Path | None, output: Path) -> None:
         raise click.ClickException(msg) from e
 
 
-@cli.command('lsp')
-def lsp_command() -> None:
+@cli.command()
+def lsp() -> None:
     """Start the Language Server Protocol (LSP) server for IDE integration.
 
     The LSP server provides real-time compilation, validation, and code
@@ -1020,7 +1020,7 @@ def lsp_command() -> None:
     This server communicates via stdin/stdout using the Language Server
     Protocol specification.
     """
-    lsp_main()
+    start_lsp_server()
 
 
 if __name__ == '__main__':
