@@ -42,9 +42,9 @@ def build_cli_binary(platform_name: str) -> Path:
     return binary_path
 
 
-def build_lsp_binary() -> Path:
+def build_lsp_binary(platform_name: str) -> Path:
     """Build the LSP server binary."""
-    binary_name = 'kb-dashboard-compiler-lsp'
+    binary_name = f'kb-dashboard-compiler-lsp-{platform_name}'
     if platform.system() == 'Windows':
         binary_name += '.exe'
 
@@ -91,7 +91,7 @@ def main() -> None:
         build_cli_binary(platform_name)
 
     if args.binary_type in ('lsp', 'all'):
-        build_lsp_binary()
+        build_lsp_binary(platform_name)
 
     print('All requested binaries built successfully!')
 

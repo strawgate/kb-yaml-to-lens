@@ -90,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: kb-dashboard-compiler-lsp-${{ matrix.platform }}${{ matrix.ext }}
-          path: compiler/dist/kb-dashboard-compiler-lsp${{ matrix.ext }}
+          path: compiler/dist/kb-dashboard-compiler-lsp-${{ matrix.platform }}${{ matrix.ext }}
           retention-days: 7
   upload-to-release:
     name: Upload Binaries to Release

@@ -21,14 +21,23 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          PREV_TAG=$(git tag --sort=-v:refname | grep -v "$(git describe --tags)" | head -n 1)
-          if [ -n "$PREV_TAG" ]; then
+          PREV_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
+          CURRENT_TAG=$(git tag --sort=-v:refname | head -n 1)
+          if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
             echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
             git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" >> $GITHUB_OUTPUT
             echo "" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
             echo "CHANGELOG=Initial release" >> $GITHUB_OUTPUT
+          fi
+      - name: Determine if prerelease
+        id: prerelease
+        run: |
+          if [[ "${{ github.ref_name }}" =~ -(rc|alpha|beta|dev) ]]; then
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+          else
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
           fi
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -51,7 +60,8 @@ jobs:
             **Standalone Binaries:**
             Download platform-specific binaries from the assets below.
             **VS Code Extension:**
-            Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=strawgate.yaml-dashboard-compiler).
+            Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=strawgate.kb-dashboard-compiler).
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.prerelease.outputs.IS_PRERELEASE }}
+          allowUpdates: true
           generateReleaseNotes: true
