@@ -106,7 +106,6 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
-            - WHERE memory_state == "used"
             - STATS cpu_usage = AVG(elasticsearch.process.cpu.usage), mem_used = AVG(elasticsearch.os.memory) BY node = elasticsearch.node.name
             - EVAL cpu_percent = ROUND(cpu_usage * 100, 1)
             - EVAL mem_gb = ROUND(mem_used / 1073741824, 2)
