@@ -27,7 +27,7 @@ on:
         description: Model to use for Claude
         required: false
         type: string
-        default: 'claude-opus-4-5'
+        default: claude-opus-4-5
       allowed-tools:
         description: Comma-separated list of allowed tools for Claude
         required: true
@@ -154,7 +154,6 @@ jobs:
              during the workflow have been addressed or are communicated to the user.
           track_progress: ${{ inputs.track-progress }}
           allowed_bots: ${{ inputs.allowed-bots }}
-          
           claude_args: |-
             --allowed-tools ${{ inputs.allowed-tools }}
             --mcp-config /tmp/mcp-config/mcp-servers.json
