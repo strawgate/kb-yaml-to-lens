@@ -22,7 +22,7 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE source.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
             - STATS total = COUNT() BY source.address
             - KEEP total, source.address
             - SORT total DESC
@@ -45,7 +45,7 @@ dashboards:
           type: area
           query:
             - FROM logs-*
-            - WHERE aws.vpc.flow.action IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
             - STATS total = COUNT() by aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
             - KEEP total, aws.vpc.flow.action, time_bucket
             - SORT time_bucket ASC
@@ -69,7 +69,7 @@ dashboards:
           type: datatable
           query:
             - FROM logs-*
-            - WHERE aws.vpc.flow.action == "REJECT"
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT"
             - KEEP @timestamp, source.address, source.port, aws.vpc.flow.bytes
             - SORT @timestamp DESC
           dimensions:

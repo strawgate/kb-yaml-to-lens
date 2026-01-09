@@ -14,11 +14,13 @@ kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir out
 
 This produces NDJSON (newline-delimited JSON) output in the `output/` directory. The output file will be named based on the dashboard name.
 
-To upload the compiled dashboard directly to Kibana:
+To upload the compiled dashboard directly to Kibana (requires [Kibana credentials](../../CLI.md#configuration) to be configured via environment variables):
 
 ```bash
 kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output --upload
 ```
+
+**Note:** The `--upload` option requires `KIBANA_URL` and either `KIBANA_USERNAME`/`KIBANA_PASSWORD` or `KIBANA_API_KEY` environment variables to be set. See the [CLI Configuration](../../CLI.md#configuration) documentation for details.
 
 For more details on using the compiler, see the [main examples documentation](../index.md#how-to-use-these-examples).
 
