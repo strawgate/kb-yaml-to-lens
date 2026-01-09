@@ -2,6 +2,26 @@
 
 The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations to Kibana's NDJSON format and optionally upload them directly to Kibana.
 
+## When to Use the CLI
+
+**Use the CLI when:**
+- ✅ Building CI/CD pipelines for dashboard deployment
+- ✅ Batch processing multiple dashboards
+- ✅ Scripting dashboard generation (e.g., templates, dynamic data)
+- ✅ Integrating with other automation tools
+- ✅ Running in headless/server environments without GUI
+- ✅ Using Docker containers or serverless functions
+
+**Use the VS Code Extension when:**
+- ✅ Developing dashboards interactively
+- ✅ Learning the YAML schema
+- ✅ Making frequent visual adjustments
+- ✅ Needing live preview and validation
+
+**See:** [VS Code Extension Documentation](vscode-extension.md) for interactive development workflow.
+
+---
+
 ## Installation
 
 After installing the project dependencies, the CLI will be available:
