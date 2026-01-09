@@ -9,6 +9,7 @@ import yaml
 
 from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.loader import DashboardConfig
 
 
 def find_docstring_yaml_examples() -> list[dict[str, str]]:
@@ -59,8 +60,17 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
         pytest.fail(f'Invalid YAML in {example["file"]} - {example["description"]}: {e}')
 
     # Check if this is a full dashboard or just a panel snippet
-    if 'panels' in config:
-        # Full dashboard - validate and compile it directly
+    if 'dashboards' in config:
+        # Full dashboard configuration (root level)
+        try:
+            dashboard_config = DashboardConfig.model_validate(config)
+            for dashboard in dashboard_config.dashboards:
+                result = compile_dashboard(dashboard)
+                assert result, f'Compilation failed for {example["file"]} - {example["description"]}'
+        except Exception as e:
+            pytest.fail(f'Compilation error in {example["file"]} - {example["description"]}: {e}')
+    elif 'panels' in config:
+        # Single dashboard
         try:
             dashboard = Dashboard.model_validate(config)
             result = compile_dashboard(dashboard)
