@@ -29,7 +29,7 @@ git push origin v1.0.0
 Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 
 - **Major**: Breaking changes
-- **Minor**: New features (backward compatible)
+- **Minor**: New features (backward-compatible)
 - **Patch**: Bug fixes
 
 **Pre-releases**: `v1.0.0-rc1`, `v1.0.0-alpha1`, `v1.0.0-beta1` (auto-marked in GitHub)
