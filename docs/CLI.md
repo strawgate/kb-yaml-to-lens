@@ -87,6 +87,26 @@ kb-dashboard export-for-issue --dashboard-id <id>
 
 This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard JSON.
 
+### Fetch Dashboard
+
+Fetch a dashboard from Kibana and save it to a file:
+
+```bash
+kb-dashboard fetch <dashboard-id-or-url> --output <file.ndjson>
+```
+
+This command retrieves a dashboard's NDJSON from Kibana using a dashboard URL or ID.
+
+### LSP Server
+
+Start the Language Server Protocol (LSP) server for IDE integration:
+
+```bash
+kb-dashboard lsp
+```
+
+This server provides real-time compilation and validation for YAML dashboard files in supported IDEs like VS Code.
+
 ### Disassemble Dashboards
 
 Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
