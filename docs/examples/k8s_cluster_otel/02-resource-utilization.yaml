@@ -1,0 +1,223 @@
+---
+# Kubernetes Cluster Resource Utilization Dashboard
+# Capacity planning and resource analysis - "Am I running out of resources?"
+dashboards:
+  - id: k8s-cluster-resources
+    name: '[Metrics K8s Cluster] Resource Utilization'
+    description: Container resource requests, limits, and quota usage for capacity planning
+    controls:
+      - type: options
+        label: Namespace
+        data_view: metrics-*
+        field: k8s.namespace.name
+      - type: options
+        label: Node
+        data_view: metrics-*
+        field: k8s.node.name
+    filters:
+      - field: data_stream.dataset
+        equals: kubernetesclusterreceiver.otel
+    panels:
+      # Navigation
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: k8s-cluster-overview
+            - label: Resources
+              dashboard: k8s-cluster-resources
+            - label: Workloads
+              dashboard: k8s-cluster-workloads
+            - label: Batch Jobs
+              dashboard: k8s-cluster-batch
+            - label: Autoscaling
+              dashboard: k8s-cluster-hpa
+
+      # Section: Cluster Resource Requests/Limits
+      - title: Cluster Resource Requests vs Limits
+        grid: {x: 0, y: 3, w: 48, h: 2}
+        markdown:
+          content: "## Cluster Resource Requests vs Limits\nContainer resource allocation trends across the cluster"
+          font_size: 12
+      - title: CPU Requests vs Limits
+        grid: {x: 0, y: 5, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.container.cpu_request)
+              label: CPU Requests
+            - formula: sum(k8s.container.cpu_limit)
+              label: CPU Limits
+          filters:
+            - exists: k8s.container.name
+      - title: Memory Requests vs Limits
+        grid: {x: 24, y: 5, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.container.memory_request)
+              label: Memory Requests
+              format:
+                type: bytes
+            - formula: sum(k8s.container.memory_limit)
+              label: Memory Limits
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.name
+      - title: Storage Requests vs Limits
+        grid: {x: 0, y: 15, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.container.storage_request)
+              label: Storage Requests
+              format:
+                type: bytes
+            - formula: sum(k8s.container.storage_limit)
+              label: Storage Limits
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.storage_request
+      - title: Resource Quota Usage by Resource
+        grid: {x: 24, y: 15, w: 24, h: 10}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: resource
+            type: values
+            size: 10
+            label: Resource Type
+          metrics:
+            - field: k8s.resource_quota.used
+              aggregation: max
+              label: Used
+            - formula: max(k8s.resource_quota.hard_limit) - max(k8s.resource_quota.used)
+              label: Available
+          filters:
+            - exists: k8s.resource_quota.hard_limit
+
+      # Section: Container Resources by Namespace
+      - title: Container Resources by Namespace
+        grid: {x: 0, y: 25, w: 48, h: 2}
+        markdown:
+          content: "## Container Resources by Namespace\nIdentify over-provisioned or under-provisioned namespaces"
+          font_size: 12
+      - title: Container CPU Resources by Namespace
+        grid: {x: 0, y: 27, w: 24, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: k8s.namespace.name
+            type: values
+            size: 15
+            sort:
+              by: CPU Limits
+              direction: desc
+          metrics:
+            - formula: sum(k8s.container.cpu_request)
+              label: CPU Requests
+            - formula: sum(k8s.container.cpu_limit)
+              label: CPU Limits
+          filters:
+            - exists: k8s.container.name
+      - title: Container Memory Resources by Namespace
+        grid: {x: 24, y: 27, w: 24, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: k8s.namespace.name
+            type: values
+            size: 15
+            sort:
+              by: Memory Limits
+              direction: desc
+          metrics:
+            - formula: sum(k8s.container.memory_request)
+              label: Memory Requests
+              format:
+                type: bytes
+            - formula: sum(k8s.container.memory_limit)
+              label: Memory Limits
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.name
+
+      # Section: Pod Resource Details
+      - title: Pod Resource Details
+        grid: {x: 0, y: 39, w: 48, h: 2}
+        markdown:
+          content: "## Pod Resource Details\nDrill down to individual pod resource allocations"
+          font_size: 12
+      - title: Top Pods by Container Count
+        grid: {x: 0, y: 41, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.pod.name
+              type: values
+              size: 20
+              label: Pod
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - formula: unique_count(k8s.container.name)
+              label: Containers
+            - formula: sum(k8s.container.restarts)
+              label: Total Restarts
+          filters:
+            - exists: k8s.container.name
+      - title: Container Resource Summary by Pod
+        grid: {x: 24, y: 41, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.pod.name
+              type: values
+              size: 20
+              label: Pod
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - formula: sum(k8s.container.cpu_request)
+              label: CPU Req
+            - formula: sum(k8s.container.cpu_limit)
+              label: CPU Lim
+            - formula: sum(k8s.container.memory_request)
+              label: Mem Req
+              format:
+                type: bytes
+            - formula: sum(k8s.container.memory_limit)
+              label: Mem Lim
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.name

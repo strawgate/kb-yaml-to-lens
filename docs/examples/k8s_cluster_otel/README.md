@@ -1,6 +1,6 @@
-# Kubernetes Cluster Receiver Dashboard
+# Kubernetes Cluster Receiver Dashboards
 
-Comprehensive Kubernetes cluster monitoring dashboard using OpenTelemetry k8sclusterreceiver metrics.
+Comprehensive Kubernetes cluster monitoring dashboards using OpenTelemetry k8sclusterreceiver metrics, designed for SRE and DevOps workflows.
 
 ## Overview
 
@@ -299,102 +299,142 @@ For high availability with multiple collector instances, configure leader electi
    - **Timestamp field:** `@timestamp`
 4. Click **Save data view to Kibana**
 
-### Import Dashboard
+### Import Dashboards
 
-The dashboard is defined in the `01-cluster-overview.yaml` file in this directory.
+This example includes 5 focused dashboards designed for SRE/DevOps workflows:
 
-**Option 1: Compile and Upload**
+| Dashboard | File | Description |
+|-----------|------|-------------|
+| **Overview** | `01-cluster-overview.yaml` | Entry point for cluster health triage |
+| **Resources** | `02-resource-utilization.yaml` | Capacity planning and quota analysis |
+| **Workloads** | `03-workload-health.yaml` | Deployment and container health |
+| **Batch Jobs** | `04-batch-workloads.yaml` | Job and CronJob monitoring |
+| **Autoscaling** | `05-autoscaling.yaml` | HPA scaling behavior |
+
+**Option 1: Compile and Upload All Dashboards**
 
 ```bash
 # From the repository root
 cd compiler
 
-# Compile the dashboard to NDJSON
-uv run kb-dashboard compile ../docs/examples/k8s_cluster_otel/01-cluster-overview.yaml -o /tmp/k8s-cluster-dashboard.ndjson
-
-# Upload to Kibana (replace with your Kibana URL and credentials)
-uv run kb-dashboard upload /tmp/k8s-cluster-dashboard.ndjson \
+# Compile and upload all dashboards
+uv run kb-dashboard compile \
+  --input-dir ../docs/examples/k8s_cluster_otel/ \
+  --upload \
   --kibana-url https://your-kibana:5601 \
-  --username elastic \
-  --password your-password
+  --kibana-username elastic \
+  --kibana-password your-password
 ```
 
 **Option 2: Compile and Manually Import**
 
 ```bash
-# Compile the dashboard
+# Compile all dashboards
 cd compiler
-uv run kb-dashboard compile ../docs/examples/k8s_cluster_otel/01-cluster-overview.yaml -o /tmp/k8s-cluster-dashboard.ndjson
+uv run kb-dashboard compile \
+  --input-dir ../docs/examples/k8s_cluster_otel/ \
+  --output-dir /tmp/k8s-dashboards/
 ```
 
 Then import in Kibana:
 1. Navigate to **Stack Management > Saved Objects**
 2. Click **Import**
-3. Select the generated `/tmp/k8s-cluster-dashboard.ndjson` file
+3. Select the generated `/tmp/k8s-dashboards/compiled_dashboards.ndjson` file
 4. Click **Import**
 
 ## Dashboard Overview
 
-The dashboard provides comprehensive cluster monitoring across seven key sections:
+This example provides comprehensive cluster monitoring across 5 focused dashboards, each designed for specific SRE/DevOps workflows. All dashboards include consistent navigation links at the top for easy switching between views.
 
-### 1. Cluster Overview
-High-level cluster health and resource statistics:
-- Total nodes, pods, namespaces, deployments
-- Pod distribution by phase (Pending, Running, Succeeded, Failed, Unknown)
-- Workload controller types (Deployments, StatefulSets, DaemonSets, ReplicaSets)
+### 1. Cluster Overview (`01-cluster-overview.yaml`)
 
-### 2. Resource Utilization
-Container resource requests and limits across the cluster:
-- CPU requests vs limits over time
-- Memory requests vs limits over time
-- Storage requests vs limits over time
-- Resource quota usage by resource type
+**Purpose:** Entry point for incident triage - "Is my cluster healthy? Where should I look?"
 
-### 3. Workload Health
-Pod status distribution and container health metrics:
-- Running, pending, and failed pod counts
-- Container restart counts
-- Pod status trends over time
-- Container restart rate by namespace
+**Key Panels:**
+- **Cluster Summary:** Total nodes, pods, namespaces, deployments
+- **Health Status:** Running, pending, and failed pods; container restarts
+- **Pod Analysis:** Pod phase distribution and trends over time
+- **Workload Distribution:** Controller type breakdown and restart rates by namespace
+- **Resource Preview:** CPU and memory request/limit trends
 
-### 4. Deployment Status
-Deployment, StatefulSet, DaemonSet, and ReplicaSet health:
-- Desired vs available replicas for each controller type
-- Current vs ready pods for StatefulSets
-- Desired vs ready nodes for DaemonSets
-- Detailed status tables for deployments and StatefulSets
+**Controls:** Namespace filter for broad filtering
 
-### 5. Job & CronJob Status
-Batch workload execution and completion tracking:
-- Active, successful, and failed job counts
-- CronJob active jobs
-- Job completion trends over time
-- Detailed job status table
+**SRE Workflow:** Start here during incidents. Red metrics indicate where to drill down to other dashboards.
 
-### 6. HPA Monitoring
-Horizontal Pod Autoscaler scaling behavior and replica management:
-- Total HPAs and replica counts
-- Current vs desired replicas over time
-- Min/current/max replica limits
+---
 
-### 7. Container Analysis
-Container readiness, restarts, and resource allocation:
-- Ready vs not ready container counts
-- Container readiness trends over time
-- Top containers by restart count
-- CPU and memory resource allocation by namespace
-- Container counts and resource summary by pod
+### 2. Resource Utilization (`02-resource-utilization.yaml`)
 
-### Interactive Controls
+**Purpose:** Capacity planning and resource analysis - "Am I running out of resources?"
 
-The dashboard includes four interactive controls for filtering:
+**Key Panels:**
+- **Cluster Resources:** CPU, memory, and storage requests vs limits over time
+- **Resource Quotas:** Quota usage by resource type
+- **Namespace Analysis:** CPU and memory allocation by namespace
+- **Pod Details:** Container counts and resource summary tables
 
-- **Namespace** - Filter by Kubernetes namespace
-- **Node** - Filter by node name
-- **Deployment** - Filter by deployment name
-- **Pod** - Filter by pod name
+**Controls:** Namespace and Node filters for capacity segmentation
 
-All panels automatically respond to control selections, enabling focused analysis of specific cluster components.
+**SRE Workflow:** Use when investigating OOMKilled pods, analyzing resource quotas, or identifying over/under-provisioned workloads.
+
+---
+
+### 3. Workload Health (`03-workload-health.yaml`)
+
+**Purpose:** Application health monitoring - "Are my deployments healthy? What's crashing?"
+
+**Key Panels:**
+- **Deployment Health:** Desired vs available replicas for Deployments, StatefulSets, DaemonSets, ReplicaSets
+- **Workload Status:** Detailed status tables for each controller type
+- **Container Health:** Ready vs not ready containers, restart patterns
+- **Crash Analysis:** Top containers by restart count
+
+**Controls:** Namespace and Deployment filters for app-specific analysis
+
+**SRE Workflow:** Use when investigating deployment rollout issues, scaling problems, container crashes, or readiness probe failures.
+
+---
+
+### 4. Batch Workloads (`04-batch-workloads.yaml`)
+
+**Purpose:** Job and CronJob monitoring - "Are my jobs completing? What's failing?"
+
+**Key Panels:**
+- **Job Summary:** Active, successful, and failed job counts; CronJob activity
+- **Completion Trends:** Job success/failure patterns over time
+- **Job Details:** Detailed status table with per-job metrics
+
+**Controls:** Namespace and Job filters for job-specific analysis
+
+**SRE Workflow:** Use for monitoring batch processing, data pipelines, scheduled maintenance tasks, and investigating job failures.
+
+---
+
+### 5. Autoscaling (`05-autoscaling.yaml`)
+
+**Purpose:** HPA behavior analysis - "Is autoscaling working? Am I hitting limits?"
+
+**Key Panels:**
+- **HPA Summary:** Total HPAs, current/desired replicas, max limits
+- **Scaling Trends:** Replica scaling behavior and capacity over time
+- **HPA Details:** Per-HPA configuration and status table
+
+**Controls:** Namespace and HPA filters for autoscaler-specific analysis
+
+**SRE Workflow:** Use during traffic spikes, capacity planning, and investigating why workloads aren't scaling properly.
+
+---
+
+### Navigation
+
+All dashboards include a navigation panel at the top with links to:
+- **Overview** - Cluster health triage
+- **Resources** - Capacity planning
+- **Workloads** - Application health
+- **Batch Jobs** - Job monitoring
+- **Autoscaling** - HPA behavior
+
+This allows seamless navigation between dashboards during incident investigation.
 
 ## Metrics Reference
 
