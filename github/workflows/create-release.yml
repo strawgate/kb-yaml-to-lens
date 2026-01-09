@@ -25,7 +25,7 @@ jobs:
           CURRENT_TAG=$(git tag --sort=-v:refname | head -n 1)
           if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
             echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-            git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" >> $GITHUB_OUTPUT
+            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"- %s (%h)" >> $GITHUB_OUTPUT
             echo "" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
