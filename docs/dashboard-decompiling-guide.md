@@ -6,7 +6,43 @@ This guide provides instructions for converting Kibana dashboard JSON files into
 
 **Complete Documentation**: For full schema reference and examples, use [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt) which contains all project documentation.
 
-**Workflow**: `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+**Workflow**: `kb-dashboard fetch` → `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+
+## Fetching Dashboard from Kibana
+
+Retrieve a dashboard directly from Kibana:
+
+```bash
+# Using dashboard URL
+kb-dashboard fetch "https://kibana.example.com/app/dashboards#/view/my-id" \
+    --output dashboard.ndjson
+
+# Using dashboard ID
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson
+```
+
+**Authentication Options:**
+
+```bash
+# API Key authentication (recommended)
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+    --kibana-api-key "your-api-key"
+
+# Username/password authentication
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+    --kibana-username user --kibana-password pass
+
+# Specific Kibana space
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+    --kibana-space-id "my-space"
+```
+
+**URL Formats Supported:**
+
+- Standard: `https://kibana.example.com/app/dashboards#/view/{id}`
+- With space: `https://kibana.example.com/s/{space}/app/dashboards#/view/{id}`
+- With query params: `https://kibana.example.com/app/dashboards#/view/{id}?_g=...`
+- Plain dashboard ID: `my-dashboard-id`
 
 ## Disassembly
 
