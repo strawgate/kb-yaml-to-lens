@@ -375,8 +375,7 @@ Batch workload execution and completion tracking:
 Horizontal Pod Autoscaler scaling behavior and replica management:
 - Total HPAs and replica counts
 - Current vs desired replicas over time
-- Min/max replica limits
-- HPA capacity utilization percentage
+- Min/current/max replica limits
 
 ### 7. Container Analysis
 Container readiness, restarts, and resource allocation:
