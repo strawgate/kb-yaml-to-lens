@@ -1007,7 +1007,7 @@ async def _fetch_dashboard(
     """Fetch dashboard from Kibana and save to file.
 
     This function attempts to resolve the dashboard in the following order:
-    1. If input contains URL patterns (://, /), extract ID from URL
+    1. If input is a dashboard URL, extract ID from URL
     2. Otherwise, try to find dashboard by title/name
     3. If title lookup fails, treat input as a plain dashboard ID
 
@@ -1024,10 +1024,11 @@ async def _fetch_dashboard(
         dashboard_id: str | None = None
         lookup_method = ''
 
-        # Check if it looks like a URL (contains ://)
-        if '://' in url_or_id_or_name:
-            # Extract dashboard ID from URL
-            dashboard_id = extract_dashboard_id_from_url(url_or_id_or_name)
+        # Try to extract dashboard ID from URL
+        # If extraction returns something different, it was a URL
+        extracted_id = extract_dashboard_id_from_url(url_or_id_or_name)
+        if extracted_id != url_or_id_or_name:
+            dashboard_id = extracted_id
             lookup_method = 'URL'
         else:
             # Try to find by title/name first
@@ -1060,9 +1061,11 @@ async def _fetch_dashboard(
 
             progress.update(task, description='Dashboard fetched successfully')
 
-        # Write NDJSON to output file
+        # Write NDJSON to output file atomically
         output.parent.mkdir(parents=True, exist_ok=True)
-        _ = output.write_text(ndjson_data, encoding='utf-8')
+        tmp_output = output.with_suffix(output.suffix + '.tmp')
+        _ = tmp_output.write_text(ndjson_data, encoding='utf-8')
+        _ = tmp_output.replace(output)
 
         console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard fetched successfully')
         console.print(f'  Dashboard ID: {dashboard_id}')
