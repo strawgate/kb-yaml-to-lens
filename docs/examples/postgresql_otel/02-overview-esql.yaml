@@ -1,0 +1,301 @@
+---
+dashboards:
+  - id: postgresql-otel-overview-esql
+    name: '[PostgreSQL OTel] Overview - ES|QL'
+    description: Overview of PostgreSQL databases with key performance metrics using ES|QL queries
+    filters:
+      - field: data_stream.dataset
+        equals: postgresqlreceiver.otel
+      - exists: resource.attributes.postgresql.database.name
+    controls:
+      - type: options
+        label: Database Name
+        data_view: metrics-*
+        field: resource.attributes.postgresql.database.name
+      - type: options
+        label: Host Name
+        data_view: metrics-*
+        field: resource.attributes.host.name
+    panels:
+      # Navigation Links
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        description: Links to related PostgreSQL dashboards
+        links:
+          layout: horizontal
+          items:
+            - label: Overview (Lens)
+              dashboard: postgresql-otel-overview-lens
+            - label: Overview (ES|QL)
+              dashboard: postgresql-otel-overview-esql
+            - label: Database Details
+              dashboard: postgresql-otel-details
+            - label: Performance Analysis
+              dashboard: postgresql-otel-performance
+
+      # ES|QL Note
+      - grid: {x: 0, y: 2, w: 48, h: 2}
+        markdown:
+          content: |
+            **Note:** This dashboard uses ES|QL queries with `FROM metrics-*` syntax.
+            When the `TS` (time series) command becomes available, queries can be updated to use `TS metrics-*` for better time series optimization.
+          font_size: 12
+
+      # KPI Metrics Row using ES|QL
+      - title: Total Databases
+        grid: {x: 0, y: 4, w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE resource.attributes.postgresql.database.name IS NOT NULL
+            | STATS total_databases = COUNT_DISTINCT(resource.attributes.postgresql.database.name)
+          primary:
+            field: total_databases
+            label: Databases
+      - title: Active Connections
+        grid: {x: 12, y: 4, w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.backends IS NOT NULL
+            | STATS active_backends = SUM(postgresql.backends)
+          primary:
+            field: active_backends
+            label: Active Backends
+      - title: Max Connections
+        grid: {x: 24, y: 4, w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.connection.max IS NOT NULL
+            | STATS max_connections = MAX(postgresql.connection.max)
+          primary:
+            field: max_connections
+            label: Max Connections
+      - title: Database Count
+        grid: {x: 36, y: 4, w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.database.count IS NOT NULL
+            | STATS db_count = MAX(postgresql.database.count)
+          primary:
+            field: db_count
+            label: Total DB Count
+
+      # Performance Summary DataTable using ES|QL
+      - title: Database Performance Summary
+        grid: {x: 0, y: 9, w: 48, h: 18}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            - WHERE resource.attributes.postgresql.database.name IS NOT NULL
+            - STATS backends = SUM(postgresql.backends), db_size = MAX(postgresql.db_size), commits = MAX(postgresql.commits), rollbacks = MAX(postgresql.rollbacks),
+              blocks_read = MAX(postgresql.blocks_read) BY database = resource.attributes.postgresql.database.name
+            - EVAL backends_count = ROUND(backends, 0)
+            - EVAL size_bytes = db_size
+            - EVAL commit_count = commits
+            - EVAL rollback_count = rollbacks
+            - EVAL blocks_count = ROUND(blocks_read, 1)
+            - KEEP database, backends_count, size_bytes, commit_count, rollback_count, blocks_count
+            - SORT database ASC
+            - LIMIT 100
+          dimensions:
+            - field: database
+            - field: backends_count
+            - field: size_bytes
+            - field: commit_count
+            - field: rollback_count
+            - field: blocks_count
+
+      # Connections Over Time (using Lens for time series)
+      - title: Active Connections Over Time
+        grid: {x: 0, y: 27, w: 48, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: resource.attributes.postgresql.database.name
+            type: values
+            size: 20
+          metrics:
+            - formula: sum(postgresql.backends)
+              label: Active Connections
+
+      # Transaction Metrics using ES|QL Time Series
+      - title: Transaction Rate - Commits
+        grid: {x: 0, y: 37, w: 24, h: 10}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.commits IS NOT NULL
+            | STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 1 minute), database = resource.attributes.postgresql.database.name
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: commits
+              label: Commits/min
+              format:
+                type: number
+                decimals: 2
+          breakdown:
+            field: database
+      - title: Transaction Rate - Rollbacks
+        grid: {x: 24, y: 37, w: 24, h: 10}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.rollbacks IS NOT NULL
+            | STATS rollbacks = MAX(postgresql.rollbacks) BY time_bucket = BUCKET(@timestamp, 1 minute), database = resource.attributes.postgresql.database.name
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: rollbacks
+              label: Rollbacks/min
+              format:
+                type: number
+                decimals: 2
+          breakdown:
+            field: database
+
+      # Block I/O Metrics using ES|QL
+      - title: Block I/O - By Source
+        grid: {x: 0, y: 47, w: 48, h: 12}
+        esql:
+          type: line
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.blocks_read IS NOT NULL
+            | WHERE attributes.source IS NOT NULL
+            | STATS blocks = MAX(postgresql.blocks_read) BY time_bucket = BUCKET(@timestamp, 1 minute), source = attributes.source
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: blocks
+              label: Blocks Read/min
+              format:
+                type: number
+                decimals: 1
+          breakdown:
+            field: source
+          legend:
+            visible: show
+            position: right
+
+      # Database Operations using ES|QL
+      - title: Database Operations by Type
+        grid: {x: 0, y: 59, w: 48, h: 12}
+        esql:
+          type: bar
+          mode: stacked
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.operations IS NOT NULL
+            | WHERE attributes.operation IS NOT NULL
+            | STATS operations = MAX(postgresql.operations) BY time_bucket = BUCKET(@timestamp, 1 minute), operation = attributes.operation
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: operations
+              label: Operations/min
+              format:
+                type: number
+                decimals: 1
+          breakdown:
+            field: operation
+          legend:
+            visible: show
+            position: right
+
+      # Database Sizes using ES|QL Pie Chart
+      - title: Database Sizes
+        grid: {x: 0, y: 71, w: 24, h: 10}
+        esql:
+          type: pie
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.db_size IS NOT NULL
+            | STATS db_size = MAX(postgresql.db_size) BY database = resource.attributes.postgresql.database.name
+            | SORT db_size DESC
+            | LIMIT 20
+          metrics:
+            - field: db_size
+              label: Size
+              format:
+                type: bytes
+                decimals: 2
+          dimensions:
+            - field: database
+          appearance:
+            donut: medium
+
+      # Connection State Distribution using ES|QL
+      - title: Connection States
+        grid: {x: 24, y: 71, w: 24, h: 10}
+        esql:
+          type: pie
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.backends IS NOT NULL
+            | WHERE attributes.state IS NOT NULL
+            | STATS connections = SUM(postgresql.backends) BY state = attributes.state
+            | SORT connections DESC
+            | LIMIT 10
+          metrics:
+            - field: connections
+              label: Connections
+              format:
+                type: number
+                decimals: 0
+          dimensions:
+            - field: state
+          appearance:
+            donut: medium
+
+      # Database Metadata Table
+      - title: Database Metadata
+        grid: {x: 0, y: 81, w: 48, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            - WHERE resource.attributes.postgresql.database.name IS NOT NULL
+            - LIMIT 1
+            - STATS BY database = resource.attributes.postgresql.database.name, host = resource.attributes.host.name, version = resource.attributes.postgresql.version
+            - KEEP database, host, version
+            - SORT database ASC
+          dimensions:
+            - field: database
+            - field: host
+            - field: version
