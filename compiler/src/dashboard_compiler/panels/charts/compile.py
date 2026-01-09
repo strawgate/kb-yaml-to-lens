@@ -1,4 +1,3 @@
-import json
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
@@ -51,7 +50,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.panels.charts.xy.view import KbnXYVisualizationState
-from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query, extract_index_pattern_from_esql
+from dashboard_compiler.queries.compile import compile_esql_query, compile_nonesql_query
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.view import KbnReference
@@ -223,34 +222,16 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, list[
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
-    # Extract index pattern from ES|QL query
-    index_pattern = extract_index_pattern_from_esql(chart.query.root)
-
-    # Get time field from panel config
-    time_field = panel.esql.time_field
-
-    # Create index JSON string that matches Kibana's format
-    index_json = json.dumps({'index': index_pattern, 'timeFieldName': time_field}, separators=(',', ':'))
-
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        index=index_json,
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
+        timeField=panel.esql.time_field,
     )
 
     datasource_states = KbnDataSourceState(
         textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id))
     )
-
-    # Create reference with the same index JSON string
-    references = [
-        KbnReference(
-            type='index-pattern',
-            id=index_json,
-            name=f'indexpattern-datasource-layer-{layer_id}',
-        )
-    ]
 
     panel_state = KbnLensPanelState(
         visualization=visualization_state,
@@ -258,10 +239,10 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, list[
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],
-        adHocDataViews={index_json: {}},
+        adHocDataViews={},
     )
 
-    return panel_state, references
+    return panel_state, []
 
 
 def compile_charts_attributes(panel: LensPanel | ESQLPanel) -> tuple[KbnLensPanelAttributes, list[KbnReference]]:

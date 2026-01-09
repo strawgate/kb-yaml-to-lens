@@ -1,48 +1,8 @@
 """Compile dashboard queries into their Kibana view model representation."""
 
-import re
-
 from dashboard_compiler.queries.config import KqlQuery, LuceneQuery
 from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
 from dashboard_compiler.queries.view import KbnESQLQuery, KbnQuery
-
-
-def extract_index_pattern_from_esql(query: str) -> str:
-    """Extract the index pattern from an ES|QL query.
-
-    Parses the FROM clause to extract the index pattern.
-    ES|QL queries start with: FROM <index-pattern> | ...
-
-    Args:
-        query: The ES|QL query string
-
-    Returns:
-        The extracted index pattern (e.g., "logs-*", "metrics-*")
-
-    Raises:
-        ValueError: If no valid FROM clause is found
-
-    """
-    # Remove comments and normalize whitespace
-    # ES|QL comments are // or /* */
-    query_cleaned = re.sub(r'//.*?$', '', query, flags=re.MULTILINE)
-    query_cleaned = re.sub(r'/\*.*?\*/', '', query_cleaned, flags=re.DOTALL)
-
-    # Match FROM clause - case insensitive, handles whitespace and multiline
-    # Pattern stops at: pipe (|), METADATA keyword, or end of string
-    # Captures the index pattern between FROM and the terminator
-    pattern = r'\bFROM\s+([^\s|]+(?:\s*,\s*[^\s|]+)*)'
-    match = re.search(pattern, query_cleaned, re.IGNORECASE | re.MULTILINE)
-
-    if match is None:
-        msg = f'No valid FROM clause found in ES|QL query: {query[:100]}...'
-        raise ValueError(msg)
-
-    # Extract and clean the index pattern
-    index_pattern = match.group(1).strip()
-
-    # Handle multiple indices separated by commas (remove extra whitespace)
-    return re.sub(r'\s*,\s*', ',', index_pattern)
 
 
 def compile_esql_query(query: ESQLQueryTypes) -> KbnESQLQuery:

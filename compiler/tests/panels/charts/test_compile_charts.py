@@ -1,9 +1,6 @@
 """Tests for chart compilation utilities."""
 
-import json
-
 import pytest
-from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.compile import (
     chart_type_to_kbn_type_lens,
@@ -396,14 +393,7 @@ class TestCompileESQLChartState:
     """Tests for compile_esql_chart_state function."""
 
     def test_esql_metric_chart_default_time_field(self) -> None:
-        """Test that ES|QL metric chart uses default time field (@timestamp) correctly.
-
-        Verifies that:
-        - layer.index contains the correct JSON string
-        - references[0].id matches layer.index
-        - adHocDataViews key matches layer.index
-        - Default time field (@timestamp) is used when not specified
-        """
+        """Test that ES|QL metric chart uses default time field (@timestamp) correctly."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -426,28 +416,17 @@ class TestCompileESQLChartState:
         assert len(layers) == 1
         layer = next(iter(layers.values()))
 
-        # Verify layer.index exists and is valid JSON
-        assert layer.index is not None
-        index_data = json.loads(layer.index)
-        assert index_data == snapshot({'index': 'logs-*', 'timeFieldName': '@timestamp'})
+        # Verify timeField is set to default
+        assert layer.timeField == '@timestamp'
 
-        # Verify references
-        assert len(references) == 1
-        assert references[0].type == 'index-pattern'
-        assert references[0].id == layer.index
+        # Verify no references are generated
+        assert len(references) == 0
 
-        # Verify adHocDataViews
-        assert layer.index in state.adHocDataViews
-        assert state.adHocDataViews[layer.index] == {}
+        # Verify adHocDataViews is empty
+        assert state.adHocDataViews == {}
 
     def test_esql_metric_chart_custom_time_field(self) -> None:
-        """Test that ES|QL metric chart uses custom time field when specified.
-
-        Verifies that the custom time field (event.created) appears in:
-        - layer.index JSON
-        - references[0].id
-        - adHocDataViews keys
-        """
+        """Test that ES|QL metric chart uses custom time field when specified."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -470,14 +449,11 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify layer.index contains custom time field
-        assert layer.index is not None
-        index_data = json.loads(layer.index)
-        assert index_data == snapshot({'index': 'logs-*', 'timeFieldName': 'event.created'})
+        # Verify timeField is set to custom value
+        assert layer.timeField == 'event.created'
 
-        # Verify all three locations have the same value
-        assert references[0].id == layer.index
-        assert layer.index in state.adHocDataViews
+        # Verify no references
+        assert len(references) == 0
 
     def test_esql_pie_chart_custom_time_field(self) -> None:
         """Test that ES|QL pie chart correctly compiles with custom time field."""
@@ -496,15 +472,13 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, references = compile_esql_chart_state(panel)
+        state, _references = compile_esql_chart_state(panel)
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        index_data = json.loads(layer.index)  # type: ignore[arg-type]
-        assert index_data == snapshot({'index': 'logs-*', 'timeFieldName': 'timestamp'})
-        assert references[0].id == layer.index
+        assert layer.timeField == 'timestamp'
 
     def test_esql_bar_chart_custom_time_field(self) -> None:
         """Test that ES|QL bar chart correctly compiles with custom time field."""
@@ -523,86 +497,16 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, references = compile_esql_chart_state(panel)
-        assert state.datasourceStates.textBased is not None
-        assert state.datasourceStates.textBased.layers is not None
-        layers = state.datasourceStates.textBased.layers.root
-        layer = next(iter(layers.values()))
-
-        index_data = json.loads(layer.index)  # type: ignore[arg-type]
-        assert index_data == snapshot({'index': 'metrics-*', 'timeFieldName': 'event.timestamp'})
-        assert references[0].id == layer.index
-
-    def test_esql_multiline_query(self) -> None:
-        """Test that ES|QL compilation handles multiline queries correctly."""
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
-        panel = ESQLPanel.model_validate(
-            {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
-                'esql': {
-                    'type': 'metric',
-                    'query': """FROM logs-*
-                        | STATS count()
-                        | LIMIT 100""",
-                    'primary': {'field': 'count(*)', 'id': 'metric1'},
-                },
-            }
-        )
-
         state, _references = compile_esql_chart_state(panel)
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        index_data = json.loads(layer.index)  # type: ignore[arg-type]
-        assert index_data == snapshot({'index': 'logs-*', 'timeFieldName': '@timestamp'})
+        assert layer.timeField == 'event.timestamp'
 
-    def test_esql_multiple_index_patterns(self) -> None:
-        """Test that ES|QL compilation handles multiple comma-separated index patterns."""
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
-        panel = ESQLPanel.model_validate(
-            {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
-                'esql': {
-                    'type': 'metric',
-                    'query': 'FROM metrics-apm*,logs-* | STATS count()',
-                    'primary': {'field': 'count(*)', 'id': 'metric1'},
-                },
-            }
-        )
-
-        state, _references = compile_esql_chart_state(panel)
-        assert state.datasourceStates.textBased is not None
-        assert state.datasourceStates.textBased.layers is not None
-        layers = state.datasourceStates.textBased.layers.root
-        layer = next(iter(layers.values()))
-
-        index_data = json.loads(layer.index)  # type: ignore[arg-type]
-        assert index_data == snapshot({'index': 'metrics-apm*,logs-*', 'timeFieldName': '@timestamp'})
-
-    def test_esql_query_without_from_clause_raises_error(self) -> None:
-        """Test that ES|QL queries without FROM clause raise ValueError."""
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
-        panel = ESQLPanel.model_validate(
-            {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
-                'esql': {
-                    'type': 'metric',
-                    'query': 'SHOW TABLES',  # No FROM clause
-                    'primary': {'field': 'count(*)', 'id': 'metric1'},
-                },
-            }
-        )
-
-        with pytest.raises(ValueError, match='No valid FROM clause found'):
-            compile_esql_chart_state(panel)
-
-    def test_esql_all_chart_types_have_index_field(self) -> None:
-        """Test that all ES|QL chart types correctly populate the index field.
+    def test_esql_all_chart_types_have_time_field(self) -> None:
+        """Test that all ES|QL chart types correctly populate the timeField.
 
         This ensures consistency across metric, gauge, heatmap, pie, datatable, tagcloud, and XY charts.
         """
@@ -666,15 +570,12 @@ class TestCompileESQLChartState:
             layers = state.datasourceStates.textBased.layers.root
             layer = next(iter(layers.values()))
 
-            # Verify index field exists and is valid
-            assert layer.index is not None, f'Chart type {chart_config["type"]} missing index field'
-            index_data = json.loads(layer.index)
-            assert index_data['index'] == 'logs-*'
-            assert index_data['timeFieldName'] == '@timestamp'
+            # Verify timeField exists and has default value
+            assert layer.timeField == '@timestamp', f'Chart type {chart_config["type"]} missing or incorrect timeField'
 
-            # Verify consistency across all three locations
-            assert references[0].id == layer.index
-            assert layer.index in state.adHocDataViews
+            # Verify no references or adHocDataViews
+            assert len(references) == 0
+            assert state.adHocDataViews == {}
 
 
 class TestESQLDataTypeDate:
