@@ -374,6 +374,9 @@ async def upload_to_kibana(
                 msg = 'Upload to Kibana failed'
                 raise click.ClickException(msg)
 
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
         except (OSError, ValueError) as e:
             msg = f'Error uploading to Kibana: {e}'
             raise click.ClickException(msg) from e
