@@ -350,32 +350,36 @@ async def upload_to_kibana(
         click.ClickException: If upload fails.
 
     """
-    try:
-        result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
+    async with client:
+        try:
+            result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
-        if result.success is True:
-            console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
+            if result.success is True:
+                console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
-            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+                dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
-            if len(dashboard_ids) > 0 and open_browser is True:
-                dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
-                _ = webbrowser.open_new_tab(dashboard_url)
+                if len(dashboard_ids) > 0 and open_browser is True:
+                    dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                    console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
+                    _ = webbrowser.open_new_tab(dashboard_url)
 
-            if len(result.errors) > 0:
-                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result.errors)} error(s):')
-                console.print(create_error_table(result.errors))
-        else:
-            console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
-            if len(result.errors) > 0:
-                console.print(create_error_table(result.errors))
-            msg = 'Upload to Kibana failed'
-            raise click.ClickException(msg)
+                if len(result.errors) > 0:
+                    console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result.errors)} error(s):')
+                    console.print(create_error_table(result.errors))
+            else:
+                console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
+                if len(result.errors) > 0:
+                    console.print(create_error_table(result.errors))
+                msg = 'Upload to Kibana failed'
+                raise click.ClickException(msg)
 
-    except (OSError, ValueError) as e:
-        msg = f'Error uploading to Kibana: {e}'
-        raise click.ClickException(msg) from e
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except (OSError, ValueError) as e:
+            msg = f'Error uploading to Kibana: {e}'
+            raise click.ClickException(msg) from e
 
 
 @cli.command('load-sample-data')
@@ -660,47 +664,48 @@ async def generate_screenshot(  # noqa: PLR0913
         click.ClickException: If screenshot generation fails.
 
     """
-    try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn('[progress.description]{task.description}'),
-            console=console,
-        ) as progress:
-            task = progress.add_task(f'Generating screenshot for dashboard: {dashboard_id}...', total=None)
-
-            await client.download_screenshot(
-                dashboard_id=dashboard_id,
-                output_path=output_path,
-                time_from=time_from,
-                time_to=time_to,
-                width=width,
-                height=height,
-                browser_timezone=browser_timezone,
-                timeout_seconds=timeout_seconds,
-            )
-
-            progress.update(task, description='Screenshot generated successfully')
-
+    async with client:
         try:
-            display_path = output_path.relative_to(PROJECT_ROOT)
-        except ValueError:
-            display_path = output_path
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[progress.description]{task.description}'),
+                console=console,
+            ) as progress:
+                task = progress.add_task(f'Generating screenshot for dashboard: {dashboard_id}...', total=None)
 
-        console.print(f'[green]{ICON_SUCCESS}[/green] Screenshot saved to: {display_path}')
-        console.print(f'  Dashboard: {dashboard_id}')
-        console.print(f'  Size: {width}x{height}')
-        if time_from is not None or time_to is not None:
-            console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
+                await client.download_screenshot(
+                    dashboard_id=dashboard_id,
+                    output_path=output_path,
+                    time_from=time_from,
+                    time_to=time_to,
+                    width=width,
+                    height=height,
+                    browser_timezone=browser_timezone,
+                    timeout_seconds=timeout_seconds,
+                )
 
-    except aiohttp.ClientError as e:
-        msg = f'Error communicating with Kibana: {e}'
-        raise click.ClickException(msg) from e
-    except TimeoutError as e:
-        msg = f'Screenshot generation timed out: {e}'
-        raise click.ClickException(msg) from e
-    except (OSError, ValueError) as e:
-        msg = f'Error generating screenshot: {e}'
-        raise click.ClickException(msg) from e
+                progress.update(task, description='Screenshot generated successfully')
+
+            try:
+                display_path = output_path.relative_to(PROJECT_ROOT)
+            except ValueError:
+                display_path = output_path
+
+            console.print(f'[green]{ICON_SUCCESS}[/green] Screenshot saved to: {display_path}')
+            console.print(f'  Dashboard: {dashboard_id}')
+            console.print(f'  Size: {width}x{height}')
+            if time_from is not None or time_to is not None:
+                console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
+
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except TimeoutError as e:
+            msg = f'Screenshot generation timed out: {e}'
+            raise click.ClickException(msg) from e
+        except (OSError, ValueError) as e:
+            msg = f'Error generating screenshot: {e}'
+            raise click.ClickException(msg) from e
 
 
 async def extract_data(
@@ -872,21 +877,22 @@ async def _export_dashboard_for_issue(
         click.ClickException: If export fails
 
     """
-    try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn('[progress.description]{task.description}'),
-            console=console,
-        ) as progress:
-            task = progress.add_task(f'Exporting dashboard: {dashboard_id}...', total=None)
+    async with client:
+        try:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[progress.description]{task.description}'),
+                console=console,
+            ) as progress:
+                task = progress.add_task(f'Exporting dashboard: {dashboard_id}...', total=None)
 
-            ndjson_data = await client.export_dashboard(dashboard_id)
+                ndjson_data = await client.export_dashboard(dashboard_id)
 
-            progress.update(task, description='Dashboard exported successfully')
+                progress.update(task, description='Dashboard exported successfully')
 
-        repo_url = 'https://github.com/strawgate/kb-yaml-to-lens'
-        issue_title = f'Dashboard support request: {dashboard_id}'
-        issue_body = f"""## Dashboard Export Request
+            repo_url = 'https://github.com/strawgate/kb-yaml-to-lens'
+            issue_title = f'Dashboard support request: {dashboard_id}'
+            issue_body = f"""## Dashboard Export Request
 
 I'd like to compile this dashboard using kb-yaml-to-lens.
 
@@ -903,35 +909,35 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
 
 """
 
-        encoded_title = urllib.parse.quote(issue_title)
-        encoded_body = urllib.parse.quote(issue_body)
+            encoded_title = urllib.parse.quote(issue_title)
+            encoded_body = urllib.parse.quote(issue_body)
 
-        issue_url = f'{repo_url}/issues/new?title={encoded_title}&body={encoded_body}'
+            issue_url = f'{repo_url}/issues/new?title={encoded_title}&body={encoded_body}'
 
-        if len(issue_url) > MAX_GITHUB_ISSUE_URL_LENGTH:
-            msg = (
-                f'[yellow]{ICON_WARNING}[/yellow] URL is very long ({len(issue_url)} chars). '
-                'Some browsers may truncate it. Consider copying the NDJSON manually.'
-            )
-            console.print(msg)
+            if len(issue_url) > MAX_GITHUB_ISSUE_URL_LENGTH:
+                msg = (
+                    f'[yellow]{ICON_WARNING}[/yellow] URL is very long ({len(issue_url)} chars). '
+                    'Some browsers may truncate it. Consider copying the NDJSON manually.'
+                )
+                console.print(msg)
 
-        console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard exported successfully')
-        console.print(f'  Dashboard ID: {dashboard_id}')
-        console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
-        console.print()
-        console.print('[blue]GitHub Issue URL:[/blue]')
-        console.print(f'  {issue_url}')
+            console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard exported successfully')
+            console.print(f'  Dashboard ID: {dashboard_id}')
+            console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
+            console.print()
+            console.print('[blue]GitHub Issue URL:[/blue]')
+            console.print(f'  {issue_url}')
 
-        if open_browser is True:
-            console.print(f'\n[blue]{ICON_BROWSER}[/blue] Opening pre-filled issue in browser...')
-            _ = webbrowser.open_new_tab(issue_url)
+            if open_browser is True:
+                console.print(f'\n[blue]{ICON_BROWSER}[/blue] Opening pre-filled issue in browser...')
+                _ = webbrowser.open_new_tab(issue_url)
 
-    except aiohttp.ClientError as e:
-        msg = f'Error communicating with Kibana: {e}'
-        raise click.ClickException(msg) from e
-    except (OSError, ValueError) as e:
-        msg = f'Error exporting dashboard: {e}'
-        raise click.ClickException(msg) from e
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except (OSError, ValueError) as e:
+            msg = f'Error exporting dashboard: {e}'
+            raise click.ClickException(msg) from e
 
 
 @cli.command('disassemble')

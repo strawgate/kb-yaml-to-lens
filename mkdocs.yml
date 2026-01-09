@@ -117,6 +117,7 @@ nav:
               - Chart Types:
                   - Datatable Charts: panels/datatable.md
                   - Gauge Charts: panels/gauge.md
+                  - Heatmap Charts: panels/heatmap.md
                   - Metric Charts: panels/metric.md
                   - Pie Charts: panels/pie.md
                   - Tag Cloud Charts: panels/tagcloud.md
@@ -133,6 +134,7 @@ nav:
               - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
               - Dashboard Style Guide: dashboard-style-guide.md
           - Custom Color Assignments: advanced/color-assignments.md
+          - Legend Configuration: advanced/legend-configuration.md
           - ES|QL "views": advanced/esql-views.md
   - Developer Guide:
       - Architecture Overview: architecture.md

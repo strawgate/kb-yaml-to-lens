@@ -9,11 +9,22 @@ allowing you to define them in a clean, maintainable YAML format instead of
 hand-crafting complex JSON.
 
 ```mermaid
-graph LR
-    YAML[YAML Definition] --> Compiler[Dashboard Compiler]
-    Compiler --> NDJSON[Kibana NDJSON]
-    NDJSON --> Kibana[Kibana Import]
-    Compiler -.->|Optional Upload| Kibana
+graph TB
+    YAML[YAML Definition]
+
+    subgraph "Interactive Development"
+        EXT[VS Code Extension]
+        YAML --> EXT
+        EXT --> PREVIEW[Live Preview]
+        EXT --> KIBANA[Direct Upload to Kibana]
+    end
+
+    subgraph "Automation/CI"
+        CLI[CLI Compiler]
+        YAML --> CLI
+        CLI --> NDJSON[NDJSON Files]
+        NDJSON --> KIBANA
+    end
 ```
 
 ## Features
@@ -29,28 +40,89 @@ graph LR
 
 ## Getting Started
 
-### Installation
+### Choose Your Path
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
+#### ⭐ VS Code Extension (Recommended)
+
+**Best for interactive development** - Live preview, visual editing, built-in snippets
+
+**No Python installation required!** The extension includes a bundled LSP server binary.
+
+**Installation:**
+
+1. **Install the extension:**
+   - **OpenVSX Registry** (Cursor, VS Code forks): Search "Kibana Dashboard Compiler"
+   - **Manual**: Download `.vsix` from [releases](https://github.com/strawgate/kb-yaml-to-lens/releases)
+
+2. **Create your first dashboard:**
+   - Create new file: `my-dashboard.yaml`
+   - Type `dashboard` and press Tab to insert snippet
+   - Modify the template with your content
+   - Save (Ctrl+S) to auto-compile
+
+3. **Verify installation:**
+   - Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+   - Type "YAML Dashboard" - you should see extension commands
+   - Create test file, type `dashboard` + Tab to verify snippets work
+
+4. **Preview and upload:**
+   - Command Palette (Ctrl+Shift+P): **"YAML Dashboard: Preview Dashboard"**
+   - Configure Kibana URL in VS Code settings
+   - Command: **"YAML Dashboard: Open in Kibana"**
+
+**Full guide:** [VS Code Extension Documentation](vscode-extension.md)
+
+---
+
+#### CLI (For Automation & Scripting)
+
+**Best for:** CI/CD pipelines, batch processing, programmatic usage
+
+**Installation:** Requires Python 3.12+
+
+Using [uv](https://github.com/astral-sh/uv):
 
 ```bash
 cd compiler
 uv sync
 ```
 
-For more information, see the [uv documentation](https://docs.astral.sh/uv/).
+**Your First Dashboard:**
 
-### Your First Dashboard
+1. Create `inputs/my-dashboard.yaml`:
 
-A basic dashboard YAML file has the following structure:
+   ```yaml
+   dashboards:
+   - name: My First Dashboard
+     description: A simple dashboard
+     panels:
+       - title: Welcome
+         grid: { x: 0, y: 0, w: 24, h: 15 }
+         markdown:
+           content: |
+             # Welcome to Kibana!
+   ```
 
-```yaml
-dashboards:
-- name: Your Dashboard Title
-  description: An optional description
-  panels:
-    - # Your panel definitions go here
-```
+2. Compile:
+
+   ```bash
+   cd compiler
+   uv run kb-dashboard compile
+   ```
+
+3. Upload to Kibana:
+
+   ```bash
+   uv run kb-dashboard compile --upload --kibana-url http://localhost:5601
+   ```
+
+**Full guide:** [CLI Documentation](CLI.md)
+
+---
+
+### Example Dashboards
+
+Both the extension and CLI use the same YAML format. Here are some examples:
 
 #### Example 1: Simple Markdown Panel
 
@@ -61,7 +133,8 @@ dashboards:
 - name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
-    - markdown:
+    - title: Hello Panel
+      markdown:
         content: |
           # Hello, Kibana!
 
@@ -79,7 +152,8 @@ dashboards:
   name: Metric Dashboard
   description: A dashboard with a single metric panel
   panels:
-    - type: lens
+    - title: Document Count
+      type: lens
       grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
       index_pattern: your-index-pattern-*
       chart:
@@ -102,32 +176,32 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 
 ## Next Steps
 
-### Learn More
+### Enhance Your Workflow
 
-- **[CLI Reference](CLI.md)** – Detailed documentation of the `kb-dashboard` command-line tool for compiling and uploading dashboards.
-- **[VS Code Extension](vscode-extension.md)** – Live compilation, preview, and visual grid editing in Visual Studio Code.
-- **[Dashboard Decompiling Guide](dashboard-decompiling-guide.md)** – Convert existing Kibana JSON dashboards to YAML using LLMs.
-- **[Complete Examples](examples/index.md)** – Real-world YAML dashboard examples covering various use cases.
+- **[VS Code Extension Features](vscode-extension.md)** - Visual grid editor, code snippets, keyboard shortcuts
+- **[CLI Advanced Usage](CLI.md)** - Environment variables, API keys, CI/CD integration
+- **[Dashboard Decompiling Guide](dashboard-decompiling-guide.md)** - Convert existing Kibana JSON dashboards to YAML
+- **[Complete Examples](examples/index.md)** - Production-ready dashboard templates
 
 ### User Guide
 
-Reference documentation for building dashboards in YAML:
+Reference documentation for YAML dashboard syntax:
 
-- **[Dashboard Configuration](dashboard/dashboard.md)** – Dashboard-level settings and options.
-- **[Panel Types](panels/base.md)** – Available panel types (Markdown, Charts, Images, Links, etc.).
-- **[Dashboard Controls](controls/config.md)** – Interactive filtering controls.
-- **[Filters & Queries](filters/config.md)** – Data filtering and query configuration.
+- **[Dashboard Configuration](dashboard/dashboard.md)** - Dashboard-level settings and options.
+- **[Panel Types](panels/base.md)** - Available panel types (Markdown, Charts, Images, Links, etc.).
+- **[Dashboard Controls](controls/config.md)** - Interactive filtering controls.
+- **[Filters & Queries](filters/config.md)** - Data filtering and query configuration.
 
 ### Developer Guide
 
 Advanced documentation for contributors and programmatic usage:
 
-- **[Architecture Overview](architecture.md)** – Technical design and data flow.
-- **[Programmatic Usage](programmatic-usage.md)** – Using the Python API directly to generate dashboards.
-- **[API Reference](api/index.md)** – Auto-generated Python API documentation.
-- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** – How to contribute and add new capabilities.
-- **[Kibana Architecture Reference](kibana-architecture.md)** – Understanding Kibana's internal structure.
-- **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** – Generating test fixtures from live Kibana instances.
+- **[Architecture Overview](architecture.md)** - Technical design and data flow.
+- **[Programmatic Usage](programmatic-usage.md)** - Using the Python API directly to generate dashboards.
+- **[API Reference](api/index.md)** - Auto-generated Python API documentation.
+- **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** - How to contribute and add new capabilities.
+- **[Kibana Architecture Reference](kibana-architecture.md)** - Understanding Kibana's internal structure.
+- **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** - Generating test fixtures from live Kibana instances.
 
 ## Requirements
 
