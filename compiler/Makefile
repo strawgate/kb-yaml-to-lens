@@ -252,12 +252,12 @@ build:
 	uv build
 	@echo "✓ Package built successfully"
 
-publish:
+publish: build
 	@echo "Publishing to PyPI..."
 	uv publish
 	@echo "✓ Package published to PyPI"
 
-publish-test:
+publish-test: build
 	@echo "Publishing to TestPyPI..."
 	uv publish --publish-url https://test.pypi.org/legacy/
 	@echo "✓ Package published to TestPyPI"

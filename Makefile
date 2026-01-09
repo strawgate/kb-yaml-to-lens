@@ -183,7 +183,6 @@ docs-build-quiet:
 
 docs-build-strict:
 	@echo "Building documentation with strict mode..."
-	uv sync --group docs
 	uv run --group docs mkdocs build --strict
 	@echo "✓ Documentation builds successfully (strict mode)"
 
