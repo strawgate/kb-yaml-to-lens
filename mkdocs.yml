@@ -106,6 +106,7 @@ nav:
       - Dashboard Configuration: dashboard/dashboard.md
       - Panel Types:
           - Overview: panels/base.md
+          - Auto-Layout Guide: panels/auto-layout.md
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
           - Chart Panels:
