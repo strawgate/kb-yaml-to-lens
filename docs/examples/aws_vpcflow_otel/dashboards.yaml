@@ -4,80 +4,388 @@ dashboards:
     filters:
       - field: data_stream.dataset
         equals: aws.vpcflow.otel
+    controls:
+      - type: options
+        label: Cloud Account ID
+        width: medium
+        data_view: logs-*
+        field: cloud.account.id
+      - type: options
+        label: Network Interface
+        width: medium
+        data_view: logs-*
+        field: network.interface.name
+      - type: options
+        label: Action
+        width: small
+        data_view: logs-*
+        field: aws.vpc.flow.action
     panels:
-      # Markdown header panel
+      # Section 1: Navigation & Context (y:0-5)
+      - title: Navigation Links
+        grid: {x: 0, y: 0, w: 48, h: 2}
+        description: Links to related dashboards
+        links:
+          layout: horizontal
+          items:
+            - label: VPC Flow Logs Overview
+              dashboard: aws-vpcflow-otel-overview
       - markdown:
           content: |
-            ## AWS VPC Flow Logs Overview
-            Use this dashboard to visualize VPC Flow Logs.
-            You could use this data to:
-            - Diagnose overly restrictive security group rules
-            - Monitor the traffic that is reaching (or not reaching) your instance
-        grid: {x: 0, y: 0, w: 24, h: 12}
+            ## AWS VPC Flow Logs DevOps/SRE Dashboard
+            Monitor VPC network traffic, security, and performance with actionable insights.
+            **Quick Insights:**
+            - **KPI Metrics** - Track total flows, rejection rates, bandwidth, and active interfaces
+            - **Distribution Analysis** - Identify top protocols, interfaces, and destination ports
+            - **Time-Series Trends** - Visualize traffic volume and bandwidth patterns over time
+            - **Source Analysis** - Analyze traffic patterns from source IPs and IP ranges
+            - **Security Deep Dive** - Investigate rejected traffic by protocol, port, and detailed logs
+            - **Performance Analysis** - Monitor interface-level traffic breakdown by action
+            - **Account Analysis** - Track multi-account traffic metrics and patterns
+        grid: {x: 0, y: 2, w: 48, h: 3}
 
-      # Bar chart showing top 10 source IP addresses
-      - title: Top 10 IP Source Addresses
-        grid: {x: 24, y: 0, w: 24, h: 12}
+      # Section 2: KPI Metrics (y:5-11)
+      - title: Total Flow Records
+        grid: {x: 0, y: 5, w: 12, h: 6}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - STATS total_flows = COUNT()
+          primary:
+            field: total_flows
+            label: Flow Records
+      - title: Rejection Rate
+        grid: {x: 12, y: 5, w: 12, h: 6}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - STATS total_flows = COUNT(), rejected_flows = COUNT(*) WHERE aws.vpc.flow.action == "REJECT"
+            - EVAL rejection_rate = (rejected_flows / total_flows) * 100
+          primary:
+            field: rejection_rate
+            label: Rejection Rate
+            format:
+              type: percent
+              decimals: 1
+      - title: Total Bandwidth
+        grid: {x: 24, y: 5, w: 12, h: 6}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes)
+          primary:
+            field: total_bytes
+            label: Total Bandwidth
+            format:
+              type: bytes
+      - title: Unique Active Interfaces
+        grid: {x: 36, y: 5, w: 12, h: 6}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
+            - STATS unique_interfaces = COUNT_DISTINCT(network.interface.name)
+          primary:
+            field: unique_interfaces
+            label: Active Interfaces
+
+      # Section 3: Traffic Distribution (y:11-23)
+      - title: Top Protocols
+        grid: {x: 0, y: 11, w: 16, h: 12}
+        esql:
+          type: pie
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - STATS flow_count = COUNT() BY network.protocol.name
+            - SORT flow_count DESC
+            - LIMIT 10
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          dimensions:
+            - field: network.protocol.name
+      - title: Top Interfaces by Traffic
+        grid: {x: 16, y: 11, w: 16, h: 12}
         esql:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
-            - STATS total = COUNT() BY source.address
-            - KEEP total, source.address
-            - SORT total DESC
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY network.interface.name
+            - SORT total_bytes DESC
             - LIMIT 10
           dimension:
-            field: source.address
+            field: network.interface.name
           metrics:
-            - field: total
-              label: Flow log records
+            - field: total_bytes
+              label: Bytes
+              format:
+                type: bytes
           legend:
             visible: hide
           appearance:
             y_left_axis:
-              title: Flow logs records
+              title: Bytes
+      - title: Top Destination Ports
+        grid: {x: 32, y: 11, w: 16, h: 12}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - STATS flow_count = COUNT() BY destination.port
+            - SORT flow_count DESC
+            - LIMIT 10
+          dimension:
+            field: destination.port
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Flow Count
 
-      # Area chart showing total flow logs over time by action
-      - title: VPC Flow Total Requests
-        grid: {x: 0, y: 12, w: 48, h: 14}
+      # Section 4: Time-Series Trends (y:23-51)
+      - title: Traffic Volume Over Time
+        grid: {x: 0, y: 23, w: 48, h: 14}
         esql:
           type: area
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
-            - STATS total = COUNT() by aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
-            - KEEP total, aws.vpc.flow.action, time_bucket
+            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           mode: stacked
           dimension:
             field: time_bucket
           metrics:
-            - field: total
+            - field: flow_count
+              label: Flow Count
           breakdown:
             field: aws.vpc.flow.action
           appearance:
             x_axis:
               title: '@timestamp'
             y_left_axis:
-              title: Flow logs records
+              title: Flow Count
+      - title: Bandwidth Usage Over Time
+        grid: {x: 0, y: 37, w: 48, h: 14}
+        esql:
+          type: line
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: total_bytes
+              label: Bytes
+              format:
+                type: bytes
+          appearance:
+            x_axis:
+              title: '@timestamp'
+            y_left_axis:
+              title: Bandwidth
 
-      # Datatable panel showing rejected VPC flow logs
-      - title: VPC Flow Reject Logs
-        grid: {x: 0, y: 26, w: 48, h: 15}
+      # Section 5: Source Analysis (y:51-66)
+      - title: Top Source IPs - Detailed
+        grid: {x: 0, y: 51, w: 24, h: 15}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - STATS total_flows = COUNT(), accepted_flows = COUNT(*) WHERE aws.vpc.flow.action == "ACCEPT", rejected_flows = COUNT(*) WHERE aws.vpc.flow.action
+              == "REJECT", total_bytes = SUM(aws.vpc.flow.bytes), total_packets = SUM(aws.vpc.flow.packets) BY source.address
+            - EVAL rejection_rate = (rejected_flows / total_flows) * 100
+            - SORT total_flows DESC
+            - LIMIT 20
+          dimensions:
+            - field: source.address
+          metrics:
+            - field: total_flows
+              label: Total Flows
+            - field: accepted_flows
+              label: Accepted
+            - field: rejected_flows
+              label: Rejected
+            - field: rejection_rate
+              label: Rejection %
+              format:
+                type: percent
+                decimals: 1
+            - field: total_bytes
+              label: Bytes
+              format:
+                type: bytes
+            - field: total_packets
+              label: Packets
+          paging:
+            enabled: true
+            page_size: 20
+      - title: Top Source IP Ranges
+        grid: {x: 24, y: 51, w: 24, h: 15}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - EVAL ip_parts = SPLIT(source.address, ".")
+            - EVAL ip_range = CONCAT(ip_parts[0], ".", ip_parts[1], ".0.0/16")
+            - STATS flow_count = COUNT() BY ip_range
+            - SORT flow_count DESC
+            - LIMIT 10
+          dimension:
+            field: ip_range
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Flow Count
+
+      # Section 6: Security Deep Dive (y:66-96)
+      - title: Rejected Traffic by Protocol
+        grid: {x: 0, y: 66, w: 24, h: 15}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND network.protocol.name IS NOT NULL
+            - STATS rejected_count = COUNT() BY network.protocol.name
+            - SORT rejected_count DESC
+            - LIMIT 10
+          dimension:
+            field: network.protocol.name
+          metrics:
+            - field: rejected_count
+              label: Rejected Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Rejected Count
+      - title: Top Rejected Ports
+        grid: {x: 24, y: 66, w: 24, h: 15}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND destination.port IS NOT NULL
+            - STATS rejected_count = COUNT() BY destination.port
+            - SORT rejected_count DESC
+            - LIMIT 10
+          dimension:
+            field: destination.port
+          metrics:
+            - field: rejected_count
+              label: Rejected Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Rejected Count
+      - title: Detailed Rejection Logs
+        grid: {x: 0, y: 81, w: 48, h: 15}
         esql:
           type: datatable
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT"
-            - KEEP @timestamp, source.address, source.port, aws.vpc.flow.bytes
+            - KEEP @timestamp, source.address, destination.address, destination.port, network.protocol.name, network.interface.name, aws.vpc.flow.bytes,
+              aws.vpc.flow.packets
             - SORT @timestamp DESC
+            - LIMIT 1000
           dimensions:
             - field: '@timestamp'
             - field: source.address
-            - field: source.port
+            - field: destination.address
+            - field: destination.port
+            - field: network.protocol.name
+            - field: network.interface.name
           metrics:
             - field: aws.vpc.flow.bytes
               label: Bytes
               format:
                 type: bytes
+            - field: aws.vpc.flow.packets
+              label: Packets
+          paging:
+            enabled: true
+            page_size: 25
+
+      # Section 7: Performance Analysis (y:96-111)
+      - title: Interface Traffic Analysis
+        grid: {x: 0, y: 96, w: 48, h: 15}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL AND aws.vpc.flow.action IS NOT NULL
+            - STATS flow_count = COUNT() BY network.interface.name, aws.vpc.flow.action
+            - SORT flow_count DESC
+          mode: stacked
+          dimension:
+            field: network.interface.name
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          breakdown:
+            field: aws.vpc.flow.action
+          appearance:
+            y_left_axis:
+              title: Flow Count
+
+      # Section 8: Account Analysis (y:111-126)
+      - title: Traffic by Cloud Account
+        grid: {x: 0, y: 111, w: 48, h: 15}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
+            - STATS total_flows = COUNT(), accepted_flows = COUNT(*) WHERE aws.vpc.flow.action == "ACCEPT", rejected_flows = COUNT(*) WHERE aws.vpc.flow.action
+              == "REJECT", total_bytes = SUM(aws.vpc.flow.bytes), unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources =
+              COUNT_DISTINCT(source.address) BY cloud.account.id
+            - EVAL rejection_rate = (rejected_flows / total_flows) * 100
+            - SORT total_flows DESC
+          dimensions:
+            - field: cloud.account.id
+          metrics:
+            - field: total_flows
+              label: Total Flows
+            - field: accepted_flows
+              label: Accepted
+            - field: rejected_flows
+              label: Rejected
+            - field: rejection_rate
+              label: Rejection %
+              format:
+                type: percent
+                decimals: 1
+            - field: total_bytes
+              label: Bytes
+              format:
+                type: bytes
+            - field: unique_interfaces
+              label: Interfaces
+            - field: unique_sources
+              label: Unique Sources
+          paging:
+            enabled: true
+            page_size: 20
