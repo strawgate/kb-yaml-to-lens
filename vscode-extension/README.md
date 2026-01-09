@@ -57,6 +57,12 @@ make install-extension-vscode
 make install-extension-cursor
 ```
 
+**Prerequisites for Makefile installation:**
+- The `code` (VS Code) or `cursor` (Cursor) CLI must be installed and available in your PATH
+- The packaged VSIX file must exist (automatically built by the Makefile targets)
+- The extension package name follows the format: `<extension-name>-<version>.vsix`
+  - Example: `kb-dashboard-compiler-0.1.1.vsix`
+
 ### For Development
 
 See [BUILDING.md](./BUILDING.md) for build and development instructions.

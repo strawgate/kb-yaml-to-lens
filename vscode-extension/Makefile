@@ -91,7 +91,8 @@ package:
 
 install-vscode:
 	@echo "Installing extension into VS Code..."
-	@EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
+	@set -e; \
+	EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
 	EXTENSION_VERSION=$$(node -p "require('./package.json').version"); \
 	VSIX_FILE="$${EXTENSION_NAME}-$${EXTENSION_VERSION}.vsix"; \
 	if [ ! -f "$$VSIX_FILE" ]; then \
@@ -102,12 +103,17 @@ install-vscode:
 		echo "Error: 'code' command not found. Please install VS Code or add it to your PATH."; \
 		exit 1; \
 	fi; \
-	code --install-extension "$$VSIX_FILE"; \
+	code --install-extension "$$VSIX_FILE" --force; \
+	if ! code --list-extensions | grep -q "^$${EXTENSION_NAME}$$"; then \
+		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
+		exit 1; \
+	fi; \
 	echo "✓ Extension installed in VS Code"
 
 install-cursor:
 	@echo "Installing extension into Cursor..."
-	@EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
+	@set -e; \
+	EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
 	EXTENSION_VERSION=$$(node -p "require('./package.json').version"); \
 	VSIX_FILE="$${EXTENSION_NAME}-$${EXTENSION_VERSION}.vsix"; \
 	if [ ! -f "$$VSIX_FILE" ]; then \
@@ -118,7 +124,11 @@ install-cursor:
 		echo "Error: 'cursor' command not found. Please install Cursor or add it to your PATH."; \
 		exit 1; \
 	fi; \
-	cursor --install-extension "$$VSIX_FILE"; \
+	cursor --install-extension "$$VSIX_FILE" --force; \
+	if ! cursor --list-extensions | grep -q "^$${EXTENSION_NAME}$$"; then \
+		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
+		exit 1; \
+	fi; \
 	echo "✓ Extension installed in Cursor"
 
 copy-lsp-binary:
