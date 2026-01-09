@@ -74,14 +74,15 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 **Manual publishing** (if automation fails):
 
 ```bash
-# PyPI
-cd compiler && uv build && uv publish
+# PyPI (uses Makefile targets)
+cd compiler && make build && make publish
 
-# Docker
-cd compiler && docker build -t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 . && docker push ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0
+# Docker (multi-arch - prefer re-running workflow)
+# Manual single-arch build for testing only:
+cd compiler && docker build -t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 .
 
-# VS Code
-cd vscode-extension && make package && npx vsce publish
+# VS Code (publishes to both VS Code Marketplace and Open VSX)
+cd vscode-extension && make package && npx vsce publish && npx ovsx publish *.vsix
 ```
 
 **Do not delete tags/releases** - breaks user installations. Instead: mark as pre-release or publish patch.
