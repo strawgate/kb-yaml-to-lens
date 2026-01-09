@@ -105,7 +105,7 @@ install-vscode:
 		exit 1; \
 	fi; \
 	code --install-extension "$$VSIX_FILE" --force; \
-	if ! code --list-extensions | grep -q "^$${EXTENSION_PUBLISHER}\.$${EXTENSION_NAME}$$"; then \
+	if ! code --list-extensions | grep -qF "$${EXTENSION_PUBLISHER}.$${EXTENSION_NAME}"; then \
 		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
 		exit 1; \
 	fi; \
@@ -127,7 +127,7 @@ install-cursor:
 		exit 1; \
 	fi; \
 	cursor --install-extension "$$VSIX_FILE" --force; \
-	if ! cursor --list-extensions | grep -q "^$${EXTENSION_PUBLISHER}\.$${EXTENSION_NAME}$$"; then \
+	if ! cursor --list-extensions | grep -qF "$${EXTENSION_PUBLISHER}.$${EXTENSION_NAME}"; then \
 		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
 		exit 1; \
 	fi; \
