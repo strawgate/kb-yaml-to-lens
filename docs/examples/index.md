@@ -254,6 +254,26 @@ Host log messages (ES|QL datatable).
     ```
 <!-- markdownlint-enable MD046 -->
 
+### AWS CloudTrail OpenTelemetry Dashboard
+
+AWS CloudTrail activity monitoring dashboard using ES|QL for data processing.
+
+**Use this when:** Monitoring AWS API calls and user actions via CloudTrail with OpenTelemetry.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_cloudtrail_otel) dashboard. This example demonstrates advanced ES|QL features including calculated fields, nested dimensions, and string manipulation.
+
+#### CloudTrail Logs Overview
+
+Comprehensive CloudTrail activity visualization with success/failure tracking, service breakdowns, and user analysis.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aws_cloudtrail_otel/cloudtrail-logs-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_cloudtrail_otel/cloudtrail-logs-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### Docker OpenTelemetry Dashboards
 
 Docker container monitoring dashboards for OpenTelemetry metrics.
