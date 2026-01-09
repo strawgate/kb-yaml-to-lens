@@ -31,7 +31,7 @@ dashboards:
             field: source.address
           metrics:
             - field: total
-              label: IP Address
+              label: Flow log records
           legend:
             visible: hide
           appearance:
@@ -78,5 +78,6 @@ dashboards:
             - field: source.port
           metrics:
             - field: aws.vpc.flow.bytes
+              label: Bytes
               format:
                 type: bytes

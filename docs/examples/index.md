@@ -292,7 +292,7 @@ AWS VPC Flow Logs monitoring dashboard for OpenTelemetry data.
 
 **Use this when:** Monitoring AWS VPC network traffic with OpenTelemetry AWS VPC Flow Logs receiver.
 
-**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboard. Demonstrates ES|QL queries with area charts, bar charts, and datatables.
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboard. Demonstrates ES|QL queries with area charts, bar charts, and datatables. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
 
 #### VPC Flow Logs Overview
 

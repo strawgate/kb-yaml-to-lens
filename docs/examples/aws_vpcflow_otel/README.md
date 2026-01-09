@@ -2,6 +2,18 @@
 
 This dashboard visualizes AWS VPC Flow Logs data collected via OpenTelemetry (OTEL).
 
+## How to Use This Example
+
+The dashboard YAML is located at `docs/examples/aws_vpcflow_otel/dashboards.yaml` and defines the **[AWS VPC OTEL] VPC Flow Logs Overview** dashboard.
+
+To compile this example:
+
+```bash
+kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output
+```
+
+For more details on using the compiler, see the [main examples documentation](../index.md#how-to-use-these-examples).
+
 ## Dashboard Overview
 
 **[AWS VPC OTEL] VPC Flow Logs Overview** provides insights into VPC network traffic patterns, including:
@@ -35,8 +47,8 @@ Horizontal bar chart showing the top 10 source IP addresses by flow log record c
 
 ```esql
 FROM logs-*
-| STATS total = count() BY source.address
 | WHERE source.address IS NOT NULL
+| STATS total = COUNT() BY source.address
 | KEEP total, source.address
 | SORT total DESC
 | LIMIT 10
@@ -93,9 +105,11 @@ This dashboard helps you:
 A dashboard-level filter ensures only AWS VPC Flow Logs OTEL data is displayed:
 
 ```yaml
-filters:
-  - field: data_stream.dataset
-    equals: aws.vpcflow.otel
+dashboards:
+  - name: '[AWS VPC OTEL] VPC Flow Logs Overview'
+    filters:
+      - field: data_stream.dataset
+        equals: aws.vpcflow.otel
 ```
 
 ## Related Examples
