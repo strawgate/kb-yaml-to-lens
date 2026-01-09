@@ -16,6 +16,7 @@ jobs:
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-issue'))
     uses: ./.github/workflows/run-claude.yml
     with:
+      model: claude-sonnet-4-5
       allowed-bots: coderabbitai
       prompt: |
         You're a code assistant for kb-yaml-to-lens with permission to create GitHub issues. You've been mentioned

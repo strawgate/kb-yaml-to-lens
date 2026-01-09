@@ -1,5 +1,7 @@
 """Tests for the Kibana client."""
 
+import pytest
+
 from dashboard_compiler.kibana_client import KibanaClient
 
 
@@ -127,3 +129,17 @@ class TestKibanaClient:
         client = KibanaClient(url='http://localhost:5601', space_id='my-space')
         url = client._get_api_url('/some/other/path')
         assert url == 'http://localhost:5601/some/other/path'
+
+    @pytest.mark.asyncio
+    async def test_context_manager_closes_session(self) -> None:
+        """Test that using KibanaClient as context manager closes session."""
+        async with KibanaClient(url='http://localhost:5601') as client:
+            session = client._get_session()
+            connector = client._connector
+            assert session is not None
+            assert not session.closed
+
+        # After exiting context, session should be closed
+        assert session.closed
+        assert connector is not None
+        assert connector.closed

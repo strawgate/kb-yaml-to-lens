@@ -81,7 +81,7 @@ jobs:
           done
       - name: Install dependencies
         working-directory: vscode-extension
-        run: npm ci
+        run: make install
       - name: Run linting
         working-directory: vscode-extension
         run: make lint-check
