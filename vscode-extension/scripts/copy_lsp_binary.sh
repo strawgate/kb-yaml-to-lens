@@ -19,7 +19,7 @@ elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
 fi
 
 PLATFORM="${OS}-${ARCH}"
-BINARY_NAME="kb-dashboard-compiler-lsp"
+BINARY_NAME="kb-dashboard-compiler-lsp-${PLATFORM}"
 if [[ "$OS" == "mingw"* || "$OS" == "msys"* || "$OS" == "cygwin"* ]]; then
     BINARY_NAME="${BINARY_NAME}.exe"
 fi

@@ -62,7 +62,9 @@ export class BinaryResolver {
      * Get the platform-specific binary name.
      */
     private getBinaryName(): string {
-        return process.platform === 'win32' ? 'kb-dashboard-compiler-lsp.exe' : 'kb-dashboard-compiler-lsp';
+        const platformDir = this.getPlatformDir();
+        const ext = process.platform === 'win32' ? '.exe' : '';
+        return `kb-dashboard-compiler-lsp-${platformDir}${ext}`;
     }
 
     /**
