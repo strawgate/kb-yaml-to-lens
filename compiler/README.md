@@ -107,9 +107,9 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 ## Documentation
 
 - **[Online Documentation](https://strawgate.github.io/kb-yaml-to-lens/)** – Full documentation site with getting started guide and API reference
-- **[Programmatic Usage Guide](docs/programmatic-usage.md)** – Create dashboards entirely in Python code
-- **[Architecture](docs/architecture.md)** – Technical design and data flow overview
-- **[Contributing Guide](CONTRIBUTING.md)** – How to contribute and add new capabilities
+- **[Programmatic Usage Guide](../docs/programmatic-usage.md)** – Create dashboards entirely in Python code
+- **[Architecture](../docs/architecture.md)** – Technical design and data flow overview
+- **[Contributing Guide](../CONTRIBUTING.md)** – How to contribute and add new capabilities
 
 ## License
 

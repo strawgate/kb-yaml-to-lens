@@ -97,6 +97,7 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+  - mkdocs-click
 nav:
   - User Guide:
       - Getting Started: index.md
@@ -106,6 +107,7 @@ nav:
       - Dashboard Configuration: dashboard/dashboard.md
       - Panel Types:
           - Overview: panels/base.md
+          - Auto-Layout Guide: panels/auto-layout.md
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
           - Chart Panels:
@@ -126,7 +128,10 @@ nav:
           - Filters: filters/config.md
           - Queries: queries/config.md
       - Advanced Topics:
-          - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
+          - LLM-Driven Workflows:
+              - Overview: llm-workflows/index.md
+              - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
+              - Dashboard Style Guide: dashboard-style-guide.md
           - Custom Color Assignments: advanced/color-assignments.md
           - ES|QL "views": advanced/esql-views.md
   - Developer Guide:
