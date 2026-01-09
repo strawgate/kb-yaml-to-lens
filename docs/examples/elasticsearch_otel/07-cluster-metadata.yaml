@@ -133,7 +133,7 @@ dashboards:
             - STATS disk_avail = AVG(elasticsearch.node.fs.disk.available), disk_total = AVG(elasticsearch.node.fs.disk.total) BY node = elasticsearch.node.name
             - EVAL disk_avail_gb = ROUND(disk_avail / 1073741824, 2)
             - EVAL disk_total_gb = ROUND(disk_total / 1073741824, 2)
-            - EVAL disk_used_pct = ROUND((1 - (disk_avail / disk_total)) * 100, 1)
+            - EVAL disk_used_pct = CASE(disk_total IS NULL OR disk_total == 0, null, ROUND((1 - (disk_avail / disk_total)) * 100, 1))
             - KEEP node, disk_avail_gb, disk_total_gb, disk_used_pct
             - RENAME disk_avail_gb AS `Disk Available (GB)`, disk_total_gb AS `Disk Total (GB)`, disk_used_pct AS `Disk Used %`
           dimensions:

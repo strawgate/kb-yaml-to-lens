@@ -428,7 +428,6 @@ Benefits:
 
 ```yaml
 elasticsearch:
-  index: metrics-elasticsearchreceiver.otel
   dataset: elasticsearchreceiver.otel  # Must match dashboard filter
   namespace: default
 ```
@@ -438,6 +437,8 @@ This creates data streams like: `metrics-elasticsearchreceiver.otel-default`
 The dashboards filter on: `data_stream.dataset == "elasticsearchreceiver.otel"`
 
 **Do not change** these values unless you also update all dashboard YAML files.
+
+**Note**: Do not set the `index` field as it overrides dynamic data stream routing.
 
 #### Retry and Queue Configuration
 
@@ -850,8 +851,7 @@ service:
 Found an issue or have a suggestion?
 
 1. **Issues**: Open an issue at <https://github.com/strawgate/kb-yaml-to-lens/issues>
-2. **Discussions**: Join discussions at <https://github.com/strawgate/kb-yaml-to-lens/discussions>
-3. **Contributing**: See CONTRIBUTING.md for contribution guidelines
+2. **Contributing**: See CONTRIBUTING.md for contribution guidelines
 
 ## License
 
