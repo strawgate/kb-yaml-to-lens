@@ -2,6 +2,8 @@
 
 A VS Code extension that provides live compilation and preview for Kibana YAML dashboards. This extension makes it fast and easy to edit and work with YAML dashboard files by automatically compiling them on save and providing a live preview.
 
+![YAML to Kibana-768](https://github.com/user-attachments/assets/89ea7a4b-5a72-4fb2-8a2b-211704501a07)
+
 ## Features
 
 - **Auto-complete and Validation**: Schema-based auto-complete, validation, and hover documentation for YAML dashboard files (powered by Red Hat YAML extension)
