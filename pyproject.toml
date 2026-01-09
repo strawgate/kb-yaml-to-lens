@@ -1,6 +1,6 @@
 [project]
-name = "dashboard-compiler-root"
-version = "0.1.0"
+name = "kb-dashboard-compiler-root"
+version = "0.1.1"
 description = "Root project for the kb-yaml-to-lens project"
 readme = "./README.md"
 requires-python = ">=3.12"
@@ -15,11 +15,11 @@ classifiers = [
 ]
 
 dependencies = [
-    "dashboard-compiler",
+    "kb-dashboard-compiler",
 ]
 
 [tool.uv.sources]
-dashboard-compiler = { path = "compiler", editable = true }
+kb-dashboard-compiler = { path = "compiler", editable = true }
 
 [dependency-groups]
 docs = [
