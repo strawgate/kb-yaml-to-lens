@@ -133,7 +133,8 @@ dashboards:
 - name: My First Dashboard
   description: A simple dashboard with markdown
   panels:
-    - markdown:
+    - title: Hello Panel
+      markdown:
         content: |
           # Hello, Kibana!
 
@@ -151,7 +152,8 @@ dashboards:
   name: Metric Dashboard
   description: A dashboard with a single metric panel
   panels:
-    - type: lens
+    - title: Document Count
+      type: lens
       grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
       index_pattern: your-index-pattern-*
       chart:

@@ -140,6 +140,8 @@ The extension provides the following commands (accessible via Command Palette - 
 - **YAML Dashboard: Preview Dashboard** – Open preview panel for the current YAML file
 - **YAML Dashboard: Edit Dashboard Layout** – Open visual grid layout editor for drag-and-drop panel positioning
 - **YAML Dashboard: Export Dashboard to NDJSON** – Copy compiled NDJSON to clipboard
+- **YAML Dashboard: Open in Kibana** – Upload compiled dashboard to Kibana and open in browser
+- **YAML Dashboard: Set Kibana API Key** – Store API credentials for Kibana uploads
 
 ## Complete Workflow Walkthrough
 
