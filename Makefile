@@ -57,9 +57,9 @@ help:
 	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
 	@echo ""
 	@echo "Release:"
-	@echo "  bump-patch        - Bump patch version, commit, and tag"
-	@echo "  bump-minor        - Bump minor version, commit, and tag"
-	@echo "  bump-major        - Bump major version, commit, and tag"
+	@echo "  bump-patch        - Bump patch version across all components"
+	@echo "  bump-minor        - Bump minor version across all components"
+	@echo "  bump-major        - Bump major version across all components"
 	@echo "  bump-version-show - Show current versions across all components"
 	@echo ""
 	@echo "=== Component-Specific Commands ==="
@@ -248,19 +248,13 @@ gh-check-repo-activity:
 
 # Version bumping
 bump-patch:
-	@python scripts/bump-version.py patch --commit --tag
-	@echo ""
-	@echo "Run 'git push origin main && git push origin --tags' to trigger release."
+	@python scripts/bump-version.py patch
 
 bump-minor:
-	@python scripts/bump-version.py minor --commit --tag
-	@echo ""
-	@echo "Run 'git push origin main && git push origin --tags' to trigger release."
+	@python scripts/bump-version.py minor
 
 bump-major:
-	@python scripts/bump-version.py major --commit --tag
-	@echo ""
-	@echo "Run 'git push origin main && git push origin --tags' to trigger release."
+	@python scripts/bump-version.py major
 
 bump-version-show:
 	@python scripts/bump-version.py --show
