@@ -90,13 +90,23 @@ elif command -v gtimeout &> /dev/null; then
 else
   printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 &
   PID=$!
-  sleep "$LSP_TIMEOUT_SECONDS"
+  # Poll for process completion instead of sleeping full duration
+  for i in $(seq 1 "$LSP_TIMEOUT_SECONDS"); do
+    if ! kill -0 "$PID" 2>/dev/null; then
+      break
+    fi
+    sleep 1
+  done
   kill "$PID" 2>/dev/null || true
   wait "$PID" 2>/dev/null || true
 fi
 
 # Check if LSP server responded with valid JSON-RPC response
-if grep -Eq '"jsonrpc"\s*:\s*"2\.0"' "$TEMP_LSP_LOG" && \
+if grep -Eq '"error"\s*:' "$TEMP_LSP_LOG"; then
+  echo "✗ LSP server returned an error response"
+  cat "$TEMP_LSP_LOG"
+  exit 1
+elif grep -Eq '"jsonrpc"\s*:\s*"2\.0"' "$TEMP_LSP_LOG" && \
    grep -Eq '"id"\s*:\s*1' "$TEMP_LSP_LOG" && \
    grep -Eq '"result"\s*:' "$TEMP_LSP_LOG"; then
   echo "✓ LSP server responds correctly to initialize request"
