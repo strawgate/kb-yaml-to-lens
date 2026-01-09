@@ -17,7 +17,7 @@ dashboards:
         in:
           - system.cpu
           - system.diskio
-          - system.fsstat
+          - system.filesystem
           - system.load
           - system.memory
           - system.network
@@ -92,7 +92,7 @@ dashboards:
               type: percent
           filters:
             - field: data_stream.dataset
-              equals: system.fsstat
+              equals: system.filesystem
       - title: Load Average
         grid: {x: 36, y: 3, w: 12, h: 6}
         lens:
@@ -327,7 +327,7 @@ dashboards:
                 type: percent
           filters:
             - field: data_stream.dataset
-              equals: system.fsstat
+              equals: system.filesystem
       - title: Filesystem Usage Over Time
         grid: {x: 24, y: 67, w: 24, h: 12}
         lens:
@@ -348,7 +348,7 @@ dashboards:
             size: 5
           filters:
             - field: data_stream.dataset
-              equals: system.fsstat
+              equals: system.filesystem
 
       # Processes Section - Detail Layer
       - title: Processes

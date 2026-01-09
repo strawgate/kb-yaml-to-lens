@@ -3,7 +3,7 @@
 # Following Dashboard Style Guide best practices:
 # - Security dashboard pattern: overview → trends → breakdowns → audit log
 # - Success/failure metrics for quick status
-# - Geographic map for source IP analysis
+# - Source IP analysis via stacked bar chart
 # - Stacked bar for event types over time
 # - Detailed audit table at bottom
 dashboards:
@@ -209,7 +209,7 @@ dashboards:
             - id: user
               type: values
               field: user.name
-            - id: source-ip
+            - id: sourceip
               type: values
               field: source.ip
             - id: method

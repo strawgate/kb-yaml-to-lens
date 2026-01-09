@@ -4,7 +4,7 @@
 # - Security/log dashboard pattern: events over time → categories → top users → log table
 # - Area chart for event volume with breakdown
 # - Horizontal bar for top programs (long labels)
-# - Treemap for hierarchical host/program relationships
+# - Multi-level pie chart for hierarchical host/program distribution
 # - Full-width table at bottom for drill-down
 dashboards:
   - id: system-modern-syslog

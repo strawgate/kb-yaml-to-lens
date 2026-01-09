@@ -18,7 +18,7 @@ dashboards:
           - system.cpu
           - system.memory
           - system.network
-          - system.fsstat
+          - system.filesystem
           - system.process
     controls:
       - type: options
@@ -97,7 +97,7 @@ dashboards:
               type: percent
           filters:
             - field: data_stream.dataset
-              equals: system.fsstat
+              equals: system.filesystem
 
       # Analysis Layer - Time Series Charts
       - title: CPU Utilization Over Time
