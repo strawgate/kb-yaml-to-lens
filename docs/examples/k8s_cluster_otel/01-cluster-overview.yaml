@@ -205,6 +205,9 @@ dashboards:
               type: values
               size: 25
               label: Deployment
+              sort:
+                by: Missing
+                direction: desc
             - field: k8s.namespace.name
               type: values
               size: 1

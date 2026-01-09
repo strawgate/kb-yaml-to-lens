@@ -463,8 +463,8 @@ This example provides comprehensive cluster monitoring across 5 focused dashboar
 
 All dashboards include a navigation panel at the top with links to:
 - **Overview** - Cluster health triage
-- **Resources** - Capacity planning
 - **Workloads** - Application health
+- **Resources** - Capacity planning
 - **Batch Jobs** - Job monitoring
 - **Autoscaling** - HPA behavior
 
