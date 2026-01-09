@@ -6,6 +6,8 @@ Uses pytest-docker to manage Docker Compose services.
 import asyncio
 import json
 import logging
+import os
+import uuid
 from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import Any
@@ -28,7 +30,8 @@ def docker_compose_file() -> Path:
 @pytest.fixture(scope='session')
 def docker_compose_project_name() -> str:
     """Return a unique project name to avoid conflicts."""
-    return 'kb-yaml-integration-tests'
+    # Allow Makefile / CI to pin it, otherwise ensure parallel-safe uniqueness
+    return os.environ.get('INTEGRATION_PROJECT') or f'kb-yaml-integration-tests-{uuid.uuid4().hex[:8]}'
 
 
 def is_elasticsearch_responsive(url: str) -> bool:
@@ -198,7 +201,7 @@ async def loaded_sample_data(
     """
     from elasticsearch.helpers import async_bulk
 
-    index_name = 'logs-sample'
+    index_name = f'logs-sample-{uuid.uuid4().hex[:8]}'
 
     # Create index with appropriate mappings
     mapping = {
@@ -220,10 +223,6 @@ async def loaded_sample_data(
             },
         },
     }
-
-    # Delete index if exists
-    if await es_client.indices.exists(index=index_name):
-        await es_client.indices.delete(index=index_name)
 
     # Create index
     await es_client.indices.create(index=index_name, body=mapping)
@@ -257,25 +256,21 @@ async def data_view(kibana_client: KibanaClient, loaded_sample_data: str) -> Asy
     index_pattern = f'{loaded_sample_data}*'
 
     # Create data view via Kibana API
-    try:
-        await kibana_client.create_data_view(data_view_id, index_pattern)
-        logger.info(f'Created data view: {data_view_id}')
-    except Exception as e:
-        logger.warning(f'Failed to create data view: {e}')
+    await kibana_client.create_data_view(data_view_id, index_pattern)
+    logger.info('Created data view: %s', data_view_id)
 
     yield data_view_id
 
     # Cleanup - delete data view
     try:
         session = kibana_client._get_session()
-        async with session.delete(
-            f'{kibana_client.url}/api/data_views/data_view/{data_view_id}',
-            headers={'kbn-xsrf': 'true'},
-        ) as response:
+        url = kibana_client._get_api_url(f'/api/data_views/data_view/{data_view_id}')
+        headers, auth = kibana_client._get_auth_headers_and_auth()
+        async with session.delete(url, headers=headers, auth=auth) as response:
             if response.status == 200:
-                logger.info(f'Deleted data view: {data_view_id}')
+                logger.info('Deleted data view: %s', data_view_id)
     except Exception as e:
-        logger.warning(f'Failed to delete data view: {e}')
+        logger.warning('Failed to delete data view: %s', e)
 
 
 async def get_dashboard_panel_errors(kibana_client: KibanaClient, dashboard_id: str) -> list[dict[str, Any]]:

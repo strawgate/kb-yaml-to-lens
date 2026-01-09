@@ -177,8 +177,7 @@ test-integration-up:
 	@echo "  - Kibana: http://localhost:$${KIBANA_PORT:-5601}"
 	@echo "  - Override with: ELASTIC_PORT=9201 KIBANA_PORT=5602 make test-integration-up"
 	@echo ""
-	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) up -d
-	@echo "Waiting for services to be healthy..."
+	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) up -d --wait
 	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) ps
 	@echo ""
 	@echo "Services started."
