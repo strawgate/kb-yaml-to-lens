@@ -6,14 +6,14 @@ sensible, user-friendly error messages for common mistakes.
 
 from pathlib import Path
 
+from dashboard_compiler.cli import compile_yaml_to_json
+
 
 class TestYamlSyntaxErrors:
     """Test various YAML syntax errors."""
 
     def test_unclosed_brace(self, tmp_path: Path) -> None:
         """Test error message for unclosed brace."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'unclosed-brace.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -30,8 +30,6 @@ dashboards:
 
     def test_invalid_indentation(self, tmp_path: Path) -> None:
         """Test error message for invalid indentation."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'invalid-indent.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -45,22 +43,18 @@ dashboards:
 
     def test_invalid_yaml_character(self, tmp_path: Path) -> None:
         """Test error message for invalid YAML character."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'invalid-char.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test @invalid
     panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # This might actually be valid YAML, but let's see what happens
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (YAML allows @ in strings, so this is actually valid)
 
     def test_duplicate_keys(self, tmp_path: Path) -> None:
         """Test error message for duplicate keys."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'duplicate-keys.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -68,9 +62,9 @@ dashboards:
     name: Test2
     panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # PyYAML might accept this (uses last value), so just verify it processes
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (PyYAML accepts duplicate keys and uses the last value)
 
 
 class TestMissingRequiredFields:
@@ -78,8 +72,6 @@ class TestMissingRequiredFields:
 
     def test_missing_dashboards_key(self, tmp_path: Path) -> None:
         """Test error when top-level 'dashboards' key is missing."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-dashboards.yaml'
         yaml_file.write_text("""
 panels:
@@ -93,8 +85,6 @@ panels:
 
     def test_missing_dashboard_name(self, tmp_path: Path) -> None:
         """Test error when dashboard name is missing."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-name.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -108,8 +98,6 @@ dashboards:
 
     def test_missing_panel_title(self, tmp_path: Path) -> None:
         """Test that panel title is optional (has default empty string)."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-panel-title.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -126,8 +114,6 @@ dashboards:
 
     def test_missing_panel_grid(self, tmp_path: Path) -> None:
         """Test that panel grid is optional (has default size and position)."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-grid.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -144,8 +130,6 @@ dashboards:
 
     def test_missing_markdown_content(self, tmp_path: Path) -> None:
         """Test error when markdown content is missing."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-markdown-content.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -162,8 +146,6 @@ dashboards:
 
     def test_missing_esql_query(self, tmp_path: Path) -> None:
         """Test error when ESQL query is missing."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-esql-query.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -188,8 +170,6 @@ class TestWrongDataTypes:
 
     def test_dashboards_not_a_list(self, tmp_path: Path) -> None:
         """Test error when dashboards is not a list."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'dashboards-not-list.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -203,8 +183,6 @@ dashboards:
 
     def test_panels_not_a_list(self, tmp_path: Path) -> None:
         """Test error when panels is not a list."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'panels-not-list.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -219,8 +197,6 @@ dashboards:
 
     def test_grid_not_a_dict(self, tmp_path: Path) -> None:
         """Test error when grid is not a dict."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'grid-not-dict.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -231,15 +207,13 @@ dashboards:
         markdown:
           content: Hello
 """)
-        _json_lines, error = compile_yaml_to_json(yaml_file)
-        # Grid string is ignored in the validator, so this actually succeeds with defaults
-        # The validator checks isinstance(grid, dict) and only processes if true
-        assert error is None or 'grid' in error.lower() or 'dict' in error.lower()
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        # Grid validator only processes dicts; non-dict values are ignored and defaults apply
+        assert error is None, f'Expected successful compilation with default grid, got error: {error}'
+        assert len(json_lines) == 1
 
     def test_grid_coordinates_wrong_type(self, tmp_path: Path) -> None:
         """Test error when grid coordinates are wrong type."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'grid-coords-wrong.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -257,8 +231,6 @@ dashboards:
 
     def test_boolean_field_wrong_type(self, tmp_path: Path) -> None:
         """Test error when boolean field has wrong type."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'boolean-wrong.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -278,8 +250,6 @@ class TestInvalidValues:
 
     def test_negative_grid_width(self, tmp_path: Path) -> None:
         """Test error when grid width is negative."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'negative-width.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -297,8 +267,6 @@ dashboards:
 
     def test_grid_width_too_large(self, tmp_path: Path) -> None:
         """Test error when grid width exceeds maximum."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'width-too-large.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -309,15 +277,12 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # Might succeed or fail depending on validation rules
-        # Just verify compilation runs
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (Validation rules may or may not enforce grid width limits)
 
     def test_invalid_chart_type(self, tmp_path: Path) -> None:
         """Test error when chart type is invalid."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'invalid-chart-type.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -337,8 +302,6 @@ dashboards:
 
     def test_empty_esql_query_list(self, tmp_path: Path) -> None:
         """Test error when ESQL query list is empty."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'empty-query.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -353,9 +316,9 @@ dashboards:
             id: count_id
           query: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # Might fail validation
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (Validation may or may not reject empty query lists)
 
 
 class TestStructuralIssues:
@@ -363,8 +326,6 @@ class TestStructuralIssues:
 
     def test_overlapping_panels(self, tmp_path: Path) -> None:
         """Test error when panels overlap."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'overlapping.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -386,8 +347,6 @@ dashboards:
 
     def test_panel_outside_grid(self, tmp_path: Path) -> None:
         """Test error when panel is outside valid grid."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'outside-grid.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -398,9 +357,9 @@ dashboards:
         markdown:
           content: Outside
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # Might fail validation if there are grid boundary checks
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (Validation may or may not enforce grid boundary checks)
 
 
 class TestUnionDiscriminatorErrors:
@@ -408,8 +367,6 @@ class TestUnionDiscriminatorErrors:
 
     def test_panel_without_type_discriminator(self, tmp_path: Path) -> None:
         """Test error when panel has no type discriminator."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'no-panel-type.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -425,8 +382,6 @@ dashboards:
 
     def test_multiple_panel_types(self, tmp_path: Path) -> None:
         """Test error when panel has multiple type discriminators."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'multiple-types.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -441,9 +396,9 @@ dashboards:
           query:
             - FROM logs-*
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # Pydantic might accept this or reject it
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (Pydantic discriminated unions may accept or reject multiple discriminators)
 
 
 class TestComplexValidationErrors:
@@ -451,8 +406,6 @@ class TestComplexValidationErrors:
 
     def test_multiple_errors_in_single_dashboard(self, tmp_path: Path) -> None:
         """Test that multiple errors are reported together."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'multiple-errors.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -470,8 +423,6 @@ dashboards:
 
     def test_deeply_nested_error(self, tmp_path: Path) -> None:
         """Test that deeply nested errors have clear paths."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'nested-error.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -490,9 +441,9 @@ dashboards:
           breakdown:
             field: missing_required_field
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
-        # Should show clear path to the error
-        assert json_lines is not None or error is not None
+        _json_lines, _error = compile_yaml_to_json(yaml_file)
+        # Smoke test: verify compilation completes without raising exceptions
+        # (Tests that deeply nested structures are processed without crashes)
 
 
 class TestEmptyOrMinimalFiles:
@@ -500,8 +451,6 @@ class TestEmptyOrMinimalFiles:
 
     def test_completely_empty_file(self, tmp_path: Path) -> None:
         """Test error when file is completely empty."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'empty.yaml'
         yaml_file.write_text('')
 
@@ -512,8 +461,6 @@ class TestEmptyOrMinimalFiles:
 
     def test_whitespace_only_file(self, tmp_path: Path) -> None:
         """Test error when file contains only whitespace."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'whitespace.yaml'
         yaml_file.write_text('   \n  \n   ')
 
@@ -523,8 +470,6 @@ class TestEmptyOrMinimalFiles:
 
     def test_yaml_comment_only(self, tmp_path: Path) -> None:
         """Test error when file contains only comments."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'comments-only.yaml'
         yaml_file.write_text('# This is just a comment\n# No actual content')
 
@@ -538,8 +483,6 @@ class TestSuccessScenarios:
 
     def test_minimal_valid_dashboard(self, tmp_path: Path) -> None:
         """Test that a minimal valid dashboard compiles successfully."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'minimal-valid.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -556,8 +499,6 @@ dashboards:
 
     def test_dashboard_with_multiple_panels(self, tmp_path: Path) -> None:
         """Test that a dashboard with multiple panels compiles successfully."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         yaml_file = tmp_path / 'multi-panel.yaml'
         yaml_file.write_text("""
 dashboards:
