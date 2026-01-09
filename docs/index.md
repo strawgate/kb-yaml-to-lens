@@ -72,11 +72,12 @@ graph TB
 
 #### CLI (For Automation & Scripting)
 
-**Best for CI/CD pipelines, batch processing, programmatic usage**
+**Best for:** CI/CD pipelines, batch processing, programmatic usage
 
 **Installation:** Requires Python 3.12+
 
 Using [uv](https://github.com/astral-sh/uv):
+
 ```bash
 cd compiler
 uv sync
@@ -85,28 +86,31 @@ uv sync
 **Your First Dashboard:**
 
 1. Create `inputs/my-dashboard.yaml`:
-```yaml
-dashboards:
-- name: My First Dashboard
-  description: A simple dashboard
-  panels:
-    - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }
-      markdown:
-        content: |
-          # Welcome to Kibana!
-```
+
+   ```yaml
+   dashboards:
+   - name: My First Dashboard
+     description: A simple dashboard
+     panels:
+       - title: Welcome
+         grid: { x: 0, y: 0, w: 24, h: 15 }
+         markdown:
+           content: |
+             # Welcome to Kibana!
+   ```
 
 2. Compile:
-```bash
-cd compiler
-uv run kb-dashboard compile
-```
+
+   ```bash
+   cd compiler
+   uv run kb-dashboard compile
+   ```
 
 3. Upload to Kibana:
-```bash
-uv run kb-dashboard compile --upload --kibana-url http://localhost:5601
-```
+
+   ```bash
+   uv run kb-dashboard compile --upload --kibana-url http://localhost:5601
+   ```
 
 **Full guide:** [CLI Documentation](CLI.md)
 

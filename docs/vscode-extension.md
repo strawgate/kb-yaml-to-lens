@@ -16,16 +16,19 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 The VS Code extension is the **easiest way to get started** with the Kibana Dashboard Compiler:
 
 ### No Python Installation Required
+
 - **Bundled LSP binary** - Extension includes pre-built server binary for all platforms
 - **Zero configuration** - Works immediately after installation
 - **No dependency management** - No `pip`, `uv`, or virtual environments needed
 
 ### Instant Feedback
+
 - **Live preview** - See your dashboard as you type
 - **Auto-compile on save** - Background compilation with error reporting
 - **Visual validation** - Schema-based validation catches errors before upload
 
 ### Productivity Features
+
 - **Code snippets** - 40+ pre-built snippets for panels, controls, layouts
 - **Visual grid editor** - Drag-and-drop panel positioning
 - **Schema auto-complete** - IntelliSense for all YAML properties
@@ -40,11 +43,13 @@ The VS Code extension is the **easiest way to get started** with the Kibana Dash
 ### Prerequisites
 
 #### For End Users (Installing from Registry/VSIX)
+
 - VS Code 1.85.0 or higher
 - Red Hat YAML extension (automatically installed)
 - **No Python required** - Bundled binary included
 
 #### For Extension Developers Only
+
 - Python 3.12+ with `dashboard_compiler` package
 - Node.js 18+ for building the extension
 - VS Code 1.85.0 or higher
@@ -171,7 +176,7 @@ You can add custom keyboard shortcuts in VS Code (File → Preferences → Keybo
 
 ```json
 {
-  "key": "ctrl+shift+p",
+  "key": "ctrl+shift+d",
   "command": "yamlDashboard.preview",
   "when": "resourceLangId == yaml"
 }

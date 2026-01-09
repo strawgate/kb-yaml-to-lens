@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package clean copy-lsp-binary clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean copy-lsp-binary clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -17,6 +17,8 @@ help:
 	@echo "  lint             - Check linting"
 	@echo "  lint-check       - Alias for lint"
 	@echo "  package          - Create .vsix package"
+	@echo "  install-vscode   - Install packaged extension into VS Code"
+	@echo "  install-cursor   - Install packaged extension into Cursor"
 	@echo "  copy-lsp-binary  - Copy LSP binary from compiler (current platform)"
 	@echo "  clean            - Clean build artifacts"
 	@echo "  clean-binaries   - Clean copied LSP binaries"
@@ -86,6 +88,50 @@ lint-check: lint
 package:
 	@echo "Creating .vsix package..."
 	npm run package
+
+install-vscode:
+	@echo "Installing extension into VS Code..."
+	@set -e; \
+	EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
+	EXTENSION_PUBLISHER=$$(node -p "require('./package.json').publisher"); \
+	EXTENSION_VERSION=$$(node -p "require('./package.json').version"); \
+	VSIX_FILE="$${EXTENSION_NAME}-$${EXTENSION_VERSION}.vsix"; \
+	if [ ! -f "$$VSIX_FILE" ]; then \
+		echo "Error: $$VSIX_FILE not found. Run 'make package' first."; \
+		exit 1; \
+	fi; \
+	if ! command -v code > /dev/null 2>&1; then \
+		echo "Error: 'code' command not found. Please install VS Code or add it to your PATH."; \
+		exit 1; \
+	fi; \
+	code --install-extension "$$VSIX_FILE" --force; \
+	if ! code --list-extensions | grep -qF "$${EXTENSION_PUBLISHER}.$${EXTENSION_NAME}"; then \
+		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
+		exit 1; \
+	fi; \
+	echo "✓ Extension installed in VS Code"
+
+install-cursor:
+	@echo "Installing extension into Cursor..."
+	@set -e; \
+	EXTENSION_NAME=$$(node -p "require('./package.json').name"); \
+	EXTENSION_PUBLISHER=$$(node -p "require('./package.json').publisher"); \
+	EXTENSION_VERSION=$$(node -p "require('./package.json').version"); \
+	VSIX_FILE="$${EXTENSION_NAME}-$${EXTENSION_VERSION}.vsix"; \
+	if [ ! -f "$$VSIX_FILE" ]; then \
+		echo "Error: $$VSIX_FILE not found. Run 'make package' first."; \
+		exit 1; \
+	fi; \
+	if ! command -v cursor > /dev/null 2>&1; then \
+		echo "Error: 'cursor' command not found. Please install Cursor or add it to your PATH."; \
+		exit 1; \
+	fi; \
+	cursor --install-extension "$$VSIX_FILE" --force; \
+	if ! cursor --list-extensions | grep -qF "$${EXTENSION_PUBLISHER}.$${EXTENSION_NAME}"; then \
+		echo "Error: Extension installation failed - extension not found in installed extensions list."; \
+		exit 1; \
+	fi; \
+	echo "✓ Extension installed in Cursor"
 
 copy-lsp-binary:
 	@echo "Copying LSP binary from compiler..."
