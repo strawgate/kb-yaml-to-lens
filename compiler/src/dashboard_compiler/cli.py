@@ -26,21 +26,12 @@ from dashboard_compiler.cli_options import (
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
+from dashboard_compiler.lsp.server import main as lsp_main
 from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
 
 logger = logging.getLogger(__name__)
-
-# Try to import LSP server - may not be available if lsp group not installed
-try:
-    from dashboard_compiler.lsp.server import main as lsp_main
-
-    _lsp_available = True
-except ImportError:
-    lsp_main = None  # type: ignore[assignment]
-    _lsp_available = False
-    logger.debug('LSP server import failed, LSP disabled', exc_info=True)
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 # This prevents ANSI escape sequences from appearing in mkdocs-click generated docs
@@ -1024,16 +1015,7 @@ def lsp_command() -> None:
 
     This server communicates via stdin/stdout using the Language Server
     Protocol specification.
-
-    Note: This command requires the LSP dependencies to be installed.
-    Install them with: uv sync --extra lsp
     """
-    if not _lsp_available or lsp_main is None:
-        click.echo('Error: LSP server dependencies not installed.', err=True)
-        click.echo('Install with: uv sync --extra lsp', err=True)
-        msg = 'LSP dependencies not available'
-        raise click.ClickException(msg)
-
     lsp_main()
 
 

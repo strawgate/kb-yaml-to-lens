@@ -204,7 +204,7 @@ test-docker-smoke:
 # Binary building
 build-binary:
 	@echo "Building standalone unified binary..."
-	@uv sync --group build --group lsp
+	@uv sync --group build
 	@uv run python scripts/build_binaries.py
 
 test-binary-smoke:
