@@ -10,6 +10,7 @@ let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
 let gridEditorPanel: GridEditorPanel;
 let configService: ConfigService;
+let uploadResultsChannel: vscode.OutputChannel | undefined;
 
 /**
  * Checks if a YAML document contains a 'dashboards' root key.
@@ -140,6 +141,132 @@ function createDashboardCommand(action: (filePath: string, dashboardIndex: numbe
     };
 }
 
+interface KibanaConfig {
+    kibanaUrl: string;
+    username: string;
+    password: string;
+    apiKey: string;
+    sslVerify: boolean;
+}
+
+async function ensureKibanaConfig(configService: ConfigService): Promise<KibanaConfig | undefined> {
+    let kibanaUrl = configService.getKibanaUrl();
+    let username = await configService.getKibanaUsername();
+    let password = await configService.getKibanaPassword();
+    let apiKey = await configService.getKibanaApiKey();
+    const sslVerify = configService.getKibanaSslVerify();
+
+    if (!kibanaUrl || kibanaUrl === 'http://localhost:5601') {
+        const promptedUrl = await vscode.window.showInputBox({
+            prompt: 'Enter Kibana URL',
+            placeHolder: 'https://your-kibana-instance.com',
+            value: kibanaUrl,
+            ignoreFocusOut: true,
+            validateInput: (value) => {
+                if (!value) {
+                    return 'Kibana URL is required';
+                }
+                if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                    return 'URL must start with http:// or https://';
+                }
+                return undefined;
+            }
+        });
+
+        if (!promptedUrl) {
+            return undefined;
+        }
+
+        kibanaUrl = promptedUrl;
+        await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.url', kibanaUrl, vscode.ConfigurationTarget.Global);
+    }
+
+    if (!username && !password && !apiKey) {
+        const authMethod = await vscode.window.showQuickPick(
+            [
+                { label: 'API Key (Recommended)', value: 'apiKey' },
+                { label: 'Username/Password', value: 'basic' }
+            ],
+            {
+                placeHolder: 'Select authentication method',
+                ignoreFocusOut: true
+            }
+        );
+
+        if (!authMethod) {
+            return undefined;
+        }
+
+        if (authMethod.value === 'apiKey') {
+            const promptedApiKey = await vscode.window.showInputBox({
+                prompt: 'Enter Kibana API Key',
+                placeHolder: 'Base64-encoded API key',
+                password: true,
+                ignoreFocusOut: true,
+                validateInput: (value) => {
+                    if (!value) {
+                        return 'API Key is required';
+                    }
+                    return undefined;
+                }
+            });
+
+            if (!promptedApiKey) {
+                return undefined;
+            }
+
+            apiKey = promptedApiKey;
+            await configService.setKibanaApiKey(apiKey);
+        } else {
+            const promptedUsername = await vscode.window.showInputBox({
+                prompt: 'Enter Kibana username',
+                placeHolder: 'elastic',
+                ignoreFocusOut: true,
+                validateInput: (value) => {
+                    if (!value) {
+                        return 'Username is required';
+                    }
+                    return undefined;
+                }
+            });
+
+            if (!promptedUsername) {
+                return undefined;
+            }
+
+            const promptedPassword = await vscode.window.showInputBox({
+                prompt: 'Enter Kibana password',
+                placeHolder: 'Password',
+                password: true,
+                ignoreFocusOut: true,
+                validateInput: (value) => {
+                    if (!value) {
+                        return 'Password is required';
+                    }
+                    return undefined;
+                }
+            });
+
+            if (!promptedPassword) {
+                return undefined;
+            }
+
+            username = promptedUsername;
+            password = promptedPassword;
+            await configService.setKibanaUsername(username);
+            await configService.setKibanaPassword(password);
+        }
+    }
+
+    return {
+        kibanaUrl,
+        username: username || '',
+        password: password || '',
+        apiKey: apiKey || '',
+        sslVerify
+    };
+}
+
 /**
  * Register JSON schema with the YAML extension for auto-complete support.
  * This enables schema-based validation, hover documentation, and auto-complete
@@ -264,120 +391,13 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('yamlDashboard.openInKibana', createDashboardCommand(async (filePath, dashboardIndex) => {
             try {
-                // Get Kibana configuration
-                let kibanaUrl = configService.getKibanaUrl();
-                let username = await configService.getKibanaUsername();
-                let password = await configService.getKibanaPassword();
-                let apiKey = await configService.getKibanaApiKey();
-                const sslVerify = configService.getKibanaSslVerify();
+                const config = await ensureKibanaConfig(configService);
+                if (!config) {
+                    return;
+                }
+
                 const browserType = configService.getKibanaBrowserType();
 
-                // Prompt for Kibana URL if not configured or using default localhost
-                if (!kibanaUrl || kibanaUrl === 'http://localhost:5601') {
-                    const promptedUrl = await vscode.window.showInputBox({
-                        prompt: 'Enter Kibana URL',
-                        placeHolder: 'https://your-kibana-instance.com',
-                        value: kibanaUrl,
-                        ignoreFocusOut: true,
-                        validateInput: (value) => {
-                            if (!value) {
-                                return 'Kibana URL is required';
-                            }
-                            if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                                return 'URL must start with http:// or https://';
-                            }
-                            return undefined;
-                        }
-                    });
-
-                    if (!promptedUrl) {
-                        return; // User cancelled
-                    }
-
-                    kibanaUrl = promptedUrl;
-                    // Save the URL to settings
-                    await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.url', kibanaUrl, vscode.ConfigurationTarget.Global);
-                }
-
-                // Prompt for credentials if not configured
-                if (!username && !password && !apiKey) {
-                    const authMethod = await vscode.window.showQuickPick(
-                        [
-                            { label: 'API Key (Recommended)', value: 'apiKey' },
-                            { label: 'Username/Password', value: 'basic' }
-                        ],
-                        {
-                            placeHolder: 'Select authentication method',
-                            ignoreFocusOut: true
-                        }
-                    );
-
-                    if (!authMethod) {
-                        return; // User cancelled
-                    }
-
-                    if (authMethod.value === 'apiKey') {
-                        const promptedApiKey = await vscode.window.showInputBox({
-                            prompt: 'Enter Kibana API Key',
-                            placeHolder: 'Base64-encoded API key',
-                            password: true,
-                            ignoreFocusOut: true,
-                            validateInput: (value) => {
-                                if (!value) {
-                                    return 'API Key is required';
-                                }
-                                return undefined;
-                            }
-                        });
-
-                        if (!promptedApiKey) {
-                            return; // User cancelled
-                        }
-
-                        apiKey = promptedApiKey;
-                        await configService.setKibanaApiKey(apiKey);
-                    } else {
-                        const promptedUsername = await vscode.window.showInputBox({
-                            prompt: 'Enter Kibana username',
-                            placeHolder: 'elastic',
-                            ignoreFocusOut: true,
-                            validateInput: (value) => {
-                                if (!value) {
-                                    return 'Username is required';
-                                }
-                                return undefined;
-                            }
-                        });
-
-                        if (!promptedUsername) {
-                            return; // User cancelled
-                        }
-
-                        const promptedPassword = await vscode.window.showInputBox({
-                            prompt: 'Enter Kibana password',
-                            placeHolder: 'Password',
-                            password: true,
-                            ignoreFocusOut: true,
-                            validateInput: (value) => {
-                                if (!value) {
-                                    return 'Password is required';
-                                }
-                                return undefined;
-                            }
-                        });
-
-                        if (!promptedPassword) {
-                            return; // User cancelled
-                        }
-
-                        username = promptedUsername;
-                        password = promptedPassword;
-                        await configService.setKibanaUsername(username);
-                        await configService.setKibanaPassword(password);
-                    }
-                }
-
-                // Show progress
                 await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
                     title: 'Opening dashboard in Kibana...',
@@ -385,27 +405,23 @@ export async function activate(context: vscode.ExtensionContext) {
                 }, async (progress) => {
                     progress.report({ message: 'Uploading to Kibana...' });
 
-                    // Upload and get dashboard URL
                     const { dashboardUrl, dashboardId } = await compiler.uploadToKibana(
                         filePath,
                         dashboardIndex,
-                        kibanaUrl,
-                        username,
-                        password,
-                        apiKey,
-                        sslVerify
+                        config.kibanaUrl,
+                        config.username,
+                        config.password,
+                        config.apiKey,
+                        config.sslVerify
                     );
 
                     progress.report({ message: 'Opening browser...' });
 
-                    // Open in browser based on user preference
                     const uri = vscode.Uri.parse(dashboardUrl);
 
                     if (browserType === 'simple') {
-                        // Open in VS Code's simple browser
                         await vscode.commands.executeCommand('simpleBrowser.show', dashboardUrl);
                     } else {
-                        // Open in external browser
                         await vscode.env.openExternal(uri);
                     }
 
@@ -487,130 +503,23 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('yamlDashboard.compileFolderAndUpload', async (uri: vscode.Uri) => {
             try {
-                // Validate folder URI
                 if (!uri || !uri.fsPath) {
                     vscode.window.showErrorMessage('No folder selected');
                     return;
                 }
 
-                // Get Kibana configuration
-                let kibanaUrl = configService.getKibanaUrl();
-                let username = await configService.getKibanaUsername();
-                let password = await configService.getKibanaPassword();
-                let apiKey = await configService.getKibanaApiKey();
-                const sslVerify = configService.getKibanaSslVerify();
-
-                // Prompt for Kibana URL if not configured or using default localhost
-                if (!kibanaUrl || kibanaUrl === 'http://localhost:5601') {
-                    const promptedUrl = await vscode.window.showInputBox({
-                        prompt: 'Enter Kibana URL',
-                        placeHolder: 'https://your-kibana-instance.com',
-                        value: kibanaUrl,
-                        ignoreFocusOut: true,
-                        validateInput: (value) => {
-                            if (!value) {
-                                return 'Kibana URL is required';
-                            }
-                            if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                                return 'URL must start with http:// or https://';
-                            }
-                            return undefined;
-                        }
-                    });
-
-                    if (!promptedUrl) {
-                        return; // User cancelled
-                    }
-
-                    kibanaUrl = promptedUrl;
-                    // Save the URL to settings
-                    await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.url', kibanaUrl, vscode.ConfigurationTarget.Global);
+                const config = await ensureKibanaConfig(configService);
+                if (!config) {
+                    return;
                 }
 
-                // Prompt for credentials if not configured
-                if (!username && !password && !apiKey) {
-                    const authMethod = await vscode.window.showQuickPick(
-                        [
-                            { label: 'API Key (Recommended)', value: 'apiKey' },
-                            { label: 'Username/Password', value: 'basic' }
-                        ],
-                        {
-                            placeHolder: 'Select authentication method',
-                            ignoreFocusOut: true
-                        }
-                    );
-
-                    if (!authMethod) {
-                        return; // User cancelled
-                    }
-
-                    if (authMethod.value === 'apiKey') {
-                        const promptedApiKey = await vscode.window.showInputBox({
-                            prompt: 'Enter Kibana API Key',
-                            placeHolder: 'Base64-encoded API key',
-                            password: true,
-                            ignoreFocusOut: true,
-                            validateInput: (value) => {
-                                if (!value) {
-                                    return 'API Key is required';
-                                }
-                                return undefined;
-                            }
-                        });
-
-                        if (!promptedApiKey) {
-                            return; // User cancelled
-                        }
-
-                        apiKey = promptedApiKey;
-                        await configService.setKibanaApiKey(apiKey);
-                    } else {
-                        const promptedUsername = await vscode.window.showInputBox({
-                            prompt: 'Enter Kibana username',
-                            placeHolder: 'elastic',
-                            ignoreFocusOut: true,
-                            validateInput: (value) => {
-                                if (!value) {
-                                    return 'Username is required';
-                                }
-                                return undefined;
-                            }
-                        });
-
-                        if (!promptedUsername) {
-                            return; // User cancelled
-                        }
-
-                        const promptedPassword = await vscode.window.showInputBox({
-                            prompt: 'Enter Kibana password',
-                            placeHolder: 'Password',
-                            password: true,
-                            ignoreFocusOut: true,
-                            validateInput: (value) => {
-                                if (!value) {
-                                    return 'Password is required';
-                                }
-                                return undefined;
-                            }
-                        });
-
-                        if (!promptedPassword) {
-                            return; // User cancelled
-                        }
-
-                        username = promptedUsername;
-                        password = promptedPassword;
-                        await configService.setKibanaUsername(username);
-                        await configService.setKibanaPassword(password);
-                    }
-                }
-
-                // Find all YAML files in the folder
                 const pattern = new vscode.RelativePattern(uri, '**/*.{yaml,yml}');
-                const files = await vscode.workspace.findFiles(pattern);
+                const allFiles = await vscode.workspace.findFiles(pattern);
+
+                const files = allFiles.filter(file => hasDashboardsKey(file.toString()));
 
                 if (files.length === 0) {
-                    vscode.window.showInformationMessage('No YAML files found in folder');
+                    vscode.window.showInformationMessage('No YAML files with dashboards found in folder');
                     return;
                 }
 
@@ -627,9 +536,14 @@ export async function activate(context: vscode.ExtensionContext) {
                 await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
                     title: `Uploading ${files.length} file(s) to Kibana...`,
-                    cancellable: false
-                }, async (progress) => {
+                    cancellable: true
+                }, async (progress, token) => {
                     for (let i = 0; i < files.length; i++) {
+                        if (token.isCancellationRequested) {
+                            vscode.window.showWarningMessage('Upload cancelled by user');
+                            return;
+                        }
+
                         const file = files[i];
                         const fileName = file.fsPath;
                         const displayName = vscode.workspace.asRelativePath(file);
@@ -640,7 +554,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         });
 
                         try {
-                            // Get all dashboards in the file
                             const dashboards = await compiler.getDashboards(fileName);
 
                             if (dashboards.length === 0) {
@@ -652,25 +565,30 @@ export async function activate(context: vscode.ExtensionContext) {
                                 continue;
                             }
 
-                            // Upload all dashboards in the file
                             let uploadedCount = 0;
+                            let lastError: string | undefined;
                             for (const dashboard of dashboards) {
-                                await compiler.uploadToKibana(
-                                    fileName,
-                                    dashboard.index,
-                                    kibanaUrl,
-                                    username,
-                                    password,
-                                    apiKey,
-                                    sslVerify
-                                );
-                                uploadedCount++;
+                                try {
+                                    await compiler.uploadToKibana(
+                                        fileName,
+                                        dashboard.index,
+                                        config.kibanaUrl,
+                                        config.username,
+                                        config.password,
+                                        config.apiKey,
+                                        config.sslVerify
+                                    );
+                                    uploadedCount++;
+                                } catch (error) {
+                                    lastError = error instanceof Error ? error.message : String(error);
+                                }
                             }
 
                             results.push({
                                 filePath: displayName,
-                                success: true,
-                                dashboardCount: uploadedCount
+                                success: uploadedCount > 0,
+                                dashboardCount: uploadedCount,
+                                error: lastError ? `${uploadedCount}/${dashboards.length} uploaded; last error: ${lastError}` : undefined
                             });
                         } catch (error) {
                             results.push({
@@ -700,7 +618,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
 
                     if (action === 'Show Details') {
-                        const outputChannel = vscode.window.createOutputChannel('Kibana Upload Results');
+                        if (!uploadResultsChannel) {
+                            uploadResultsChannel = vscode.window.createOutputChannel('Kibana Upload Results');
+                        }
+                        const outputChannel = uploadResultsChannel;
                         outputChannel.clear();
                         outputChannel.appendLine('Kibana Upload Results');
                         outputChannel.appendLine('='.repeat(50));
@@ -733,5 +654,8 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function deactivate(): Promise<void> {
     if (compiler) {
         await compiler.dispose();
+    }
+    if (uploadResultsChannel) {
+        uploadResultsChannel.dispose();
     }
 }
