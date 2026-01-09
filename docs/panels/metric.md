@@ -100,7 +100,7 @@ The `primary`, `secondary`, and `maximum` fields accept these metric configurati
 All metric types except Static Value support:
 
 - `label`: Custom display label
-- `format`: Number formatting (`number`, `bytes`, `bits`, `percent`, `duration`)
+- `format`: Number formatting (see [Format Configuration Options](#format-configuration-options) for details)
 - `filter`: KQL filter to apply before aggregation
 
 **Additional Field Details:**
@@ -258,6 +258,18 @@ panel = LensPanel(
 ## Number Formatting
 
 Metric charts support various number formatting options to display values in a user-friendly way. You can add suffixes, use compact notation, or apply custom number patterns.
+
+### Format Configuration Options
+
+The `format` field accepts an object with the following properties:
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `type` | `string` | Format type: `'number'`, `'bytes'`, `'bits'`, `'percent'`, `'duration'` | `'number'` | No |
+| `suffix` | `string` | Custom text appended to the formatted value | `''` | No |
+| `prefix` | `string` | Custom text prepended to the formatted value | `''` | No |
+| `compact` | `boolean` | Enable compact notation (e.g., 1.2K instead of 1200) | `false` | No |
+| `pattern` | `string` | Custom numeral.js format pattern (e.g., `'0,0.00'`) | `null` | No |
 
 ### Suffix Formatting
 
