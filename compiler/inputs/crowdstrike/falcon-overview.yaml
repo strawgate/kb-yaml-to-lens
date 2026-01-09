@@ -26,7 +26,7 @@ dashboards:
             [Vulnerability](/app/dashboards#/view/crowdstrike-63da2573-4e68-4e7d-a06b-6858edb60fd5)
 
             ### Overview
-            This dashboards shows statistics about the different Incidents and events collected from Crowdstrike Falcon.
+            This dashboard shows statistics about the different Incidents and events collected from Crowdstrike Falcon.
           font_size: 12
           links_in_new_tab: false
       - title: Incidents by ECS Category

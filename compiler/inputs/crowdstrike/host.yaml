@@ -3,6 +3,9 @@ dashboards:
   - id: crowdstrike-2921b7f0-99b5-11ee-bf4d-afbc95e0486c
     name: '[Logs CrowdStrike] Host'
     description: Overview of the CrowdStrike Host Logs.
+    filters:
+      - field: data_stream.dataset
+        equals: crowdstrike.host
     panels:
       - title: Table of Contents
         grid:
@@ -47,9 +50,6 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
-          filters:
-            - field: data_stream.dataset
-              equals: crowdstrike.host
       - title: Host over Hostname [Logs CrowdStrike]
         grid:
           x: 30
@@ -72,9 +72,6 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
-          filters:
-            - field: data_stream.dataset
-              equals: crowdstrike.host
       - title: Host over Host IP [Logs CrowdStrike]
         grid:
           x: 0
@@ -97,9 +94,6 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
-          filters:
-            - field: data_stream.dataset
-              equals: crowdstrike.host
       - title: Host over Timestamp [Logs CrowdStrike]
         grid:
           x: 24
@@ -126,6 +120,3 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
-          filters:
-            - field: data_stream.dataset
-              equals: crowdstrike.host

@@ -26,7 +26,7 @@ dashboards:
             [Vulnerability](/app/dashboards#/view/crowdstrike-63da2573-4e68-4e7d-a06b-6858edb60fd5)
 
             ### Overview
-            This dashboards shows statistics specific to Alerts and their different alert types that is received from Crowdstrike FDR.
+            This dashboard shows statistics specific to alerts and their different alert types received from Crowdstrike FDR.
           font_size: 12
           links_in_new_tab: false
       - title: Top Users

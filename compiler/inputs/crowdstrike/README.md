@@ -189,8 +189,8 @@ Original dashboards from Elastic Integrations repository:
 
 The following Kibana features from the original dashboards could not be converted:
 
-1. **Search Panels** (4 instances across dashboards)
-   - Location: Overview, Falcon Overview, Vulnerability
+1. **Search Panels** (2 instances across dashboards)
+   - Location: Falcon Overview, Vulnerability
    - Alternative: Use bar charts to show top N records
 
 2. **Map Panels** (1 instance)
@@ -241,7 +241,7 @@ Links use the format `/app/dashboards#/view/{dashboard-id}` for internal Kibana 
 
 - **Total Dashboards:** 6
 - **Total Panels:** 48 (after conversion)
-- **Original Panels:** 52 (4 search/map panels not converted)
+- **Original Panels:** 51 (3 search/map panels not converted)
 - **Lens Visualizations:** 42 panels successfully converted
 - **Navigation Panels:** 6 markdown panels
 - **Average Panels per Dashboard:** 8
