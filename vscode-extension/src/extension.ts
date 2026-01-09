@@ -568,7 +568,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             }
 
                             let uploadedCount = 0;
-                            let lastError: string | undefined;
+                            const errors: string[] = [];
                             for (const dashboard of dashboards) {
                                 if (token.isCancellationRequested) {
                                     break;
@@ -585,7 +585,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                     );
                                     uploadedCount++;
                                 } catch (error) {
-                                    lastError = error instanceof Error ? error.message : String(error);
+                                    errors.push(error instanceof Error ? error.message : String(error));
                                 }
                             }
 
@@ -593,7 +593,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 filePath: displayName,
                                 success: uploadedCount > 0,
                                 dashboardCount: uploadedCount,
-                                error: lastError ? `${uploadedCount}/${dashboards.length} uploaded; last error: ${lastError}` : undefined
+                                error: errors.length > 0 ? `${uploadedCount}/${dashboards.length} uploaded; errors: ${errors.join('; ')}` : undefined
                             });
                         } catch (error) {
                             results.push({
