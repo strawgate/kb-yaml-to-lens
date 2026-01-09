@@ -181,7 +181,7 @@ async function ensureKibanaConfig(configService: ConfigService): Promise<KibanaC
         await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.url', kibanaUrl, vscode.ConfigurationTarget.Global);
     }
 
-    if (!username && !password && !apiKey) {
+    if (!apiKey && (!username || !password)) {
         const authMethod = await vscode.window.showQuickPick(
             [
                 { label: 'API Key (Recommended)', value: 'apiKey' },
@@ -531,6 +531,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     dashboardCount?: number;
                 }
                 const results: UploadResult[] = [];
+                let wasCancelled = false;
 
                 // Process files with progress
                 await vscode.window.withProgress({
@@ -541,6 +542,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     for (let i = 0; i < files.length; i++) {
                         if (token.isCancellationRequested) {
                             vscode.window.showWarningMessage('Upload cancelled by user');
+                            wasCancelled = true;
                             return;
                         }
 
@@ -568,6 +570,9 @@ export async function activate(context: vscode.ExtensionContext) {
                             let uploadedCount = 0;
                             let lastError: string | undefined;
                             for (const dashboard of dashboards) {
+                                if (token.isCancellationRequested) {
+                                    break;
+                                }
                                 try {
                                     await compiler.uploadToKibana(
                                         fileName,
@@ -599,6 +604,10 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                     }
                 });
+
+                if (wasCancelled) {
+                    return;
+                }
 
                 // Show results summary
                 const successCount = results.filter(r => r.success).length;
