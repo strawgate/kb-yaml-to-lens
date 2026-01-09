@@ -221,6 +221,7 @@ Groups data by the most frequent unique values of one or more fields. Supports b
 | `exclude_is_regex` | `boolean` | If `true`, treats `exclude` values as regex patterns. | `false` | No |
 
 **Example - Single Field:**
+
 ```yaml
 dimensions:
   - type: values
@@ -229,6 +230,7 @@ dimensions:
 ```
 
 **Example - Multi-Field:**
+
 ```yaml
 dimensions:
   - type: values
