@@ -310,10 +310,10 @@ The dashboard is defined in the `01-cluster-overview.yaml` file in this director
 cd compiler
 
 # Compile the dashboard to NDJSON
-uv run dashboard_compiler compile ../docs/examples/k8s_cluster_otel/01-cluster-overview.yaml -o /tmp/k8s-cluster-dashboard.ndjson
+uv run kb-dashboard compile ../docs/examples/k8s_cluster_otel/01-cluster-overview.yaml -o /tmp/k8s-cluster-dashboard.ndjson
 
 # Upload to Kibana (replace with your Kibana URL and credentials)
-uv run dashboard_compiler upload /tmp/k8s-cluster-dashboard.ndjson \
+uv run kb-dashboard upload /tmp/k8s-cluster-dashboard.ndjson \
   --kibana-url https://your-kibana:5601 \
   --username elastic \
   --password your-password
@@ -324,7 +324,7 @@ uv run dashboard_compiler upload /tmp/k8s-cluster-dashboard.ndjson \
 ```bash
 # Compile the dashboard
 cd compiler
-uv run dashboard_compiler compile ../docs/examples/k8s_cluster_otel/01-cluster-overview.yaml -o /tmp/k8s-cluster-dashboard.ndjson
+uv run kb-dashboard compile ../docs/examples/k8s_cluster_otel/01-cluster-overview.yaml -o /tmp/k8s-cluster-dashboard.ndjson
 ```
 
 Then import in Kibana:
@@ -421,30 +421,30 @@ For complete documentation of all metrics collected by the k8sclusterreceiver, s
 
 ### Pod Phase Values
 
-The `k8s.pod.status.phase` attribute uses string values from the Kubernetes PodStatus.phase field:
-- `Pending` - Pod has been accepted but is not yet running
-- `Running` - Pod is actively running
-- `Succeeded` - All containers terminated successfully
-- `Failed` - At least one container terminated with failure
-- `Unknown` - Pod status cannot be determined
+The `k8s.pod.phase` attribute in the dashboard uses numeric filter values that may need to be updated to match your data stream's encoding:
+- `'1'` - Pending (Pod has been accepted but is not yet running)
+- `'2'` - Running (Pod is actively running)
+- `'3'` - Succeeded (All containers terminated successfully)
+- `'4'` - Failed (At least one container terminated with failure)
+- `'5'` - Unknown (Pod status cannot be determined)
 
-Note: The dashboard uses numeric filter values (`'1'`, `'2'`, etc.) which may need to be updated to match your data stream's encoding. If your k8sclusterreceiver outputs string phase values, update the dashboard filters accordingly.
+**Note:** The OpenTelemetry k8sclusterreceiver semantic conventions use `k8s.pod.status.phase` with string values (`Pending`, `Running`, `Succeeded`, `Failed`, `Unknown`). If your collector outputs string values, you'll need to update the dashboard filters from numeric (`'1'`, `'2'`, etc.) to string values (`'Pending'`, `'Running'`, etc.).
 
 ### Namespace Phase Values
 
-The `k8s.namespace.phase` attribute uses string values:
-- `Active` - Namespace is active and available
-- `Terminating` - Namespace is being deleted
+The `k8s.namespace.phase` attribute in the dashboard uses numeric filter values:
+- `'1'` - Active (Namespace is active and available)
+- `'0'` - Terminating (Namespace is being deleted)
 
-Note: The dashboard uses numeric filter values (`'1'` for Active, `'0'` for Terminating) which may need to be updated to match your data stream's encoding.
+**Note:** If your k8sclusterreceiver outputs string values (`Active`, `Terminating`), update the dashboard filters accordingly.
 
 ### Container Ready Values
 
-The `k8s.container.ready` attribute uses string boolean values:
-- `true` - Container is ready to serve requests
-- `false` - Container is not ready
+The `k8s.container.ready` attribute in the dashboard uses numeric filter values:
+- `'1'` - Ready (Container is ready to serve requests)
+- `'0'` - Not ready (Container is not ready)
 
-Note: The dashboard uses numeric filter values (`'1'` for ready, `'0'` for not ready) which may need to be updated to match your data stream's encoding.
+**Note:** If your k8sclusterreceiver outputs string boolean values (`true`, `false`), update the dashboard filters accordingly.
 
 ## Troubleshooting
 
@@ -531,7 +531,7 @@ If metrics appear delayed or some are missing:
 **Potential causes:**
 
 1. **Collection interval too high** - Reduce `collection_interval` in receiver config (default: 10s)
-2. **API server throttling** - Check for rate limiting in collector logs
+2. **Throttling from API server** - Check for rate limiting in collector logs
 3. **Network issues** - Verify connectivity between collector and Kubernetes API
 4. **Resource constraints** - Check collector CPU/memory usage and increase if needed
 
