@@ -65,7 +65,7 @@ Platform directories:
 The unified binary is built using the compiler's binary builder:
 
 1. **Compiler builds binary**: `compiler/scripts/build_binaries.py` creates the unified binary (CLI + LSP) using PyInstaller
-2. **Extension copies binary**: `vscode-extension/scripts/copy_lsp_binary.sh` copies the binary to the correct platform directory
+2. **Extension copies binary**: `vscode-extension/scripts/copy_binary.sh` copies the binary to the correct platform directory
 3. **Packaging includes binary**: When creating VSIX packages, the binary is bundled with the extension
 
 This approach eliminates duplicate Python dependencies in the extension and provides a single binary with both CLI and LSP capabilities.

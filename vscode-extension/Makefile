@@ -135,7 +135,7 @@ install-cursor:
 
 copy-binary:
 	@echo "Copying unified binary from compiler..."
-	bash scripts/copy_lsp_binary.sh
+	bash scripts/copy_binary.sh
 
 clean:
 	@echo "Cleaning build artifacts..."

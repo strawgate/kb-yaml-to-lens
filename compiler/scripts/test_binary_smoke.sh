@@ -76,7 +76,7 @@ echo "✓ Output format is valid NDJSON"
 # Test 5: LSP server responds to initialization
 echo "Test 5: LSP server responds to initialization"
 TEMP_LSP_LOG=$(mktemp)
-trap 'rm -f "$TEMP_LSP_LOG"' EXIT
+trap 'rm -rf "$TEMP_OUTPUT"; rm -f "$TEMP_LSP_LOG"' EXIT
 
 # Valid LSP initialize request (Content-Length required for LSP protocol)
 INIT_REQUEST='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}'
