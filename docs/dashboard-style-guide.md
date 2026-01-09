@@ -34,17 +34,15 @@ All dashboards should follow this top-to-bottom structure:
 
 ```text
 1. Context Layer    - Navigation, title, description
-2. Control Layer    - Interactive filters (when needed)
-3. Summary Layer    - Key metrics and KPIs
-4. Analysis Layer   - Charts and visualizations
-5. Detail Layer     - Data tables for drill-down
+2. Summary Layer    - Key metrics and KPIs
+3. Analysis Layer   - Charts and visualizations
+4. Detail Layer     - Data tables for drill-down
 ```
 
 **Example Flow:**
 
 ```text
 [Navigation Links - Markdown Panel]
-[Control: Filter by Host] [Control: Filter by Event Type]
 [Metric: Total Events] [Metric: Success Rate]
 [Chart: Events Over Time] [Chart: Event Category Distribution]
 [Table: Top 10 Events by Count]
@@ -1198,11 +1196,11 @@ Use this checklist when creating or reviewing dashboards:
 
 ### Structural Issues
 
-❌ **Wrong:** Placing tables in the middle of the dashboard
-✅ **Right:** Always position tables at the bottom
+❌ **Wrong:** Placing all tables in the middle without context
+✅ **Right:** Position tables at bottom (strong preference, ~60%) or intermixed with related charts in security/log dashboards
 
 ❌ **Wrong:** Too many metric cards (10+)
-✅ **Right:** Use 0-6 metric cards, focus on visualizations
+✅ **Right:** Use 0-4 metric cards (78% of dashboards use zero metrics)
 
 ❌ **Wrong:** No navigation for multi-dashboard packages (3+ dashboards)
 ✅ **Right:** Add markdown panel or links panel with navigation links at top (standard practice)
@@ -1261,7 +1259,7 @@ Use this checklist when creating or reviewing dashboards:
 
 ### Version 1.2 (2026-01-08)
 
-- **Third extended analysis with 27 additional dashboards (total: 49 dashboards from 37 integration packages)**
+- **Third extended analysis with 27 additional dashboards (total: 49 dashboards from 37 cumulative integration packages across all three phases)**
 - **Major pattern refinements:**
   - **Control filters:** Removed guidance - NOT used in Elastic integrations (0/49 dashboards)
   - **Tables at bottom:** Revised from absolute rule (100%) to strong preference (60%)

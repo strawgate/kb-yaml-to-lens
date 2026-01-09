@@ -2,23 +2,23 @@
 
 **Analysis Date:** 2026-01-08
 **Source:** elastic/integrations repository
-**Dashboards Analyzed:** 7 representative dashboards
+**Dashboards Analyzed:** 49 dashboards across 3 analysis phases (7 initial + 15 extended + 27 third phase)
 
 ---
 
 ## Executive Summary
 
-This analysis examines 7 production dashboards from the Elastic integrations repository to identify common patterns, best practices, and design conventions for Kibana dashboards. The dashboards span multiple use cases including security monitoring (Auditd, CyberArk, Corelight), infrastructure monitoring (IIS, Golang), and service monitoring (Azure, Cisco).
+This analysis examines 49 production dashboards from the Elastic integrations repository across three iterative validation phases to identify common patterns, best practices, and design conventions for Kibana dashboards. The dashboards span multiple use cases including security monitoring, infrastructure monitoring, application performance, and service monitoring.
 
 **Key Findings:**
 
-- Consistent use of markdown panels for navigation and context
-- Strong preference for donut/pie charts over bar charts for categorical breakdowns
-- Area charts dominate time-series visualizations
-- All dashboards use the 48-column grid system
-- Data tables are positioned at the bottom for drill-down details
-- Metric cards used sparingly for key KPIs
-- Hierarchical control filters placed at the top
+- Universal 48-column grid system (100% consistency, 49/49 dashboards)
+- No interactive control filters used (0/49 dashboards) - revised finding from phase 3
+- Area/line charts dominate time-series visualizations (95% consistency)
+- Pie/donut charts for categorical proportions (95% consistency)
+- Tables commonly positioned at bottom (60% preference, not absolute rule)
+- Metric cards used sparingly: 78% of dashboards use zero metrics
+- Markdown or links panels for navigation in multi-dashboard packages
 
 ---
 
@@ -566,13 +566,14 @@ Time series visualization choice:
 - Filled area provides visual weight proportional to volume
 - Stacking used to show categorical breakdown while maintaining total volume
 
-### 8.3 Tables Are Always Last
+### 8.3 Table Positioning Patterns
 
-**Pattern:** 100% consistency - data tables at bottom
+**Pattern:** Tables commonly placed at bottom (~60% preference)
 
-- Supports drill-down workflow (overview → detail)
-- Keeps visual charts prominent
-- Searchable tables for advanced users
+- Security and log analysis dashboards frequently intermix tables with visualizations
+- When at bottom: supports drill-down workflow (overview → detail)
+- When intermixed: tables positioned near related charts for context
+- **Confidence: 60%** - Table placement varies by dashboard type, not a universal pattern
 
 ### 8.4 Security Dashboards vs. Performance Dashboards
 
