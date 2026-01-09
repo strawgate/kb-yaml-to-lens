@@ -161,4 +161,4 @@ Configure the color legend for your heatmap:
 - [Base Panel Configuration](./base.md)
 - [Dashboard Configuration](../dashboard/dashboard.md)
 - [Legend Configuration Guide](../advanced/legend-configuration.md)
-- [Heatmap Examples](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/heatmap-examples.yaml)
+- [Heatmap Examples](../examples/heatmap-examples.yaml)

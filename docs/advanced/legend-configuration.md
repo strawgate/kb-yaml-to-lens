@@ -268,7 +268,7 @@ For comprehensive examples of legend configurations across different chart types
 
 - [XY Chart Examples](../panels/xy.md)
 - [Pie Chart Examples](../panels/pie.md)
-- [Heatmap Examples](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/heatmap-examples.yaml)
+- [Heatmap Examples](../examples/heatmap-examples.yaml)
 
 ## Related Documentation
 

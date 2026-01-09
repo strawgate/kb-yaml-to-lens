@@ -372,10 +372,10 @@ dashboards:
               suffix: "/day"    # Add custom suffix
 ```
 
-For more examples of metric formatting, see [metric-formatting-examples.yaml](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/metric-formatting-examples.yaml).
+For more examples of metric formatting, see [metric-formatting-examples.yaml](../examples/metric-formatting-examples.yaml).
 
 ## Related
 
 - [Base Panel Configuration](./base.md)
 - [Dashboard Configuration](../dashboard/dashboard.md)
-- [Metric Formatting Examples](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/metric-formatting-examples.yaml)
+- [Metric Formatting Examples](../examples/metric-formatting-examples.yaml)
