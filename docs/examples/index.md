@@ -286,6 +286,98 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### Elasticsearch OpenTelemetry Dashboards
+
+Comprehensive Elasticsearch cluster monitoring dashboards using OpenTelemetry's Elasticsearch receiver. Includes a complete OpenTelemetry Collector configuration and detailed setup guide.
+
+**Use this when:** Monitoring Elasticsearch clusters with OpenTelemetry Elasticsearch Receiver.
+
+**Includes:** 7 dashboards covering cluster health, node metrics, JVM monitoring, index statistics, and circuit breakers. See [elasticsearch_otel/README.md](elasticsearch_otel/README.md) for complete setup instructions and OpenTelemetry Collector configuration.
+
+#### Cluster Overview
+
+High-level cluster health, node counts, shard distribution, and pending tasks.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/01-cluster-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/01-cluster-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Node Overview
+
+Node-level summary with CPU, memory, disk, and operations.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/02-node-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/02-node-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Node Metrics
+
+Detailed node performance metrics including cache and thread pools.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/03-node-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/03-node-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Index Metrics
+
+Index-level statistics, shard sizes, segments, and operations.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/04-index-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/04-index-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### JVM Health
+
+JVM memory (heap/non-heap), garbage collection, threads, and memory pools.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/05-jvm-health.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/05-jvm-health.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Circuit Breakers
+
+Circuit breaker memory usage, limits, and trip events.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/06-circuit-breakers.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/06-circuit-breakers.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Cluster Metadata
+
+Cluster configuration and metadata exploration using ES|QL.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/07-cluster-metadata.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/07-cluster-metadata.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:
