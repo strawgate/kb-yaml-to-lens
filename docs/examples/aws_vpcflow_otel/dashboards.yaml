@@ -22,8 +22,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - STATS total = count() BY source.address
             - WHERE source.address IS NOT NULL
+            - STATS total = COUNT() BY source.address
             - KEEP total, source.address
             - SORT total DESC
             - LIMIT 10

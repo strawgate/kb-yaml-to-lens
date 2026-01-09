@@ -12,6 +12,14 @@ To compile this example:
 kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output
 ```
 
+This produces NDJSON (newline-delimited JSON) output in the `output/` directory. The output file will be named based on the dashboard name.
+
+To upload the compiled dashboard directly to Kibana:
+
+```bash
+kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output --upload
+```
+
 For more details on using the compiler, see the [main examples documentation](../index.md#how-to-use-these-examples).
 
 ## Dashboard Overview
@@ -47,7 +55,7 @@ Horizontal bar chart showing the top 10 source IP addresses by flow log record c
 
 ```esql
 FROM logs-*
-| WHERE source.address IS NOT NULL
+| WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
 | STATS total = COUNT() BY source.address
 | KEEP total, source.address
 | SORT total DESC
@@ -62,7 +70,7 @@ Stacked area chart showing flow log records over time, broken down by action (AC
 
 ```esql
 FROM logs-*
-| WHERE aws.vpc.flow.action IS NOT NULL
+| WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
 | STATS total = COUNT() by aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
 | KEEP total, aws.vpc.flow.action, time_bucket
 | SORT time_bucket ASC
@@ -76,7 +84,7 @@ Table showing detailed information about rejected connection attempts.
 
 ```esql
 FROM logs-*
-| WHERE aws.vpc.flow.action == "REJECT"
+| WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT"
 | KEEP @timestamp, source.address, source.port, aws.vpc.flow.bytes
 | SORT @timestamp DESC
 ```
