@@ -376,6 +376,8 @@ async def upload_to_kibana(
     except (OSError, ValueError) as e:
         msg = f'Error uploading to Kibana: {e}'
         raise click.ClickException(msg) from e
+    finally:
+        await client.close()
 
 
 @cli.command('load-sample-data')
@@ -701,6 +703,8 @@ async def generate_screenshot(  # noqa: PLR0913
     except (OSError, ValueError) as e:
         msg = f'Error generating screenshot: {e}'
         raise click.ClickException(msg) from e
+    finally:
+        await client.close()
 
 
 async def extract_data(
@@ -932,6 +936,8 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
     except (OSError, ValueError) as e:
         msg = f'Error exporting dashboard: {e}'
         raise click.ClickException(msg) from e
+    finally:
+        await client.close()
 
 
 @cli.command('disassemble')

@@ -1,5 +1,7 @@
 """Tests for the Kibana client."""
 
+import pytest
+
 from dashboard_compiler.kibana_client import KibanaClient
 
 
@@ -127,3 +129,35 @@ class TestKibanaClient:
         client = KibanaClient(url='http://localhost:5601', space_id='my-space')
         url = client._get_api_url('/some/other/path')
         assert url == 'http://localhost:5601/some/other/path'
+
+    @pytest.mark.asyncio
+    async def test_context_manager_closes_session(self) -> None:
+        """Test that using KibanaClient as context manager closes session."""
+        async with KibanaClient(url='http://localhost:5601') as client:
+            session = client._get_session()
+            assert session is not None
+            assert not session.closed
+
+        # After exiting context, session should be closed
+        assert session.closed
+
+    @pytest.mark.asyncio
+    async def test_manual_close(self) -> None:
+        """Test that manually calling close() closes session and connector."""
+        client = KibanaClient(url='http://localhost:5601')
+        session = client._get_session()
+
+        await client.close()
+
+        assert session.closed
+        assert client._session is None
+        assert client._connector is None
+
+    @pytest.mark.asyncio
+    async def test_close_is_idempotent(self) -> None:
+        """Test that calling close() multiple times is safe."""
+        client = KibanaClient(url='http://localhost:5601')
+        _ = client._get_session()
+
+        await client.close()
+        await client.close()  # Should not raise
