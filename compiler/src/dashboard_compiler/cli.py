@@ -1143,6 +1143,8 @@ def lsp() -> None:
     This server communicates via stdin/stdout using the Language Server
     Protocol specification.
     """
+    # Force logging to stderr to prevent stdout contamination of JSON-RPC protocol
+    logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr, force=True)
     start_lsp_server()
 
 
