@@ -127,7 +127,7 @@ dashboards:
             label: Service
             size: 10
           value:
-            formula: count(kql='log.level:error') / count() * 100
+            formula: count(kql='log.level:error') / count()
             label: Error Rate (%)
             format:
               type: percent
