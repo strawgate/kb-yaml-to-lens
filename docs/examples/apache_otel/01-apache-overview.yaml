@@ -158,15 +158,15 @@ dashboards:
             type: values
             size: 10
           metrics:
-            - formula: average(apache.load.1) / 100
+            - formula: average(apache.load.1)
               label: 1-min Load
               format:
                 type: percent
-            - formula: average(apache.load.5) / 100
+            - formula: average(apache.load.5)
               label: 5-min Load
               format:
                 type: percent
-            - formula: average(apache.load.15) / 100
+            - formula: average(apache.load.15)
               label: 15-min Load
               format:
                 type: percent
@@ -311,7 +311,7 @@ dashboards:
                 type: number
                 pattern: 0,0
             - id: cpu-load
-              formula: average(apache.load.1) / 100
+              formula: average(apache.load.1)
               label: CPU Load (1m)
               format:
                 type: percent

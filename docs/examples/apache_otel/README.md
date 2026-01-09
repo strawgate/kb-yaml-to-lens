@@ -25,10 +25,10 @@ processors:
   resource:
     attributes:
       - key: server.address
-        from_attribute: net.host.name
+        from_attribute: apache.server.name
         action: upsert
       - key: server.port
-        from_attribute: net.host.port
+        from_attribute: apache.server.port
         action: upsert
 
 exporters:
@@ -71,8 +71,8 @@ The dashboards visualize the following Apache HTTP Server metrics:
 | `apache.connections.async` | Async connections by state (writing, keepalive, closing) | Gauge | connections |
 | `apache.uptime` | Server uptime | Sum | seconds |
 | `apache.cpu.load` | Current CPU load percentage | Gauge | percent |
-| `apache.cpu.time` | CPU time by level and mode | Sum | jiffs |
-| `apache.request.time` | Total request processing time | Sum | milliseconds |
+| `apache.cpu.time` | CPU time by level and mode | Sum | {jiff} |
+| `apache.request.time` | Total request processing time | Sum | ms |
 | `apache.load.1` | Server load (1 minute average) | Gauge | percent |
 | `apache.load.5` | Server load (5 minute average) | Gauge | percent |
 | `apache.load.15` | Server load (15 minute average) | Gauge | percent |
