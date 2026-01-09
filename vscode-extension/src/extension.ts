@@ -482,6 +482,252 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         })
     );
+
+    // Register compile folder and upload to Kibana command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.compileFolderAndUpload', async (uri: vscode.Uri) => {
+            try {
+                // Validate folder URI
+                if (!uri || !uri.fsPath) {
+                    vscode.window.showErrorMessage('No folder selected');
+                    return;
+                }
+
+                // Get Kibana configuration
+                let kibanaUrl = configService.getKibanaUrl();
+                let username = await configService.getKibanaUsername();
+                let password = await configService.getKibanaPassword();
+                let apiKey = await configService.getKibanaApiKey();
+                const sslVerify = configService.getKibanaSslVerify();
+
+                // Prompt for Kibana URL if not configured or using default localhost
+                if (!kibanaUrl || kibanaUrl === 'http://localhost:5601') {
+                    const promptedUrl = await vscode.window.showInputBox({
+                        prompt: 'Enter Kibana URL',
+                        placeHolder: 'https://your-kibana-instance.com',
+                        value: kibanaUrl,
+                        ignoreFocusOut: true,
+                        validateInput: (value) => {
+                            if (!value) {
+                                return 'Kibana URL is required';
+                            }
+                            if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                                return 'URL must start with http:// or https://';
+                            }
+                            return undefined;
+                        }
+                    });
+
+                    if (!promptedUrl) {
+                        return; // User cancelled
+                    }
+
+                    kibanaUrl = promptedUrl;
+                    // Save the URL to settings
+                    await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.url', kibanaUrl, vscode.ConfigurationTarget.Global);
+                }
+
+                // Prompt for credentials if not configured
+                if (!username && !password && !apiKey) {
+                    const authMethod = await vscode.window.showQuickPick(
+                        [
+                            { label: 'API Key (Recommended)', value: 'apiKey' },
+                            { label: 'Username/Password', value: 'basic' }
+                        ],
+                        {
+                            placeHolder: 'Select authentication method',
+                            ignoreFocusOut: true
+                        }
+                    );
+
+                    if (!authMethod) {
+                        return; // User cancelled
+                    }
+
+                    if (authMethod.value === 'apiKey') {
+                        const promptedApiKey = await vscode.window.showInputBox({
+                            prompt: 'Enter Kibana API Key',
+                            placeHolder: 'Base64-encoded API key',
+                            password: true,
+                            ignoreFocusOut: true,
+                            validateInput: (value) => {
+                                if (!value) {
+                                    return 'API Key is required';
+                                }
+                                return undefined;
+                            }
+                        });
+
+                        if (!promptedApiKey) {
+                            return; // User cancelled
+                        }
+
+                        apiKey = promptedApiKey;
+                        await configService.setKibanaApiKey(apiKey);
+                    } else {
+                        const promptedUsername = await vscode.window.showInputBox({
+                            prompt: 'Enter Kibana username',
+                            placeHolder: 'elastic',
+                            ignoreFocusOut: true,
+                            validateInput: (value) => {
+                                if (!value) {
+                                    return 'Username is required';
+                                }
+                                return undefined;
+                            }
+                        });
+
+                        if (!promptedUsername) {
+                            return; // User cancelled
+                        }
+
+                        const promptedPassword = await vscode.window.showInputBox({
+                            prompt: 'Enter Kibana password',
+                            placeHolder: 'Password',
+                            password: true,
+                            ignoreFocusOut: true,
+                            validateInput: (value) => {
+                                if (!value) {
+                                    return 'Password is required';
+                                }
+                                return undefined;
+                            }
+                        });
+
+                        if (!promptedPassword) {
+                            return; // User cancelled
+                        }
+
+                        username = promptedUsername;
+                        password = promptedPassword;
+                        await configService.setKibanaUsername(username);
+                        await configService.setKibanaPassword(password);
+                    }
+                }
+
+                // Find all YAML files in the folder
+                const pattern = new vscode.RelativePattern(uri, '**/*.{yaml,yml}');
+                const files = await vscode.workspace.findFiles(pattern);
+
+                if (files.length === 0) {
+                    vscode.window.showInformationMessage('No YAML files found in folder');
+                    return;
+                }
+
+                // Track results
+                interface UploadResult {
+                    filePath: string;
+                    success: boolean;
+                    error?: string;
+                    dashboardCount?: number;
+                }
+                const results: UploadResult[] = [];
+
+                // Process files with progress
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: `Uploading ${files.length} file(s) to Kibana...`,
+                    cancellable: false
+                }, async (progress) => {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileName = file.fsPath;
+                        const displayName = vscode.workspace.asRelativePath(file);
+
+                        progress.report({
+                            message: `(${i + 1}/${files.length}) ${displayName}`,
+                            increment: (100 / files.length)
+                        });
+
+                        try {
+                            // Get all dashboards in the file
+                            const dashboards = await compiler.getDashboards(fileName);
+
+                            if (dashboards.length === 0) {
+                                results.push({
+                                    filePath: displayName,
+                                    success: false,
+                                    error: 'No dashboards found'
+                                });
+                                continue;
+                            }
+
+                            // Upload all dashboards in the file
+                            let uploadedCount = 0;
+                            for (const dashboard of dashboards) {
+                                await compiler.uploadToKibana(
+                                    fileName,
+                                    dashboard.index,
+                                    kibanaUrl,
+                                    username,
+                                    password,
+                                    apiKey,
+                                    sslVerify
+                                );
+                                uploadedCount++;
+                            }
+
+                            results.push({
+                                filePath: displayName,
+                                success: true,
+                                dashboardCount: uploadedCount
+                            });
+                        } catch (error) {
+                            results.push({
+                                filePath: displayName,
+                                success: false,
+                                error: error instanceof Error ? error.message : String(error)
+                            });
+                        }
+                    }
+                });
+
+                // Show results summary
+                const successCount = results.filter(r => r.success).length;
+                const failureCount = results.filter(r => !r.success).length;
+                const totalDashboards = results
+                    .filter(r => r.success)
+                    .reduce((sum, r) => sum + (r.dashboardCount || 0), 0);
+
+                if (failureCount === 0) {
+                    vscode.window.showInformationMessage(
+                        `Successfully uploaded ${totalDashboards} dashboard(s) from ${successCount} file(s) to Kibana`
+                    );
+                } else {
+                    const action = await vscode.window.showWarningMessage(
+                        `Uploaded ${totalDashboards} dashboard(s) from ${successCount} file(s), ${failureCount} file(s) failed`,
+                        'Show Details'
+                    );
+
+                    if (action === 'Show Details') {
+                        const outputChannel = vscode.window.createOutputChannel('Kibana Upload Results');
+                        outputChannel.clear();
+                        outputChannel.appendLine('Kibana Upload Results');
+                        outputChannel.appendLine('='.repeat(50));
+                        outputChannel.appendLine('');
+
+                        for (const result of results) {
+                            if (result.success) {
+                                outputChannel.appendLine(`✅ ${result.filePath} (${result.dashboardCount} dashboard(s))`);
+                            } else {
+                                outputChannel.appendLine(`❌ ${result.filePath}`);
+                                outputChannel.appendLine(`   Error: ${result.error}`);
+                            }
+                        }
+
+                        outputChannel.appendLine('');
+                        outputChannel.appendLine('='.repeat(50));
+                        outputChannel.appendLine(`Total: ${successCount} succeeded, ${failureCount} failed`);
+                        outputChannel.show();
+                    }
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(
+                    `Failed to upload folder: ${error instanceof Error ? error.message : String(error)}`
+                );
+            }
+        })
+    );
 }
 
 export async function deactivate(): Promise<void> {
