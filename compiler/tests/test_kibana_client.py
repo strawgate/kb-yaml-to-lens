@@ -148,6 +148,7 @@ class TestKibanaClient:
 class TestKibanaClientAsync:
     """Test async methods of KibanaClient."""
 
+    @pytest.mark.asyncio
     async def test_find_dashboard_by_title_single_match(self) -> None:
         """Test finding dashboard by exact title with single match."""
         from unittest.mock import AsyncMock, MagicMock
@@ -179,6 +180,7 @@ class TestKibanaClientAsync:
         assert dashboard_id == 'dashboard-123'
         client._get.assert_called_once()
 
+    @pytest.mark.asyncio
     async def test_find_dashboard_by_title_no_matches(self) -> None:
         """Test finding dashboard by title with no matches returns None."""
         from unittest.mock import AsyncMock, MagicMock
@@ -208,6 +210,7 @@ class TestKibanaClientAsync:
         assert dashboard_id is None
         client._get.assert_called_once()
 
+    @pytest.mark.asyncio
     async def test_find_dashboard_by_title_multiple_matches(self) -> None:
         """Test finding dashboard by title with multiple matches returns first."""
         from unittest.mock import AsyncMock, MagicMock
@@ -241,6 +244,7 @@ class TestKibanaClientAsync:
         assert dashboard_id == 'dashboard-first'
         client._get.assert_called_once()
 
+    @pytest.mark.asyncio
     async def test_find_dashboard_by_title_with_url_encoded_spaces(self) -> None:
         """Test finding dashboard by title with URL-encoded spaces."""
         from unittest.mock import AsyncMock, MagicMock

@@ -1026,75 +1026,76 @@ async def _fetch_dashboard(
         click.ClickException: If fetch fails
 
     """
-    try:
-        dashboard_id: str | None = None
-        lookup_method = ''
+    async with client:
+        try:
+            dashboard_id: str | None = None
+            lookup_method = ''
 
-        # Try to extract dashboard ID from URL
-        # If extraction returns something different, it was a URL
-        extracted_id = extract_dashboard_id_from_url(url_or_id_or_name)
-        if extracted_id != url_or_id_or_name:
-            dashboard_id = extracted_id
-            lookup_method = 'URL'
-        else:
-            # Try to find by title/name first
+            # Try to extract dashboard ID from URL
+            # If extraction returns something different, it was a URL
+            extracted_id = extract_dashboard_id_from_url(url_or_id_or_name)
+            if extracted_id != url_or_id_or_name:
+                dashboard_id = extracted_id
+                lookup_method = 'URL'
+            else:
+                # Try to find by title/name first
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn('[progress.description]{task.description}'),
+                    console=console,
+                ) as progress:
+                    task = progress.add_task(f'Searching for dashboard by name: {url_or_id_or_name}...', total=None)
+
+                    dashboard_id = await client.find_dashboard_by_title(url_or_id_or_name)
+
+                    if dashboard_id is not None:
+                        lookup_method = 'name'
+                        progress.update(task, description=f'Found dashboard by name: {dashboard_id}')
+                    else:
+                        # Treat as a plain dashboard ID
+                        dashboard_id = url_or_id_or_name
+                        lookup_method = 'ID'
+                        progress.update(task, description='No match by name, treating as dashboard ID')
+
             with Progress(
                 SpinnerColumn(),
                 TextColumn('[progress.description]{task.description}'),
                 console=console,
             ) as progress:
-                task = progress.add_task(f'Searching for dashboard by name: {url_or_id_or_name}...', total=None)
+                task = progress.add_task(f'Fetching dashboard: {dashboard_id}...', total=None)
 
-                dashboard_id = await client.find_dashboard_by_title(url_or_id_or_name)
+                ndjson_data = await client.export_dashboard(dashboard_id)
 
-                if dashboard_id is not None:
-                    lookup_method = 'name'
-                    progress.update(task, description=f'Found dashboard by name: {dashboard_id}')
-                else:
-                    # Treat as a plain dashboard ID
-                    dashboard_id = url_or_id_or_name
-                    lookup_method = 'ID'
-                    progress.update(task, description='No match by name, treating as dashboard ID')
+                progress.update(task, description='Dashboard fetched successfully')
 
-        with Progress(
-            SpinnerColumn(),
-            TextColumn('[progress.description]{task.description}'),
-            console=console,
-        ) as progress:
-            task = progress.add_task(f'Fetching dashboard: {dashboard_id}...', total=None)
+            # Write NDJSON to output file atomically
+            output.parent.mkdir(parents=True, exist_ok=True)
+            tmp_output = output.with_suffix(output.suffix + '.tmp')
+            _ = tmp_output.write_text(ndjson_data, encoding='utf-8')
+            _ = tmp_output.replace(output)
 
-            ndjson_data = await client.export_dashboard(dashboard_id)
+            console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard fetched successfully')
+            console.print(f'  Dashboard ID: {dashboard_id}')
+            console.print(f'  Lookup method: {lookup_method}')
+            console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
+            console.print(f'  Saved to: {output}')
+            console.print()
+            console.print('[blue]Next Steps:[/blue]')
+            console.print('  1. Disassemble for conversion:')
+            console.print(f'     kb-dashboard disassemble {output} -o output_dir/')
+            console.print('  2. Convert components to YAML format')
+            console.print('  3. Compile back to dashboard:')
+            console.print('     kb-dashboard compile dashboard.yaml -o compiled.ndjson')
 
-            progress.update(task, description='Dashboard fetched successfully')
-
-        # Write NDJSON to output file atomically
-        output.parent.mkdir(parents=True, exist_ok=True)
-        tmp_output = output.with_suffix(output.suffix + '.tmp')
-        _ = tmp_output.write_text(ndjson_data, encoding='utf-8')
-        _ = tmp_output.replace(output)
-
-        console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard fetched successfully')
-        console.print(f'  Dashboard ID: {dashboard_id}')
-        console.print(f'  Lookup method: {lookup_method}')
-        console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
-        console.print(f'  Saved to: {output}')
-        console.print()
-        console.print('[blue]Next Steps:[/blue]')
-        console.print('  1. Disassemble for conversion:')
-        console.print(f'     kb-dashboard disassemble {output} -o output_dir/')
-        console.print('  2. Convert components to YAML format')
-        console.print('  3. Compile back to dashboard:')
-        console.print('     kb-dashboard compile dashboard.yaml -o compiled.ndjson')
-
-    except ValueError as e:
-        msg = f'Invalid dashboard URL, ID, or name: {e}'
-        raise click.ClickException(msg) from e
-    except aiohttp.ClientError as e:
-        msg = f'Error communicating with Kibana: {e}'
-        raise click.ClickException(msg) from e
-    except OSError as e:
-        msg = f'Error writing to file: {e}'
-        raise click.ClickException(msg) from e
+        except ValueError as e:
+            msg = f'Invalid dashboard URL, ID, or name: {e}'
+            raise click.ClickException(msg) from e
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except OSError as e:
+            msg = f'Error writing to file: {e}'
+            raise click.ClickException(msg) from e
 
 
 @cli.command('disassemble')
