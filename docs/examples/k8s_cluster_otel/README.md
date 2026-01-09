@@ -421,24 +421,30 @@ For complete documentation of all metrics collected by the k8sclusterreceiver, s
 
 ### Pod Phase Values
 
-The `k8s.pod.phase` metric uses numeric encoding:
-- `1` = Pending
-- `2` = Running
-- `3` = Succeeded
-- `4` = Failed
-- `5` = Unknown
+The `k8s.pod.status.phase` attribute uses string values from the Kubernetes PodStatus.phase field:
+- `Pending` - Pod has been accepted but is not yet running
+- `Running` - Pod is actively running
+- `Succeeded` - All containers terminated successfully
+- `Failed` - At least one container terminated with failure
+- `Unknown` - Pod status cannot be determined
+
+Note: The dashboard uses numeric filter values (`'1'`, `'2'`, etc.) which may need to be updated to match your data stream's encoding. If your k8sclusterreceiver outputs string phase values, update the dashboard filters accordingly.
 
 ### Namespace Phase Values
 
-The `k8s.namespace.phase` metric uses numeric encoding:
-- `1` = Active
-- `0` = Terminating
+The `k8s.namespace.phase` attribute uses string values:
+- `Active` - Namespace is active and available
+- `Terminating` - Namespace is being deleted
+
+Note: The dashboard uses numeric filter values (`'1'` for Active, `'0'` for Terminating) which may need to be updated to match your data stream's encoding.
 
 ### Container Ready Values
 
-The `k8s.container.ready` metric uses numeric encoding:
-- `1` = Ready
-- `0` = Not Ready
+The `k8s.container.ready` attribute uses string boolean values:
+- `true` - Container is ready to serve requests
+- `false` - Container is not ready
+
+Note: The dashboard uses numeric filter values (`'1'` for ready, `'0'` for not ready) which may need to be updated to match your data stream's encoding.
 
 ## Troubleshooting
 
