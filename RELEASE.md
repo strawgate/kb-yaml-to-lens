@@ -52,7 +52,7 @@ Follow [Semantic Versioning](https://semver.org/):
 - **Minor** (v0.1.0): New features, backward compatible
 - **Patch** (v0.0.1): Bug fixes, backward compatible
 
-### Prerelease Tags
+### Pre-release Tags
 
 For testing releases before official publication:
 
@@ -61,7 +61,7 @@ For testing releases before official publication:
 - **Beta**: `v1.0.0-beta1`
 - **Development**: `v1.0.0-dev1`
 
-Prereleases are automatically detected and marked appropriately in GitHub releases.
+Pre-releases are automatically detected and marked appropriately in GitHub releases.
 
 ## What Gets Released
 
@@ -217,9 +217,9 @@ docker run ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 --versi
 
 VS Code extension will auto-update for users within 24 hours.
 
-## Testing Prereleases
+## Testing Pre-releases
 
-Before cutting an official release, test with a prerelease tag:
+Before cutting an official release, test with a pre-release tag:
 
 ```bash
 # Create and push a release candidate
@@ -227,7 +227,7 @@ git tag v1.0.0-rc1
 git push origin v1.0.0-rc1
 
 # Verify workflows complete successfully
-# Test the prerelease artifacts
+# Test the pre-release artifacts
 # If issues found, fix and create v1.0.0-rc2
 
 # Once satisfied, create the final release
@@ -235,7 +235,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-Prerelease tags are automatically marked as "Pre-release" in GitHub.
+Pre-release tags are automatically marked as "Pre-release" in GitHub.
 
 ## Troubleshooting
 
@@ -294,7 +294,7 @@ npx vsce publish  # Requires marketplace token
 
 If you need to roll back:
 
-1. **Mark release as prerelease** in GitHub UI
+1. **Mark release as pre-release** in GitHub UI
 2. **Publish a patch release** with the fix (preferred approach)
 3. **Yank from PyPI** (last resort): `uv publish --yanked`
 
