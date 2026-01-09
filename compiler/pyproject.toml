@@ -1,6 +1,6 @@
 [project]
-name = "dashboard-compiler"
-version = "0.1.0"
+name = "kb-dashboard-compiler"
+version = "0.1.1"
 description = "Compiles dashboard definitions from YAML to Kibana format"
 readme = "README.md"
 requires-python = ">=3.12"

@@ -444,48 +444,9 @@ Reference the `compiler/inputs/` directory for complete dashboard examples demon
 - [Controls Documentation](controls/config.md) - Dashboard control configuration
 - [Filters Documentation](filters/config.md) - Filter and query configuration
 
-### Analysis Reference
-
-- [Dashboard Pattern Analysis](../dashboard-pattern-analysis.md) - Detailed analysis of Elastic dashboards
-
 ### External Resources
 
 - [Kibana Lens Documentation](https://www.elastic.co/docs/explore-analyze/visualize/lens)
 - [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html)
 - [Kibana Query Language (KQL)](https://www.elastic.co/docs/explore-analyze/query-filter/languages/kql)
-
----
-
-## Changelog
-
-### Version 2.0 (2026-01-09)
-
-**Major refactoring for information density and systemic focus:**
-
-- Reduced length from 1,299 to 490 lines (62% reduction)
-- Removed all specific dashboard/package names, replaced with generic equivalents
-- Eliminated redundant YAML configuration examples (consolidated to panels/lens.md reference)
-- Converted negative "Common Mistakes" section to positive guidance integrated throughout
-- Fixed control filters guidance to reflect actual usage (~25% of dashboards)
-- Converted ASCII decision tree to compact table format
-- Streamlined all visualization type sections
-- Removed full YAML templates in favor of examples directory reference
-- Preserved all valuable guidance while improving clarity and focus
-
-### Version 1.2 (2026-01-08)
-
-- Extended analysis with 27 additional dashboards (total: 49 dashboards from 37 packages)
-- Major pattern refinements for control filters, table positioning, metric cards
-- New discoveries: choropleth maps, links panels, dashboard categorization
-- Enhanced visualization guidance with category-specific patterns
-
-### Version 1.1 (2026-01-08)
-
-- Extended analysis with 15 additional dashboards (total: 22 dashboards)
-- Added treemap, heatmap, and gauge chart guidance
-- Enhanced markdown navigation pattern
-- Documented dashboard complexity spectrum
-
-### Version 1.0 (2026-01-08)
-
-- Initial release based on analysis of 7 Elastic integration dashboards
+- [Elasticsearch Query Language (ESQL)](https://www.elastic.co/docs/reference/query-languages/esql)
