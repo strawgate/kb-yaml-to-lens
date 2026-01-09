@@ -414,46 +414,6 @@ class KibanaClient:
         with output_path.open('wb') as f:
             _ = f.write(screenshot_data)
 
-    async def find_dashboard_by_title(self, title: str) -> str | None:
-        """Find a dashboard by title using the Kibana Saved Objects Find API.
-
-        This method searches for dashboards with a matching title. If multiple matches are found,
-        the first one (sorted by creation date) is returned. If no matches are found, None is returned.
-
-        Args:
-            title: The title of the dashboard to search for
-
-        Returns:
-            The dashboard ID if exactly one match is found, the first dashboard ID if multiple matches
-            are found, or None if no matches are found
-
-        Raises:
-            aiohttp.ClientError: If the request fails
-
-        """
-        endpoint = '/api/saved_objects/_find'
-
-        params = {
-            'type': 'dashboard',
-            'search': title,
-            'search_fields': 'title',
-            'per_page': '10',
-            'sort_field': 'created_at',
-            'sort_order': 'asc',
-        }
-
-        async with await self._get(endpoint, params=params) as response:
-            response.raise_for_status()
-            json_response = await response.json()  # pyright: ignore[reportAny]
-
-            saved_objects = json_response.get('saved_objects', [])  # pyright: ignore[reportAny]
-
-            if len(saved_objects) == 0:  # pyright: ignore[reportAny]
-                return None
-
-            # Return the first match (sorted by creation date)
-            return str(saved_objects[0]['id'])  # pyright: ignore[reportAny]
-
     async def export_dashboard(self, dashboard_id: str) -> str:
         """Export a dashboard from Kibana using the Saved Objects Export API.
 

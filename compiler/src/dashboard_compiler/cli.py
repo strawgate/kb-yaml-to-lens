@@ -958,14 +958,13 @@ def fetch(
 ) -> None:
     r"""Fetch a dashboard from Kibana and save it to a file.
 
-    This command retrieves a dashboard's NDJSON from Kibana using a dashboard URL,
-    dashboard ID, or dashboard name. The dashboard and all its dependent objects (panels, data views)
-    are exported and saved to the specified output file.
+    This command retrieves a dashboard's NDJSON from Kibana using a dashboard URL or ID.
+    The dashboard and all its dependent objects (panels, data views) are exported and saved
+    to the specified output file.
 
     URL_OR_ID_OR_NAME can be:
     - A Kibana dashboard URL (e.g., https://kibana.example.com/app/dashboards#/view/my-id)
     - A plain dashboard ID (e.g., my-dashboard-id)
-    - A dashboard name/title (e.g., "System Metrics")
 
     \b
     Examples:
@@ -976,21 +975,13 @@ def fetch(
         # Fetch using plain dashboard ID
         kb-dashboard fetch my-dashboard-id --output dashboard.ndjson
 
-        # Fetch using dashboard name/title
-        kb-dashboard fetch "System Metrics Dashboard" --output dashboard.ndjson
-
         # Fetch with API key authentication
-        kb-dashboard fetch "System Metrics" --output dashboard.ndjson \
+        kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
             --kibana-api-key "your-api-key"
 
         # Fetch from specific space
         kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
             --kibana-space-id "my-space"
-
-    \b
-    Next Steps:
-        After fetching, you can disassemble the dashboard for conversion:
-        kb-dashboard disassemble dashboard.ndjson -o output_dir/
     """
     # Context is already populated by @kibana_options decorator
     if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
@@ -1002,24 +993,23 @@ def fetch(
         msg = 'Kibana client not configured'
         raise click.ClickException(msg)
 
-    asyncio.run(_fetch_dashboard(cli_context.kibana_client, url_or_id_or_name=url_or_id_or_name, output=output))
+    asyncio.run(_fetch_dashboard(cli_context.kibana_client, url_or_id=url_or_id_or_name, output=output))
 
 
 async def _fetch_dashboard(
     client: KibanaClient,
-    url_or_id_or_name: str,
+    url_or_id: str,
     output: Path,
 ) -> None:
     """Fetch dashboard from Kibana and save to file.
 
     This function attempts to resolve the dashboard in the following order:
     1. If input is a dashboard URL, extract ID from URL
-    2. Otherwise, try to find dashboard by title/name
-    3. If title lookup fails, treat input as a plain dashboard ID
+    2. Otherwise, treat input as a plain dashboard ID
 
     Args:
         client: Pre-configured Kibana client
-        url_or_id_or_name: Dashboard URL, ID, or name/title to fetch
+        url_or_id: Dashboard URL or ID to fetch
         output: Path to save the NDJSON file
 
     Raises:
@@ -1028,34 +1018,16 @@ async def _fetch_dashboard(
     """
     async with client:
         try:
-            dashboard_id: str | None = None
-            lookup_method = ''
-
             # Try to extract dashboard ID from URL
             # If extraction returns something different, it was a URL
-            extracted_id = extract_dashboard_id_from_url(url_or_id_or_name)
-            if extracted_id != url_or_id_or_name:
+            extracted_id = extract_dashboard_id_from_url(url_or_id)
+            if extracted_id != url_or_id:
                 dashboard_id = extracted_id
                 lookup_method = 'URL'
             else:
-                # Try to find by title/name first
-                with Progress(
-                    SpinnerColumn(),
-                    TextColumn('[progress.description]{task.description}'),
-                    console=console,
-                ) as progress:
-                    task = progress.add_task(f'Searching for dashboard by name: {url_or_id_or_name}...', total=None)
-
-                    dashboard_id = await client.find_dashboard_by_title(url_or_id_or_name)
-
-                    if dashboard_id is not None:
-                        lookup_method = 'name'
-                        progress.update(task, description=f'Found dashboard by name: {dashboard_id}')
-                    else:
-                        # Treat as a plain dashboard ID
-                        dashboard_id = url_or_id_or_name
-                        lookup_method = 'ID'
-                        progress.update(task, description='No match by name, treating as dashboard ID')
+                # Treat as a plain dashboard ID
+                dashboard_id = url_or_id
+                lookup_method = 'ID'
 
             with Progress(
                 SpinnerColumn(),
@@ -1079,16 +1051,9 @@ async def _fetch_dashboard(
             console.print(f'  Lookup method: {lookup_method}')
             console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
             console.print(f'  Saved to: {output}')
-            console.print()
-            console.print('[blue]Next Steps:[/blue]')
-            console.print('  1. Disassemble for conversion:')
-            console.print(f'     kb-dashboard disassemble {output} -o output_dir/')
-            console.print('  2. Convert components to YAML format')
-            console.print('  3. Compile back to dashboard:')
-            console.print('     kb-dashboard compile dashboard.yaml -o compiled.ndjson')
 
         except ValueError as e:
-            msg = f'Invalid dashboard URL, ID, or name: {e}'
+            msg = f'Invalid dashboard URL or ID: {e}'
             raise click.ClickException(msg) from e
         except aiohttp.ClientError as e:
             msg = f'Error communicating with Kibana: {e}'

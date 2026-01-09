@@ -10,7 +10,7 @@ This guide provides instructions for converting Kibana dashboard JSON files into
 
 ## Fetching Dashboard from Kibana
 
-Retrieve a dashboard directly from Kibana using a URL, ID, or name:
+Retrieve a dashboard directly from Kibana using a URL or ID:
 
 ```bash
 # Using dashboard URL
@@ -19,31 +19,25 @@ kb-dashboard fetch "https://kibana.example.com/app/dashboards#/view/my-id" \
 
 # Using dashboard ID
 kb-dashboard fetch my-dashboard-id --output dashboard.ndjson
-
-# Using dashboard name/title
-kb-dashboard fetch "System Metrics Dashboard" --output dashboard.ndjson
 ```
 
 **Input Types:**
 
-The `fetch` command accepts three types of input:
+The `fetch` command accepts two types of input:
 
-1. **Dashboard URL** - Full Kibana dashboard URL (contains `://` or `/`)
-2. **Dashboard Name** - Dashboard title/name (searched in Kibana first)
-3. **Dashboard ID** - Plain dashboard ID (used if name lookup finds no matches)
+1. **Dashboard URL** - Full Kibana dashboard URL (e.g., `https://kibana.example.com/app/dashboards#/view/my-id`)
+2. **Dashboard ID** - Plain dashboard ID (e.g., `my-dashboard-id`)
 
 **How it works:**
 
-- If the input looks like a URL (contains `://` or `/`), the dashboard ID is extracted from the URL
-- Otherwise, Kibana is searched for a dashboard with a matching title
-- If no match is found by name, the input is treated as a plain dashboard ID
-- If multiple dashboards match the name, the first one (sorted by creation date) is used
+- If the input looks like a URL, the dashboard ID is extracted from the URL
+- Otherwise, the input is treated as a plain dashboard ID
 
 **Authentication Options:**
 
 ```bash
 # API Key authentication (recommended)
-kb-dashboard fetch "System Metrics" --output dashboard.ndjson \
+kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
     --kibana-api-key "your-api-key"
 
 # Username/password authentication
@@ -60,7 +54,6 @@ kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
 - **URL (standard):** `https://kibana.example.com/app/dashboards#/view/{id}`
 - **URL (with space):** `https://kibana.example.com/s/{space}/app/dashboards#/view/{id}`
 - **URL (with query params):** `https://kibana.example.com/app/dashboards#/view/{id}?_g=...`
-- **Dashboard name/title:** `"System Metrics Dashboard"` or `"Application Monitoring"`
 - **Plain dashboard ID:** `my-dashboard-id` or `dashboard-123`
 
 ## Disassembly
