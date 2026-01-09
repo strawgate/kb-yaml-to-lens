@@ -43,8 +43,10 @@ def find_docstring_yaml_examples() -> list[dict[str, str]]:
 # Collect all examples at module load time
 EXAMPLES = find_docstring_yaml_examples()
 
-# Fail fast if no examples are found
-assert EXAMPLES, 'No YAML examples found in docstrings'
+
+def test_examples_exist() -> None:
+    """Ensure that we found some docstring examples to test."""
+    assert EXAMPLES, 'No YAML examples found in docstrings'
 
 
 @pytest.mark.parametrize('example', EXAMPLES, ids=lambda ex: f'{ex["file"]}::{ex["description"]}')
