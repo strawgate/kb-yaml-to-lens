@@ -91,7 +91,7 @@ else
   printf "Content-Length: %d\r\n\r\n%s" "$CONTENT_LENGTH" "$INIT_REQUEST" | "$BINARY_PATH" lsp > "$TEMP_LSP_LOG" 2>&1 &
   PID=$!
   # Poll for process completion instead of sleeping full duration
-  for i in $(seq 1 "$LSP_TIMEOUT_SECONDS"); do
+  for _ in $(seq 1 "$LSP_TIMEOUT_SECONDS"); do
     if ! kill -0 "$PID" 2>/dev/null; then
       break
     fi
