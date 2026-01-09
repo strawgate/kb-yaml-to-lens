@@ -398,9 +398,12 @@ dashboards:
           query:
             - FROM logs-*
 """)
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (Pydantic discriminated unions may accept or reject multiple discriminators)
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        # Multiple discriminators are rejected (extra='forbid' behavior)
+        assert json_lines == []
+        assert error == snapshot(
+            '1 validation error in multiple-types.yaml:\n  • dashboards[0].panels[0].markdown.esql: Extra inputs are not permitted'
+        )
 
 
 class TestComplexValidationErrors:
@@ -424,9 +427,9 @@ dashboards:
   • dashboards[0].name: Field is required. Each dashboard requires a "name" field.\
 """)
 
-    def test_deeply_nested_error(self, tmp_path: Path) -> None:
-        """Test that deeply nested errors have clear paths."""
-        yaml_file = tmp_path / 'nested-error.yaml'
+    def test_deeply_nested_structure_compiles(self, tmp_path: Path) -> None:
+        """Test that deeply nested structures compile successfully."""
+        yaml_file = tmp_path / 'nested-structure.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test
@@ -444,9 +447,10 @@ dashboards:
           breakdown:
             field: missing_required_field
 """)
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (Tests that deeply nested structures are processed without crashes)
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        # Deeply nested structures should compile successfully
+        assert error is None
+        assert len(json_lines) == 1
 
 
 class TestEmptyOrMinimalFiles:
