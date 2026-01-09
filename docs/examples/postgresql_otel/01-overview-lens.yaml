@@ -141,7 +141,8 @@ dashboards:
           mode: stacked
           data_view: metrics-*
           legend:
-            visible: hide
+            visible: show
+            position: right
           dimension:
             field: '@timestamp'
             type: date_histogram
@@ -162,7 +163,8 @@ dashboards:
           mode: stacked
           data_view: metrics-*
           legend:
-            visible: hide
+            visible: show
+            position: right
           dimension:
             field: '@timestamp'
             type: date_histogram

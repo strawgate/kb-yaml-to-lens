@@ -154,7 +154,7 @@ dashboards:
             field: time_bucket
           metrics:
             - field: commits
-              label: Commits/min
+              label: Commits (max)
               format:
                 type: number
                 decimals: 2
@@ -175,7 +175,7 @@ dashboards:
             field: time_bucket
           metrics:
             - field: rollbacks
-              label: Rollbacks/min
+              label: Rollbacks (max)
               format:
                 type: number
                 decimals: 2
@@ -198,7 +198,7 @@ dashboards:
             field: time_bucket
           metrics:
             - field: blocks
-              label: Blocks Read/min
+              label: Blocks Read (max)
               format:
                 type: number
                 decimals: 1
@@ -225,7 +225,7 @@ dashboards:
             field: time_bucket
           metrics:
             - field: operations
-              label: Operations/min
+              label: Operations (max)
               format:
                 type: number
                 decimals: 1
@@ -291,10 +291,10 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - LIMIT 1
             - STATS BY database = resource.attributes.postgresql.database.name, host = resource.attributes.host.name, version = resource.attributes.postgresql.version
             - KEEP database, host, version
             - SORT database ASC
+            - LIMIT 100
           dimensions:
             - field: database
             - field: host
