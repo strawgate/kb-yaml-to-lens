@@ -104,7 +104,23 @@ export class GridEditorPanel {
         const pythonPath = resolver.resolvePythonForScripts();
 
         return new Promise((resolve, reject) => {
-            const process = spawn(pythonPath, args, {
+            let settled = false;
+            const settleReject = (err: Error) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                reject(err);
+            };
+            const settleResolve = (val: T) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                resolve(val);
+            };
+
+            const child = spawn(pythonPath, args, {
                 cwd: path.join(this.extensionPath, '..')
             });
 
@@ -112,34 +128,41 @@ export class GridEditorPanel {
             let stderr = '';
 
             const timeoutHandle = setTimeout(() => {
-                process.kill();
-                reject(new Error(`${errorContext} timed out after ${timeout / 1000} seconds`));
+                try {
+                    child.kill();
+                } catch {
+                    // ignore
+                }
+                settleReject(new Error(`${errorContext} timed out after ${timeout / 1000} seconds. stderr: ${stderr || '(empty)'}`));
             }, timeout);
 
-            process.on('error', (err) => {
+            child.on('error', (err) => {
                 clearTimeout(timeoutHandle);
-                reject(new Error(`Failed to start Python: ${err.message}`));
+                settleReject(new Error(`Failed to start Python: ${err.message}`));
             });
 
-            process.stdout.on('data', (data) => {
+            child.stdout.on('data', (data) => {
                 stdout += data.toString();
             });
 
-            process.stderr.on('data', (data) => {
+            child.stderr.on('data', (data) => {
                 stderr += data.toString();
             });
 
-            process.on('close', (code) => {
+            child.on('close', (code) => {
                 clearTimeout(timeoutHandle);
+                if (settled) {
+                    return;
+                }
                 if (code !== 0) {
-                    reject(new Error(`${errorContext} failed: ${stderr || stdout}`));
+                    settleReject(new Error(`${errorContext} failed: ${stderr || stdout}`));
                     return;
                 }
 
                 try {
-                    resolve(parseResult(stdout));
+                    settleResolve(parseResult(stdout));
                 } catch (error) {
-                    reject(new Error(`Failed to parse result: ${error}`));
+                    settleReject(new Error(`Failed to parse result: ${error instanceof Error ? error.message : String(error)}`));
                 }
             });
         });
@@ -150,9 +173,12 @@ export class GridEditorPanel {
             ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()],
             'Grid extraction',
             (stdout) => {
-                const result = JSON.parse(stdout);
+                const result = JSON.parse(stdout.trim());
                 if (result.error) {
                     throw new Error(result.error);
+                }
+                if (!result || typeof result !== 'object' || !Array.isArray(result.panels)) {
+                    throw new Error('Invalid grid extractor output (expected { title, description, panels[] })');
                 }
                 return result;
             }
@@ -172,7 +198,7 @@ export class GridEditorPanel {
             );
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to update grid: ${error instanceof Error ? error.message : String(error)}`);
-            throw error;
+            return;
         }
     }
 

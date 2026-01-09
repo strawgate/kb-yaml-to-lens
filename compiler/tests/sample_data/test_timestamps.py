@@ -213,10 +213,10 @@ def test_transform_documents_with_invalid_timestamps() -> None:
     result = transform_documents(documents, transform)
 
     assert len(result) == 2
-    # Invalid timestamp remains unchanged
-    assert result[0]['@timestamp'] == 'not-a-timestamp'
-    # Valid timestamp is transformed
-    assert result[1]['@timestamp'] != '2024-01-01T00:00:00Z'
+    invalid = next(doc for doc in result if doc.get('message') == 'invalid')
+    valid = next(doc for doc in result if doc.get('message') == 'valid')
+    assert invalid['@timestamp'] == 'not-a-timestamp'
+    assert valid['@timestamp'] != '2024-01-01T00:00:00Z'
 
 
 def test_transform_documents_all_invalid_timestamps() -> None:

@@ -492,7 +492,7 @@ export class PreviewPanel {
             const typeLabel = this.getChartTypeLabel(panel.type);
 
             panelsHtml += `
-                <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${typeLabel})">
+                <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${escapeHtml(typeLabel)})">
                     <div class="panel-header">
                         <span class="panel-icon">${icon}</span>
                         <span class="panel-type-label">${escapeHtml(typeLabel)}: ${escapeHtml(panel.title || 'Untitled')}</span>

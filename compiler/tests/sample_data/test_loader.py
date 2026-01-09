@@ -269,8 +269,8 @@ async def test_load_sample_data_with_bulk_error_details() -> None:
         assert result.success is False
         assert result.success_count == 1
         assert len(result.errors) == 2
-        assert 'mapper_parsing_exception' in result.errors[0]
-        assert 'version_conflict_engine_exception' in result.errors[1]
+        assert any('mapper_parsing_exception' in e for e in result.errors)
+        assert any('version_conflict_engine_exception' in e for e in result.errors)
 
 
 @pytest.mark.asyncio
