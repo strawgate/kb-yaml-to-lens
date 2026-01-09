@@ -35,27 +35,43 @@ type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat
 
 
 class LensMetricFormat(BaseCfgModel):
-    """The format of the metric."""
+    """Standard format configuration for displaying metric values.
+
+    Supports common numeric formats with optional suffix, compact notation, and custom patterns.
+    """
 
     type: Literal['number', 'bytes', 'bits', 'percent', 'duration']
+    """The format type for the metric value.
+
+    Available formats:
+    - **number**: Plain numeric value with optional decimal places
+    - **bytes**: Byte size formatting (B, KB, MB, GB, TB)
+    - **bits**: Bit size formatting (b, Kb, Mb, Gb, Tb)
+    - **percent**: Percentage formatting with % symbol
+    - **duration**: Time duration formatting (ms, s, m, h, d)
+    """
 
     suffix: str | None = Field(default=None)
-    """The suffix to display after the number."""
+    """Optional suffix to display after the formatted number (e.g., " requests", " users")."""
 
     compact: bool | None = Field(default=None)
-    """Whether to display the number in a compact format."""
+    """Whether to use compact notation (e.g., 1.2K instead of 1200). Defaults to Kibana's behavior."""
 
     pattern: str | None = Field(default=None)
-    """The pattern to display the number in."""
+    """Custom numeral.js format pattern (e.g., "0.00" for 2 decimal places, "0,0" for thousands separator)."""
 
 
 class LensCustomMetricFormat(BaseCfgModel):
-    """The format of the metric."""
+    """Custom format configuration for metrics using numeral.js patterns.
+
+    Use this for complete control over numeric formatting with numeral.js syntax.
+    """
 
     type: Literal['custom'] = 'custom'
+    """Format type identifier. Must be 'custom' for custom formats."""
 
     pattern: str = Field(...)
-    """The pattern to display the number in."""
+    """numeral.js format pattern (e.g., "0,0.00" for comma-separated numbers with 2 decimals)."""
 
 
 class BaseLensMetric(BaseMetric):
