@@ -100,19 +100,19 @@ dashboards:
               blocks_read = MAX(postgresql.blocks_read) BY database = resource.attributes.postgresql.database.name
             - EVAL backends_count = ROUND(backends, 0)
             - EVAL size_bytes = db_size
-            - EVAL commit_count = commits
-            - EVAL rollback_count = rollbacks
-            - EVAL blocks_count = ROUND(blocks_read, 1)
-            - KEEP database, backends_count, size_bytes, commit_count, rollback_count, blocks_count
+            - EVAL commit_total = commits
+            - EVAL rollback_total = rollbacks
+            - EVAL blocks_read_total = ROUND(blocks_read, 1)
+            - KEEP database, backends_count, size_bytes, commit_total, rollback_total, blocks_read_total
             - SORT database ASC
             - LIMIT 100
           dimensions:
             - field: database
             - field: backends_count
             - field: size_bytes
-            - field: commit_count
-            - field: rollback_count
-            - field: blocks_count
+            - field: commit_total
+            - field: rollback_total
+            - field: blocks_read_total
 
       # Connections Over Time (using Lens for time series)
       - title: Active Connections Over Time
@@ -134,102 +134,92 @@ dashboards:
             - formula: sum(postgresql.backends)
               label: Active Connections
 
-      # Transaction Metrics using ES|QL Time Series
+      # Transaction Metrics (using Lens for rate calculations)
       - title: Transaction Rate - Commits
         grid: {x: 0, y: 37, w: 24, h: 10}
-        esql:
+        lens:
           type: area
           mode: stacked
-          query: |
-            FROM metrics-*
-            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
-            | WHERE postgresql.commits IS NOT NULL
-            | STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 1 minute), database = resource.attributes.postgresql.database.name
-            | SORT time_bucket ASC
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: time_bucket
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: resource.attributes.postgresql.database.name
+            type: values
+            size: 20
           metrics:
-            - field: commits
-              label: Commits (max)
+            - formula: counter_rate(max(postgresql.commits))
+              label: Commits/sec
               format:
                 type: number
-                decimals: 2
-          breakdown:
-            field: database
+                pattern: 0,0.00
       - title: Transaction Rate - Rollbacks
         grid: {x: 24, y: 37, w: 24, h: 10}
-        esql:
+        lens:
           type: area
           mode: stacked
-          query: |
-            FROM metrics-*
-            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
-            | WHERE postgresql.rollbacks IS NOT NULL
-            | STATS rollbacks = MAX(postgresql.rollbacks) BY time_bucket = BUCKET(@timestamp, 1 minute), database = resource.attributes.postgresql.database.name
-            | SORT time_bucket ASC
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: time_bucket
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: resource.attributes.postgresql.database.name
+            type: values
+            size: 20
           metrics:
-            - field: rollbacks
-              label: Rollbacks (max)
+            - formula: counter_rate(max(postgresql.rollbacks))
+              label: Rollbacks/sec
               format:
                 type: number
-                decimals: 2
-          breakdown:
-            field: database
+                pattern: 0,0.00
 
-      # Block I/O Metrics using ES|QL
+      # Block I/O Metrics (using Lens for rate calculations)
       - title: Block I/O - By Source
         grid: {x: 0, y: 47, w: 48, h: 12}
-        esql:
+        lens:
           type: line
-          query: |
-            FROM metrics-*
-            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
-            | WHERE postgresql.blocks_read IS NOT NULL
-            | WHERE attributes.source IS NOT NULL
-            | STATS blocks = MAX(postgresql.blocks_read) BY time_bucket = BUCKET(@timestamp, 1 minute), source = attributes.source
-            | SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: blocks
-              label: Blocks Read (max)
-              format:
-                type: number
-                decimals: 1
-          breakdown:
-            field: source
+          data_view: metrics-*
           legend:
             visible: show
             position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.source
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(postgresql.blocks_read))
+              label: Blocks Read/sec
 
-      # Database Operations using ES|QL
+      # Database Operations (using Lens for rate calculations)
       - title: Database Operations by Type
         grid: {x: 0, y: 59, w: 48, h: 12}
-        esql:
+        lens:
           type: bar
           mode: stacked
-          query: |
-            FROM metrics-*
-            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
-            | WHERE postgresql.operations IS NOT NULL
-            | WHERE attributes.operation IS NOT NULL
-            | STATS operations = MAX(postgresql.operations) BY time_bucket = BUCKET(@timestamp, 1 minute), operation = attributes.operation
-            | SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: operations
-              label: Operations (max)
-              format:
-                type: number
-                decimals: 1
-          breakdown:
-            field: operation
+          data_view: metrics-*
           legend:
             visible: show
             position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.operation
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(postgresql.operations))
+              label: Operations/sec
 
       # Database Sizes using ES|QL Pie Chart
       - title: Database Sizes
