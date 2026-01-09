@@ -15,7 +15,13 @@ class ImagePanelConfig(BaseCfgModel):
     """The URL of the image to be displayed in the panel. This is a required field."""
 
     fit: Literal['contain', 'cover', 'fill', 'none'] | None = Field(default=None)
-    """The sizing of the image. Can be "contain", "cover", "fill", or "none". Defaults to "contain"."""
+    """Controls how the image is sized within the panel. Defaults to "contain".
+
+    - **contain**: Scales to fit within the panel while maintaining aspect ratio. Entire image visible.
+    - **cover**: Scales to fill the panel while maintaining aspect ratio. May be cropped.
+    - **fill**: Stretches or compresses to fill the panel, potentially altering aspect ratio.
+    - **none**: Displays at original size. Cropped if larger, unchanged if smaller than panel.
+    """
 
     description: str | None = Field(default=None)
     """Alternative text for the image, used for accessibility. Defaults to an empty string if not set."""

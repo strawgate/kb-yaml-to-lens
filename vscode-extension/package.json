@@ -4,6 +4,7 @@
   "description": "Compile and preview Kibana YAML dashboards with live reload",
   "version": "0.1.0",
   "publisher": "strawgate",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },

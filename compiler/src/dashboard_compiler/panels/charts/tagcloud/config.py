@@ -13,16 +13,19 @@ from dashboard_compiler.shared.config import BaseCfgModel
 
 
 class TagcloudOrientationEnum(StrEnum):
-    """Text orientation options for tagcloud."""
+    """Text orientation options for tagcloud visualizations.
+
+    Controls how tags are rotated in the word cloud display.
+    """
 
     SINGLE = 'single'
-    """Single horizontal orientation."""
+    """All tags horizontal (0°) - cleanest, most readable option."""
 
     RIGHT_ANGLED = 'right angled'
-    """Mix of horizontal and vertical."""
+    """Mix of horizontal (0°) and vertical (90°) orientations - classic word cloud style."""
 
     MULTIPLE = 'multiple'
-    """Multiple angles."""
+    """Multiple angles including diagonal - most artistic but potentially less readable."""
 
 
 class TagcloudAppearance(BaseCfgModel):
