@@ -255,7 +255,127 @@ panel = LensPanel(
 )
 ```
 
+## Number Formatting
+
+Metric charts support various number formatting options to display values in a user-friendly way. You can add suffixes, use compact notation, or apply custom number patterns.
+
+### Suffix Formatting
+
+Add custom text after metric values to provide context:
+
+```yaml
+dashboards:
+  - name: "Metrics with Suffixes"
+    panels:
+      - title: "Request Rate"
+        grid: { x: 0, y: 0, w: 12, h: 8 }
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Requests"
+            format:
+              type: number
+              suffix: " req/sec"
+
+      - title: "Active Users"
+        grid: { x: 12, y: 0, w: 12, h: 8 }
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: unique_count
+            field: "user.id"
+            label: "Users"
+            format:
+              type: number
+              suffix: " users"
+```
+
+### Compact Notation
+
+Use compact notation to display large numbers in a more readable format (e.g., 1.2K instead of 1200):
+
+```yaml
+dashboards:
+  - name: "Compact Metrics"
+    panels:
+      - title: "Total Events (Compact)"
+        grid: { x: 0, y: 0, w: 12, h: 8 }
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Events"
+            format:
+              type: number
+              compact: true  # Displays as 1.2M, 500K, etc.
+```
+
+### Custom Number Patterns
+
+Apply custom formatting patterns using numeral.js syntax:
+
+```yaml
+dashboards:
+  - name: "Formatted Metrics"
+    panels:
+      - title: "Revenue (Currency)"
+        grid: { x: 0, y: 0, w: 12, h: 8 }
+        lens:
+          type: metric
+          data_view: "sales-*"
+          primary:
+            aggregation: sum
+            field: "transaction.amount"
+            label: "Total Revenue"
+            format:
+              type: number
+              pattern: "0,0.00"  # Comma separators, 2 decimals
+
+      - title: "Success Rate"
+        grid: { x: 12, y: 0, w: 12, h: 8 }
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            formula: "count(kql='status:success') / count() * 100"
+            label: "Success Rate"
+            format:
+              type: number
+              pattern: "0.0a"    # 1 decimal + suffix (K, M, etc.)
+              suffix: "%"
+```
+
+### Combining Format Options
+
+You can combine multiple formatting options for maximum flexibility:
+
+```yaml
+dashboards:
+  - name: "Combined Formatting"
+    panels:
+      - title: "Bandwidth Usage"
+        grid: { x: 0, y: 0, w: 12, h: 8 }
+        lens:
+          type: metric
+          data_view: "network-*"
+          primary:
+            aggregation: sum
+            field: "network.bytes"
+            label: "Total Bandwidth"
+            format:
+              type: bytes       # Built-in bytes format
+              compact: true     # Use compact notation (MB, GB)
+              suffix: "/day"    # Add custom suffix
+```
+
+For more examples of metric formatting, see [metric-formatting-examples.yaml](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/metric-formatting-examples.yaml).
+
 ## Related
 
 - [Base Panel Configuration](./base.md)
 - [Dashboard Configuration](../dashboard/dashboard.md)
+- [Metric Formatting Examples](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/metric-formatting-examples.yaml)
