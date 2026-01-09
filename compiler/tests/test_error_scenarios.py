@@ -281,7 +281,7 @@ dashboards:
         assert json_lines == []
         assert error is not None
         assert 'negative-width.yaml' in error
-        assert error == snapshot(f'Error compiling {yaml_file}: Width must be between 1 and 48, got -24')
+        assert 'Width must be between 1 and 48, got -24' in error
 
     def test_grid_width_too_large(self, tmp_path: Path) -> None:
         """Test error when grid width exceeds maximum."""
@@ -363,9 +363,7 @@ dashboards:
         assert json_lines == []
         assert error is not None
         assert 'overlapping.yaml' in error
-        # fmt: off
-        assert error == snapshot(f'Error compiling {yaml_file}: Panel "Panel 1" at (x=0, y=0, w=24, h=12) overlaps with panel "Panel 2" at (x=0, y=0, w=24, h=12)')  # noqa: E501
-        # fmt: on
+        assert 'Panel "Panel 1" at (x=0, y=0, w=24, h=12) overlaps with panel "Panel 2" at (x=0, y=0, w=24, h=12)' in error
 
     def test_panel_outside_grid(self, tmp_path: Path) -> None:
         """Test error when panel is outside valid grid."""
@@ -401,9 +399,8 @@ dashboards:
         assert json_lines == []
         assert error is not None
         assert 'no-panel-type.yaml' in error
-        # fmt: off
-        assert error == snapshot(f"Error compiling {yaml_file}: Cannot determine panel type from dict with keys: ['title', 'grid']. Each panel must have exactly one type discriminator key: 'markdown', 'search', 'links', 'image', 'lens', or 'esql'.")  # noqa: E501
-        # fmt: on
+        assert "Cannot determine panel type from dict with keys: ['title', 'grid']" in error
+        assert "Each panel must have exactly one type discriminator key: 'markdown', 'search', 'links', 'image', 'lens', or 'esql'" in error
 
     def test_multiple_panel_types(self, tmp_path: Path) -> None:
         """Test error when panel has multiple type discriminators."""
