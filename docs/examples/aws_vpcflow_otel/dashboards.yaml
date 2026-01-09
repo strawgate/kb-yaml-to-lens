@@ -21,15 +21,7 @@ dashboards:
         data_view: logs-*
         field: aws.vpc.flow.action
     panels:
-      # Section 1: Navigation & Context (y:0-5)
-      - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
-        description: Links to related dashboards
-        links:
-          layout: horizontal
-          items:
-            - label: VPC Flow Logs Overview
-              dashboard: aws-vpcflow-otel-overview
+      # Section 1: Context (y:0-3)
       - markdown:
           content: |
             ## AWS VPC Flow Logs DevOps/SRE Dashboard
@@ -42,11 +34,11 @@ dashboards:
             - **Security Deep Dive** - Investigate rejected traffic by protocol, port, and detailed logs
             - **Performance Analysis** - Monitor interface-level traffic breakdown by action
             - **Account Analysis** - Track multi-account traffic metrics and patterns
-        grid: {x: 0, y: 2, w: 48, h: 3}
+        grid: {x: 0, y: 0, w: 48, h: 3}
 
-      # Section 2: KPI Metrics (y:5-11)
+      # Section 2: KPI Metrics (y:3-9)
       - title: Total Flow Records
-        grid: {x: 0, y: 5, w: 12, h: 6}
+        grid: {x: 0, y: 3, w: 12, h: 6}
         esql:
           type: metric
           query:
@@ -57,7 +49,7 @@ dashboards:
             field: total_flows
             label: Flow Records
       - title: Rejection Rate
-        grid: {x: 12, y: 5, w: 12, h: 6}
+        grid: {x: 12, y: 3, w: 12, h: 6}
         esql:
           type: metric
           query:
@@ -72,7 +64,7 @@ dashboards:
               type: percent
               decimals: 1
       - title: Total Bandwidth
-        grid: {x: 24, y: 5, w: 12, h: 6}
+        grid: {x: 24, y: 3, w: 12, h: 6}
         esql:
           type: metric
           query:
@@ -85,7 +77,7 @@ dashboards:
             format:
               type: bytes
       - title: Unique Active Interfaces
-        grid: {x: 36, y: 5, w: 12, h: 6}
+        grid: {x: 36, y: 3, w: 12, h: 6}
         esql:
           type: metric
           query:
@@ -96,9 +88,9 @@ dashboards:
             field: unique_interfaces
             label: Active Interfaces
 
-      # Section 3: Traffic Distribution (y:11-23)
+      # Section 3: Traffic Distribution (y:9-21)
       - title: Top Protocols
-        grid: {x: 0, y: 11, w: 16, h: 12}
+        grid: {x: 0, y: 9, w: 16, h: 12}
         esql:
           type: pie
           query:
@@ -113,7 +105,7 @@ dashboards:
           dimensions:
             - field: network.protocol.name
       - title: Top Interfaces by Traffic
-        grid: {x: 16, y: 11, w: 16, h: 12}
+        grid: {x: 16, y: 9, w: 16, h: 12}
         esql:
           type: bar
           query:
@@ -135,7 +127,7 @@ dashboards:
             y_left_axis:
               title: Bytes
       - title: Top Destination Ports
-        grid: {x: 32, y: 11, w: 16, h: 12}
+        grid: {x: 32, y: 9, w: 16, h: 12}
         esql:
           type: bar
           query:
@@ -155,9 +147,9 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Section 4: Time-Series Trends (y:23-51)
+      # Section 4: Time-Series Trends (y:21-49)
       - title: Traffic Volume Over Time
-        grid: {x: 0, y: 23, w: 48, h: 14}
+        grid: {x: 0, y: 21, w: 48, h: 14}
         esql:
           type: area
           query:
@@ -179,7 +171,7 @@ dashboards:
             y_left_axis:
               title: Flow Count
       - title: Bandwidth Usage Over Time
-        grid: {x: 0, y: 37, w: 48, h: 14}
+        grid: {x: 0, y: 35, w: 48, h: 14}
         esql:
           type: line
           query:
@@ -200,9 +192,9 @@ dashboards:
             y_left_axis:
               title: Bandwidth
 
-      # Section 5: Source Analysis (y:51-66)
+      # Section 5: Source Analysis (y:49-64)
       - title: Top Source IPs - Detailed
-        grid: {x: 0, y: 51, w: 24, h: 15}
+        grid: {x: 0, y: 49, w: 24, h: 15}
         esql:
           type: datatable
           query:
@@ -237,14 +229,16 @@ dashboards:
             enabled: true
             page_size: 20
       - title: Top Source IP Ranges
-        grid: {x: 24, y: 51, w: 24, h: 15}
+        grid: {x: 24, y: 49, w: 24, h: 15}
         esql:
           type: bar
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
             - EVAL ip_parts = SPLIT(source.address, ".")
-            - EVAL ip_range = CONCAT(ip_parts[0], ".", ip_parts[1], ".0.0/16")
+            - EVAL first_octet = TO_STRING(MV_FIRST(ip_parts))
+            - EVAL second_octet = TO_STRING(MV_SLICE(ip_parts, 1, 2))
+            - EVAL ip_range = CONCAT(first_octet, ".", second_octet, ".0.0/16")
             - STATS flow_count = COUNT() BY ip_range
             - SORT flow_count DESC
             - LIMIT 10
@@ -259,9 +253,9 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Section 6: Security Deep Dive (y:66-96)
+      # Section 6: Security Deep Dive (y:64-94)
       - title: Rejected Traffic by Protocol
-        grid: {x: 0, y: 66, w: 24, h: 15}
+        grid: {x: 0, y: 64, w: 24, h: 15}
         esql:
           type: bar
           query:
@@ -281,7 +275,7 @@ dashboards:
             y_left_axis:
               title: Rejected Count
       - title: Top Rejected Ports
-        grid: {x: 24, y: 66, w: 24, h: 15}
+        grid: {x: 24, y: 64, w: 24, h: 15}
         esql:
           type: bar
           query:
@@ -301,7 +295,7 @@ dashboards:
             y_left_axis:
               title: Rejected Count
       - title: Detailed Rejection Logs
-        grid: {x: 0, y: 81, w: 48, h: 15}
+        grid: {x: 0, y: 79, w: 48, h: 15}
         esql:
           type: datatable
           query:
@@ -329,9 +323,9 @@ dashboards:
             enabled: true
             page_size: 25
 
-      # Section 7: Performance Analysis (y:96-111)
+      # Section 7: Performance Analysis (y:94-109)
       - title: Interface Traffic Analysis
-        grid: {x: 0, y: 96, w: 48, h: 15}
+        grid: {x: 0, y: 94, w: 48, h: 15}
         esql:
           type: bar
           query:
@@ -351,9 +345,9 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Section 8: Account Analysis (y:111-126)
+      # Section 8: Account Analysis (y:109-124)
       - title: Traffic by Cloud Account
-        grid: {x: 0, y: 111, w: 48, h: 15}
+        grid: {x: 0, y: 109, w: 48, h: 15}
         esql:
           type: datatable
           query:
