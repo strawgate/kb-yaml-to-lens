@@ -1,23 +1,43 @@
 # Kibana Dashboard Compiler - VS Code Extension
 
-A VS Code extension that provides live compilation and preview for Kibana YAML dashboards. This extension makes it fast and easy to edit and work with YAML dashboard files by automatically compiling them on save and providing a live preview.
+**The easiest way to build Kibana dashboards** - No Python installation required!
+
+Build, preview, and deploy Kibana dashboards using simple YAML syntax with live feedback and visual editing tools. This extension makes dashboard development fast, intuitive, and error-free.
+
+**Perfect for:** Dashboard developers, DevOps engineers, data analysts who want to manage Kibana dashboards as code without the complexity of JSON or Python tooling.
 
 ![YAML to Kibana-768](https://github.com/user-attachments/assets/89ea7a4b-5a72-4fb2-8a2b-211704501a07)
 
 ## Features
 
-- **Auto-complete and Validation**: Schema-based auto-complete, validation, and hover documentation for YAML dashboard files (powered by Red Hat YAML extension)
-- **Code Snippets**: Pre-built snippets for all panel types, controls, and layouts - just start typing a prefix like `panel-lens-metric` and press Tab
-- **Auto-compile on Save**: Automatically compiles your YAML dashboard files whenever you save them
-- **Live Preview**: View your compiled dashboard in a side-by-side preview panel with live reload functionality
-- **Visual Grid Layout Editor**: Drag and drop panels to rearrange them, resize panels interactively, with automatic YAML updates
-- **Export to NDJSON**: Copy or download compiled dashboards as NDJSON for direct import into Kibana
-- **Open in Kibana**: Upload dashboards directly to Kibana and open them in your browser with one command
-- **Secure Credential Storage**: Kibana credentials stored encrypted using VS Code's SecretStorage API (OS keychain)
+### Zero Configuration Setup
+- **No Python Required**: Bundled LSP server binary for all platforms (Windows, macOS, Linux)
+- **Automatic Dependencies**: Red Hat YAML extension installed automatically
+- **Instant Start**: Install extension → create file → start building
+
+### Intelligent Development Experience
+- **Schema-Based Auto-complete**: IntelliSense for all dashboard properties and panel types
+- **Live Validation**: Real-time error checking with helpful messages
+- **Hover Documentation**: In-editor documentation for every property
+- **40+ Code Snippets**: Pre-built templates for panels, controls, and layouts (type prefix + Tab)
+
+### Visual Workflow
+- **Auto-compile on Save**: Background compilation with instant error feedback
+- **Live Preview Panel**: Side-by-side preview with automatic reload
+- **Visual Grid Layout Editor**: Drag-and-drop panel positioning with pixel-perfect control
+- **Interactive Resize**: Drag panel corners to adjust size, changes sync to YAML
+
+### Kibana Integration
+- **Direct Upload**: One-click deployment to Kibana
+- **Secure Credentials**: API keys and passwords stored in OS keychain
+- **Browser Integration**: Automatically opens uploaded dashboard in browser
+- **Export to NDJSON**: Copy or download compiled dashboards for manual import
 
 ## Requirements
 
 ### For End Users
+
+**You only need VS Code - no Python installation!**
 
 - VS Code 1.85.0 or higher
 - Red Hat YAML extension (automatically installed)
@@ -25,7 +45,10 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 ### For Developers
 
+Only needed if you're developing the extension itself:
+
 - Python 3.12+ with `dashboard_compiler` package installed (only needed for local development)
+- Node.js 18+ for building the extension
 - VS Code 1.85.0 or higher
 
 ## Installation
@@ -38,14 +61,21 @@ A VS Code extension that provides live compilation and preview for Kibana YAML d
 
 Note: Cursor and other VS Code forks use the [OpenVSX Registry](https://open-vsx.org/) instead of the VS Code Marketplace.
 
-### From VS Code Marketplace (Coming Soon)
-
-Install directly from the VS Code Extensions marketplace.
-
 ### From VSIX (Manual)
 
 1. Download the platform-specific `.vsix` file from releases
 2. In VS Code/Cursor: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+
+### Verify Installation
+
+Confirm the extension is working correctly:
+
+1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P on Mac)
+2. Type "YAML Dashboard" - you should see extension commands
+3. Create test file: `test-dashboard.yaml`
+4. Type `dashboard` + Tab - snippet should insert template
+
+If commands don't appear, restart VS Code and check Output panel (View → Output → "Kibana Dashboard Compiler").
 
 Or use the Makefile for automated installation:
 
