@@ -329,6 +329,10 @@ Time series visualization choice:
 
 ### 3.8 Control Filters (Interactive Dashboard Controls)
 
+> **⚠️ NOTE:** Phase 3 analysis (27 additional dashboards) determined that **0 out of 49 total dashboards use controls. Controls are not part of the Elastic integration dashboard pattern.** The observations below represent initial findings from the first 7 dashboards that were later disproven by extended analysis. This section is preserved for historical context.
+
+**Initial Observations (Later Disproven):**
+
 **Positioning:** Top of dashboard, immediately after navigation
 
 **Types Observed:**
@@ -353,7 +357,9 @@ Time series visualization choice:
 - Support for exclusion (Azure Cloud Region)
 - Typically 2-4 controls per dashboard
 
-**Pattern:** Controls used when dashboards need to support filtering across multiple dimensions. Not present on all dashboards - only when needed for multi-tenant or multi-system scenarios.
+**Initial Pattern (Superseded):** Controls used when dashboards need to support filtering across multiple dimensions. Not present on all dashboards - only when needed for multi-tenant or multi-system scenarios.
+
+**Revised Finding:** Extended analysis revealed that these initial observations were incorrect. Elastic integrations rely exclusively on time picker and dashboard-level filters, not interactive control filters.
 
 ---
 
@@ -1274,7 +1280,7 @@ Common non-Lens panels:
 ##### NEW: Links Panels for Navigation
 
 - Found in: Cassandra (2 dashboards), Nginx (3 dashboards)
-- **Pattern:** Multi-dashboard packages use links panels instead of markdown for navigation
+- **Pattern:** Multi-dashboard packages use links panels instead of Markdown for navigation
 - **Confidence: 100%** - Links panels are an alternative navigation method
 - **New guidance:** "Use links panels for dashboard navigation in packages with 2+ dashboards"
 

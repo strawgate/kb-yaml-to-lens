@@ -2,7 +2,7 @@
 
 **Based on:** Analysis of Elastic Integrations repository dashboards
 **Last Updated:** 2026-01-08
-**Version:** 1.1
+**Version:** 1.2
 
 ---
 
@@ -1005,19 +1005,6 @@ dashboards:
   - name: "[Security Package] Threat Analysis"
     description: Security event monitoring and threat detection
 
-    controls:
-      - type: options
-        label: Filter by Host
-        data_view: logs-*
-        field: host.name
-        width: medium
-
-      - type: options
-        label: Filter by Event Type
-        data_view: logs-*
-        field: event.type
-        width: medium
-
     panels:
       - markdown:
           content: |
@@ -1188,7 +1175,6 @@ Use this checklist when creating or reviewing dashboards:
 ### Filters and Controls
 
 - [ ] Global filter for `data_stream.dataset`
-- [ ] Controls used only when needed (multi-tenant/multi-system)
 - [ ] Panel-level filters are specific and purposeful
 - [ ] KQL syntax used consistently
 
@@ -1219,7 +1205,7 @@ Use this checklist when creating or reviewing dashboards:
 ✅ **Right:** Use 0-6 metric cards, focus on visualizations
 
 ❌ **Wrong:** No navigation for multi-dashboard packages (3+ dashboards)
-✅ **Right:** Add markdown panel with navigation links at top (standard practice)
+✅ **Right:** Add markdown panel or links panel with navigation links at top (standard practice)
 
 ### Visualization Choices
 
