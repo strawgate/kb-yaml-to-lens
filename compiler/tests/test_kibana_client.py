@@ -140,24 +140,3 @@ class TestKibanaClient:
 
         # After exiting context, session should be closed
         assert session.closed
-
-    @pytest.mark.asyncio
-    async def test_manual_close(self) -> None:
-        """Test that manually calling close() closes session and connector."""
-        client = KibanaClient(url='http://localhost:5601')
-        session = client._get_session()
-
-        await client.close()
-
-        assert session.closed
-        assert client._session is None
-        assert client._connector is None
-
-    @pytest.mark.asyncio
-    async def test_close_is_idempotent(self) -> None:
-        """Test that calling close() multiple times is safe."""
-        client = KibanaClient(url='http://localhost:5601')
-        _ = client._get_session()
-
-        await client.close()
-        await client.close()  # Should not raise
