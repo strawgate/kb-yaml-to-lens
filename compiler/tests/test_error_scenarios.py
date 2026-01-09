@@ -44,31 +44,6 @@ dashboards:
             "YAML syntax error in invalid-indent.yaml at line 4, column 4: expected <block end>, but found '<block mapping start>'"
         )
 
-    def test_invalid_yaml_character(self, tmp_path: Path) -> None:
-        """Test error message for invalid YAML character."""
-        yaml_file = tmp_path / 'invalid-char.yaml'
-        yaml_file.write_text("""
-dashboards:
-  - name: Test @invalid
-    panels: []
-""")
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (YAML allows @ in strings, so this is actually valid)
-
-    def test_duplicate_keys(self, tmp_path: Path) -> None:
-        """Test error message for duplicate keys."""
-        yaml_file = tmp_path / 'duplicate-keys.yaml'
-        yaml_file.write_text("""
-dashboards:
-  - name: Test
-    name: Test2
-    panels: []
-""")
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (PyYAML accepts duplicate keys and uses the last value)
-
 
 class TestMissingRequiredFields:
     """Test error messages for missing required fields."""
@@ -244,9 +219,9 @@ dashboards:
   • dashboards[0].panels[0].markdown.position.x: Expected an integer value\
 """)
 
-    def test_boolean_field_wrong_type(self, tmp_path: Path) -> None:
-        """Test error when boolean field has wrong type."""
-        yaml_file = tmp_path / 'boolean-wrong.yaml'
+    def test_unknown_options_field_rejected(self, tmp_path: Path) -> None:
+        """Test that unknown fields are rejected by extra='forbid' behavior."""
+        yaml_file = tmp_path / 'unknown-field.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test
@@ -257,7 +232,7 @@ dashboards:
         json_lines, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
-1 validation error in boolean-wrong.yaml:
+1 validation error in unknown-field.yaml:
   • dashboards[0].options: Extra inputs are not permitted\
 """)
 
@@ -295,9 +270,11 @@ dashboards:
         markdown:
           content: Hello
 """)
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (Validation rules may or may not enforce grid width limits)
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        assert json_lines == []
+        assert error is not None
+        assert 'width-too-large.yaml' in error
+        assert 'Width must be between 1 and 48, got 1000' in error
 
     def test_invalid_chart_type(self, tmp_path: Path) -> None:
         """Test error when chart type is invalid."""
@@ -320,7 +297,7 @@ dashboards:
         # fmt: on
 
     def test_empty_esql_query_list(self, tmp_path: Path) -> None:
-        """Test error when ESQL query list is empty."""
+        """Test that empty ESQL query lists are accepted."""
         yaml_file = tmp_path / 'empty-query.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -335,9 +312,10 @@ dashboards:
             id: count_id
           query: []
 """)
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (Validation may or may not reject empty query lists)
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        # Empty query lists are accepted (no minimum length validation)
+        assert error is None
+        assert len(json_lines) == 1
 
 
 class TestStructuralIssues:
@@ -366,7 +344,7 @@ dashboards:
         assert 'Panel "Panel 1" at (x=0, y=0, w=24, h=12) overlaps with panel "Panel 2" at (x=0, y=0, w=24, h=12)' in error
 
     def test_panel_outside_grid(self, tmp_path: Path) -> None:
-        """Test error when panel is outside valid grid."""
+        """Test error when panel x-coordinate is outside valid grid."""
         yaml_file = tmp_path / 'outside-grid.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -377,9 +355,11 @@ dashboards:
         markdown:
           content: Outside
 """)
-        _json_lines, _error = compile_yaml_to_json(yaml_file)
-        # Smoke test: verify compilation completes without raising exceptions
-        # (Validation may or may not enforce grid boundary checks)
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        assert json_lines == []
+        assert error is not None
+        assert 'outside-grid.yaml' in error
+        assert 'Value must be <= 48' in error
 
 
 class TestUnionDiscriminatorErrors:
@@ -426,21 +406,21 @@ dashboards:
 class TestComplexValidationErrors:
     """Test complex validation scenarios."""
 
-    def test_multiple_errors_in_single_dashboard(self, tmp_path: Path) -> None:
-        """Test that multiple errors are reported together."""
-        yaml_file = tmp_path / 'multiple-errors.yaml'
+    def test_single_required_field_error(self, tmp_path: Path) -> None:
+        """Test error message for missing required dashboard name."""
+        yaml_file = tmp_path / 'single-error.yaml'
         yaml_file.write_text("""
 dashboards:
   - description: Missing name
     panels:
       - grid: {x: 0, y: 0, w: 24, h: 12}
         markdown:
-          content: Missing title
+          content: Hello
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
-1 validation error in multiple-errors.yaml:
+1 validation error in single-error.yaml:
   • dashboards[0].name: Field is required. Each dashboard requires a "name" field.\
 """)
 
@@ -502,6 +482,31 @@ class TestEmptyOrMinimalFiles:
 
 class TestSuccessScenarios:
     """Test that valid scenarios still work correctly."""
+
+    def test_at_symbol_in_string_is_valid(self, tmp_path: Path) -> None:
+        """Test that @ symbol in strings is valid YAML."""
+        yaml_file = tmp_path / 'at-in-string.yaml'
+        yaml_file.write_text("""
+dashboards:
+  - name: Test @invalid
+    panels: []
+""")
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        assert error is None
+        assert len(json_lines) == 1
+
+    def test_duplicate_keys_uses_last_value(self, tmp_path: Path) -> None:
+        """Test that duplicate keys use the last value (PyYAML behavior)."""
+        yaml_file = tmp_path / 'duplicate-keys.yaml'
+        yaml_file.write_text("""
+dashboards:
+  - name: Test
+    name: Test2
+    panels: []
+""")
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        assert error is None
+        assert len(json_lines) == 1
 
     def test_minimal_valid_dashboard(self, tmp_path: Path) -> None:
         """Test that a minimal valid dashboard compiles successfully."""
