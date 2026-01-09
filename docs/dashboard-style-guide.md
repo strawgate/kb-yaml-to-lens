@@ -605,7 +605,7 @@ Elastic integrations use two types of geographic visualizations:
 
 #### Alternative: Links Panels
 
-For packages with multiple dashboards, you can use a links panel instead of markdown:
+For packages with multiple dashboards, you can use a links panel instead of Markdown:
 
 ```yaml
 - panel_type: links
@@ -1144,7 +1144,7 @@ Use this checklist when creating or reviewing dashboards:
 - [ ] Title follows `[Category Package] Focus` format
 - [ ] Description added when title needs context
 - [ ] Panels follow top-to-bottom hierarchy (context → control → summary → analysis → detail)
-- [ ] Markdown navigation at top (if multi-dashboard)
+- [ ] Markdown or links panel navigation at top (if multi-dashboard)
 - [ ] Data tables positioned at bottom
 
 ### Visualizations
