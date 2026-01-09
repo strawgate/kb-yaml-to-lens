@@ -50,6 +50,7 @@ help:
 	@echo "  test-links        - Check documentation links"
 	@echo "  test-smoke        - Run smoke tests"
 	@echo "  test-integration       - Run integration tests (starts Docker services)"
+	@echo "                           Note: Uses ELASTIC_PORT and KIBANA_PORT env vars (default: 9200, 5601)"
 	@echo "  test-integration-up    - Start integration test Docker services"
 	@echo "  test-integration-down  - Stop integration test Docker services"
 	@echo ""
@@ -160,15 +161,27 @@ INTEGRATION_PROJECT := kb-yaml-integration-tests
 test-integration:
 	@echo "Running integration tests with Elasticsearch and Kibana..."
 	@echo "Note: This will start Docker containers and may take a few minutes on first run."
+	@echo ""
+	@echo "Port Configuration:"
+	@echo "  - Elasticsearch: http://localhost:$${ELASTIC_PORT:-9200}"
+	@echo "  - Kibana: http://localhost:$${KIBANA_PORT:-5601}"
+	@echo "  - Override with: ELASTIC_PORT=9201 KIBANA_PORT=5602 make test-integration"
+	@echo ""
 	@uv run pytest tests/integration/ -v --tb=short
 
 test-integration-up:
 	@echo "Starting integration test Docker services..."
+	@echo ""
+	@echo "Port Configuration:"
+	@echo "  - Elasticsearch: http://localhost:$${ELASTIC_PORT:-9200}"
+	@echo "  - Kibana: http://localhost:$${KIBANA_PORT:-5601}"
+	@echo "  - Override with: ELASTIC_PORT=9201 KIBANA_PORT=5602 make test-integration-up"
+	@echo ""
 	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) up -d
 	@echo "Waiting for services to be healthy..."
 	@docker compose -f $(INTEGRATION_COMPOSE) -p $(INTEGRATION_PROJECT) ps
 	@echo ""
-	@echo "Services started. Elasticsearch: http://localhost:9200, Kibana: http://localhost:5601"
+	@echo "Services started."
 	@echo "Run 'make test-integration-down' to stop services when done."
 
 test-integration-down:

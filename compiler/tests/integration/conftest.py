@@ -34,7 +34,7 @@ def docker_compose_project_name() -> str:
 def is_elasticsearch_responsive(url: str) -> bool:
     """Check if Elasticsearch is responsive."""
     try:
-        return asyncio.get_event_loop().run_until_complete(_check_es(url))
+        return asyncio.run(_check_es(url))
     except Exception:
         return False
 
@@ -51,7 +51,7 @@ async def _check_es(url: str) -> bool:
 def is_kibana_responsive(url: str) -> bool:
     """Check if Kibana is responsive."""
     try:
-        return asyncio.get_event_loop().run_until_complete(_check_kibana(url))
+        return asyncio.run(_check_kibana(url))
     except Exception:
         return False
 
@@ -257,22 +257,11 @@ async def data_view(kibana_client: KibanaClient, loaded_sample_data: str) -> Asy
     index_pattern = f'{loaded_sample_data}*'
 
     # Create data view via Kibana API
-    async with await kibana_client._post(
-        '/api/data_views/data_view',
-        json={
-            'data_view': {
-                'id': data_view_id,
-                'title': index_pattern,
-                'timeFieldName': '@timestamp',
-            },
-        },
-        headers={'Content-Type': 'application/json'},
-    ) as response:
-        if response.status not in (200, 409):  # 409 = already exists
-            text = await response.text()
-            logger.warning(f'Failed to create data view: {text}')
-        else:
-            logger.info(f'Created data view: {data_view_id}')
+    try:
+        await kibana_client.create_data_view(data_view_id, index_pattern)
+        logger.info(f'Created data view: {data_view_id}')
+    except Exception as e:
+        logger.warning(f'Failed to create data view: {e}')
 
     yield data_view_id
 

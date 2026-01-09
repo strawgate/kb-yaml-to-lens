@@ -442,3 +442,38 @@ class KibanaClient:
         async with await self._post(endpoint, json=request_body, headers={'Content-Type': 'application/json'}) as response:
             response.raise_for_status()
             return await response.text()
+
+    async def create_data_view(
+        self,
+        data_view_id: str,
+        index_pattern: str,
+        time_field_name: str = '@timestamp',
+    ) -> bool:
+        """Create a data view in Kibana.
+
+        Args:
+            data_view_id: Unique identifier for the data view
+            index_pattern: Index pattern for the data view (e.g., 'logs-*')
+            time_field_name: Name of the time field (default: '@timestamp')
+
+        Returns:
+            True if the data view was created or already exists
+
+        Raises:
+            aiohttp.ClientError: If the request fails with a status other than 200 or 409
+
+        """
+        endpoint = '/api/data_views/data_view'
+        request_body = {
+            'data_view': {
+                'id': data_view_id,
+                'title': index_pattern,
+                'timeFieldName': time_field_name,
+            },
+        }
+
+        async with await self._post(endpoint, json=request_body, headers={'Content-Type': 'application/json'}) as response:
+            if response.status in (200, 409):  # 200 = created, 409 = already exists
+                return True
+            response.raise_for_status()
+            return False
