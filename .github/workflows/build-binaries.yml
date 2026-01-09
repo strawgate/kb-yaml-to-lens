@@ -8,8 +8,8 @@ on:
 permissions:
   contents: write
 jobs:
-  build-cli-binaries:
-    name: Build CLI Binary - ${{ matrix.os }}
+  build-binaries:
+    name: Build Unified Binary - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,57 +38,15 @@ jobs:
       - name: Install dependencies
         working-directory: compiler
         run: uv sync --group build
-      - name: Build CLI binary
+      - name: Build unified binary
         working-directory: compiler
         run: make build-binary
       - name: Run smoke tests
         working-directory: compiler
         run: make test-binary-smoke
-      - name: Upload CLI binary artifact
+      - name: Upload binary artifact
         uses: actions/upload-artifact@v6
         with:
           name: kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
           path: compiler/dist/kb-dashboard-${{ matrix.platform }}${{ matrix.ext }}
-          retention-days: 7
-  build-lsp-binaries:
-    name: Build LSP Binary - ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux-x64
-            ext: ''
-          - os: macos-14
-            platform: darwin-arm64
-            ext: ''
-          - os: macos-latest
-            platform: darwin-x64
-            ext: ''
-          - os: windows-latest
-            platform: win32-x64
-            ext: .exe
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install UV
-        uses: astral-sh/setup-uv@v7
-      - name: Install dependencies
-        working-directory: compiler
-        run: uv sync --group build
-      - name: Build LSP binary
-        working-directory: compiler
-        run: make build-lsp-binary
-      - name: Run LSP smoke tests
-        working-directory: compiler
-        run: make test-lsp-binary-smoke
-      - name: Upload LSP binary artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: kb-dashboard-compiler-lsp-${{ matrix.platform }}${{ matrix.ext }}
-          path: compiler/dist/kb-dashboard-compiler-lsp${{ matrix.ext }}
           retention-days: 7

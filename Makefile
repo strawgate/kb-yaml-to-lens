@@ -35,7 +35,7 @@ help:
 	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "VS Code Extension:"
-	@echo "  build-extension-binaries - Build LSP binaries for extension (current platform)"
+	@echo "  build-extension-binaries - Build unified binary for extension (current platform)"
 	@echo "  package-extension        - Package extension with binaries"
 	@echo "  install-extension-vscode - Build, package, and install extension into VS Code"
 	@echo "  install-extension-cursor - Build, package, and install extension into Cursor"
@@ -194,11 +194,11 @@ docs-deploy:
 
 # VS Code Extension
 build-extension-binaries:
-	@echo "Building LSP binaries for VS Code extension..."
+	@echo "Building unified binary for VS Code extension..."
 	@echo ""
-	$(call run-in-component,compiler,build-lsp-binary)
-	$(call run-in-component,vscode-extension,copy-lsp-binary)
-	@echo "✓ Extension binaries ready"
+	$(call run-in-component,compiler,build-binary)
+	$(call run-in-component,vscode-extension,copy-binary)
+	@echo "✓ Extension binary ready"
 
 package-extension: build-extension-binaries
 	@echo "Packaging VS Code extension..."

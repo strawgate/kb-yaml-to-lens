@@ -393,7 +393,7 @@ class TestCompileESQLChartState:
     """Tests for compile_esql_chart_state function."""
 
     def test_esql_metric_chart_default_time_field(self) -> None:
-        """Test that ES|QL metric chart uses default timeField (@timestamp)."""
+        """Test that ES|QL metric chart uses default time field (@timestamp) correctly."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -409,18 +409,24 @@ class TestCompileESQLChartState:
 
         state, layer_id = compile_esql_chart_state(panel)
 
-        assert state.datasourceStates is not None
+        # Get the layer
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
+        assert len(layers) == 1
+        layer = next(iter(layers.values()))
 
-        # Access the specific layer using returned layer_id
-        first_layer = layers[layer_id]
-        # Verify layer was created
-        assert first_layer is not None
+        # Verify timeField is set to default
+        assert layer.timeField == '@timestamp'
+
+        # Verify layer_id is returned
+        assert layer_id in layers
+
+        # Verify adHocDataViews is empty
+        assert state.adHocDataViews == {}
 
     def test_esql_metric_chart_custom_time_field(self) -> None:
-        """Test that ES|QL metric chart uses custom timeField when specified."""
+        """Test that ES|QL metric chart uses custom time field when specified."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -437,18 +443,20 @@ class TestCompileESQLChartState:
 
         state, layer_id = compile_esql_chart_state(panel)
 
-        assert state.datasourceStates is not None
+        # Get the layer
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
 
-        # Access the specific layer using returned layer_id
-        first_layer = layers[layer_id]
-        # Verify layer was created
-        assert first_layer is not None
+        # Verify timeField is set to custom value
+        assert layer.timeField == 'event.created'
+
+        # Verify layer_id is returned
+        assert layer_id in layers
 
     def test_esql_pie_chart_custom_time_field(self) -> None:
-        """Test that ES|QL pie chart uses custom timeField when specified."""
+        """Test that ES|QL pie chart correctly compiles with custom time field."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -464,20 +472,16 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, layer_id = compile_esql_chart_state(panel)
-
-        assert state.datasourceStates is not None
+        state, _references = compile_esql_chart_state(panel)
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
 
-        # Access the specific layer using returned layer_id
-        first_layer = layers[layer_id]
-        # Verify layer was created
-        assert first_layer is not None
+        assert layer.timeField == 'timestamp'
 
     def test_esql_bar_chart_custom_time_field(self) -> None:
-        """Test that ES|QL bar chart uses custom timeField when specified."""
+        """Test that ES|QL bar chart correctly compiles with custom time field."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -493,14 +497,244 @@ class TestCompileESQLChartState:
             }
         )
 
-        state, layer_id = compile_esql_chart_state(panel)
-
-        assert state.datasourceStates is not None
+        state, _references = compile_esql_chart_state(panel)
         assert state.datasourceStates.textBased is not None
         assert state.datasourceStates.textBased.layers is not None
         layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
 
-        # Access the specific layer using returned layer_id
-        first_layer = layers[layer_id]
-        # Verify layer was created
-        assert first_layer is not None
+        assert layer.timeField == 'event.timestamp'
+
+    def test_esql_all_chart_types_have_time_field(self) -> None:
+        """Test that all ES|QL chart types correctly populate the timeField.
+
+        This ensures consistency across metric, gauge, heatmap, pie, datatable, tagcloud, and XY charts.
+        """
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        test_cases = [
+            # Metric
+            {
+                'type': 'metric',
+                'query': 'FROM logs-* | STATS count()',
+                'primary': {'field': 'count(*)', 'id': 'metric1'},
+            },
+            # Gauge
+            {
+                'type': 'gauge',
+                'query': 'FROM logs-* | STATS count()',
+                'metric': {'field': 'count(*)', 'id': 'metric1'},
+            },
+            # Heatmap
+            {
+                'type': 'heatmap',
+                'query': 'FROM logs-* | STATS count() BY @timestamp, status',
+                'x_axis': {'field': '@timestamp', 'id': 'x1'},
+                'value': {'field': 'count(*)', 'id': 'metric1'},
+            },
+            # Pie
+            {
+                'type': 'pie',
+                'query': 'FROM logs-* | STATS count() BY status',
+                'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+            },
+            # Datatable
+            {
+                'type': 'datatable',
+                'query': 'FROM logs-* | STATS count()',
+                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+            },
+            # Tagcloud
+            {
+                'type': 'tagcloud',
+                'query': 'FROM logs-* | STATS count() BY tag',
+                'dimension': {'field': 'tag', 'id': 'dim1'},
+                'metric': {'field': 'count(*)', 'id': 'metric1'},
+            },
+            # Bar (XY chart)
+            {
+                'type': 'bar',
+                'query': 'FROM logs-* | STATS count() BY @timestamp',
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+            },
+        ]
+
+        for chart_config in test_cases:
+            panel = ESQLPanel.model_validate({'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15}, 'esql': chart_config})
+
+            state, layer_id = compile_esql_chart_state(panel)
+            assert state.datasourceStates.textBased is not None
+            assert state.datasourceStates.textBased.layers is not None
+            layers = state.datasourceStates.textBased.layers.root
+            layer = next(iter(layers.values()))
+
+            # Verify timeField exists and has default value
+            assert layer.timeField == '@timestamp', f'Chart type {chart_config["type"]} missing or incorrect timeField'
+
+            # Verify layer_id is returned and adHocDataViews is empty
+            assert layer_id in layers
+            assert state.adHocDataViews == {}
+
+
+class TestESQLDataTypeDate:
+    """Tests for ES|QL dimension data_type: date feature.
+
+    The data_type field allows dimensions to specify their type, particularly useful for date fields.
+    When data_type: 'date' is set, the compiled column should have meta.type = 'date' and meta.esType = 'date'.
+    """
+
+    def test_dimension_with_data_type_date_sets_meta_fields(self) -> None:
+        """Test that dimension with data_type: 'date' sets meta.type and meta.esType to 'date'."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'bar',
+                    'query': 'FROM logs-* | STATS count() BY time_bucket',
+                    'dimension': {'field': 'time_bucket', 'id': 'dim1', 'data_type': 'date'},
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, _references = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
+
+        # Find the dimension column
+        dim_column = next((col for col in layer.columns if col.columnId == 'dim1'), None)
+        assert dim_column is not None
+
+        # Verify meta fields are set correctly
+        assert hasattr(dim_column, 'meta')
+        assert dim_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert dim_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert dim_column.meta.esType == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+
+    def test_dimension_without_data_type_has_no_meta(self) -> None:
+        """Test that dimension without data_type does not have meta field."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'pie',
+                    'query': 'FROM logs-* | STATS count() BY status',
+                    'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, _references = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
+
+        # Find the dimension column
+        dim_column = next((col for col in layer.columns if col.columnId == 'dim1'), None)
+        assert dim_column is not None
+
+        # Verify meta field is None
+        assert hasattr(dim_column, 'meta')
+        assert dim_column.meta is None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+
+    def test_breakdown_dimension_with_data_type_date(self) -> None:
+        """Test that breakdown dimension with data_type: 'date' works correctly."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'bar',
+                    'query': 'FROM logs-* | STATS count() BY category, time_bucket',
+                    'dimension': {'field': 'category', 'id': 'dim1'},
+                    'breakdown': {'field': 'time_bucket', 'id': 'breakdown1', 'data_type': 'date'},
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, _references = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
+
+        # Find the breakdown column
+        breakdown_column = next((col for col in layer.columns if col.columnId == 'breakdown1'), None)
+        assert breakdown_column is not None
+
+        # Verify meta fields are set correctly
+        assert hasattr(breakdown_column, 'meta')
+        assert breakdown_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert breakdown_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert breakdown_column.meta.esType == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+
+    def test_pie_chart_with_date_dimension(self) -> None:
+        """Test that pie chart with date dimension correctly sets meta fields."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'pie',
+                    'query': 'FROM logs-* | STATS count() BY date_bucket',
+                    'dimensions': [{'field': 'date_bucket', 'id': 'dim1', 'data_type': 'date'}],
+                    'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                },
+            }
+        )
+
+        state, _references = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
+
+        dim_column = next((col for col in layer.columns if col.columnId == 'dim1'), None)
+        assert dim_column is not None
+
+        assert hasattr(dim_column, 'meta')
+        assert dim_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert dim_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+
+    def test_heatmap_x_axis_with_data_type_date(self) -> None:
+        """Test that heatmap x_axis with data_type: 'date' correctly sets meta fields."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'heatmap',
+                    'query': 'FROM logs-* | STATS count() BY time_bucket, status',
+                    'x_axis': {'field': 'time_bucket', 'id': 'x1', 'data_type': 'date'},
+                    'y_axis': {'field': 'status', 'id': 'y1'},
+                    'value': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        state, _references = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layers = state.datasourceStates.textBased.layers.root
+        layer = next(iter(layers.values()))
+
+        x_axis_column = next((col for col in layer.columns if col.columnId == 'x1'), None)
+        assert x_axis_column is not None
+
+        assert hasattr(x_axis_column, 'meta')
+        assert x_axis_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert x_axis_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]

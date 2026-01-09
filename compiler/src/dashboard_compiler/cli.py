@@ -26,6 +26,7 @@ from dashboard_compiler.cli_options import (
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
+from dashboard_compiler.lsp.server import start_server as start_lsp_server
 from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
@@ -40,8 +41,6 @@ if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
-
-logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
@@ -1132,6 +1131,21 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     except (ValueError, OSError) as e:
         msg = f'Error disassembling dashboard: {e}'
         raise click.ClickException(msg) from e
+
+
+@cli.command()
+def lsp() -> None:
+    """Start the Language Server Protocol (LSP) server for IDE integration.
+
+    The LSP server provides real-time compilation, validation, and code
+    completion for YAML dashboard files in supported IDEs like VS Code.
+
+    This server communicates via stdin/stdout using the Language Server
+    Protocol specification.
+    """
+    # Force logging to stderr to prevent stdout contamination of JSON-RPC protocol
+    logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr, force=True)
+    start_lsp_server()
 
 
 if __name__ == '__main__':
