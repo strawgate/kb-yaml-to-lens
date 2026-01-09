@@ -204,12 +204,13 @@ All specific dimension types below can include:
 
 ### Top Values Dimension (`type: values`)
 
-Groups data by the most frequent unique values of a field.
+Groups data by the most frequent unique values of one or more fields. Supports both single-field and multi-field (multi-term) aggregations.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `type` | `Literal['values']` | Specifies the dimension type. | N/A | Yes |
-| `field` | `string` | The field to get top values from. | N/A | Yes |
+| `field` | `string` | Single field to get top values from. Mutually exclusive with `fields`. | N/A | One of `field` or `fields` |
+| `fields` | `list of strings` | Multiple fields for multi-term aggregation (minimum 2 fields). Mutually exclusive with `field`. | N/A | One of `field` or `fields` |
 | `size` | `integer` | The number of top values to display. | `3` | No |
 | `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
 | `other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
@@ -218,6 +219,27 @@ Groups data by the most frequent unique values of a field.
 | `exclude` | `list of strings` | A list of specific terms to exclude. | `None` | No |
 | `include_is_regex` | `boolean` | If `true`, treats `include` values as regex patterns. | `false` | No |
 | `exclude_is_regex` | `boolean` | If `true`, treats `exclude` values as regex patterns. | `false` | No |
+
+**Example - Single Field:**
+
+```yaml
+dimensions:
+  - type: values
+    field: agent.name
+    size: 5
+```
+
+**Example - Multi-Field:**
+
+```yaml
+dimensions:
+  - type: values
+    fields:
+      - agent.name
+      - agent.type
+    size: 10
+    label: "Agent Name + Type"
+```
 
 ### Date Histogram Dimension (`type: date_histogram`)
 
