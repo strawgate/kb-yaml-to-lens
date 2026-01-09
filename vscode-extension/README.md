@@ -45,7 +45,25 @@ Install directly from the VS Code Extensions marketplace.
 ### From VSIX (Manual)
 
 1. Download the platform-specific `.vsix` file from releases
-2. In VS Code: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+2. In VS Code/Cursor: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+
+Or use the Makefile for automated installation:
+
+```bash
+# From repository root - install to VS Code
+make install-extension-vscode
+
+# From repository root - install to Cursor
+make install-extension-cursor
+```
+
+**Prerequisites for Makefile installation:**
+- Node.js and npm (required to package the extension and read package.json metadata)
+- The `code` (VS Code) or `cursor` (Cursor) CLI must be installed and available in your PATH
+- The packaged VSIX file must exist (automatically built by the Makefile targets)
+- The extension package name follows the format: `<extension-name>-<version>.vsix`
+  - Derived from `vscode-extension/package.json` `name` and `version` fields
+  - Example: `kb-dashboard-compiler-0.1.0.vsix` (current version)
 
 ### For Development
 
