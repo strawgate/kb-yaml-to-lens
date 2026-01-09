@@ -1,106 +1,16 @@
 """Lens dimensions configuration for the Lens chart."""
 
 from enum import StrEnum
-from typing import Annotated, Literal
+from typing import Literal
 
-from pydantic import Discriminator, Field, Tag
+from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
 
-
-def get_dimension_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0912
-    """Extract dimension type for discriminated union validation.
-
-    Determines the specific dimension type, distinguishing between single-field
-    and multi-field values dimensions.
-
-    Args:
-        v: Either a dict (during validation) or a dimension instance.
-
-    Returns:
-        str: The dimension type identifier ('date_histogram', 'filters', 'intervals', 'terms', or 'multi_terms').
-
-    Raises:
-        ValueError: If both field and fields are present, or if neither are present for values dimensions.
-
-    """
-    if isinstance(v, dict):
-        dimension_type = v.get('type')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-
-        # Handle case where type is not specified but field/fields are
-        # This allows the default type='values' to be inferred
-        if dimension_type is None:
-            has_field = 'field' in v
-            has_fields = 'fields' in v
-
-            if has_field and has_fields:
-                msg = "Cannot specify both 'field' and 'fields' - use only one"
-                raise ValueError(msg)
-
-            if has_field:
-                return 'terms'
-            if has_fields:
-                return 'multi_terms'
-
-        # For values dimensions with explicit type, need to check field vs fields
-        if dimension_type == 'values':
-            has_field = 'field' in v
-            has_fields = 'fields' in v
-
-            if has_field and has_fields:
-                msg = "Cannot specify both 'field' and 'fields' - use only one"
-                raise ValueError(msg)
-
-            if has_field:
-                return 'terms'
-            if has_fields:
-                return 'multi_terms'
-
-            msg = "Either 'field' (for single-field) or 'fields' (for multi-field) must be provided"
-            raise ValueError(msg)
-
-        # For other dimension types, return as-is
-        if dimension_type in ('date_histogram', 'filters', 'intervals'):
-            return str(dimension_type)
-
-        msg = f'Unknown dimension type: {dimension_type}'
-        raise ValueError(msg)
-
-    # Runtime object case
-    dimension_type = getattr(v, 'type', None)
-
-    if dimension_type == 'values':
-        has_field = getattr(v, 'field', None) is not None
-        has_fields = getattr(v, 'fields', None) is not None
-
-        if has_field and has_fields:
-            msg = "Cannot specify both 'field' and 'fields' - use only one"
-            raise ValueError(msg)
-
-        if has_field:
-            return 'terms'
-        if has_fields:
-            return 'multi_terms'
-
-        msg = "Either 'field' (for single-field) or 'fields' (for multi-field) must be provided"
-        raise ValueError(msg)
-
-    if dimension_type in ('date_histogram', 'filters', 'intervals'):
-        return str(dimension_type)
-
-    msg = f'Unknown dimension type: {dimension_type}'
-    raise ValueError(msg)
-
-
-type LensDimensionTypes = Annotated[
-    Annotated['LensTermsDimension', Tag('terms')]
-    | Annotated['LensMultiTermsDimension', Tag('multi_terms')]
-    | Annotated['LensDateHistogramDimension', Tag('date_histogram')]
-    | Annotated['LensFiltersDimension', Tag('filters')]
-    | Annotated['LensIntervalsDimension', Tag('intervals')],
-    Discriminator(get_dimension_type),
-]
+type LensDimensionTypes = (
+    LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
+)
 
 
 class BaseDimension(BaseCfgModel):
