@@ -86,6 +86,30 @@ async function hasDashboardsKeyAsync(uri: vscode.Uri): Promise<boolean> {
 }
 
 /**
+ * Process items in batches with bounded concurrency to prevent resource exhaustion.
+ * This is particularly useful for large workspaces where processing all files
+ * simultaneously could overwhelm system resources.
+ *
+ * @param items Array of items to process
+ * @param batchSize Number of items to process concurrently (default: 20)
+ * @param fn Async function to apply to each item
+ * @returns Promise resolving to array of results in the same order as input items
+ */
+async function batchProcess<T, R>(
+    items: T[],
+    batchSize: number,
+    fn: (item: T) => Promise<R>
+): Promise<R[]> {
+    const results: R[] = [];
+    for (let i = 0; i < items.length; i += batchSize) {
+        const batch = items.slice(i, i + batchSize);
+        const batchResults = await Promise.all(batch.map(fn));
+        results.push(...batchResults);
+    }
+    return results;
+}
+
+/**
  * Validates that the active editor is a YAML file and returns its path.
  * Shows error messages if validation fails.
  * @returns The file path if valid, undefined otherwise
@@ -545,13 +569,15 @@ export async function activate(context: vscode.ExtensionContext) {
                 const pattern = new vscode.RelativePattern(uri, '**/*.{yaml,yml}');
                 const allFiles = await vscode.workspace.findFiles(pattern);
 
-                // Use async filtering with Promise.all for parallelism
-                const checkPromises = allFiles.map(async (file) => {
-                    const hasKey = await hasDashboardsKeyAsync(file);
-                    return hasKey ? file : null;
-                });
-
-                const filterResults = await Promise.all(checkPromises);
+                // Use bounded-concurrency batching to prevent resource exhaustion in large workspaces
+                const filterResults = await batchProcess(
+                    allFiles,
+                    20, // Process 20 files at a time
+                    async (file) => {
+                        const hasKey = await hasDashboardsKeyAsync(file);
+                        return hasKey ? file : null;
+                    }
+                );
                 const files = filterResults.filter((file): file is vscode.Uri => file !== null);
 
                 if (files.length === 0) {

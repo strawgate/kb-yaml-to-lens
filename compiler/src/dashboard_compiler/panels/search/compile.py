@@ -27,8 +27,6 @@ def compile_search_panel_config(panel: SearchPanel) -> tuple[list[KbnReference],
 
     # In Saved Object exports, search panels use savedSearchId in embeddableConfig
     # which is actually a reference key.
-    embeddable_config = KbnSearchEmbeddableConfig(
-        savedSearchRefName=ref_name
-    )
+    embeddable_config = KbnSearchEmbeddableConfig(savedSearchRefName=ref_name)
 
     return references, embeddable_config
