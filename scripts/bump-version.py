@@ -63,7 +63,7 @@ def read_version(path: Path, file_format: str) -> str:
         data = json.loads(path.read_text())
         return data['version']
     except KeyError as e:
-        raise click.ClickException(f'Missing version key in {path}: {e}')
+        raise click.ClickException(f'Missing version key in {path}: {e}') from e
 
 
 def write_version(path: Path, file_format: str, old_version: str, new_version: str) -> None:
