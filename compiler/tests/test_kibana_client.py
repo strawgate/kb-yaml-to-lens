@@ -130,6 +130,18 @@ class TestKibanaClient:
         url = client._get_api_url('/some/other/path')
         assert url == 'http://localhost:5601/some/other/path'
 
+    def test_normalize_ndjson_content_appends_newline(self) -> None:
+        """Ensure NDJSON content ends with a newline."""
+        content = '{"type":"dashboard"}'
+        normalized = KibanaClient._normalize_ndjson_content(content)
+        assert normalized == '{"type":"dashboard"}\n'
+
+    def test_normalize_ndjson_content_preserves_newline(self) -> None:
+        """Ensure NDJSON content with newline is unchanged."""
+        content = '{"type":"dashboard"}\n'
+        normalized = KibanaClient._normalize_ndjson_content(content)
+        assert normalized == '{"type":"dashboard"}\n'
+
     @pytest.mark.asyncio
     async def test_context_manager_closes_session(self) -> None:
         """Test that using KibanaClient as context manager closes session."""

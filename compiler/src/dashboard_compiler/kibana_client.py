@@ -153,6 +153,13 @@ class KibanaClient:
             self._session = aiohttp.ClientSession(connector=self._connector)
         return self._session
 
+    @staticmethod
+    def _normalize_ndjson_content(content: str) -> str:
+        """Ensure NDJSON content ends with a newline."""
+        if content.endswith('\n') is False:
+            return f'{content}\n'
+        return content
+
     async def close(self) -> None:
         """Close HTTP session and connector, releasing resources."""
         if self._session is not None and not self._session.closed:
@@ -235,7 +242,8 @@ class KibanaClient:
                 content = f.read()
             data.add_field('file', content, filename=ndjson_data.name, content_type='application/ndjson')
         else:
-            data.add_field('file', ndjson_data.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
+            normalized = self._normalize_ndjson_content(ndjson_data)
+            data.add_field('file', normalized.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
 
         async with await self._post(endpoint, data=data) as response:
             response.raise_for_status()
