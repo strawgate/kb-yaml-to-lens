@@ -52,7 +52,8 @@ def get_filter_description(filter_obj: 'FilterTypes') -> str:  # noqa: PLR0911
         case CustomFilter():
             return 'custom DSL'
         case _:  # pyright: ignore[reportUnnecessaryComparison]
-            return type(filter_obj).__name__  # pyright: ignore[reportUnreachable]
+            msg = f'Unknown filter type: {type(filter_obj).__name__}'
+            raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
 def _get_range_parts(filter_obj: 'RangeFilter') -> list[str]:
@@ -109,4 +110,5 @@ def get_control_description(control_obj: 'ControlTypes') -> str:  # noqa: PLR091
         case ESQLQueryControl():
             return control_obj.label or control_obj.variable_name
         case _:  # pyright: ignore[reportUnnecessaryComparison]
-            return type(control_obj).__name__  # pyright: ignore[reportUnreachable]
+            msg = f'Unknown control type: {type(control_obj).__name__}'
+            raise TypeError(msg)  # pyright: ignore[reportUnreachable]

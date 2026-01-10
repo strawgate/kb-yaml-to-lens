@@ -93,18 +93,18 @@ def compute_panel_grid(panel: PanelTypes) -> Grid:
     return Grid(x=panel.position.x, y=panel.position.y, w=panel.size.width, h=panel.size.h)
 
 
-def compile_panel_shared(panel: PanelTypes, grid: Grid) -> tuple[str, KbnGridData]:
+def compile_panel_shared(panel: PanelTypes, grid: Grid, panel_type: str) -> tuple[str, KbnGridData]:
     """Compile shared properties of a panel into its Kibana view model representation.
 
     Args:
         panel (PanelTypes): The panel object to compile.
         grid (Grid): The computed grid position for the panel.
+        panel_type (str): The type name of the panel (e.g., 'markdown', 'links').
 
     Returns:
         tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
 
     """
-    panel_type = get_panel_type_name(panel)
     panel_index = panel.id or stable_id_generator(values=[panel_type, panel.title, str(grid)])
 
     grid_data = KbnGridData(x=grid.x, y=grid.y, w=grid.w, h=grid.h, i=panel_index)
@@ -127,7 +127,7 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
     panel_title = panel.title if len(panel.title) > 0 else '(untitled)'
     logger.debug('Compiling %s panel: %s', panel_type, panel_title)
 
-    panel_index, grid_data = compile_panel_shared(panel, grid)
+    panel_index, grid_data = compile_panel_shared(panel, grid, panel_type)
 
     match panel:
         case MarkdownPanel():
