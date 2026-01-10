@@ -38,8 +38,10 @@ from dashboard_compiler.controls.view import (
 from dashboard_compiler.shared.compile import return_if, return_if_equals
 from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false, default_if_none
+from dashboard_compiler.shared.logging import log_compile
 
 
+@log_compile
 def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
     """Compile an OptionsListControl into its Kibana view model representation.
 
@@ -81,6 +83,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
     )
 
 
+@log_compile
 def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> KbnRangeSliderControl:
     """Compile a RangeSliderControl into its Kibana view model representation.
 
@@ -108,6 +111,7 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
     )
 
 
+@log_compile
 def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> KbnTimeSliderControl:
     """Compile a TimeSliderControl into its Kibana view model representation.
 
@@ -133,6 +137,7 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
     )
 
 
+@log_compile
 def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnESQLControl:
     """Compile an ESQLFieldControl into its Kibana view model representation.
 
@@ -165,6 +170,7 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
     )
 
 
+@log_compile
 def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -> KbnESQLControl:
     """Compile an ESQLFunctionControl into its Kibana view model representation.
 
@@ -197,6 +203,7 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
     )
 
 
+@log_compile
 def compile_esql_static_single_select_control(order: int, *, control: ESQLStaticSingleSelectControl) -> KbnESQLControl:
     """Compile an ESQLStaticSingleSelectControl into its Kibana view model representation.
 
@@ -231,6 +238,7 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
     )
 
 
+@log_compile
 def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticMultiSelectControl) -> KbnESQLControl:
     """Compile an ESQLStaticMultiSelectControl into its Kibana view model representation.
 
@@ -265,6 +273,7 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
     )
 
 
+@log_compile
 def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnESQLControl:
     """Compile an ESQLQueryControl into its Kibana view model representation.
 
@@ -296,6 +305,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
     )
 
 
+@log_compile
 def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  # noqa: PLR0911
     """Compile a single control into its Kibana view model representation.
 
@@ -338,6 +348,7 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  #
     raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
+@log_compile
 def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:
     """Compile the control group input for a Dashboard object into its Kibana view model representation.
 
@@ -360,6 +371,7 @@ def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlP
     return kbn_control_panels_json
 
 
+@log_compile
 def compile_control_group(*, control_settings: ControlSettings, controls: Sequence[ControlTypes]) -> KbnControlGroupInput:
     """Compile a control group from a sequence of ControlTypes into a Kibana view model.
 
