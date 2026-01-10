@@ -156,8 +156,8 @@ class KibanaClient:
     @staticmethod
     def _normalize_ndjson_content(content: str) -> str:
         """Ensure NDJSON content ends with a newline."""
-        if content.endswith('\n') is False:
-            return f'{content}\n'
+        if not content.endswith('\n'):
+            return content + '\n'
         return content
 
     async def close(self) -> None:
