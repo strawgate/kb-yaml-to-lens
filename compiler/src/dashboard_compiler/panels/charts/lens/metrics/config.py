@@ -23,20 +23,17 @@ class LensStaticValue(BaseMetric):
     Commonly used for gauge min/max/goal values or reference lines.
     """
 
+    _id_type_tag: ClassVar[str] = 'static'
+    """Type discriminator for static values."""
+
+    _id_components: ClassVar[list[str]] = ['value']
+    """ID is derived from the static value."""
+
     value: int | float = Field(...)
     """The static numeric value to display."""
 
     label: str | None = Field(default=None)
     """Optional label for the static value."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from static value."""
-        value = data.get('value')
-        if value is not None:
-            return ['static', value]
-        return None
 
 
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes | LensStaticValue
@@ -136,21 +133,18 @@ class LensSumAggregatedMetric(BaseLensMetric):
     Sum metrics are used to sum the values of a field.
     """
 
+    _id_type_tag: ClassVar[str] = 'sum'
+    """Type discriminator for sum metrics."""
+
+    _id_components: ClassVar[list[str]] = ['field']
+    """ID is derived from the field."""
+
     aggregation: Literal['sum'] = 'sum'
 
     field: str = Field(...)
 
     exclude_zeros: bool | None = Field(default=None)
     """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from aggregation and field."""
-        field = data.get('field')
-        if field is not None:
-            return ['sum', field]
-        return None
 
 
 class LensOtherAggregatedMetric(BaseLensMetric):
@@ -178,6 +172,12 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
     Last value metrics are used to retrieve the most recent value of a field based on a specified sort order.
     """
 
+    _id_type_tag: ClassVar[str] = 'last_value'
+    """Type discriminator for last value metrics."""
+
+    _id_components: ClassVar[list[str]] = ['field']
+    """ID is derived from the field."""
+
     aggregation: Literal['last_value'] = 'last_value'
 
     field: str = Field(...)
@@ -188,15 +188,6 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
     # filter: str | None = Field(default=None)
     # """A KQL filter applied before determining the last value."""
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from aggregation and field."""
-        field = data.get('field')
-        if field is not None:
-            return ['last_value', field]
-        return None
-
 
 class LensPercentileRankAggregatedMetric(BaseLensMetric):
     """Represents a percentile rank metric configuration within a Lens chart.
@@ -204,21 +195,17 @@ class LensPercentileRankAggregatedMetric(BaseLensMetric):
     Percentile rank metrics are used to determine the rank of a value in a data set.
     """
 
+    _id_type_tag: ClassVar[str] = 'percentile_rank'
+    """Type discriminator for percentile rank metrics."""
+
+    _id_components: ClassVar[list[str]] = ['field', 'rank']
+    """ID is derived from field and rank."""
+
     aggregation: Literal['percentile_rank'] = 'percentile_rank'
 
     field: str = Field(...)
 
     rank: int = Field(...)
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from aggregation, field, and rank."""
-        field = data.get('field')
-        rank = data.get('rank')
-        if field is not None and rank is not None:
-            return ['percentile_rank', field, rank]
-        return None
 
 
 class LensPercentileAggregatedMetric(BaseLensMetric):
@@ -227,21 +214,17 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
     Percentile metrics are used to determine the value at a specific percentile in a data set.
     """
 
+    _id_type_tag: ClassVar[str] = 'percentile'
+    """Type discriminator for percentile metrics."""
+
+    _id_components: ClassVar[list[str]] = ['field', 'percentile']
+    """ID is derived from field and percentile."""
+
     aggregation: Literal['percentile'] = 'percentile'
 
     field: str = Field(...)
 
     percentile: int = Field(...)
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from aggregation, field, and percentile."""
-        field = data.get('field')
-        percentile = data.get('percentile')
-        if field is not None and percentile is not None:
-            return ['percentile', field, percentile]
-        return None
 
 
 class LensFormulaMetric(BaseLensMetric):
@@ -257,14 +240,11 @@ class LensFormulaMetric(BaseLensMetric):
     - With filters: "count(kql='status:error') / count() * 100"
     """
 
+    _id_type_tag: ClassVar[str] = 'formula'
+    """Type discriminator for formula metrics."""
+
+    _id_components: ClassVar[list[str]] = ['formula']
+    """ID is derived from the formula string."""
+
     formula: str = Field(...)
     """The formula string to be evaluated for this metric."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from formula."""
-        formula = data.get('formula')
-        if formula is not None:
-            return ['formula', formula]
-        return None

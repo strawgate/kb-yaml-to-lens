@@ -82,6 +82,12 @@ class ESQLDimension(BaseESQLColumn):
 class ESQLMetric(BaseESQLColumn):
     """A metric that is defined in the ESQL query."""
 
+    _id_type_tag: ClassVar[str] = 'metric'
+    """Type discriminator for ESQL metrics."""
+
+    _id_components: ClassVar[list[str]] = ['field']
+    """ID is derived from the field."""
+
     field: str = Field(default=...)
     """The field in the data view that this metric is based on."""
 
@@ -91,15 +97,6 @@ class ESQLMetric(BaseESQLColumn):
     format: ESQLMetricFormatTypes | None = Field(default=None)
     """The format of the metric (number, bytes, bits, percent, duration, or custom)."""
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field."""
-        field = data.get('field')
-        if field is not None:
-            return ['metric', field]
-        return None
-
 
 class ESQLStaticValue(BaseESQLColumn):
     """A static numeric value metric for ESQL charts.
@@ -108,17 +105,14 @@ class ESQLStaticValue(BaseESQLColumn):
     Commonly used for gauge min/max/goal values or reference lines.
     """
 
+    _id_type_tag: ClassVar[str] = 'static'
+    """Type discriminator for ESQL static values."""
+
+    _id_components: ClassVar[list[str]] = ['value']
+    """ID is derived from the static value."""
+
     value: int | float = Field(...)
     """The static numeric value to display."""
 
     label: str | None = Field(default=None)
     """Optional label for the static value."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from value."""
-        value = data.get('value')
-        if value is not None:
-            return ['static', value]
-        return None

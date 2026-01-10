@@ -108,6 +108,9 @@ class LensIntervalsDimension(BaseLensDimension):
     Intervals dimensions are used for aggregating data based on numeric ranges.
     """
 
+    _id_components: ClassVar[list[str]] = ['type', 'field']
+    """ID is derived from type and field."""
+
     type: Literal['intervals'] = 'intervals'
 
     field: str = Field(default=...)
@@ -125,15 +128,6 @@ class LensIntervalsDimension(BaseLensDimension):
 
     empty_bucket: bool | None = Field(default=None)
     """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field name."""
-        field = data.get('field')
-        if field is not None:
-            return ['intervals', field]
-        return None
 
 
 class BaseLensTermsDimension(BaseLensDimension):
@@ -178,17 +172,11 @@ class LensTermsDimension(BaseLensTermsDimension):
     Terms dimensions are used for aggregating data based on unique values of a single field.
     """
 
+    _id_components: ClassVar[list[str]] = ['type', 'field']
+    """ID is derived from type and field."""
+
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field name."""
-        field = data.get('field')
-        if field is not None:
-            return ['terms', field]
-        return None
 
 
 class LensMultiTermsDimension(BaseLensTermsDimension):
@@ -218,6 +206,9 @@ class LensDateHistogramDimension(BaseLensDimension):
     Date histogram dimensions are used for aggregating data into buckets based on numeric ranges.
     """
 
+    _id_components: ClassVar[list[str]] = ['type', 'field']
+    """ID is derived from type and field."""
+
     type: Literal['date_histogram'] = 'date_histogram'
 
     field: str = Field(default=...)
@@ -231,12 +222,3 @@ class LensDateHistogramDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field name."""
-        field = data.get('field')
-        if field is not None:
-            return ['date_histogram', field]
-        return None

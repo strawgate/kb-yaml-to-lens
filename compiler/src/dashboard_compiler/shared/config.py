@@ -55,25 +55,49 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
 class IDMixin(BaseCfgModel):
     """Mixin that provides automatic stable ID generation for config models.
 
-    Subclasses should override `_id_prefix` and `_compute_id_components()` to define
-    how stable IDs are generated. The ID is computed before model instantiation,
-    allowing it to work with frozen Pydantic models.
+    Subclasses can define how stable IDs are generated in two ways:
 
-    Example:
+    1. **Simple case (ClassVar list)**: For models where ID components are just field values,
+       set `_id_components` to a list of field names. The values will be extracted automatically.
+
+    2. **Complex case (method override)**: For models needing custom logic (sorting, transformation),
+       override `_compute_id_components()` to return the components directly.
+
+    Example (simple - ClassVar):
         class MyDimension(IDMixin):
             _id_prefix: ClassVar[str] = 'dimension'
+            _id_components: ClassVar[list[str]] = ['type_tag', 'field']  # Just list the field names
             field: str = Field(...)
+            type_tag: str = 'terms'
+
+    Example (complex - method override):
+        class MyFiltersDimension(IDMixin):
+            _id_prefix: ClassVar[str] = 'dimension'
+            filters: list[Filter] = Field(...)
 
             @classmethod
             def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-                field = data.get('field')
-                if field is not None:
-                    return [field]
-                return None
+                # Custom logic to extract and sort filter contents
+                filters = data.get('filters', [])
+                return ['filters', '|'.join(sorted(f['query'] for f in filters))]
     """
 
     _id_prefix: ClassVar[str] = ''
     """Override in subclasses to provide a prefix for the stable ID (e.g., 'dimension', 'metric')."""
+
+    _id_type_tag: ClassVar[str] = ''
+    """Type discriminator tag included in the ID (e.g., 'static', 'formula', 'terms').
+
+    When set, this value is included before the field values in ID generation.
+    Useful for distinguishing between different subtypes that share field names.
+    """
+
+    _id_components: ClassVar[list[str]] = []
+    """List of field names whose values should be used to generate the ID.
+
+    For simple cases, just list the field names and values will be extracted automatically.
+    For complex cases (sorting, transformation), override _compute_id_components() instead.
+    """
 
     id: str | None = Field(default=None)
     """A unique identifier. If not provided, one will be generated from id_components."""
@@ -110,18 +134,34 @@ class IDMixin(BaseCfgModel):
         return data  # pyright: ignore[reportUnknownVariableType]
 
     @classmethod
-    def _compute_id_components(cls, _data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
         """Compute the components used to generate a stable ID.
 
-        Override this method in subclasses to provide the identifying components.
-        Return None to skip automatic ID generation (ID will be generated during compilation).
+        Default implementation extracts values from fields listed in `_id_components`,
+        prepending `_id_type_tag` if defined.
+
+        Override this method in subclasses for custom logic (sorting, transformation, etc.).
 
         Args:
-            _data: The raw input data dictionary before model validation.
+            data: The raw input data dictionary before model validation.
 
         Returns:
             A sequence of values to hash for the stable ID, or None to skip generation.
         """
+        # Use ClassVar list if defined
+        if cls._id_components:
+            values: list[str | int | float | None] = []
+            # Add type tag if defined
+            if cls._id_type_tag:
+                values.append(cls._id_type_tag)
+            # Extract field values
+            for field_name in cls._id_components:
+                value = data.get(field_name)
+                # Treat missing required fields as reason to skip ID generation
+                if value is None:
+                    return None
+                values.append(value)  # pyright: ignore[reportAny]
+            return values
         return None
 
 

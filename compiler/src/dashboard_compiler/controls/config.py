@@ -101,6 +101,12 @@ class OptionsListControl(BaseControl):
     to filter data.
     """
 
+    _id_type_tag: ClassVar[str] = 'options'
+    """Type discriminator for options list controls."""
+
+    _id_components: ClassVar[list[str]] = ['field', 'data_view']
+    """ID is derived from field and data_view."""
+
     type: Literal['options'] = 'options'
 
     field: str = Field(...)
@@ -124,16 +130,6 @@ class OptionsListControl(BaseControl):
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field and data_view."""
-        field = data.get('field')
-        data_view = data.get('data_view')
-        if field is not None and data_view is not None:
-            return ['options', field, data_view]
-        return None
-
 
 class RangeSliderControl(BaseControl):
     """Represents a Range Slider control.
@@ -141,6 +137,12 @@ class RangeSliderControl(BaseControl):
     This control allows users to select a range of numeric or date values
     to filter data.
     """
+
+    _id_type_tag: ClassVar[str] = 'range'
+    """Type discriminator for range slider controls."""
+
+    _id_components: ClassVar[list[str]] = ['field', 'data_view']
+    """ID is derived from field and data_view."""
 
     type: Literal['range'] = 'range'
 
@@ -155,16 +157,6 @@ class RangeSliderControl(BaseControl):
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field and data_view."""
-        field = data.get('field')
-        data_view = data.get('data_view')
-        if field is not None and data_view is not None:
-            return ['range', field, data_view]
-        return None
 
 
 class TimeSliderControl(BaseControl):
@@ -203,6 +195,12 @@ class TimeSliderControl(BaseControl):
 class ESQLFieldControl(BaseControl):
     """ES|QL control for single field selection from static list."""
 
+    _id_type_tag: ClassVar[str] = 'esql_field'
+    """Type discriminator for ESQL field controls."""
+
+    _id_components: ClassVar[list[str]] = ['variable_name']
+    """ID is derived from variable_name."""
+
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
     """The name of the ES|QL variable."""
@@ -222,18 +220,15 @@ class ESQLFieldControl(BaseControl):
         validate_default_in_choices(self.default, self.choices)
         return self
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from variable_name."""
-        variable_name = data.get('variable_name')
-        if variable_name is not None:
-            return ['esql_field', variable_name]
-        return None
-
 
 class ESQLFunctionControl(BaseControl):
     """ES|QL control for single function selection from static list."""
+
+    _id_type_tag: ClassVar[str] = 'esql_function'
+    """Type discriminator for ESQL function controls."""
+
+    _id_components: ClassVar[list[str]] = ['variable_name']
+    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
@@ -254,15 +249,6 @@ class ESQLFunctionControl(BaseControl):
         validate_default_in_choices(self.default, self.choices)
         return self
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from variable_name."""
-        variable_name = data.get('variable_name')
-        if variable_name is not None:
-            return ['esql_function', variable_name]
-        return None
-
 
 class ESQLStaticSingleSelectControl(BaseControl):
     """Represents an ES|QL control with static values for single selection.
@@ -270,6 +256,12 @@ class ESQLStaticSingleSelectControl(BaseControl):
     This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
     """
+
+    _id_type_tag: ClassVar[str] = 'esql_single_select'
+    """Type discriminator for ESQL single select controls."""
+
+    _id_components: ClassVar[list[str]] = ['variable_name']
+    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
 
@@ -296,15 +288,6 @@ class ESQLStaticSingleSelectControl(BaseControl):
             raise ValueError(msg)
         return self
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from variable_name."""
-        variable_name = data.get('variable_name')
-        if variable_name is not None:
-            return ['esql_single_select', variable_name]
-        return None
-
 
 class ESQLStaticMultiSelectControl(BaseControl):
     """Represents an ES|QL control with static values for multiple selection.
@@ -312,6 +295,12 @@ class ESQLStaticMultiSelectControl(BaseControl):
     This control allows users to select multiple values from a predefined list
     to filter ES|QL visualizations via variables.
     """
+
+    _id_type_tag: ClassVar[str] = 'esql_multi_select'
+    """Type discriminator for ESQL multi select controls."""
+
+    _id_components: ClassVar[list[str]] = ['variable_name']
+    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
 
@@ -340,15 +329,6 @@ class ESQLStaticMultiSelectControl(BaseControl):
                 raise ValueError(msg)
         return self
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from variable_name."""
-        variable_name = data.get('variable_name')
-        if variable_name is not None:
-            return ['esql_multi_select', variable_name]
-        return None
-
 
 class ESQLQueryControl(BaseControl):
     """Represents an ES|QL control with query-driven values.
@@ -356,6 +336,12 @@ class ESQLQueryControl(BaseControl):
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
     """
+
+    _id_type_tag: ClassVar[str] = 'esql_query'
+    """Type discriminator for ESQL query controls."""
+
+    _id_components: ClassVar[list[str]] = ['variable_name']
+    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
 
@@ -370,12 +356,3 @@ class ESQLQueryControl(BaseControl):
 
     multiple: bool | None = Field(default=None)
     """If true, allow multiple selection from the options."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from variable_name."""
-        variable_name = data.get('variable_name')
-        if variable_name is not None:
-            return ['esql_query', variable_name]
-        return None
