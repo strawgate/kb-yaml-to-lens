@@ -77,7 +77,7 @@ def get_dimension_identifier(dimension: object) -> str:
     if fields is not None:
         return ','.join(fields)
 
-    # Try 'filters' for filters dimensions
+    # Try 'filters' for filters dimensions (hasattr check guards against non-list-like attributes)
     filters: list[Any] | None = getattr(dimension, 'filters', None)
     if filters is not None and hasattr(filters, '__len__'):
         return f'filters:{len(filters)}'
