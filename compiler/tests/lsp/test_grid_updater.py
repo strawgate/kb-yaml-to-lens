@@ -2,30 +2,34 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+import textwrap
+from typing import TYPE_CHECKING
 
-import pytest
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pytest
 
 from dashboard_compiler.dashboard_compiler import load
 from dashboard_compiler.lsp import grid_updater
 
 
 def _write_dashboard(tmp_path: Path) -> Path:
-    content = """
-    dashboards:
-      - name: "Test Dashboard"
-        panels:
-          - id: "panel-a"
-            title: "Markdown A"
-            grid: { x: 0, y: 0, w: 10, h: 5 }
-            markdown:
-              content: "Hello"
-          - id: "panel-b"
-            title: "Markdown B"
-            grid: { x: 10, y: 0, w: 10, h: 5 }
-            markdown:
-              content: "World"
-    """
+    content = textwrap.dedent("""
+        dashboards:
+          - name: "Test Dashboard"
+            panels:
+              - id: "panel-a"
+                title: "Markdown A"
+                grid: { x: 0, y: 0, w: 10, h: 5 }
+                markdown:
+                  content: "Hello"
+              - id: "panel-b"
+                title: "Markdown B"
+                grid: { x: 10, y: 0, w: 10, h: 5 }
+                markdown:
+                  content: "World"
+        """)
     yaml_path = tmp_path / 'dashboard.yaml'
     yaml_path.write_text(content, encoding='utf-8')
     return yaml_path
@@ -116,7 +120,7 @@ def test_update_panel_grid_load_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     yaml_path = _write_dashboard(tmp_path)
 
     def raise_load_error(_: str) -> list[object]:
-        raise ValueError('boom')
+        raise ValueError
 
     monkeypatch.setattr(grid_updater, 'load', raise_load_error)
 
@@ -130,7 +134,7 @@ def test_update_panel_grid_dump_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     yaml_path = _write_dashboard(tmp_path)
 
     def raise_dump_error(_: list[object], _path: str) -> None:
-        raise RuntimeError('dump failed')
+        raise RuntimeError
 
     monkeypatch.setattr(grid_updater, 'dump', raise_dump_error)
 

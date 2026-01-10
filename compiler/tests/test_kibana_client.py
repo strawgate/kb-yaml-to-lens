@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from dashboard_compiler.kibana_client import HTTP_SERVICE_UNAVAILABLE, KibanaClient
 
@@ -14,7 +16,7 @@ from dashboard_compiler.kibana_client import HTTP_SERVICE_UNAVAILABLE, KibanaCli
 @dataclass
 class _FakeResponse:
     status: int = 200
-    headers: dict[str, str] | None = None
+    headers: dict[str, str] = field(default_factory=dict)
     json_data: dict[str, Any] | None = None
     text_data: str = ''
     read_data: bytes = b''
@@ -303,14 +305,16 @@ class TestKibanaClient:
         client = KibanaClient(url='http://localhost:5601')
         output_path = tmp_path / 'screenshots' / 'dashboard.png'
 
-        async def fake_generate_screenshot(
-            _dashboard_id: str,
-            _time_from: str | None = None,
-            _time_to: str | None = None,
-            _width: int = 1920,
-            _height: int = 1080,
-            _browser_timezone: str = 'UTC',
+        async def fake_generate_screenshot(  # noqa: PLR0913
+            dashboard_id: str,
+            time_from: str | None = None,
+            time_to: str | None = None,
+            width: int = 1920,
+            height: int = 1080,
+            browser_timezone: str = 'UTC',
         ) -> str:
+            _ = (time_from, time_to, width, height, browser_timezone)  # Mark as used
+            assert dashboard_id == 'dashboard-1'
             return '/api/reporting/jobs/download/123'
 
         async def fake_wait_for_job_completion(job_path: str, timeout_seconds: int = 300) -> bytes:
