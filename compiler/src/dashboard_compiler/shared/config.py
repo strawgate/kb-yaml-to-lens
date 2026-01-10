@@ -1,14 +1,12 @@
 """Shared configuration model and utility functions for the dashboard compiler."""
 
 import hashlib
-import types
+import json
 import uuid
 from collections.abc import Sequence
-from typing import Any, ClassVar, Literal, Protocol, get_args, get_origin, runtime_checkable
+from typing import Any, ClassVar, Literal, Protocol, override, runtime_checkable
 
-from pydantic import Field, model_validator
-from pydantic.fields import FieldInfo
-from pydantic_core import PydanticUndefinedType
+from pydantic import Field
 
 from dashboard_compiler.shared.model import BaseModel
 
@@ -76,310 +74,83 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     return str(guid)
 
 
+def _compute_hash_from_dict(data: dict[str, Any], prefix: str = '') -> str:
+    """Compute a deterministic hash from a dictionary.
+
+    Uses JSON serialization for deterministic string representation.
+    Sorts keys to ensure order independence.
+
+    Args:
+        data: Dictionary to hash (typically from model_dump).
+        prefix: Optional prefix to include in the hash.
+
+    Returns:
+        A stable GUID-like string.
+    """
+    # JSON with sorted keys ensures deterministic output
+    json_str = json.dumps(data, sort_keys=True, default=str)
+    hash_input = f'{prefix}:{json_str}' if prefix else json_str
+    hash_bytes = hashlib.sha1(hash_input.encode()).digest()[:MAX_BYTES_LENGTH]  # noqa: S324
+    return str(uuid.UUID(bytes=hash_bytes))
+
+
 class IDMixin(BaseCfgModel):
     """Mixin that provides automatic stable ID generation for config models.
 
-    By default, IDs are generated from all primitive-type fields (str, int, float, bool, Literal)
-    using the class name as a type discriminator. This automatic detection works well for most cases.
+    IDs are generated deterministically by hashing the model's data (via model_dump).
+    The class name is included as a type discriminator, ensuring different model types
+    with identical field values get different IDs.
 
-    Subclasses can customize ID generation in three ways:
-
-    1. **Automatic (default)**: Do nothing - primitive fields are auto-detected and class name is used.
-
-    2. **Simple override (ClassVar list)**: Set `_id_components` to explicitly list field names.
-
-    3. **Complex override (method)**: Override `_compute_id_components()` for custom logic.
+    Subclasses can customize ID generation by overriding `_get_id_data()` to modify
+    the data used for hashing (e.g., to sort arrays for order-independent IDs).
 
     Example (automatic - no configuration needed):
         class LensStaticValue(IDMixin):
             _id_prefix: ClassVar[str] = 'metric'
-            value: int | float = Field(...)  # Auto-detected as ID component
-            label: str | None = Field(default=None)  # Optional, not included
+            value: int | float = Field(...)
 
-    Example (explicit - override auto-detection):
-        class LensTermsDimension(IDMixin):
+    Example (custom logic for order-independent sorting):
+        class LensMultiTermsDimension(IDMixin):
             _id_prefix: ClassVar[str] = 'dimension'
-            _id_components: ClassVar[list[str]] = ['field']  # Only use 'field', ignore 'type'
-            type: Literal['values'] = 'values'
-            field: str = Field(...)
+            fields: list[str] = Field(...)
 
-    Example (complex - custom logic):
-        class LensFiltersDimension(IDMixin):
-            _id_prefix: ClassVar[str] = 'dimension'
-            filters: list[Filter] = Field(...)
-
-            @classmethod
-            def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-                # Custom logic to extract and sort filter contents
-                filters = data.get('filters', [])
-                return ['filters', '|'.join(sorted(f['query'] for f in filters))]
+            def _get_id_data(self) -> dict[str, Any]:
+                data = super()._get_id_data()
+                # Sort fields for order-independent IDs
+                data['fields'] = sorted(data['fields'])
+                return data
     """
 
     _id_prefix: ClassVar[str] = ''
     """Override in subclasses to provide a prefix for the stable ID (e.g., 'dimension', 'metric')."""
 
-    _id_components: ClassVar[list[str]] = []
-    """List of field names whose values should be used to generate the ID.
-
-    If empty (default), primitive fields are auto-detected from the model.
-    For complex cases (sorting, transformation), override _compute_id_components() instead.
-    """
-
     id: str | None = Field(default=None)
-    """A unique identifier. If not provided, one will be generated from id_components."""
+    """A unique identifier. If not provided, one will be generated automatically."""
 
-    @model_validator(mode='before')
-    @classmethod
-    def _generate_stable_id(cls, data: Any) -> Any:  # pyright: ignore[reportAny]
-        """Generate a stable ID if one is not provided.
+    @override
+    def model_post_init(self, _context: Any) -> None:  # pyright: ignore[reportAny]
+        """Generate a stable ID after model construction if not already provided.
 
-        This validator runs before model instantiation, allowing ID generation
-        to work with frozen Pydantic models.
+        Uses object.__setattr__ to bypass frozen model restrictions.
         """
-        # Only process dict input (not model instances)
-        if not isinstance(data, dict):
-            return data  # pyright: ignore[reportAny]
+        if self.id is None:
+            # Get the data to hash (subclasses can override _get_id_data)
+            data = self._get_id_data()
+            # Build prefix from class name and optional _id_prefix
+            prefix = f'{type(self).__name__}:{self._id_prefix}' if self._id_prefix else type(self).__name__
+            # Generate deterministic ID
+            object.__setattr__(self, 'id', _compute_hash_from_dict(data, prefix))
 
-        # If ID is already provided, keep it
-        if data.get('id') is not None:  # pyright: ignore[reportUnknownMemberType]
-            return data  # pyright: ignore[reportUnknownVariableType]
+    def _get_id_data(self) -> dict[str, Any]:
+        """Get the data dictionary used for ID generation.
 
-        # Compute ID components from subclass implementation
-        components = cls._compute_id_components(data)  # pyright: ignore[reportUnknownArgumentType]
-        if components is not None:
-            # Prepend the ID prefix if defined
-            prefix = cls._id_prefix
-            if len(prefix) > 0:
-                all_components: list[str | int | float | None] = [prefix, *components]
-            else:
-                all_components = list(components)
-            # Make a copy to avoid mutating input
-            data = dict(data)  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
-            data['id'] = stable_id_generator(all_components)
-
-        return data  # pyright: ignore[reportUnknownVariableType]
-
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute the components used to generate a stable ID.
-
-        Default implementation:
-        1. If `_id_components` is defined, extract those field values
-        2. Otherwise, auto-detect primitive fields from the model schema
-
-        The class name is always prepended as a type discriminator.
-
-        Override this method in subclasses for custom logic (sorting, transformation, etc.).
-
-        Args:
-            data: The raw input data dictionary before model validation.
+        Override this in subclasses to customize ID generation (e.g., sorting arrays).
+        By default, uses model_dump excluding the 'id' field.
 
         Returns:
-            A sequence of values to hash for the stable ID, or None to skip generation.
+            Dictionary of field values to hash for ID generation.
         """
-        # Always start with the class name as type discriminator
-        values: list[str | int | float | None] = [cls.__name__]
-
-        # Get field names to use for ID
-        field_names = cls._id_components if len(cls._id_components) > 0 else cls._get_primitive_field_names()
-
-        if len(field_names) == 0:
-            return None
-
-        # Use a sentinel object to distinguish between "key not present" and "key present with None value"
-        _missing = object()
-
-        # Extract field values
-        for field_name in field_names:
-            value = data.get(field_name, _missing)  # pyright: ignore[reportAny]
-            # Only skip ID generation if the key is missing from data (validation will fail anyway)
-            # Allow explicit None values to participate in the hash for stability
-            if value is _missing:
-                return None
-            values.append(value)  # pyright: ignore[reportAny]
-        return values
-
-    @classmethod
-    def _get_primitive_field_names(cls) -> list[str]:
-        """Get names of primitive-type fields that should be used for auto ID generation.
-
-        Returns fields that are:
-        - Required (no default or default is ...)
-        - Primitive types (str, int, float, bool) or Literal types
-
-        Returns:
-            List of field names suitable for ID generation.
-        """
-        primitive_fields: list[str] = []
-
-        # Access model fields from Pydantic
-        model_fields = getattr(cls, 'model_fields', {})
-
-        for name, field_info in model_fields.items():  # pyright: ignore[reportAny]
-            # Skip 'id' field itself and private fields
-            if name == 'id' or name.startswith('_'):  # pyright: ignore[reportAny]
-                continue
-
-            # Check if field is required (no default)
-            if not isinstance(field_info, FieldInfo):
-                continue
-
-            # Skip optional fields (have explicit default value that is not PydanticUndefined or ...)
-            # PydanticUndefined and ... both indicate required fields
-            default: Any = field_info.default  # pyright: ignore[reportAny]
-            if not isinstance(default, PydanticUndefinedType) and default is not ...:
-                # Has an explicit default value (including None), skip it
-                continue
-            if field_info.default_factory is not None:
-                continue
-
-            # Get the annotation to check if it's a primitive type
-            annotation = field_info.annotation
-            if annotation is None:
-                continue
-
-            # Check if it's a primitive or Literal type
-            if cls._is_primitive_type(annotation):
-                primitive_fields.append(name)  # pyright: ignore[reportAny]
-
-        return primitive_fields
-
-    @staticmethod
-    def _is_primitive_type(annotation: Any) -> bool:  # pyright: ignore[reportAny]
-        """Check if a type annotation represents a primitive type suitable for ID generation."""
-        # Handle None type
-        if annotation is type(None):
-            return False
-
-        # Handle basic primitives
-        if annotation in (str, int, float, bool):
-            return True
-
-        # Get the origin for generic types
-        origin = get_origin(annotation)  # pyright: ignore[reportAny]
-
-        # Handle Literal types
-        if origin is Literal:
-            return True
-
-        # Handle Union types (both PEP 604 syntax `str | int` and typing.Union[str, int])
-        # Check for types.UnionType (PEP 604) or typing.Union (legacy)
-        is_union = origin is types.UnionType or (origin is not None and getattr(origin, '__name__', None) == 'Union')  # pyright: ignore[reportAny]
-        if is_union:
-            args = get_args(annotation)
-            # Check if all non-None args are primitives
-            non_none_args = [a for a in args if a is not type(None)]  # pyright: ignore[reportAny]
-            return len(non_none_args) > 0 and all(IDMixin._is_primitive_type(a) for a in non_none_args)  # pyright: ignore[reportAny]
-
-        return False
-
-
-def get_dimension_identifier(dimension: object) -> str:
-    """Get a representative identifier string from a dimension object.
-
-    Handles different dimension types:
-    - LensTermsDimension, LensDateHistogramDimension, etc. with 'field' attribute
-    - LensMultiTermsDimension with 'fields' attribute (list)
-    - LensFiltersDimension with 'filters' attribute
-    - ESQLDimensionTypes with 'field' attribute
-
-    Args:
-        dimension: A dimension configuration object.
-
-    Returns:
-        A representative string identifier for the dimension.
-    """
-    # Try 'field' first (most common)
-    field: str | None = getattr(dimension, 'field', None)
-    if field is not None:
-        return field
-
-    # Try 'fields' for multi-terms dimensions
-    fields: list[str] | None = getattr(dimension, 'fields', None)
-    if fields is not None:
-        # Sort for order-independent deterministic IDs
-        return ','.join(sorted(fields))
-
-    # Try 'filters' for filters dimensions
-    # Use isinstance(Sequence) instead of hasattr(__len__) for safer type checking, excluding str/bytes
-    filters: Any = getattr(dimension, 'filters', None)
-    if filters is not None and isinstance(filters, Sequence) and not isinstance(filters, (str, bytes)):
-        # Extract filter content for uniqueness - each filter has a query (kql/lucene) and optional label
-        filter_contents: list[str] = []
-        for f in filters:
-            # Handle both object-based filters (with attributes) and dict-based filters
-            if isinstance(f, dict):
-                query_dict = f.get('query')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                # Get the query string from either kql or lucene query type
-                kql = query_dict.get('kql') if isinstance(query_dict, dict) else None  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                lucene = query_dict.get('lucene') if isinstance(query_dict, dict) else None  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                query_str = kql if kql is not None else (lucene if lucene is not None else '')  # pyright: ignore[reportUnknownVariableType]
-                label = f.get('label', '') or ''  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-            else:
-                query = getattr(f, 'query', None)
-                # Get the query string from either kql or lucene query type - use explicit None checks
-                kql = getattr(query, 'kql', None) if query is not None else None  # pyright: ignore[reportAny]
-                lucene = getattr(query, 'lucene', None) if query is not None else None  # pyright: ignore[reportAny]
-                query_str = kql if kql is not None else (lucene if lucene is not None else '')
-                label_val = getattr(f, 'label', None)
-                label = label_val if label_val is not None else ''
-            filter_contents.append(f'{query_str}:{label}')
-        # Sort filter contents to ensure order-independent deterministic IDs
-        return f'filters:{"|".join(sorted(filter_contents))}'
-
-    # Fallback: try to use the dimension's 'id' if it has one (from IDMixin)
-    dim_id: str | None = getattr(dimension, 'id', None)
-    if dim_id is not None:
-        return dim_id
-
-    # Last resort: type name (may collide for multiple unknown dimensions of same type)
-    return type(dimension).__name__
-
-
-def get_metric_identifier(metric: object) -> str:
-    """Get a representative identifier string from a metric object.
-
-    Handles different metric types:
-    - Aggregated metrics with 'aggregation' and 'field' attributes (e.g., avg(bytes), sum(bytes))
-    - Count metrics with only 'aggregation' attribute (no field)
-    - Formula metrics with 'formula' attribute
-    - Static values with 'value' attribute
-
-    Args:
-        metric: A metric configuration object.
-
-    Returns:
-        A representative string identifier for the metric.
-    """
-    # Get both field and aggregation to properly distinguish metrics
-    field: str | None = getattr(metric, 'field', None)
-    aggregation: str | None = getattr(metric, 'aggregation', None)
-
-    # If both aggregation and field exist, combine them for uniqueness
-    # This prevents collisions like avg(bytes) vs sum(bytes)
-    if aggregation is not None and field is not None:
-        return f'{aggregation}:{field}'
-
-    # Aggregation-only metrics (e.g., count without field)
-    if aggregation is not None:
-        return aggregation
-
-    # Field-only metrics (shouldn't happen in practice, but handle gracefully)
-    if field is not None:
-        return field
-
-    # Try 'formula' for formula metrics
-    formula: str | None = getattr(metric, 'formula', None)
-    if formula is not None:
-        return f'formula:{formula}'
-
-    # Try 'value' for static values
-    value: float | int | None = getattr(metric, 'value', None)
-    if value is not None:
-        return f'static:{value}'
-
-    # Fallback to type name
-    return type(metric).__name__
+        return self.model_dump(exclude={'id'})
 
 
 def get_layer_id(

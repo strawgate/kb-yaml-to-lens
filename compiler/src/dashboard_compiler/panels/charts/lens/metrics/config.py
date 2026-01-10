@@ -1,7 +1,6 @@
 """Configuration for a Lens and ESQL Metric."""
 
-from collections.abc import Sequence
-from typing import Any, ClassVar, Literal, override
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -112,14 +111,6 @@ class LensCountAggregatedMetric(BaseLensMetric):
     exclude_zeros: bool | None = Field(default=None)
     """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from aggregation and optional field."""
-        aggregation: str = data.get('aggregation', 'count')  # pyright: ignore[reportAny]
-        field = data.get('field')
-        return [aggregation, field]
-
 
 class LensSumAggregatedMetric(BaseLensMetric):
     """Represents a sum metric configuration within a Lens chart.
@@ -142,16 +133,6 @@ class LensOtherAggregatedMetric(BaseLensMetric):
     """The aggregation type for the metric (e.g., 'min', 'max', 'median', 'average')."""
 
     field: str = Field(...)
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from aggregation and field."""
-        aggregation = data.get('aggregation')
-        field = data.get('field')
-        if aggregation is not None and field is not None:
-            return [aggregation, field]
-        return None
 
 
 class LensLastValueAggregatedMetric(BaseLensMetric):

@@ -22,7 +22,7 @@ from dashboard_compiler.panels.charts.metric.view import (
     KbnMetricVisualizationState,
     KbnSecondaryTrendNone,
 )
-from dashboard_compiler.shared.config import get_dimension_identifier, get_layer_id, get_metric_identifier
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_metric_chart_visualization_state(
@@ -96,9 +96,9 @@ def compile_lens_metric_chart(
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
     # Build deterministic fallback values from chart configuration
-    primary_id_str = get_metric_identifier(lens_metric_chart.primary)
-    secondary_id_str = get_metric_identifier(lens_metric_chart.secondary) if lens_metric_chart.secondary else None
-    breakdown_id_str = get_dimension_identifier(lens_metric_chart.breakdown) if lens_metric_chart.breakdown else None
+    primary_id_str = lens_metric_chart.primary.id
+    secondary_id_str = lens_metric_chart.secondary.id if lens_metric_chart.secondary is not None else None
+    breakdown_id_str = lens_metric_chart.breakdown.id if lens_metric_chart.breakdown is not None else None
     layer_id = get_layer_id(
         lens_metric_chart, ['chart', 'metric', 'lens', lens_metric_chart.data_view, primary_id_str, secondary_id_str, breakdown_id_str]
     )
@@ -131,9 +131,9 @@ def compile_esql_metric_chart(
 
     """
     # Build deterministic fallback values from chart configuration
-    primary_id_str = get_metric_identifier(esql_metric_chart.primary)
-    secondary_id_str = get_metric_identifier(esql_metric_chart.secondary) if esql_metric_chart.secondary else None
-    breakdown_id_str = get_dimension_identifier(esql_metric_chart.breakdown) if esql_metric_chart.breakdown else None
+    primary_id_str = esql_metric_chart.primary.id
+    secondary_id_str = esql_metric_chart.secondary.id if esql_metric_chart.secondary is not None else None
+    breakdown_id_str = esql_metric_chart.breakdown.id if esql_metric_chart.breakdown is not None else None
     layer_id = get_layer_id(esql_metric_chart, ['chart', 'metric', 'esql', primary_id_str, secondary_id_str, breakdown_id_str])
 
     kbn_columns: list[KbnESQLColumnTypes]

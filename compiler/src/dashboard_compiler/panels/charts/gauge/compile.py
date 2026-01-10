@@ -10,7 +10,7 @@ from dashboard_compiler.panels.charts.gauge.view import KbnGaugeVisualizationSta
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.lens.metrics.config import LensStaticValue
 from dashboard_compiler.shared.compile import normalize_static_metric
-from dashboard_compiler.shared.config import get_layer_id, get_metric_identifier
+from dashboard_compiler.shared.config import get_layer_id
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
@@ -106,7 +106,7 @@ def compile_lens_gauge_chart(
         kbn_columns_by_id[goal_id] = goal_column
 
     # Build deterministic fallback values from chart configuration
-    metric_id_str = get_metric_identifier(lens_gauge_chart.metric)
+    metric_id_str = lens_gauge_chart.metric.id
     layer_id = get_layer_id(lens_gauge_chart, ['chart', 'gauge', 'lens', lens_gauge_chart.data_view, metric_id_str])
 
     return (
@@ -139,7 +139,7 @@ def compile_esql_gauge_chart(
 
     """
     # Build deterministic fallback values from chart configuration
-    metric_id_str = get_metric_identifier(esql_gauge_chart.metric)
+    metric_id_str = esql_gauge_chart.metric.id
     layer_id = get_layer_id(esql_gauge_chart, ['chart', 'gauge', 'esql', metric_id_str])
 
     kbn_columns: list[KbnESQLColumnTypes] = []

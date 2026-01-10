@@ -1,5 +1,4 @@
-from collections.abc import Sequence
-from typing import Any, ClassVar, Literal, override
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -68,15 +67,6 @@ class ESQLDimension(BaseESQLColumn):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
-
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID from field and data_type."""
-        field = data.get('field')
-        if field is not None:
-            return ['dimension', field, data.get('data_type')]
-        return None
 
 
 class ESQLMetric(BaseESQLColumn):

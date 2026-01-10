@@ -1,6 +1,5 @@
 """Configuration schema for controls used in a dashboard."""
 
-from collections.abc import Sequence
 from enum import StrEnum
 from typing import Any, ClassVar, Literal, Self, override
 
@@ -171,33 +170,6 @@ class TimeSliderControl(BaseControl):
 
         return self
 
-    @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID for time slider control including offset values and label.
-
-        TimeSliderControl has no required primitive fields (start_offset and end_offset
-        are optional), so we override to ensure all time slider controls with unique
-        configurations get deterministic but distinct IDs. The label is included to
-        differentiate multiple time sliders when both offsets are None.
-
-        When all distinguishing fields (start_offset, end_offset, label) are None,
-        returns None to fall back to random ID generation, preventing silent collisions
-        between multiple unconfigured TimeSliderControl instances.
-        """
-        start_offset = data.get('start_offset')
-        end_offset = data.get('end_offset')
-        label = data.get('label')
-
-        # If all distinguishing fields are None, fall back to random ID generation
-        # to prevent silent collisions between multiple unconfigured time sliders
-        if start_offset is None and end_offset is None and label is None:
-            return None
-
-        # Include class name for type discrimination (matches base implementation pattern)
-        # Include label to differentiate multiple time sliders with same offset config
-        return [cls.__name__, 'time', start_offset, end_offset, label]
-
 
 class ESQLFieldControl(BaseControl):
     """ES|QL control for single field selection from static list."""
@@ -216,15 +188,12 @@ class ESQLFieldControl(BaseControl):
     """Default selected field."""
 
     @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices for uniqueness."""
-        variable_name = data.get('variable_name')
-        if variable_name is None:
-            return None
-        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        # Return sorted choices as separate components to avoid delimiter collision
-        return [cls.__name__, variable_name, *sorted(choices)]
+    def _get_id_data(self) -> dict[str, Any]:
+        """Sort choices for order-independent IDs."""
+        data = super()._get_id_data()
+        if 'choices' in data and data['choices'] is not None:
+            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
+        return data
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -250,15 +219,12 @@ class ESQLFunctionControl(BaseControl):
     """Default selected function."""
 
     @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices for uniqueness."""
-        variable_name = data.get('variable_name')
-        if variable_name is None:
-            return None
-        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        # Return sorted choices as separate components to avoid delimiter collision
-        return [cls.__name__, variable_name, *sorted(choices)]
+    def _get_id_data(self) -> dict[str, Any]:
+        """Sort choices for order-independent IDs."""
+        data = super()._get_id_data()
+        if 'choices' in data and data['choices'] is not None:
+            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
+        return data
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -292,15 +258,12 @@ class ESQLStaticSingleSelectControl(BaseControl):
     """If true, allow multiple selection. Must be None or False for this control type."""
 
     @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices for uniqueness."""
-        variable_name = data.get('variable_name')
-        if variable_name is None:
-            return None
-        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        # Return sorted choices as separate components to avoid delimiter collision
-        return [cls.__name__, variable_name, *sorted(choices)]
+    def _get_id_data(self) -> dict[str, Any]:
+        """Sort choices for order-independent IDs."""
+        data = super()._get_id_data()
+        if 'choices' in data and data['choices'] is not None:
+            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
+        return data
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
@@ -336,15 +299,12 @@ class ESQLStaticMultiSelectControl(BaseControl):
     """Must be True for this control type."""
 
     @override
-    @classmethod
-    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices for uniqueness."""
-        variable_name = data.get('variable_name')
-        if variable_name is None:
-            return None
-        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        # Return sorted choices as separate components to avoid delimiter collision
-        return [cls.__name__, variable_name, *sorted(choices)]
+    def _get_id_data(self) -> dict[str, Any]:
+        """Sort choices for order-independent IDs."""
+        data = super()._get_id_data()
+        if 'choices' in data and data['choices'] is not None:
+            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
+        return data
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:

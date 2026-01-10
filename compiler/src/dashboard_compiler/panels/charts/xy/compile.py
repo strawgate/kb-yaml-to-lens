@@ -42,7 +42,7 @@ from dashboard_compiler.panels.charts.xy.view import (
     XYReferenceLineLayerConfig,
     YConfig,
 )
-from dashboard_compiler.shared.config import get_dimension_identifier, get_layer_id, get_metric_identifier
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -499,9 +499,9 @@ def compile_lens_xy_chart(
     """
     # Build deterministic fallback values from chart configuration
     chart_type = type(lens_xy_chart).__name__
-    dimension_id_str = get_dimension_identifier(lens_xy_chart.dimension) if lens_xy_chart.dimension else None
-    breakdown_id_str = get_dimension_identifier(lens_xy_chart.breakdown) if lens_xy_chart.breakdown else None
-    metric_id_strs = [get_metric_identifier(m) for m in lens_xy_chart.metrics]
+    dimension_id_str = lens_xy_chart.dimension.id if lens_xy_chart.dimension is not None else None
+    breakdown_id_str = lens_xy_chart.breakdown.id if lens_xy_chart.breakdown is not None else None
+    metric_id_strs = [m.id for m in lens_xy_chart.metrics]
     layer_id = get_layer_id(
         lens_xy_chart, ['chart', chart_type, 'lens', lens_xy_chart.data_view, dimension_id_str, *metric_id_strs, breakdown_id_str]
     )
@@ -557,9 +557,9 @@ def compile_esql_xy_chart(
     """
     # Build deterministic fallback values from chart configuration
     chart_type = type(esql_xy_chart).__name__
-    dimension_id_str = get_dimension_identifier(esql_xy_chart.dimension) if esql_xy_chart.dimension else None
-    breakdown_id_str = get_dimension_identifier(esql_xy_chart.breakdown) if esql_xy_chart.breakdown else None
-    metric_id_strs = [get_metric_identifier(m) for m in esql_xy_chart.metrics]
+    dimension_id_str = esql_xy_chart.dimension.id if esql_xy_chart.dimension is not None else None
+    breakdown_id_str = esql_xy_chart.breakdown.id if esql_xy_chart.breakdown is not None else None
+    metric_id_strs = [m.id for m in esql_xy_chart.metrics]
     layer_id = get_layer_id(esql_xy_chart, ['chart', chart_type, 'esql', dimension_id_str, *metric_id_strs, breakdown_id_str])
 
     metrics = compile_esql_metrics(esql_xy_chart.metrics)
