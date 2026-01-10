@@ -74,19 +74,16 @@ def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
 
 
 def normalize_for_comparison(data: dict[str, Any]) -> dict[str, Any]:
-    """Normalize data for comparison by removing dynamic/unstable fields.
+    """Create a deep copy of data for safe comparison.
 
     Args:
         data: Dictionary to normalize.
 
     Returns:
-        Normalized dictionary with dynamic fields removed or replaced.
+        Deep copy of the input dictionary.
     """
-    # Deep copy to avoid modifying original
     import copy
 
-    # Remove fields that vary between compilations but aren't semantically meaningful
-    # These are typically auto-generated IDs or ordering details
     return copy.deepcopy(data)
 
 
