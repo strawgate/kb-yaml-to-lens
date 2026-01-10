@@ -75,7 +75,8 @@ def get_dimension_identifier(dimension: object) -> str:
     # Try 'fields' for multi-terms dimensions
     fields: list[str] | None = getattr(dimension, 'fields', None)
     if fields is not None:
-        return ','.join(fields)
+        # Sort for order-independent deterministic IDs
+        return ','.join(sorted(fields))
 
     # Try 'filters' for filters dimensions
     # Use isinstance(Sequence) instead of hasattr(__len__) for safer type checking, excluding str/bytes
