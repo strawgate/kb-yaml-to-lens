@@ -1,7 +1,8 @@
 """Fixture test utilities for comparing compiled output against Kibana fixtures.
 
-This module provides utilities for loading Kibana-generated fixture files,
-normalizing compiled output, and comparing them using deepdiff.
+This module provides utilities for loading Kibana-generated fixture files
+and comparing them against compiled output using DeepDiff with built-in
+exclusion patterns for dynamic values like layer IDs.
 """
 
 from __future__ import annotations
@@ -17,12 +18,15 @@ from deepdiff import DeepDiff
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-
 # Default version for fixtures
 DEFAULT_FIXTURE_VERSION = 'v9.2.0'
 
-# Shared UUID pattern for consistent matching across the module (case-insensitive)
-_UUID_PATTERN_STR = r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+# UUID pattern for matching dynamic layer IDs (case-insensitive)
+UUID_PATTERN = r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+
+# Layer ID patterns
+_UUID_REGEX = re.compile(rf'^{UUID_PATTERN}$')
+_LAYER_N_REGEX = re.compile(r'^layer_\d+$')
 
 # Project paths
 _TESTS_DIR = Path(__file__).parent.parent
@@ -85,133 +89,135 @@ def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
-def normalize_layer_ids(data: dict[str, Any], layer_id_placeholder: str = '<LAYER_ID>') -> dict[str, Any]:
-    """Normalize dynamic layer IDs in a panel configuration for stable comparison.
+def _is_layer_id(value: str) -> bool:
+    """Check if a string looks like a dynamic layer ID (UUID or layer_N)."""
+    return bool(_UUID_REGEX.match(value) or _LAYER_N_REGEX.match(value))
 
-    Replaces UUID-based layer IDs and layer_N patterns with a stable placeholder
-    throughout the structure.
+
+def normalize_layer_ids(data: dict[str, Any], placeholder: str = '<LAYER>') -> dict[str, Any]:
+    """Normalize dynamic layer IDs in a data structure for stable comparison.
+
+    Replaces UUID-based layer IDs and layer_N patterns with a stable placeholder.
+    This allows DeepDiff to match up corresponding layers between compiled
+    output (uses UUIDs) and fixtures (use layer_N).
 
     Args:
         data: Panel configuration dictionary.
-        layer_id_placeholder: Placeholder to use for layer IDs.
+        placeholder: Placeholder to use for layer IDs.
 
     Returns:
-        Normalized dictionary with stable layer IDs.
+        A deep copy with normalized layer IDs.
     """
-    uuid_pattern = re.compile(rf'^{_UUID_PATTERN_STR}$')
-    layer_n_pattern = re.compile(r'^layer_\d+$')
+    layer_mapping: dict[str, str] = {}
 
-    def is_uuid(value: str) -> bool:
-        return uuid_pattern.match(value) is not None
+    def get_placeholder(layer_id: str) -> str:
+        """Get or create a stable placeholder for a layer ID."""
+        if layer_id not in layer_mapping:
+            idx = len(layer_mapping)
+            layer_mapping[layer_id] = f'{placeholder}_{idx}'
+        return layer_mapping[layer_id]
 
-    def is_layer_id_key(value: str) -> bool:
-        return uuid_pattern.match(value) is not None or layer_n_pattern.match(value) is not None
-
-    # First pass: collect all layer IDs used as keys in the 'layers' dict
-    def collect_layer_ids(d: Any, layer_mapping: dict[str, str]) -> None:
-        if isinstance(d, dict):
-            for key, value in d.items():
-                if key == 'layers' and isinstance(value, dict):
-                    for layer_key in value:
-                        if is_layer_id_key(layer_key) and layer_key not in layer_mapping:
-                            layer_mapping[layer_key] = f'{layer_id_placeholder}_{len(layer_mapping)}'
-                collect_layer_ids(value, layer_mapping)
-        elif isinstance(d, list):
-            for item in d:
-                collect_layer_ids(item, layer_mapping)
-
-    def normalize_value(value: Any, layer_mapping: dict[str, str]) -> Any:
+    def normalize_value(value: Any) -> Any:
+        """Recursively normalize values."""
         if isinstance(value, dict):
-            return normalize_dict(value, layer_mapping)
+            return normalize_dict(value)
         if isinstance(value, list):
-            return [normalize_value(item, layer_mapping) for item in value]
-        if isinstance(value, str):
-            # Check if value is a known layer ID
-            if value in layer_mapping:
-                return layer_mapping[value]
-            # Also normalize UUID values that might be layer IDs not yet in mapping
-            if is_uuid(value):
-                if value not in layer_mapping:
-                    layer_mapping[value] = f'{layer_id_placeholder}_{len(layer_mapping)}'
-                return layer_mapping[value]
+            return [normalize_value(item) for item in value]
+        if isinstance(value, str) and _is_layer_id(value):
+            return get_placeholder(value)
         return value
 
-    def normalize_dict(d: dict[str, Any], layer_mapping: dict[str, str]) -> dict[str, Any]:
+    def normalize_dict(d: dict[str, Any]) -> dict[str, Any]:
+        """Normalize a dictionary, replacing layer ID keys and values."""
         result: dict[str, Any] = {}
-        for key, value in d.items():
-            # Check if key is a layer ID (UUID or layer_N pattern)
-            if is_layer_id_key(key):
-                if key not in layer_mapping:
-                    layer_mapping[key] = f'{layer_id_placeholder}_{len(layer_mapping)}'
-                new_key = layer_mapping[key]
-            else:
-                new_key = key
-            result[new_key] = normalize_value(value, layer_mapping)
+        for key, value in sorted(d.items()):  # Sort for deterministic ordering
+            # Check if key is a layer ID
+            new_key = get_placeholder(key) if _is_layer_id(key) else key
+            result[new_key] = normalize_value(value)
         return result
 
-    layer_mapping: dict[str, str] = {}
-    data_copy = copy.deepcopy(data)
-
-    # First pass: collect layer IDs from 'layers' dicts
-    collect_layer_ids(data_copy, layer_mapping)
-
-    # Second pass: normalize all references
-    return normalize_dict(data_copy, layer_mapping)
+    return normalize_dict(copy.deepcopy(data))
 
 
-def compare_to_fixture(
+def compare_with_deepdiff(
     compiled: dict[str, Any],
     fixture: dict[str, Any],
-    ignore_paths: Sequence[str] | None = None,
-) -> tuple[bool, DeepDiff]:
-    """Compare compiled output to fixture using deepdiff.
+    exclude_regex_paths: Sequence[str] | None = None,
+    normalize_layers: bool = True,
+) -> DeepDiff:
+    """Compare compiled output to fixture using DeepDiff with sensible defaults.
+
+    Uses DeepDiff's built-in features for handling dynamic values:
+    - ignore_order=True for list comparisons
+    - verbose_level=2 for detailed output
+    - Optional layer ID normalization for stable comparison
 
     Args:
-        compiled: Normalized compiled panel configuration.
+        compiled: Compiled panel configuration.
         fixture: Loaded fixture JSON.
-        ignore_paths: Optional list of paths to ignore in comparison.
+        exclude_regex_paths: Optional regex patterns to exclude from comparison.
+        normalize_layers: Whether to normalize layer IDs before comparison.
 
     Returns:
-        A tuple of (matches: bool, diff: DeepDiff).
-        matches is True if there are no differences.
+        A DeepDiff object containing the differences.
     """
-    exclude_regex_paths = list(ignore_paths) if ignore_paths is not None else []
+    exclude_patterns = list(exclude_regex_paths) if exclude_regex_paths is not None else []
 
-    diff = DeepDiff(
+    # Optionally normalize layer IDs for stable comparison
+    if normalize_layers:
+        compiled = normalize_layer_ids(compiled)
+        fixture = normalize_layer_ids(fixture)
+
+    return DeepDiff(
         fixture,
         compiled,
         ignore_order=True,
-        exclude_regex_paths=exclude_regex_paths,
         verbose_level=2,
+        exclude_regex_paths=exclude_patterns,
     )
 
-    matches = len(diff) == 0
-    return matches, diff
 
-
-def diff_to_dict(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
-    """Convert a DeepDiff result to a stable, serializable dictionary.
-
-    This function converts the DeepDiff result into a plain dictionary
-    that can be used with inline_snapshot for explicit assertions.
+def get_fixture_files(version: str = DEFAULT_FIXTURE_VERSION) -> list[Path]:
+    """Get all fixture JSON files for a given version.
 
     Args:
-        diff: The DeepDiff result to convert.
+        version: Fixture version directory (default: v9.2.0).
 
     Returns:
-        A dictionary with sorted keys containing the differences.
+        List of Path objects for each fixture file.
     """
+    fixture_dir = _FIXTURE_OUTPUT_DIR / version
+    if not fixture_dir.exists():
+        return []
+    return sorted(fixture_dir.glob('*.json'))
 
-    def normalize_path(path: str) -> str:
-        """Normalize path by replacing UUIDs with placeholder."""
-        uuid_pattern = rf"['\"]?{_UUID_PATTERN_STR}['\"]?"
-        return re.sub(uuid_pattern, '<UUID>', path)
 
+def normalize_diff_paths(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
+    """Convert DeepDiff result to a dict with normalized paths for stable snapshots.
+
+    Replaces dynamic values (UUIDs, layer_N patterns) in paths with stable
+    placeholders so snapshots remain consistent across runs.
+
+    Args:
+        diff: The DeepDiff result to normalize.
+
+    Returns:
+        A dictionary with normalized paths, suitable for inline_snapshot.
+    """
     if len(diff) == 0:
         return {}
 
+    # Pattern to match UUIDs and layer_N in paths
+    uuid_in_path = re.compile(rf"['\"]?{UUID_PATTERN}['\"]?")
+    layer_n_pattern = re.compile(r"['\"]?layer_\d+['\"]?")
+
+    def normalize_path(path: str) -> str:
+        """Replace dynamic IDs in path with placeholders."""
+        return layer_n_pattern.sub('<LAYER>', uuid_in_path.sub('<UUID>', path))
+
     result: dict[str, Any] = {}
 
+    # Handle each type of diff
     if 'values_changed' in diff:
         values_changed: dict[str, dict[str, Any]] = {}
         for path, change in diff['values_changed'].items():  # pyright: ignore[reportUnknownMemberType]
@@ -261,67 +267,3 @@ def diff_to_dict(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
         result['type_changes'] = dict(sorted(type_changes.items()))
 
     return dict(sorted(result.items()))
-
-
-def format_diff_report(diff: DeepDiff) -> str:
-    """Format a DeepDiff result into a human-readable report.
-
-    Args:
-        diff: The DeepDiff result to format.
-
-    Returns:
-        A formatted string describing the differences.
-    """
-    if len(diff) == 0:
-        return 'No differences found.'
-
-    lines: list[str] = ['Differences found:']
-
-    if 'values_changed' in diff:
-        lines.append('\n=== Values Changed ===')
-        for path, change in diff['values_changed'].items():  # pyright: ignore[reportUnknownMemberType]
-            lines.append(f'  {path}:')
-            lines.append(f'    fixture: {change.get("old_value")!r}')  # pyright: ignore[reportUnknownMemberType]
-            lines.append(f'    compiled: {change.get("new_value")!r}')  # pyright: ignore[reportUnknownMemberType]
-
-    if 'dictionary_item_added' in diff:
-        lines.append('\n=== Added in Compiled (not in fixture) ===')
-        lines.extend(f'  {path}' for path in diff['dictionary_item_added'])
-
-    if 'dictionary_item_removed' in diff:
-        lines.append('\n=== Missing in Compiled (present in fixture) ===')
-        lines.extend(f'  {path}' for path in diff['dictionary_item_removed'])
-
-    if 'iterable_item_added' in diff:
-        lines.append('\n=== Items Added to Lists ===')
-        for path, value in diff['iterable_item_added'].items():  # pyright: ignore[reportUnknownMemberType]
-            lines.append(f'  {path}: {value!r}')
-
-    if 'iterable_item_removed' in diff:
-        lines.append('\n=== Items Removed from Lists ===')
-        for path, value in diff['iterable_item_removed'].items():  # pyright: ignore[reportUnknownMemberType]
-            lines.append(f'  {path}: {value!r}')
-
-    if 'type_changes' in diff:
-        lines.append('\n=== Type Changes ===')
-        for path, change in diff['type_changes'].items():  # pyright: ignore[reportUnknownMemberType]
-            lines.append(f'  {path}:')
-            lines.append(f'    fixture type: {change.get("old_type")}')  # pyright: ignore[reportUnknownMemberType]
-            lines.append(f'    compiled type: {change.get("new_type")}')  # pyright: ignore[reportUnknownMemberType]
-
-    return '\n'.join(lines)
-
-
-def get_fixture_files(version: str = DEFAULT_FIXTURE_VERSION) -> list[Path]:
-    """Get all fixture JSON files for a given version.
-
-    Args:
-        version: Fixture version directory (default: v9.2.0).
-
-    Returns:
-        List of Path objects for each fixture file.
-    """
-    fixture_dir = _FIXTURE_OUTPUT_DIR / version
-    if not fixture_dir.exists():
-        return []
-    return sorted(fixture_dir.glob('*.json'))

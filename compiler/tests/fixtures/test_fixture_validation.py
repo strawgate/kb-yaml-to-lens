@@ -12,18 +12,17 @@ and detect any changes as the compiler evolves.
 from typing import Any
 
 import yaml
-from deepdiff import DeepDiff
 from inline_snapshot import snapshot
 
 from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.loader import DashboardConfig
 from tests.conftest import de_json_kbn_dashboard
 from tests.fixtures import (
-    diff_to_dict,
+    compare_with_deepdiff,
     get_fixture_files,
     load_fixture,
     normalize_compiled_panel,
-    normalize_layer_ids,
+    normalize_diff_paths,
 )
 
 
@@ -42,22 +41,19 @@ def compile_yaml_content(yaml_content: str) -> dict[str, Any]:
 
 
 def compute_diff(yaml_content: str, fixture_name: str) -> dict[str, Any]:
-    """Compile YAML content, diff against Kibana fixture, return diff dict."""
+    """Compile YAML content, diff against Kibana fixture, return normalized diff dict.
+
+    Uses DeepDiff with verbose_level=2 for detailed comparisons, then normalizes
+    the paths in the result to replace dynamic IDs with stable placeholders.
+    """
     compiled = compile_yaml_content(yaml_content)
     fixture = load_fixture(fixture_name)
 
-    # Normalize layer IDs for stable comparison
-    normalized_compiled = normalize_layer_ids(compiled)
-    normalized_fixture = normalize_layer_ids(fixture)
+    # Compare using DeepDiff (handles order, nesting, etc.)
+    diff = compare_with_deepdiff(compiled, fixture)
 
-    diff = DeepDiff(
-        normalized_fixture,
-        normalized_compiled,
-        ignore_order=True,
-        verbose_level=2,
-    )
-
-    return diff_to_dict(diff)
+    # Normalize paths for stable snapshots
+    return normalize_diff_paths(diff)
 
 
 # =============================================================================
@@ -107,27 +103,27 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['customLabel']": False,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['inMetricDimension']": True,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['label']": 'count',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['meta']['esType']": 'long',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['customLabel']": False,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['inMetricDimension']": True,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['label']": 'count',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['meta']['esType']": 'long',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['inMetricDimension']": True,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['label']": 'count',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['meta']['esType']": 'long',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['inMetricDimension']": True,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['label']": 'count',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['meta']['esType']": 'long',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
             },
             'dictionary_item_removed': {
                 ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
                 ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
             },
             'iterable_item_removed': {
                 "root['references'][0]": {
-                    'type': 'index-pattern',
                     'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
                     'name': 'indexpattern-datasource-layer-layer_0',
+                    'type': 'index-pattern',
                 },
             },
             'values_changed': {
@@ -168,75 +164,75 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
                 "root['state']['visualization']['layers'][0]['colorMapping']": {
                     'assignments': [],
+                    'colorMode': {'type': 'categorical'},
+                    'paletteId': 'eui_amsterdam_color_blind',
                     'specialAssignments': [
                         {
-                            'rule': {'type': 'other'},
                             'color': {'type': 'loop'},
+                            'rule': {'type': 'other'},
                             'touched': False,
                         }
                     ],
-                    'paletteId': 'eui_amsterdam_color_blind',
-                    'colorMode': {'type': 'categorical'},
                 },
                 "root['state']['visualization']['layers'][0]['nestedLegend']": False,
             },
             'dictionary_item_removed': {
                 ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
                 ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
                 "root['state']['visualization']['layers'][0]['allowMultipleMetrics']": False,
                 "root['state']['visualization']['layers'][0]['legendPosition']": 'right',
             },
             'iterable_item_removed': {
                 "root['references'][0]": {
-                    'type': 'index-pattern',
                     'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
                     'name': 'indexpattern-datasource-layer-layer_0',
+                    'type': 'index-pattern',
                 },
             },
             'values_changed': {
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]": {
                     'old_value': {'columnId': 'metric_formula_accessor_breakdown_0', 'fieldName': 'log.level'},
                     'new_value': {
-                        'fieldName': 'count',
                         'columnId': 'metric_formula_accessor',
-                        'label': 'count',
                         'customLabel': False,
-                        'meta': {'type': 'number', 'esType': 'long'},
+                        'fieldName': 'count',
                         'inMetricDimension': True,
+                        'label': 'count',
+                        'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][1]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
                     'new_value': {
-                        'fieldName': 'log.level',
                         'columnId': 'metric_formula_accessor_breakdown_0',
-                        'label': 'log.level',
                         'customLabel': False,
+                        'fieldName': 'log.level',
+                        'label': 'log.level',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]": {
                     'old_value': {'columnId': 'metric_formula_accessor_breakdown_0', 'fieldName': 'log.level'},
                     'new_value': {
-                        'fieldName': 'count',
                         'columnId': 'metric_formula_accessor',
-                        'label': 'count',
                         'customLabel': False,
-                        'meta': {'type': 'number', 'esType': 'long'},
+                        'fieldName': 'count',
                         'inMetricDimension': True,
+                        'label': 'count',
+                        'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][1]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
                     'new_value': {
-                        'fieldName': 'log.level',
                         'columnId': 'metric_formula_accessor_breakdown_0',
-                        'label': 'log.level',
                         'customLabel': False,
+                        'fieldName': 'log.level',
+                        'label': 'log.level',
                     },
                 },
                 "root['state']['query']": {
