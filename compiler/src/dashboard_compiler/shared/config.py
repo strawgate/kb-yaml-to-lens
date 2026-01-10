@@ -85,13 +85,15 @@ def get_dimension_identifier(dimension: object) -> str:
         filter_contents: list[str] = []
         for f in filters:
             query = getattr(f, 'query', None)
-            # Get the query string from either kql or lucene query type
+            # Get the query string from either kql or lucene query type - use explicit None checks
             kql = getattr(query, 'kql', None) if query is not None else None  # pyright: ignore[reportAny]
-            lucene = getattr(query, 'lucene', '') if query is not None else ''  # pyright: ignore[reportAny]
-            query_str = kql or lucene
-            label = getattr(f, 'label', None) or ''
+            lucene = getattr(query, 'lucene', None) if query is not None else None  # pyright: ignore[reportAny]
+            query_str = kql if kql is not None else (lucene if lucene is not None else '')
+            label_val = getattr(f, 'label', None)
+            label = label_val if label_val is not None else ''
             filter_contents.append(f'{query_str}:{label}')
-        return f'filters:{"|".join(filter_contents)}'
+        # Sort filter contents to ensure order-independent deterministic IDs
+        return f'filters:{"|".join(sorted(filter_contents))}'
 
     # Fallback to type name
     return type(dimension).__name__
