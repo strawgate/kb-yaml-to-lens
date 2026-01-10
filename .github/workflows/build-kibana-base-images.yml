@@ -87,8 +87,8 @@ jobs:
     strategy:
       matrix:
         kibana_version:
-          - v9.2.0
-          - v8.19.0
+          - v9.2.2
+          - v8.19.9
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
