@@ -16,14 +16,10 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 import tomllib
 from pathlib import Path
 
-try:
-    import click
-except ImportError:
-    sys.exit('Error: click is required. Run: uv pip install click')
+import click
 
 # Version file locations relative to project root
 VERSION_FILES = {
@@ -59,12 +55,15 @@ def bump_version(version: str, bump_type: str) -> str:
 
 def read_version(path: Path, file_format: str) -> str:
     """Read version from a file."""
-    if file_format == 'toml':
-        data = tomllib.loads(path.read_text())
-        return data['project']['version']
-    # json
-    data = json.loads(path.read_text())
-    return data['version']
+    try:
+        if file_format == 'toml':
+            data = tomllib.loads(path.read_text())
+            return data['project']['version']
+        # json
+        data = json.loads(path.read_text())
+        return data['version']
+    except KeyError as e:
+        raise click.ClickException(f'Missing version key in {path}: {e}')
 
 
 def write_version(path: Path, file_format: str, old_version: str, new_version: str) -> None:
