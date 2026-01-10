@@ -123,5 +123,10 @@ suite('Extension Test Suite', () => {
 
         // Extension initialized via suiteSetup; command throws on failure
         await vscode.commands.executeCommand('yamlDashboard.compile');
+
+        // Verify no diagnostic errors for the compiled file
+        const diagnostics = vscode.languages.getDiagnostics(uri);
+        const errors = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error);
+        assert.strictEqual(errors.length, 0, `Expected no errors but found: ${errors.map(e => e.message).join(', ')}`);
     });
 });
