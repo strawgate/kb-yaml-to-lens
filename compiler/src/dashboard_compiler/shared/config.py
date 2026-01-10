@@ -3,7 +3,7 @@
 import hashlib
 import uuid
 from collections.abc import Sequence
-from typing import Literal
+from typing import Literal, Protocol, runtime_checkable
 
 from pydantic import Field
 
@@ -14,6 +14,13 @@ MAX_BYTES_LENGTH = 16  # UUIDs are 128 bits (16 bytes)
 
 class BaseCfgModel(BaseModel):
     """Base configuration model for the dashboard compiler."""
+
+
+@runtime_checkable
+class HasId(Protocol):
+    """Protocol for objects that have an optional 'id' attribute."""
+
+    id: str | None
 
 
 def random_id_generator() -> str:

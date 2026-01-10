@@ -27,11 +27,16 @@ export async function generateFixture(
   options: LensConfigOptions = {},
   callerFilePath: string
 ): Promise<void> {
-  // Validate outputFilename
+  // Validate outputFilename - strict security checks
   if (!outputFilename || typeof outputFilename !== 'string') {
     throw new Error('outputFilename must be a non-empty string');
   }
-  if (outputFilename.includes('..') || outputFilename.includes('\0') || path.isAbsolute(outputFilename)) {
+  // Block path traversal, null bytes, absolute paths, and directory separators
+  if (outputFilename.includes('..') ||
+      outputFilename.includes('\0') ||
+      outputFilename.includes('/') ||
+      outputFilename.includes('\\') ||
+      path.isAbsolute(outputFilename)) {
     throw new Error(`Invalid outputFilename: ${outputFilename}`);
   }
 

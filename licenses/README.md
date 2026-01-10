@@ -28,3 +28,9 @@ These files have been converted from Kibana JSON format to YAML format for use a
 ## Other Examples
 
 All other example files in this repository (e.g., `docs/examples/aerospike/`, `docs/examples/controls-example.yaml`, etc.) are original works licensed under the project's MIT license.
+
+## Documentation Copy
+
+For documentation build purposes, a copy of `ELASTIC-LICENSE-2.0.txt` is maintained at `docs/licenses/ELASTIC-LICENSE-2.0.txt`. This allows the license to be referenced in the MkDocs documentation site.
+
+If you update the license file, ensure both copies are updated.

@@ -165,7 +165,7 @@ dashboards:
           h: 8
         lens:
           type: metric
-          data_view: sales-*
+          data_view: logs-*
           primary:
             aggregation: sum
             field: transaction.amount
@@ -301,7 +301,7 @@ dashboards:
           h: 8
         lens:
           type: metric
-          data_view: network-*
+          data_view: metrics-*
           primary:
             aggregation: sum
             field: network.bytes
@@ -319,7 +319,7 @@ dashboards:
           h: 8
         lens:
           type: metric
-          data_view: sales-*
+          data_view: logs-*
           primary:
             aggregation: count
             label: Transactions
@@ -354,7 +354,7 @@ dashboards:
           h: 8
         lens:
           type: metric
-          data_view: network-*
+          data_view: metrics-*
           primary:
             aggregation: average
             field: network.bits
