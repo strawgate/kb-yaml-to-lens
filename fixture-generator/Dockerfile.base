@@ -2,9 +2,6 @@
 #
 # This Dockerfile creates a base image with Kibana bootstrapped and ready to use.
 # It is published to GitHub Container Registry and reused by the main Dockerfile.
-#
-# Build time: ~6 minutes (one-time, then cached and reused)
-# Image size: ~4GB (optimized by removing tests, docs, git history, source maps)
 
 FROM ubuntu:22.04
 
@@ -64,18 +61,6 @@ RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
 
 # Set Kibana version for runtime use
 ENV KIBANA_VERSION=${KIBANA_VERSION}
-
-# Cleanup unnecessary files to reduce image size and disk usage during build
-# This step is critical for fitting the build on standard GitHub Actions runners
-RUN rm -rf /kibana/api_docs /kibana/docs /kibana/.git \
-    /kibana/x-pack/test /kibana/test /kibana/x-pack/packages/*/test \
-    /root/.npm /root/.cache && \
-    yarn cache clean && \
-    find /kibana -name "*.map" -type f -delete && \
-    find /kibana -name "*.test.ts" -type f -delete && \
-    find /kibana -name "*.test.tsx" -type f -delete && \
-    find /kibana -name "__tests__" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    find /kibana -name "__snapshots__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Create non-root user for security
 RUN groupadd -r fixture && useradd -r -g fixture fixture && \
