@@ -243,6 +243,40 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     return wrapper  # type: ignore[return-value]
 
 
+def validate_auth_options(
+    prefix: str,
+    api_key: str | None,
+    username: str | None,
+    password: str | None,
+) -> None:
+    """Validate authentication options for a service.
+
+    Ensures that:
+    - API key is not used together with username/password
+    - Username and password are used together (not one without the other)
+
+    Args:
+        prefix: The CLI option prefix (e.g. '--kibana', '--es')
+        api_key: The API key
+        username: The username
+        password: The password
+
+    Raises:
+        click.UsageError: If authentication options are invalid
+
+    """
+    if api_key is not None and (username is not None or password is not None):
+        msg = (
+            f'Cannot use {prefix}-api-key together with {prefix}-username or {prefix}-password. '
+            'Choose one authentication method.'
+        )
+        raise click.UsageError(msg)
+
+    if (username is not None and password is None) or (password is not None and username is None):
+        msg = f'{prefix}-username and {prefix}-password must be used together for basic authentication.'
+        raise click.UsageError(msg)
+
+
 def validate_kibana_auth(
     api_key: str | None,
     username: str | None,
@@ -263,13 +297,7 @@ def validate_kibana_auth(
         click.UsageError: If authentication options are invalid
 
     """
-    if api_key is not None and (username is not None or password is not None):
-        msg = 'Cannot use --kibana-api-key together with --kibana-username or --kibana-password. Choose one authentication method.'
-        raise click.UsageError(msg)
-
-    if (username is not None and password is None) or (password is not None and username is None):
-        msg = '--kibana-username and --kibana-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    validate_auth_options('--kibana', api_key, username, password)
 
 
 def validate_elasticsearch_auth(
@@ -292,10 +320,4 @@ def validate_elasticsearch_auth(
         click.UsageError: If authentication options are invalid
 
     """
-    if api_key is not None and (username is not None or password is not None):
-        msg = 'Cannot use --es-api-key together with --es-username or --es-password. Choose one authentication method.'
-        raise click.UsageError(msg)
-
-    if (username is not None and password is None) or (password is not None and username is None):
-        msg = '--es-username and --es-password must be used together for basic authentication.'
-        raise click.UsageError(msg)
+    validate_auth_options('--es', api_key, username, password)
