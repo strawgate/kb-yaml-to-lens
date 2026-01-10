@@ -54,13 +54,9 @@ suite('Extension Test Suite', () => {
         }
     });
 
-    test('Debug Workspace', async () => {
-        console.log('Workspace folders:', vscode.workspace.workspaceFolders);
-        if (vscode.workspace.workspaceFolders) {
-            vscode.workspace.workspaceFolders.forEach(folder => {
-                console.log('Folder:', folder.uri.fsPath);
-            });
-        }
+    test('Workspace folders should be configured', async () => {
+        assert.ok(vscode.workspace.workspaceFolders, 'Workspace folders should be defined');
+        assert.ok(vscode.workspace.workspaceFolders.length > 0, 'At least one workspace folder should exist');
     });
 
     test('Extension should be present', () => {
@@ -85,53 +81,45 @@ suite('Extension Test Suite', () => {
         assert.ok(commands.includes('yamlDashboard.clearKibanaCredentials'), 'yamlDashboard.clearKibanaCredentials command missing');
     });
 
-    test('Should get dashboards from YAML file', async () => {
+    test('Should open YAML file and verify it is recognized as YAML', async () => {
         const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
-        if (!fs.existsSync(fixturePath)) {
-            const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
-            if (!fs.existsSync(fallbackPath)) {
-                assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
-            }
-        }
+        const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
 
-        const uri = vscode.Uri.file(fixturePath);
+        const actualPath = fs.existsSync(fixturePath) ? fixturePath :
+                          fs.existsSync(fallbackPath) ? fallbackPath : null;
+
+        assert.ok(actualPath, `Fixture not found at ${fixturePath} or ${fallbackPath}`);
+
+        const uri = vscode.Uri.file(actualPath!);
+        const doc = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(doc);
+
+        assert.strictEqual(doc.languageId, 'yaml', 'Document should be recognized as YAML');
+        assert.ok(doc.getText().length > 0, 'Document should have content');
+        assert.ok(doc.getText().includes('dashboards'), 'Document should contain dashboard definition');
+    });
+
+    test('Should compile YAML file without errors', async () => {
+        const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
+        const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
+
+        const actualPath = fs.existsSync(fixturePath) ? fixturePath :
+                          fs.existsSync(fallbackPath) ? fallbackPath : null;
+
+        assert.ok(actualPath, `Fixture not found at ${fixturePath} or ${fallbackPath}`);
+
+        const uri = vscode.Uri.file(actualPath!);
         const doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
 
         // Give the LSP server a moment to initialize
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Execute compile command - this internally calls getDashboards()
-        try {
-            await vscode.commands.executeCommand('yamlDashboard.compile');
-        } catch (error) {
-            assert.fail(`getDashboards failed: ${error}`);
-        }
-    });
+        // Execute compile command and verify it completes successfully
+        // The compile command will throw if compilation fails
+        await vscode.commands.executeCommand('yamlDashboard.compile');
 
-    test('Should open YAML file and compile', async () => {
-        const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
-
-        if (!fs.existsSync(fixturePath)) {
-            const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
-            if (!fs.existsSync(fallbackPath)) {
-                assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
-            }
-        }
-
-        const uri = vscode.Uri.file(fixturePath);
-
-        try {
-            const doc = await vscode.workspace.openTextDocument(uri);
-            await vscode.window.showTextDocument(doc);
-            assert.strictEqual(doc.languageId, 'yaml');
-
-            // Give LSP server a moment to initialize
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            await vscode.commands.executeCommand('yamlDashboard.compile');
-        } catch (error) {
-            assert.fail(`Test failed: ${error}`);
-        }
+        // If we reach here, compilation succeeded without throwing
+        assert.ok(true, 'Compile command executed successfully');
     });
 });
