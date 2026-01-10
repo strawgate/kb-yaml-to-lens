@@ -31,19 +31,40 @@ def random_id_generator() -> str:
     return str(uuid.uuid4())
 
 
+def _type_tag_value(value: str | int | float | None) -> str:
+    """Add type prefix to a value to prevent collisions between different types.
+
+    This ensures that e.g. int 1 and str '1' produce different hashes.
+    """
+    if value is None:
+        return 'n:'
+    if isinstance(value, bool):
+        # bool must be checked before int since bool is a subclass of int
+        return f'b:{value}'
+    if isinstance(value, int):
+        return f'i:{value}'
+    if isinstance(value, float):
+        return f'f:{value}'
+    # str or fallback
+    return f's:{value}'
+
+
 def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     """Generate a GUID looking string from a hash of values.
 
     This produces a stable ID as long as the input values are stable.
+    Type tagging ensures different types with the same string representation
+    (e.g., int 1 vs str '1') produce different hashes.
 
     Returns:
         str: A stable GUID-like string generated from the input values.
 
     """
-    # The '||' delimiter is used to separate input values before hashing. This ensures
-    # different inputs produce different hashes: ['a', 'bc'] ≠ ['ab', 'c']
-    # (without delimiter: 'abc' = 'abc', with delimiter: 'a||bc' ≠ 'ab||c')
-    concatenated_values = '||'.join([str(value) for value in values]).encode('utf-8')
+    # Type-tag each value to prevent collisions between types
+    # e.g., [1, 'x'] becomes 'i:1||s:x' while ['1', 'x'] becomes 's:1||s:x'
+    # The '||' delimiter ensures different inputs produce different hashes:
+    # ['a', 'bc'] ≠ ['ab', 'c'] (with delimiter: 's:a||s:bc' ≠ 's:ab||s:c')
+    concatenated_values = '||'.join([_type_tag_value(value) for value in values]).encode('utf-8')
 
     # Use SHA-1 for deterministic hashing. While SHA-1 is deprecated for cryptographic
     # use, it's perfect here because we need speed and determinism, not security.
@@ -282,13 +303,22 @@ def get_dimension_identifier(dimension: object) -> str:
         # Extract filter content for uniqueness - each filter has a query (kql/lucene) and optional label
         filter_contents: list[str] = []
         for f in filters:
-            query = getattr(f, 'query', None)
-            # Get the query string from either kql or lucene query type - use explicit None checks
-            kql = getattr(query, 'kql', None) if query is not None else None  # pyright: ignore[reportAny]
-            lucene = getattr(query, 'lucene', None) if query is not None else None  # pyright: ignore[reportAny]
-            query_str = kql if kql is not None else (lucene if lucene is not None else '')
-            label_val = getattr(f, 'label', None)
-            label = label_val if label_val is not None else ''
+            # Handle both object-based filters (with attributes) and dict-based filters
+            if isinstance(f, dict):
+                query_dict = f.get('query')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                # Get the query string from either kql or lucene query type
+                kql = query_dict.get('kql') if isinstance(query_dict, dict) else None  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                lucene = query_dict.get('lucene') if isinstance(query_dict, dict) else None  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                query_str = kql if kql is not None else (lucene if lucene is not None else '')  # pyright: ignore[reportUnknownVariableType]
+                label = f.get('label', '') or ''  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            else:
+                query = getattr(f, 'query', None)
+                # Get the query string from either kql or lucene query type - use explicit None checks
+                kql = getattr(query, 'kql', None) if query is not None else None  # pyright: ignore[reportAny]
+                lucene = getattr(query, 'lucene', None) if query is not None else None  # pyright: ignore[reportAny]
+                query_str = kql if kql is not None else (lucene if lucene is not None else '')
+                label_val = getattr(f, 'label', None)
+                label = label_val if label_val is not None else ''
             filter_contents.append(f'{query_str}:{label}')
         # Sort filter contents to ensure order-independent deterministic IDs
         return f'filters:{"|".join(sorted(filter_contents))}'

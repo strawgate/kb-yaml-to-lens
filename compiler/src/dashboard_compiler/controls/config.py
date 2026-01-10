@@ -174,16 +174,19 @@ class TimeSliderControl(BaseControl):
     @override
     @classmethod
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID for time slider control including offset values.
+        """Compute ID for time slider control including offset values and label.
 
         TimeSliderControl has no required primitive fields (start_offset and end_offset
-        are optional), so we override to ensure all time slider controls with the same
-        offset configuration get the same deterministic ID.
+        are optional), so we override to ensure all time slider controls with unique
+        configurations get deterministic but distinct IDs. The label is included to
+        differentiate multiple time sliders when both offsets are None.
         """
         start_offset = data.get('start_offset')
         end_offset = data.get('end_offset')
+        label = data.get('label')
         # Include class name for type discrimination (matches base implementation pattern)
-        return [cls.__name__, 'time', start_offset, end_offset]
+        # Include label to differentiate multiple time sliders with same offset config
+        return [cls.__name__, 'time', start_offset, end_offset, label]
 
 
 class ESQLFieldControl(BaseControl):
@@ -201,6 +204,17 @@ class ESQLFieldControl(BaseControl):
 
     default: str | None = Field(default=None)
     """Default selected field."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID including variable_name and choices hash for uniqueness."""
+        variable_name = data.get('variable_name')
+        if variable_name is None:
+            return None
+        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
+        choices_str = ','.join(sorted(choices))
+        return [cls.__name__, variable_name, choices_str]
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -224,6 +238,17 @@ class ESQLFunctionControl(BaseControl):
 
     default: str | None = Field(default=None)
     """Default selected function."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID including variable_name and choices hash for uniqueness."""
+        variable_name = data.get('variable_name')
+        if variable_name is None:
+            return None
+        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
+        choices_str = ','.join(sorted(choices))
+        return [cls.__name__, variable_name, choices_str]
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -255,6 +280,17 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
     multiple: Literal[False] | None = Field(default=None)
     """If true, allow multiple selection. Must be None or False for this control type."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID including variable_name and choices hash for uniqueness."""
+        variable_name = data.get('variable_name')
+        if variable_name is None:
+            return None
+        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
+        choices_str = ','.join(sorted(choices))
+        return [cls.__name__, variable_name, choices_str]
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
@@ -288,6 +324,17 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
     multiple: Literal[True] = Field(default=True)
     """Must be True for this control type."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID including variable_name and choices hash for uniqueness."""
+        variable_name = data.get('variable_name')
+        if variable_name is None:
+            return None
+        choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
+        choices_str = ','.join(sorted(choices))
+        return [cls.__name__, variable_name, choices_str]
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
