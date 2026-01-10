@@ -62,5 +62,12 @@ RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
 # Set Kibana version for runtime use
 ENV KIBANA_VERSION=${KIBANA_VERSION}
 
+# Create non-root user for security
+RUN groupadd -r fixture && useradd -r -g fixture fixture && \
+    chown -R fixture:fixture /kibana
+
+# Switch to non-root user
+USER fixture
+
 # Stay in Kibana root for module resolution
 WORKDIR /kibana

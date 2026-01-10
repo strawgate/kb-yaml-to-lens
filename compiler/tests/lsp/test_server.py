@@ -11,6 +11,7 @@ from dashboard_compiler.lsp.server import (
     _params_to_dict,
     compile_custom,
     get_dashboards_custom,
+    get_grid_layout_custom,
 )
 
 
@@ -232,6 +233,26 @@ class TestCompileCustom(unittest.TestCase):
 
         self.assertTrue(result['success'])
 
+    def test_compile_custom_invalid_string_index(self) -> None:
+        """Invalid dashboard_index should return a structured error (not raise)."""
+        params = {'path': str(self.temp_file), 'dashboard_index': 'abc'}
+
+        result = compile_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
+    def test_compile_custom_none_index(self) -> None:
+        """None dashboard_index should return a structured error (not raise)."""
+        params = {'path': str(self.temp_file), 'dashboard_index': None}
+
+        result = compile_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
 
 class TestGetDashboardsCustom(unittest.TestCase):
     """Test the get_dashboards_custom handler."""
@@ -352,6 +373,284 @@ class TestGetDashboardsCustom(unittest.TestCase):
         result = get_dashboards_custom(params)
 
         self.assertTrue(result['success'])
+
+
+class TestGetGridLayoutCustom(unittest.TestCase):
+    """Test the get_grid_layout_custom handler."""
+
+    def setUp(self) -> None:
+        """Create temporary test files."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.temp_file = Path(self.temp_dir) / 'test_dashboard.yaml'
+
+    def tearDown(self) -> None:
+        """Clean up temporary files."""
+        import shutil
+
+        shutil.rmtree(self.temp_dir)
+
+    def test_get_grid_layout_valid(self) -> None:
+        """Test getting grid layout from a valid dashboard file."""
+        yaml_content = """dashboards:
+- name: Test Dashboard
+  description: A test dashboard
+  panels:
+  - title: Test Panel
+    grid:
+      x: 0
+      y: 0
+      w: 24
+      h: 12
+    markdown:
+      content: "# Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': 0}
+        result = get_grid_layout_custom(params)
+
+        self.assertTrue(result['success'])
+        self.assertIn('data', result)
+        self.assertEqual(result['data']['title'], 'Test Dashboard')
+        self.assertEqual(result['data']['description'], 'A test dashboard')
+        self.assertEqual(len(result['data']['panels']), 1)
+        self.assertEqual(result['data']['panels'][0]['title'], 'Test Panel')
+        self.assertEqual(result['data']['panels'][0]['grid']['x'], 0)
+        self.assertEqual(result['data']['panels'][0]['grid']['y'], 0)
+        self.assertEqual(result['data']['panels'][0]['grid']['w'], 24)
+        self.assertEqual(result['data']['panels'][0]['grid']['h'], 12)
+
+    def test_get_grid_layout_multiple_panels(self) -> None:
+        """Test getting grid layout with multiple panels."""
+        yaml_content = """dashboards:
+- name: Multi Panel Dashboard
+  panels:
+  - title: Panel 1
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "1"
+  - title: Panel 2
+    grid: {x: 24, y: 0, w: 24, h: 10}
+    markdown:
+      content: "2"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file)}
+        result = get_grid_layout_custom(params)
+
+        self.assertTrue(result['success'])
+        self.assertEqual(len(result['data']['panels']), 2)
+        self.assertEqual(result['data']['panels'][0]['title'], 'Panel 1')
+        self.assertEqual(result['data']['panels'][1]['title'], 'Panel 2')
+
+    def test_get_grid_layout_missing_path(self) -> None:
+        """Test that missing path returns error."""
+        params = {}
+
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Missing path', result['error'])
+
+    def test_get_grid_layout_empty_path(self) -> None:
+        """Test that empty path returns error."""
+        params = {'path': ''}
+
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Missing path', result['error'])
+
+    def test_get_grid_layout_nonexistent_file(self) -> None:
+        """Test that nonexistent file returns error."""
+        params = {'path': '/nonexistent/file.yaml'}
+
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+
+    def test_get_grid_layout_invalid_dashboard_index(self) -> None:
+        """Test that out-of-range dashboard index returns error."""
+        yaml_content = """dashboards:
+- name: Test Dashboard
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': 5}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('out of range', result['error'])
+
+    def test_get_grid_layout_negative_index(self) -> None:
+        """Test that negative dashboard index returns error."""
+        yaml_content = """dashboards:
+- name: Test Dashboard
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': -1}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('out of range', result['error'])
+
+    def test_get_grid_layout_second_dashboard(self) -> None:
+        """Test getting grid layout from second dashboard in multi-dashboard file."""
+        yaml_content = """dashboards:
+- name: First Dashboard
+  panels:
+  - title: First Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "1"
+- name: Second Dashboard
+  description: The second one
+  panels:
+  - title: Second Panel
+    grid: {x: 0, y: 0, w: 48, h: 20}
+    markdown:
+      content: "2"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': 1}
+        result = get_grid_layout_custom(params)
+
+        self.assertTrue(result['success'])
+        self.assertEqual(result['data']['title'], 'Second Dashboard')
+        self.assertEqual(result['data']['description'], 'The second one')
+        self.assertEqual(result['data']['panels'][0]['title'], 'Second Panel')
+
+    def test_get_grid_layout_default_index(self) -> None:
+        """Test that default index is 0 when not provided."""
+        yaml_content = """dashboards:
+- name: Default Dashboard
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file)}
+        result = get_grid_layout_custom(params)
+
+        self.assertTrue(result['success'])
+        self.assertEqual(result['data']['title'], 'Default Dashboard')
+
+    def test_get_grid_layout_with_namedtuple(self) -> None:
+        """Test with namedtuple params (like pygls.protocol.Object)."""
+        from collections import namedtuple
+
+        yaml_content = """dashboards:
+- name: Test
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        ParamsType = namedtuple('ParamsType', ['path', 'dashboard_index'])
+        params = ParamsType(path=str(self.temp_file), dashboard_index=0)
+
+        result = get_grid_layout_custom(params)
+
+        self.assertTrue(result['success'])
+
+    def test_get_grid_layout_string_index(self) -> None:
+        """Test with string dashboard index (should be converted to int)."""
+        yaml_content = """dashboards:
+- name: First
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+- name: Second
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': '1'}
+        result = get_grid_layout_custom(params)
+
+        self.assertTrue(result['success'])
+        self.assertEqual(result['data']['title'], 'Second')
+
+    def test_get_grid_layout_no_dashboards(self) -> None:
+        """Test that file with no dashboards returns error."""
+        yaml_content = """dashboards: []
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file)}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('No dashboards found', result['error'])
+
+    def test_get_grid_layout_invalid_string_index(self) -> None:
+        """Invalid dashboard_index should return a structured error (not raise)."""
+        yaml_content = """dashboards:
+- name: Only
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': 'abc'}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
+    def test_get_grid_layout_none_index(self) -> None:
+        """None dashboard_index should return a structured error (not raise)."""
+        yaml_content = """dashboards:
+- name: Only
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': None}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
 
 
 if __name__ == '__main__':
