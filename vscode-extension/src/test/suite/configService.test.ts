@@ -52,47 +52,41 @@ suite('ConfigService Test Suite', () => {
         assert.strictEqual(browserType, 'external');
     });
 
-    test('Should store and retrieve username', async () => {
-        const testUsername = 'testuser';
-        await configService.setKibanaUsername(testUsername);
-        const retrievedUsername = await configService.getKibanaUsername();
-        assert.strictEqual(retrievedUsername, testUsername);
-    });
+    const credentialCases = [
+        {
+            label: 'username',
+            value: 'testuser',
+            setter: (val: string) => configService.setKibanaUsername(val),
+            getter: () => configService.getKibanaUsername(),
+        },
+        {
+            label: 'password',
+            value: 'testpass123',
+            setter: (val: string) => configService.setKibanaPassword(val),
+            getter: () => configService.getKibanaPassword(),
+        },
+        {
+            label: 'API key',
+            value: 'test-api-key-12345',
+            setter: (val: string) => configService.setKibanaApiKey(val),
+            getter: () => configService.getKibanaApiKey(),
+        },
+    ];
 
-    test('Should store and retrieve password', async () => {
-        const testPassword = 'testpass123';
-        await configService.setKibanaPassword(testPassword);
-        const retrievedPassword = await configService.getKibanaPassword();
-        assert.strictEqual(retrievedPassword, testPassword);
-    });
+    for (const credential of credentialCases) {
+        test(`Should store and retrieve ${credential.label}`, async () => {
+            await credential.setter(credential.value);
+            const retrieved = await credential.getter();
+            assert.strictEqual(retrieved, credential.value);
+        });
 
-    test('Should store and retrieve API key', async () => {
-        const testApiKey = 'test-api-key-12345';
-        await configService.setKibanaApiKey(testApiKey);
-        const retrievedApiKey = await configService.getKibanaApiKey();
-        assert.strictEqual(retrievedApiKey, testApiKey);
-    });
-
-    test('Should clear username when set to empty string', async () => {
-        await configService.setKibanaUsername('testuser');
-        await configService.setKibanaUsername('');
-        const username = await configService.getKibanaUsername();
-        assert.strictEqual(username, '');
-    });
-
-    test('Should clear password when set to empty string', async () => {
-        await configService.setKibanaPassword('testpass');
-        await configService.setKibanaPassword('');
-        const password = await configService.getKibanaPassword();
-        assert.strictEqual(password, '');
-    });
-
-    test('Should clear API key when set to empty string', async () => {
-        await configService.setKibanaApiKey('testkey');
-        await configService.setKibanaApiKey('');
-        const apiKey = await configService.getKibanaApiKey();
-        assert.strictEqual(apiKey, '');
-    });
+        test(`Should clear ${credential.label} when set to empty string`, async () => {
+            await credential.setter(credential.value);
+            await credential.setter('');
+            const cleared = await credential.getter();
+            assert.strictEqual(cleared, '');
+        });
+    }
 
     test('Should clear all credentials', async () => {
         // Set all credentials
