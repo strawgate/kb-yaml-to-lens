@@ -237,8 +237,10 @@ class IDMixin(BaseCfgModel):
         if origin is Literal:
             return True
 
-        # Handle Union types (e.g., str | int, Optional[str])
-        if origin is types.UnionType:
+        # Handle Union types (both PEP 604 syntax `str | int` and typing.Union[str, int])
+        # Check for types.UnionType (PEP 604) or typing.Union (legacy)
+        is_union = origin is types.UnionType or (origin is not None and getattr(origin, '__name__', None) == 'Union')  # pyright: ignore[reportAny]
+        if is_union:
             args = get_args(annotation)
             # Check if all non-None args are primitives
             non_none_args = [a for a in args if a is not type(None)]  # pyright: ignore[reportAny]

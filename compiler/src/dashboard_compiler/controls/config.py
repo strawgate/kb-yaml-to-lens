@@ -174,10 +174,16 @@ class TimeSliderControl(BaseControl):
     @override
     @classmethod
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID for time slider control including offset values."""
+        """Compute ID for time slider control including offset values.
+
+        TimeSliderControl has no required primitive fields (start_offset and end_offset
+        are optional), so we override to ensure all time slider controls with the same
+        offset configuration get the same deterministic ID.
+        """
         start_offset = data.get('start_offset')
         end_offset = data.get('end_offset')
-        return ['time', start_offset, end_offset]
+        # Include class name for type discrimination (matches base implementation pattern)
+        return [cls.__name__, 'time', start_offset, end_offset]
 
 
 class ESQLFieldControl(BaseControl):
