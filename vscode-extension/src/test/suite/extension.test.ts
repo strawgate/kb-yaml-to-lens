@@ -28,6 +28,26 @@ function findPythonPath(): string {
     return found;
 }
 
+/**
+ * Resolve fixture path, checking both source and compiled output locations.
+ */
+function resolveFixturePath(relativePath: string): string {
+    const fixturePath = path.resolve(__dirname, `../../../src/test/fixtures/${relativePath}`);
+    const fallbackPath = path.resolve(__dirname, `../fixtures/${relativePath}`);
+
+    const actualPath = fs.existsSync(fixturePath)
+        ? fixturePath
+        : fs.existsSync(fallbackPath)
+          ? fallbackPath
+          : undefined;
+
+    if (!actualPath) {
+        assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
+    }
+
+    return actualPath;
+}
+
 suite('Extension Test Suite', () => {
     vscode.window.showInformationMessage('Start all tests.');
 
@@ -82,18 +102,7 @@ suite('Extension Test Suite', () => {
     });
 
     test('Should open YAML file and verify it is recognized as YAML', async () => {
-        const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
-        const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
-
-        const actualPath = fs.existsSync(fixturePath)
-            ? fixturePath
-            : fs.existsSync(fallbackPath)
-              ? fallbackPath
-              : undefined;
-
-        if (!actualPath) {
-            assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
-        }
+        const actualPath = resolveFixturePath('test.yaml');
 
         const uri = vscode.Uri.file(actualPath);
         const doc = await vscode.workspace.openTextDocument(uri);
@@ -106,26 +115,13 @@ suite('Extension Test Suite', () => {
     });
 
     test('Should compile YAML file without errors', async () => {
-        const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
-        const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
-
-        const actualPath = fs.existsSync(fixturePath)
-            ? fixturePath
-            : fs.existsSync(fallbackPath)
-              ? fallbackPath
-              : undefined;
-
-        if (!actualPath) {
-            assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
-        }
+        const actualPath = resolveFixturePath('test.yaml');
 
         const uri = vscode.Uri.file(actualPath);
         const doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
 
-        // LSP client is fully initialized via suiteSetup -> extension.activate() -> compiler.start()
-        // No additional wait needed as start() awaits client.start() which handles initialization
-        // Compilation success is verified by the command completing without throwing
+        // Extension initialized via suiteSetup; command throws on failure
         await vscode.commands.executeCommand('yamlDashboard.compile');
     });
 });

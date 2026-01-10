@@ -54,7 +54,8 @@ suite('Webview Utils Test Suite', () => {
 		test('includes CSS styling', () => {
 			const html = getLoadingContent();
 			assert.ok(html.includes('<style>'), 'Should contain style tag');
-			assert.ok(html.includes('loading'), 'Should have loading class styling');
+			assert.match(html, /<div class="loading">/, 'Should render loading container');
+			assert.match(html, /<style>[\s\S]*\.loading\s*\{/, 'Should include .loading CSS rule');
 		});
 	});
 
@@ -107,7 +108,7 @@ suite('Webview Utils Test Suite', () => {
 		test('includes error styling', () => {
 			const html = getErrorContent(new Error('Test'));
 			assert.ok(html.includes('<style>'), 'Should contain style tag');
-			assert.ok(html.includes('pre'), 'Should style pre element for error display');
+			assert.match(html, /<style>[\s\S]*pre\s*\{/, 'Should include pre CSS rule for error display');
 		});
 	});
 });
