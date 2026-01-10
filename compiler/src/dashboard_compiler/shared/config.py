@@ -79,7 +79,7 @@ def get_dimension_identifier(dimension: object) -> str:
 
     # Try 'filters' for filters dimensions
     filters: list[Any] | None = getattr(dimension, 'filters', None)
-    if filters is not None:
+    if filters is not None and hasattr(filters, '__len__'):
         return f'filters:{len(filters)}'
 
     # Fallback to type name
