@@ -98,13 +98,13 @@ dashboards:
           primary:
             aggregation: last_value
             field: filebeat_input.sqs_messages_returned_total
-            label: 'SQS Messages Returned (Error) Total '
+            label: SQS Messages Returned (Error) Total
       - title: '[Elastic Agent] S3 Objects Inflight'
         grid: {x: 40, y: 5, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.s3_objects_inflight_gauge, label: S3 Objects Inflights (No SQS)}
+          primary: {aggregation: last_value, field: filebeat_input.s3_objects_inflight_gauge, label: S3 Objects Inflight (No SQS)}
       - title: '[Elastic Agent] S3 Objects Processed Total'
         grid: {x: 32, y: 5, w: 8, h: 5}
         lens:
