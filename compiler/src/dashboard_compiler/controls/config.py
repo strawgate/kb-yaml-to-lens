@@ -193,9 +193,11 @@ class TimeSliderControl(BaseControl):
 
     @override
     @classmethod
-    def _compute_id_components(cls, _data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID for time slider control."""
-        return ['time']
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID for time slider control including offset values."""
+        start_offset = data.get('start_offset')
+        end_offset = data.get('end_offset')
+        return ['time', start_offset, end_offset]
 
 
 class ESQLFieldControl(BaseControl):
