@@ -225,7 +225,7 @@ def cli(ctx: click.Context) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-def compile_dashboards(  # noqa: PLR0913, PLR0912
+def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
     output_dir: Path,

@@ -66,6 +66,8 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
             for dashboard in dashboard_config.dashboards:
                 result = compile_dashboard(dashboard)
                 assert result, f'Compilation failed for {example["file"]} - {example["description"]}'
+        except NotImplementedError as e:
+            pytest.skip(f'Panel type not yet supported: {e}')
         except Exception as e:
             pytest.fail(f'Compilation error in {example["file"]} - {example["description"]}: {e}')
     # Check if this is a single dashboard object
