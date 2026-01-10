@@ -56,8 +56,11 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # This makes @kbn/lens-embeddable-utils and other packages available
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
 # Note: yarn cache clean prevents integrity check failures from stale cached packages
-# Note: --force-install bypasses yarn integrity check failures for packages like @elastic/eui
-RUN yarn cache clean && yarn kbn bootstrap --allow-root --force-install
+# Note: --update-checksums fixes yarn integrity check failures for packages like @elastic/eui
+#       when the registry's checksum differs from yarn.lock
+RUN yarn cache clean && \
+    yarn install --update-checksums --frozen-lockfile || yarn install --update-checksums && \
+    yarn kbn bootstrap --allow-root
 
 # Install global dependencies needed for fixture generation
 # tsx: needed for TypeScript transpilation
