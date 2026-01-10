@@ -19,6 +19,9 @@ if TYPE_CHECKING:
 # Default version for fixtures
 DEFAULT_FIXTURE_VERSION = 'v9.2.0'
 
+# Shared UUID pattern for consistent matching across the module (case-insensitive)
+_UUID_PATTERN_STR = r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+
 # Project paths
 _TESTS_DIR = Path(__file__).parent.parent
 _COMPILER_DIR = _TESTS_DIR.parent
@@ -96,7 +99,7 @@ def normalize_layer_ids(data: dict[str, Any], layer_id_placeholder: str = '<LAYE
     import copy
     import re
 
-    uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    uuid_pattern = re.compile(rf'^{_UUID_PATTERN_STR}$')
     layer_n_pattern = re.compile(r'^layer_\d+$')
 
     def is_uuid(value: str) -> bool:
@@ -203,7 +206,7 @@ def diff_to_dict(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
 
     def normalize_path(path: str) -> str:
         """Normalize path by replacing UUIDs with placeholder."""
-        uuid_pattern = r"['\"]?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}['\"]?"
+        uuid_pattern = rf"['\"]?{_UUID_PATTERN_STR}['\"]?"
         return re.sub(uuid_pattern, '<UUID>', path)
 
     if len(diff) == 0:

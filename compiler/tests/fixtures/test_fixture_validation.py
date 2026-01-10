@@ -31,10 +31,12 @@ def compile_yaml_fixture(fixture_name: str) -> dict[str, Any]:
     """Compile a YAML fixture and return the normalized panel config."""
     yaml_path = Path(__file__).parent / 'yaml' / f'{fixture_name}.yaml'
     dashboards = load(str(yaml_path))
+    assert len(dashboards) > 0, f'No dashboards produced for fixture {fixture_name}'
     kbn_dashboard = render(dashboards[0])
     dashboard_dict = kbn_dashboard.model_dump(by_alias=True, exclude_none=True)
     dashboard = de_json_kbn_dashboard(dashboard_dict)
     panels = dashboard['attributes']['panelsJSON']
+    assert len(panels) > 0, f'No panels in dashboard for fixture {fixture_name}'
     return normalize_compiled_panel(panels[0])
 
 
