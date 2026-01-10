@@ -90,6 +90,8 @@ dashboards:
       # Performance Summary DataTable using ES|QL
       - title: Database Performance Summary
         grid: {x: 0, y: 9, w: 48, h: 18}
+        description: Shows cumulative counter values and current state metrics per database. The commit_total, rollback_total, and blocks_read_total
+          columns are cumulative totals (not per-second rates) since ES|QL lacks counter_rate().
         esql:
           type: datatable
           query:
