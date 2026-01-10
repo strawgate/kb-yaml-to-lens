@@ -80,20 +80,6 @@ def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
-def normalize_for_comparison(data: dict[str, Any]) -> dict[str, Any]:
-    """Create a deep copy of data for safe comparison.
-
-    Args:
-        data: Dictionary to normalize.
-
-    Returns:
-        Deep copy of the input dictionary.
-    """
-    import copy
-
-    return copy.deepcopy(data)
-
-
 def normalize_layer_ids(data: dict[str, Any], layer_id_placeholder: str = '<LAYER_ID>') -> dict[str, Any]:
     """Normalize dynamic layer IDs in a panel configuration for stable comparison.
 
