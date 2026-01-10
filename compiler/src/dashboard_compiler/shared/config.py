@@ -80,7 +80,15 @@ def get_dimension_identifier(dimension: object) -> str:
     # Try 'filters' for filters dimensions (hasattr check guards against non-list-like attributes)
     filters: list[Any] | None = getattr(dimension, 'filters', None)
     if filters is not None and hasattr(filters, '__len__'):
-        return f'filters:{len(filters)}'
+        # Extract filter content for uniqueness - each filter has a query (kql/lucene) and optional label
+        filter_contents: list[str] = []
+        for f in filters:  # pyright: ignore[reportAny]
+            query = getattr(f, 'query', None)  # pyright: ignore[reportAny]
+            # Get the query string from either kql or lucene query type
+            query_str = getattr(query, 'kql', None) or getattr(query, 'lucene', '') if query is not None else ''  # pyright: ignore[reportAny]
+            label = getattr(f, 'label', None) or ''  # pyright: ignore[reportAny]
+            filter_contents.append(f'{query_str}:{label}')
+        return f'filters:{"|".join(filter_contents)}'
 
     # Fallback to type name
     return type(dimension).__name__
