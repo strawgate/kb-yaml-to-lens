@@ -11,6 +11,8 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensFormulaAggColumnParams,
     KbnLensFormulaColumn,
     KbnLensFormulaColumnParams,
+    KbnLensFullReferenceColumn,
+    KbnLensFullReferenceColumnParams,
     KbnLensMathColumn,
     KbnLensMathColumnParams,
     KbnLensMetricColumnParams,
@@ -37,6 +39,7 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
 )
 from dashboard_compiler.panels.charts.lens.metrics.formula_parser import (
     AggregationInfo,
+    FullReferenceInfo,
     build_tinymath_ast_with_refs,
     parse_formula,
 )
@@ -163,6 +166,36 @@ def _create_math_column(
     )
 
 
+def _create_full_reference_column(
+    full_ref_info: FullReferenceInfo,
+    referenced_column_id: str,
+    formula_text: str,
+) -> KbnLensFullReferenceColumn:
+    """Create a fullReference operation column for a formula.
+
+    Args:
+        full_ref_info: Information about the fullReference operation.
+        referenced_column_id: The column ID that this operation references.
+        formula_text: The full formula text for generating labels.
+
+    Returns:
+        A KbnLensFullReferenceColumn for this operation.
+
+    """
+    label = f'Part of {formula_text}'
+
+    return KbnLensFullReferenceColumn(
+        label=label,
+        customLabel=True,
+        dataType='number',
+        operationType=full_ref_info.operation_type,
+        isBucketed=False,
+        scale='ratio',
+        params=KbnLensFullReferenceColumnParams(emptyAsNull=False),
+        references=[referenced_column_id],
+    )
+
+
 def _compile_formula_metric(
     metric: LensFormulaMetric,
     metric_format: KbnLensMetricFormatTypes | None,
@@ -170,9 +203,10 @@ def _compile_formula_metric(
     """Compile a formula metric with helper columns.
 
     This generates the full column structure that Kibana needs:
-    1. Aggregation columns (X0, X1, ...) for each aggregation function
-    2. Math column (Xn) containing the tinymathAST
-    3. Formula column referencing the math column
+    1. Aggregation columns (X0, X1, ...) for each field-based aggregation
+    2. FullReference columns (Xn, Xn+1, ...) for operations like counter_rate
+    3. Math column (Xm) containing the tinymathAST
+    4. Formula column referencing the math column
 
     Args:
         metric: The formula metric configuration.
@@ -185,11 +219,11 @@ def _compile_formula_metric(
     custom_label = None if metric.label is None else True
     formula_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])
 
-    # Parse the formula to extract aggregations
+    # Parse the formula to extract aggregations and fullReference operations
     parse_result = parse_formula(metric.formula)
 
-    # If no aggregations, return simple formula column (Kibana will handle it)
-    if not parse_result.aggregations:
+    # If no aggregations or fullReferences, return simple formula column (Kibana will handle it)
+    if not parse_result.aggregations and not parse_result.full_references:
         formula_column = KbnLensFormulaColumn(
             label=metric.label or 'Formula',
             customLabel=custom_label,
@@ -210,24 +244,43 @@ def _compile_formula_metric(
 
     # Generate helper columns
     helper_columns: dict[str, KbnLensMetricColumnTypes] = {}
-    column_refs: dict[int, str] = {}
-    agg_column_ids: list[str] = []
+    agg_column_refs: dict[int, str] = {}
+    full_ref_column_refs: dict[int, str] = {}
+    all_helper_column_ids: list[str] = []
+    next_column_index = 0
 
     # Create aggregation columns (X0, X1, X2, ...)
     for idx, agg_info in enumerate(parse_result.aggregations):
-        agg_id = f'{formula_id}X{idx}'
+        agg_id = f'{formula_id}X{next_column_index}'
         agg_column = _create_aggregation_column(agg_info, metric.formula)
         helper_columns[agg_id] = agg_column
-        column_refs[idx] = agg_id
-        agg_column_ids.append(agg_id)
+        agg_column_refs[idx] = agg_id
+        all_helper_column_ids.append(agg_id)
+        next_column_index += 1
+
+    # Create fullReference columns (Xn, Xn+1, ...)
+    # These reference the aggregation columns they wrap
+    for idx, full_ref_info in enumerate(parse_result.full_references):
+        full_ref_id = f'{formula_id}X{next_column_index}'
+
+        # Get the column ID of the inner aggregation
+        inner_agg_index = full_ref_info.inner_aggregation_index
+        # Fallback to empty if we can't find the inner aggregation (shouldn't happen with well-formed formulas)
+        referenced_column_id = agg_column_refs.get(inner_agg_index, '') if inner_agg_index >= 0 else ''
+
+        full_ref_column = _create_full_reference_column(full_ref_info, referenced_column_id, metric.formula)
+        helper_columns[full_ref_id] = full_ref_column
+        full_ref_column_refs[idx] = full_ref_id
+        all_helper_column_ids.append(full_ref_id)
+        next_column_index += 1
 
     # Build tinymathAST with column references
-    tinymath_ast = build_tinymath_ast_with_refs(parse_result, column_refs)
+    tinymath_ast = build_tinymath_ast_with_refs(parse_result, agg_column_refs, full_ref_column_refs)
 
-    # Check if formula is a simple aggregation (tinymath_ast is just a string column ID)
-    # This happens when the formula is literally just one aggregation like "average(field='foo')"
+    # Check if formula is a simple aggregation/fullReference (tinymath_ast is just a string column ID)
+    # This happens when the formula is literally just one operation like "counter_rate(max(field))"
     if isinstance(tinymath_ast, str):
-        # Formula column should reference the aggregation column directly, no math column needed
+        # Formula column should reference the column directly, no math column needed
         formula_column = KbnLensFormulaColumn(
             label=metric.label or 'Formula',
             customLabel=custom_label,
@@ -235,7 +288,7 @@ def _compile_formula_metric(
             operationType='formula',
             isBucketed=False,
             scale='ratio',
-            references=agg_column_ids,
+            references=all_helper_column_ids,
             params=KbnLensFormulaColumnParams(
                 formula=metric.formula,
                 isFormulaBroken=False,
@@ -243,9 +296,9 @@ def _compile_formula_metric(
             ),
         )
     else:
-        # Create math column (Xn where n = len(aggregations))
-        math_id = f'{formula_id}X{len(parse_result.aggregations)}'
-        math_column = _create_math_column(tinymath_ast, agg_column_ids, metric.formula)
+        # Create math column (Xm where m = next_column_index)
+        math_id = f'{formula_id}X{next_column_index}'
+        math_column = _create_math_column(tinymath_ast, all_helper_column_ids, metric.formula)
         helper_columns[math_id] = math_column
 
         # Create formula column referencing the math column

@@ -118,33 +118,43 @@ number
     ;
 """
 
-# Kibana aggregation functions that require helper columns
-KIBANA_AGGREGATIONS = frozenset(
+# Kibana field-based aggregation functions (operate directly on fields)
+KIBANA_FIELD_AGGREGATIONS = frozenset(
     {
         'average',
         'avg',
         'count',
-        'counter_rate',
-        'cumulative_sum',
-        'differences',
         'last_value',
         'max',
         'median',
         'min',
+        'percentile',
+        'percentile_rank',
+        'standard_deviation',
+        'sum',
+        'unique_count',
+    }
+)
+
+# Kibana fullReference operations (wrap other columns, don't operate on fields directly)
+# These operations take another aggregation as input and apply transformations.
+KIBANA_FULL_REFERENCE_OPERATIONS = frozenset(
+    {
+        'counter_rate',
+        'cumulative_sum',
+        'differences',
         'moving_average',
         'normalize',
         'overall_average',
         'overall_max',
         'overall_min',
         'overall_sum',
-        'percentile',
-        'percentile_rank',
-        'standard_deviation',
-        'sum',
         'time_scale',
-        'unique_count',
     }
 )
+
+# All Kibana aggregation functions (union of field and fullReference)
+KIBANA_AGGREGATIONS = KIBANA_FIELD_AGGREGATIONS | KIBANA_FULL_REFERENCE_OPERATIONS
 
 # Mapping from formula function names to Kibana operationType
 FORMULA_TO_OPERATION_TYPE = {
@@ -188,7 +198,7 @@ OPERATOR_TO_FUNCTION = {
 
 @dataclass
 class AggregationInfo:
-    """Information about an aggregation function extracted from a formula."""
+    """Information about a field-based aggregation function extracted from a formula."""
 
     function_name: str
     """The aggregation function name (e.g., 'average', 'sum', 'count')."""
@@ -213,11 +223,38 @@ class AggregationInfo:
 
 
 @dataclass
+class FullReferenceInfo:
+    """Information about a fullReference operation extracted from a formula.
+
+    FullReference operations (counter_rate, cumulative_sum, etc.) wrap other columns
+    rather than operating on fields directly.
+    """
+
+    function_name: str
+    """The operation name (e.g., 'counter_rate', 'cumulative_sum')."""
+
+    operation_type: str
+    """The Kibana operationType for this operation."""
+
+    inner_aggregation_index: int
+    """Index into FormulaParseResult.aggregations for the inner aggregation this wraps."""
+
+    position: tuple[int, int]
+    """(start, end) character positions in the original formula."""
+
+    text: str
+    """The original text of this operation in the formula."""
+
+
+@dataclass
 class FormulaParseResult:
     """Result of parsing a Lens formula."""
 
     aggregations: list[AggregationInfo] = field(default_factory=list)
-    """List of aggregation functions found in the formula."""
+    """List of field-based aggregation functions found in the formula."""
+
+    full_references: list[FullReferenceInfo] = field(default_factory=list)
+    """List of fullReference operations found in the formula."""
 
     tinymath_ast: Any = None
     """The tinymathAST structure with column references substituted."""
@@ -229,16 +266,22 @@ class FormulaParseResult:
     """True if the formula is just a number literal (no aggregations)."""
 
 
-def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str) -> Any:  # noqa: PLR0911, PLR0912
-    """Recursively walk the AST and collect aggregations.
+def _walk_ast(  # noqa: PLR0911, PLR0912
+    node: Any,
+    aggregations: list[AggregationInfo],
+    full_references: list[FullReferenceInfo],
+    formula_text: str,
+) -> Any:
+    """Recursively walk the AST and collect aggregations and fullReference operations.
 
     Args:
         node: Current AST node
-        aggregations: List to append found aggregations to
+        aggregations: List to append found field aggregations to
+        full_references: List to append found fullReference operations to
         formula_text: Original formula text for position tracking
 
     Returns:
-        Transformed node with aggregation references
+        Transformed node with aggregation/fullReference references
 
     """
     if node is None:
@@ -258,7 +301,7 @@ def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str)
         return node
 
     if isinstance(node, list):
-        return [_walk_ast(item, aggregations, formula_text) for item in node]
+        return [_walk_ast(item, aggregations, full_references, formula_text) for item in node]
 
     if not isinstance(node, dict):
         return node
@@ -266,15 +309,45 @@ def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str)
     # Check if this is a function node
     if 'name' in node and 'parseinfo' in node:
         func_name = node['name']
+        func_name_lower = func_name.lower()
 
-        # Check if it's a Kibana aggregation
-        if func_name.lower() in KIBANA_AGGREGATIONS:
+        # Check if it's a fullReference operation (counter_rate, cumulative_sum, etc.)
+        if func_name_lower in KIBANA_FULL_REFERENCE_OPERATIONS:
+            # First, walk the arguments to extract the inner aggregation
+            walked_args = _walk_ast(node.get('args'), aggregations, full_references, formula_text)
+
+            # Find the inner aggregation reference from the walked args
+            inner_agg_index = _find_inner_aggregation_index(walked_args, aggregations)
+
+            # Get position info
+            start, end = 0, len(formula_text)
+            parseinfo = node.get('parseinfo')
+            if parseinfo:
+                try:
+                    start = parseinfo.pos
+                    end = parseinfo.endpos
+                except (AttributeError, TypeError):
+                    pass
+
+            operation_type = FORMULA_TO_OPERATION_TYPE.get(func_name_lower) or func_name_lower
+            full_ref_info = FullReferenceInfo(
+                function_name=func_name_lower,
+                operation_type=operation_type,
+                inner_aggregation_index=inner_agg_index,
+                position=(start, end),
+                text=formula_text[start:end] if end > start else str(node),
+            )
+            full_references.append(full_ref_info)
+            return {'type': 'full_reference_ref', 'index': len(full_references) - 1}
+
+        # Check if it's a field-based aggregation
+        if func_name_lower in KIBANA_FIELD_AGGREGATIONS:
             agg_info = _extract_aggregation_info(func_name, node.get('args'), formula_text, node)
             aggregations.append(agg_info)
             return {'type': 'aggregation_ref', 'index': len(aggregations) - 1}
 
-        # For other functions, walk the arguments
-        walked_args = _walk_ast(node.get('args'), aggregations, formula_text)
+        # For other functions (math functions like abs, pow, etc.), walk the arguments
+        walked_args = _walk_ast(node.get('args'), aggregations, full_references, formula_text)
         return {
             'type': 'function',
             'name': func_name,
@@ -283,7 +356,7 @@ def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str)
 
     # Handle binary operations (add_subtract, multiply_divide)
     if 'left' in node:
-        left = _walk_ast(node['left'], aggregations, formula_text)
+        left = _walk_ast(node['left'], aggregations, full_references, formula_text)
         result = left
 
         # Check for operators
@@ -293,7 +366,7 @@ def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str)
             rights = rights if isinstance(rights, list) else [rights]
 
             for op, right_node in zip(ops, rights, strict=False):
-                right = _walk_ast(right_node, aggregations, formula_text)
+                right = _walk_ast(right_node, aggregations, full_references, formula_text)
                 result = {
                     'type': 'function',
                     'name': OPERATOR_TO_FUNCTION.get(op, op),
@@ -303,8 +376,8 @@ def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str)
 
     # Handle comparison operations
     if 'left' in node and 'right' in node and 'op' in node:
-        left = _walk_ast(node['left'], aggregations, formula_text)
-        right = _walk_ast(node['right'], aggregations, formula_text)
+        left = _walk_ast(node['left'], aggregations, full_references, formula_text)
+        right = _walk_ast(node['right'], aggregations, full_references, formula_text)
         op = node['op']
         return {
             'type': 'function',
@@ -316,8 +389,45 @@ def _walk_ast(node: Any, aggregations: list[AggregationInfo], formula_text: str)
     result = {}
     for key, value in node.items():
         if key != 'parseinfo':
-            result[key] = _walk_ast(value, aggregations, formula_text)
+            result[key] = _walk_ast(value, aggregations, full_references, formula_text)
     return result
+
+
+def _find_inner_aggregation_index(walked_args: Any, aggregations: list[AggregationInfo]) -> int:
+    """Find the index of the inner aggregation from walked arguments.
+
+    When a fullReference operation wraps an aggregation, the walked_args
+    will contain an aggregation_ref. This function extracts that index.
+
+    Args:
+        walked_args: The walked argument structure
+        aggregations: The list of aggregations collected so far
+
+    Returns:
+        The index of the inner aggregation, or -1 if not found.
+
+    """
+    if walked_args is None:
+        return -1
+
+    if isinstance(walked_args, dict):
+        if walked_args.get('type') == 'aggregation_ref':
+            return walked_args.get('index', -1)
+        if walked_args.get('type') == 'full_reference_ref':
+            # Nested fullReference - return the index but negated and offset
+            # to indicate it's a fullReference not an aggregation
+            return walked_args.get('index', -1)
+        # Check in nested args
+        if 'args' in walked_args:
+            return _find_inner_aggregation_index(walked_args['args'], aggregations)
+
+    if isinstance(walked_args, list):
+        for item in walked_args:
+            result = _find_inner_aggregation_index(item, aggregations)
+            if result >= 0:
+                return result
+
+    return -1
 
 
 def _extract_field_from_expr(expr: Any) -> str | None:
@@ -437,7 +547,7 @@ def parse_formula(formula: str) -> FormulaParseResult:
         formula: The formula string to parse (e.g., "count() / 100")
 
     Returns:
-        FormulaParseResult containing aggregations and AST structure.
+        FormulaParseResult containing aggregations, fullReferences, and AST structure.
 
     Raises:
         tatsu.exceptions.FailedParse: If the formula has syntax errors.
@@ -449,15 +559,17 @@ def parse_formula(formula: str) -> FormulaParseResult:
     # Parse the formula
     ast = parser.parse(formula, parseinfo=True)
 
-    # Walk the AST to collect aggregations
+    # Walk the AST to collect aggregations and fullReference operations
     aggregations: list[AggregationInfo] = []
-    tinymath_ast = _walk_ast(ast, aggregations, formula)
+    full_references: list[FullReferenceInfo] = []
+    tinymath_ast = _walk_ast(ast, aggregations, full_references, formula)
 
     # Check if this is a simple literal (just a number, no aggregations)
-    is_simple = len(aggregations) == 0 and isinstance(tinymath_ast, (int, float))
+    is_simple = len(aggregations) == 0 and len(full_references) == 0 and isinstance(tinymath_ast, (int, float))
 
     return FormulaParseResult(
         aggregations=aggregations,
+        full_references=full_references,
         tinymath_ast=tinymath_ast,
         formula_text=formula,
         is_simple_literal=is_simple,
@@ -466,13 +578,15 @@ def parse_formula(formula: str) -> FormulaParseResult:
 
 def build_tinymath_ast_with_refs(
     parse_result: FormulaParseResult,
-    column_refs: dict[int, str],
+    agg_column_refs: dict[int, str],
+    full_ref_column_refs: dict[int, str] | None = None,
 ) -> Any:
     """Build the final tinymathAST with column ID references substituted.
 
     Args:
         parse_result: The parsed formula result
-        column_refs: Mapping from aggregation index to column ID
+        agg_column_refs: Mapping from aggregation index to column ID
+        full_ref_column_refs: Mapping from fullReference index to column ID
 
     Returns:
         The tinymathAST structure with column references.
@@ -481,12 +595,17 @@ def build_tinymath_ast_with_refs(
     if parse_result.is_simple_literal:
         return parse_result.tinymath_ast
 
+    full_ref_refs = full_ref_column_refs or {}
+
     def substitute_refs(node: Any) -> Any:
-        """Recursively substitute aggregation references with column IDs."""
+        """Recursively substitute aggregation/fullReference references with column IDs."""
         if isinstance(node, dict):
             if node.get('type') == 'aggregation_ref':
                 idx = node['index']
-                return column_refs.get(idx, f'unknown_{idx}')
+                return agg_column_refs.get(idx, f'unknown_agg_{idx}')
+            if node.get('type') == 'full_reference_ref':
+                idx = node['index']
+                return full_ref_refs.get(idx, f'unknown_fullref_{idx}')
             return {
                 'type': node.get('type', 'function'),
                 'name': node.get('name', ''),

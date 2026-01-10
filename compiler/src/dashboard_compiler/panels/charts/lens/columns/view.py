@@ -17,7 +17,12 @@ type KbnLensDimensionColumnTypes = (
 )
 
 type KbnLensMetricColumnTypes = (
-    KbnLensFieldMetricColumn | KbnLensStaticValueColumn | KbnLensFormulaColumn | KbnLensMathColumn | KbnLensFormulaAggColumn
+    KbnLensFieldMetricColumn
+    | KbnLensStaticValueColumn
+    | KbnLensFormulaColumn
+    | KbnLensMathColumn
+    | KbnLensFormulaAggColumn
+    | KbnLensFullReferenceColumn
 )
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
@@ -236,6 +241,37 @@ class KbnLensFormulaAggColumn(KbnLensBaseColumn):
 
     params: KbnLensFormulaAggColumnParams
     """Parameters for the aggregation column."""
+
+
+class KbnLensFullReferenceColumnParams(BaseVwModel):
+    """Parameters for fullReference operation columns."""
+
+    emptyAsNull: bool = False
+    """Whether to treat empty results as null."""
+
+
+class KbnLensFullReferenceColumn(KbnLensBaseColumn):
+    """Represents a fullReference operation column used in formula structures.
+
+    FullReference operations (counter_rate, cumulative_sum, differences, moving_average,
+    normalize, time_scale) wrap other columns rather than operating on fields directly.
+    They reference aggregation columns and apply time-series transformations.
+    """
+
+    dataType: Literal['number']
+    """Data type is always 'number' for fullReference operations."""
+
+    isBucketed: Literal[False] = False
+    """FullReference columns are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for fullReference results."""
+
+    params: KbnLensFullReferenceColumnParams
+    """Parameters for the fullReference column."""
+
+    references: list[str] = Field(default_factory=list)
+    """List of referenced column IDs that this operation wraps."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):

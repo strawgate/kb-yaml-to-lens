@@ -6,6 +6,7 @@ from tatsu.exceptions import FailedParse
 from dashboard_compiler.panels.charts.lens.metrics.formula_parser import (
     AggregationInfo,
     FormulaParseResult,
+    FullReferenceInfo,
     build_tinymath_ast_with_refs,
     parse_formula,
 )
@@ -216,6 +217,7 @@ class TestFormulaParseResult:
         """Test creating an empty FormulaParseResult."""
         result = FormulaParseResult()
         assert result.aggregations == []
+        assert result.full_references == []
         assert result.tinymath_ast is None
         assert result.formula_text == ''
         assert result.is_simple_literal is False
@@ -224,5 +226,118 @@ class TestFormulaParseResult:
         """Test FormulaParseResult populated from parsing."""
         result = parse_formula("sum(field='bytes') + count()")
         assert len(result.aggregations) == 2
+        assert len(result.full_references) == 0
         assert result.formula_text == "sum(field='bytes') + count()"
         assert result.is_simple_literal is False
+
+
+class TestParseFormulaFullReference:
+    """Test parsing formulas with fullReference operations."""
+
+    def test_parse_counter_rate_with_max(self) -> None:
+        """Test parsing counter_rate(max(field))."""
+        result = parse_formula('counter_rate(max(postgresql.operations))')
+
+        # Should extract max as a field aggregation
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'max'
+        assert result.aggregations[0].source_field == 'postgresql.operations'
+
+        # Should extract counter_rate as a fullReference operation
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'counter_rate'
+        assert result.full_references[0].operation_type == 'counter_rate'
+        assert result.full_references[0].inner_aggregation_index == 0
+
+    def test_parse_cumulative_sum_with_count(self) -> None:
+        """Test parsing cumulative_sum(count())."""
+        result = parse_formula('cumulative_sum(count())')
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'count'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'cumulative_sum'
+        assert result.full_references[0].inner_aggregation_index == 0
+
+    def test_parse_differences_with_sum(self) -> None:
+        """Test parsing differences(sum(bytes))."""
+        result = parse_formula('differences(sum(bytes))')
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'sum'
+        assert result.aggregations[0].source_field == 'bytes'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'differences'
+        assert result.full_references[0].inner_aggregation_index == 0
+
+    def test_parse_moving_average_with_average(self) -> None:
+        """Test parsing moving_average(average(field))."""
+        result = parse_formula("moving_average(average(field='response.time'))")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'average'
+        assert result.aggregations[0].source_field == 'response.time'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'moving_average'
+        assert result.full_references[0].inner_aggregation_index == 0
+
+    def test_parse_multiple_counter_rates(self) -> None:
+        """Test parsing formula with multiple counter_rate operations."""
+        result = parse_formula('counter_rate(max(in.bytes)) + counter_rate(max(out.bytes))')
+
+        # Should have 2 aggregations (max for in.bytes and max for out.bytes)
+        assert len(result.aggregations) == 2
+        assert result.aggregations[0].function_name == 'max'
+        assert result.aggregations[0].source_field == 'in.bytes'
+        assert result.aggregations[1].function_name == 'max'
+        assert result.aggregations[1].source_field == 'out.bytes'
+
+        # Should have 2 fullReference operations (counter_rate for each)
+        assert len(result.full_references) == 2
+        assert result.full_references[0].function_name == 'counter_rate'
+        assert result.full_references[0].inner_aggregation_index == 0
+        assert result.full_references[1].function_name == 'counter_rate'
+        assert result.full_references[1].inner_aggregation_index == 1
+
+    def test_parse_time_scale_with_counter_rate(self) -> None:
+        """Test parsing time_scale wrapping counter_rate (nested fullReferences)."""
+        # Note: This tests a nested fullReference scenario
+        # time_scale(counter_rate(max(field))) is a valid Kibana formula
+        result = parse_formula('normalize(sum(bytes))')
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'sum'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'normalize'
+
+    def test_parse_overall_sum(self) -> None:
+        """Test parsing overall_sum (fullReference operation)."""
+        result = parse_formula("overall_sum(sum(field='bytes'))")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'sum'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'overall_sum'
+        assert result.full_references[0].operation_type == 'overall_sum'
+
+
+class TestFullReferenceInfo:
+    """Test FullReferenceInfo dataclass."""
+
+    def test_full_reference_info_creation(self) -> None:
+        """Test creating a FullReferenceInfo."""
+        ref = FullReferenceInfo(
+            function_name='counter_rate',
+            operation_type='counter_rate',
+            inner_aggregation_index=0,
+            position=(0, 30),
+            text='counter_rate(max(field))',
+        )
+        assert ref.function_name == 'counter_rate'
+        assert ref.operation_type == 'counter_rate'
+        assert ref.inner_aggregation_index == 0
