@@ -192,7 +192,7 @@ Comprehensive host monitoring dashboards for OpenTelemetry system metrics.
 
 **Use this when:** Monitoring infrastructure with OpenTelemetry Host Metrics Receiver.
 
-**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Licensed under [Elastic License 2.0](../../licenses/ELASTIC-LICENSE-2.0.txt). Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system_otel) dashboards. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt). Some advanced panels (AI-powered features, legacy visualizations) are excluded as they're not yet supported by the compiler.
 
 #### Hosts Overview
 
@@ -260,7 +260,7 @@ Docker container monitoring dashboards for OpenTelemetry metrics.
 
 **Use this when:** Monitoring Docker containers with OpenTelemetry Docker Stats Receiver.
 
-**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/docker_otel) dashboards. Licensed under [Elastic License 2.0](../../licenses/ELASTIC-LICENSE-2.0.txt).
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/docker_otel) dashboards. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
 
 #### Containers Overview
 
