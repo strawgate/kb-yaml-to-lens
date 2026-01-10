@@ -3,9 +3,7 @@
 
 # YAML ➤ Lens Dashboard Compiler
 
-Making Dashboards in Kibana is so much fun! Sometimes though, it's nice to build dashboards and visualizations without clicking and clacking in a web browser.
-
-That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
+Build Kibana dashboards from human-friendly YAML and compile to NDJSON.
 
 ## Features
 
@@ -17,26 +15,21 @@ That's where the Yaml ➤ Lens Dashboard Compiler comes in. It converts human-fr
 
 ## Prerequisites
 
-**For ⭐ VS Code Extension (Recommended):**
-- VS Code 1.85.0+ or compatible editor (Cursor, VSCodium, etc.)
-- No Python installation required - bundled binary included!
+**VS Code extension (recommended):**
+- VS Code 1.85.0+ or compatible editor
+- Bundled binary (no Python required)
 
-**For CLI (Automation/CI):**
+**CLI (automation/CI):**
 - Python 3.12+
-- [uv](https://github.com/astral-sh/uv) (recommended for dependency management)
+- [uv](https://github.com/astral-sh/uv) (recommended)
 
 ## Quick Start
 
-### Option 1: ⭐ VS Code Extension (Recommended for Getting Started)
+### Option 1: ⭐ VS Code Extension (Recommended)
 
-**Best for:** Interactive dashboard development, visual editing, live preview
+**Best for:** Interactive development, visual editing, live preview
 
-The VS Code extension is the fastest way to start building Kibana dashboards. It includes:
-- Pre-built snippets for quick dashboard scaffolding
-- Live preview as you type
-- Visual drag-and-drop grid editor
-- One-click upload to Kibana
-- **No Python installation required** - LSP server binary is bundled
+Includes snippets, live preview, drag-and-drop grid editor, and one-click upload. The LSP server binary is bundled.
 
 #### Installation
 
@@ -50,30 +43,28 @@ Download platform-specific `.vsix` from [releases page](https://github.com/straw
 
 #### Verify Installation
 
-After installation, verify the extension is working:
-
 1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
-2. Type "YAML Dashboard" - you should see all extension commands
-3. Create a test file: `test-dashboard.yaml`
-4. Type `dashboard` and press Tab - a snippet should insert
+2. Type "YAML Dashboard" to see the commands
+3. Create `test-dashboard.yaml`
+4. Type `dashboard` and press Tab to insert a snippet
 
-If commands don't appear, restart VS Code and check the Output panel (View → Output → "Kibana Dashboard Compiler").
+If commands don't appear, restart VS Code and check Output → "Kibana Dashboard Compiler".
 
 #### Your First Dashboard in VS Code
 
-1. Create a new file: `my-dashboard.yaml`
-2. Start typing `dashboard` and press Tab to insert snippet
-3. Save (Ctrl+S) - auto-compiles in background
-4. Run command (Ctrl+Shift+P): **"YAML Dashboard: Preview Dashboard"**
-5. Configure Kibana URL in settings, then run: **"YAML Dashboard: Open in Kibana"**
+1. Create `my-dashboard.yaml`
+2. Type `dashboard` and press Tab
+3. Save (auto-compiles)
+4. Run **"YAML Dashboard: Preview Dashboard"**
+5. Set Kibana URL, then run **"YAML Dashboard: Open in Kibana"**
 
 **Learn more:** [VS Code Extension Documentation](https://strawgate.github.io/kb-yaml-to-lens/vscode-extension)
 
 ---
 
-### Option 2: CLI (Best for Automation & CI/CD)
+### Option 2: CLI (Automation & CI/CD)
 
-**Best for:** Scripting, CI/CD pipelines, batch processing, programmatic usage
+**Best for:** Scripting, pipelines, batch processing, programmatic usage
 
 The CLI provides three installation methods:
 
@@ -82,9 +73,7 @@ The CLI provides three installation methods:
 
 #### Using uv (Recommended for Development)
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
-
-**For basic usage (compiling dashboards):**
+Install dependencies:
 
 ```bash
 uv sync
@@ -92,7 +81,7 @@ uv sync
 
 #### Using Docker
 
-Run the compiler in a container without installing Python or dependencies:
+Run in a container without installing Python or dependencies:
 
 ```bash
 # Pull the pre-built image
@@ -111,13 +100,13 @@ Download a platform-specific binary from the [releases page](https://github.com/
 - macOS (Apple Silicon): `kb-dashboard-darwin-arm64`
 - Windows (x64): `kb-dashboard-windows-x64.exe`
 
-No Python installation required!
+No Python installation required.
 
 </details>
 
 #### Compile Your First Dashboard (CLI)
 
-1. Create a YAML dashboard file in `inputs/` directory:
+1. Create a YAML dashboard file in `inputs/`:
 
 ```yaml
 dashboards:
@@ -148,24 +137,22 @@ If using standalone binary: `./kb-dashboard-<platform> compile --input-dir input
 
 3. (Optional) Upload directly to Kibana:
 
-Add `--upload --kibana-url http://localhost:5601 --kibana-username elastic --kibana-password changeme` to the compile command above.
-
-The `--upload` flag will automatically open your dashboard in the browser upon successful upload.
+Add `--upload --kibana-url http://localhost:5601 --kibana-username elastic --kibana-password changeme` to the compile command. The `--upload` flag opens the dashboard on success.
 
 **Learn more:** [CLI Documentation](https://strawgate.github.io/kb-yaml-to-lens/CLI)
 
 ## Documentation
 
 ### Getting Started
-- **[VS Code Extension Guide](https://strawgate.github.io/kb-yaml-to-lens/vscode-extension)** - Visual dashboard development (recommended for beginners)
+- **[VS Code Extension Guide](https://strawgate.github.io/kb-yaml-to-lens/vscode-extension)** - Visual dashboard development
 - **[CLI Reference](https://strawgate.github.io/kb-yaml-to-lens/CLI)** - Command-line compilation and automation
-- **[Complete Examples](https://strawgate.github.io/kb-yaml-to-lens/examples/)** - Real-world dashboard examples you can copy
+- **[Complete Examples](https://strawgate.github.io/kb-yaml-to-lens/examples/)** - Sample dashboards
 
 ### Deep Dive
-- **[Full Documentation Site](https://strawgate.github.io/kb-yaml-to-lens/)** - Complete user guide and API reference
-- **[Programmatic Usage Guide](https://strawgate.github.io/kb-yaml-to-lens/programmatic-usage)** - Create dashboards entirely in Python code
-- **[Architecture](https://strawgate.github.io/kb-yaml-to-lens/architecture)** - Technical design and data flow overview
-- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute and add new capabilities
+- **[Full Documentation Site](https://strawgate.github.io/kb-yaml-to-lens/)** - User guide and API reference
+- **[Programmatic Usage Guide](https://strawgate.github.io/kb-yaml-to-lens/programmatic-usage)** - Build dashboards in Python
+- **[Architecture](https://strawgate.github.io/kb-yaml-to-lens/architecture)** - Design and data flow
+- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute
 
 ## License
 
