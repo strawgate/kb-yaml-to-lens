@@ -121,10 +121,7 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
         tuple[str, dict[str, KbnLensColumnTypes], KbnPieVisualizationState]: The layer ID and the compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    dimension_id_strs = [d.id for d in lens_pie_chart.dimensions]
-    metric_id_strs = [m.id for m in lens_pie_chart.metrics]
-    layer_id = get_layer_id(lens_pie_chart, ['chart', 'pie', 'lens', lens_pie_chart.data_view, *dimension_id_strs, *metric_id_strs])
+    layer_id = get_layer_id(lens_pie_chart)
 
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
@@ -173,10 +170,7 @@ def compile_esql_pie_chart(
         tuple[str, list[KbnESQLMetricColumnTypes], KbnESQLDimensionColumnTypes]: The layer ID and the compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    dimension_id_strs = [d.id for d in esql_pie_chart.dimensions]
-    metric_id_strs = [m.id for m in esql_pie_chart.metrics]
-    layer_id = get_layer_id(esql_pie_chart, ['chart', 'pie', 'esql', *dimension_id_strs, *metric_id_strs])
+    layer_id = get_layer_id(esql_pie_chart)
 
     metrics = [compile_esql_metric(m) for m in esql_pie_chart.metrics]
     metric_ids = [m.columnId for m in metrics]

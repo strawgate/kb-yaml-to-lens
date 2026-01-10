@@ -36,7 +36,7 @@ from dashboard_compiler.controls.view import (
     SearchTechnique,
 )
 from dashboard_compiler.shared.compile import return_if, return_if_equals
-from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_false, default_if_none
 from dashboard_compiler.shared.logging import log_compile
 
@@ -58,7 +58,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
         MatchTechnique.EXACT: SearchTechnique.EXACT,
     }
-    stable_id = get_layer_id(control, ['control', 'options_list', control.field, control.label, control.data_view, order])
+    stable_id = control.id or stable_id_generator(['control', 'options_list', control.field, control.label, control.data_view, order])
 
     # Determine singleSelect value from multiple field
     single_select_value: bool | None = None
@@ -95,7 +95,7 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'range_slider', control.field, control.label, control.data_view, order])
+    stable_id = control.id or stable_id_generator(['control', 'range_slider', control.field, control.label, control.data_view, order])
 
     return KbnRangeSliderControl(
         grow=default_false(control.fill_width),
@@ -123,7 +123,7 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
         KbnTimeSliderControl: The compiled Kibana time slider control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'time_slider', control.label, order])
+    stable_id = control.id or stable_id_generator(['control', 'time_slider', control.label, order])
 
     return KbnTimeSliderControl(
         grow=True,
@@ -149,7 +149,7 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'esql_field', control.variable_name, control.label, order])
+    stable_id = control.id or stable_id_generator(['control', 'esql_field', control.variable_name, control.label, order])
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -182,7 +182,7 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'esql_function', control.variable_name, control.label, order])
+    stable_id = control.id or stable_id_generator(['control', 'esql_function', control.variable_name, control.label, order])
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -215,7 +215,7 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'esql_static_single_select', control.variable_name, control.label, order])
+    stable_id = control.id or stable_id_generator(['control', 'esql_static_single_select', control.variable_name, control.label, order])
 
     # Convert default to selectedOptions list
     selected_options: list[str] = [control.default] if control.default is not None else []
@@ -250,7 +250,7 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'esql_static_multi_select', control.variable_name, control.label, order])
+    stable_id = control.id or stable_id_generator(['control', 'esql_static_multi_select', control.variable_name, control.label, order])
 
     # Convert default to selectedOptions list
     selected_options: list[str] = control.default if control.default is not None else []
@@ -285,7 +285,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control, ['control', 'esql_query', control.variable_name, control.label, order])
+    stable_id = control.id or stable_id_generator(['control', 'esql_query', control.variable_name, control.label, order])
 
     return KbnESQLControl(
         grow=False,

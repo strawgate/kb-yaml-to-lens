@@ -1,7 +1,7 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import Any, ClassVar, Literal, Self, override
+from typing import ClassVar, Literal, Self
 
 from pydantic import Field, model_validator
 
@@ -187,14 +187,6 @@ class ESQLFieldControl(BaseControl):
     default: str | None = Field(default=None)
     """Default selected field."""
 
-    @override
-    def _get_id_data(self) -> dict[str, Any]:
-        """Sort choices for order-independent IDs."""
-        data = super()._get_id_data()
-        if 'choices' in data and data['choices'] is not None:
-            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
-        return data
-
     @model_validator(mode='after')
     def validate_default(self) -> Self:
         """Validate that default value exists in choices."""
@@ -217,14 +209,6 @@ class ESQLFunctionControl(BaseControl):
 
     default: str | None = Field(default=None)
     """Default selected function."""
-
-    @override
-    def _get_id_data(self) -> dict[str, Any]:
-        """Sort choices for order-independent IDs."""
-        data = super()._get_id_data()
-        if 'choices' in data and data['choices'] is not None:
-            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
-        return data
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -256,14 +240,6 @@ class ESQLStaticSingleSelectControl(BaseControl):
 
     multiple: Literal[False] | None = Field(default=None)
     """If true, allow multiple selection. Must be None or False for this control type."""
-
-    @override
-    def _get_id_data(self) -> dict[str, Any]:
-        """Sort choices for order-independent IDs."""
-        data = super()._get_id_data()
-        if 'choices' in data and data['choices'] is not None:
-            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
-        return data
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
@@ -297,16 +273,6 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
     multiple: Literal[True] = Field(default=True)
     """Must be True for this control type."""
-
-    @override
-    def _get_id_data(self) -> dict[str, Any]:
-        """Sort choices and defaults for order-independent IDs."""
-        data = super()._get_id_data()
-        if 'choices' in data and data['choices'] is not None:
-            data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
-        if 'default' in data and isinstance(data['default'], list):
-            data['default'] = sorted(data['default'])  # pyright: ignore[reportUnknownArgumentType]
-        return data
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:

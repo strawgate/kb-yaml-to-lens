@@ -100,26 +100,7 @@ def compile_lens_reference_line_layer(
             - columns: Dictionary of accessor ID -> static value column
             - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
-    # Build deterministic fallback values from reference line values and labels
-    # Sort reference lines by (value, label, axis) tuple for order-independent IDs
-
-    def _extract_ref_line_value(ref_line: XYReferenceLine) -> float:
-        """Extract numeric value from a reference line for sorting."""
-        if isinstance(ref_line.value, XYReferenceLineValue):
-            return ref_line.value.value
-        return ref_line.value  # It's already a float
-
-    sorted_ref_lines = sorted(
-        layer.reference_lines,
-        key=lambda r: (
-            _extract_ref_line_value(r),
-            r.label or '',
-            r.axis or '',
-        ),
-    )
-    ref_line_values = [repr(_extract_ref_line_value(r)) for r in sorted_ref_lines]
-    ref_line_labels = [r.label or '' for r in sorted_ref_lines]
-    primary_layer_id = get_layer_id(layer, ['reference_layer', *ref_line_values, *ref_line_labels])
+    primary_layer_id = get_layer_id(layer)
 
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
     accessor_ids: list[str] = []
@@ -162,11 +143,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
         msg = f'Invalid value type: {type(ref_line.value)}'
         raise TypeError(msg)
 
-    # Generate deterministic accessor ID from value, label, and axis
-    # Use repr() for consistent float formatting that avoids precision issues
-    # (e.g., 0.1 + 0.2 displays as 0.30000000000000004 with str())
-    value_str = repr(numeric_value)
-    accessor_id = get_layer_id(ref_line, ['reference_line', value_str, ref_line.label or '', ref_line.axis or ''])
+    accessor_id = get_layer_id(ref_line)
 
     # Create the static value column for the reference line
     static_value_column = KbnLensStaticValueColumn(
@@ -542,19 +519,7 @@ def compile_lens_xy_chart(
 
     kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
 
-    # Build deterministic fallback values from compiled accessor IDs
-    # Using compiled IDs ensures layer_id matches actual visualization state accessors
-    chart_type = type(lens_xy_chart).__name__
-    fallback_values = [
-        'chart',
-        chart_type,
-        'lens',
-        lens_xy_chart.data_view,
-        dimension_id,
-        *metric_ids,
-        breakdown_id,
-    ]
-    layer_id = get_layer_id(lens_xy_chart, fallback_values)
+    layer_id = get_layer_id(lens_xy_chart)
 
     return (
         layer_id,
@@ -599,18 +564,7 @@ def compile_esql_xy_chart(
 
     kbn_columns = [*metrics, *dimensions]
 
-    # Build deterministic fallback values from compiled columnIds
-    # Using compiled IDs ensures layer_id matches actual visualization state accessors
-    chart_type = type(esql_xy_chart).__name__
-    fallback_values = [
-        'chart',
-        chart_type,
-        'esql',
-        dimension_id,
-        *metric_ids,
-        breakdown_id,
-    ]
-    layer_id = get_layer_id(esql_xy_chart, fallback_values)
+    layer_id = get_layer_id(esql_xy_chart)
 
     return (
         layer_id,

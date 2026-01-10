@@ -77,10 +77,7 @@ def compile_lens_tagcloud_chart(
 
     kbn_columns = {**dimension_columns, **kbn_metric_column_by_id}
 
-    # Build deterministic fallback values from compiled accessor IDs
-    # Using compiled IDs ensures layer_id matches actual visualization state accessors
-    fallback_values = ['chart', 'tagcloud', 'lens', chart.data_view, tag_accessor_id, metric_id]
-    layer_id = get_layer_id(chart, fallback_values)
+    layer_id = get_layer_id(chart)
 
     visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
 
@@ -109,10 +106,7 @@ def compile_esql_tagcloud_chart(
 
     kbn_columns: list[KbnESQLColumnTypes] = [*dimensions, metric]
 
-    # Build deterministic fallback values from compiled columnIds
-    # Using compiled IDs ensures layer_id matches actual visualization state accessors
-    fallback_values = ['chart', 'tagcloud', 'esql', tag_accessor_id, metric_id]
-    layer_id = get_layer_id(chart, fallback_values)
+    layer_id = get_layer_id(chart)
 
     visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
 

@@ -444,7 +444,7 @@ async def test_dashboard_with_custom_options() -> None:
                 'panelsJSON': [
                     {
                         'panelIndex': 'panel_0',
-                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': 'd3ba90ee-4c0a-5cef-1e0f-45a79bbd47a2'},
+                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': '288c7573-de91-6e68-0d1d-e731caecad5a'},
                         'type': 'visualization',
                         'embeddableConfig': {
                             'enhancements': {'dynamicActions': {'events': []}},
@@ -534,7 +534,7 @@ async def test_dashboard_with_default_options() -> None:
                 'panelsJSON': [
                     {
                         'panelIndex': 'panel_0',
-                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': 'd3ba90ee-4c0a-5cef-1e0f-45a79bbd47a2'},
+                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': '288c7573-de91-6e68-0d1d-e731caecad5a'},
                         'type': 'visualization',
                         'embeddableConfig': {
                             'enhancements': {'dynamicActions': {'events': []}},

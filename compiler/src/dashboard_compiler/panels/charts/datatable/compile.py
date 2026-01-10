@@ -158,12 +158,7 @@ def compile_lens_datatable_chart(
             - kbn_state_visualization (KbnDatatableVisualizationState): The compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    dimension_ids = [d.id for d in lens_datatable_chart.dimensions]
-    metric_ids = [m.id for m in lens_datatable_chart.metrics]
-    layer_id = get_layer_id(
-        lens_datatable_chart, ['chart', 'datatable', 'lens', lens_datatable_chart.data_view, *dimension_ids, *metric_ids]
-    )
+    layer_id = get_layer_id(lens_datatable_chart)
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     column_order: list[str] = []
 
@@ -231,10 +226,7 @@ def compile_esql_datatable_chart(
             - kbn_state_visualization (KbnDatatableVisualizationState): The compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    dimension_ids = [d.id for d in esql_datatable_chart.dimensions]
-    metric_ids = [m.id for m in esql_datatable_chart.metrics]
-    layer_id = get_layer_id(esql_datatable_chart, ['chart', 'datatable', 'esql', *dimension_ids, *metric_ids])
+    layer_id = get_layer_id(esql_datatable_chart)
     kbn_columns: list[KbnESQLColumnTypes] = []
     column_order: list[str] = []
 

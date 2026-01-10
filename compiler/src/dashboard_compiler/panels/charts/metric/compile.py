@@ -95,18 +95,7 @@ def compile_lens_metric_chart(
     # Add metrics AFTER breakdown dimension
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
-    # Build deterministic fallback values from compiled accessor IDs
-    # Using compiled IDs ensures layer_id matches actual visualization state accessors
-    fallback_values = [
-        'chart',
-        'metric',
-        'lens',
-        lens_metric_chart.data_view,
-        primary_metric_id,
-        secondary_metric_id,
-        breakdown_dimension_id,
-    ]
-    layer_id = get_layer_id(lens_metric_chart, fallback_values)
+    layer_id = get_layer_id(lens_metric_chart)
 
     return (
         layer_id,
@@ -157,17 +146,7 @@ def compile_esql_metric_chart(
         breakdown_dimension_id = breakdown_dimension.columnId
         kbn_columns.append(breakdown_dimension)
 
-    # Build deterministic fallback values from compiled columnIds
-    # Using compiled IDs ensures layer_id matches actual visualization state accessors
-    fallback_values = [
-        'chart',
-        'metric',
-        'esql',
-        primary_metric_id,
-        secondary_metric_id,
-        breakdown_dimension_id,
-    ]
-    layer_id = get_layer_id(esql_metric_chart, fallback_values)
+    layer_id = get_layer_id(esql_metric_chart)
 
     return (
         layer_id,

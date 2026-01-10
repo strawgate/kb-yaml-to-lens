@@ -19,7 +19,7 @@ from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLMetricFormatParams,
     KbnESQLStaticValueColumn,
 )
-from dashboard_compiler.shared.config import get_layer_id, stable_id_generator
+from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_esql_metric_format(metric_format: ESQLMetricFormatTypes) -> KbnESQLMetricFormat:
@@ -71,14 +71,12 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         KbnESQLMetricColumnTypes: The compiled Kibana column.
 
     """
-    # Handle static values
+    # Handle static values - metric.id is guaranteed by IDMixin
     if isinstance(metric, ESQLStaticValue):
-        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
         field_name = metric.label if metric.label is not None else str(metric.value)
-
         return KbnESQLStaticValueColumn(
             fieldName=field_name,
-            columnId=metric_id,
+            columnId=get_layer_id(metric),
         )
 
     # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
@@ -86,7 +84,8 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         msg = f'Unknown metric type: {type(metric).__name__}'
         raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
-    metric_id = metric.id or stable_id_generator([metric.field])
+    # metric.id is guaranteed by IDMixin
+    metric_id = get_layer_id(metric)
 
     # Compile format if provided
     params = None
@@ -135,8 +134,7 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
         KbnESQLFieldDimensionColumn: The compiled Kibana view model.
 
     """
-    # Build deterministic fallback values from dimension configuration
-    dimension_id = get_layer_id(dimension, ['esql_dimension', dimension.field, dimension.data_type])
+    dimension_id = get_layer_id(dimension)
 
     # Add meta information for date fields if data_type is explicitly set
     meta = None

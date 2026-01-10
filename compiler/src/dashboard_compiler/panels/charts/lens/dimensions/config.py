@@ -1,8 +1,7 @@
 """Lens dimensions configuration for the Lens chart."""
 
-import json
 from enum import StrEnum
-from typing import Any, ClassVar, Literal, override
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -62,23 +61,6 @@ class LensFiltersDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
-
-    @override
-    def _get_id_data(self) -> dict[str, Any]:
-        """Sort filters for order-independent IDs."""
-        data = super()._get_id_data()
-        # Sort filters by their query content for order-independent IDs
-        # Use json.dumps for stable, canonical serialization across Python versions
-        # Include label as tie-breaker for filters with identical queries
-        if 'filters' in data and data['filters'] is not None:
-            data['filters'] = sorted(
-                data['filters'],  # pyright: ignore[reportAny]
-                key=lambda f: (  # pyright: ignore[reportAny]
-                    json.dumps(f.get('query', {}), sort_keys=True, separators=(',', ':')),
-                    f.get('label') or '',
-                ),
-            )
-        return data
 
 
 class LensIntervalsDimensionInterval(BaseCfgModel):
@@ -174,14 +156,6 @@ class LensMultiTermsDimension(BaseLensTermsDimension):
 
     fields: list[str] = Field(default=..., min_length=2)
     """List of field names for multi-field aggregation. Requires at least 2 fields."""
-
-    @override
-    def _get_id_data(self) -> dict[str, Any]:
-        """Sort fields for order-independent IDs."""
-        data = super()._get_id_data()
-        if 'fields' in data and data['fields'] is not None:
-            data['fields'] = sorted(data['fields'])  # pyright: ignore[reportAny]
-        return data
 
 
 class LensDateHistogramDimension(BaseLensDimension):

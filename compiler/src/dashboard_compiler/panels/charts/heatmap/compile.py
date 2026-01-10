@@ -123,12 +123,7 @@ def compile_lens_heatmap_chart(
     # Add value metric to columns
     kbn_columns_by_id[value_id] = value_column
 
-    # Build deterministic fallback values from chart configuration
-    x_id_str = lens_heatmap_chart.x_axis.id
-    y_id_str = lens_heatmap_chart.y_axis.id if lens_heatmap_chart.y_axis is not None else None
-    value_id_str = lens_heatmap_chart.value.id
-    fallback_values = ['chart', 'heatmap', 'lens', lens_heatmap_chart.data_view, x_id_str, y_id_str, value_id_str]
-    layer_id = get_layer_id(lens_heatmap_chart, fallback_values)
+    layer_id = get_layer_id(lens_heatmap_chart)
 
     return (
         layer_id,
@@ -158,11 +153,7 @@ def compile_esql_heatmap_chart(
             - kbn_state_visualization (KbnHeatmapVisualizationState): The compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    x_id_str = esql_heatmap_chart.x_axis.id
-    y_id_str = esql_heatmap_chart.y_axis.id if esql_heatmap_chart.y_axis is not None else None
-    value_id_str = esql_heatmap_chart.value.id
-    layer_id = get_layer_id(esql_heatmap_chart, ['chart', 'heatmap', 'esql', x_id_str, y_id_str, value_id_str])
+    layer_id = get_layer_id(esql_heatmap_chart)
 
     kbn_columns: 'list[KbnESQLColumnTypes]' = []  # noqa: UP037
 
