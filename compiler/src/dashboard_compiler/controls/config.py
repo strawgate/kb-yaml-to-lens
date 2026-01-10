@@ -180,10 +180,20 @@ class TimeSliderControl(BaseControl):
         are optional), so we override to ensure all time slider controls with unique
         configurations get deterministic but distinct IDs. The label is included to
         differentiate multiple time sliders when both offsets are None.
+
+        When all distinguishing fields (start_offset, end_offset, label) are None,
+        returns None to fall back to random ID generation, preventing silent collisions
+        between multiple unconfigured TimeSliderControl instances.
         """
         start_offset = data.get('start_offset')
         end_offset = data.get('end_offset')
         label = data.get('label')
+
+        # If all distinguishing fields are None, fall back to random ID generation
+        # to prevent silent collisions between multiple unconfigured time sliders
+        if start_offset is None and end_offset is None and label is None:
+            return None
+
         # Include class name for type discrimination (matches base implementation pattern)
         # Include label to differentiate multiple time sliders with same offset config
         return [cls.__name__, 'time', start_offset, end_offset, label]
@@ -208,13 +218,13 @@ class ESQLFieldControl(BaseControl):
     @override
     @classmethod
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices hash for uniqueness."""
+        """Compute ID including variable_name and choices for uniqueness."""
         variable_name = data.get('variable_name')
         if variable_name is None:
             return None
         choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        choices_str = ','.join(sorted(choices))
-        return [cls.__name__, variable_name, choices_str]
+        # Return sorted choices as separate components to avoid delimiter collision
+        return [cls.__name__, variable_name, *sorted(choices)]
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -242,13 +252,13 @@ class ESQLFunctionControl(BaseControl):
     @override
     @classmethod
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices hash for uniqueness."""
+        """Compute ID including variable_name and choices for uniqueness."""
         variable_name = data.get('variable_name')
         if variable_name is None:
             return None
         choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        choices_str = ','.join(sorted(choices))
-        return [cls.__name__, variable_name, choices_str]
+        # Return sorted choices as separate components to avoid delimiter collision
+        return [cls.__name__, variable_name, *sorted(choices)]
 
     @model_validator(mode='after')
     def validate_default(self) -> Self:
@@ -284,13 +294,13 @@ class ESQLStaticSingleSelectControl(BaseControl):
     @override
     @classmethod
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices hash for uniqueness."""
+        """Compute ID including variable_name and choices for uniqueness."""
         variable_name = data.get('variable_name')
         if variable_name is None:
             return None
         choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        choices_str = ','.join(sorted(choices))
-        return [cls.__name__, variable_name, choices_str]
+        # Return sorted choices as separate components to avoid delimiter collision
+        return [cls.__name__, variable_name, *sorted(choices)]
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:
@@ -328,13 +338,13 @@ class ESQLStaticMultiSelectControl(BaseControl):
     @override
     @classmethod
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
-        """Compute ID including variable_name and choices hash for uniqueness."""
+        """Compute ID including variable_name and choices for uniqueness."""
         variable_name = data.get('variable_name')
         if variable_name is None:
             return None
         choices: list[str] = data.get('choices', [])  # pyright: ignore[reportAny]
-        choices_str = ','.join(sorted(choices))
-        return [cls.__name__, variable_name, choices_str]
+        # Return sorted choices as separate components to avoid delimiter collision
+        return [cls.__name__, variable_name, *sorted(choices)]
 
     @model_validator(mode='after')
     def validate_defaults(self) -> Self:

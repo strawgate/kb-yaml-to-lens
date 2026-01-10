@@ -186,11 +186,15 @@ class IDMixin(BaseCfgModel):
         if len(field_names) == 0:
             return None
 
+        # Use a sentinel object to distinguish between "key not present" and "key present with None value"
+        _missing = object()
+
         # Extract field values
         for field_name in field_names:
-            value = data.get(field_name)
-            # Treat missing required fields as reason to skip ID generation
-            if value is None:
+            value = data.get(field_name, _missing)  # pyright: ignore[reportAny]
+            # Only skip ID generation if the key is missing from data (validation will fail anyway)
+            # Allow explicit None values to participate in the hash for stability
+            if value is _missing:
                 return None
             values.append(value)  # pyright: ignore[reportAny]
         return values
@@ -323,7 +327,12 @@ def get_dimension_identifier(dimension: object) -> str:
         # Sort filter contents to ensure order-independent deterministic IDs
         return f'filters:{"|".join(sorted(filter_contents))}'
 
-    # Fallback to type name
+    # Fallback: try to use the dimension's 'id' if it has one (from IDMixin)
+    dim_id: str | None = getattr(dimension, 'id', None)
+    if dim_id is not None:
+        return dim_id
+
+    # Last resort: type name (may collide for multiple unknown dimensions of same type)
     return type(dimension).__name__
 
 
