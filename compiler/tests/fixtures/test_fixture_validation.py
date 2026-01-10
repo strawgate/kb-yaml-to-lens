@@ -63,9 +63,13 @@ def compute_fixture_diff(fixture_name: str) -> dict[str, Any]:
 
 
 def test_fixture_files_exist() -> None:
-    """Verify that fixture YAML files were found."""
+    """Verify that fixture YAML and JSON files were found."""
     yaml_files = get_yaml_fixture_files()
     assert len(yaml_files) > 0, 'No fixture YAML files found in tests/fixtures/yaml/'
+
+    # Ensure fixture-generator output is present for the default version
+    fixture_files = get_fixture_files()
+    assert len(fixture_files) > 0, 'No fixture JSON files found in fixture-generator/output/ (default version)'
 
 
 def test_fixture_coverage() -> None:
@@ -143,10 +147,6 @@ def test_metric_basic_esql_snapshot() -> None:
                 "root['state']['query']": {
                     'old_value': {'language': 'kuery', 'query': ''},
                     'new_value': {'esql': 'FROM logs-* | STATS count = COUNT()'},
-                },
-                "root['title']": {
-                    'old_value': 'Basic Count Metric',
-                    'new_value': '',
                 },
             },
         }
@@ -243,10 +243,6 @@ def test_pie_chart_esql_snapshot() -> None:
                 "root['state']['visualization']['layers'][0]['legendDisplay']": {
                     'old_value': 'show',
                     'new_value': 'default',
-                },
-                "root['title']": {
-                    'old_value': 'Events by Status',
-                    'new_value': '',
                 },
             },
         }

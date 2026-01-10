@@ -38,14 +38,19 @@ def load_fixture(fixture_name: str, version: str = DEFAULT_FIXTURE_VERSION) -> d
 
     Raises:
         FileNotFoundError: If the fixture file doesn't exist.
+        ValueError: If the fixture JSON is invalid.
     """
     fixture_path = _FIXTURE_OUTPUT_DIR / version / f'{fixture_name}.json'
     if not fixture_path.exists():
         msg = f'Fixture not found: {fixture_path}'
         raise FileNotFoundError(msg)
 
-    with fixture_path.open() as f:
-        return json.load(f)
+    try:
+        with fixture_path.open(encoding='utf-8') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        msg = f'Invalid JSON fixture: {fixture_path} ({e})'
+        raise ValueError(msg) from e
 
 
 def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
@@ -61,13 +66,15 @@ def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
         Normalized embeddableConfig dictionary.
     """
     config = compiled_panel.get('embeddableConfig', {})
+    attributes = config.get('attributes', {})
 
     # Build the normalized structure to match fixture format
+    # Prefer title from embeddableConfig.attributes, fall back to panel-level title
     normalized: dict[str, Any] = {
-        'title': compiled_panel.get('title', ''),
-        'visualizationType': config.get('attributes', {}).get('visualizationType', ''),
-        'references': config.get('attributes', {}).get('references', []),
-        'state': config.get('attributes', {}).get('state', {}),
+        'title': attributes.get('title', compiled_panel.get('title', '')),
+        'visualizationType': attributes.get('visualizationType', ''),
+        'references': attributes.get('references', []),
+        'state': attributes.get('state', {}),
     }
 
     return normalized
