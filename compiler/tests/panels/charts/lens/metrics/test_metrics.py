@@ -26,9 +26,9 @@ class ESQLMetricHolder(BaseModel):
 def compile_metric_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile Lens metric config and return dict for snapshot testing."""
     metric_holder = LensMetricHolder.model_validate({'metric': config})
-    _column_id, kbn_column = compile_lens_metric(metric=metric_holder.metric)
-    assert kbn_column is not None
-    return kbn_column.model_dump()
+    result = compile_lens_metric(metric=metric_holder.metric)
+    assert result.primary_column is not None
+    return result.primary_column.model_dump()
 
 
 def compile_esql_metric_snapshot(config: dict[str, Any]) -> dict[str, Any]:
@@ -304,18 +304,19 @@ async def test_compile_esql_metric_count() -> None:
 async def test_compile_lens_formula_metric_simple() -> None:
     """Test the compilation of a simple formula metric."""
     result = compile_metric_snapshot({'formula': 'count() / 100', 'label': 'Count Percentage'})
-    assert result == snapshot(
-        {
-            'label': 'Count Percentage',
-            'customLabel': True,
-            'dataType': 'number',
-            'operationType': 'formula',
-            'isBucketed': False,
-            'scale': 'ratio',
-            'references': [],
-            'params': {'formula': 'count() / 100', 'isFormulaBroken': False},
-        }
-    )
+    # Formula now correctly references the math column (X1) which contains the tinymathAST
+    # The helper columns (X0 for count() aggregation, X1 for the math) are generated separately
+    assert result['label'] == 'Count Percentage'
+    assert result['customLabel'] is True
+    assert result['dataType'] == 'number'
+    assert result['operationType'] == 'formula'
+    assert result['isBucketed'] is False
+    assert result['scale'] == 'ratio'
+    assert result['params']['formula'] == 'count() / 100'
+    assert result['params']['isFormulaBroken'] is False
+    # The references should now contain the math column ID (ends with X1)
+    assert len(result['references']) == 1
+    assert result['references'][0].endswith('X1')
 
 
 async def test_compile_lens_formula_metric_with_fields() -> None:
@@ -326,38 +327,32 @@ async def test_compile_lens_formula_metric_with_fields() -> None:
             'label': 'Response Time Variability',
         }
     )
-    assert result == snapshot(
-        {
-            'label': 'Response Time Variability',
-            'customLabel': True,
-            'dataType': 'number',
-            'operationType': 'formula',
-            'isBucketed': False,
-            'scale': 'ratio',
-            'references': [],
-            'params': {
-                'formula': "(max(field='response.time') - min(field='response.time')) / average(field='response.time')",
-                'isFormulaBroken': False,
-            },
-        }
-    )
+    # Formula with 3 aggregations (max, min, average) generates X0, X1, X2 columns + X3 for math
+    assert result['label'] == 'Response Time Variability'
+    assert result['customLabel'] is True
+    assert result['dataType'] == 'number'
+    assert result['operationType'] == 'formula'
+    assert result['isBucketed'] is False
+    assert result['scale'] == 'ratio'
+    assert result['params']['formula'] == "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
+    assert result['params']['isFormulaBroken'] is False
+    # The references should now contain the math column ID (ends with X3 for 3 aggregations)
+    assert len(result['references']) == 1
+    assert result['references'][0].endswith('X3')
 
 
 async def test_compile_lens_formula_metric_with_format() -> None:
     """Test the compilation of a formula metric with number format."""
     result = compile_metric_snapshot({'formula': 'count(kql="status:error") / count() * 100', 'format': {'type': 'percent'}})
-    assert result == snapshot(
-        {
-            'label': 'Formula',
-            'dataType': 'number',
-            'operationType': 'formula',
-            'isBucketed': False,
-            'scale': 'ratio',
-            'references': [],
-            'params': {
-                'formula': 'count(kql="status:error") / count() * 100',
-                'isFormulaBroken': False,
-                'format': {'id': 'percent', 'params': {'decimals': 2}},
-            },
-        }
-    )
+    # Formula with 2 count() calls generates X0, X1 columns + X2 for math
+    assert result['label'] == 'Formula'
+    assert result['dataType'] == 'number'
+    assert result['operationType'] == 'formula'
+    assert result['isBucketed'] is False
+    assert result['scale'] == 'ratio'
+    assert result['params']['formula'] == 'count(kql="status:error") / count() * 100'
+    assert result['params']['isFormulaBroken'] is False
+    assert result['params']['format'] == {'id': 'percent', 'params': {'decimals': 2}}
+    # The references should now contain the math column ID (ends with X2 for 2 aggregations)
+    assert len(result['references']) == 1
+    assert result['references'][0].endswith('X2')

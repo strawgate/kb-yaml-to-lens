@@ -1,4 +1,4 @@
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
@@ -16,7 +16,9 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensCustomInvervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn | KbnLensFormulaColumn
+type KbnLensMetricColumnTypes = (
+    KbnLensFieldMetricColumn | KbnLensStaticValueColumn | KbnLensFormulaColumn | KbnLensMathColumn | KbnLensFormulaAggColumn
+)
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -170,7 +172,70 @@ class KbnLensFormulaColumn(KbnLensBaseColumn):
     """Parameters containing the formula string."""
 
     references: list[str] = Field(default_factory=list)
-    """List of referenced column IDs (typically empty for raw formulas)."""
+    """List of referenced column IDs. Points to the math column for complete formulas."""
+
+
+class KbnLensMathColumnParams(BaseVwModel):
+    """Parameters for math columns used in formula helper structures."""
+
+    tinymathAst: dict[str, Any]
+    """The TinyMath AST structure representing the mathematical expression."""
+
+
+class KbnLensMathColumn(KbnLensBaseColumn):
+    """Represents a math column used in formula helper structures.
+
+    Math columns contain the tinymathAST that combines aggregation columns
+    into the final formula result. They reference the aggregation helper columns.
+    """
+
+    operationType: Literal['math']
+    """Always 'math' for math columns."""
+
+    dataType: Literal['number']
+    """Data type is always 'number' for math operations."""
+
+    isBucketed: Literal[False] = False
+    """Math columns are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for math results."""
+
+    params: KbnLensMathColumnParams
+    """Parameters containing the tinymathAst."""
+
+    references: list[str] = Field(default_factory=list)
+    """List of referenced aggregation column IDs."""
+
+
+class KbnLensFormulaAggColumnParams(BaseVwModel):
+    """Parameters for formula aggregation helper columns."""
+
+    emptyAsNull: bool = False
+    """Whether to treat empty results as null."""
+
+
+class KbnLensFormulaAggColumn(KbnLensBaseColumn):
+    """Represents an aggregation helper column used in formula structures.
+
+    These columns are generated for each aggregation function (average, sum, count, etc.)
+    found in a formula. They serve as intermediate columns that the math column references.
+    """
+
+    sourceField: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """The field being aggregated (None for count without field)."""
+
+    dataType: Literal['number']
+    """Data type is always 'number' for aggregations."""
+
+    isBucketed: Literal[False] = False
+    """Aggregation columns are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for aggregation results."""
+
+    params: KbnLensFormulaAggColumnParams
+    """Parameters for the aggregation column."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):

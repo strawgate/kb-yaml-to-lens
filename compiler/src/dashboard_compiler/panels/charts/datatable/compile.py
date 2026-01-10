@@ -165,8 +165,11 @@ def compile_lens_datatable_chart(
     # Compile metrics first (for dimension compilation to reference)
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_datatable_chart.metrics:
-        metric_id, compiled_metric = compile_lens_metric(metric)
+        result = compile_lens_metric(metric)
+        metric_id = result.primary_id
+        compiled_metric = result.primary_column
         kbn_metric_columns_by_id[metric_id] = compiled_metric
+        kbn_metric_columns_by_id.update(result.helper_columns)
 
     # Compile dimensions (these come FIRST in column order for datatables)
     for dimension in lens_datatable_chart.dimensions:

@@ -25,6 +25,7 @@ dependencies = [
     "elasticsearch>=8.16.2",
     "pygls>=2.0.0",
     "lsprotocol>=2024.0.0",
+    "tatsu>=5.15",
 ]
 
 [project.scripts]
@@ -209,6 +210,14 @@ reportUnusedCallResult = false
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler/tools"
 # Tools code deals with unstructured JSON data from Kibana
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/panels/charts/lens/metrics"
+# Formula parser uses TatSu which lacks type stubs
 reportAny = false
 reportUnknownMemberType = false
 reportUnknownVariableType = false
