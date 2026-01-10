@@ -3,9 +3,9 @@
 import hashlib
 import uuid
 from collections.abc import Sequence
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Any, ClassVar, Literal, Protocol, runtime_checkable
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from dashboard_compiler.shared.model import BaseModel
 
@@ -50,6 +50,79 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
 
     guid = uuid.UUID(bytes=hashed_data)
     return str(guid)
+
+
+class IDMixin(BaseCfgModel):
+    """Mixin that provides automatic stable ID generation for config models.
+
+    Subclasses should override `_id_prefix` and `_compute_id_components()` to define
+    how stable IDs are generated. The ID is computed before model instantiation,
+    allowing it to work with frozen Pydantic models.
+
+    Example:
+        class MyDimension(IDMixin):
+            _id_prefix: ClassVar[str] = 'dimension'
+            field: str = Field(...)
+
+            @classmethod
+            def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+                field = data.get('field')
+                if field is not None:
+                    return [field]
+                return None
+    """
+
+    _id_prefix: ClassVar[str] = ''
+    """Override in subclasses to provide a prefix for the stable ID (e.g., 'dimension', 'metric')."""
+
+    id: str | None = Field(default=None)
+    """A unique identifier. If not provided, one will be generated from id_components."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _generate_stable_id(cls, data: Any) -> Any:  # pyright: ignore[reportAny]
+        """Generate a stable ID if one is not provided.
+
+        This validator runs before model instantiation, allowing ID generation
+        to work with frozen Pydantic models.
+        """
+        # Only process dict input (not model instances)
+        if not isinstance(data, dict):
+            return data  # pyright: ignore[reportAny]
+
+        # If ID is already provided, keep it
+        if data.get('id') is not None:  # pyright: ignore[reportUnknownMemberType]
+            return data  # pyright: ignore[reportUnknownVariableType]
+
+        # Compute ID components from subclass implementation
+        components = cls._compute_id_components(data)  # pyright: ignore[reportUnknownArgumentType]
+        if components is not None:
+            # Prepend the ID prefix if defined
+            prefix = cls._id_prefix
+            if prefix:
+                all_components: list[str | int | float | None] = [prefix, *components]
+            else:
+                all_components = list(components)
+            # Make a copy to avoid mutating input
+            data = dict(data)  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
+            data['id'] = stable_id_generator(all_components)
+
+        return data  # pyright: ignore[reportUnknownVariableType]
+
+    @classmethod
+    def _compute_id_components(cls, _data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute the components used to generate a stable ID.
+
+        Override this method in subclasses to provide the identifying components.
+        Return None to skip automatic ID generation (ID will be generated during compilation).
+
+        Args:
+            _data: The raw input data dictionary before model validation.
+
+        Returns:
+            A sequence of values to hash for the stable ID, or None to skip generation.
+        """
+        return None
 
 
 def get_dimension_identifier(dimension: object) -> str:

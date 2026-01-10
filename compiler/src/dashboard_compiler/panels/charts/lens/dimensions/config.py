@@ -1,23 +1,24 @@
 """Lens dimensions configuration for the Lens chart."""
 
+from collections.abc import Sequence
 from enum import StrEnum
-from typing import Literal
+from typing import Any, ClassVar, Literal, override
 
 from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
-from dashboard_compiler.shared.config import BaseCfgModel, Sort
+from dashboard_compiler.shared.config import BaseCfgModel, IDMixin, Sort
 
 type LensDimensionTypes = (
     LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 )
 
 
-class BaseDimension(BaseCfgModel):
+class BaseDimension(IDMixin):
     """Base model for defining dimensions."""
 
-    id: str | None = Field(default=None)
-    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
+    _id_prefix: ClassVar[str] = 'dimension'
+    """Prefix for generated dimension IDs."""
 
     # color: ColorMapping | None = Field(default=None)
 
@@ -62,6 +63,31 @@ class LensFiltersDimension(BaseLensDimension):
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from filter queries and labels."""
+        filters = data.get('filters')
+        if filters is None:
+            return None
+        # Extract query content for uniqueness
+        filter_contents: list[str] = []
+        for f in filters:  # pyright: ignore[reportAny]
+            if isinstance(f, dict):
+                query = f.get('query', {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                query_str = query.get('kql') if query.get('kql') is not None else query.get('lucene', '')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                label = f.get('label', '')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            else:
+                # Handle already-instantiated filter objects
+                query = getattr(f, 'query', None)  # pyright: ignore[reportAny]
+                kql = getattr(query, 'kql', None) if query is not None else None  # pyright: ignore[reportAny]
+                lucene = getattr(query, 'lucene', None) if query is not None else None  # pyright: ignore[reportAny]
+                query_str = kql if kql is not None else (lucene if lucene is not None else '')
+                label = getattr(f, 'label', '') or ''  # pyright: ignore[reportAny]
+            filter_contents.append(f'{query_str}:{label}')
+        # Sort for order-independent IDs
+        return ['filters', '|'.join(sorted(filter_contents))]
+
 
 class LensIntervalsDimensionInterval(BaseCfgModel):
     """A single interval for an intervals dimension."""
@@ -99,6 +125,15 @@ class LensIntervalsDimension(BaseLensDimension):
 
     empty_bucket: bool | None = Field(default=None)
     """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field name."""
+        field = data.get('field')
+        if field is not None:
+            return ['intervals', field]
+        return None
 
 
 class BaseLensTermsDimension(BaseLensDimension):
@@ -146,6 +181,15 @@ class LensTermsDimension(BaseLensTermsDimension):
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field name."""
+        field = data.get('field')
+        if field is not None:
+            return ['terms', field]
+        return None
+
 
 class LensMultiTermsDimension(BaseLensTermsDimension):
     """Represents a multi-field top values dimension configuration within a Lens chart.
@@ -156,6 +200,16 @@ class LensMultiTermsDimension(BaseLensTermsDimension):
 
     fields: list[str] = Field(default=..., min_length=2)
     """List of field names for multi-field aggregation. Requires at least 2 fields."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from sorted fields."""
+        fields = data.get('fields')
+        if fields is not None:
+            # Sort for order-independent IDs
+            return ['multi_terms', *sorted(fields)]  # pyright: ignore[reportAny]
+        return None
 
 
 class LensDateHistogramDimension(BaseLensDimension):
@@ -177,3 +231,12 @@ class LensDateHistogramDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field name."""
+        field = data.get('field')
+        if field is not None:
+            return ['date_histogram', field]
+        return None

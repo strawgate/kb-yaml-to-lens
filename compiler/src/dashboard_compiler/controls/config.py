@@ -1,12 +1,13 @@
 """Configuration schema for controls used in a dashboard."""
 
+from collections.abc import Sequence
 from enum import StrEnum
-from typing import Literal, Self
+from typing import Any, ClassVar, Literal, Self, override
 
 from pydantic import Field, model_validator
 
 from dashboard_compiler.controls.types import ESQLVariableType
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
 
 
 def validate_default_in_choices(default: str | list[str] | None, choices: list[str] | None) -> None:
@@ -63,15 +64,15 @@ class ControlSettings(BaseCfgModel):
     """Whether to require users to click the apply button before applying changes. Defaults to false if not set."""
 
 
-class BaseControl(BaseCfgModel):
+class BaseControl(IDMixin):
     """Base class for defining controls within the YAML schema.
 
     These controls are used to filter data or adjust visualization settings
     on a dashboard.
     """
 
-    id: str | None = Field(default=None)
-    """A unique identifier for the control. If not provided, one may be generated."""
+    _id_prefix: ClassVar[str] = 'control'
+    """Prefix for generated control IDs."""
 
     width: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """The width of the control in the dashboard layout. If not set, defaults to 'medium'."""
@@ -123,6 +124,16 @@ class OptionsListControl(BaseControl):
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field and data_view."""
+        field = data.get('field')
+        data_view = data.get('data_view')
+        if field is not None and data_view is not None:
+            return ['options', field, data_view]
+        return None
+
 
 class RangeSliderControl(BaseControl):
     """Represents a Range Slider control.
@@ -144,6 +155,16 @@ class RangeSliderControl(BaseControl):
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field and data_view."""
+        field = data.get('field')
+        data_view = data.get('data_view')
+        if field is not None and data_view is not None:
+            return ['range', field, data_view]
+        return None
 
 
 class TimeSliderControl(BaseControl):
@@ -170,6 +191,12 @@ class TimeSliderControl(BaseControl):
 
         return self
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, _data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID for time slider control."""
+        return ['time']
+
 
 class ESQLFieldControl(BaseControl):
     """ES|QL control for single field selection from static list."""
@@ -193,6 +220,15 @@ class ESQLFieldControl(BaseControl):
         validate_default_in_choices(self.default, self.choices)
         return self
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from variable_name."""
+        variable_name = data.get('variable_name')
+        if variable_name is not None:
+            return ['esql_field', variable_name]
+        return None
+
 
 class ESQLFunctionControl(BaseControl):
     """ES|QL control for single function selection from static list."""
@@ -215,6 +251,15 @@ class ESQLFunctionControl(BaseControl):
         """Validate that default value exists in choices."""
         validate_default_in_choices(self.default, self.choices)
         return self
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from variable_name."""
+        variable_name = data.get('variable_name')
+        if variable_name is not None:
+            return ['esql_function', variable_name]
+        return None
 
 
 class ESQLStaticSingleSelectControl(BaseControl):
@@ -248,6 +293,15 @@ class ESQLStaticSingleSelectControl(BaseControl):
             msg = f'default contains options not in choices: {{{self.default}}}'
             raise ValueError(msg)
         return self
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from variable_name."""
+        variable_name = data.get('variable_name')
+        if variable_name is not None:
+            return ['esql_single_select', variable_name]
+        return None
 
 
 class ESQLStaticMultiSelectControl(BaseControl):
@@ -284,6 +338,15 @@ class ESQLStaticMultiSelectControl(BaseControl):
                 raise ValueError(msg)
         return self
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from variable_name."""
+        variable_name = data.get('variable_name')
+        if variable_name is not None:
+            return ['esql_multi_select', variable_name]
+        return None
+
 
 class ESQLQueryControl(BaseControl):
     """Represents an ES|QL control with query-driven values.
@@ -305,3 +368,12 @@ class ESQLQueryControl(BaseControl):
 
     multiple: bool | None = Field(default=None)
     """If true, allow multiple selection from the options."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from variable_name."""
+        variable_name = data.get('variable_name')
+        if variable_name is not None:
+            return ['esql_query', variable_name]
+        return None

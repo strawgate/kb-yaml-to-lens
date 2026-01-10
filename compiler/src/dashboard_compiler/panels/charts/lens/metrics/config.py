@@ -1,18 +1,19 @@
 """Configuration for a Lens and ESQL Metric."""
 
-from typing import Literal
+from collections.abc import Sequence
+from typing import Any, ClassVar, Literal, override
 
 from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
 
 
-class BaseMetric(BaseCfgModel):
+class BaseMetric(IDMixin):
     """Base class for metric configurations in Lens charts."""
 
-    id: str | None = Field(default=None)
-    """A unique identifier for the metric. If not provided, one may be generated during compilation."""
+    _id_prefix: ClassVar[str] = 'metric'
+    """Prefix for generated metric IDs."""
 
 
 class LensStaticValue(BaseMetric):
@@ -27,6 +28,15 @@ class LensStaticValue(BaseMetric):
 
     label: str | None = Field(default=None)
     """Optional label for the static value."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from static value."""
+        value = data.get('value')
+        if value is not None:
+            return ['static', value]
+        return None
 
 
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes | LensStaticValue
@@ -111,6 +121,14 @@ class LensCountAggregatedMetric(BaseLensMetric):
     exclude_zeros: bool | None = Field(default=None)
     """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from aggregation and optional field."""
+        aggregation: str = data.get('aggregation', 'count')  # pyright: ignore[reportAny]
+        field = data.get('field')
+        return [aggregation, field]
+
 
 class LensSumAggregatedMetric(BaseLensMetric):
     """Represents a sum metric configuration within a Lens chart.
@@ -125,6 +143,15 @@ class LensSumAggregatedMetric(BaseLensMetric):
     exclude_zeros: bool | None = Field(default=None)
     """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from aggregation and field."""
+        field = data.get('field')
+        if field is not None:
+            return ['sum', field]
+        return None
+
 
 class LensOtherAggregatedMetric(BaseLensMetric):
     """Represents various aggregated metric configurations within a Lens chart."""
@@ -133,6 +160,16 @@ class LensOtherAggregatedMetric(BaseLensMetric):
     """The aggregation type for the metric (e.g., 'min', 'max', 'median', 'average')."""
 
     field: str = Field(...)
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from aggregation and field."""
+        aggregation = data.get('aggregation')
+        field = data.get('field')
+        if aggregation is not None and field is not None:
+            return [aggregation, field]
+        return None
 
 
 class LensLastValueAggregatedMetric(BaseLensMetric):
@@ -151,6 +188,15 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
     # filter: str | None = Field(default=None)
     # """A KQL filter applied before determining the last value."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from aggregation and field."""
+        field = data.get('field')
+        if field is not None:
+            return ['last_value', field]
+        return None
+
 
 class LensPercentileRankAggregatedMetric(BaseLensMetric):
     """Represents a percentile rank metric configuration within a Lens chart.
@@ -164,6 +210,16 @@ class LensPercentileRankAggregatedMetric(BaseLensMetric):
 
     rank: int = Field(...)
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from aggregation, field, and rank."""
+        field = data.get('field')
+        rank = data.get('rank')
+        if field is not None and rank is not None:
+            return ['percentile_rank', field, rank]
+        return None
+
 
 class LensPercentileAggregatedMetric(BaseLensMetric):
     """Represents a percentile metric configuration within a Lens chart.
@@ -176,6 +232,16 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
     field: str = Field(...)
 
     percentile: int = Field(...)
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from aggregation, field, and percentile."""
+        field = data.get('field')
+        percentile = data.get('percentile')
+        if field is not None and percentile is not None:
+            return ['percentile', field, percentile]
+        return None
 
 
 class LensFormulaMetric(BaseLensMetric):
@@ -193,3 +259,12 @@ class LensFormulaMetric(BaseLensMetric):
 
     formula: str = Field(...)
     """The formula string to be evaluated for this metric."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from formula."""
+        formula = data.get('formula')
+        if formula is not None:
+            return ['formula', formula]
+        return None

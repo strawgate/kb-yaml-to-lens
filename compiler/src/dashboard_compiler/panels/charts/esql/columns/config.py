@@ -1,9 +1,10 @@
-from typing import Literal
+from collections.abc import Sequence
+from typing import Any, ClassVar, Literal, override
 
 from pydantic import Field
 
 from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
 
 type ESQLColumnTypes = ESQLDimension | ESQLMetric | ESQLStaticValue
 
@@ -49,11 +50,11 @@ class ESQLCustomMetricFormat(BaseCfgModel):
     """The pattern to display the number in."""
 
 
-class BaseESQLColumn(BaseCfgModel):
+class BaseESQLColumn(IDMixin):
     """A base class for ESQL columns."""
 
-    id: str | None = Field(default=None)
-    """A unique identifier for the column. If not provided, one may be generated during compilation."""
+    _id_prefix: ClassVar[str] = 'esql_column'
+    """Prefix for generated column IDs."""
 
 
 class ESQLDimension(BaseESQLColumn):
@@ -68,6 +69,15 @@ class ESQLDimension(BaseESQLColumn):
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field and data_type."""
+        field = data.get('field')
+        if field is not None:
+            return ['dimension', field, data.get('data_type')]
+        return None
+
 
 class ESQLMetric(BaseESQLColumn):
     """A metric that is defined in the ESQL query."""
@@ -80,6 +90,15 @@ class ESQLMetric(BaseESQLColumn):
 
     format: ESQLMetricFormatTypes | None = Field(default=None)
     """The format of the metric (number, bytes, bits, percent, duration, or custom)."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from field."""
+        field = data.get('field')
+        if field is not None:
+            return ['metric', field]
+        return None
 
 
 class ESQLStaticValue(BaseESQLColumn):
@@ -94,3 +113,12 @@ class ESQLStaticValue(BaseESQLColumn):
 
     label: str | None = Field(default=None)
     """Optional label for the static value."""
+
+    @override
+    @classmethod
+    def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
+        """Compute ID from value."""
+        value = data.get('value')
+        if value is not None:
+            return ['static', value]
+        return None
