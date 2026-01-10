@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import Any, cast
 
 logger = logging.getLogger('dashboard_compiler')
+logger.addHandler(logging.NullHandler())
 
 
 def log_compile[F: Callable[..., Any]](func: F) -> F:
