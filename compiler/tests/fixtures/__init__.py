@@ -6,7 +6,9 @@ normalizing compiled output, and comparing them using deepdiff.
 
 from __future__ import annotations
 
+import copy
 import json
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -96,9 +98,6 @@ def normalize_layer_ids(data: dict[str, Any], layer_id_placeholder: str = '<LAYE
     Returns:
         Normalized dictionary with stable layer IDs.
     """
-    import copy
-    import re
-
     uuid_pattern = re.compile(rf'^{_UUID_PATTERN_STR}$')
     layer_n_pattern = re.compile(r'^layer_\d+$')
 
@@ -202,7 +201,6 @@ def diff_to_dict(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
     Returns:
         A dictionary with sorted keys containing the differences.
     """
-    import re
 
     def normalize_path(path: str) -> str:
         """Normalize path by replacing UUIDs with placeholder."""
