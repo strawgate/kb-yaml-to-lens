@@ -1,6 +1,10 @@
 """Tests for chart compilation utilities."""
 
+from typing import Any
+
 import pytest
+from dirty_equals import IsStr, IsUUID
+from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.compile import (
     chart_type_to_kbn_type_lens,
@@ -24,6 +28,16 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig, XYReferenceLineLayerConfig
+
+
+def _get_single_layer(state: Any) -> tuple[str, Any]:
+    """Extract the single layer from a compiled chart state."""
+    form_based = state.datasourceStates.formBased
+    assert form_based is not None
+    layers = form_based.layers.root
+    assert len(layers) == 1
+    layer_id, layer = next(iter(layers.items()))
+    return layer_id, layer
 
 
 class TestChartTypeToKbnTypeLens:
@@ -271,10 +285,45 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[metric_chart])
-        assert state is not None
-        assert state.visualization is not None
+        _layer_id, layer = _get_single_layer(state)
+
+        assert layer.model_dump() == snapshot(
+            {
+                'columnOrder': ['metric1'],
+                'columns': {
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    }
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'layerId': IsUUID,
+                'layerType': 'data',
+                'metricAccessor': 'metric1',
+                'secondaryLabelPosition': 'before',
+                'secondaryTrend': {'type': 'none'},
+            }
+        )
+
         assert len(references) == 1
-        assert references[0].type == 'index-pattern'
+        assert references[0].model_dump() == snapshot(
+            {
+                'id': 'metrics-*',
+                'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        )
 
     def test_compiles_datatable_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a datatable chart."""
@@ -286,9 +335,45 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[datatable_chart])
-        assert state is not None
-        assert state.visualization is not None
+        _layer_id, layer = _get_single_layer(state)
+
+        assert layer.model_dump() == snapshot(
+            {
+                'columnOrder': ['metric1'],
+                'columns': {
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    }
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'columns': [
+                    {
+                        'columnId': 'metric1',
+                        'isMetric': True,
+                        'isTransposed': False,
+                    }
+                ],
+                'layerId': IsUUID,
+                'layerType': 'data',
+            }
+        )
+
         assert len(references) == 1
+        assert references[0].model_dump() == snapshot(
+            {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+        )
 
     def test_compiles_gauge_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a gauge chart."""
@@ -300,9 +385,42 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[gauge_chart])
-        assert state is not None
-        assert state.visualization is not None
+        _layer_id, layer = _get_single_layer(state)
+
+        assert layer.model_dump() == snapshot(
+            {
+                'columnOrder': ['metric1'],
+                'columns': {
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    }
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'labelMajorMode': 'auto',
+                'layerId': IsUUID,
+                'layerType': 'data',
+                'metricAccessor': 'metric1',
+                'shape': 'arc',
+                'ticksPosition': 'auto',
+            }
+        )
+
         assert len(references) == 1
+        assert references[0].model_dump() == snapshot(
+            {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+        )
 
     def test_compiles_heatmap_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a heatmap chart."""
@@ -315,9 +433,59 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[heatmap_chart])
-        assert state is not None
-        assert state.visualization is not None
+        _layer_id, layer = _get_single_layer(state)
+
+        assert layer.model_dump() == snapshot(
+            {
+                'columnOrder': ['x1', 'metric1'],
+                'columns': {
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    },
+                    'x1': {
+                        'dataType': 'date',
+                        'isBucketed': True,
+                        'label': '@timestamp',
+                        'operationType': 'date_histogram',
+                        'params': {'dropPartials': False, 'includeEmptyRows': True, 'interval': 'auto'},
+                        'scale': 'interval',
+                        'sourceField': '@timestamp',
+                    },
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'gridConfig': {
+                    'isCellLabelVisible': False,
+                    'isXAxisLabelVisible': False,
+                    'isXAxisTitleVisible': False,
+                    'isYAxisLabelVisible': False,
+                    'isYAxisTitleVisible': False,
+                    'type': 'heatmap_grid',
+                },
+                'layerId': IsUUID,
+                'layerType': 'data',
+                'legend': {'isVisible': True, 'position': 'right', 'type': 'heatmap_legend'},
+                'shape': 'heatmap',
+                'valueAccessor': 'metric1',
+                'xAccessor': 'x1',
+            }
+        )
+
         assert len(references) == 1
+        assert references[0].model_dump() == snapshot(
+            {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+        )
 
     def test_compiles_tagcloud_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a tagcloud chart."""
@@ -330,9 +498,62 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[tagcloud_chart])
-        assert state is not None
-        assert state.visualization is not None
+        _layer_id, layer = _get_single_layer(state)
+
+        assert layer.model_dump() == snapshot(
+            {
+                'columnOrder': ['tags1', 'metric1'],
+                'columns': {
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    },
+                    'tags1': {
+                        'dataType': 'string',
+                        'isBucketed': True,
+                        'label': 'Top 3 values of tag',
+                        'operationType': 'terms',
+                        'params': {
+                            'exclude': [],
+                            'excludeIsRegex': False,
+                            'include': [],
+                            'includeIsRegex': False,
+                            'missingBucket': False,
+                            'orderBy': {'columnId': 'metric1', 'type': 'column'},
+                            'orderDirection': 'desc',
+                            'otherBucket': True,
+                            'parentFormat': {'id': 'terms'},
+                        },
+                        'scale': 'ordinal',
+                        'sourceField': 'tag',
+                    },
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'layerId': IsUUID,
+                'maxFontSize': 72,
+                'minFontSize': 12,
+                'orientation': 'single',
+                'showLabel': True,
+                'tagAccessor': 'tags1',
+                'valueAccessor': 'metric1',
+            }
+        )
+
         assert len(references) == 1
+        assert references[0].model_dump() == snapshot(
+            {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+        )
 
     def test_compiles_pie_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a pie chart."""
@@ -345,9 +566,74 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[pie_chart])
-        assert state is not None
-        assert state.visualization is not None
+        _layer_id, layer = _get_single_layer(state)
+
+        assert layer.model_dump() == snapshot(
+            {
+                'columnOrder': ['group1', 'metric1'],
+                'columns': {
+                    'group1': {
+                        'dataType': 'string',
+                        'isBucketed': True,
+                        'label': 'Top 3 values of status',
+                        'operationType': 'terms',
+                        'params': {
+                            'exclude': [],
+                            'excludeIsRegex': False,
+                            'include': [],
+                            'includeIsRegex': False,
+                            'missingBucket': False,
+                            'orderBy': {'columnId': 'metric1', 'type': 'column'},
+                            'orderDirection': 'desc',
+                            'otherBucket': True,
+                            'parentFormat': {'id': 'terms'},
+                        },
+                        'scale': 'ordinal',
+                        'sourceField': 'status',
+                    },
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    },
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'layers': [
+                    {
+                        'categoryDisplay': 'default',
+                        'colorMapping': {
+                            'assignments': [],
+                            'colorMode': {'type': 'categorical'},
+                            'paletteId': 'eui_amsterdam_color_blind',
+                            'specialAssignments': [{'color': {'type': 'loop'}, 'rule': {'type': 'other'}, 'touched': False}],
+                        },
+                        'layerId': IsUUID,
+                        'layerType': 'data',
+                        'legendDisplay': 'default',
+                        'metrics': ['metric1'],
+                        'nestedLegend': False,
+                        'numberDisplay': 'percent',
+                        'primaryGroups': ['group1'],
+                    }
+                ],
+                'shape': 'pie',
+            }
+        )
+
         assert len(references) == 1
+        assert references[0].model_dump() == snapshot(
+            {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+        )
 
     def test_compiles_chart_with_reference_line_layer(self) -> None:
         """Test that compile_lens_chart_state merges reference line layers into XY visualization."""
@@ -365,28 +651,110 @@ class TestCompileLensChartState:
                 'reference_lines': [{'value': 100.0, 'id': 'ref1'}],
             }
         )
-        state, _references = compile_lens_chart_state(query=None, filters=None, charts=[bar_chart, ref_line])
-        assert state is not None
-        assert state.visualization is not None
-        # Verify that reference lines were merged - should have both data layer and reference line layer
-        layers = state.visualization.layers
-        assert len(layers) == 2
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[bar_chart, ref_line])
 
-        # Check first layer is the bar chart data layer
-        data_layer = layers[0]
-        assert isinstance(data_layer, XYDataLayerConfig)
-        assert data_layer.seriesType == 'bar_stacked'
-        assert data_layer.xAccessor == 'dim1'
-        assert data_layer.accessors == ['metric1']
+        # Verify references (two layers = two references)
+        assert len(references) == 2
+        for ref in references:
+            assert ref.model_dump() == snapshot(
+                {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+            )
 
-        # Check second layer is the reference line layer
-        ref_layer = layers[1]
-        assert isinstance(ref_layer, XYReferenceLineLayerConfig)
-        assert ref_layer.layerType == 'referenceLine'
-        assert ref_layer.accessors == ['ref1']
-        assert ref_layer.yConfig is not None
-        assert len(ref_layer.yConfig) == 1
-        assert ref_layer.yConfig[0].forAccessor == 'ref1'
+        # Verify visualization layers
+        vis = state.visualization
+        assert vis is not None
+        assert len(vis.layers) == 2
+
+        # Verify data layer (bar chart) - find by type for stability
+        data_layer = next(layer for layer in vis.layers if isinstance(layer, XYDataLayerConfig))
+        assert data_layer.model_dump() == snapshot(
+            {
+                'accessors': ['metric1'],
+                'colorMapping': {
+                    'assignments': [],
+                    'colorMode': {'type': 'categorical'},
+                    'paletteId': 'eui_amsterdam_color_blind',
+                    'specialAssignments': [{'color': {'type': 'loop'}, 'rule': {'type': 'other'}, 'touched': False}],
+                },
+                'layerId': IsUUID,
+                'layerType': 'data',
+                'position': 'top',
+                'seriesType': 'bar_stacked',
+                'showGridlines': False,
+                'xAccessor': 'dim1',
+            }
+        )
+
+        # Verify reference line layer - find by type for stability
+        ref_layer = next(layer for layer in vis.layers if isinstance(layer, XYReferenceLineLayerConfig))
+        assert ref_layer.model_dump() == snapshot(
+            {
+                'accessors': ['ref1'],
+                'layerId': IsUUID,
+                'layerType': 'referenceLine',
+                'yConfig': [{'axisMode': 'left', 'forAccessor': 'ref1'}],
+            }
+        )
+
+        # Verify datasource layers
+        form_based_layers = list(state.datasourceStates.formBased.layers.root.values())
+        assert len(form_based_layers) == 2
+
+        # Sort by columnOrder length to ensure consistent ordering
+        sorted_layers = sorted(form_based_layers, key=lambda layer: len(layer.columnOrder), reverse=True)
+
+        # Verify data layer datasource
+        data_layer_ds = sorted_layers[0]
+        assert data_layer_ds.model_dump() == snapshot(
+            {
+                'columnOrder': ['dim1', 'metric1'],
+                'columns': {
+                    'dim1': {
+                        'dataType': 'date',
+                        'isBucketed': True,
+                        'label': '@timestamp',
+                        'operationType': 'date_histogram',
+                        'params': {'dropPartials': False, 'includeEmptyRows': True, 'interval': 'auto'},
+                        'scale': 'interval',
+                        'sourceField': '@timestamp',
+                    },
+                    'metric1': {
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'label': 'Count of records',
+                        'operationType': 'count',
+                        'params': {'emptyAsNull': True},
+                        'scale': 'ratio',
+                        'sourceField': '___records___',
+                    },
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
+
+        # Verify reference line layer datasource
+        ref_layer_ds = sorted_layers[1]
+        assert ref_layer_ds.model_dump() == snapshot(
+            {
+                'columnOrder': ['ref1'],
+                'columns': {
+                    'ref1': {
+                        'customLabel': False,
+                        'dataType': 'number',
+                        'isBucketed': False,
+                        'isStaticValue': True,
+                        'label': 'Static value: 100.0',
+                        'operationType': 'static_value',
+                        'params': {'value': '100.0'},
+                        'references': [],
+                        'scale': 'ratio',
+                    }
+                },
+                'incompleteColumns': {},
+                'sampling': 1,
+            }
+        )
 
 
 class TestCompileESQLChartState:
