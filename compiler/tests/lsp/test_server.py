@@ -594,6 +594,44 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         self.assertIn('error', result)
         self.assertIn('No dashboards found', result['error'])
 
+    def test_get_grid_layout_invalid_string_index(self) -> None:
+        """Invalid dashboard_index should return a structured error (not raise)."""
+        yaml_content = """dashboards:
+- name: Only
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': 'abc'}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
+    def test_get_grid_layout_none_index(self) -> None:
+        """None dashboard_index should return a structured error (not raise)."""
+        yaml_content = """dashboards:
+- name: Only
+  panels:
+  - title: Panel
+    grid: {x: 0, y: 0, w: 24, h: 10}
+    markdown:
+      content: "Test"
+"""
+        self.temp_file.write_text(yaml_content)
+
+        params = {'path': str(self.temp_file), 'dashboard_index': None}
+        result = get_grid_layout_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
 
 if __name__ == '__main__':
     unittest.main()

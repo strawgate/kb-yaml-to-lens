@@ -111,7 +111,10 @@ def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """
     params_dict = _params_to_dict(params)
     path: str = params_dict.get('path', '')  # pyright: ignore[reportAny]
-    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
     return _compile_dashboard(path, dashboard_index)
 
@@ -160,7 +163,10 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
     """
     params_dict = _params_to_dict(params)
     path = params_dict.get('path')
-    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
     if path is None or len(path) == 0:
         return {'success': False, 'error': 'Missing path parameter'}
@@ -215,7 +221,7 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
 
 
 @server.feature('dashboard/uploadToKibana')
-async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911  # pyright: ignore[reportAny]
     """Upload a compiled dashboard to Kibana.
 
     Args:
@@ -234,7 +240,10 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     params_dict = _params_to_dict(params)
 
     path = params_dict.get('path')
-    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
     kibana_url = params_dict.get('kibana_url')
     username = params_dict.get('username')
     password = params_dict.get('password')
