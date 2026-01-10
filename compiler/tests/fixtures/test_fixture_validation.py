@@ -20,9 +20,11 @@ from inline_snapshot import snapshot
 from dashboard_compiler.dashboard_compiler import load, render
 from tests.conftest import de_json_kbn_dashboard
 from tests.fixtures import (
+    diff_to_dict,
     get_yaml_fixture_files,
     load_fixture,
     normalize_compiled_panel,
+    normalize_layer_ids,
 )
 
 # Auto-discover fixture YAML files
@@ -163,16 +165,59 @@ class TestMetricBasicEsql:
         the Kibana fixture. Any changes to the compiler that affect output
         will be caught here.
         """
+        # Normalize layer IDs for stable comparison
+        normalized_compiled = normalize_layer_ids(compiled_config)
+        normalized_fixture = normalize_layer_ids(fixture_config)
+
         diff = DeepDiff(
-            fixture_config,
-            compiled_config,
+            normalized_fixture,
+            normalized_compiled,
             ignore_order=True,
             verbose_level=2,
         )
 
-        # Get the diff categories - snapshot the types of differences found
-        diff_categories = sorted(diff.keys()) if len(diff) > 0 else []
-        assert diff_categories == snapshot(['dictionary_item_added', 'dictionary_item_removed', 'iterable_item_removed', 'values_changed'])
+        # Snapshot the exact differences for explicit tracking
+        diff_dict = diff_to_dict(diff)
+        assert diff_dict == snapshot(
+            {
+                'dictionary_item_added': {
+                    "root['state']['datasourceStates']['formBased']": {'layers': {}},
+                    "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['customLabel']": False,
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['inMetricDimension']": True,
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['label']": 'count',
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]['meta']['esType']": 'long',
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['customLabel']": False,
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['inMetricDimension']": True,
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['label']": 'count',
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]['meta']['esType']": 'long',
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['timeField']": '@timestamp',
+                },
+                'dictionary_item_removed': {
+                    ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
+                    (
+                        "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['index']"
+                    ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                },
+                'iterable_item_removed': {
+                    "root['references'][0]": {
+                        'type': 'index-pattern',
+                        'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                        'name': 'indexpattern-datasource-layer-layer_0',
+                    },
+                },
+                'values_changed': {
+                    "root['state']['query']": {
+                        'old_value': {'language': 'kuery', 'query': ''},
+                        'new_value': {'esql': 'FROM logs-* | STATS count = COUNT()'},
+                    },
+                    "root['title']": {
+                        'old_value': 'Basic Count Metric',
+                        'new_value': '',
+                    },
+                },
+            }
+        )
 
 
 class TestPieChartEsql:
@@ -252,13 +297,107 @@ class TestPieChartEsql:
 
     def test_full_diff_snapshot(self, compiled_config: dict[str, Any], fixture_config: dict[str, Any]) -> None:
         """Snapshot the full diff between compiled output and fixture."""
+        # Normalize layer IDs for stable comparison
+        normalized_compiled = normalize_layer_ids(compiled_config)
+        normalized_fixture = normalize_layer_ids(fixture_config)
+
         diff = DeepDiff(
-            fixture_config,
-            compiled_config,
+            normalized_fixture,
+            normalized_compiled,
             ignore_order=True,
             verbose_level=2,
         )
 
-        # Get the diff categories
-        diff_categories = sorted(diff.keys()) if len(diff) > 0 else []
-        assert diff_categories == snapshot(['dictionary_item_added', 'dictionary_item_removed', 'iterable_item_removed', 'values_changed'])
+        # Snapshot the exact differences for explicit tracking
+        diff_dict = diff_to_dict(diff)
+        assert diff_dict == snapshot(
+            {
+                'dictionary_item_added': {
+                    "root['state']['datasourceStates']['formBased']": {'layers': {}},
+                    "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['timeField']": '@timestamp',
+                    "root['state']['visualization']['layers'][0]['colorMapping']": {
+                        'assignments': [],
+                        'specialAssignments': [
+                            {
+                                'rule': {'type': 'other'},
+                                'color': {'type': 'loop'},
+                                'touched': False,
+                            }
+                        ],
+                        'paletteId': 'eui_amsterdam_color_blind',
+                        'colorMode': {'type': 'categorical'},
+                    },
+                    "root['state']['visualization']['layers'][0]['nestedLegend']": False,
+                },
+                'dictionary_item_removed': {
+                    ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
+                    (
+                        "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['index']"
+                    ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                    "root['state']['visualization']['layers'][0]['allowMultipleMetrics']": False,
+                    "root['state']['visualization']['layers'][0]['legendPosition']": 'right',
+                },
+                'iterable_item_removed': {
+                    "root['references'][0]": {
+                        'type': 'index-pattern',
+                        'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                        'name': 'indexpattern-datasource-layer-layer_0',
+                    },
+                },
+                'values_changed': {
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][0]": {
+                        'old_value': {'columnId': 'metric_formula_accessor_breakdown_0', 'fieldName': 'log.level'},
+                        'new_value': {
+                            'fieldName': 'count',
+                            'columnId': 'metric_formula_accessor',
+                            'label': 'count',
+                            'customLabel': False,
+                            'meta': {'type': 'number', 'esType': 'long'},
+                            'inMetricDimension': True,
+                        },
+                    },
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['allColumns'][1]": {
+                        'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
+                        'new_value': {
+                            'fieldName': 'log.level',
+                            'columnId': 'metric_formula_accessor_breakdown_0',
+                            'label': 'log.level',
+                            'customLabel': False,
+                        },
+                    },
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][0]": {
+                        'old_value': {'columnId': 'metric_formula_accessor_breakdown_0', 'fieldName': 'log.level'},
+                        'new_value': {
+                            'fieldName': 'count',
+                            'columnId': 'metric_formula_accessor',
+                            'label': 'count',
+                            'customLabel': False,
+                            'meta': {'type': 'number', 'esType': 'long'},
+                            'inMetricDimension': True,
+                        },
+                    },
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER_ID>_0']['columns'][1]": {
+                        'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
+                        'new_value': {
+                            'fieldName': 'log.level',
+                            'columnId': 'metric_formula_accessor_breakdown_0',
+                            'label': 'log.level',
+                            'customLabel': False,
+                        },
+                    },
+                    "root['state']['query']": {
+                        'old_value': {'language': 'kuery', 'query': ''},
+                        'new_value': {'esql': 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10'},
+                    },
+                    "root['state']['visualization']['layers'][0]['legendDisplay']": {
+                        'old_value': 'show',
+                        'new_value': 'default',
+                    },
+                    "root['title']": {
+                        'old_value': 'Events by Status',
+                        'new_value': '',
+                    },
+                },
+            }
+        )
