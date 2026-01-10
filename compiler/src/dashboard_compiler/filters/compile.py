@@ -14,7 +14,7 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta
 from dashboard_compiler.shared.defaults import default_false
 from dashboard_compiler.shared.filter_utils import create_filter_state
-from dashboard_compiler.shared.logging import get_filter_description, logger
+from dashboard_compiler.shared.logging import logger
 
 
 def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
@@ -220,7 +220,7 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
         KbnFilter: The compiled Kibana filter view model.
     """
     if nested is False:
-        logger.debug('Compiling filter: %s', get_filter_description(filter))
+        logger.debug('Compiling filter: %s', filter)
 
     if isinstance(filter, NegateFilter):
         return compile_filter(filter=filter.not_filter, negate=True, nested=nested)
