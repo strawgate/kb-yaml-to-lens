@@ -111,7 +111,10 @@ def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
     """
     params_dict = _params_to_dict(params)
     path: str = params_dict.get('path', '')  # pyright: ignore[reportAny]
-    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
     return _compile_dashboard(path, dashboard_index)
 
@@ -160,7 +163,10 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
     """
     params_dict = _params_to_dict(params)
     path = params_dict.get('path')
-    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
     if path is None or len(path) == 0:
         return {'success': False, 'error': 'Missing path parameter'}
@@ -215,7 +221,7 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
 
 
 @server.feature('dashboard/uploadToKibana')
-async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911  # pyright: ignore[reportAny]
     """Upload a compiled dashboard to Kibana.
 
     Args:
@@ -234,7 +240,10 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
     params_dict = _params_to_dict(params)
 
     path = params_dict.get('path')
-    dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
     kibana_url = params_dict.get('kibana_url')
     username = params_dict.get('username')
     password = params_dict.get('password')
@@ -256,47 +265,50 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # pyright: ig
         ndjson_content = json.dumps(compile_result['data'])
         logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
 
-        # Create Kibana client
+        # Create Kibana client and upload
         logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
-        client = KibanaClient(
+        async with KibanaClient(
             url=kibana_url,
             username=username if (username is not None and len(username) > 0) else None,
             password=password if (password is not None and len(password) > 0) else None,
             api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
             ssl_verify=ssl_verify,
-        )
+        ) as client:
+            # Upload to Kibana
+            result = await client.upload_ndjson(ndjson_content, overwrite=True)
+            logger.debug(
+                f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
+            )
 
-        # Upload to Kibana
-        result = await client.upload_ndjson(ndjson_content, overwrite=True)
-        logger.debug(
-            f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
-        )
+            if result.success is True:
+                # Extract dashboard ID
+                dashboard_ids = [
+                    obj.destination_id if (obj.destination_id is not None and len(obj.destination_id) > 0) else obj.id
+                    for obj in result.success_results
+                    if obj.type == 'dashboard'
+                ]
 
-        if result.success is True:
-            # Extract dashboard ID
-            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+                if len(dashboard_ids) > 0:
+                    dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                    logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
+                    return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
 
-            if len(dashboard_ids) > 0:
-                dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
-                return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
+                logger.error('No dashboard found in upload results')
+                return {'success': False, 'error': 'No dashboard found in upload results'}
 
-            logger.error('No dashboard found in upload results')
-            return {'success': False, 'error': 'No dashboard found in upload results'}
-
-        error_messages = [str(err) for err in result.errors]
-        logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
-        return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
+            error_messages = [str(err) for err in result.errors]
+            logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
+            return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
 
     except Exception as e:
         logger.exception('Upload error occurred')
         return {'success': False, 'error': f'Upload error: {e!s}'}
 
 
-def main() -> None:
-    """Entry point for LSP server."""
+def start_server() -> None:
+    """Start the LSP server via stdio."""
     server.start_io()
 
 
 if __name__ == '__main__':
-    main()
+    start_server()

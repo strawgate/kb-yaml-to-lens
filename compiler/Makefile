@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary build-lsp-binary build-all-binaries test-binary-smoke test-lsp-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check
+.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary test-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -62,11 +62,13 @@ help:
 	@echo "  test-docker-smoke  - Run Docker smoke tests"
 	@echo ""
 	@echo "Binary Distribution:"
-	@echo "  build-binary          - Build standalone CLI binary"
-	@echo "  build-lsp-binary      - Build standalone LSP binary"
-	@echo "  build-all-binaries    - Build all standalone binaries"
-	@echo "  test-binary-smoke     - Run CLI binary smoke tests"
-	@echo "  test-lsp-binary-smoke - Run LSP binary smoke tests"
+	@echo "  build-binary       - Build standalone unified binary (CLI + LSP)"
+	@echo "  test-binary-smoke  - Run binary smoke tests (CLI + LSP)"
+	@echo ""
+	@echo "PyPI Publishing:"
+	@echo "  build         - Build package for PyPI"
+	@echo "  publish       - Publish package to PyPI"
+	@echo "  publish-test  - Publish package to TestPyPI"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -206,27 +208,13 @@ test-docker-smoke:
 
 # Binary building
 build-binary:
-	@echo "Building standalone CLI binary..."
+	@echo "Building standalone unified binary..."
 	@uv sync --group build
-	@uv run python scripts/build_binaries.py cli
-
-build-lsp-binary:
-	@echo "Building standalone LSP binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py lsp
-
-build-all-binaries:
-	@echo "Building all standalone binaries..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py all
+	@uv run python scripts/build_binaries.py
 
 test-binary-smoke:
-	@echo "Running binary smoke tests..."
+	@echo "Running unified binary smoke tests..."
 	@bash scripts/test_binary_smoke.sh
-
-test-lsp-binary-smoke:
-	@echo "Running LSP binary smoke tests..."
-	@bash scripts/test_lsp_binary_smoke.sh
 
 # Cleaning
 clean:
@@ -240,3 +228,19 @@ clean:
 clean-full: clean
 	@echo "Cleaning up all..."
 	rm -rf .venv
+
+# PyPI Publishing
+build:
+	@echo "Building package..."
+	uv build
+	@echo "✓ Package built successfully"
+
+publish: build
+	@echo "Publishing to PyPI..."
+	uv publish
+	@echo "✓ Package published to PyPI"
+
+publish-test: build
+	@echo "Publishing to TestPyPI..."
+	uv publish --publish-url https://test.pypi.org/legacy/
+	@echo "✓ Package published to TestPyPI"

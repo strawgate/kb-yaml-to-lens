@@ -89,8 +89,38 @@ This is the main object for an ESQL-based visualization. It inherits from the [B
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-legacy). | N/A | Yes |
-| `esql` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../queries/config.md#esql-query). | N/A | Yes |
-| `chart` | `ESQLChartTypes` object | Defines the actual ESQL visualization configuration. This can be [ESQL Metric Chart](#esql-metric-chart-charttype-metric), [ESQL Pie Chart](#esql-pie-chart-charttype-pie), [ESQL Bar Chart](#esql-bar-chart-charttype-bar), [ESQL Line Chart](#esql-line-chart-charttype-line), or [ESQL Area Chart](#esql-area-chart-charttype-area). | N/A | Yes |
+| `esql` | `ESQLChartConfig` object | Defines the actual ESQL visualization configuration. Contains the query, time_field, and chart type-specific fields. | N/A | Yes |
+
+### ESQL Chart Configuration Fields
+
+All ESQL chart types share these common panel-level fields:
+
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `query` | `string` or `ESQLQuery` object | The ESQL query string. See [Queries Documentation](../queries/config.md#esql-query). | N/A | Yes |
+| `time_field` | `string` | The time field to use for the dashboard time picker. This connects the panel to the dashboard's global time range controls. | `'@timestamp'` | No |
+| `type` | Chart type literal | The specific chart type (metric, pie, bar, line, area, etc.). See chart-specific sections below. | N/A | Yes |
+
+**Example using custom time field:**
+
+```yaml
+dashboards:
+  - name: "Custom Time Field Example"
+    panels:
+      - title: "Events Over Time"
+        grid: { x: 0, y: 0, w: 48, h: 20 }
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(event.created, 1 hour)
+            | ORDER timestamp_bucket ASC
+          time_field: "event.created"  # Use event.created instead of @timestamp
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "event_count"
+```
 
 ---
 
@@ -393,7 +423,38 @@ Used to specify a dimension/grouping column from your ESQL query result.
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id` | `string` | An optional unique identifier for this dimension column definition. | Generated ID | No |
 | `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
+| `data_type` | `Literal['date'] \| None` | The data type of the field. Set to `'date'` for time/date fields to enable proper sorting and formatting in Kibana. This is particularly useful when using `BUCKET()` to create time series. | `None` | No |
 | `collapse` | `Literal['sum', 'avg', 'min', 'max'] \| None` | Aggregation function to apply when collapsing dimension values (e.g., for multi-value fields or breakdowns). | `None` | No |
+
+**Example using data_type: date for time series:**
+
+```yaml
+dashboards:
+  - name: "Time Series with BUCKET Example"
+    panels:
+      - title: "Events Over Time (Hourly Buckets)"
+        grid: { x: 0, y: 0, w: 48, h: 20 }
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER time_bucket ASC
+          dimension:
+            field: "time_bucket"
+            data_type: "date"  # Tells Kibana this is a date field for proper formatting
+          metrics:
+            - field: "event_count"
+```
+
+**When to use data_type: date:**
+
+Use `data_type: 'date'` when your dimension field contains date/time values, especially when using ES|QL's `BUCKET()` function to create time series. This ensures:
+
+- Proper date formatting in tooltips and axis labels
+- Correct chronological sorting
+- Time-based zoom and pan interactions
+- Dashboard time picker integration (via `time_field`)
 
 ---
 
@@ -481,7 +542,7 @@ ESQL XY Charts (bar, line, area) share the same formatting options for appearanc
 
 ## Related Documentation
 
-* [Base Panel Configuration](base.md)
-* [Dashboard Configuration](../dashboard/dashboard.md)
-* [Queries Configuration](../queries/config.md#esql-query)
-* Elasticsearch ESQL Reference (external)
+- [Base Panel Configuration](base.md)
+- [Dashboard Configuration](../dashboard/dashboard.md)
+- [Queries Configuration](../queries/config.md#esql-query)
+- Elasticsearch ESQL Reference (external)

@@ -111,6 +111,7 @@ jobs:
       (needs.close-previous-pm-issue.result == 'success' || needs.close-previous-pm-issue.result == 'skipped')
     uses: ./.github/workflows/run-claude.yml
     with:
+      model: claude-sonnet-4-5
       prompt: |
         You are a Project Manager for the kb-yaml-to-lens repository - a Python project that compiles Kibana dashboards from
         YAML to Lens format.
