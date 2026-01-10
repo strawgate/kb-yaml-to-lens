@@ -55,23 +55,32 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
 class IDMixin(BaseCfgModel):
     """Mixin that provides automatic stable ID generation for config models.
 
-    Subclasses can define how stable IDs are generated in two ways:
+    By default, IDs are generated from all primitive-type fields (str, int, float, bool, Literal)
+    using the class name as a type discriminator. This automatic detection works well for most cases.
 
-    1. **Simple case (ClassVar list)**: For models where ID components are just field values,
-       set `_id_components` to a list of field names. The values will be extracted automatically.
+    Subclasses can customize ID generation in three ways:
 
-    2. **Complex case (method override)**: For models needing custom logic (sorting, transformation),
-       override `_compute_id_components()` to return the components directly.
+    1. **Automatic (default)**: Do nothing - primitive fields are auto-detected and class name is used.
 
-    Example (simple - ClassVar):
-        class MyDimension(IDMixin):
+    2. **Simple override (ClassVar list)**: Set `_id_components` to explicitly list field names.
+
+    3. **Complex override (method)**: Override `_compute_id_components()` for custom logic.
+
+    Example (automatic - no configuration needed):
+        class LensStaticValue(IDMixin):
+            _id_prefix: ClassVar[str] = 'metric'
+            value: int | float = Field(...)  # Auto-detected as ID component
+            label: str | None = Field(default=None)  # Optional, not included
+
+    Example (explicit - override auto-detection):
+        class LensTermsDimension(IDMixin):
             _id_prefix: ClassVar[str] = 'dimension'
-            _id_components: ClassVar[list[str]] = ['type_tag', 'field']  # Just list the field names
+            _id_components: ClassVar[list[str]] = ['field']  # Only use 'field', ignore 'type'
+            type: Literal['values'] = 'values'
             field: str = Field(...)
-            type_tag: str = 'terms'
 
-    Example (complex - method override):
-        class MyFiltersDimension(IDMixin):
+    Example (complex - custom logic):
+        class LensFiltersDimension(IDMixin):
             _id_prefix: ClassVar[str] = 'dimension'
             filters: list[Filter] = Field(...)
 
@@ -85,17 +94,10 @@ class IDMixin(BaseCfgModel):
     _id_prefix: ClassVar[str] = ''
     """Override in subclasses to provide a prefix for the stable ID (e.g., 'dimension', 'metric')."""
 
-    _id_type_tag: ClassVar[str] = ''
-    """Type discriminator tag included in the ID (e.g., 'static', 'formula', 'terms').
-
-    When set, this value is included before the field values in ID generation.
-    Useful for distinguishing between different subtypes that share field names.
-    """
-
     _id_components: ClassVar[list[str]] = []
     """List of field names whose values should be used to generate the ID.
 
-    For simple cases, just list the field names and values will be extracted automatically.
+    If empty (default), primitive fields are auto-detected from the model.
     For complex cases (sorting, transformation), override _compute_id_components() instead.
     """
 
@@ -137,8 +139,11 @@ class IDMixin(BaseCfgModel):
     def _compute_id_components(cls, data: dict[str, Any]) -> Sequence[str | int | float | None] | None:
         """Compute the components used to generate a stable ID.
 
-        Default implementation extracts values from fields listed in `_id_components`,
-        prepending `_id_type_tag` if defined.
+        Default implementation:
+        1. If `_id_components` is defined, extract those field values
+        2. Otherwise, auto-detect primitive fields from the model schema
+
+        The class name is always prepended as a type discriminator.
 
         Override this method in subclasses for custom logic (sorting, transformation, etc.).
 
@@ -148,21 +153,103 @@ class IDMixin(BaseCfgModel):
         Returns:
             A sequence of values to hash for the stable ID, or None to skip generation.
         """
-        # Use ClassVar list if defined
-        if cls._id_components:
-            values: list[str | int | float | None] = []
-            # Add type tag if defined
-            if cls._id_type_tag:
-                values.append(cls._id_type_tag)
-            # Extract field values
-            for field_name in cls._id_components:
-                value = data.get(field_name)
-                # Treat missing required fields as reason to skip ID generation
-                if value is None:
-                    return None
-                values.append(value)  # pyright: ignore[reportAny]
-            return values
-        return None
+        # Always start with the class name as type discriminator
+        values: list[str | int | float | None] = [cls.__name__]
+
+        # Get field names to use for ID
+        field_names = cls._id_components if cls._id_components else cls._get_primitive_field_names()
+
+        if not field_names:
+            return None
+
+        # Extract field values
+        for field_name in field_names:
+            value = data.get(field_name)
+            # Treat missing required fields as reason to skip ID generation
+            if value is None:
+                return None
+            values.append(value)  # pyright: ignore[reportAny]
+        return values
+
+    @classmethod
+    def _get_primitive_field_names(cls) -> list[str]:
+        """Get names of primitive-type fields that should be used for auto ID generation.
+
+        Returns fields that are:
+        - Required (no default or default is ...)
+        - Primitive types (str, int, float, bool) or Literal types
+
+        Returns:
+            List of field names suitable for ID generation.
+        """
+        from pydantic.fields import FieldInfo
+
+        primitive_fields: list[str] = []
+
+        # Access model fields from Pydantic
+        model_fields = getattr(cls, 'model_fields', {})
+
+        for name, field_info in model_fields.items():  # pyright: ignore[reportAny]
+            # Skip 'id' field itself and private fields
+            if name == 'id' or name.startswith('_'):  # pyright: ignore[reportAny]
+                continue
+
+            # Check if field is required (no default)
+            if not isinstance(field_info, FieldInfo):
+                continue
+
+            # Import PydanticUndefinedType for checking required fields
+            from pydantic_core import PydanticUndefinedType
+
+            # Skip optional fields (have explicit default value that is not PydanticUndefined or ...)
+            # PydanticUndefined and ... both indicate required fields
+            default: Any = field_info.default  # pyright: ignore[reportAny]
+            if not isinstance(default, PydanticUndefinedType) and default is not ...:
+                # Has an explicit default value (including None), skip it
+                continue
+            if field_info.default_factory is not None:
+                continue
+
+            # Get the annotation to check if it's a primitive type
+            annotation = field_info.annotation
+            if annotation is None:
+                continue
+
+            # Check if it's a primitive or Literal type
+            if cls._is_primitive_type(annotation):
+                primitive_fields.append(name)  # pyright: ignore[reportAny]
+
+        return primitive_fields
+
+    @staticmethod
+    def _is_primitive_type(annotation: Any) -> bool:  # pyright: ignore[reportAny]
+        """Check if a type annotation represents a primitive type suitable for ID generation."""
+        import types
+        from typing import get_args, get_origin
+
+        # Handle None type
+        if annotation is type(None):
+            return False
+
+        # Handle basic primitives
+        if annotation in (str, int, float, bool):
+            return True
+
+        # Get the origin for generic types
+        origin = get_origin(annotation)  # pyright: ignore[reportAny]
+
+        # Handle Literal types
+        if origin is Literal:
+            return True
+
+        # Handle Union types (e.g., str | int, Optional[str])
+        if origin is types.UnionType:
+            args = get_args(annotation)
+            # Check if all non-None args are primitives
+            non_none_args = [a for a in args if a is not type(None)]  # pyright: ignore[reportAny]
+            return len(non_none_args) > 0 and all(IDMixin._is_primitive_type(a) for a in non_none_args)  # pyright: ignore[reportAny]
+
+        return False
 
 
 def get_dimension_identifier(dimension: object) -> str:

@@ -23,12 +23,6 @@ class LensStaticValue(BaseMetric):
     Commonly used for gauge min/max/goal values or reference lines.
     """
 
-    _id_type_tag: ClassVar[str] = 'static'
-    """Type discriminator for static values."""
-
-    _id_components: ClassVar[list[str]] = ['value']
-    """ID is derived from the static value."""
-
     value: int | float = Field(...)
     """The static numeric value to display."""
 
@@ -133,12 +127,6 @@ class LensSumAggregatedMetric(BaseLensMetric):
     Sum metrics are used to sum the values of a field.
     """
 
-    _id_type_tag: ClassVar[str] = 'sum'
-    """Type discriminator for sum metrics."""
-
-    _id_components: ClassVar[list[str]] = ['field']
-    """ID is derived from the field."""
-
     aggregation: Literal['sum'] = 'sum'
 
     field: str = Field(...)
@@ -172,12 +160,6 @@ class LensLastValueAggregatedMetric(BaseLensMetric):
     Last value metrics are used to retrieve the most recent value of a field based on a specified sort order.
     """
 
-    _id_type_tag: ClassVar[str] = 'last_value'
-    """Type discriminator for last value metrics."""
-
-    _id_components: ClassVar[list[str]] = ['field']
-    """ID is derived from the field."""
-
     aggregation: Literal['last_value'] = 'last_value'
 
     field: str = Field(...)
@@ -195,12 +177,6 @@ class LensPercentileRankAggregatedMetric(BaseLensMetric):
     Percentile rank metrics are used to determine the rank of a value in a data set.
     """
 
-    _id_type_tag: ClassVar[str] = 'percentile_rank'
-    """Type discriminator for percentile rank metrics."""
-
-    _id_components: ClassVar[list[str]] = ['field', 'rank']
-    """ID is derived from field and rank."""
-
     aggregation: Literal['percentile_rank'] = 'percentile_rank'
 
     field: str = Field(...)
@@ -213,12 +189,6 @@ class LensPercentileAggregatedMetric(BaseLensMetric):
 
     Percentile metrics are used to determine the value at a specific percentile in a data set.
     """
-
-    _id_type_tag: ClassVar[str] = 'percentile'
-    """Type discriminator for percentile metrics."""
-
-    _id_components: ClassVar[list[str]] = ['field', 'percentile']
-    """ID is derived from field and percentile."""
 
     aggregation: Literal['percentile'] = 'percentile'
 
@@ -239,12 +209,6 @@ class LensFormulaMetric(BaseLensMetric):
     - Field aggregations: "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
     - With filters: "count(kql='status:error') / count() * 100"
     """
-
-    _id_type_tag: ClassVar[str] = 'formula'
-    """Type discriminator for formula metrics."""
-
-    _id_components: ClassVar[list[str]] = ['formula']
-    """ID is derived from the formula string."""
 
     formula: str = Field(...)
     """The formula string to be evaluated for this metric."""

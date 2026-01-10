@@ -82,12 +82,6 @@ class ESQLDimension(BaseESQLColumn):
 class ESQLMetric(BaseESQLColumn):
     """A metric that is defined in the ESQL query."""
 
-    _id_type_tag: ClassVar[str] = 'metric'
-    """Type discriminator for ESQL metrics."""
-
-    _id_components: ClassVar[list[str]] = ['field']
-    """ID is derived from the field."""
-
     field: str = Field(default=...)
     """The field in the data view that this metric is based on."""
 
@@ -104,12 +98,6 @@ class ESQLStaticValue(BaseESQLColumn):
     Used to display a fixed numeric value rather than querying from data.
     Commonly used for gauge min/max/goal values or reference lines.
     """
-
-    _id_type_tag: ClassVar[str] = 'static'
-    """Type discriminator for ESQL static values."""
-
-    _id_components: ClassVar[list[str]] = ['value']
-    """ID is derived from the static value."""
 
     value: int | float = Field(...)
     """The static numeric value to display."""

@@ -108,9 +108,6 @@ class LensIntervalsDimension(BaseLensDimension):
     Intervals dimensions are used for aggregating data based on numeric ranges.
     """
 
-    _id_components: ClassVar[list[str]] = ['type', 'field']
-    """ID is derived from type and field."""
-
     type: Literal['intervals'] = 'intervals'
 
     field: str = Field(default=...)
@@ -172,9 +169,6 @@ class LensTermsDimension(BaseLensTermsDimension):
     Terms dimensions are used for aggregating data based on unique values of a single field.
     """
 
-    _id_components: ClassVar[list[str]] = ['type', 'field']
-    """ID is derived from type and field."""
-
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
 
@@ -205,9 +199,6 @@ class LensDateHistogramDimension(BaseLensDimension):
 
     Date histogram dimensions are used for aggregating data into buckets based on numeric ranges.
     """
-
-    _id_components: ClassVar[list[str]] = ['type', 'field']
-    """ID is derived from type and field."""
 
     type: Literal['date_histogram'] = 'date_histogram'
 

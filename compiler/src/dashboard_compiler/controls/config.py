@@ -101,12 +101,6 @@ class OptionsListControl(BaseControl):
     to filter data.
     """
 
-    _id_type_tag: ClassVar[str] = 'options'
-    """Type discriminator for options list controls."""
-
-    _id_components: ClassVar[list[str]] = ['field', 'data_view']
-    """ID is derived from field and data_view."""
-
     type: Literal['options'] = 'options'
 
     field: str = Field(...)
@@ -137,12 +131,6 @@ class RangeSliderControl(BaseControl):
     This control allows users to select a range of numeric or date values
     to filter data.
     """
-
-    _id_type_tag: ClassVar[str] = 'range'
-    """Type discriminator for range slider controls."""
-
-    _id_components: ClassVar[list[str]] = ['field', 'data_view']
-    """ID is derived from field and data_view."""
 
     type: Literal['range'] = 'range'
 
@@ -195,12 +183,6 @@ class TimeSliderControl(BaseControl):
 class ESQLFieldControl(BaseControl):
     """ES|QL control for single field selection from static list."""
 
-    _id_type_tag: ClassVar[str] = 'esql_field'
-    """Type discriminator for ESQL field controls."""
-
-    _id_components: ClassVar[list[str]] = ['variable_name']
-    """ID is derived from variable_name."""
-
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
     """The name of the ES|QL variable."""
@@ -223,12 +205,6 @@ class ESQLFieldControl(BaseControl):
 
 class ESQLFunctionControl(BaseControl):
     """ES|QL control for single function selection from static list."""
-
-    _id_type_tag: ClassVar[str] = 'esql_function'
-    """Type discriminator for ESQL function controls."""
-
-    _id_components: ClassVar[list[str]] = ['variable_name']
-    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
     variable_name: str = Field(...)
@@ -256,12 +232,6 @@ class ESQLStaticSingleSelectControl(BaseControl):
     This control allows users to select a single value from a predefined list
     to filter ES|QL visualizations via variables.
     """
-
-    _id_type_tag: ClassVar[str] = 'esql_single_select'
-    """Type discriminator for ESQL single select controls."""
-
-    _id_components: ClassVar[list[str]] = ['variable_name']
-    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
 
@@ -295,12 +265,6 @@ class ESQLStaticMultiSelectControl(BaseControl):
     This control allows users to select multiple values from a predefined list
     to filter ES|QL visualizations via variables.
     """
-
-    _id_type_tag: ClassVar[str] = 'esql_multi_select'
-    """Type discriminator for ESQL multi select controls."""
-
-    _id_components: ClassVar[list[str]] = ['variable_name']
-    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
 
@@ -336,12 +300,6 @@ class ESQLQueryControl(BaseControl):
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
     """
-
-    _id_type_tag: ClassVar[str] = 'esql_query'
-    """Type discriminator for ESQL query controls."""
-
-    _id_components: ClassVar[list[str]] = ['variable_name']
-    """ID is derived from variable_name."""
 
     type: Literal['esql'] = 'esql'
 
