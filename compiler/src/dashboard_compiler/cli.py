@@ -1,6 +1,7 @@
 """Command-line interface for the dashboard compiler."""
 
 import asyncio
+import io
 import logging
 import os
 import sys
@@ -99,7 +100,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
         overwrite: Whether to overwrite the output file if it exists.
 
     """
-    if overwrite and output_path.exists():
+    if overwrite is True and output_path.exists():
         output_path.unlink()
 
     with output_path.open('w', encoding='utf-8') as f:
@@ -324,7 +325,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         display_path = combined_file
     console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
 
-    if upload:
+    if upload is True:
         if cli_context.kibana_client is None:
             msg = 'Kibana client not configured'
             raise click.ClickException(msg)
@@ -354,12 +355,12 @@ async def upload_to_kibana(
         try:
             result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
-            if result.success:
+            if result.success is True:
                 console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
                 dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
-                if len(dashboard_ids) > 0 and open_browser:
+                if len(dashboard_ids) > 0 and open_browser is True:
                     dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                     console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
                     _ = webbrowser.open_new_tab(dashboard_url)
@@ -791,7 +792,7 @@ async def load_all_sample_data(
                     base_path=yaml_file.parent,
                 )
 
-                if result.success:
+                if result.success is True:
                     console.print(f'[green]{ICON_SUCCESS}[/green] Loaded {result.success_count} document(s) for {dashboard.name}')
                     total_loaded += result.success_count
                 else:
@@ -928,7 +929,7 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
             console.print('[blue]GitHub Issue URL:[/blue]')
             console.print(f'  {issue_url}')
 
-            if open_browser:
+            if open_browser is True:
                 console.print(f'\n[blue]{ICON_BROWSER}[/blue] Opening pre-filled issue in browser...')
                 _ = webbrowser.open_new_tab(issue_url)
 
@@ -1100,16 +1101,13 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     """
     try:
         if input_file is None:
-            import io
-            import sys
-
             # Use TextIOWrapper to ensure UTF-8 encoding when reading from stdin
             # This avoids issues on Windows where the default encoding might not be UTF-8
-            if hasattr(sys.stdin, 'buffer'):
-                content = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
-            else:
-                # Fallback for environments where stdin.buffer is not available (e.g. some tests)
-                content = sys.stdin.read()
+            content = (
+                io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
+                if hasattr(sys.stdin, 'buffer')
+                else sys.stdin.read()  # Fallback for environments where stdin.buffer is not available
+            )
         else:
             content = input_file.read_text(encoding='utf-8')
 
@@ -1119,16 +1117,16 @@ def disassemble(input_file: Path | None, output: Path) -> None:
         console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard disassembled to: {output}')
         console.print('  [dim]•[/dim] metadata.json: Dashboard metadata')
 
-        if components.get('options'):
+        if components.get('options') is True:
             console.print('  [dim]•[/dim] options.json: Dashboard options')
 
-        if components.get('controls'):
+        if components.get('controls') is True:
             console.print('  [dim]•[/dim] controls.json: Control group configuration')
 
-        if components.get('filters'):
+        if components.get('filters') is True:
             console.print('  [dim]•[/dim] filters.json: Dashboard-level filters')
 
-        if components.get('references'):
+        if components.get('references') is True:
             console.print('  [dim]•[/dim] references.json: Data view references')
 
         panel_count = components.get('panels')

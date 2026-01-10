@@ -47,7 +47,7 @@ def extract_dashboard_id_from_url(url_or_id: str) -> str:
     # If no URL pattern found, check if it looks like a URL
     # Check for common URL patterns: contains ://, starts with www., or looks like a schemeless domain/path
     looks_like_url = '://' in url_or_id or url_or_id.startswith('www.') or re.match(r'^[^/\s]+\.[^/\s]+/', url_or_id) is not None
-    if looks_like_url:
+    if looks_like_url is True:
         msg = (
             f'Invalid Kibana dashboard URL format: {url_or_id}. '
             'Expected format: https://kibana.example.com/app/dashboards#/view/{{dashboard-id}}'
