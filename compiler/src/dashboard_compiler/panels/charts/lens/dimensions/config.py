@@ -8,7 +8,9 @@ from pydantic import Field
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.shared.config import BaseCfgModel, Sort
 
-type LensDimensionTypes = LensTopValuesDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
+type LensDimensionTypes = (
+    LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
+)
 
 
 class BaseDimension(BaseCfgModel):
@@ -99,16 +101,13 @@ class LensIntervalsDimension(BaseLensDimension):
     """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
 
 
-class LensTopValuesDimension(BaseLensDimension):
-    """Represents a top values dimension configuration within a Lens chart.
+class BaseLensTermsDimension(BaseLensDimension):
+    """Base class for top values dimensions (single and multi-field).
 
-    Top values dimensions are used for aggregating data based on unique values of a field.
+    Contains all common configuration fields for terms-based dimensions.
     """
 
     type: Literal['values'] = 'values'
-
-    field: str = Field(default=...)
-    """The name of the field in the data view that this dimension is based on."""
 
     size: int | None = Field(default=None)
     """The number of top terms to display."""
@@ -136,6 +135,27 @@ class LensTopValuesDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
+
+
+class LensTermsDimension(BaseLensTermsDimension):
+    """Represents a single-field top values dimension configuration within a Lens chart.
+
+    Terms dimensions are used for aggregating data based on unique values of a single field.
+    """
+
+    field: str = Field(default=...)
+    """The name of the field in the data view that this dimension is based on."""
+
+
+class LensMultiTermsDimension(BaseLensTermsDimension):
+    """Represents a multi-field top values dimension configuration within a Lens chart.
+
+    Multi-terms dimensions are used for aggregating data based on unique combinations
+    of values across multiple fields.
+    """
+
+    fields: list[str] = Field(default=..., min_length=2)
+    """List of field names for multi-field aggregation. Requires at least 2 fields."""
 
 
 class LensDateHistogramDimension(BaseLensDimension):

@@ -218,7 +218,7 @@ class KbnLensTermsParentFormatParams(BaseVwModel):
 class KbnLensTermsParentFormat(BaseVwModel):
     """The parent format for terms dimension columns."""
 
-    id: Literal['terms'] = Field(default='terms')
+    id: Literal['terms', 'multi_terms'] = Field(default='terms')
     # params: KbnLensTermsParentFormatParams | None = Field(default
 
 
@@ -235,6 +235,8 @@ class KbnLensTermsDimensionColumnParams(KbnLensDimensionColumnParams):
     exclude: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
     includeIsRegex: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     excludeIsRegex: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    secondaryFields: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
+    """Additional fields for multi-term aggregations (2nd, 3rd, etc.)."""
 
 
 class KbnLensTermsDimensionColumn(KbnLensBaseDimensionColumn):

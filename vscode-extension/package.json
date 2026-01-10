@@ -2,7 +2,7 @@
   "name": "kb-dashboard-compiler",
   "displayName": "Kibana Dashboard Compiler",
   "description": "Compile and preview Kibana YAML dashboards with live reload",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "strawgate",
   "icon": "images/icon.png",
   "engines": {
@@ -78,6 +78,11 @@
         "command": "yamlDashboard.clearKibanaCredentials",
         "title": "Clear Kibana Credentials",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.compileFolderAndUpload",
+        "title": "Compile Folder and Upload to Kibana",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -149,6 +154,13 @@
           "command": "yamlDashboard.editLayout",
           "group": "navigation"
         }
+      ],
+      "explorer/context": [
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "yamlDashboard.compileFolderAndUpload",
+          "group": "navigation"
+        }
       ]
     }
   },
@@ -159,9 +171,9 @@
     "package-bundle": "node esbuild.js --production",
     "pretest": "npm run compile",
     "test": "npm run compile && node ./out/test/runTest.js",
-    "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js 2>/dev/null || echo 'No unit tests found - skipping')",
+    "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js --ui tdd 2>/dev/null || echo 'No unit tests found - skipping')",
     "lint": "eslint src --ext ts",
-    "copy-lsp-binary": "bash scripts/copy_lsp_binary.sh",
+    "copy-binary": "bash scripts/copy_binary.sh",
     "package": "vsce package",
     "package:linux": "npm run package-bundle && vsce package --target linux-x64",
     "package:macos-x64": "npm run package-bundle && vsce package --target darwin-x64",

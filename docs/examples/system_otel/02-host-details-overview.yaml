@@ -1,4 +1,14 @@
 ---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+# See ../../../licenses/ELASTIC-LICENSE-2.0.txt for the full license text.
+#
+# This file is derived from the Elastic integrations repository:
+# https://github.com/elastic/integrations/tree/main/packages/system_otel
+#
+# Modified by kb-yaml-to-lens contributors to convert from Kibana JSON format
+# to YAML format for use as documentation examples.
 dashboards:
   - id: otel-host-details-overview
     name: '[OTel] Host Details - Overview'
