@@ -34,21 +34,21 @@ dashboards:
           metrics:
             - id: metric1
               aggregation: count
-              label: Errors (per Day)
+              label: Errors
               format: {type: number, decimals: 0}
             - id: metric2
               formula: "defaults(count(kql='log.level : \"error\" '), 0)"
-              label: Errors
+              label: Errors Logged
               format: {type: number, decimals: 0}
             - {id: metric3, aggregation: count, label: Part of Errors Logged}
             - {id: metric4, label: Part of Errors Logged}
             - id: metric5
               aggregation: count
-              label: Warnings (per Day)
+              label: Warnings
               format: {type: number, decimals: 0}
             - id: metric6
               aggregation: count
-              label: Warnings
+              label: Warnings Logged
               format: {type: number, decimals: 0}
       - grid: {x: 8, y: 14, w: 40, h: 5}
         markdown:
@@ -68,6 +68,7 @@ dashboards:
               label: Queue (p50)
               format: {type: percent, decimals: 0}
             - id: metric2
+              formula: percentile(beat.stats.libbeat.pipeline.queue.filled.pct, percentile=90)
               label: Queue (p90)
               format: {type: percent, decimals: 0}
             - id: metric3

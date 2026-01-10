@@ -85,6 +85,6 @@ dashboards:
             type: date_histogram
           metrics:
             - {formula: 'pick_max(differences(max(filebeat_input.cloudwatch_events_created_total)), 0)', label: Events Created}
-            - {aggregation: max, field: filebeat_input.cloudwatch_events_created_total, label: Part of API Calls}
+            - {aggregation: max, field: filebeat_input.cloudwatch_events_created_total, label: Part of Events Created}
             - {formula: 'pick_max(differences(max(filebeat_input.log_events_received_total)), 0)', label: Events Collected}
             - {aggregation: max, field: filebeat_input.log_events_received_total, label: Part of Events Collected}

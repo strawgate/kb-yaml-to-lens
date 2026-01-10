@@ -49,13 +49,13 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.discarded_events_total, label: Part of Received Events}
+          primary: {aggregation: last_value, field: filebeat_input.discarded_events_total, label: Part of Discarded Events}
       - grid: {x: 34, y: 0, w: 14, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.errors_total, label: Part of Discarded Events}
-      - title: URL (Last Value)
+          primary: {aggregation: last_value, field: filebeat_input.errors_total, label: Part of Errors}
+      - title: Session Name (Last Value)
         grid: {x: 7, y: 6, w: 41, h: 4}
         lens:
           type: datatable

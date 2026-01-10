@@ -173,3 +173,4 @@ dashboards:
             type: date_histogram
           metrics:
             - {formula: 'pick_max(differences(max(filebeat_input.s3_events_created_total)), 0)', label: Events Created}
+            - {aggregation: max, field: filebeat_input.s3_events_created_total, label: Part of Events Created}

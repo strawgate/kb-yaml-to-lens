@@ -100,7 +100,7 @@ dashboards:
             field: filebeat_input.id
             label: Unique S3 Inputs
             format: {type: number, compact: true, decimals: 0}
-      - title: '[Elastic Agent TCP Input'
+      - title: '[Elastic Agent] TCP Input'
         grid: {x: 7, y: 16, w: 9, h: 8}
         lens:
           type: metric

@@ -44,22 +44,22 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_messages_total, label: Part of Received Events}
+          primary: {aggregation: last_value, field: filebeat_input.received_messages_total, label: Part of Received Messages}
       - grid: {x: 17, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.sanitized_messages_total, label: Part of Invalid JSON Messages}
+          primary: {aggregation: last_value, field: filebeat_input.sanitized_messages_total, label: Part of Sanitized Messages}
       - grid: {x: 27, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.processed_messages_total, label: Part of Sanitized Messages}
+          primary: {aggregation: last_value, field: filebeat_input.processed_messages_total, label: Part of Processed Messages}
       - grid: {x: 37, y: 0, w: 11, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.invalid_json_messages_total, label: Part of Received Messages}
+          primary: {aggregation: last_value, field: filebeat_input.invalid_json_messages_total, label: Part of Invalid JSON Messages}
       - grid: {x: 7, y: 6, w: 8, h: 6}
         lens:
           type: metric
@@ -69,22 +69,22 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.sent_events_total, label: Part of Processed Messages}
+          primary: {aggregation: last_value, field: filebeat_input.sent_events_total, label: Part of Sent Events}
       - grid: {x: 23, y: 6, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Received Messages}
+          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Received Bytes}
       - grid: {x: 31, y: 6, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.decode_errors_total, label: Part of Sent Events}
+          primary: {aggregation: last_value, field: filebeat_input.decode_errors_total, label: Part of Decode Errors}
       - grid: {x: 39, y: 6, w: 9, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.processor_restarts_total, label: Part of Decode Errors}
+          primary: {aggregation: last_value, field: filebeat_input.processor_restarts_total, label: Part of Processor Restarts}
       - title: Processing Time
         grid: {x: 7, y: 12, w: 41, h: 27}
         lens:

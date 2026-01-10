@@ -40,7 +40,7 @@ dashboards:
             - {label: Unified Logs, dashboard: elastic_agent-9eab2fa0-5e7c-11f0-89d2-bb7ceae5af7f}
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
-      - title: Write Control Errors
+      - title: Total Bytes Received
         grid: {x: 7, y: 0, w: 11, h: 6}
         lens:
           type: metric

@@ -36,6 +36,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
+          query: 'host.os.type: "linux"'
           primary:
             aggregation: unique_count
             field: agent.id
@@ -46,6 +47,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
+          query: 'host.os.type: "macos"'
           primary:
             aggregation: unique_count
             field: agent.id
@@ -56,6 +58,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
+          query: 'host.os.type: "windows"'
           primary:
             aggregation: unique_count
             field: agent.id

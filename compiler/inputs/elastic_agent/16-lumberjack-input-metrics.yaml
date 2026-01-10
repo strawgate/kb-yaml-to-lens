@@ -49,13 +49,13 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.batches_acked_total, label: Part of Batches Received}
+          primary: {aggregation: last_value, field: filebeat_input.batches_acked_total, label: Part of Batches Acked}
       - grid: {x: 34, y: 0, w: 14, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.message_received_total, label: Part of Message Received}
-      - title: URL (Last Value)
+      - title: Bind Address (Last Value)
         grid: {x: 7, y: 6, w: 41, h: 4}
         lens:
           type: datatable

@@ -44,7 +44,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.errors_total, label: Part of Events Created}
+          primary: {aggregation: last_value, field: filebeat_input.errors_total, label: Part of Errors}
       - grid: {x: 18, y: 0, w: 10, h: 6}
         lens:
           type: metric
@@ -64,12 +64,12 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.abs_blobs_listed_total, label: Part of Blobs Published}
+          primary: {aggregation: last_value, field: filebeat_input.abs_blobs_listed_total, label: Part of Blobs Listed}
       - grid: {x: 18, y: 6, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.abs_blobs_requested_total, label: Part of Decode Errors}
+          primary: {aggregation: last_value, field: filebeat_input.abs_blobs_requested_total, label: Part of Blobs Requested}
       - grid: {x: 28, y: 6, w: 10, h: 6}
         lens:
           type: metric
@@ -79,7 +79,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.abs_blobs_published_total, label: Part of Blobs Requested}
+          primary: {aggregation: last_value, field: filebeat_input.abs_blobs_published_total, label: Part of Blobs Published}
       - title: URL (Last Value)
         grid: {x: 7, y: 12, w: 41, h: 4}
         lens:

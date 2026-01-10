@@ -94,7 +94,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.gcs_objects_inflight_gauge, label: Part of Objects Tracked}
+          primary: {aggregation: last_value, field: filebeat_input.gcs_objects_inflight_gauge, label: Part of Objects In Flight}
       - title: URL (Last Value)
         grid: {x: 7, y: 12, w: 41, h: 4}
         lens:

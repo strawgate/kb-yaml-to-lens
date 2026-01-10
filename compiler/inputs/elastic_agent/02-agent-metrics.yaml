@@ -146,10 +146,23 @@ dashboards:
         lens:
           type: area
           data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
           metrics:
             - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes, label: cgroup limit}
       - grid: {x: 30, y: 22, w: 18, h: 10}
-        lens: {type: line, data_view: metrics-*}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {aggregation: max, field: system.process.cgroup.memory.mem.usage.bytes, label: cgroup memory usage}
       - grid: {x: 8, y: 32, w: 21, h: 10}
         title: '[Elastic Agent] Acknowledged Events /s'
         lens:
@@ -169,7 +182,7 @@ dashboards:
             - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part of Failed}
             - {aggregation: max, field: beat.stats.libbeat.output.events.active, label: Part of Failed}
       - grid: {x: 29, y: 32, w: 19, h: 10}
-        title: '[Elastic Agent] Total events rate /s (copy)'
+        title: '[Elastic Agent] Dropped Events Rate /s'
         lens:
           type: area
           data_view: metrics-*
@@ -252,9 +265,18 @@ dashboards:
             - {id: metric3, aggregation: last_value, field: system.process.fd.limit.soft, label: Handle Limit (Soft)}
             - {id: metric4, aggregation: last_value, field: system.process.fd.limit.hard, label: Handle Limit (Hard)}
       - grid: {x: 0, y: 67, w: 24, h: 9}
-        lens: {type: line, data_view: metrics-*}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {aggregation: max, field: system.process.fd.open, label: Open File Descriptors}
       - grid: {x: 24, y: 67, w: 24, h: 9}
-        title: '[Elastic Agent] Output write errors (copy)'
+        title: '[Elastic Agent] Output Write Latency'
         lens:
           type: line
           data_view: metrics-*
@@ -291,7 +313,7 @@ dashboards:
           metrics:
             - {aggregation: max, field: beat.stats.libbeat.output.events.dropped}
       - grid: {x: 0, y: 85, w: 24, h: 9}
-        title: '[Elastic Agent] Output write errors (copy)'
+        title: '[Elastic Agent] Output Batches'
         lens:
           type: line
           data_view: metrics-*
@@ -314,7 +336,7 @@ dashboards:
           metrics:
             - {aggregation: max, field: beat.stats.libbeat.output.write.errors}
       - grid: {x: 0, y: 94, w: 24, h: 9}
-        title: '[Elastic Agent] Output write errors (copy)'
+        title: '[Elastic Agent] Active Events'
         lens:
           type: area
           data_view: metrics-*

@@ -11,7 +11,8 @@ dashboards:
   - id: elastic_agent-ea44c820-95cb-11ee-b517-0550321b54cc
     name: '[Elastic Agent] Filestream Input Metrics'
     panels:
-      - grid: {x: 0, y: 0, w: 7, h: 39}
+      - title: Table of Contents
+        grid: {x: 0, y: 0, w: 7, h: 39}
         links:
           layout: horizontal
           items:
@@ -129,15 +130,9 @@ dashboards:
         lens:
           type: area
           data_view: metrics-*
-          metrics:
-            - aggregation: last_value
-              field: filebeat_input.processing_errors_total
-              label: Errors
-              format: {type: number, decimals: 0}
-      - grid: {x: 7, y: 23, w: 41, h: 16}
-        lens:
-          type: area
-          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
           metrics:
             - aggregation: last_value
               field: filebeat_input.processing_errors_total

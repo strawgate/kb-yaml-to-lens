@@ -64,13 +64,13 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.batches_published_total, label: Part of Batches Received}
+          primary: {aggregation: last_value, field: filebeat_input.batches_published_total, label: Part of Batches Published}
       - title: '[Elastic Agent] Events Published'
         grid: {x: 31, y: 0, w: 5, h: 7}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.events_published_total, label: Part of Batches Published}
+          primary: {aggregation: last_value, field: filebeat_input.events_published_total, label: Part of Events Published}
       - title: '[Elastic Agent] Average Request Size'
         grid: {x: 36, y: 0, w: 6, h: 7}
         lens:

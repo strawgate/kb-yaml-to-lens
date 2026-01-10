@@ -51,19 +51,19 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.receive_queue_length, label: Part of TCP Queue Length}
+          primary: {aggregation: last_value, field: filebeat_input.receive_queue_length, label: Part of Queue Length}
       - title: '[Elastic Agent] UDP Total Bytes Processed'
         grid: {x: 23, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of TCP Queue Length}
+          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Total Bytes Processed}
       - title: '[Elastic Agent] UDP Events Created'
         grid: {x: 31, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_events_total, label: Part of Total Bytes Processed}
+          primary: {aggregation: last_value, field: filebeat_input.received_events_total, label: Part of Events Created}
       - title: '[Elastic Agent] UDP Packet Drops'
         grid: {x: 39, y: 0, w: 8, h: 6}
         lens:

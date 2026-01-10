@@ -44,7 +44,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.acked_message_total, label: Part of Decode Errors}
+          primary: {aggregation: last_value, field: filebeat_input.acked_message_total, label: Part of Acked Messages}
       - grid: {x: 17, y: 0, w: 10, h: 6}
         lens:
           type: metric
@@ -54,7 +54,7 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.nacked_message_total, label: Part of Failed ACK'd Messages}
+          primary: {aggregation: last_value, field: filebeat_input.nacked_message_total, label: Part of NACKed Messages}
       - grid: {x: 37, y: 0, w: 11, h: 6}
         lens:
           type: metric

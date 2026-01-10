@@ -11,7 +11,8 @@ dashboards:
   - id: elastic_agent-92846340-95ab-11ee-8ec1-093013efb0e3
     name: '[Elastic Agent] Httpjson Input Metrics'
     panels:
-      - grid: {x: 0, y: 0, w: 7, h: 71}
+      - title: Table of Contents
+        grid: {x: 0, y: 0, w: 7, h: 71}
         links:
           layout: horizontal
           items:
@@ -66,7 +67,7 @@ dashboards:
               format: {type: bytes, decimals: 2}
             - aggregation: last_value
               field: filebeat_input.http_response_body_bytes.histogram.p99
-              label: '99th Percentile '
+              label: 99th Percentile
               format: {type: bytes, decimals: 2}
       - grid: {x: 7, y: 26, w: 6, h: 6}
         lens:
@@ -136,7 +137,7 @@ dashboards:
               format: {type: bytes, decimals: 2}
             - aggregation: last_value
               field: filebeat_input.http_request_body_bytes.histogram.p99
-              label: '99th Percentile '
+              label: 99th Percentile
               format: {type: bytes, decimals: 2}
       - grid: {x: 27, y: 32, w: 21, h: 15}
         lens:
@@ -161,11 +162,11 @@ dashboards:
           metrics:
             - {formula: 'divide(last_value(filebeat_input.httpjson_interval_execution_time.histogram.mean), 1000000)', label: Average}
             - formula: divide(last_value(filebeat_input.httpjson_interval_execution_time.histogram.p99), 1000000)
-              label: '99th Percentile '
+              label: 99th Percentile
             - {aggregation: last_value, field: filebeat_input.httpjson_interval_execution_time.histogram.mean, label: Part of Average}
             - aggregation: last_value
               field: filebeat_input.httpjson_interval_execution_time.histogram.p99
-              label: 'Part of 99th Percentile '
+              label: Part of 99th Percentile
       - grid: {x: 27, y: 47, w: 21, h: 15}
         lens:
           type: area
@@ -176,11 +177,11 @@ dashboards:
           metrics:
             - {formula: 'divide(last_value(filebeat_input.httpjson_interval_pages_execution_time.histogram.mean), 1000000)', label: Average}
             - formula: divide(last_value(filebeat_input.httpjson_interval_pages_execution_time.histogram.p99), 1000000)
-              label: '99th Percentile '
+              label: 99th Percentile
             - {aggregation: last_value, field: filebeat_input.httpjson_interval_pages_execution_time.histogram.mean, label: Part of Average}
             - aggregation: last_value
               field: filebeat_input.httpjson_interval_pages_execution_time.histogram.p99
-              label: 'Part of 99th Percentile '
+              label: Part of 99th Percentile
       - grid: {x: 7, y: 62, w: 20, h: 15}
         lens:
           type: area
@@ -191,11 +192,11 @@ dashboards:
           metrics:
             - {formula: 'divide(last_value(filebeat_input.http_round_trip_time.histogram.mean), 1000000)', label: Average}
             - formula: divide(last_value(filebeat_input.http_round_trip_time.histogram.p99), 1000000)
-              label: '99th Percentile '
+              label: 99th Percentile
             - {aggregation: last_value, field: filebeat_input.http_round_trip_time.histogram.mean, label: Part of Average}
             - aggregation: last_value
               field: filebeat_input.http_round_trip_time.histogram.p99
-              label: 'Part of 99th Percentile '
+              label: Part of 99th Percentile
       - grid: {x: 27, y: 62, w: 21, h: 15}
         lens:
           type: area
@@ -210,7 +211,7 @@ dashboards:
               format: {type: number, decimals: 0}
             - aggregation: last_value
               field: filebeat_input.httpjson_interval_pages.histogram.p99
-              label: '99th Percentile '
+              label: 99th Percentile
               format: {type: number, decimals: 0}
       - grid: {x: 7, y: 6, w: 10, h: 6}
         lens:
