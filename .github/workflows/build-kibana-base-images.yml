@@ -21,7 +21,6 @@ jobs:
         # Build multiple Kibana versions
         kibana_version:
           - v9.2.2
-          - v8.19.9
         # Build each architecture separately
         platform:
           - linux/amd64
@@ -88,7 +87,6 @@ jobs:
       matrix:
         kibana_version:
           - v9.2.2
-          - v8.19.9
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
