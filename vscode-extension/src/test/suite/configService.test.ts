@@ -52,7 +52,14 @@ suite('ConfigService Test Suite', () => {
         assert.strictEqual(browserType, 'external');
     });
 
-    const credentialCases = [
+    interface CredentialCase {
+        label: string;
+        value: string;
+        setter: (val: string) => Promise<void>;
+        getter: () => Promise<string>;
+    }
+
+    const credentialCases: CredentialCase[] = [
         {
             label: 'username',
             value: 'testuser',
