@@ -104,8 +104,9 @@ def get_metric_identifier(metric: object) -> str:
     """Get a representative identifier string from a metric object.
 
     Handles different metric types:
-    - Regular metrics with 'field' attribute
-    - Count metrics with 'aggregation' attribute
+    - Aggregated metrics with 'aggregation' and 'field' attributes (e.g., avg(bytes), sum(bytes))
+    - Count metrics with only 'aggregation' attribute (no field)
+    - Formula metrics with 'formula' attribute
     - Static values with 'value' attribute
 
     Args:
@@ -114,15 +115,27 @@ def get_metric_identifier(metric: object) -> str:
     Returns:
         A representative string identifier for the metric.
     """
-    # Try 'field' first (most common)
+    # Get both field and aggregation to properly distinguish metrics
     field: str | None = getattr(metric, 'field', None)
+    aggregation: str | None = getattr(metric, 'aggregation', None)
+
+    # If both aggregation and field exist, combine them for uniqueness
+    # This prevents collisions like avg(bytes) vs sum(bytes)
+    if aggregation is not None and field is not None:
+        return f'{aggregation}:{field}'
+
+    # Aggregation-only metrics (e.g., count without field)
+    if aggregation is not None:
+        return aggregation
+
+    # Field-only metrics (shouldn't happen in practice, but handle gracefully)
     if field is not None:
         return field
 
-    # Try 'aggregation' for count metrics
-    aggregation: str | None = getattr(metric, 'aggregation', None)
-    if aggregation is not None:
-        return aggregation
+    # Try 'formula' for formula metrics
+    formula: str | None = getattr(metric, 'formula', None)
+    if formula is not None:
+        return f'formula:{formula}'
 
     # Try 'value' for static values
     value: float | int | None = getattr(metric, 'value', None)
