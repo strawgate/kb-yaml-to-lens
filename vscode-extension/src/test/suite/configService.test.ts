@@ -37,6 +37,11 @@ suite('ConfigService Test Suite', () => {
         configService = new ConfigService(mockContext);
     });
 
+    setup(() => {
+        // Reset secrets store before each test to ensure isolation
+        secretsStore.clear();
+    });
+
     test('Should get default Kibana URL', () => {
         const url = configService.getKibanaUrl();
         assert.strictEqual(url, 'http://localhost:5601');
@@ -55,6 +60,7 @@ suite('ConfigService Test Suite', () => {
     interface CredentialCase {
         label: string;
         value: string;
+        secretKey: string;
         setter: (val: string) => Promise<void>;
         getter: () => Promise<string>;
     }
@@ -63,18 +69,21 @@ suite('ConfigService Test Suite', () => {
         {
             label: 'username',
             value: 'testuser',
+            secretKey: 'yamlDashboard.kibana.username',
             setter: (val: string) => configService.setKibanaUsername(val),
             getter: () => configService.getKibanaUsername(),
         },
         {
             label: 'password',
             value: 'testpass123',
+            secretKey: 'yamlDashboard.kibana.password',
             setter: (val: string) => configService.setKibanaPassword(val),
             getter: () => configService.getKibanaPassword(),
         },
         {
             label: 'API key',
             value: 'test-api-key-12345',
+            secretKey: 'yamlDashboard.kibana.apiKey',
             setter: (val: string) => configService.setKibanaApiKey(val),
             getter: () => configService.getKibanaApiKey(),
         },
@@ -87,9 +96,11 @@ suite('ConfigService Test Suite', () => {
             assert.strictEqual(retrieved, credential.value);
         });
 
-        test(`Should clear ${credential.label} when set to empty string`, async () => {
+        test(`Should delete ${credential.label} from storage when set to empty string`, async () => {
             await credential.setter(credential.value);
+            assert.ok(secretsStore.has(credential.secretKey), 'Secret should exist before clearing');
             await credential.setter('');
+            assert.ok(!secretsStore.has(credential.secretKey), 'Secret should be deleted from storage');
             const cleared = await credential.getter();
             assert.strictEqual(cleared, '');
         });
