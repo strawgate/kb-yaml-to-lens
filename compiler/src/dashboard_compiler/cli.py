@@ -1,6 +1,7 @@
 """Command-line interface for the dashboard compiler."""
 
 import asyncio
+import io
 import logging
 import os
 import sys
@@ -102,7 +103,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
     if overwrite is True and output_path.exists():
         output_path.unlink()
 
-    with output_path.open('w') as f:
+    with output_path.open('w', encoding='utf-8') as f:
         for line in lines:
             _ = f.write(line + '\n')
 
@@ -1100,9 +1101,13 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     """
     try:
         if input_file is None:
-            import sys
-
-            content = sys.stdin.read()
+            # Use TextIOWrapper to ensure UTF-8 encoding when reading from stdin
+            # This avoids issues on Windows where the default encoding might not be UTF-8
+            content = (
+                io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
+                if hasattr(sys.stdin, 'buffer')
+                else sys.stdin.read()  # Fallback for environments where stdin.buffer is not available
+            )
         else:
             content = input_file.read_text(encoding='utf-8')
 
