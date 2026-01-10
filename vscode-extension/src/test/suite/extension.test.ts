@@ -35,17 +35,13 @@ function resolveFixturePath(relativePath: string): string {
     const fixturePath = path.resolve(__dirname, `../../../src/test/fixtures/${relativePath}`);
     const fallbackPath = path.resolve(__dirname, `../fixtures/${relativePath}`);
 
-    const actualPath = fs.existsSync(fixturePath)
-        ? fixturePath
-        : fs.existsSync(fallbackPath)
-          ? fallbackPath
-          : undefined;
-
-    if (!actualPath) {
-        assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
+    if (fs.existsSync(fixturePath)) {
+        return fixturePath;
     }
-
-    return actualPath;
+    if (fs.existsSync(fallbackPath)) {
+        return fallbackPath;
+    }
+    assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
 }
 
 suite('Extension Test Suite', () => {
@@ -111,7 +107,7 @@ suite('Extension Test Suite', () => {
         assert.strictEqual(doc.languageId, 'yaml', 'Document should be recognized as YAML');
         const text = doc.getText();
         assert.ok(text.length > 0, 'Document should have content');
-        assert.ok(text.includes('dashboards'), 'Document should contain dashboard definition');
+        assert.match(text, /^\s*dashboards:/m, 'Document should contain dashboard definition');
     });
 
     test('Should compile YAML file without errors', async () => {
