@@ -1,9 +1,10 @@
 """Shared configuration model and utility functions for the dashboard compiler."""
 
 import hashlib
+import types
 import uuid
 from collections.abc import Sequence
-from typing import Any, ClassVar, Literal, Protocol, runtime_checkable
+from typing import Any, ClassVar, Literal, Protocol, get_args, get_origin, runtime_checkable
 
 from pydantic import Field, model_validator
 from pydantic.fields import FieldInfo
@@ -127,7 +128,7 @@ class IDMixin(BaseCfgModel):
         if components is not None:
             # Prepend the ID prefix if defined
             prefix = cls._id_prefix
-            if prefix:
+            if len(prefix) > 0:
                 all_components: list[str | int | float | None] = [prefix, *components]
             else:
                 all_components = list(components)
@@ -159,9 +160,9 @@ class IDMixin(BaseCfgModel):
         values: list[str | int | float | None] = [cls.__name__]
 
         # Get field names to use for ID
-        field_names = cls._id_components if cls._id_components else cls._get_primitive_field_names()
+        field_names = cls._id_components if len(cls._id_components) > 0 else cls._get_primitive_field_names()
 
-        if not field_names:
+        if len(field_names) == 0:
             return None
 
         # Extract field values
@@ -221,9 +222,6 @@ class IDMixin(BaseCfgModel):
     @staticmethod
     def _is_primitive_type(annotation: Any) -> bool:  # pyright: ignore[reportAny]
         """Check if a type annotation represents a primitive type suitable for ID generation."""
-        import types
-        from typing import get_args, get_origin
-
         # Handle None type
         if annotation is type(None):
             return False
