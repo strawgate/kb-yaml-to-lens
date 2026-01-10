@@ -28,6 +28,10 @@ UUID_PATTERN = r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-
 _UUID_REGEX = re.compile(rf'^{UUID_PATTERN}$')
 _LAYER_N_REGEX = re.compile(r'^layer_\d+$')
 
+# Patterns for normalizing paths in diff output (match UUIDs and layer_N with optional quotes)
+_UUID_IN_PATH_REGEX = re.compile(rf"['\"]?{UUID_PATTERN}['\"]?")
+_LAYER_N_IN_PATH_REGEX = re.compile(r"['\"]?layer_\d+['\"]?")
+
 # Project paths
 _TESTS_DIR = Path(__file__).parent.parent
 _COMPILER_DIR = _TESTS_DIR.parent
@@ -207,13 +211,9 @@ def normalize_diff_paths(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
     if len(diff) == 0:
         return {}
 
-    # Pattern to match UUIDs and layer_N in paths
-    uuid_in_path = re.compile(rf"['\"]?{UUID_PATTERN}['\"]?")
-    layer_n_pattern = re.compile(r"['\"]?layer_\d+['\"]?")
-
     def normalize_path(path: str) -> str:
         """Replace dynamic IDs in path with placeholders."""
-        return layer_n_pattern.sub('<LAYER>', uuid_in_path.sub('<UUID>', path))
+        return _LAYER_N_IN_PATH_REGEX.sub('<LAYER>', _UUID_IN_PATH_REGEX.sub('<UUID>', path))
 
     result: dict[str, Any] = {}
 
