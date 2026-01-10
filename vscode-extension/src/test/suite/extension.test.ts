@@ -112,11 +112,8 @@ suite('Extension Test Suite', () => {
         const doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
 
-        // Give the LSP server a moment to initialize
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Execute compile command and verify it completes successfully
-        // The compile command will throw if compilation fails
+        // LSP client is fully initialized via suiteSetup -> extension.activate() -> compiler.start()
+        // No additional wait needed as start() awaits client.start() which handles initialization
         await vscode.commands.executeCommand('yamlDashboard.compile');
 
         // If we reach here, compilation succeeded without throwing

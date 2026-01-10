@@ -39,7 +39,6 @@ suite('Webview Utils Test Suite', () => {
 		test('uses custom loading message when provided', () => {
 			const html = getLoadingContent('Compiling dashboard...');
 			assert.ok(html.includes('Compiling dashboard...'), 'Should contain custom message');
-			assert.ok(!html.includes('Loading...') || html.includes('Compiling dashboard...'), 'Should use custom message');
 		});
 
 		test('escapes HTML in custom message to prevent XSS', () => {
