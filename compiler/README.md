@@ -117,40 +117,69 @@ No Python installation required!
 
 #### Compile Your First Dashboard (CLI)
 
-1. Create a YAML dashboard file in `inputs/` directory:
+1. **Setup Environment** (Run from repository root):
 
-```yaml
-dashboards:
-- name: My First Dashboard
-  description: A simple dashboard with markdown
-  panels:
-    - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
-      markdown:
-        content: |
-          # Welcome to Kibana!
+   ```bash
+   cd compiler
+   uv sync
+   ```
 
-          This is my first dashboard compiled from YAML.
-```
+2. **Create Input Directory:**
 
-2. Compile to NDJSON:
+   The compiler looks for YAML files in `inputs/` by default.
 
-If using uv: `uv run kb-dashboard compile --input-dir inputs --output-dir output`
+   ```bash
+   mkdir inputs
+   ```
 
-If using Docker:
-```bash
-docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
-  ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
-  compile --input-dir inputs --output-dir output
-```
+3. **Create a Dashboard File:**
 
-If using standalone binary: `./kb-dashboard-<platform> compile --input-dir inputs --output-dir output`
+   Create `inputs/my_dashboard.yaml` with the following content:
 
-3. (Optional) Upload directly to Kibana:
+   ```yaml
+   dashboards:
+   - name: My First Dashboard
+     description: A simple dashboard with markdown
+     panels:
+       - title: Welcome
+         grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
+         markdown:
+           content: |
+             # Welcome to Kibana!
 
-Add `--upload --kibana-url http://localhost:5601 --kibana-username elastic --kibana-password changeme` to the compile command above.
+             This is my first dashboard compiled from YAML.
+   ```
 
-The `--upload` flag will automatically open your dashboard in the browser upon successful upload.
+4. **Compile to NDJSON:**
+
+   **Using uv:**
+   ```bash
+   uv run kb-dashboard compile
+   ```
+   *Compiles from `inputs/` to `output/` by default.*
+
+   **Using Docker:**
+   ```bash
+   docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
+     ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
+     compile --input-dir /inputs --output-dir /output
+   ```
+
+   **Using Standalone Binary:**
+   ```bash
+   ./kb-dashboard-<platform> compile --input-dir inputs --output-dir output
+   ```
+
+5. **(Optional) Upload directly to Kibana:**
+
+   Add `--upload` and authentication details:
+
+   ```bash
+   uv run kb-dashboard compile --upload \
+     --kibana-url http://localhost:5601 \
+     --kibana-username elastic \
+     --kibana-password changeme
+   ```
 
 **Learn more:** [CLI Documentation](https://strawgate.github.io/kb-yaml-to-lens/CLI)
 

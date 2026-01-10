@@ -45,9 +45,17 @@ uv sync
 
 Compile YAML dashboards to NDJSON format:
 
-```bash
-kb-dashboard compile
-```
+1. **Create input directory:**
+
+   ```bash
+   mkdir inputs
+   ```
+
+2. **Run the compiler:**
+
+   ```bash
+   kb-dashboard compile
+   ```
 
 This will:
 
