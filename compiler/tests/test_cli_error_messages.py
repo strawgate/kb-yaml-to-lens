@@ -234,14 +234,14 @@ class TestFormatYamlError:
         assert 'YAML syntax error' in result
         assert 'YAML' in result  # Uses 'YAML' as default context
 
-    def test_yaml_duplicate_key_error(self) -> None:
-        """Test formatting of YAML duplicate key warning."""
+    def test_yaml_syntax_error_missing_brace(self) -> None:
+        """Test formatting of YAML syntax error (missing brace)."""
         invalid_yaml = 'items:\n  - title: "Test"\n    grid: {x: 0\n'
         try:
             yaml.safe_load(invalid_yaml)
         except yaml.YAMLError as e:
-            result = format_yaml_error(e, Path('duplicate.yaml'))
-            assert 'YAML syntax error in duplicate.yaml' in result
+            result = format_yaml_error(e, Path('syntax_error.yaml'))
+            assert 'YAML syntax error in syntax_error.yaml' in result
 
 
 class TestCompileYamlToJsonErrorHandling:
