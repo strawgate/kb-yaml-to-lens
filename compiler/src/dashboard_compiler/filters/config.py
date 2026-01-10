@@ -1,6 +1,6 @@
 """Configuration schema for Dashboard filters."""
 
-from typing import Annotated, Any, Self, override
+from typing import Annotated, Any, Self
 
 from pydantic import Discriminator, Field, Tag, model_validator
 
@@ -105,11 +105,6 @@ class ExistsFilter(BaseFilter):
     exists: str = Field(...)
     """The field name to check for existence. If the field exists in a document, it will match that document."""
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return f'exists({self.exists})'
-
 
 class CustomFilter(BaseFilter):
     """Represents a custom filter configuration in the Config schema.
@@ -119,11 +114,6 @@ class CustomFilter(BaseFilter):
 
     dsl: dict[str, Any] = Field(...)
     """The custom query definition. This should be a valid Elasticsearch query object."""
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return 'custom DSL'
 
 
 class PhraseFilter(BaseFilter):
@@ -138,11 +128,6 @@ class PhraseFilter(BaseFilter):
     equals: str = Field(...)
     """The exact phrase value that the field must match."""
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return f'{self.field} = {self.equals!r}'
-
 
 class PhrasesFilter(BaseFilter):
     """Represents a 'phrases' filter configuration in the Config schema.
@@ -156,11 +141,6 @@ class PhrasesFilter(BaseFilter):
 
     in_list: list[str] = Field(..., alias='in')
     """A list of phrases. Documents must match at least one of these phrases in the specified field."""
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return f'{self.field} in {list(self.in_list)!r}'
 
 
 class RangeFilter(BaseFilter):
@@ -192,20 +172,6 @@ class RangeFilter(BaseFilter):
             raise ValueError(msg)
         return self
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        parts: list[str] = []
-        if self.gte is not None:
-            parts.append(f'>= {self.gte}')
-        if self.gt is not None:
-            parts.append(f'> {self.gt}')
-        if self.lte is not None:
-            parts.append(f'<= {self.lte}')
-        if self.lt is not None:
-            parts.append(f'< {self.lt}')
-        return f'{self.field} {" ".join(parts)}'
-
 
 class NegateFilter(BaseCfgModel):
     """Represents a negated filter configuration in the Config schema.
@@ -221,11 +187,6 @@ class NegateFilter(BaseCfgModel):
     not_filter: 'FilterTypes' = Field(..., validation_alias='not')
     """The filter to negate. Can be a phrase, phrases, or range filter."""
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return f'NOT {self.not_filter}'
-
 
 class AndFilter(BaseFilter):
     """Represents an 'and' filter configuration in the Config schema.
@@ -236,11 +197,6 @@ class AndFilter(BaseFilter):
     and_filters: list['FilterTypes'] = Field(..., alias='and')
     """A list of filters. All filters must match for a document to be included."""
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return f'AND ({len(self.and_filters)} filters)'
-
 
 class OrFilter(BaseFilter):
     """Represents an 'or' filter configuration in the Config schema.
@@ -250,8 +206,3 @@ class OrFilter(BaseFilter):
 
     or_filters: list['FilterTypes'] = Field(..., alias='or')
     """A list of filters. At least one filter must match for a document to be included."""
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the filter."""
-        return f'OR ({len(self.or_filters)} filters)'

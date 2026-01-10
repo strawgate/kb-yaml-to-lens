@@ -10,13 +10,14 @@ from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_false, default_true
-from dashboard_compiler.shared.logging import logger
+from dashboard_compiler.shared.logging import log_compile
 from dashboard_compiler.shared.view import KbnReference
 
 CORE_MIGRATION_VERSION: str = '8.8.0'
 TYPE_MIGRATION_VERSION: str = '10.2.0'
 
 
+@log_compile
 def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOptions:
     """Compile the Kibana Dashboard Options view model.
 
@@ -36,6 +37,7 @@ def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOption
     )
 
 
+@log_compile
 def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReference], KbnDashboardAttributes]:
     """Compile the attributes of a Dashboard object into its Kibana view model representation.
 
@@ -46,19 +48,10 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         KbnDashboardAttributes: The compiled Kibana dashboard attributes view model.
 
     """
-    if len(dashboard.panels) > 0:
-        logger.debug('Compiling %d panel(s) for %s', len(dashboard.panels), dashboard.name)
-
     references, panels = compile_dashboard_panels(
         dashboard.panels,
         layout_algorithm=dashboard.settings.layout_algorithm,
     )
-
-    if len(dashboard.filters) > 0:
-        logger.debug('Compiling %d filter(s) for %s', len(dashboard.filters), dashboard.name)
-
-    if len(dashboard.controls) > 0:
-        logger.debug('Compiling %d control(s) for %s', len(dashboard.controls), dashboard.name)
 
     return references, KbnDashboardAttributes(
         title=dashboard.name,
@@ -77,6 +70,7 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
     )
 
 
+@log_compile
 def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
     """Compile a Dashboard object into its Kibana view model representation.
 

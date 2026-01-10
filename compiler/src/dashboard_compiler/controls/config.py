@@ -1,7 +1,7 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import Literal, Self, override
+from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
@@ -123,11 +123,6 @@ class OptionsListControl(BaseControl):
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.field
-
 
 class RangeSliderControl(BaseControl):
     """Represents a Range Slider control.
@@ -149,11 +144,6 @@ class RangeSliderControl(BaseControl):
 
     data_view: str = Field(...)
     """The ID or title of the data view (index pattern) the control operates on."""
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.field
 
 
 class TimeSliderControl(BaseControl):
@@ -180,11 +170,6 @@ class TimeSliderControl(BaseControl):
 
         return self
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return 'time slider'
-
 
 class ESQLFieldControl(BaseControl):
     """ES|QL control for single field selection from static list."""
@@ -208,11 +193,6 @@ class ESQLFieldControl(BaseControl):
         validate_default_in_choices(self.default, self.choices)
         return self
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.variable_name
-
 
 class ESQLFunctionControl(BaseControl):
     """ES|QL control for single function selection from static list."""
@@ -235,11 +215,6 @@ class ESQLFunctionControl(BaseControl):
         """Validate that default value exists in choices."""
         validate_default_in_choices(self.default, self.choices)
         return self
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.variable_name
 
 
 class ESQLStaticSingleSelectControl(BaseControl):
@@ -273,11 +248,6 @@ class ESQLStaticSingleSelectControl(BaseControl):
             msg = f'default contains options not in choices: {{{self.default}}}'
             raise ValueError(msg)
         return self
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.variable_name
 
 
 class ESQLStaticMultiSelectControl(BaseControl):
@@ -314,11 +284,6 @@ class ESQLStaticMultiSelectControl(BaseControl):
                 raise ValueError(msg)
         return self
 
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.variable_name
-
 
 class ESQLQueryControl(BaseControl):
     """Represents an ES|QL control with query-driven values.
@@ -340,8 +305,3 @@ class ESQLQueryControl(BaseControl):
 
     multiple: bool | None = Field(default=None)
     """If true, allow multiple selection from the options."""
-
-    @override
-    def __str__(self) -> str:
-        """Return a human-readable representation of the control."""
-        return self.label or self.variable_name
