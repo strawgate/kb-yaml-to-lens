@@ -145,6 +145,23 @@ All dashboards follow the same 5-layer structure as defined in the [Dashboard St
 - **Navigation Panel**: Horizontal links to all 4 dashboards
 - Full width (48 columns), minimal height (4 grid units)
 
+**Navigation Panel Example:**
+```yaml
+- title: Dashboard Navigation
+  grid:
+    x: 0
+    y: 0
+    w: 48
+    h: 4
+  links:
+    layout: horizontal
+    items:
+      - label: SOC Dashboard
+        dashboard: crowdstrike-modern-soc-...
+      - label: Threat Investigation
+        dashboard: crowdstrike-modern-investigation-...
+```
+
 ### 2. Control Layer (Immediately after navigation)
 - **Control Filters**: Dashboard-specific filters for multi-dimensional analysis
 - 3 controls per dashboard (2 medium width, 1 small width)
@@ -313,10 +330,10 @@ done
 | Dashboard | Panels | Focus | Data Source |
 |-----------|--------|-------|-------------|
 | Alert | 16 | Alert dataset analysis | crowdstrike.alert |
-| Falcon Overview | 6 | Incident and event overview | crowdstrike.falcon |
-| FDR Overview | 7 | Flight data recorder events | crowdstrike.fdr |
-| Host | 7 | Host/device information | crowdstrike.host |
-| Vulnerability | 6 | Vulnerability tracking | crowdstrike.vulnerability |
+| Falcon Overview | 8 | Incident and event overview | crowdstrike.falcon |
+| FDR Overview | 6 | Flight data recorder events | crowdstrike.fdr |
+| Host | 5 | Host/device information | crowdstrike.host |
+| Vulnerability | 7 | Vulnerability tracking | crowdstrike.vulnerability |
 | Overview | 6 | General CrowdStrike overview | Multiple datasets |
 
 **Total:** 6 dashboards, 48 panels
@@ -366,7 +383,7 @@ done
 
 ## Design Principles
 
-These dashboards follow the [Dashboard Style Guide](../../docs/dashboard-style-guide.md) best practices:
+These dashboards follow the [Dashboard Style Guide](../../../docs/dashboard-style-guide.md) best practices:
 
 1. **Predictable Organization**: Same structure across all 4 dashboards
 2. **Visualization Clarity**: Chart types match data characteristics
@@ -497,6 +514,123 @@ This example demonstrates:
 - Panel definitions with grid positioning
 - Different visualization types (metric, pie chart)
 
+### Complex Dashboard Example
+
+The following shows advanced features including multi-dataset filtering, nested logical operators, breakdowns, and panel-specific filters:
+
+```yaml
+---
+dashboards:
+  - id: crowdstrike-complex-example
+    name: '[CrowdStrike] Complex Dashboard'
+    description: Complex dashboard demonstrating advanced features
+    filters:
+      - or:
+          - field: data_stream.dataset
+            equals: crowdstrike.alert
+          - field: data_stream.dataset
+            equals: crowdstrike.falcon
+    controls:
+      - type: options
+        label: Host
+        width: medium
+        data_view: logs-*
+        field: host.name
+        match_technique: contains
+      - type: options
+        label: Severity
+        width: small
+        data_view: logs-*
+        field: crowdstrike.alert.severity
+        match_technique: exact
+    panels:
+      # Stacked area chart with breakdown dimension
+      - title: Events Over Time by Severity
+        grid:
+          x: 0
+          y: 0
+          w: 48
+          h: 15
+        lens:
+          type: area
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: crowdstrike.alert.severity
+            type: values
+            size: 5
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: true
+          metrics:
+            - aggregation: count
+              label: Event Count
+      # Donut chart with other_bucket and panel-specific filter
+      - title: Critical Alert Sources
+        grid:
+          x: 0
+          y: 15
+          w: 24
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: source.ip
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: crowdstrike.alert.severity
+              equals: critical
+      # Horizontal bar chart with negation filter
+      - title: Non-Alert Events by Action
+        grid:
+          x: 24
+          y: 15
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: event.action
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - not:
+                field: event.kind
+                equals: alert
+```
+
+This complex example demonstrates:
+- **Multi-dataset filtering**: `or` operator to combine crowdstrike.alert and crowdstrike.falcon datasets
+- **Stacked area chart**: Time series with `breakdown` dimension showing severity distribution over time
+- **Other bucket**: Capturing values beyond top N in the "Other" category
+- **Panel-specific filters**: Narrowing data for individual panels (e.g., critical alerts only)
+- **Negation filters**: Using `not` operator to exclude alert events
+- **Match techniques**: Using `contains` for flexible text matching in controls
+
 ### Configuration Options Reference
 
 The following table provides a comprehensive reference for all configuration keys used in the examples above:
@@ -553,10 +687,10 @@ The following table provides a comprehensive reference for all configuration key
 ## References
 
 ### Internal Documentation
-- [Dashboard Style Guide](../../docs/dashboard-style-guide.md) - Design principles and patterns
-- [Controls Configuration](../../docs/controls/config.md) - Control filter syntax
-- [Lens Panel Configuration](../../docs/panels/lens.md) - Chart configuration options
-- [Filters Documentation](../../docs/filters/config.md) - Filter and query syntax
+- [Dashboard Style Guide](../../../docs/dashboard-style-guide.md) - Design principles and patterns
+- [Controls Configuration](../../../docs/controls/config.md) - Control filter syntax
+- [Lens Panel Configuration](../../../docs/panels/lens.md) - Chart configuration options
+- [Filters Documentation](../../../docs/filters/config.md) - Filter and query syntax
 
 ### External Resources
 - [Elastic Common Schema (ECS)](https://www.elastic.co/guide/en/ecs/current/index.html) - Field reference
@@ -569,8 +703,8 @@ The following table provides a comprehensive reference for all configuration key
 ## Support
 
 For issues, questions, or contributions:
-- Review the [Contributing Guide](../../CONTRIBUTING.md)
-- Check the [Architecture Documentation](../../docs/architecture.md)
+- Review the [Contributing Guide](../../../CONTRIBUTING.md)
+- Check the [Architecture Documentation](../../../docs/architecture.md)
 - Open an issue on GitHub
 
 ---
