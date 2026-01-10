@@ -16,6 +16,7 @@ classifiers = [
 
 dependencies = [
     "kb-dashboard-compiler",
+    "click>=8.0",
 ]
 
 [tool.uv.sources]

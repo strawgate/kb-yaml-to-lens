@@ -10,15 +10,16 @@ Releases are **tag-based and fully automated**. Push a version tag (`v*`) to tri
 ## Quick Start
 
 ```bash
-# 1. Update versions
-# Edit: compiler/pyproject.toml and vscode-extension/package.json
+# 1. Bump version (updates all components atomically)
+make bump-patch    # or bump-minor/bump-major
+# Or set explicit version: uv run scripts/bump-version.py set 1.0.0
+# Preview changes first: uv run scripts/bump-version.py patch --dry-run
 
 # 2. Commit and tag
-git add compiler/pyproject.toml vscode-extension/package.json
+git add compiler/pyproject.toml vscode-extension/package.json fixture-generator/package.json pyproject.toml
 git commit -m "chore: Bump version to 1.0.0"
-git push origin main
 git tag v1.0.0
-git push origin v1.0.0
+git push origin main && git push origin v1.0.0
 
 # 3. Monitor workflows at github.com/strawgate/kb-yaml-to-lens/actions
 # 4. Verify release at github.com/strawgate/kb-yaml-to-lens/releases
@@ -40,7 +41,7 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 
 - [ ] All PRs merged to `main`
 - [ ] CI passes: `make ci`
-- [ ] Versions updated in `compiler/pyproject.toml` and `vscode-extension/package.json`
+- [ ] Versions updated: `make bump-patch` (or `bump-minor`/`bump-major`)
 
 **After tagging:**
 
