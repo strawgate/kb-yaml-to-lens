@@ -1,7 +1,9 @@
 """Tests for chart compilation utilities."""
 
+from typing import Any
+
 import pytest
-from dirty_equals import IsPartialDict, IsStr
+from dirty_equals import IsPartialDict, IsStr, IsUUID
 
 from dashboard_compiler.panels.charts.compile import (
     chart_type_to_kbn_type_lens,
@@ -25,6 +27,16 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig, XYReferenceLineLayerConfig
+
+
+def _get_single_layer(state: Any) -> tuple[str, Any]:
+    """Extract the single layer from a compiled chart state."""
+    form_based = state.datasourceStates.formBased
+    assert form_based is not None
+    layers = form_based.layers.root
+    assert len(layers) == 1
+    layer_id, layer = next(iter(layers.items()))
+    return layer_id, layer
 
 
 class TestChartTypeToKbnTypeLens:
@@ -272,29 +284,22 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[metric_chart])
+        _layer_id, layer = _get_single_layer(state)
 
-        # Verify state has required structure
-        assert state.datasourceStates.formBased is not None
-        layers = list(state.datasourceStates.formBased.layers.root.values())
-        assert len(layers) == 1
-        layer = layers[0]
+        # Verify datasource layer
         assert layer.columnOrder == ['metric1']
-        assert 'metric1' in layer.columns
-        assert layer.columns['metric1'].operationType == 'count'
-        assert layer.columns['metric1'].dataType == 'number'
-        assert layer.columns['metric1'].sourceField == '___records___'
+        assert layer.columns['metric1'].model_dump() == IsPartialDict(operationType='count', dataType='number', sourceField='___records___')
 
         # Verify visualization
-        assert state.visualization is not None
-        vis = state.visualization
-        assert vis.layerType == 'data'
-        assert vis.metricAccessor == 'metric1'
+        assert state.visualization.model_dump() == IsPartialDict(layerId=IsUUID, layerType='data', metricAccessor='metric1')
 
         # Verify references
         assert len(references) == 1
-        ref = references[0].model_dump()
-        assert ref == IsPartialDict(id='metrics-*', type='index-pattern')
-        assert ref['name'] == IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+')
+        assert references[0].model_dump() == IsPartialDict(
+            id='metrics-*',
+            type='index-pattern',
+            name=IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'),
+        )
 
     def test_compiles_datatable_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a datatable chart."""
@@ -306,27 +311,21 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[datatable_chart])
+        _layer_id, layer = _get_single_layer(state)
 
-        # Verify state has required structure
-        assert state.datasourceStates.formBased is not None
-        layers = list(state.datasourceStates.formBased.layers.root.values())
-        assert len(layers) == 1
-        layer = layers[0]
+        # Verify datasource layer
         assert layer.columnOrder == ['metric1']
-        assert 'metric1' in layer.columns
-        assert layer.columns['metric1'].operationType == 'count'
+        assert layer.columns['metric1'].model_dump() == IsPartialDict(operationType='count')
 
         # Verify visualization
-        assert state.visualization is not None
-        vis = state.visualization
-        assert vis.layerType == 'data'
-        assert len(vis.columns) == 1
-        assert vis.columns[0].columnId == 'metric1'
+        vis = state.visualization.model_dump()
+        assert vis == IsPartialDict(layerId=IsUUID, layerType='data')
+        assert len(vis['columns']) == 1
+        assert vis['columns'][0] == IsPartialDict(columnId='metric1')
 
         # Verify references
         assert len(references) == 1
-        ref = references[0].model_dump()
-        assert ref == IsPartialDict(id='metrics-*', type='index-pattern')
+        assert references[0].model_dump() == IsPartialDict(id='metrics-*', type='index-pattern')
 
     def test_compiles_gauge_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a gauge chart."""
@@ -338,27 +337,18 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[gauge_chart])
+        _layer_id, layer = _get_single_layer(state)
 
-        # Verify state has required structure
-        assert state.datasourceStates.formBased is not None
-        layers = list(state.datasourceStates.formBased.layers.root.values())
-        assert len(layers) == 1
-        layer = layers[0]
+        # Verify datasource layer
         assert layer.columnOrder == ['metric1']
-        assert 'metric1' in layer.columns
-        assert layer.columns['metric1'].operationType == 'count'
+        assert layer.columns['metric1'].model_dump() == IsPartialDict(operationType='count')
 
         # Verify visualization
-        assert state.visualization is not None
-        vis = state.visualization
-        assert vis.layerType == 'data'
-        assert vis.metricAccessor == 'metric1'
-        assert vis.shape in ('arc', 'horizontalBullet', 'verticalBullet', 'semiCircle', 'circle')
+        assert state.visualization.model_dump() == IsPartialDict(layerId=IsUUID, layerType='data', metricAccessor='metric1', shape='arc')
 
         # Verify references
         assert len(references) == 1
-        ref = references[0].model_dump()
-        assert ref == IsPartialDict(id='metrics-*', type='index-pattern')
+        assert references[0].model_dump() == IsPartialDict(id='metrics-*', type='index-pattern')
 
     def test_compiles_heatmap_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a heatmap chart."""
@@ -371,31 +361,21 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[heatmap_chart])
+        _layer_id, layer = _get_single_layer(state)
 
-        # Verify state has required structure
-        assert state.datasourceStates.formBased is not None
-        layers = list(state.datasourceStates.formBased.layers.root.values())
-        assert len(layers) == 1
-        layer = layers[0]
+        # Verify datasource layer
         assert layer.columnOrder == ['x1', 'metric1']
-        assert 'x1' in layer.columns
-        assert 'metric1' in layer.columns
-        assert layer.columns['x1'].operationType == 'date_histogram'
-        assert layer.columns['x1'].sourceField == '@timestamp'
-        assert layer.columns['metric1'].operationType == 'count'
+        assert layer.columns['x1'].model_dump() == IsPartialDict(operationType='date_histogram', dataType='date', sourceField='@timestamp')
+        assert layer.columns['metric1'].model_dump() == IsPartialDict(operationType='count')
 
         # Verify visualization
-        assert state.visualization is not None
-        vis = state.visualization
-        assert vis.layerType == 'data'
-        assert vis.shape == 'heatmap'
-        assert vis.xAccessor == 'x1'
-        assert vis.valueAccessor == 'metric1'
+        assert state.visualization.model_dump() == IsPartialDict(
+            layerId=IsUUID, layerType='data', shape='heatmap', xAccessor='x1', valueAccessor='metric1'
+        )
 
         # Verify references
         assert len(references) == 1
-        ref = references[0].model_dump()
-        assert ref == IsPartialDict(id='metrics-*', type='index-pattern')
+        assert references[0].model_dump() == IsPartialDict(id='metrics-*', type='index-pattern')
 
     def test_compiles_tagcloud_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a tagcloud chart."""
@@ -408,29 +388,19 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[tagcloud_chart])
+        _layer_id, layer = _get_single_layer(state)
 
-        # Verify state has required structure
-        assert state.datasourceStates.formBased is not None
-        layers = list(state.datasourceStates.formBased.layers.root.values())
-        assert len(layers) == 1
-        layer = layers[0]
+        # Verify datasource layer
         assert layer.columnOrder == ['tags1', 'metric1']
-        assert 'tags1' in layer.columns
-        assert 'metric1' in layer.columns
-        assert layer.columns['tags1'].operationType == 'terms'
-        assert layer.columns['tags1'].sourceField == 'tag'
-        assert layer.columns['metric1'].operationType == 'count'
+        assert layer.columns['tags1'].model_dump() == IsPartialDict(operationType='terms', sourceField='tag')
+        assert layer.columns['metric1'].model_dump() == IsPartialDict(operationType='count')
 
-        # Verify visualization - tagcloud has different visualization state
-        assert state.visualization is not None
-        vis = state.visualization
-        assert vis.tagAccessor == 'tags1'
-        assert vis.valueAccessor == 'metric1'
+        # Verify visualization
+        assert state.visualization.model_dump() == IsPartialDict(layerId=IsUUID, tagAccessor='tags1', valueAccessor='metric1')
 
         # Verify references
         assert len(references) == 1
-        ref = references[0].model_dump()
-        assert ref == IsPartialDict(id='metrics-*', type='index-pattern')
+        assert references[0].model_dump() == IsPartialDict(id='metrics-*', type='index-pattern')
 
     def test_compiles_pie_chart(self) -> None:
         """Test that compile_lens_chart_state correctly compiles a pie chart."""
@@ -443,28 +413,22 @@ class TestCompileLensChartState:
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[pie_chart])
+        _layer_id, layer = _get_single_layer(state)
 
-        # Verify state has required structure
-        assert state.datasourceStates.formBased is not None
-        layers = list(state.datasourceStates.formBased.layers.root.values())
-        assert len(layers) == 1
-        layer = layers[0]
+        # Verify datasource layer
         assert layer.columnOrder == ['group1', 'metric1']
-        assert 'group1' in layer.columns
-        assert 'metric1' in layer.columns
-        assert layer.columns['group1'].operationType == 'terms'
-        assert layer.columns['group1'].sourceField == 'status'
-        assert layer.columns['metric1'].operationType == 'count'
+        assert layer.columns['group1'].model_dump() == IsPartialDict(operationType='terms', sourceField='status')
+        assert layer.columns['metric1'].model_dump() == IsPartialDict(operationType='count')
 
-        # Verify visualization has correct pie chart properties
-        assert state.visualization is not None
-        vis = state.visualization
-        assert vis.shape == 'pie'
+        # Verify visualization
+        vis = state.visualization.model_dump()
+        assert vis['shape'] == 'pie'
+        assert len(vis['layers']) == 1
+        assert vis['layers'][0] == IsPartialDict(layerId=IsUUID, layerType='data', primaryGroups=['group1'], metrics=['metric1'])
 
         # Verify references
         assert len(references) == 1
-        ref = references[0].model_dump()
-        assert ref == IsPartialDict(id='metrics-*', type='index-pattern')
+        assert references[0].model_dump() == IsPartialDict(id='metrics-*', type='index-pattern')
 
     def test_compiles_chart_with_reference_line_layer(self) -> None:
         """Test that compile_lens_chart_state merges reference line layers into XY visualization."""
@@ -488,29 +452,35 @@ class TestCompileLensChartState:
         assert len(references) == 2
         for ref in references:
             ref_dump = ref.model_dump()
-            assert ref_dump['id'] == 'metrics-*'
-            assert ref_dump['type'] == 'index-pattern'
-            assert ref_dump['name'] == IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+')
+            assert ref_dump == IsPartialDict(
+                id='metrics-*',
+                type='index-pattern',
+                name=IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'),
+            )
 
         # Verify visualization layers
-        layers = state.visualization.layers
-        assert len(layers) == 2
+        vis = state.visualization
+        assert vis is not None
+        assert len(vis.layers) == 2
 
         # Verify data layer (bar chart)
-        data_layer = layers[0]
+        data_layer = vis.layers[0]
         assert isinstance(data_layer, XYDataLayerConfig)
-        assert data_layer.layerType == 'data'
-        assert data_layer.seriesType == 'bar_stacked'
-        assert data_layer.xAccessor == 'dim1'
-        assert data_layer.accessors == ['metric1']
+        assert data_layer.model_dump() == IsPartialDict(
+            layerType='data',
+            seriesType='bar_stacked',
+            xAccessor='dim1',
+            accessors=['metric1'],
+        )
 
         # Verify reference line layer
-        ref_layer = layers[1]
+        ref_layer = vis.layers[1]
         assert isinstance(ref_layer, XYReferenceLineLayerConfig)
-        assert ref_layer.layerType == 'referenceLine'
-        assert ref_layer.accessors == ['ref1']
+        assert ref_layer.model_dump() == IsPartialDict(
+            layerType='referenceLine',
+            accessors=['ref1'],
+        )
         assert ref_layer.yConfig is not None
-        assert len(ref_layer.yConfig) == 1
         assert ref_layer.yConfig[0].forAccessor == 'ref1'
 
         # Verify datasource layers
@@ -523,15 +493,12 @@ class TestCompileLensChartState:
         # Verify data layer datasource
         data_layer_ds = sorted_layers[0]
         assert data_layer_ds.columnOrder == ['dim1', 'metric1']
-        assert 'dim1' in data_layer_ds.columns
-        assert 'metric1' in data_layer_ds.columns
         assert data_layer_ds.columns['dim1'].operationType == 'date_histogram'
         assert data_layer_ds.columns['metric1'].operationType == 'count'
 
         # Verify reference line layer datasource
         ref_layer_ds = sorted_layers[1]
         assert ref_layer_ds.columnOrder == ['ref1']
-        assert 'ref1' in ref_layer_ds.columns
         assert ref_layer_ds.columns['ref1'].operationType == 'static_value'
 
 
