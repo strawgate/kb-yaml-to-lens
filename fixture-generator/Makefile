@@ -5,7 +5,7 @@ KIBANA_VERSION ?= v9.2.0
 OUTPUT_DIR := $(shell pwd)/output
 BASE_IMAGE ?= ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:$(KIBANA_VERSION)
 
-.PHONY: help all ci check fix test typecheck build-base pull run run-example shell test-import clean
+.PHONY: help all ci check test typecheck build-base pull run run-example shell test-import clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -16,9 +16,6 @@ ci: pull typecheck test ## Run CI checks (pull + typecheck + test)
 	@echo "✓ Fixture generator CI checks passed"
 
 check: ci ## Alias for ci
-
-fix: ## No linting to fix (placeholder for consistency)
-	@echo "✓ No linting to fix for fixture generator"
 
 typecheck: ## Run TypeScript type checking
 	docker run --rm \
@@ -88,4 +85,3 @@ test-import: ## Test that @kbn/lens-embeddable-utils can be imported
 
 clean: ## Remove generated output files
 	rm -rf $(OUTPUT_DIR)/*
-
