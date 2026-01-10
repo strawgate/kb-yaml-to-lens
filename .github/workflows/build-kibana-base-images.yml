@@ -1,5 +1,5 @@
 ---
-name: Build and Publish Kibana Base Images
+name: Publish Kibana Fixture Images
 on:
   # Run weekly on Mondays at 3 AM UTC
   schedule:
@@ -14,7 +14,7 @@ permissions:
   packages: write
 jobs:
   build-and-publish:
-    name: Build Kibana Base Image (${{ matrix.kibana_version }}, ${{ matrix.platform }})
+    name: Build (${{ matrix.kibana_version }}, ${{ matrix.platform }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Free disk space
-        uses: jlumbroso/free-disk-space@main
+        uses: jlumbroso/free-disk-space@v1.3.1
         with:
           android: true
           dotnet: true
@@ -52,7 +52,7 @@ jobs:
       - name: Set platform suffix
         id: platform
         run: |
-          echo "suffix=$(echo '${{ matrix.platform }}' | sed 's/linux\///')" >> $GITHUB_OUTPUT
+          echo "suffix=$(echo "${{ matrix.platform }}" | sed 's|linux/||')" >> $GITHUB_OUTPUT 
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
