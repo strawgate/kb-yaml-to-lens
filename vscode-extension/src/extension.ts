@@ -723,6 +723,12 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export async function deactivate(): Promise<void> {
+    if (previewPanel) {
+        previewPanel.dispose();
+    }
+    if (gridEditorPanel) {
+        gridEditorPanel.dispose();
+    }
     if (compiler) {
         await compiler.dispose();
     }
