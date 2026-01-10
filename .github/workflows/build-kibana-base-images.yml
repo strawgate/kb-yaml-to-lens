@@ -4,6 +4,9 @@ on:
   # Run weekly on Mondays at 3 AM UTC
   schedule:
     - cron: 0 3 * * 1
+  pull_request:
+    paths:
+      - fixture-generator/Dockerfile.base
   # Allow manual triggering with default matrix
   workflow_dispatch: null
 permissions:
@@ -26,6 +29,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+          tool-cache: false
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
