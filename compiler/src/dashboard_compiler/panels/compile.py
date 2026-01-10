@@ -19,6 +19,7 @@ from dashboard_compiler.panels.search.view import KbnSearchPanel
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.logging import logger
 from dashboard_compiler.shared.view import KbnReference
 
 
@@ -122,6 +123,10 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
         tuple: A tuple containing the compiled references and the Kibana panel view model.
 
     """
+    panel_type = get_panel_type_name(panel)
+    panel_title = panel.title if len(panel.title) > 0 else '(untitled)'
+    logger.debug('Compiling %s panel: %s', panel_type, panel_title)
+
     panel_index, grid_data = compile_panel_shared(panel, grid)
 
     match panel:

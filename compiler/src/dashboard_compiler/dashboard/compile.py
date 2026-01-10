@@ -10,6 +10,7 @@ from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_false, default_true
+from dashboard_compiler.shared.logging import logger
 from dashboard_compiler.shared.view import KbnReference
 
 CORE_MIGRATION_VERSION: str = '8.8.0'
@@ -45,10 +46,19 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         KbnDashboardAttributes: The compiled Kibana dashboard attributes view model.
 
     """
+    if len(dashboard.panels) > 0:
+        logger.debug('Compiling %d panel(s) for %s', len(dashboard.panels), dashboard.name)
+
     references, panels = compile_dashboard_panels(
         dashboard.panels,
         layout_algorithm=dashboard.settings.layout_algorithm,
     )
+
+    if len(dashboard.filters) > 0:
+        logger.debug('Compiling %d filter(s) for %s', len(dashboard.filters), dashboard.name)
+
+    if len(dashboard.controls) > 0:
+        logger.debug('Compiling %d control(s) for %s', len(dashboard.controls), dashboard.name)
 
     return references, KbnDashboardAttributes(
         title=dashboard.name,

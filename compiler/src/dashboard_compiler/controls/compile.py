@@ -38,6 +38,7 @@ from dashboard_compiler.controls.view import (
 from dashboard_compiler.shared.compile import return_if, return_if_equals
 from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false, default_if_none
+from dashboard_compiler.shared.logging import get_control_description, logger
 
 
 def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
@@ -307,6 +308,9 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  #
         KbnControlTypes: The compiled Kibana control view model.
 
     """
+    control_type = type(control).__name__
+    logger.debug('Compiling %s control: %s', control_type, get_control_description(control))
+
     if isinstance(control, OptionsListControl):
         return compile_options_list_control(order, control=control)
 

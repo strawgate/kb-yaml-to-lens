@@ -8,6 +8,7 @@ from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.loader import DashboardConfig
+from dashboard_compiler.shared.logging import logger
 
 
 def load(path: str) -> list[Dashboard]:
@@ -22,10 +23,16 @@ def load(path: str) -> list[Dashboard]:
     """
     load_path = Path(path)
 
+    logger.debug('Loading YAML file: %s', load_path.name)
+
     with load_path.open() as file:
         config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
     config = DashboardConfig.model_validate(config_data)
+
+    for dashboard in config.dashboards:
+        logger.info('Loaded dashboard: %s', dashboard.name)
+
     return config.dashboards
 
 
@@ -39,7 +46,10 @@ def render(dashboard: Dashboard) -> KbnDashboard:
         KbnDashboard: The rendered Kibana dashboard view model.
 
     """
-    return compile_dashboard(dashboard)
+    logger.info('Compiling dashboard: %s', dashboard.name)
+    result = compile_dashboard(dashboard)
+    logger.debug('Compiled dashboard: %s', dashboard.name)
+    return result
 
 
 def dump(dashboards: list[Dashboard], path: str) -> None:
