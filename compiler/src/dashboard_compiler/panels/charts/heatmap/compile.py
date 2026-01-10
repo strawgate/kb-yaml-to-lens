@@ -11,7 +11,7 @@ from dashboard_compiler.panels.charts.heatmap.view import (
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.config import get_dimension_identifier, get_layer_id, get_metric_identifier
 from dashboard_compiler.shared.defaults import default_false
 
 if TYPE_CHECKING:
@@ -123,7 +123,13 @@ def compile_lens_heatmap_chart(
     # Add value metric to columns
     kbn_columns_by_id[value_id] = value_column
 
-    layer_id = get_layer_id(lens_heatmap_chart)
+    # Build deterministic fallback values from chart configuration
+    x_id_str = get_dimension_identifier(lens_heatmap_chart.x_axis)
+    y_id_str = get_dimension_identifier(lens_heatmap_chart.y_axis) if lens_heatmap_chart.y_axis else None
+    value_id_str = get_metric_identifier(lens_heatmap_chart.value)
+    layer_id = get_layer_id(
+        lens_heatmap_chart, ['chart', 'heatmap', 'lens', lens_heatmap_chart.data_view, x_id_str, y_id_str, value_id_str]
+    )
 
     return (
         layer_id,
@@ -153,7 +159,11 @@ def compile_esql_heatmap_chart(
             - kbn_state_visualization (KbnHeatmapVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(esql_heatmap_chart)
+    # Build deterministic fallback values from chart configuration
+    x_id_str = get_dimension_identifier(esql_heatmap_chart.x_axis)
+    y_id_str = get_dimension_identifier(esql_heatmap_chart.y_axis) if esql_heatmap_chart.y_axis else None
+    value_id_str = get_metric_identifier(esql_heatmap_chart.value)
+    layer_id = get_layer_id(esql_heatmap_chart, ['chart', 'heatmap', 'esql', x_id_str, y_id_str, value_id_str])
 
     kbn_columns: 'list[KbnESQLColumnTypes]' = []  # noqa: UP037
 

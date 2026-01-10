@@ -42,7 +42,7 @@ from dashboard_compiler.panels.charts.xy.view import (
     XYReferenceLineLayerConfig,
     YConfig,
 )
-from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.config import get_dimension_identifier, get_layer_id, get_metric_identifier
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -100,8 +100,10 @@ def compile_lens_reference_line_layer(
             - columns: Dictionary of accessor ID -> static value column
             - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
-    # Generate a primary layer ID for the data view reference and visualization layer
-    primary_layer_id = get_layer_id(layer)
+    # Build deterministic fallback values from reference line values and labels
+    ref_line_values = [str(getattr(r.value, 'value', r.value)) for r in layer.reference_lines]
+    ref_line_labels = [r.label or '' for r in layer.reference_lines]
+    primary_layer_id = get_layer_id(layer, ['reference_layer', *ref_line_values, *ref_line_labels])
 
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
     accessor_ids: list[str] = []
@@ -134,8 +136,9 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
     Returns:
         tuple[str, KbnLensStaticValueColumn, YConfig]: The accessor ID, static value column, and Y config.
     """
-    # Generate accessor ID
-    accessor_id = get_layer_id(ref_line)
+    # Generate deterministic accessor ID from value, label, and axis
+    value_str = str(getattr(ref_line.value, 'value', ref_line.value))
+    accessor_id = get_layer_id(ref_line, ['reference_line', value_str, ref_line.label, ref_line.axis])
 
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):
@@ -494,7 +497,14 @@ def compile_lens_xy_chart(
     Returns:
         tuple[str, dict[str, KbnLensColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    layer_id = get_layer_id(lens_xy_chart)
+    # Build deterministic fallback values from chart configuration
+    chart_type = type(lens_xy_chart).__name__
+    dimension_id_str = get_dimension_identifier(lens_xy_chart.dimension) if lens_xy_chart.dimension else None
+    breakdown_id_str = get_dimension_identifier(lens_xy_chart.breakdown) if lens_xy_chart.breakdown else None
+    metric_id_strs = [get_metric_identifier(m) for m in lens_xy_chart.metrics]
+    layer_id = get_layer_id(
+        lens_xy_chart, ['chart', chart_type, 'lens', lens_xy_chart.data_view, dimension_id_str, *metric_id_strs, breakdown_id_str]
+    )
 
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
@@ -545,7 +555,12 @@ def compile_esql_xy_chart(
     Returns:
         tuple[str, list[KbnESQLColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    layer_id = get_layer_id(esql_xy_chart)
+    # Build deterministic fallback values from chart configuration
+    chart_type = type(esql_xy_chart).__name__
+    dimension_id_str = get_dimension_identifier(esql_xy_chart.dimension) if esql_xy_chart.dimension else None
+    breakdown_id_str = get_dimension_identifier(esql_xy_chart.breakdown) if esql_xy_chart.breakdown else None
+    metric_id_strs = [get_metric_identifier(m) for m in esql_xy_chart.metrics]
+    layer_id = get_layer_id(esql_xy_chart, ['chart', chart_type, 'esql', dimension_id_str, *metric_id_strs, breakdown_id_str])
 
     metrics = compile_esql_metrics(esql_xy_chart.metrics)
     metric_ids = [metric.columnId for metric in metrics]

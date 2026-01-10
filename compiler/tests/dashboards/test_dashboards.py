@@ -1,6 +1,4 @@
-from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
-from unittest.mock import patch
 
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
@@ -11,14 +9,6 @@ from tests.conftest import de_json_kbn_dashboard
 
 if TYPE_CHECKING:
     from dashboard_compiler.dashboard.view import KbnDashboard
-
-
-def deterministic_id_generator() -> Generator[str, None, None]:
-    """Generate deterministic UUIDs for testing."""
-    i = 0
-    while True:
-        yield f'00000000-0000-0000-0000-{i:012d}'
-        i += 1
 
 
 def _replace_panel_indexes(result: dict[str, Any]) -> None:
@@ -113,11 +103,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -280,11 +266,7 @@ async def test_dashboard_with_one_query() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -348,11 +330,7 @@ async def test_dashboard_with_one_filter() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -452,11 +430,7 @@ async def test_dashboard_with_custom_options() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -546,11 +520,7 @@ async def test_dashboard_with_default_options() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)

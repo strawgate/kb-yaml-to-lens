@@ -7,7 +7,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_len
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 from dashboard_compiler.panels.charts.tagcloud.view import KbnTagcloudVisualizationState
-from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.config import get_dimension_identifier, get_layer_id, get_metric_identifier
 
 
 def compile_tagcloud_chart_visualization_state(
@@ -67,7 +67,10 @@ def compile_lens_tagcloud_chart(
         tuple[str, dict[str, KbnLensColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    layer_id = get_layer_id(chart)
+    # Build deterministic fallback values from chart configuration
+    dimension_id_str = get_dimension_identifier(chart.dimension)
+    metric_id_str = get_metric_identifier(chart.metric)
+    layer_id = get_layer_id(chart, ['chart', 'tagcloud', 'lens', chart.data_view, dimension_id_str, metric_id_str])
 
     # Compile metric first
     metric_id, metric_column = compile_lens_metric(metric=chart.metric)
@@ -96,7 +99,10 @@ def compile_esql_tagcloud_chart(
         tuple[str, list[KbnESQLColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    layer_id = get_layer_id(chart)
+    # Build deterministic fallback values from chart configuration
+    dimension_id_str = get_dimension_identifier(chart.dimension)
+    metric_id_str = get_metric_identifier(chart.metric)
+    layer_id = get_layer_id(chart, ['chart', 'tagcloud', 'esql', dimension_id_str, metric_id_str])
 
     # Compile dimension
     dimensions = compile_esql_dimensions(dimensions=[chart.dimension])

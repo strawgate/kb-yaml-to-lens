@@ -3,7 +3,7 @@
 import hashlib
 import uuid
 from collections.abc import Sequence
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field
 
@@ -45,18 +45,94 @@ def stable_id_generator(values: Sequence[str | int | float | None]) -> str:
     return str(guid)
 
 
-def get_layer_id(chart_config: object) -> str:
-    """Get layer ID from chart config or generate random ID.
+def get_dimension_identifier(dimension: object) -> str:
+    """Get a representative identifier string from a dimension object.
+
+    Handles different dimension types:
+    - LensTermsDimension, LensDateHistogramDimension, etc. with 'field' attribute
+    - LensMultiTermsDimension with 'fields' attribute (list)
+    - LensFiltersDimension with 'filters' attribute
+    - ESQLDimensionTypes with 'field' attribute
+
+    Args:
+        dimension: A dimension configuration object.
+
+    Returns:
+        A representative string identifier for the dimension.
+    """
+    # Try 'field' first (most common)
+    field: str | None = getattr(dimension, 'field', None)
+    if field is not None:
+        return field
+
+    # Try 'fields' for multi-terms dimensions
+    fields: list[str] | None = getattr(dimension, 'fields', None)
+    if fields is not None:
+        return ','.join(fields)
+
+    # Try 'filters' for filters dimensions
+    filters: list[Any] | None = getattr(dimension, 'filters', None)
+    if filters is not None:
+        return f'filters:{len(filters)}'
+
+    # Fallback to type name
+    return type(dimension).__name__
+
+
+def get_metric_identifier(metric: object) -> str:
+    """Get a representative identifier string from a metric object.
+
+    Handles different metric types:
+    - Regular metrics with 'field' attribute
+    - Count metrics with 'aggregation' attribute
+    - Static values with 'value' attribute
+
+    Args:
+        metric: A metric configuration object.
+
+    Returns:
+        A representative string identifier for the metric.
+    """
+    # Try 'field' first (most common)
+    field: str | None = getattr(metric, 'field', None)
+    if field is not None:
+        return field
+
+    # Try 'aggregation' for count metrics
+    aggregation: str | None = getattr(metric, 'aggregation', None)
+    if aggregation is not None:
+        return aggregation
+
+    # Try 'value' for static values
+    value: float | int | None = getattr(metric, 'value', None)
+    if value is not None:
+        return f'static:{value}'
+
+    # Fallback to type name
+    return type(metric).__name__
+
+
+def get_layer_id(
+    chart_config: object,
+    fallback_values: Sequence[str | int | float | None] | None = None,
+) -> str:
+    """Get layer ID from chart config or generate deterministic/random ID.
 
     Args:
         chart_config: Chart configuration object with optional 'id' attribute
+        fallback_values: Values to use for deterministic ID generation if config.id is None.
+                        If None, falls back to random generation (backward compatible).
 
     Returns:
-        Layer ID string (from config.id or randomly generated)
+        Layer ID string (from config.id, deterministic from fallback_values, or random)
 
     """
-    config_id = getattr(chart_config, 'id', None)
-    return config_id if config_id is not None else random_id_generator()
+    config_id: str | None = getattr(chart_config, 'id', None)
+    if config_id is not None:
+        return config_id
+    if fallback_values is not None:
+        return stable_id_generator(fallback_values)
+    return random_id_generator()
 
 
 class Sort(BaseCfgModel):

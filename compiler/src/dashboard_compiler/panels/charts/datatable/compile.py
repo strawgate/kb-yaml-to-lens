@@ -29,7 +29,7 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.shared.config import get_layer_id
+from dashboard_compiler.shared.config import get_dimension_identifier, get_layer_id, get_metric_identifier
 
 
 def _build_datatable_visualization_state(
@@ -158,7 +158,12 @@ def compile_lens_datatable_chart(
             - kbn_state_visualization (KbnDatatableVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(lens_datatable_chart)
+    # Build deterministic fallback values from chart configuration
+    dimension_ids = [get_dimension_identifier(d) for d in lens_datatable_chart.dimensions]
+    metric_ids = [get_metric_identifier(m) for m in lens_datatable_chart.metrics]
+    layer_id = get_layer_id(
+        lens_datatable_chart, ['chart', 'datatable', 'lens', lens_datatable_chart.data_view, *dimension_ids, *metric_ids]
+    )
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     column_order: list[str] = []
 
@@ -226,7 +231,10 @@ def compile_esql_datatable_chart(
             - kbn_state_visualization (KbnDatatableVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(esql_datatable_chart)
+    # Build deterministic fallback values from chart configuration
+    dimension_ids = [get_dimension_identifier(d) for d in esql_datatable_chart.dimensions]
+    metric_ids = [get_metric_identifier(m) for m in esql_datatable_chart.metrics]
+    layer_id = get_layer_id(esql_datatable_chart, ['chart', 'datatable', 'esql', *dimension_ids, *metric_ids])
     kbn_columns: list[KbnESQLColumnTypes] = []
     column_order: list[str] = []
 

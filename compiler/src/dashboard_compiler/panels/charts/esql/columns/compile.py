@@ -135,7 +135,8 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
         KbnESQLFieldDimensionColumn: The compiled Kibana view model.
 
     """
-    dimension_id = get_layer_id(dimension)
+    # Build deterministic fallback values from dimension configuration
+    dimension_id = get_layer_id(dimension, ['esql_dimension', dimension.field, dimension.data_type])
 
     # Add meta information for date fields if data_type is explicitly set
     meta = None
