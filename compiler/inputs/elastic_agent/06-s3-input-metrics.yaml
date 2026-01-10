@@ -159,9 +159,9 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: differences(max(filebeat_input.sqs_messages_received_total)), label: SQS Messages Received}
+            - {formula: 'pick_max(differences(max(filebeat_input.sqs_messages_received_total)), 0)', label: SQS Messages Received}
             - {aggregation: max, field: filebeat_input.sqs_messages_received_total, label: Part of SQS Messages Received}
-            - {formula: differences(max(filebeat_input.s3_objects_requested_total)), label: S3 Objects Requested}
+            - {formula: 'pick_max(differences(max(filebeat_input.s3_objects_requested_total)), 0)', label: S3 Objects Requested}
             - {aggregation: max, field: filebeat_input.s3_objects_requested_total, label: Part of S3 Objects Requested}
       - title: '[Elastic Agent] Events Created'
         grid: {x: 7, y: 70, w: 41, h: 15}
