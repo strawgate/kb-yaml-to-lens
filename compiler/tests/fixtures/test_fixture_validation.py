@@ -1,7 +1,7 @@
 """Explicit fixture validation tests - one test per Kibana fixture file.
 
 Each test:
-1. Compiles a YAML fixture from tests/fixtures/yaml/
+1. Compiles an inline YAML definition
 2. Diffs it against the corresponding Kibana fixture JSON from fixture-generator/output/
 3. Snapshots the exact differences using inline_snapshot
 
@@ -9,40 +9,41 @@ This allows us to track how compiler output differs from Kibana's LensConfigBuil
 and detect any changes as the compiler evolves.
 """
 
-from pathlib import Path
 from typing import Any
 
+import yaml
 from deepdiff import DeepDiff
 from inline_snapshot import snapshot
 
-from dashboard_compiler.dashboard_compiler import load, render
+from dashboard_compiler.dashboard_compiler import render
+from dashboard_compiler.loader import DashboardConfig
 from tests.conftest import de_json_kbn_dashboard
 from tests.fixtures import (
     diff_to_dict,
     get_fixture_files,
-    get_yaml_fixture_files,
     load_fixture,
     normalize_compiled_panel,
     normalize_layer_ids,
 )
 
 
-def compile_yaml_fixture(fixture_name: str) -> dict[str, Any]:
-    """Compile a YAML fixture and return the normalized panel config."""
-    yaml_path = Path(__file__).parent / 'yaml' / f'{fixture_name}.yaml'
-    dashboards = load(str(yaml_path))
-    assert len(dashboards) > 0, f'No dashboards produced for fixture {fixture_name}'
+def compile_yaml_content(yaml_content: str) -> dict[str, Any]:
+    """Compile YAML content and return the normalized panel config."""
+    config_data = yaml.safe_load(yaml_content)
+    config = DashboardConfig.model_validate(config_data)
+    dashboards = config.dashboards
+    assert len(dashboards) > 0, 'No dashboards produced from YAML content'
     kbn_dashboard = render(dashboards[0])
     dashboard_dict = kbn_dashboard.model_dump(by_alias=True, exclude_none=True)
     dashboard = de_json_kbn_dashboard(dashboard_dict)
     panels = dashboard['attributes']['panelsJSON']
-    assert len(panels) > 0, f'No panels in dashboard for fixture {fixture_name}'
+    assert len(panels) > 0, 'No panels in dashboard from YAML content'
     return normalize_compiled_panel(panels[0])
 
 
-def compute_fixture_diff(fixture_name: str) -> dict[str, Any]:
-    """Compile YAML fixture, diff against Kibana fixture, return diff dict."""
-    compiled = compile_yaml_fixture(fixture_name)
+def compute_diff(yaml_content: str, fixture_name: str) -> dict[str, Any]:
+    """Compile YAML content, diff against Kibana fixture, return diff dict."""
+    compiled = compile_yaml_content(yaml_content)
     fixture = load_fixture(fixture_name)
 
     # Normalize layer IDs for stable comparison
@@ -60,51 +61,22 @@ def compute_fixture_diff(fixture_name: str) -> dict[str, Any]:
 
 
 # =============================================================================
-# Discovery and Coverage Tests
+# Discovery Tests
 # =============================================================================
 
 
 def test_fixture_files_exist() -> None:
-    """Verify that fixture YAML and JSON files were found."""
-    yaml_files = get_yaml_fixture_files()
-    assert len(yaml_files) > 0, 'No fixture YAML files found in tests/fixtures/yaml/'
-
+    """Verify that fixture JSON files were found."""
     # Ensure fixture-generator output is present for the default version
     fixture_files = get_fixture_files()
     assert len(fixture_files) > 0, 'No fixture JSON files found in fixture-generator/output/ (default version)'
-
-
-def test_fixture_coverage() -> None:
-    """Report coverage of fixture-generator output by YAML tests."""
-    fixture_files = {f.stem for f in get_fixture_files()}  # pyright: ignore[reportUnknownMemberType]
-    yaml_files = {f.stem for f in get_yaml_fixture_files()}  # pyright: ignore[reportUnknownMemberType]
-
-    covered = fixture_files & yaml_files
-    missing = fixture_files - yaml_files
-
-    coverage_pct = len(covered) / len(fixture_files) * 100 if len(fixture_files) > 0 else 0
-
-    # Report coverage statistics
-    print('\n=== Fixture Coverage Report ===')
-    print(f'Total fixtures: {len(fixture_files)}')
-    print(f'YAML tests: {len(yaml_files)}')
-    print(f'Coverage: {coverage_pct:.1f}%')
-
-    if len(missing) > 0:
-        print(f'\nFixtures without YAML tests ({len(missing)}):')
-        for name in sorted(list(missing)[:10]):
-            print(f'  - {name}')
-        if len(missing) > 10:
-            print(f'  ... and {len(missing) - 10} more')
-
-    # This is informational, not a failure condition
-    assert coverage_pct >= 0
 
 
 # =============================================================================
 # Explicit Snapshot Tests - One Per Fixture
 #
 # Each test below explicitly validates a single fixture file.
+# The YAML content is defined inline so the test is self-contained.
 # The snapshot captures the exact diff between compiled output and Kibana fixture.
 # Any changes to the compiler that affect output will cause the snapshot to fail.
 # =============================================================================
@@ -116,7 +88,20 @@ def test_metric_basic_esql_snapshot() -> None:
     Tests a basic ES|QL metric visualization with a simple COUNT() aggregation.
     This is the simplest possible metric fixture.
     """
-    diff = compute_fixture_diff('metric-basic-esql')
+    yaml_content = """
+dashboards:
+  - name: Basic Count Metric Test
+    panels:
+      - title: Basic Count Metric
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: metric
+          query: FROM logs-* | STATS count = COUNT()
+          primary:
+            field: count
+            id: metric_formula_accessor
+"""
+    diff = compute_diff(yaml_content, 'metric-basic-esql')
     assert diff == snapshot(
         {
             'dictionary_item_added': {
@@ -161,7 +146,23 @@ def test_pie_chart_esql_snapshot() -> None:
     Tests an ES|QL pie chart with COUNT() grouped by log.level.
     This validates dimension/metric handling in pie visualizations.
     """
-    diff = compute_fixture_diff('pie-chart-esql')
+    yaml_content = """
+dashboards:
+  - name: Pie Chart Test
+    panels:
+      - title: Events by Status
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: pie
+          query: FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10
+          metrics:
+            - field: count
+              id: metric_formula_accessor
+          dimensions:
+            - field: log.level
+              id: metric_formula_accessor_breakdown_0
+"""
+    diff = compute_diff(yaml_content, 'pie-chart-esql')
     assert diff == snapshot(
         {
             'dictionary_item_added': {

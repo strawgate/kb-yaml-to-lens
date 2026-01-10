@@ -327,15 +327,3 @@ def get_fixture_files(version: str = DEFAULT_FIXTURE_VERSION) -> list[Path]:
     if not fixture_dir.exists():
         return []
     return sorted(fixture_dir.glob('*.json'))
-
-
-def get_yaml_fixture_files() -> list[Path]:
-    """Get all YAML test fixture files.
-
-    Returns:
-        List of Path objects for each YAML fixture file.
-    """
-    yaml_dir = Path(__file__).parent / 'yaml'
-    if not yaml_dir.exists():
-        return []
-    return sorted(yaml_dir.glob('*.yaml'))
