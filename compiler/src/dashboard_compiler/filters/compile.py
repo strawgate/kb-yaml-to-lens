@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Sequence
 
 from dashboard_compiler.filters import (
@@ -14,6 +15,9 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta
 from dashboard_compiler.shared.defaults import default_false
 from dashboard_compiler.shared.filter_utils import create_filter_state
+from dashboard_compiler.shared.logging import get_stats, log_item
+
+logger = logging.getLogger(__name__)
 
 
 def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
@@ -248,4 +252,16 @@ def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
     Returns:
         list[KbnFilter]: The compiled list of Kibana filter view models.
     """
+    # Log filter type breakdown
+    type_counts: dict[str, int] = {}
+    for f in filters:
+        ftype = type(f).__name__.replace('Filter', '').lower()
+        type_counts[ftype] = type_counts.get(ftype, 0) + 1
+
+    type_breakdown = ', '.join(f'{count} {ftype}' for ftype, count in sorted(type_counts.items()))
+    log_item(logger, f'Filter breakdown: {type_breakdown}')
+
+    stats = get_stats()
+    stats.filters += len(filters)
+
     return [compile_filter(filter=dashboard_filter) for dashboard_filter in filters]

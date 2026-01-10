@@ -1,5 +1,7 @@
 """Compile a Dashboard into its Kibana view model representation."""
 
+import logging
+
 from dashboard_compiler.controls.compile import compile_control_group
 from dashboard_compiler.dashboard.config import Dashboard, DashboardSettings
 from dashboard_compiler.dashboard.view import KbnDashboard, KbnDashboardAttributes, KbnDashboardOptions
@@ -10,7 +12,10 @@ from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_false, default_true
+from dashboard_compiler.shared.logging import log_compilation_phase
 from dashboard_compiler.shared.view import KbnReference
+
+logger = logging.getLogger(__name__)
 
 CORE_MIGRATION_VERSION: str = '8.8.0'
 TYPE_MIGRATION_VERSION: str = '10.2.0'
@@ -45,10 +50,32 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         KbnDashboardAttributes: The compiled Kibana dashboard attributes view model.
 
     """
-    references, panels = compile_dashboard_panels(
-        dashboard.panels,
-        layout_algorithm=dashboard.settings.layout_algorithm,
-    )
+    # Compile panels with logging
+    panel_count = len(dashboard.panels)
+    if panel_count > 0:
+        with log_compilation_phase(logger, 'Compiling panels', f'{panel_count} total'):
+            references, panels = compile_dashboard_panels(
+                dashboard.panels,
+                layout_algorithm=dashboard.settings.layout_algorithm,
+            )
+    else:
+        references, panels = [], []
+
+    # Compile filters with logging
+    filter_count = len(dashboard.filters)
+    if filter_count > 0:
+        with log_compilation_phase(logger, 'Compiling filters', f'{filter_count} total'):
+            compiled_filters = compile_filters(filters=dashboard.filters)
+    else:
+        compiled_filters = []
+
+    # Compile controls with logging
+    control_count = len(dashboard.controls)
+    if control_count > 0:
+        with log_compilation_phase(logger, 'Compiling controls', f'{control_count} total'):
+            control_group = compile_control_group(control_settings=dashboard.settings.controls, controls=dashboard.controls)
+    else:
+        control_group = compile_control_group(control_settings=dashboard.settings.controls, controls=[])
 
     return references, KbnDashboardAttributes(
         title=dashboard.name,
@@ -56,14 +83,14 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         panelsJSON=panels,
         kibanaSavedObjectMeta=KbnSavedObjectMeta(
             searchSourceJSON=KbnSearchSourceJSON(
-                filter=compile_filters(filters=dashboard.filters),
+                filter=compiled_filters,
                 query=compile_nonesql_query(query=dashboard.query) if dashboard.query else KbnQuery(query='', language='kuery'),
             ),
         ),
         optionsJSON=compile_dashboard_options(settings=dashboard.settings),
         timeRestore=False,
         version=1,
-        controlGroupInput=compile_control_group(control_settings=dashboard.settings.controls, controls=dashboard.controls),
+        controlGroupInput=control_group,
     )
 
 

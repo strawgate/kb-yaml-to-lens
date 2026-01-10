@@ -1,5 +1,6 @@
 """Compile Control configurations into Kibana view models."""
 
+import logging
 from collections.abc import Sequence
 
 from dashboard_compiler.controls import ControlTypes
@@ -38,6 +39,9 @@ from dashboard_compiler.controls.view import (
 from dashboard_compiler.shared.compile import return_if, return_if_equals
 from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false, default_if_none
+from dashboard_compiler.shared.logging import get_stats, log_item
+
+logger = logging.getLogger(__name__)
 
 
 def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
@@ -348,6 +352,19 @@ def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlP
         KbnControlPanelsJson: The compiled Kibana control panels JSON view model.
 
     """
+    # Log control type breakdown
+    if len(controls) > 0:
+        type_counts: dict[str, int] = {}
+        for c in controls:
+            ctype = type(c).__name__.replace('Control', '').lower()
+            type_counts[ctype] = type_counts.get(ctype, 0) + 1
+
+        type_breakdown = ', '.join(f'{count} {ctype}' for ctype, count in sorted(type_counts.items()))
+        log_item(logger, f'Control breakdown: {type_breakdown}')
+
+        stats = get_stats()
+        stats.controls += len(controls)
+
     kbn_control_panels_json: KbnControlPanelsJson = KbnControlPanelsJson()
 
     for i, config_control in enumerate(iterable=controls):

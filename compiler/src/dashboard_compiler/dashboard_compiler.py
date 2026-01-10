@@ -1,5 +1,6 @@
 """Provides functions to load, render, and dump YAML-to-Lens Dashboards."""
 
+import logging
 from pathlib import Path
 
 import yaml
@@ -8,6 +9,9 @@ from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.loader import DashboardConfig
+from dashboard_compiler.shared.logging import get_stats, log_compilation_phase, log_item, reset_stats
+
+logger = logging.getLogger(__name__)
 
 
 def load(path: str) -> list[Dashboard]:
@@ -22,11 +26,14 @@ def load(path: str) -> list[Dashboard]:
     """
     load_path = Path(path)
 
-    with load_path.open() as file:
-        config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
+    with log_compilation_phase(logger, 'Loading YAML', load_path.name, level=logging.INFO):
+        with load_path.open() as file:
+            config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
-    config = DashboardConfig.model_validate(config_data)
-    return config.dashboards
+        config = DashboardConfig.model_validate(config_data)
+        dashboard_names = [d.name for d in config.dashboards]
+        log_item(logger, f'Found {len(config.dashboards)} dashboard(s): {", ".join(dashboard_names)}', level=logging.INFO)
+        return config.dashboards
 
 
 def render(dashboard: Dashboard) -> KbnDashboard:
@@ -39,7 +46,12 @@ def render(dashboard: Dashboard) -> KbnDashboard:
         KbnDashboard: The rendered Kibana dashboard view model.
 
     """
-    return compile_dashboard(dashboard)
+    reset_stats()
+    with log_compilation_phase(logger, 'Compiling dashboard', dashboard.name, level=logging.INFO):
+        result = compile_dashboard(dashboard)
+        stats = get_stats()
+        log_item(logger, f'Summary: {stats.summary()}', level=logging.INFO)
+        return result
 
 
 def dump(dashboards: list[Dashboard], path: str) -> None:

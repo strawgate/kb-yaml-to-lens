@@ -42,7 +42,10 @@ click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+# Default logging configuration - can be overridden by --loglevel
+# Use a more structured format that shows the hierarchical logging
+LOG_FORMAT_SIMPLE = '%(message)s'
+LOG_FORMAT_DEBUG = '%(levelname)s %(name)s: %(message)s'
 
 console = Console()
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -225,6 +228,12 @@ def cli(ctx: click.Context) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
+@click.option(
+    '--loglevel',
+    type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False),
+    default='WARNING',
+    help='Set logging verbosity. DEBUG shows detailed compilation steps, INFO shows summaries.',
+)
 def compile_dashboards(  # noqa: PLR0913, PLR0912
     ctx: click.Context,
     input_dir: Path,
@@ -233,6 +242,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
     upload: bool,
     no_browser: bool,
     overwrite: bool,
+    loglevel: str,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -250,6 +260,12 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         # Compile with custom input and output directories
         kb-dashboard compile --input-dir ./dashboards --output-dir ./output
 
+        # Compile with verbose logging to see compilation details
+        kb-dashboard compile --loglevel INFO
+
+        # Compile with debug logging for troubleshooting
+        kb-dashboard compile --loglevel DEBUG
+
         # Compile and upload to Kibana using basic auth
         kb-dashboard compile --upload --kibana-url https://kibana.example.com \
             --kibana-username admin --kibana-password secret
@@ -263,6 +279,11 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
         export KIBANA_API_KEY=your-api-key
         kb-dashboard compile --upload
     """
+    # Configure logging based on --loglevel option
+    log_level: int = getattr(logging, loglevel.upper())  # pyright: ignore[reportAny]
+    log_format = LOG_FORMAT_DEBUG if log_level == logging.DEBUG else LOG_FORMAT_SIMPLE
+    logging.basicConfig(level=log_level, format=log_format, force=True)
+
     # Context is already populated by @kibana_options decorator
     if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'

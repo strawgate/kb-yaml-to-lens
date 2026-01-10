@@ -1,5 +1,6 @@
 """Compile Dashboard Panels to Kibana View Models."""
 
+import logging
 from collections.abc import Sequence
 
 from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
@@ -17,7 +18,10 @@ from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.logging import get_stats, log_item
 from dashboard_compiler.shared.view import KbnReference
+
+logger = logging.getLogger(__name__)
 
 
 def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
@@ -217,8 +221,19 @@ def compile_dashboard_panels(
         tuple[list[KbnReference], list[KbnBasePanel]]: The compiled references and panel view models.
 
     """
+    # Log panel type breakdown
+    type_counts: dict[str, int] = {}
+    for panel in panels:
+        ptype = get_panel_type_name(panel)
+        type_counts[ptype] = type_counts.get(ptype, 0) + 1
+
+    type_breakdown = ', '.join(f'{count} {ptype}' for ptype, count in sorted(type_counts.items()))
+    log_item(logger, f'Panel breakdown: {type_breakdown}')
+
     # Compute positions for panels that need auto-layout
     position_map = compute_panel_positions(panels, algorithm=layout_algorithm)
+    if len(position_map) > 0:
+        log_item(logger, f'Auto-positioned {len(position_map)} panel(s) using {layout_algorithm} algorithm')
 
     # Compute grid for each panel and validate
     grids: list[Grid] = []
@@ -242,8 +257,13 @@ def compile_dashboard_panels(
     # Compile panels
     kbn_panels: list[KbnBasePanel] = []
     kbn_references: list[KbnReference] = []
+    stats = get_stats()
 
     for panel, grid in zip(panels, grids, strict=True):
+        panel_type = get_panel_type_name(panel)
+        stats.add_panel_type(panel_type)
+        stats.panels += 1
+
         new_references, new_panel = compile_dashboard_panel(panel=panel, grid=grid)
 
         kbn_panels.append(new_panel)
