@@ -118,6 +118,10 @@ number
     ;
 """
 
+# Compiled parser (module-level singleton for performance)
+# Compiling once at import time avoids re-parsing the grammar on every call
+_PARSER = tatsu.compile(TINYMATH_GRAMMAR)
+
 # Kibana field-based aggregation functions (operate directly on fields)
 KIBANA_FIELD_AGGREGATIONS = frozenset(
     {
@@ -374,17 +378,6 @@ def _walk_ast(  # noqa: PLR0911, PLR0912
                 }
         return result
 
-    # Handle comparison operations
-    if 'left' in node and 'right' in node and 'op' in node:
-        left = _walk_ast(node['left'], aggregations, full_references, formula_text)
-        right = _walk_ast(node['right'], aggregations, full_references, formula_text)
-        op = node['op']
-        return {
-            'type': 'function',
-            'name': OPERATOR_TO_FUNCTION.get(op, op),
-            'args': [left, right],
-        }
-
     # For other dict-like nodes, recursively walk
     result = {}
     for key, value in node.items():
@@ -553,11 +546,8 @@ def parse_formula(formula: str) -> FormulaParseResult:
         tatsu.exceptions.FailedParse: If the formula has syntax errors.
 
     """
-    # Compile the grammar
-    parser = tatsu.compile(TINYMATH_GRAMMAR)
-
-    # Parse the formula
-    ast = parser.parse(formula, parseinfo=True)
+    # Parse the formula using pre-compiled grammar
+    ast = _PARSER.parse(formula, parseinfo=True)
 
     # Walk the AST to collect aggregations and fullReference operations
     aggregations: list[AggregationInfo] = []
@@ -610,8 +600,6 @@ def build_tinymath_ast_with_refs(
                 'type': node.get('type', 'function'),
                 'name': node.get('name', ''),
                 'args': [substitute_refs(arg) for arg in node.get('args', [])],
-                'location': {'min': 0, 'max': len(parse_result.formula_text)},
-                'text': parse_result.formula_text,
             }
         return node
 

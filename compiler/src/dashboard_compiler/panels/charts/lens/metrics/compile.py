@@ -132,6 +132,8 @@ def _create_aggregation_column(
         scale='ratio',
         sourceField=source_field,
         filter=filter_query,
+        # Note: emptyAsNull=False for formula helper columns preserves null values
+        # in intermediate calculations, matching Kibana's formula column behavior
         params=KbnLensFormulaAggColumnParams(emptyAsNull=False),
     )
 
@@ -191,6 +193,8 @@ def _create_full_reference_column(
         operationType=full_ref_info.operation_type,
         isBucketed=False,
         scale='ratio',
+        # Note: emptyAsNull=False for fullReference columns preserves null values
+        # in intermediate calculations, matching Kibana's formula column behavior
         params=KbnLensFullReferenceColumnParams(emptyAsNull=False),
         references=[referenced_column_id],
     )
