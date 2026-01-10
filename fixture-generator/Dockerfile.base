@@ -6,16 +6,27 @@
 FROM ubuntu:22.04
 
 # Install system dependencies with retry logic for transient mirror failures
-RUN for i in 1 2 3; do \
-        apt-get update && apt-get install -y \
+RUN set -eux; \
+    for i in 1 2 3; do \
+        apt-get update; \
+        if apt-get install -y --no-install-recommends \
             curl \
             git \
             python3 \
             build-essential \
             ca-certificates \
-            xz-utils \
-        && break || { echo "Attempt $i failed, retrying..."; sleep 10; }; \
-    done && rm -rf /var/lib/apt/lists/*
+            xz-utils; then \
+          break; \
+        fi; \
+        if [ "$i" -eq 3 ]; then \
+          echo "apt-get install failed after ${i} attempts" >&2; \
+          exit 1; \
+        fi; \
+        echo "Attempt ${i} failed, retrying..." >&2; \
+        rm -rf /var/lib/apt/lists/*; \
+        sleep 10; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
 
 # Clone Kibana FIRST to get the .node-version file
 # Note: Kibana tags use "v" prefix (e.g., v9.2.0)
