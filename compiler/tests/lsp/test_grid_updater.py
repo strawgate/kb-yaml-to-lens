@@ -129,7 +129,7 @@ def test_update_panel_grid_dump_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     """Return an error when dashboards fail to save."""
     yaml_path = _write_dashboard(tmp_path)
 
-    def raise_dump_error(_: list[object], __: str) -> None:
+    def raise_dump_error(_: list[object], _path: str) -> None:
         raise RuntimeError('dump failed')
 
     monkeypatch.setattr(grid_updater, 'dump', raise_dump_error)

@@ -303,7 +303,14 @@ class TestKibanaClient:
         client = KibanaClient(url='http://localhost:5601')
         output_path = tmp_path / 'screenshots' / 'dashboard.png'
 
-        async def fake_generate_screenshot(**kwargs: Any) -> str:
+        async def fake_generate_screenshot(
+            _dashboard_id: str,
+            _time_from: str | None = None,
+            _time_to: str | None = None,
+            _width: int = 1920,
+            _height: int = 1080,
+            _browser_timezone: str = 'UTC',
+        ) -> str:
             return '/api/reporting/jobs/download/123'
 
         async def fake_wait_for_job_completion(job_path: str, timeout_seconds: int = 300) -> bytes:
