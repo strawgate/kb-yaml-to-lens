@@ -54,15 +54,6 @@ suite('Extension Test Suite', () => {
         }
     });
 
-    test('Debug Workspace', async () => {
-        console.log('Workspace folders:', vscode.workspace.workspaceFolders);
-        if (vscode.workspace.workspaceFolders) {
-            vscode.workspace.workspaceFolders.forEach(folder => {
-                console.log('Folder:', folder.uri.fsPath);
-            });
-        }
-    });
-
     test('Extension should be present', () => {
         const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
         assert.ok(extension, 'Extension should be present');

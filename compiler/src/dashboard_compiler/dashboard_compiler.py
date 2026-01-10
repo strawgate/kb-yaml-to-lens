@@ -8,8 +8,10 @@ from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.loader import DashboardConfig
+from dashboard_compiler.shared.logging import log_compile, logger
 
 
+@log_compile
 def load(path: str) -> list[Dashboard]:
     """Load dashboard configurations from a YAML file.
 
@@ -26,9 +28,14 @@ def load(path: str) -> list[Dashboard]:
         config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
     config = DashboardConfig.model_validate(config_data)
+
+    for dashboard in config.dashboards:
+        logger.info('Loaded dashboard: %s', dashboard.name)
+
     return config.dashboards
 
 
+@log_compile
 def render(dashboard: Dashboard) -> KbnDashboard:
     """Render a Dashboard object into its Kibana JSON representation.
 
@@ -42,6 +49,7 @@ def render(dashboard: Dashboard) -> KbnDashboard:
     return compile_dashboard(dashboard)
 
 
+@log_compile
 def dump(dashboards: list[Dashboard], path: str) -> None:
     """Dump Dashboard objects to a YAML file.
 

@@ -36,7 +36,7 @@ This repository contains three main components:
 | `make install` | Install all dependencies (all components) |
 | `make check` | **Run before committing** (fast: lint + typecheck + unit tests) |
 | `make ci` | Comprehensive CI checks (check + e2e tests, matches GitHub Actions) |
-| `make fix` | Auto-fix linting issues (all components) |
+| `make fix` | Auto-fix linting issues (compiler + extension) |
 | `make lint-all-check` | Check all linting without fixing |
 | `make test-unit` | Run unit tests only (fast) |
 | `make test-e2e` | Run end-to-end tests (requires setup) |
