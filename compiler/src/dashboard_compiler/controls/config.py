@@ -300,10 +300,12 @@ class ESQLStaticMultiSelectControl(BaseControl):
 
     @override
     def _get_id_data(self) -> dict[str, Any]:
-        """Sort choices for order-independent IDs."""
+        """Sort choices and defaults for order-independent IDs."""
         data = super()._get_id_data()
         if 'choices' in data and data['choices'] is not None:
             data['choices'] = sorted(data['choices'])  # pyright: ignore[reportAny]
+        if 'default' in data and isinstance(data['default'], list):
+            data['default'] = sorted(data['default'])  # pyright: ignore[reportUnknownArgumentType]
         return data
 
     @model_validator(mode='after')

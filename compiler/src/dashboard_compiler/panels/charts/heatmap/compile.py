@@ -127,9 +127,8 @@ def compile_lens_heatmap_chart(
     x_id_str = lens_heatmap_chart.x_axis.id
     y_id_str = lens_heatmap_chart.y_axis.id if lens_heatmap_chart.y_axis is not None else None
     value_id_str = lens_heatmap_chart.value.id
-    layer_id = get_layer_id(
-        lens_heatmap_chart, ['chart', 'heatmap', 'lens', lens_heatmap_chart.data_view, x_id_str, y_id_str, value_id_str]
-    )
+    fallback_values = ['chart', 'heatmap', 'lens', lens_heatmap_chart.data_view, x_id_str, y_id_str, value_id_str]
+    layer_id = get_layer_id(lens_heatmap_chart, fallback_values)
 
     return (
         layer_id,

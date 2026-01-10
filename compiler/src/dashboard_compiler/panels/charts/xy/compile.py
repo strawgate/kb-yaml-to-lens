@@ -138,7 +138,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
     """
     # Generate deterministic accessor ID from value, label, and axis
     value_str = str(getattr(ref_line.value, 'value', ref_line.value))
-    accessor_id = get_layer_id(ref_line, ['reference_line', value_str, ref_line.label, ref_line.axis])
+    accessor_id = get_layer_id(ref_line, ['reference_line', value_str, ref_line.label or '', ref_line.axis or ''])
 
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):

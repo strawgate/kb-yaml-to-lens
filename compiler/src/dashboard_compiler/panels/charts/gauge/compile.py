@@ -140,7 +140,8 @@ def compile_esql_gauge_chart(
     """
     # Build deterministic fallback values from chart configuration
     metric_id_str = esql_gauge_chart.metric.id
-    layer_id = get_layer_id(esql_gauge_chart, ['chart', 'gauge', 'esql', metric_id_str])
+    fallback_values = ['chart', 'gauge', 'esql', metric_id_str]
+    layer_id = get_layer_id(esql_gauge_chart, fallback_values)
 
     kbn_columns: list[KbnESQLColumnTypes] = []
 

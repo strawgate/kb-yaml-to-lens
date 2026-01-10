@@ -1,5 +1,6 @@
 """Lens dimensions configuration for the Lens chart."""
 
+import json
 from enum import StrEnum
 from typing import Any, ClassVar, Literal, override
 
@@ -67,8 +68,12 @@ class LensFiltersDimension(BaseLensDimension):
         """Sort filters for order-independent IDs."""
         data = super()._get_id_data()
         # Sort filters by their query content for order-independent IDs
+        # Use json.dumps for stable, canonical serialization across Python versions
         if 'filters' in data and data['filters'] is not None:
-            data['filters'] = sorted(data['filters'], key=lambda f: str(f.get('query', {})))  # pyright: ignore[reportAny]
+            data['filters'] = sorted(
+                data['filters'],  # pyright: ignore[reportAny]
+                key=lambda f: json.dumps(f.get('query', {}), sort_keys=True),  # pyright: ignore[reportAny]
+            )
         return data
 
 

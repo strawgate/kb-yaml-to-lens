@@ -70,7 +70,8 @@ def compile_lens_tagcloud_chart(
     # Build deterministic fallback values from chart configuration
     dimension_id_str = chart.dimension.id
     metric_id_str = chart.metric.id
-    layer_id = get_layer_id(chart, ['chart', 'tagcloud', 'lens', chart.data_view, dimension_id_str, metric_id_str])
+    fallback_values = ['chart', 'tagcloud', 'lens', chart.data_view, dimension_id_str, metric_id_str]
+    layer_id = get_layer_id(chart, fallback_values)
 
     # Compile metric first
     metric_id, metric_column = compile_lens_metric(metric=chart.metric)
@@ -102,7 +103,8 @@ def compile_esql_tagcloud_chart(
     # Build deterministic fallback values from chart configuration
     dimension_id_str = chart.dimension.id
     metric_id_str = chart.metric.id
-    layer_id = get_layer_id(chart, ['chart', 'tagcloud', 'esql', dimension_id_str, metric_id_str])
+    fallback_values = ['chart', 'tagcloud', 'esql', dimension_id_str, metric_id_str]
+    layer_id = get_layer_id(chart, fallback_values)
 
     # Compile dimension
     dimensions = compile_esql_dimensions(dimensions=[chart.dimension])

@@ -81,14 +81,15 @@ def _compute_hash_from_dict(data: dict[str, Any], prefix: str = '') -> str:
     Sorts keys to ensure order independence.
 
     Args:
-        data: Dictionary to hash (typically from model_dump).
+        data: Dictionary to hash (typically from model_dump with mode='json').
         prefix: Optional prefix to include in the hash.
 
     Returns:
         A stable GUID-like string.
     """
-    # JSON with sorted keys ensures deterministic output
-    json_str = json.dumps(data, sort_keys=True, default=str)
+    # JSON with sorted keys and compact separators ensures deterministic output
+    # The data should already be JSON-safe (from model_dump with mode='json')
+    json_str = json.dumps(data, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
     hash_input = f'{prefix}:{json_str}' if prefix else json_str
     hash_bytes = hashlib.sha1(hash_input.encode()).digest()[:MAX_BYTES_LENGTH]  # noqa: S324
     return str(uuid.UUID(bytes=hash_bytes))
@@ -145,12 +146,14 @@ class IDMixin(BaseCfgModel):
         """Get the data dictionary used for ID generation.
 
         Override this in subclasses to customize ID generation (e.g., sorting arrays).
-        By default, uses model_dump excluding the 'id' field.
+        By default, uses model_dump with mode='json' excluding the 'id' field.
+        Using mode='json' ensures all values are JSON-serializable primitives,
+        preventing non-deterministic string conversions of complex objects.
 
         Returns:
             Dictionary of field values to hash for ID generation.
         """
-        return self.model_dump(exclude={'id'})
+        return self.model_dump(mode='json', exclude={'id'})
 
 
 def get_layer_id(
