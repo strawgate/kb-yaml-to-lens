@@ -6,6 +6,8 @@ from collections.abc import Sequence
 from typing import Any, ClassVar, Literal, Protocol, runtime_checkable
 
 from pydantic import Field, model_validator
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefinedType
 
 from dashboard_compiler.shared.model import BaseModel
 
@@ -182,8 +184,6 @@ class IDMixin(BaseCfgModel):
         Returns:
             List of field names suitable for ID generation.
         """
-        from pydantic.fields import FieldInfo
-
         primitive_fields: list[str] = []
 
         # Access model fields from Pydantic
@@ -197,9 +197,6 @@ class IDMixin(BaseCfgModel):
             # Check if field is required (no default)
             if not isinstance(field_info, FieldInfo):
                 continue
-
-            # Import PydanticUndefinedType for checking required fields
-            from pydantic_core import PydanticUndefinedType
 
             # Skip optional fields (have explicit default value that is not PydanticUndefined or ...)
             # PydanticUndefined and ... both indicate required fields
