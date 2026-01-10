@@ -67,12 +67,6 @@ def compile_lens_tagcloud_chart(
         tuple[str, dict[str, KbnLensColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    dimension_id_str = chart.dimension.id
-    metric_id_str = chart.metric.id
-    fallback_values = ['chart', 'tagcloud', 'lens', chart.data_view, dimension_id_str, metric_id_str]
-    layer_id = get_layer_id(chart, fallback_values)
-
     # Compile metric first
     metric_id, metric_column = compile_lens_metric(metric=chart.metric)
     kbn_metric_column_by_id = {metric_id: metric_column}
@@ -82,6 +76,11 @@ def compile_lens_tagcloud_chart(
     tag_accessor_id = next(iter(dimension_columns.keys()))
 
     kbn_columns = {**dimension_columns, **kbn_metric_column_by_id}
+
+    # Build deterministic fallback values from compiled accessor IDs
+    # Using compiled IDs ensures layer_id matches actual visualization state accessors
+    fallback_values = ['chart', 'tagcloud', 'lens', chart.data_view, tag_accessor_id, metric_id]
+    layer_id = get_layer_id(chart, fallback_values)
 
     visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
 
@@ -100,13 +99,7 @@ def compile_esql_tagcloud_chart(
         tuple[str, list[KbnESQLColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    dimension_id_str = chart.dimension.id
-    metric_id_str = chart.metric.id
-    fallback_values = ['chart', 'tagcloud', 'esql', dimension_id_str, metric_id_str]
-    layer_id = get_layer_id(chart, fallback_values)
-
-    # Compile dimension
+    # Compile dimension first to get columnId for deterministic layer_id
     dimensions = compile_esql_dimensions(dimensions=[chart.dimension])
     tag_accessor_id = dimensions[0].columnId
 
@@ -115,6 +108,11 @@ def compile_esql_tagcloud_chart(
     metric_id = metric.columnId
 
     kbn_columns: list[KbnESQLColumnTypes] = [*dimensions, metric]
+
+    # Build deterministic fallback values from compiled columnIds
+    # Using compiled IDs ensures layer_id matches actual visualization state accessors
+    fallback_values = ['chart', 'tagcloud', 'esql', tag_accessor_id, metric_id]
+    layer_id = get_layer_id(chart, fallback_values)
 
     visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
 

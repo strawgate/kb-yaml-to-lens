@@ -69,10 +69,14 @@ class LensFiltersDimension(BaseLensDimension):
         data = super()._get_id_data()
         # Sort filters by their query content for order-independent IDs
         # Use json.dumps for stable, canonical serialization across Python versions
+        # Include label as tie-breaker for filters with identical queries
         if 'filters' in data and data['filters'] is not None:
             data['filters'] = sorted(
                 data['filters'],  # pyright: ignore[reportAny]
-                key=lambda f: json.dumps(f.get('query', {}), sort_keys=True),  # pyright: ignore[reportAny]
+                key=lambda f: (  # pyright: ignore[reportAny]
+                    json.dumps(f.get('query', {}), sort_keys=True, separators=(',', ':')),
+                    f.get('label') or '',
+                ),
             )
         return data
 

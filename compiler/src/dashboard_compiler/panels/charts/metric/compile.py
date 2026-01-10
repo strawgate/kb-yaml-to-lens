@@ -95,13 +95,18 @@ def compile_lens_metric_chart(
     # Add metrics AFTER breakdown dimension
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
-    # Build deterministic fallback values from chart configuration
-    primary_id_str = lens_metric_chart.primary.id
-    secondary_id_str = lens_metric_chart.secondary.id if lens_metric_chart.secondary is not None else None
-    breakdown_id_str = lens_metric_chart.breakdown.id if lens_metric_chart.breakdown is not None else None
-    layer_id = get_layer_id(
-        lens_metric_chart, ['chart', 'metric', 'lens', lens_metric_chart.data_view, primary_id_str, secondary_id_str, breakdown_id_str]
-    )
+    # Build deterministic fallback values from compiled accessor IDs
+    # Using compiled IDs ensures layer_id matches actual visualization state accessors
+    fallback_values = [
+        'chart',
+        'metric',
+        'lens',
+        lens_metric_chart.data_view,
+        primary_metric_id,
+        secondary_metric_id,
+        breakdown_dimension_id,
+    ]
+    layer_id = get_layer_id(lens_metric_chart, fallback_values)
 
     return (
         layer_id,
@@ -130,12 +135,6 @@ def compile_esql_metric_chart(
             - kbn_state_visualization (KbnESQLMetricVisualizationState): The compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    primary_id_str = esql_metric_chart.primary.id
-    secondary_id_str = esql_metric_chart.secondary.id if esql_metric_chart.secondary is not None else None
-    breakdown_id_str = esql_metric_chart.breakdown.id if esql_metric_chart.breakdown is not None else None
-    layer_id = get_layer_id(esql_metric_chart, ['chart', 'metric', 'esql', primary_id_str, secondary_id_str, breakdown_id_str])
-
     kbn_columns: list[KbnESQLColumnTypes]
 
     primary_metric: KbnESQLMetricColumnTypes = compile_esql_metric(esql_metric_chart.primary)
@@ -157,6 +156,18 @@ def compile_esql_metric_chart(
         breakdown_dimension = compile_esql_dimension(esql_metric_chart.breakdown)
         breakdown_dimension_id = breakdown_dimension.columnId
         kbn_columns.append(breakdown_dimension)
+
+    # Build deterministic fallback values from compiled columnIds
+    # Using compiled IDs ensures layer_id matches actual visualization state accessors
+    fallback_values = [
+        'chart',
+        'metric',
+        'esql',
+        primary_metric_id,
+        secondary_metric_id,
+        breakdown_dimension_id,
+    ]
+    layer_id = get_layer_id(esql_metric_chart, fallback_values)
 
     return (
         layer_id,

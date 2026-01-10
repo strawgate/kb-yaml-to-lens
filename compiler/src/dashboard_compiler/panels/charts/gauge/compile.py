@@ -105,9 +105,10 @@ def compile_lens_gauge_chart(
         goal_id, goal_column = compile_lens_metric(goal_metric)
         kbn_columns_by_id[goal_id] = goal_column
 
-    # Build deterministic fallback values from chart configuration
-    metric_id_str = lens_gauge_chart.metric.id
-    layer_id = get_layer_id(lens_gauge_chart, ['chart', 'gauge', 'lens', lens_gauge_chart.data_view, metric_id_str])
+    # Build deterministic fallback values from compiled accessor IDs
+    # Using compiled metric_id ensures collisions cannot occur even if config .id were None
+    fallback_values = ['chart', 'gauge', 'lens', lens_gauge_chart.data_view, metric_id]
+    layer_id = get_layer_id(lens_gauge_chart, fallback_values)
 
     return (
         layer_id,
@@ -138,17 +139,17 @@ def compile_esql_gauge_chart(
             - kbn_state_visualization (KbnGaugeVisualizationState): The compiled visualization state.
 
     """
-    # Build deterministic fallback values from chart configuration
-    metric_id_str = esql_gauge_chart.metric.id
-    fallback_values = ['chart', 'gauge', 'esql', metric_id_str]
-    layer_id = get_layer_id(esql_gauge_chart, fallback_values)
-
     kbn_columns: list[KbnESQLColumnTypes] = []
 
-    # Compile primary metric
+    # Compile primary metric first so we can use compiled columnId for layer_id
     metric_column = compile_esql_metric(esql_gauge_chart.metric)
     metric_id: str = metric_column.columnId
     kbn_columns.append(metric_column)
+
+    # Build deterministic fallback values from compiled columnId
+    # Using compiled columnId ensures collisions cannot occur even if config .id were None
+    fallback_values = ['chart', 'gauge', 'esql', metric_id]
+    layer_id = get_layer_id(esql_gauge_chart, fallback_values)
 
     # Compile optional min/max/goal - handle both static values and metrics
     min_id: str | None = None
