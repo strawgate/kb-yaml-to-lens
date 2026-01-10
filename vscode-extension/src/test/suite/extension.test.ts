@@ -85,38 +85,47 @@ suite('Extension Test Suite', () => {
         const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
         const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
 
-        const actualPath = fs.existsSync(fixturePath) ? fixturePath :
-                          fs.existsSync(fallbackPath) ? fallbackPath : null;
+        const actualPath = fs.existsSync(fixturePath)
+            ? fixturePath
+            : fs.existsSync(fallbackPath)
+              ? fallbackPath
+              : undefined;
 
-        assert.ok(actualPath, `Fixture not found at ${fixturePath} or ${fallbackPath}`);
+        if (!actualPath) {
+            assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
+        }
 
-        const uri = vscode.Uri.file(actualPath!);
+        const uri = vscode.Uri.file(actualPath);
         const doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
 
         assert.strictEqual(doc.languageId, 'yaml', 'Document should be recognized as YAML');
-        assert.ok(doc.getText().length > 0, 'Document should have content');
-        assert.ok(doc.getText().includes('dashboards'), 'Document should contain dashboard definition');
+        const text = doc.getText();
+        assert.ok(text.length > 0, 'Document should have content');
+        assert.ok(text.includes('dashboards'), 'Document should contain dashboard definition');
     });
 
     test('Should compile YAML file without errors', async () => {
         const fixturePath = path.resolve(__dirname, '../../../src/test/fixtures/test.yaml');
         const fallbackPath = path.resolve(__dirname, '../fixtures/test.yaml');
 
-        const actualPath = fs.existsSync(fixturePath) ? fixturePath :
-                          fs.existsSync(fallbackPath) ? fallbackPath : null;
+        const actualPath = fs.existsSync(fixturePath)
+            ? fixturePath
+            : fs.existsSync(fallbackPath)
+              ? fallbackPath
+              : undefined;
 
-        assert.ok(actualPath, `Fixture not found at ${fixturePath} or ${fallbackPath}`);
+        if (!actualPath) {
+            assert.fail(`Fixture not found at ${fixturePath} or ${fallbackPath}`);
+        }
 
-        const uri = vscode.Uri.file(actualPath!);
+        const uri = vscode.Uri.file(actualPath);
         const doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
 
         // LSP client is fully initialized via suiteSetup -> extension.activate() -> compiler.start()
         // No additional wait needed as start() awaits client.start() which handles initialization
+        // Compilation success is verified by the command completing without throwing
         await vscode.commands.executeCommand('yamlDashboard.compile');
-
-        // If we reach here, compilation succeeded without throwing
-        assert.ok(true, 'Compile command executed successfully');
     });
 });
