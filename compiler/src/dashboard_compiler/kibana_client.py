@@ -155,7 +155,15 @@ class KibanaClient:
 
     @staticmethod
     def _normalize_ndjson_content(content: str) -> str:
-        """Ensure NDJSON content ends with a newline."""
+        """Ensure NDJSON content ends with a newline.
+
+        Args:
+            content: NDJSON string content
+
+        Returns:
+            Content with guaranteed trailing newline
+
+        """
         if not content.endswith('\n'):
             return content + '\n'
         return content
