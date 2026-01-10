@@ -233,6 +233,26 @@ class TestCompileCustom(unittest.TestCase):
 
         self.assertTrue(result['success'])
 
+    def test_compile_custom_invalid_string_index(self) -> None:
+        """Invalid dashboard_index should return a structured error (not raise)."""
+        params = {'path': str(self.temp_file), 'dashboard_index': 'abc'}
+
+        result = compile_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
+    def test_compile_custom_none_index(self) -> None:
+        """None dashboard_index should return a structured error (not raise)."""
+        params = {'path': str(self.temp_file), 'dashboard_index': None}
+
+        result = compile_custom(params)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertIn('Invalid dashboard_index', result['error'])
+
 
 class TestGetDashboardsCustom(unittest.TestCase):
     """Test the get_dashboards_custom handler."""
