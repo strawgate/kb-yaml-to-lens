@@ -12,8 +12,8 @@ Releases are **tag-based and fully automated**. Push a version tag (`v*`) to tri
 ```bash
 # 1. Bump version (updates all components atomically)
 make bump-patch    # or bump-minor/bump-major
-# Or set explicit version: python scripts/bump-version.py --set 1.0.0
-# Preview changes first: python scripts/bump-version.py patch --dry-run
+# Or set explicit version: uv run scripts/bump-version.py set 1.0.0
+# Preview changes first: uv run scripts/bump-version.py patch --dry-run
 
 # 2. Commit and tag
 git add compiler/pyproject.toml vscode-extension/package.json fixture-generator/package.json pyproject.toml
