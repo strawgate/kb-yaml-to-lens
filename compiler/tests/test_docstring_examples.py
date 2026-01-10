@@ -61,9 +61,8 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
     except yaml.YAMLError as e:
         pytest.fail(f'Invalid YAML in {example["file"]} - {example["description"]}: {e}')
 
-    # Check if this is a full dashboard or just a panel snippet
+    # Check if this is a full dashboard configuration
     if 'dashboards' in config:
-        # Full dashboard configuration (root level)
         try:
             dashboard_config = DashboardConfig.model_validate(config)
             for dashboard in dashboard_config.dashboards:
@@ -71,8 +70,9 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
                 assert result, f'Compilation failed for {example["file"]} - {example["description"]}'
         except Exception as e:
             pytest.fail(f'Compilation error in {example["file"]} - {example["description"]}: {e}')
+    # Check if this is a single dashboard object
     elif 'panels' in config:
-        # Single dashboard
+        # Full dashboard - validate and compile it directly
         try:
             dashboard = Dashboard.model_validate(config)
             result = compile_dashboard(dashboard)
@@ -82,7 +82,8 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
     else:
         # Panel snippet - wrap it in a minimal dashboard
         # Determine the panel type from the top-level keys
-        if 'lens' in config or 'esql' in config:
+        supported_keys = {'lens', 'esql', 'markdown', 'image', 'text', 'map'}
+        if any(key in config for key in supported_keys):
             panel_config = config
         else:
             # Unknown format - skip
