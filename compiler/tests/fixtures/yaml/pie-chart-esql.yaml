@@ -1,0 +1,15 @@
+---
+dashboards:
+  - name: Pie Chart Test
+    panels:
+      - title: Events by Status
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: pie
+          query: FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10
+          metrics:
+            - field: count
+              id: metric_formula_accessor
+          dimensions:
+            - field: log.level
+              id: metric_formula_accessor_breakdown_0
