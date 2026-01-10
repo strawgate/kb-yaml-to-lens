@@ -1,6 +1,5 @@
 """Test panel compilation functions."""
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -105,12 +104,29 @@ class TestCompileDashboardPanel:
             }
         )
 
-    def test_raises_not_implemented_for_search_panel(self) -> None:
-        """Test that SearchPanel compilation raises NotImplementedError."""
+    def test_compiles_search_panel(self) -> None:
+        """Test that a SearchPanel is compiled correctly."""
         panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
         assert panel.position.x is not None
         assert panel.position.y is not None
         grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        references, kbn_panel = compile_dashboard_panel(panel, grid)
 
-        with pytest.raises(NotImplementedError, match='Panel type SearchPanel is not yet supported'):
-            _ = compile_dashboard_panel(panel, grid)
+        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+            {
+                'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
+                'embeddableConfig': {
+                    'enhancements': {},
+                    'savedSearchRefName': 'search:search-id',
+                },
+                'panelIndex': IsUUID,
+                'type': 'search',
+            }
+        )
+
+        assert len(references) == 1
+        assert references[0].model_dump() == {
+            'name': 'search:search-id',
+            'type': 'search',
+            'id': 'search-id',
+        }

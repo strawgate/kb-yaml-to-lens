@@ -1,6 +1,6 @@
 {
   "name": "kibana-fixture-generator",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "Generate Kibana dashboard test fixtures using LensConfigBuilder API",
   "main": "generate-all.js",
   "scripts": {

@@ -1,6 +1,7 @@
 """Command-line interface for the dashboard compiler."""
 
 import asyncio
+import io
 import logging
 import os
 import sys
@@ -102,7 +103,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
     if overwrite is True and output_path.exists():
         output_path.unlink()
 
-    with output_path.open('w') as f:
+    with output_path.open('w', encoding='utf-8') as f:
         for line in lines:
             _ = f.write(line + '\n')
 
@@ -225,7 +226,7 @@ def cli(ctx: click.Context) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-def compile_dashboards(  # noqa: PLR0913, PLR0912
+def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
     output_dir: Path,
@@ -278,6 +279,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
 
     ndjson_lines: list[str] = []
     errors: list[str] = []
+    files_to_write: dict[Path, list[str]] = {}
 
     with Progress(
         SpinnerColumn(),
@@ -297,12 +299,17 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
             if len(compiled_jsons) > 0:
                 filename = yaml_file.parent.stem
                 individual_file = output_dir / f'{filename}.ndjson'
-                write_ndjson(individual_file, compiled_jsons, overwrite=True)
+                if individual_file not in files_to_write:
+                    files_to_write[individual_file] = []
+                files_to_write[individual_file].extend(compiled_jsons)
                 ndjson_lines.extend(compiled_jsons)
             elif error is not None:
                 errors.append(error)
 
             progress.advance(task)
+
+    for individual_file, jsons in files_to_write.items():
+        write_ndjson(individual_file, jsons, overwrite=True)
 
     if len(ndjson_lines) > 0:
         console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
@@ -1100,9 +1107,13 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     """
     try:
         if input_file is None:
-            import sys
-
-            content = sys.stdin.read()
+            # Use TextIOWrapper to ensure UTF-8 encoding when reading from stdin
+            # This avoids issues on Windows where the default encoding might not be UTF-8
+            content = (
+                io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
+                if hasattr(sys.stdin, 'buffer')
+                else sys.stdin.read()  # Fallback for environments where stdin.buffer is not available
+            )
         else:
             content = input_file.read_text(encoding='utf-8')
 

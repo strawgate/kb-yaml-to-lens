@@ -5,6 +5,7 @@ import { GridEditorPanel } from './gridEditorPanel';
 import { setupFileWatcher } from './fileWatcher';
 import { ConfigService } from './configService';
 import * as fs from 'fs';
+import { TextDecoder } from 'util';
 
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
@@ -54,6 +55,58 @@ function hasDashboardsKey(uri: string): boolean {
         // If we can't access the document, don't apply the schema
         return false;
     }
+}
+
+/**
+ * Asynchronous version of hasDashboardsKey to prevent blocking the event loop.
+ *
+ * @param uri URI of the YAML file
+ * @returns Promise resolving to true if the file has a 'dashboards' root key
+ */
+async function hasDashboardsKeyAsync(uri: vscode.Uri): Promise<boolean> {
+    try {
+        // Try to find the document in already opened/cached documents first
+        const document = vscode.workspace.textDocuments.find(
+            doc => doc.uri.toString() === uri.toString()
+        );
+
+        let content: string;
+        if (document) {
+            content = document.getText();
+        } else {
+            // Read asynchronously using VS Code API for virtual filesystem support
+            const bytes = await vscode.workspace.fs.readFile(uri);
+            content = new TextDecoder().decode(bytes);
+        }
+
+        return /^dashboards\s*:/m.test(content);
+    } catch (error) {
+        return false;
+    }
+}
+
+/**
+ * Process items in batches with bounded concurrency to prevent resource exhaustion.
+ * This is particularly useful for large workspaces where processing all files
+ * simultaneously could overwhelm system resources.
+ *
+ * @param items Array of items to process
+ * @param batchSize Number of items to process concurrently (default: 20)
+ * @param fn Async function to apply to each item
+ * @returns Promise resolving to array of results in the same order as input items
+ */
+async function batchProcess<T, R>(
+    items: T[],
+    batchSize: number,
+    fn: (item: T) => Promise<R>
+): Promise<R[]> {
+    const results: R[] = [];
+    for (let i = 0; i < items.length; i += batchSize) {
+        const batch = items.slice(i, i + batchSize);
+        const batchResults = await Promise.all(batch.map(fn));
+        results.push(...batchResults);
+    }
+    return results;
 }
 
 /**
@@ -516,7 +569,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 const pattern = new vscode.RelativePattern(uri, '**/*.{yaml,yml}');
                 const allFiles = await vscode.workspace.findFiles(pattern);
 
-                const files = allFiles.filter(file => hasDashboardsKey(file.toString()));
+                // Use bounded-concurrency batching to prevent resource exhaustion in large workspaces
+                const filterResults = await batchProcess(
+                    allFiles,
+                    20, // Process 20 files at a time
+                    async (file) => {
+                        const hasKey = await hasDashboardsKeyAsync(file);
+                        return hasKey ? file : null;
+                    }
+                );
+                const files = filterResults.filter((file): file is vscode.Uri => file !== null);
 
                 if (files.length === 0) {
                     vscode.window.showInformationMessage('No YAML files with dashboards found in folder');

@@ -11,20 +11,21 @@ class TestKbnSearchEmbeddableConfig:
 
     def test_creates_with_default_enhancements(self) -> None:
         """Test that KbnSearchEmbeddableConfig creates with default empty enhancements."""
-        config = KbnSearchEmbeddableConfig()
+        config = KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id')
         assert config.enhancements == {}
+        assert config.savedSearchRefName == 'search:test-id'
 
     def test_creates_with_custom_enhancements(self) -> None:
         """Test that KbnSearchEmbeddableConfig creates with custom enhancements."""
         enhancements = {'dynamicActions': {'events': []}}
-        config = KbnSearchEmbeddableConfig(enhancements=enhancements)
+        config = KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id', enhancements=enhancements)
         assert config.enhancements == enhancements
 
     def test_serializes_to_dict(self) -> None:
         """Test that KbnSearchEmbeddableConfig serializes to dict correctly."""
-        config = KbnSearchEmbeddableConfig(enhancements={'test': 'value'})
+        config = KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id', enhancements={'test': 'value'})
         result = config.model_dump()
-        assert result == {'enhancements': {'test': 'value'}}
+        assert result == {'enhancements': {'test': 'value'}, 'savedSearchRefName': 'search:test-id'}
 
 
 class TestKbnSearchPanel:
@@ -35,7 +36,7 @@ class TestKbnSearchPanel:
         panel = KbnSearchPanel(
             gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
             panelIndex='panel-1',
-            embeddableConfig=KbnSearchEmbeddableConfig(),
+            embeddableConfig=KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id'),
         )
         assert panel.type == 'search'
         assert panel.panelIndex == 'panel-1'
@@ -45,7 +46,7 @@ class TestKbnSearchPanel:
         panel = KbnSearchPanel(
             gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
             panelIndex='panel-1',
-            embeddableConfig=KbnSearchEmbeddableConfig(),
+            embeddableConfig=KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id'),
         )
         assert panel.type == 'search'
 
@@ -54,9 +55,9 @@ class TestKbnSearchPanel:
         panel = KbnSearchPanel(
             gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
             panelIndex='panel-1',
-            embeddableConfig=KbnSearchEmbeddableConfig(),
+            embeddableConfig=KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id'),
         )
         result = panel.model_dump()
         assert result['type'] == 'search'
         assert result['panelIndex'] == 'panel-1'
-        assert result['embeddableConfig'] == {'enhancements': {}}
+        assert result['embeddableConfig'] == {'enhancements': {}, 'savedSearchRefName': 'search:test-id'}
