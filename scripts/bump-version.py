@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bump version across all project components.
 
-Updates version numbers in all project component files atomically.
+Updates version numbers in all project component files.
 
 Usage:
     python scripts/bump-version.py show              # Show current versions
@@ -57,10 +57,10 @@ def read_version(path: Path, file_format: str) -> str:
     """Read version from a file."""
     try:
         if file_format == 'toml':
-            data = tomllib.loads(path.read_text())
+            data = tomllib.loads(path.read_text(encoding='utf-8'))
             return data['project']['version']
         # json
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding='utf-8'))
         return data['version']
     except KeyError as e:
         raise click.ClickException(f'Missing version key in {path}: {e}') from e
@@ -68,7 +68,7 @@ def read_version(path: Path, file_format: str) -> str:
 
 def write_version(path: Path, file_format: str, old_version: str, new_version: str) -> None:
     """Write version to a file."""
-    content = path.read_text()
+    content = path.read_text(encoding='utf-8')
     if file_format == 'toml':
         new_content = content.replace(f'version = "{old_version}"', f'version = "{new_version}"', 1)
     else:
@@ -76,7 +76,7 @@ def write_version(path: Path, file_format: str, old_version: str, new_version: s
     if new_content == content:
         msg = f'Failed to update version in {path}'
         raise click.ClickException(msg)
-    path.write_text(new_content)
+    path.write_text(new_content, encoding='utf-8')
 
 
 def update_versions(new_version: str, dry_run: bool) -> None:
