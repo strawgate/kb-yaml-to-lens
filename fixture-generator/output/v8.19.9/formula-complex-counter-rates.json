@@ -1,0 +1,127 @@
+{
+  "title": "Complex Formula - Multiple Counter Rates",
+  "description": "Formula: (counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2 - complex math with multiple fullReferences",
+  "visualizationType": "lnsMetric",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessorX0",
+              "metric_formula_accessorX1",
+              "metric_formula_accessorX2",
+              "metric_formula_accessorX3",
+              "metric_formula_accessorX4",
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessorX0": {
+                "operationType": "max",
+                "isBucketed": false,
+                "dataType": "number",
+                "sourceField": "postgresql.rows_fetched",
+                "label": "Part of (counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "customLabel": true
+              },
+              "metric_formula_accessorX1": {
+                "operationType": "counter_rate",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX0"
+                ],
+                "label": "Part of (counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "customLabel": true,
+                "timeScale": "s"
+              },
+              "metric_formula_accessorX2": {
+                "operationType": "max",
+                "isBucketed": false,
+                "dataType": "number",
+                "sourceField": "postgresql.rows_returned",
+                "label": "Part of (counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "customLabel": true
+              },
+              "metric_formula_accessorX3": {
+                "operationType": "counter_rate",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX2"
+                ],
+                "label": "Part of (counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "customLabel": true,
+                "timeScale": "s"
+              },
+              "metric_formula_accessorX4": {
+                "operationType": "math",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX1",
+                  "metric_formula_accessorX3"
+                ],
+                "label": "Part of (counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "params": {
+                  "tinymathAst": {
+                    "type": "function",
+                    "name": "divide",
+                    "args": [
+                      {
+                        "type": "function",
+                        "name": "add",
+                        "args": [
+                          "metric_formula_accessorX1",
+                          "metric_formula_accessorX3"
+                        ]
+                      },
+                      2
+                    ]
+                  }
+                },
+                "customLabel": true
+              },
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX4"
+                ],
+                "label": "(counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "params": {
+                  "formula": "(counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                  "isFormulaBroken": false
+                },
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "postgresql-*",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "postgresql-*": {}
+    }
+  }
+}

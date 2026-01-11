@@ -1,0 +1,76 @@
+{
+  "title": "Cumulative Sum of Count",
+  "description": "Formula: cumulative_sum(count()) - fullReference with count aggregation",
+  "visualizationType": "lnsMetric",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessorX0",
+              "metric_formula_accessorX1",
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessorX0": {
+                "operationType": "count",
+                "isBucketed": false,
+                "dataType": "number",
+                "sourceField": "___records___",
+                "label": "Part of cumulative_sum(count())",
+                "customLabel": true
+              },
+              "metric_formula_accessorX1": {
+                "operationType": "cumulative_sum",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX0"
+                ],
+                "label": "Part of cumulative_sum(count())",
+                "customLabel": true
+              },
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX1"
+                ],
+                "label": "cumulative_sum(count())",
+                "params": {
+                  "formula": "cumulative_sum(count())",
+                  "isFormulaBroken": false
+                },
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "logs-*",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}

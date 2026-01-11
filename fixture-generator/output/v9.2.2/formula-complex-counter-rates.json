@@ -1,0 +1,52 @@
+{
+  "title": "Complex Formula - Multiple Counter Rates",
+  "visualizationType": "lnsMetric",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [],
+                "label": "(counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2",
+                "params": {
+                  "formula": "(counter_rate(max(postgresql.rows_fetched)) + counter_rate(max(postgresql.rows_returned))) / 2"
+                },
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "postgresql-*",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "postgresql-*": {}
+    }
+  }
+}

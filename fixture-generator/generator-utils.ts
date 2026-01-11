@@ -8,6 +8,7 @@
 import type { LensConfig, LensConfigOptions } from '@kbn/lens-embeddable-utils/config_builder';
 import { LensConfigBuilder } from '@kbn/lens-embeddable-utils/config_builder';
 import { createDataViewsMock } from './dataviews-mock.js';
+import { createFormulaApiMock } from './formula-api-mock.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -40,9 +41,10 @@ export async function generateFixture(
     throw new Error(`Invalid outputFilename: ${outputFilename}`);
   }
 
-  // Initialize the builder with mock DataViews service
+  // Initialize the builder with mock DataViews service and formula API
   const mockDataViews = createDataViewsMock();
-  const builder = new LensConfigBuilder(mockDataViews);
+  const formulaApi = createFormulaApiMock();
+  const builder = new LensConfigBuilder(mockDataViews, formulaApi);
 
   try {
     // Build the Lens attributes

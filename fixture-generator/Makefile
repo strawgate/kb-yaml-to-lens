@@ -49,6 +49,8 @@ run: ## Generate all fixtures
 		-v $(shell pwd)/examples:/kibana/examples:ro \
 		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
+		-v $(shell pwd)/formula-api-mock.js:/kibana/formula-api-mock.js:ro \
+		-v $(shell pwd)/browser-env.js:/kibana/browser-env.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		-e KIBANA_VERSION=$(KIBANA_VERSION) \
@@ -62,6 +64,8 @@ run-example: ## Run specific example (usage: make run-example EXAMPLE=metric-bas
 		-v $(shell pwd)/examples:/kibana/examples:ro \
 		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
+		-v $(shell pwd)/formula-api-mock.js:/kibana/formula-api-mock.js:ro \
+		-v $(shell pwd)/browser-env.js:/kibana/browser-env.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		-e KIBANA_VERSION=$(KIBANA_VERSION) \
 		$(BASE_IMAGE) \
@@ -73,6 +77,8 @@ shell: ## Open a shell in the container for debugging
 		-v $(shell pwd)/examples:/kibana/examples:ro \
 		-v $(shell pwd)/generator-utils.ts:/kibana/generator-utils.ts:ro \
 		-v $(shell pwd)/dataviews-mock.js:/kibana/dataviews-mock.js:ro \
+		-v $(shell pwd)/formula-api-mock.js:/kibana/formula-api-mock.js:ro \
+		-v $(shell pwd)/browser-env.js:/kibana/browser-env.js:ro \
 		-v $(shell pwd)/generate-all.js:/kibana/generate-all.js:ro \
 		-e NODE_OPTIONS="--max-old-space-size=8192" \
 		$(BASE_IMAGE) \

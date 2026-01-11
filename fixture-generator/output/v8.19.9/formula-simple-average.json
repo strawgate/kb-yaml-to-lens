@@ -1,0 +1,65 @@
+{
+  "title": "Simple Average Formula",
+  "description": "Formula: average(bytes) - single field aggregation",
+  "visualizationType": "lnsMetric",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "formBased": {
+        "layers": {
+          "layer_0": {
+            "columnOrder": [
+              "metric_formula_accessorX0",
+              "metric_formula_accessor"
+            ],
+            "columns": {
+              "metric_formula_accessorX0": {
+                "operationType": "average",
+                "isBucketed": false,
+                "dataType": "number",
+                "sourceField": "bytes",
+                "label": "Part of average(bytes)",
+                "customLabel": true
+              },
+              "metric_formula_accessor": {
+                "operationType": "formula",
+                "isBucketed": false,
+                "dataType": "number",
+                "references": [
+                  "metric_formula_accessorX0"
+                ],
+                "label": "average(bytes)",
+                "params": {
+                  "formula": "average(bytes)",
+                  "isFormulaBroken": false
+                },
+                "customLabel": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "logs-*",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "logs-*": {}
+    }
+  }
+}

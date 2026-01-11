@@ -88,9 +88,20 @@ RUN rm -rf ~/.cache/yarn /usr/local/share/.cache/yarn && \
 RUN npm install -g tsx@4.21.0 typescript@5.7.2 @types/node@22.19.3 peggy@4.0.3
 
 # Compile .peggy grammar files to JavaScript
+# 1. kbn-es-query (kuery parser)
 RUN cd /kibana/src/platform/packages/shared/kbn-es-query/src/kuery/grammar && \
     peggy grammar.peggy && \
     sed -i "s|from './grammar.peggy'|from './grammar.js'|g" index.ts
+
+# 2. kbn-tinymath (formula math parser) - needed for Lens formula parsing
+RUN cd /kibana/src/platform/packages/private/kbn-tinymath/src && \
+    peggy --format commonjs -o grammar.js grammar.peggy && \
+    sed -i "s|require('./grammar.peggy')|require('./grammar.js')|g" index.js
+
+# 3. kbn-interpreter (expression language) - needed for some Lens formulas
+RUN cd /kibana/src/platform/packages/shared/kbn-interpreter/src/common/lib && \
+    peggy --format commonjs -o grammar.js grammar.peggy && \
+    sed -i "s|from './grammar.peggy'|from './grammar.js'|g" parse.ts
 
 # Set Kibana version for runtime use
 ENV KIBANA_VERSION=${KIBANA_VERSION}
