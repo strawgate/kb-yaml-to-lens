@@ -13,6 +13,7 @@ mv github/workflows/create-release.yml .github/workflows/
 mv github/workflows/publish-to-pypi.yml .github/workflows/
 mv github/workflows/deploy-gh-pages.yml .github/workflows/
 mv github/workflows/publish-vscode-extension.yml .github/workflows/
+mv github/workflows/gemini-issue-triage.yml .github/workflows/
 ```
 
 ## Changes Made
@@ -65,3 +66,13 @@ All new commands are documented in `CLAUDE.md` and in the respective Makefile he
 - Generates changelog from git history
 - Creates GitHub release with installation instructions
 - Automatically detects pre-releases (`-rc`, `-alpha`, `-beta`, `-dev`)
+
+### AI Triage Workflows
+
+#### `gemini-issue-triage.yml`
+
+- Provides issue triage using Google's Gemini CLI as an alternative to Claude
+- Triggers on newly opened issues (without assignee) or when labeled with `triage-gemini`
+- Requires `GEMINI_API_KEY` secret to be configured
+- Outputs structured investigation with recommendations, findings, and action plans
+- Mirrors the functionality of the existing `claude-issue-triage.yml` workflow
