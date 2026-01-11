@@ -3,7 +3,7 @@
 import hashlib
 import json
 import uuid
-from typing import Any, ClassVar, Literal, Protocol, override, runtime_checkable
+from typing import Any, Literal, Protocol, override, runtime_checkable
 
 from pydantic import Field
 
@@ -71,9 +71,6 @@ class IDMixin(BaseCfgModel):
         c = LensStaticValue(id='custom', value=42)
         assert c.id == 'custom'
     """
-
-    _id_prefix: ClassVar[str] = ''
-    """Optional prefix for the stable ID (not currently used, kept for compatibility)."""
 
     id: str | None = Field(default=None)
     """A unique identifier. If not provided, one will be generated automatically."""

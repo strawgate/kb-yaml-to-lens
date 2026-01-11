@@ -1,7 +1,7 @@
 """Lens dimensions configuration for the Lens chart."""
 
 from enum import StrEnum
-from typing import ClassVar, Literal
+from typing import Literal
 
 from pydantic import Field
 
@@ -15,9 +15,6 @@ type LensDimensionTypes = (
 
 class BaseDimension(IDMixin):
     """Base model for defining dimensions."""
-
-    _id_prefix: ClassVar[str] = 'dimension'
-    """Prefix for generated dimension IDs."""
 
     # color: ColorMapping | None = Field(default=None)
 

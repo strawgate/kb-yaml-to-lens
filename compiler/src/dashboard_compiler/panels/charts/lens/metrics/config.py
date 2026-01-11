@@ -1,6 +1,6 @@
 """Configuration for a Lens and ESQL Metric."""
 
-from typing import ClassVar, Literal
+from typing import Literal
 
 from pydantic import Field
 
@@ -10,9 +10,6 @@ from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
 
 class BaseMetric(IDMixin):
     """Base class for metric configurations in Lens charts."""
-
-    _id_prefix: ClassVar[str] = 'metric'
-    """Prefix for generated metric IDs."""
 
 
 class LensStaticValue(BaseMetric):

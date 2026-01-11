@@ -1,7 +1,7 @@
 """Configuration schema for controls used in a dashboard."""
 
 from enum import StrEnum
-from typing import ClassVar, Literal, Self
+from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
@@ -69,9 +69,6 @@ class BaseControl(IDMixin):
     These controls are used to filter data or adjust visualization settings
     on a dashboard.
     """
-
-    _id_prefix: ClassVar[str] = 'control'
-    """Prefix for generated control IDs."""
 
     width: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """The width of the control in the dashboard layout. If not set, defaults to 'medium'."""

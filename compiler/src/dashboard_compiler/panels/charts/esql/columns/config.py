@@ -1,4 +1,4 @@
-from typing import ClassVar, Literal
+from typing import Literal
 
 from pydantic import Field
 
@@ -51,9 +51,6 @@ class ESQLCustomMetricFormat(BaseCfgModel):
 
 class BaseESQLColumn(IDMixin):
     """A base class for ESQL columns."""
-
-    _id_prefix: ClassVar[str] = 'esql_column'
-    """Prefix for generated column IDs."""
 
 
 class ESQLDimension(BaseESQLColumn):
