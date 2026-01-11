@@ -2,11 +2,19 @@
 
 import functools
 from collections.abc import Callable
+from enum import Enum
 from typing import Any
 
 import rich_click as click
 
 from dashboard_compiler.kibana_client import KibanaClient
+
+
+class AuthType(Enum):
+    """Authentication type for CLI options."""
+
+    KIBANA = '--kibana'
+    ELASTICSEARCH = '--es'
 
 
 def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
@@ -106,7 +114,7 @@ def kibana_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         **kwargs: Any,  # pyright: ignore[reportAny]
     ) -> R:
         # Validate authentication
-        validate_auth_options('--kibana', kibana_api_key, kibana_username, kibana_password)
+        validate_auth_options(AuthType.KIBANA, kibana_api_key, kibana_username, kibana_password)
 
         # Create and populate context with Kibana client
         from dashboard_compiler.cli_context import CliContext
@@ -211,7 +219,7 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
         **kwargs: Any,  # pyright: ignore[reportAny]
     ) -> R:
         # Validate authentication
-        validate_auth_options('--es', es_api_key, es_username, es_password)
+        validate_auth_options(AuthType.ELASTICSEARCH, es_api_key, es_username, es_password)
 
         # Create and populate context with Elasticsearch client
         from elasticsearch import AsyncElasticsearch
@@ -244,7 +252,7 @@ def elasticsearch_options[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
 
 def validate_auth_options(
-    prefix: str,
+    auth_type: AuthType,
     api_key: str | None,
     username: str | None,
     password: str | None,
@@ -256,7 +264,7 @@ def validate_auth_options(
     - Username and password are used together (not one without the other)
 
     Args:
-        prefix: The CLI option prefix (e.g. '--kibana', '--es')
+        auth_type: The authentication type (Kibana or Elasticsearch)
         api_key: The API key
         username: The username
         password: The password
@@ -265,6 +273,7 @@ def validate_auth_options(
         click.UsageError: If authentication options are invalid
 
     """
+    prefix = auth_type.value
     if api_key is not None and (username is not None or password is not None):
         msg = f'Cannot use {prefix}-api-key together with {prefix}-username or {prefix}-password. Choose one authentication method.'
         raise click.UsageError(msg)
