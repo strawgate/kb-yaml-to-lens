@@ -68,11 +68,15 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Bootstrap Kibana (this takes ~6 minutes)
 # This makes @kbn/lens-embeddable-utils and other packages available
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
-# Note: YARN_CHECKSUM_BEHAVIOR=update tells yarn to update checksums when they differ
-#       from yarn.lock (needed due to npm registry CDN inconsistencies with @elastic/eui)
-ENV YARN_CHECKSUM_BEHAVIOR=update
+# Note: Kibana's .yarnrc configures an offline mirror which can cause integrity check
+#       failures when the cached checksums don't match npm registry. We disable offline
+#       mode and run yarn with --update-checksums before bootstrap to fix mismatched checksums.
 RUN rm -rf ~/.cache/yarn /usr/local/share/.cache/yarn && \
     yarn cache clean && \
+    if [ -f .yarnrc ]; then \
+        sed -i 's/--install.prefer-offline true/--install.prefer-offline false/' .yarnrc; \
+    fi && \
+    yarn --update-checksums && \
     yarn kbn bootstrap --allow-root
 
 # Install global dependencies needed for fixture generation
