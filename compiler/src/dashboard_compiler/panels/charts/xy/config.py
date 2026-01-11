@@ -6,7 +6,7 @@ from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes
 from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
-from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
 class XYReferenceLineValue(BaseCfgModel):
@@ -19,10 +19,10 @@ class XYReferenceLineValue(BaseCfgModel):
     """The static value for the reference line."""
 
 
-class XYReferenceLine(IDMixin):
+class XYReferenceLine(BaseIdentifiableModel):
     """Configuration for a single reference line in an XY chart.
 
-    Inherits from IDMixin for automatic deterministic ID generation.
+    Inherits from BaseIdentifiableModel for automatic deterministic ID generation.
     """
 
     label: str | None = Field(default=None)

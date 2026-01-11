@@ -15,7 +15,7 @@ MAX_BYTES_LENGTH = 16  # UUIDs are 128 bits (16 bytes)
 def stable_id_generator(values: list[object]) -> str:
     """Generate a deterministic UUID from a list of values.
 
-    This function is used to generate IDs for objects that don't inherit from IDMixin,
+    This function is used to generate IDs for objects that don't inherit from BaseIdentifiableModel,
     such as controls, links, panels, and dashboards during compilation.
 
     Args:
@@ -43,8 +43,8 @@ class HasId(Protocol):
     id: str | None
 
 
-class IDMixin(BaseCfgModel):
-    """Mixin that provides automatic stable ID generation for config models.
+class BaseIdentifiableModel(BaseCfgModel):
+    """Base model that provides automatic stable ID generation for config models.
 
     IDs are generated deterministically by hashing the model's JSON representation.
     The class name is included as a prefix to ensure different model types with
@@ -55,7 +55,7 @@ class IDMixin(BaseCfgModel):
     2. Otherwise, hash the JSON dump of the model (excluding `id` field)
 
     Example:
-        class LensStaticValue(IDMixin):
+        class LensStaticValue(BaseIdentifiableModel):
             value: int | float = Field(...)
 
         # Both will have the same auto-generated ID:
@@ -101,7 +101,7 @@ class IDMixin(BaseCfgModel):
             RuntimeError: If id is unexpectedly None (should never happen).
         """
         if self.id is None:
-            msg = f'{type(self).__name__}.id is unexpectedly None - IDMixin should have set it'
+            msg = f'{type(self).__name__}.id is unexpectedly None - BaseIdentifiableModel should have set it'
             raise RuntimeError(msg)
         return self.id
 

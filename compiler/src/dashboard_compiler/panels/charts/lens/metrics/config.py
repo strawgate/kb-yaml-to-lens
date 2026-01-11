@@ -5,10 +5,10 @@ from typing import Literal
 from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
-from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
-class BaseMetric(IDMixin):
+class BaseMetric(BaseIdentifiableModel):
     """Base class for metric configurations in Lens charts."""
 
 
