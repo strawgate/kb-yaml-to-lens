@@ -42,7 +42,6 @@ from dashboard_compiler.panels.charts.xy.view import (
     XYReferenceLineLayerConfig,
     YConfig,
 )
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -100,7 +99,7 @@ def compile_lens_reference_line_layer(
             - columns: Dictionary of accessor ID -> static value column
             - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
-    primary_layer_id = get_layer_id(layer)
+    primary_layer_id = layer.get_id()
 
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
     accessor_ids: list[str] = []
@@ -143,7 +142,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
         msg = f'Invalid value type: {type(ref_line.value)}'
         raise TypeError(msg)
 
-    accessor_id = get_layer_id(ref_line)
+    accessor_id = ref_line.get_id()
 
     # Create the static value column for the reference line
     static_value_column = KbnLensStaticValueColumn(
@@ -519,7 +518,7 @@ def compile_lens_xy_chart(
 
     kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
 
-    layer_id = get_layer_id(lens_xy_chart)
+    layer_id = lens_xy_chart.get_id()
 
     return (
         layer_id,
@@ -564,7 +563,7 @@ def compile_esql_xy_chart(
 
     kbn_columns = [*metrics, *dimensions]
 
-    layer_id = get_layer_id(esql_xy_chart)
+    layer_id = esql_xy_chart.get_id()
 
     return (
         layer_id,

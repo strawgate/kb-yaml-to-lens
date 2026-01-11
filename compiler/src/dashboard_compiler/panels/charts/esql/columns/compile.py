@@ -19,7 +19,6 @@ from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLMetricFormatParams,
     KbnESQLStaticValueColumn,
 )
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_esql_metric_format(metric_format: ESQLMetricFormatTypes) -> KbnESQLMetricFormat:
@@ -76,7 +75,7 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         field_name = metric.label if metric.label is not None else str(metric.value)
         return KbnESQLStaticValueColumn(
             fieldName=field_name,
-            columnId=get_layer_id(metric),
+            columnId=metric.get_id(),
         )
 
     # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
@@ -85,7 +84,7 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
     # metric.id is guaranteed by IDMixin
-    metric_id = get_layer_id(metric)
+    metric_id = metric.get_id()
 
     # Compile format if provided
     params = None
@@ -134,7 +133,7 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
         KbnESQLFieldDimensionColumn: The compiled Kibana view model.
 
     """
-    dimension_id = get_layer_id(dimension)
+    dimension_id = dimension.get_id()
 
     # Add meta information for date fields if data_type is explicitly set
     meta = None

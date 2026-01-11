@@ -2,7 +2,7 @@
 
 import uuid
 
-from dashboard_compiler.shared.config import random_id_generator, stable_id_generator
+from dashboard_compiler.shared.config import stable_id_generator
 
 
 def test_stable_id_generator_consistency() -> None:
@@ -83,27 +83,3 @@ def test_stable_id_generator_empty_list() -> None:
 
     assert id1 == id2
     _ = uuid.UUID(id1)
-
-
-def test_random_id_generator_uniqueness() -> None:
-    """Verify that random IDs are unique."""
-    # Generate 100 random IDs
-    ids = {random_id_generator() for _ in range(100)}
-    # All should be unique
-    assert len(ids) == 100
-
-
-def test_random_id_generator_uuid_format() -> None:
-    """Verify that random ID generator produces valid UUIDs."""
-    result = random_id_generator()
-    # This will raise ValueError if the result is not a valid UUID
-    _ = uuid.UUID(result)
-
-
-def test_random_id_generator_different_from_stable() -> None:
-    """Verify that random and stable generators produce different results."""
-    stable_id = stable_id_generator(['test'])
-    random_id = random_id_generator()
-
-    # These should be different (extremely unlikely to be the same)
-    assert stable_id != random_id

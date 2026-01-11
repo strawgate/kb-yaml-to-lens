@@ -43,11 +43,6 @@ class HasId(Protocol):
     id: str | None
 
 
-def random_id_generator() -> str:
-    """Generate a random UUID."""
-    return str(uuid.uuid4())
-
-
 class IDMixin(BaseCfgModel):
     """Mixin that provides automatic stable ID generation for config models.
 
@@ -93,26 +88,22 @@ class IDMixin(BaseCfgModel):
             hash_bytes = hashlib.sha1(f'{prefix}:{json_str}'.encode()).digest()[:MAX_BYTES_LENGTH]  # noqa: S324
             object.__setattr__(self, 'id', str(uuid.UUID(bytes=hash_bytes)))
 
+    def get_id(self) -> str:
+        """Get the ID, guaranteed to be non-None.
 
-def get_layer_id(chart_config: HasId) -> str:
-    """Get layer ID from chart config.
+        model_post_init guarantees that id is always set after construction.
+        This method provides a type-safe way to access it without None checks.
 
-    Returns the chart's id attribute. This function enforces that the id is present
-    to ensure deterministic ID generation.
+        Returns:
+            The object's id, which is guaranteed to be a string.
 
-    Args:
-        chart_config: Chart configuration object with an id attribute.
-
-    Returns:
-        Layer ID string from config.id.
-
-    Raises:
-        RuntimeError: If id is None.
-    """
-    if chart_config.id is None:
-        msg = f'{type(chart_config).__name__}.id is None - ensure the chart config has a deterministic ID set'
-        raise RuntimeError(msg)
-    return chart_config.id
+        Raises:
+            RuntimeError: If id is unexpectedly None (should never happen).
+        """
+        if self.id is None:
+            msg = f'{type(self).__name__}.id is unexpectedly None - IDMixin should have set it'
+            raise RuntimeError(msg)
+        return self.id
 
 
 class Sort(BaseCfgModel):

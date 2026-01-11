@@ -22,7 +22,6 @@ from dashboard_compiler.panels.charts.metric.view import (
     KbnMetricVisualizationState,
     KbnSecondaryTrendNone,
 )
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_metric_chart_visualization_state(
@@ -95,7 +94,7 @@ def compile_lens_metric_chart(
     # Add metrics AFTER breakdown dimension
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
-    layer_id = get_layer_id(lens_metric_chart)
+    layer_id = lens_metric_chart.get_id()
 
     return (
         layer_id,
@@ -146,7 +145,7 @@ def compile_esql_metric_chart(
         breakdown_dimension_id = breakdown_dimension.columnId
         kbn_columns.append(breakdown_dimension)
 
-    layer_id = get_layer_id(esql_metric_chart)
+    layer_id = esql_metric_chart.get_id()
 
     return (
         layer_id,
