@@ -14,19 +14,20 @@ permissions:
   packages: write
 jobs:
   build-and-publish:
-    name: Build (${{ matrix.kibana_version }}, ${{ matrix.platform }})
+    name: Build (${{ matrix.kibana_version }}, ${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        # Build multiple Kibana versions
-        kibana_version:
-          - v9.2.2
-        # Build on native runners for each architecture
+        # Build matrix: each Kibana version on each architecture
         include:
-          - platform: linux/amd64
-            runner: ubuntu-latest
-          - platform: linux/arm64
+          - kibana_version: v9.2.2
+            arch: amd64
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - kibana_version: v9.2.2
+            arch: arm64
             runner: ubuntu-24.04-arm
+            platform: linux/arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,18 +43,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set platform suffix
-        id: platform
-        run: |
-          echo "suffix=$(echo "${{ matrix.platform }}" | sed 's|linux/||')" >> $GITHUB_OUTPUT 
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/kibana-base
           tags: |
-            type=raw,value=${{ matrix.kibana_version }}-${{ steps.platform.outputs.suffix }}
-            type=raw,value=${{ matrix.kibana_version }}-{{date 'YYYYMMDD'}}-${{ steps.platform.outputs.suffix }}
+            type=raw,value=${{ matrix.kibana_version }}-${{ matrix.arch }}
+            type=raw,value=${{ matrix.kibana_version }}-{{date 'YYYYMMDD'}}-${{ matrix.arch }}
       - name: Build and push Kibana base image
         uses: docker/build-push-action@v6
         with:
@@ -65,12 +62,11 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=kibana-${{ matrix.kibana_version }}-${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=kibana-${{ matrix.kibana_version }}-${{ matrix.platform }}
       - name: Image info
         run: |-
           echo "Built and pushed Kibana base image:"
           echo "  Version: ${{ matrix.kibana_version }}"
+          echo "  Architecture: ${{ matrix.arch }}"
           echo "  Platform: ${{ matrix.platform }}"
           echo "  Tags: ${{ steps.meta.outputs.tags }}"
   create-manifests:
