@@ -2,21 +2,31 @@
 #
 # This Dockerfile creates a base image with Kibana bootstrapped and ready to use.
 # It is published to GitHub Container Registry and reused by the main Dockerfile.
-#
-# Build time: ~6 minutes (one-time, then cached and reused)
-# Image size: ~8GB (includes full Kibana source + node_modules)
 
 FROM ubuntu:22.04
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    python3 \
-    build-essential \
-    ca-certificates \
-    xz-utils \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies with retry logic for transient mirror failures
+RUN set -eux; \
+    for i in 1 2 3; do \
+        apt-get update; \
+        if apt-get install -y --no-install-recommends \
+            curl \
+            git \
+            python3 \
+            build-essential \
+            ca-certificates \
+            xz-utils; then \
+          break; \
+        fi; \
+        if [ "$i" -eq 3 ]; then \
+          echo "apt-get install failed after ${i} attempts" >&2; \
+          exit 1; \
+        fi; \
+        echo "Attempt ${i} failed, retrying..." >&2; \
+        rm -rf /var/lib/apt/lists/*; \
+        sleep 10; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
 
 # Clone Kibana FIRST to get the .node-version file
 # Note: Kibana tags use "v" prefix (e.g., v9.2.0)
@@ -27,13 +37,26 @@ RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/ki
     git clone --depth 1 https://github.com/elastic/kibana.git .
 
 # Install Node.js version specified by Kibana's .node-version file
+# Note: retry logic handles transient HTTP/2 errors during download
 ARG TARGETARCH
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN NODE_VERSION=$(cat .node-version) && \
-    ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x64") && \
-    echo "Installing Node.js ${NODE_VERSION} for ${ARCH}..." && \
-    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" | \
-    tar -xJ -C /usr/local --strip-components=1 && \
+RUN set -eux; \
+    NODE_VERSION=$(cat .node-version); \
+    ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x64"); \
+    echo "Installing Node.js ${NODE_VERSION} for ${ARCH}..."; \
+    for i in 1 2 3; do \
+        if curl -fsSL --retry 3 --retry-delay 5 \
+            "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" | \
+            tar -xJ -C /usr/local --strip-components=1; then \
+            break; \
+        fi; \
+        if [ "$i" -eq 3 ]; then \
+            echo "Node.js download failed after ${i} attempts" >&2; \
+            exit 1; \
+        fi; \
+        echo "Attempt ${i} failed, retrying..." >&2; \
+        sleep 10; \
+    done; \
     node --version
 
 # Install Yarn Classic
@@ -45,7 +68,12 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Bootstrap Kibana (this takes ~6 minutes)
 # This makes @kbn/lens-embeddable-utils and other packages available
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
-RUN yarn kbn bootstrap --allow-root
+# Note: YARN_CHECKSUM_BEHAVIOR=update tells yarn to update checksums when they differ
+#       from yarn.lock (needed due to npm registry CDN inconsistencies with @elastic/eui)
+ENV YARN_CHECKSUM_BEHAVIOR=update
+RUN rm -rf ~/.cache/yarn /usr/local/share/.cache/yarn && \
+    yarn cache clean && \
+    yarn kbn bootstrap --allow-root
 
 # Install global dependencies needed for fixture generation
 # tsx: needed for TypeScript transpilation
