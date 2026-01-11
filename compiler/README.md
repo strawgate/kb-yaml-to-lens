@@ -117,7 +117,7 @@ No Python installation required!
 
 #### Compile Your First Dashboard (CLI)
 
-1. Create a YAML dashboard file in `inputs/` directory:
+1. Create a YAML dashboard file in an `inputs/` directory (you must create this folder):
 
 ```yaml
 dashboards:
@@ -165,7 +165,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 - **[Full Documentation Site](https://strawgate.github.io/kb-yaml-to-lens/)** - Complete user guide and API reference
 - **[Programmatic Usage Guide](https://strawgate.github.io/kb-yaml-to-lens/programmatic-usage)** - Create dashboards entirely in Python code
 - **[Architecture](https://strawgate.github.io/kb-yaml-to-lens/architecture)** - Technical design and data flow overview
-- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute and add new capabilities
+- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute and add new capabilities.
 
 ## License
 

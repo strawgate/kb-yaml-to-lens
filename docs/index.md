@@ -80,16 +80,15 @@ graph TB
 
 **Installation:** Requires Python 3.12+
 
-Using [uv](https://github.com/astral-sh/uv):
+Using [uv](https://github.com/astral-sh/uv) (recommended):
 
 ```bash
-cd compiler
 uv sync
 ```
 
 **Your First Dashboard:**
 
-1. Create `inputs/my-dashboard.yaml`:
+1. Create a `inputs` directory and your first dashboard file (e.g., `inputs/my-dashboard.yaml`):
 
    ```yaml
    dashboards:
@@ -106,14 +105,13 @@ uv sync
 2. Compile:
 
    ```bash
-   cd compiler
-   uv run kb-dashboard compile
+   uv run kb-dashboard compile --input-dir inputs --output-dir output
    ```
 
 3. Upload to Kibana:
 
    ```bash
-   uv run kb-dashboard compile --upload --kibana-url http://localhost:5601
+   uv run kb-dashboard compile --upload --input-dir inputs --kibana-url http://localhost:5601
    ```
 
 **Full guide:** [CLI Documentation](CLI.md)

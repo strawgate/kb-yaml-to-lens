@@ -46,12 +46,12 @@ uv sync
 Compile YAML dashboards to NDJSON format:
 
 ```bash
-kb-dashboard compile
+uv run kb-dashboard compile --input-dir inputs --output-dir output
 ```
 
 This will:
 
-- Find all YAML files in `inputs/` (by default)
+- Find all YAML files in `inputs/` (you must create this directory or specify another)
 - Compile them to Kibana JSON format
 - Output NDJSON files to `output/` directory
 - Create individual NDJSON files per scenario
@@ -62,7 +62,7 @@ This will:
 Compile dashboards and upload them directly to Kibana:
 
 ```bash
-kb-dashboard compile --upload
+uv run kb-dashboard compile --upload --input-dir inputs
 ```
 
 This will compile the dashboards and upload them to a local Kibana instance.
@@ -72,7 +72,7 @@ This will compile the dashboards and upload them to a local Kibana instance.
 Generate a PNG screenshot of a dashboard:
 
 ```bash
-kb-dashboard screenshot --dashboard-id <id> --output <file.png>
+uv run kb-dashboard screenshot --dashboard-id <id> --output <file.png>
 ```
 
 This will use Kibana's Reporting API to take a screenshot.
@@ -82,7 +82,7 @@ This will use Kibana's Reporting API to take a screenshot.
 Export a dashboard from Kibana and create a pre-filled GitHub issue:
 
 ```bash
-kb-dashboard export-for-issue --dashboard-id <id>
+uv run kb-dashboard export-for-issue --dashboard-id <id>
 ```
 
 This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard JSON.
@@ -92,7 +92,7 @@ This will export the dashboard and open your browser with a pre-filled GitHub is
 Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
 
 ```bash
-kb-dashboard disassemble dashboard.ndjson -o output_dir
+uv run kb-dashboard disassemble dashboard.ndjson -o output_dir
 ```
 
 This will extract the dashboard into separate files:
@@ -124,7 +124,7 @@ export KIBANA_API_KEY=your-api-key-here
 Then simply run:
 
 ```bash
-kb-dashboard compile --upload
+uv run kb-dashboard compile --upload --input-dir inputs
 ```
 
 ### Command-Line Options
@@ -132,8 +132,9 @@ kb-dashboard compile --upload
 All options can also be specified on the command line:
 
 ```bash
-kb-dashboard compile \
+uv run kb-dashboard compile \
   --upload \
+  --input-dir inputs \
   --kibana-url http://localhost:5601 \
   --kibana-username elastic \
   --kibana-password changeme
@@ -142,14 +143,14 @@ kb-dashboard compile \
 To upload to a specific Kibana space:
 
 ```bash
-kb-dashboard compile --upload --kibana-space-id production
+uv run kb-dashboard compile --upload --input-dir inputs --kibana-space-id production
 ```
 
 Or with environment variables:
 
 ```bash
 export KIBANA_SPACE_ID=staging
-kb-dashboard compile --upload
+uv run kb-dashboard compile --upload --input-dir inputs
 ```
 
 ## Command Reference
@@ -178,8 +179,7 @@ cd compiler && make upload
 Or use the CLI directly from anywhere with uv:
 
 ```bash
-cd compiler && uv run kb-dashboard compile
-cd compiler && uv run kb-dashboard compile --upload
+uv run kb-dashboard compile --input-dir inputs --output-dir output
 ```
 
 ## Authentication
@@ -191,8 +191,9 @@ The CLI supports two authentication methods:
 Use username and password:
 
 ```bash
-kb-dashboard compile \
+uv run kb-dashboard compile \
   --upload \
+  --input-dir inputs \
   --kibana-username elastic \
   --kibana-password changeme
 ```
@@ -202,7 +203,7 @@ Or via environment variables:
 ```bash
 export KIBANA_USERNAME=elastic
 export KIBANA_PASSWORD=changeme
-kb-dashboard compile --upload
+uv run kb-dashboard compile --upload --input-dir inputs
 ```
 
 ### API Key Authentication
@@ -210,8 +211,9 @@ kb-dashboard compile --upload
 Use a Kibana API key:
 
 ```bash
-kb-dashboard compile \
+uv run kb-dashboard compile \
   --upload \
+  --input-dir inputs \
   --kibana-api-key "your-base64-encoded-key"
 ```
 
@@ -219,7 +221,7 @@ Or via environment variable:
 
 ```bash
 export KIBANA_API_KEY="your-base64-encoded-key"
-kb-dashboard compile --upload
+uv run kb-dashboard compile --upload --input-dir inputs
 ```
 
 To create an API key in Kibana:
