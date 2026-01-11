@@ -133,13 +133,13 @@ make build-base KIBANA_VERSION=v9.3.0
 make run KIBANA_VERSION=v9.3.0
 ```
 
-Available versions: `v9.2.0` (default), `v9.1.0`
+Available versions: `v9.2.2` (default), `v8.19.9`
 
 ## Docker Setup
 
 The fixture generator uses **pre-built Kibana base images** published to GitHub Container Registry:
 
-- **Base image**: `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.0`
+- **Base image**: `ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:v9.2.2`
 - **Contents**: Kibana source + bootstrapped dependencies (~8GB)
 - **Runtime**: Mount your generator scripts via Docker volumes
 - **Updates**: Built weekly via GitHub Actions
@@ -148,8 +148,8 @@ The fixture generator uses **pre-built Kibana base images** published to GitHub 
 **Using different versions**:
 
 ```bash
-make pull KIBANA_VERSION=v9.1.0
-make run KIBANA_VERSION=v9.1.0
+make pull KIBANA_VERSION=v8.19.9
+make run KIBANA_VERSION=v8.19.9
 ```
 
 **Building locally** (for testing base image changes):
