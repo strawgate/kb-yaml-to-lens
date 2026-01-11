@@ -122,8 +122,8 @@ class TestKibanaClient:
         headers, auth = client._get_auth_headers_and_auth()
         assert headers == {'kbn-xsrf': 'true'}
         assert auth is not None
-        assert auth.login == 'admin'  # pyright: ignore[reportUnknownMemberType]
-        assert auth.password == 'password'  # noqa: S105  # pyright: ignore[reportUnknownMemberType]
+        assert auth.login == 'admin'
+        assert auth.password == 'password'  # noqa: S105
 
     def test_get_auth_headers_and_auth_no_auth(self) -> None:
         """Test auth headers generation without authentication."""

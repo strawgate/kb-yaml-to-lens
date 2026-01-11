@@ -3,6 +3,8 @@
 This module provides utilities for loading Kibana-generated fixture files
 and comparing them against compiled output using DeepDiff with built-in
 exclusion patterns for dynamic values like layer IDs.
+
+Also provides direct fixture generation via Docker for dynamic test fixtures.
 """
 
 from __future__ import annotations
@@ -220,11 +222,11 @@ def normalize_diff_paths(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
     # Handle each type of diff
     if 'values_changed' in diff:
         values_changed: dict[str, dict[str, Any]] = {}
-        for path, change in diff['values_changed'].items():  # pyright: ignore[reportUnknownMemberType]
+        for path, change in diff['values_changed'].items():
             normalized_path = normalize_path(path)
             values_changed[normalized_path] = {
-                'old_value': change.get('old_value'),  # pyright: ignore[reportUnknownMemberType]
-                'new_value': change.get('new_value'),  # pyright: ignore[reportUnknownMemberType]
+                'old_value': change.get('old_value'),
+                'new_value': change.get('new_value'),
             }
         result['values_changed'] = dict(sorted(values_changed.items()))
 
@@ -244,25 +246,25 @@ def normalize_diff_paths(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
 
     if 'iterable_item_added' in diff:
         iter_added: dict[str, Any] = {}
-        for path, value in diff['iterable_item_added'].items():  # pyright: ignore[reportUnknownMemberType]
+        for path, value in diff['iterable_item_added'].items():
             normalized_path = normalize_path(path)
             iter_added[normalized_path] = value
         result['iterable_item_added'] = dict(sorted(iter_added.items()))
 
     if 'iterable_item_removed' in diff:
         iter_removed: dict[str, Any] = {}
-        for path, value in diff['iterable_item_removed'].items():  # pyright: ignore[reportUnknownMemberType]
+        for path, value in diff['iterable_item_removed'].items():
             normalized_path = normalize_path(path)
             iter_removed[normalized_path] = value
         result['iterable_item_removed'] = dict(sorted(iter_removed.items()))
 
     if 'type_changes' in diff:
         type_changes: dict[str, dict[str, str]] = {}
-        for path, change in diff['type_changes'].items():  # pyright: ignore[reportUnknownMemberType]
+        for path, change in diff['type_changes'].items():
             normalized_path = normalize_path(path)
             type_changes[normalized_path] = {
-                'old_type': str(change.get('old_type')),  # pyright: ignore[reportUnknownMemberType]
-                'new_type': str(change.get('new_type')),  # pyright: ignore[reportUnknownMemberType]
+                'old_type': str(change.get('old_type')),
+                'new_type': str(change.get('new_type')),
             }
         result['type_changes'] = dict(sorted(type_changes.items()))
 
