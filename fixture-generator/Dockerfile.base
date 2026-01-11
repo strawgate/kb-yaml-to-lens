@@ -71,13 +71,15 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Note: Kibana's .yarnrc configures an offline mirror which can cause integrity check
 #       failures when the cached checksums don't match npm registry. We disable offline
 #       mode and run yarn with --update-checksums before bootstrap to fix mismatched checksums.
+# Note: We run bootstrap twice because --update-checksums modifies yarn.lock, causing the
+#       first bootstrap to fail with "yarn.lock file is out of date". The second run succeeds.
 RUN rm -rf ~/.cache/yarn /usr/local/share/.cache/yarn && \
     yarn cache clean && \
     if [ -f .yarnrc ]; then \
         sed -i 's/--install.prefer-offline true/--install.prefer-offline false/' .yarnrc; \
     fi && \
     yarn --update-checksums && \
-    yarn kbn bootstrap --allow-root
+    yarn kbn bootstrap --allow-root || yarn kbn bootstrap --allow-root
 
 # Install global dependencies needed for fixture generation
 # tsx: needed for TypeScript transpilation
