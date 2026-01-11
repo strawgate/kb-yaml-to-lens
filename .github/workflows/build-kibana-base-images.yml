@@ -1,9 +1,12 @@
 ---
-name: Build and Publish Kibana Base Images
+name: Publish Kibana Fixture Images
 on:
   # Run weekly on Mondays at 3 AM UTC
   schedule:
     - cron: 0 3 * * 1
+  pull_request:
+    paths:
+      - fixture-generator/Dockerfile.base
   # Allow manual triggering with default matrix
   workflow_dispatch: null
 permissions:
@@ -11,23 +14,27 @@ permissions:
   packages: write
 jobs:
   build-and-publish:
-    name: Build Kibana Base Image (${{ matrix.kibana_version }}, ${{ matrix.platform }})
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.kibana_version }}, ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        # Build multiple Kibana versions
-        kibana_version:
-          - v9.2.0
-          - v8.19.0
-        # Build each architecture separately
-        platform:
-          - linux/amd64
-          - linux/arm64
+        # Build matrix: each Kibana version on each architecture
+        include:
+          - kibana_version: v9.2.2
+            arch: amd64
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - kibana_version: v9.2.2
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            platform: linux/arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up QEMU for multi-arch builds
-        uses: docker/setup-qemu-action@v3
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: true
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Log in to GitHub Container Registry
@@ -36,18 +43,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set platform suffix
-        id: platform
-        run: |
-          echo "suffix=$(echo '${{ matrix.platform }}' | sed 's/linux\///')" >> $GITHUB_OUTPUT
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/kibana-base
           tags: |
-            type=raw,value=${{ matrix.kibana_version }}-${{ steps.platform.outputs.suffix }}
-            type=raw,value=${{ matrix.kibana_version }}-{{date 'YYYYMMDD'}}-${{ steps.platform.outputs.suffix }}
+            type=raw,value=${{ matrix.kibana_version }}-${{ matrix.arch }}
+            type=raw,value=${{ matrix.kibana_version }}-{{date 'YYYYMMDD'}}-${{ matrix.arch }}
       - name: Build and push Kibana base image
         uses: docker/build-push-action@v6
         with:
@@ -56,26 +59,25 @@ jobs:
           platforms: ${{ matrix.platform }}
           build-args: |
             KIBANA_VERSION=${{ matrix.kibana_version }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=kibana-${{ matrix.kibana_version }}-${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=kibana-${{ matrix.kibana_version }}-${{ matrix.platform }}
       - name: Image info
         run: |-
           echo "Built and pushed Kibana base image:"
           echo "  Version: ${{ matrix.kibana_version }}"
+          echo "  Architecture: ${{ matrix.arch }}"
           echo "  Platform: ${{ matrix.platform }}"
           echo "  Tags: ${{ steps.meta.outputs.tags }}"
   create-manifests:
     name: Create Multi-Arch Manifests
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
     needs: build-and-publish
     strategy:
       matrix:
         kibana_version:
-          - v9.2.0
-          - v8.19.0
+          - v9.2.2
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
