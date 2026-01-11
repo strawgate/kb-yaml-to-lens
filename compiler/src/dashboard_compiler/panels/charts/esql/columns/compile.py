@@ -70,7 +70,6 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         KbnESQLMetricColumnTypes: The compiled Kibana column.
 
     """
-    # Handle static values - metric.id is guaranteed by IDMixin
     if isinstance(metric, ESQLStaticValue):
         field_name = metric.label if metric.label is not None else str(metric.value)
         return KbnESQLStaticValueColumn(
@@ -78,13 +77,9 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
             columnId=metric.get_id(),
         )
 
-    # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
     if not isinstance(metric, ESQLMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = f'Unknown metric type: {type(metric).__name__}'
         raise TypeError(msg)  # pyright: ignore[reportUnreachable]
-
-    # metric.id is guaranteed by IDMixin
-    metric_id = metric.get_id()
 
     # Compile format if provided
     params = None
@@ -92,16 +87,13 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         esql_format = compile_esql_metric_format(metric.format)
         params = KbnESQLMetricColumnParams(format=esql_format)
 
-    # Determine label (use custom label if provided, otherwise use field name)
     label = metric.label if metric.label is not None else metric.field
     custom_label = metric.label is not None
-
-    # ES|QL aggregations always return numbers
     meta = KbnESQLColumnMeta(type='number', esType='long')
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
-        columnId=metric_id,
+        columnId=metric.get_id(),
         label=label,
         customLabel=custom_label,
         meta=meta,

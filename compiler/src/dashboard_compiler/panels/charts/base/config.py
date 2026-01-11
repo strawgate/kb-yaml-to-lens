@@ -6,12 +6,7 @@ from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
 
 
 class BaseChart(IDMixin):
-    """Represents a base chart configuration.
-
-    Inherits from IDMixin to provide automatic deterministic ID generation.
-    If no explicit ID is provided, one will be generated based on the chart's
-    configuration using a stable hash.
-    """
+    """Base configuration for all chart types."""
 
     # data_view: str = Field(default=...)
 

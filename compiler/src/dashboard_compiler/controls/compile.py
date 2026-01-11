@@ -57,7 +57,6 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
         MatchTechnique.EXACT: SearchTechnique.EXACT,
     }
-    stable_id = control.get_id()
 
     # Determine singleSelect value from multiple field
     single_select_value: bool | None = None
@@ -69,7 +68,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         order=order,
         width=default_if_none(control.width, KBN_DEFAULT_CONTROL_WIDTH),
         explicitInput=KbnOptionsListControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             dataViewId=control.data_view,
             fieldName=control.field,
             title=control.label,
@@ -94,14 +93,12 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
-    stable_id = control.get_id()
-
     return KbnRangeSliderControl(
         grow=default_false(control.fill_width),
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnRangeSliderControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             dataViewId=control.data_view,
             fieldName=control.field,
             step=default_if_none(control.step, 1),
@@ -122,14 +119,12 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
         KbnTimeSliderControl: The compiled Kibana time slider control view model.
 
     """
-    stable_id = control.get_id()
-
     return KbnTimeSliderControl(
         grow=True,
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnTimeSliderControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             timesliceEndAsPercentageOfTimeRange=default_if_none(control.end_offset, 100.0),
             timesliceStartAsPercentageOfTimeRange=default_if_none(control.start_offset, 0.0),
         ),
@@ -148,7 +143,6 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = control.get_id()
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -156,7 +150,7 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -181,7 +175,6 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = control.get_id()
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -189,7 +182,7 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -214,9 +207,6 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = control.get_id()
-
-    # Convert default to selectedOptions list
     selected_options: list[str] = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -224,7 +214,7 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -249,9 +239,6 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = control.get_id()
-
-    # Convert default to selectedOptions list
     selected_options: list[str] = control.default if control.default is not None else []
 
     return KbnESQLControl(
@@ -259,7 +246,7 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -284,14 +271,12 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = control.get_id()
-
     return KbnESQLControl(
         grow=False,
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery=control.query,
