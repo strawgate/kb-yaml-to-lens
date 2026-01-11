@@ -519,6 +519,7 @@ class TestCompileLensChartState:
                         'label': 'Top 3 values of tag',
                         'operationType': 'terms',
                         'params': {
+                            'size': 3,
                             'exclude': [],
                             'excludeIsRegex': False,
                             'include': [],
@@ -578,6 +579,7 @@ class TestCompileLensChartState:
                         'label': 'Top 3 values of status',
                         'operationType': 'terms',
                         'params': {
+                            'size': 3,
                             'exclude': [],
                             'excludeIsRegex': False,
                             'include': [],

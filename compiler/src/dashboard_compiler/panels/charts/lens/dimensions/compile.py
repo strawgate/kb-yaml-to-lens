@@ -140,11 +140,9 @@ def compile_lens_dimension(
         )
     if isinstance(dimension, LensTermsDimension):
         dimension_id = get_guaranteed_id(dimension)
-        label = (
-            dimension.label
-            if dimension.label is not None
-            else f'Top {dimension.size if dimension.size is not None else 3} values of {dimension.field}'
-        )
+        # Use 3 as the default size to match Kibana's behavior when size is not specified
+        effective_size = dimension.size if dimension.size is not None else 3
+        label = dimension.label if dimension.label is not None else f'Top {effective_size} values of {dimension.field}'
 
         order_by = _resolve_order_by(
             sort=dimension.sort,
@@ -160,7 +158,7 @@ def compile_lens_dimension(
             scale='ordinal',
             sourceField=dimension.field,
             params=KbnLensTermsDimensionColumnParams(
-                size=dimension.size,
+                size=effective_size,
                 orderBy=order_by,
                 orderDirection=dimension.sort.direction if dimension.sort is not None else 'desc',
                 otherBucket=default_true(dimension.other_bucket),
@@ -177,6 +175,8 @@ def compile_lens_dimension(
         primary_field = dimension.fields[0]
         secondary_fields = dimension.fields[1:]
         dimension_id = get_guaranteed_id(dimension)
+        # Use 3 as the default size to match Kibana's behavior when size is not specified
+        effective_size = dimension.size if dimension.size is not None else 3
 
         # Generate label
         if dimension.label is not None:
@@ -202,7 +202,7 @@ def compile_lens_dimension(
             scale='ordinal',
             sourceField=primary_field,
             params=KbnLensTermsDimensionColumnParams(
-                size=dimension.size,
+                size=effective_size,
                 orderBy=order_by,
                 orderDirection=dimension.sort.direction if dimension.sort is not None else 'desc',
                 otherBucket=default_true(dimension.other_bucket),
