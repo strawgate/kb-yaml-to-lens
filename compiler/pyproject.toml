@@ -55,6 +55,7 @@ dev = [
     "dirty-equals>=0.8.0",
     "pytest-examples>=0.0.18",
     "yamlfix>=1.17.0",
+    "aiodocker>=0.24.0",
 ]
 build = [
     "pyinstaller>=6.0",
@@ -120,8 +121,6 @@ ignore = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
-    "S603", # Allow subprocess without shell=True in test infrastructure
-    "S607", # Allow partial executable paths in test infrastructure (e.g., 'docker')
 ]
 "vscode-extension/python/**/*.py" = [
     "PT009", # Allow unittest-style assertions in test files
@@ -189,7 +188,7 @@ root = "tests"
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
-reportUnknownMemberType = false
+reportUnknownMemberType = false  # External libs (aiodocker, deepdiff) lack complete type stubs
 reportAny = false
 reportArgumentType = false
 reportCallIssue = false

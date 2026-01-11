@@ -2,7 +2,7 @@
 
 Each test:
 1. Defines the YAML configuration (what users write)
-2. Defines the equivalent LensConfigBuilder configuration (what Kibana uses)
+2. Defines the equivalent LensConfigBuilder configuration as raw TypeScript
 3. Generates the fixture dynamically via Docker
 4. Compiles the YAML and diffs against the generated fixture
 5. Snapshots the exact differences using inline_snapshot
@@ -25,17 +25,7 @@ from tests.fixtures import (
     normalize_compiled_panel,
     normalize_diff_paths,
 )
-from tests.fixtures.generator import (
-    FixtureGenerator,
-    LensDataset,
-    LensGaugeConfig,
-    LensHeatmapConfig,
-    LensMetricConfig,
-    LensPieConfig,
-    LensXYConfig,
-    LensXYLayer,
-    TimeRange,
-)
+from tests.fixtures.generator import FixtureGenerator
 
 
 def compile_yaml_content(yaml_content: str) -> dict[str, Any]:
@@ -78,7 +68,7 @@ def compute_diff_dynamic(
 class TestDynamicMetricFixtures:
     """Dynamic fixture tests for metric visualizations."""
 
-    def test_metric_basic_esql_dynamic(
+    async def test_metric_basic_esql_dynamic(
         self,
         require_fixture_generator: FixtureGenerator,
     ) -> None:
@@ -103,19 +93,22 @@ dashboards:
             id: metric_formula_accessor
 """
 
-        # Define equivalent LensConfigBuilder config (what Kibana uses)
-        fixture_config = LensMetricConfig(
-            title='Basic Count Metric',
-            dataset=LensDataset(esql='FROM logs-* | STATS count = COUNT()'),
-            value='count',
-            label='Total Events',
-        )
+        # Define equivalent LensConfigBuilder config as raw TypeScript
+        typescript_config = """
+        {
+            chartType: 'metric',
+            title: 'Basic Count Metric',
+            dataset: { esql: 'FROM logs-* | STATS count = COUNT()' },
+            value: 'count',
+            label: 'Total Events',
+        }
+        """
 
         # Generate fixture dynamically
-        fixture = require_fixture_generator.generate(
-            fixture_config,
+        fixture = await require_fixture_generator.generate(
+            typescript_config,
             'metric-basic-dynamic',
-            TimeRange(from_='now-24h', to='now'),
+            {'from': 'now-24h', 'to': 'now', 'type': 'relative'},
         )
 
         # Compute and snapshot the diff
@@ -166,7 +159,7 @@ dashboards:
 class TestDynamicPieFixtures:
     """Dynamic fixture tests for pie chart visualizations."""
 
-    def test_pie_chart_esql_dynamic(
+    async def test_pie_chart_esql_dynamic(
         self,
         require_fixture_generator: FixtureGenerator,
     ) -> None:
@@ -189,21 +182,23 @@ dashboards:
               id: metric_formula_accessor_breakdown_0
 """
 
-        # Define equivalent LensConfigBuilder config
-        fixture_config = LensPieConfig(
-            title='Events by Status',
-            dataset=LensDataset(esql='FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10'),
-            value='count',
-            breakdown=['log.level'],
-            legend_show=True,
-            legend_position='right',
-        )
+        # Define equivalent LensConfigBuilder config as raw TypeScript
+        typescript_config = """
+        {
+            chartType: 'pie',
+            title: 'Events by Status',
+            dataset: { esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10' },
+            value: 'count',
+            breakdown: ['log.level'],
+            legend: { show: true, position: 'right' },
+        }
+        """
 
         # Generate fixture dynamically
-        fixture = require_fixture_generator.generate(
-            fixture_config,
+        fixture = await require_fixture_generator.generate(
+            typescript_config,
             'pie-chart-dynamic',
-            TimeRange(from_='now-24h', to='now'),
+            {'from': 'now-24h', 'to': 'now', 'type': 'relative'},
         )
 
         # Compute and snapshot the diff
@@ -308,7 +303,7 @@ dashboards:
 class TestDynamicXYFixtures:
     """Dynamic fixture tests for XY chart visualizations."""
 
-    def test_xy_chart_esql_dynamic(
+    async def test_xy_chart_esql_dynamic(
         self,
         require_fixture_generator: FixtureGenerator,
     ) -> None:
@@ -331,27 +326,27 @@ dashboards:
               id: metric_formula_accessor0_0
 """
 
-        # Define equivalent LensConfigBuilder config
-        fixture_config = LensXYConfig(
-            title='Events Over Time',
-            dataset=LensDataset(esql='FROM logs-* | STATS count = COUNT() BY @timestamp'),
-            layers=[
-                LensXYLayer(
-                    type='series',
-                    series_type='line',
-                    x_axis='@timestamp',
-                    y_axis=[{'label': 'Count', 'value': 'count'}],
-                )
-            ],
-            legend_show=True,
-            legend_position='right',
-        )
+        # Define equivalent LensConfigBuilder config as raw TypeScript
+        typescript_config = """
+        {
+            chartType: 'xy',
+            title: 'Events Over Time',
+            dataset: { esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp' },
+            layers: [{
+                type: 'series',
+                seriesType: 'line',
+                xAxis: '@timestamp',
+                yAxis: [{ label: 'Count', value: 'count' }],
+            }],
+            legend: { show: true, position: 'right' },
+        }
+        """
 
         # Generate fixture dynamically
-        fixture = require_fixture_generator.generate(
-            fixture_config,
+        fixture = await require_fixture_generator.generate(
+            typescript_config,
             'xy-chart-dynamic',
-            TimeRange(from_='now-7d', to='now'),
+            {'from': 'now-7d', 'to': 'now', 'type': 'relative'},
         )
 
         # Compute and snapshot the diff
@@ -469,7 +464,7 @@ dashboards:
 class TestDynamicGaugeFixtures:
     """Dynamic fixture tests for gauge visualizations."""
 
-    def test_gauge_esql_dynamic(
+    async def test_gauge_esql_dynamic(
         self,
         require_fixture_generator: FixtureGenerator,
     ) -> None:
@@ -494,22 +489,25 @@ dashboards:
             shape: arc
 """
 
-        # Define equivalent LensConfigBuilder config
-        fixture_config = LensGaugeConfig(
-            title='CPU Usage Gauge',
-            dataset=LensDataset(esql='FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)'),
-            value='avg_cpu',
-            query_min_value='0',
-            query_max_value='1',
-            query_goal_value='0.8',
-            shape='arc',
-        )
+        # Define equivalent LensConfigBuilder config as raw TypeScript
+        typescript_config = """
+        {
+            chartType: 'gauge',
+            title: 'CPU Usage Gauge',
+            dataset: { esql: 'FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)' },
+            value: 'avg_cpu',
+            queryMinValue: '0',
+            queryMaxValue: '1',
+            queryGoalValue: '0.8',
+            shape: 'arc',
+        }
+        """
 
         # Generate fixture dynamically
-        fixture = require_fixture_generator.generate(
-            fixture_config,
+        fixture = await require_fixture_generator.generate(
+            typescript_config,
             'gauge-dynamic',
-            TimeRange(from_='now-15m', to='now'),
+            {'from': 'now-15m', 'to': 'now', 'type': 'relative'},
         )
 
         # Compute and snapshot the diff
@@ -608,7 +606,7 @@ dashboards:
 class TestDynamicHeatmapFixtures:
     """Dynamic fixture tests for heatmap visualizations."""
 
-    def test_heatmap_esql_dynamic(
+    async def test_heatmap_esql_dynamic(
         self,
         require_fixture_generator: FixtureGenerator,
     ) -> None:
@@ -634,22 +632,24 @@ dashboards:
             id: metric_formula_accessor
 """
 
-        # Define equivalent LensConfigBuilder config
-        fixture_config = LensHeatmapConfig(
-            title='Traffic Heatmap by Geographic Location',
-            dataset=LensDataset(esql='FROM kibana_sample_data_logs | STATS bytes = SUM(bytes) BY geo.dest, geo.src'),
-            x_axis='geo.src',
-            breakdown='geo.dest',
-            value='bytes',
-            legend_show=True,
-            legend_position='right',
-        )
+        # Define equivalent LensConfigBuilder config as raw TypeScript
+        typescript_config = """
+        {
+            chartType: 'heatmap',
+            title: 'Traffic Heatmap by Geographic Location',
+            dataset: { esql: 'FROM kibana_sample_data_logs | STATS bytes = SUM(bytes) BY geo.dest, geo.src' },
+            xAxis: 'geo.src',
+            breakdown: 'geo.dest',
+            value: 'bytes',
+            legend: { show: true, position: 'right' },
+        }
+        """
 
         # Generate fixture dynamically
-        fixture = require_fixture_generator.generate(
-            fixture_config,
+        fixture = await require_fixture_generator.generate(
+            typescript_config,
             'heatmap-dynamic',
-            TimeRange(from_='now-7d', to='now'),
+            {'from': 'now-7d', 'to': 'now', 'type': 'relative'},
         )
 
         # Compute and snapshot the diff

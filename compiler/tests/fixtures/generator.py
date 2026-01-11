@@ -1,19 +1,22 @@
 """Fixture generator integration for pytest.
 
 This module provides utilities to invoke the TypeScript fixture generator
-directly from pytest, allowing both YAML definitions and LensConfigBuilder
-configurations to be defined in the same test function.
+directly from pytest using Docker and the aiodocker library.
 """
 
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
-import subprocess
 import tempfile
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any
+
+import aiodocker
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 # Project paths
 _TESTS_DIR = Path(__file__).parent.parent
@@ -26,291 +29,48 @@ DEFAULT_KIBANA_VERSION = 'v9.2.0'
 DEFAULT_BASE_IMAGE = 'ghcr.io/strawgate/kb-yaml-to-lens/kibana-base'
 
 
-def docker_available() -> bool:
+async def docker_available() -> bool:
     """Check if Docker is available and running."""
     try:
-        result = subprocess.run(
-            ['docker', 'info'],
-            capture_output=True,
-            timeout=10,
-            check=False,
-        )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+        docker = aiodocker.Docker()
+        await docker.close()
+    except Exception:
         return False
-    else:
-        return result.returncode == 0
+    return True
 
 
-def fixture_image_available(kibana_version: str = DEFAULT_KIBANA_VERSION) -> bool:
+async def fixture_image_available(kibana_version: str = DEFAULT_KIBANA_VERSION) -> bool:
     """Check if the fixture generator Docker image is available locally."""
     image_name = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
     try:
-        result = subprocess.run(
-            ['docker', 'images', '-q', image_name],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=False,
-        )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+        docker = aiodocker.Docker()
+        try:
+            await docker.images.inspect(image_name)
+        except aiodocker.DockerError:
+            return False
+        else:
+            return True
+        finally:
+            await docker.close()
+    except Exception:
         return False
-    else:
-        return bool(result.stdout.strip())
 
 
-def pull_fixture_image(kibana_version: str = DEFAULT_KIBANA_VERSION) -> bool:
+async def pull_fixture_image(kibana_version: str = DEFAULT_KIBANA_VERSION) -> bool:
     """Pull the fixture generator Docker image from GHCR."""
     image_name = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
     try:
-        result = subprocess.run(
-            ['docker', 'pull', image_name],
-            capture_output=True,
-            text=True,
-            timeout=600,  # 10 minutes for large image
-            check=False,
-        )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+        docker = aiodocker.Docker()
+        try:
+            await docker.images.pull(image_name)
+        except aiodocker.DockerError:
+            return False
+        else:
+            return True
+        finally:
+            await docker.close()
+    except Exception:
         return False
-    else:
-        return result.returncode == 0
-
-
-# Chart type literals
-ChartType = Literal['metric', 'xy', 'pie', 'gauge', 'heatmap', 'tagcloud', 'treemap', 'waffle', 'datatable']
-
-
-@dataclass
-class TimeRange:
-    """Time range configuration for fixtures."""
-
-    from_: str = 'now-24h'
-    to: str = 'now'
-    type: str = 'relative'
-
-    def to_dict(self) -> dict[str, str]:
-        """Convert to dictionary for TypeScript."""
-        return {'from': self.from_, 'to': self.to, 'type': self.type}
-
-
-@dataclass
-class LensDataset:
-    """Dataset configuration for LensConfigBuilder."""
-
-    esql: str | None = None
-    index: str | None = None
-    time_field_name: str | None = None
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript object literal."""
-        if self.esql is not None:
-            return f'{{ esql: {json.dumps(self.esql)} }}'
-        if self.index is not None:
-            parts = [f'index: {json.dumps(self.index)}']
-            if self.time_field_name is not None:
-                parts.append(f'timeFieldName: {json.dumps(self.time_field_name)}')
-            return '{ ' + ', '.join(parts) + ' }'
-        msg = 'Dataset must have either esql or index'
-        raise ValueError(msg)
-
-
-@dataclass
-class LensMetricConfig:
-    """Configuration for metric chart."""
-
-    title: str
-    dataset: LensDataset
-    value: str
-    label: str | None = None
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript LensMetricConfig."""
-        lines = [
-            "chartType: 'metric'",
-            f'title: {json.dumps(self.title)}',
-            f'dataset: {self.dataset.to_ts()}',
-            f'value: {json.dumps(self.value)}',
-        ]
-        if self.label is not None:
-            lines.append(f'label: {json.dumps(self.label)}')
-        return '{\n    ' + ',\n    '.join(lines) + '\n  }'
-
-
-@dataclass
-class LensPieConfig:
-    """Configuration for pie chart."""
-
-    title: str
-    dataset: LensDataset
-    value: str
-    breakdown: list[str]
-    legend_show: bool = True
-    legend_position: str = 'right'
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript LensPieConfig."""
-        lines = [
-            "chartType: 'pie'",
-            f'title: {json.dumps(self.title)}',
-            f'dataset: {self.dataset.to_ts()}',
-            f'value: {json.dumps(self.value)}',
-            f'breakdown: {json.dumps(self.breakdown)}',
-            f'legend: {{ show: {"true" if self.legend_show else "false"}, position: {json.dumps(self.legend_position)} }}',
-        ]
-        return '{\n    ' + ',\n    '.join(lines) + '\n  }'
-
-
-@dataclass
-class LensXYLayer:
-    """Configuration for XY chart layer."""
-
-    type: str = 'series'
-    series_type: str = 'line'
-    x_axis: str | dict[str, Any] | None = None
-    y_axis: list[dict[str, Any]] = field(default_factory=list)
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript layer object."""
-        lines = [
-            f'type: {json.dumps(self.type)}',
-            f'seriesType: {json.dumps(self.series_type)}',
-        ]
-        if self.x_axis is not None:
-            if isinstance(self.x_axis, str):
-                lines.append(f'xAxis: {json.dumps(self.x_axis)}')
-            else:
-                lines.append(f'xAxis: {json.dumps(self.x_axis)}')
-        if self.y_axis:
-            y_items = [json.dumps(y) for y in self.y_axis]
-            lines.append(f'yAxis: [{", ".join(y_items)}]')
-        return '{\n      ' + ',\n      '.join(lines) + '\n    }'
-
-
-@dataclass
-class LensXYConfig:
-    """Configuration for XY chart."""
-
-    title: str
-    dataset: LensDataset
-    layers: list[LensXYLayer]
-    legend_show: bool = True
-    legend_position: str = 'right'
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript LensXYConfig."""
-        layers_ts = ', '.join(layer.to_ts() for layer in self.layers)
-        lines = [
-            "chartType: 'xy'",
-            f'title: {json.dumps(self.title)}',
-            f'dataset: {self.dataset.to_ts()}',
-            f'layers: [{layers_ts}]',
-            f'legend: {{ show: {"true" if self.legend_show else "false"}, position: {json.dumps(self.legend_position)} }}',
-        ]
-        return '{\n    ' + ',\n    '.join(lines) + '\n  }'
-
-
-@dataclass
-class LensGaugeConfig:
-    """Configuration for gauge chart."""
-
-    title: str
-    dataset: LensDataset
-    value: str
-    query_min_value: str | None = None
-    query_max_value: str | None = None
-    query_goal_value: str | None = None
-    shape: str = 'arc'
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript LensGaugeConfig."""
-        lines = [
-            "chartType: 'gauge'",
-            f'title: {json.dumps(self.title)}',
-            f'dataset: {self.dataset.to_ts()}',
-            f'value: {json.dumps(self.value)}',
-            f'shape: {json.dumps(self.shape)}',
-        ]
-        if self.query_min_value is not None:
-            lines.append(f'queryMinValue: {json.dumps(self.query_min_value)}')
-        if self.query_max_value is not None:
-            lines.append(f'queryMaxValue: {json.dumps(self.query_max_value)}')
-        if self.query_goal_value is not None:
-            lines.append(f'queryGoalValue: {json.dumps(self.query_goal_value)}')
-        return '{\n    ' + ',\n    '.join(lines) + '\n  }'
-
-
-@dataclass
-class LensHeatmapConfig:
-    """Configuration for heatmap chart."""
-
-    title: str
-    dataset: LensDataset
-    x_axis: str
-    breakdown: str
-    value: str
-    legend_show: bool = True
-    legend_position: str = 'right'
-
-    def to_ts(self) -> str:
-        """Convert to TypeScript LensHeatmapConfig."""
-        lines = [
-            "chartType: 'heatmap'",
-            f'title: {json.dumps(self.title)}',
-            f'dataset: {self.dataset.to_ts()}',
-            f'xAxis: {json.dumps(self.x_axis)}',
-            f'breakdown: {json.dumps(self.breakdown)}',
-            f'value: {json.dumps(self.value)}',
-            f'legend: {{ show: {"true" if self.legend_show else "false"}, position: {json.dumps(self.legend_position)} }}',
-        ]
-        return '{\n    ' + ',\n    '.join(lines) + '\n  }'
-
-
-# Union type for all config types
-LensConfig = LensMetricConfig | LensPieConfig | LensXYConfig | LensGaugeConfig | LensHeatmapConfig
-
-
-def generate_fixture_script(
-    config: LensConfig,
-    output_name: str,
-    time_range: TimeRange | None = None,
-) -> str:
-    """Generate TypeScript script content for fixture generation.
-
-    Args:
-        config: The Lens configuration to generate.
-        output_name: Name for the output file (without .json extension).
-        time_range: Optional time range for the fixture.
-
-    Returns:
-        TypeScript script content as a string.
-    """
-    if time_range is None:
-        time_range = TimeRange()
-
-    time_range_ts = json.dumps(time_range.to_dict())
-
-    # Determine the correct type import based on config type
-    type_map = {
-        LensMetricConfig: 'LensMetricConfig',
-        LensPieConfig: 'LensPieConfig',
-        LensXYConfig: 'LensXYConfig',
-        LensGaugeConfig: 'LensGaugeConfig',
-        LensHeatmapConfig: 'LensHeatmapConfig',
-    }
-    type_name = type_map[type(config)]
-
-    return f"""#!/usr/bin/env node
-import type {{ {type_name} }} from '@kbn/lens-embeddable-utils/config_builder';
-import {{ generateFixture }} from '../generator-utils.js';
-
-const config: {type_name} = {config.to_ts()};
-
-await generateFixture(
-  '{output_name}.json',
-  config,
-  {{ timeRange: {time_range_ts} }},
-  import.meta.url
-);
-"""
 
 
 class FixtureGenerator:
@@ -318,52 +78,133 @@ class FixtureGenerator:
 
     This class provides a Python API for generating Kibana Lens fixtures
     using the same LensConfigBuilder API that Kibana uses internally.
+
+    Usage:
+        async with FixtureGenerator() as generator:
+            fixture = await generator.generate(typescript_config, 'metric-basic')
+
+    Or manually:
+        generator = await FixtureGenerator.create()
+        try:
+            fixture = await generator.generate(typescript_config, 'metric-basic')
+        finally:
+            await generator.cleanup()
     """
 
     def __init__(
         self,
         kibana_version: str = DEFAULT_KIBANA_VERSION,
-        auto_pull: bool = True,
     ) -> None:
         """Initialize the fixture generator.
 
         Args:
             kibana_version: Kibana version to use for fixture generation.
-            auto_pull: Whether to automatically pull the Docker image if not available.
+
+        Note:
+            Use FixtureGenerator.create() or async context manager for proper initialization.
         """
         self.kibana_version = kibana_version
         self.base_image = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
         self._temp_dirs: list[Path] = []
+        self._docker: aiodocker.Docker | None = None
+        self._initialized = False
 
-        if not docker_available():
-            msg = 'Docker is not available'
-            raise RuntimeError(msg)
-
-        if not fixture_image_available(kibana_version):
-            if auto_pull:
-                if not pull_fixture_image(kibana_version):
-                    msg = f'Failed to pull fixture image: {self.base_image}'
-                    raise RuntimeError(msg)
-            else:
-                msg = f'Fixture image not available: {self.base_image}'
-                raise RuntimeError(msg)
-
-    def generate(
-        self,
-        config: LensConfig,
-        output_name: str,
-        time_range: TimeRange | None = None,
-    ) -> dict[str, Any]:
-        """Generate a fixture from a configuration.
+    @classmethod
+    async def create(
+        cls,
+        kibana_version: str = DEFAULT_KIBANA_VERSION,
+        auto_pull: bool = True,
+    ) -> FixtureGenerator:
+        """Create and initialize a fixture generator.
 
         Args:
-            config: The Lens configuration.
+            kibana_version: Kibana version to use for fixture generation.
+            auto_pull: Whether to automatically pull the Docker image if not available.
+
+        Returns:
+            An initialized FixtureGenerator instance.
+
+        Raises:
+            RuntimeError: If Docker is not available or image pull fails.
+        """
+        generator = cls(kibana_version)
+        await generator._initialize(auto_pull)
+        return generator
+
+    async def _initialize(self, auto_pull: bool = True) -> None:
+        """Initialize the Docker connection and ensure image is available."""
+        if self._initialized:
+            return
+
+        try:
+            self._docker = aiodocker.Docker()
+        except Exception as e:
+            msg = 'Docker is not available'
+            raise RuntimeError(msg) from e
+
+        # Check if image is available
+        try:
+            await self._docker.images.inspect(self.base_image)
+        except aiodocker.DockerError as inspect_err:
+            if auto_pull:
+                try:
+                    await self._docker.images.pull(self.base_image)
+                except aiodocker.DockerError as e:
+                    msg = f'Failed to pull fixture image: {self.base_image}'
+                    raise RuntimeError(msg) from e
+            else:
+                msg = f'Fixture image not available: {self.base_image}'
+                raise RuntimeError(msg) from inspect_err
+
+        self._initialized = True
+
+    async def __aenter__(self) -> FixtureGenerator:
+        """Enter async context manager."""
+        await self._initialize()
+        return self
+
+    async def __aexit__(self, exc_type: object, exc: object, tb: object) -> None:
+        """Exit async context manager, ensuring cleanup."""
+        await self.cleanup()
+
+    async def generate(
+        self,
+        typescript_config: str,
+        output_name: str,
+        time_range: Mapping[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Generate a fixture from a TypeScript configuration.
+
+        Args:
+            typescript_config: Raw TypeScript LensConfigBuilder configuration object.
+                This should be a valid TypeScript object literal that matches
+                one of the LensConfigBuilder config types (LensMetricConfig,
+                LensPieConfig, etc.).
             output_name: Name for the output file (without .json extension).
-            time_range: Optional time range configuration.
+            time_range: Optional time range dict with 'from', 'to', 'type' keys.
+                Defaults to {'from': 'now-24h', 'to': 'now', 'type': 'relative'}.
 
         Returns:
             The generated fixture as a dictionary.
+
+        Example:
+            typescript_config = '''
+            {
+                chartType: 'metric',
+                title: 'Basic Count Metric',
+                dataset: { esql: 'FROM logs-* | STATS count = COUNT()' },
+                value: 'count',
+            }
+            '''
+            fixture = await generator.generate(typescript_config, 'metric-basic')
         """
+        if not self._initialized or self._docker is None:
+            msg = 'FixtureGenerator not initialized. Use create() or async context manager.'
+            raise RuntimeError(msg)
+
+        if time_range is None:
+            time_range = {'from': 'now-24h', 'to': 'now', 'type': 'relative'}
+
         # Create temporary directories for script and output
         temp_dir = Path(tempfile.mkdtemp(prefix='fixture_gen_'))
         self._temp_dirs.append(temp_dir)
@@ -373,43 +214,44 @@ class FixtureGenerator:
         output_dir.mkdir()
 
         # Generate the TypeScript script
-        script_content = generate_fixture_script(config, output_name, time_range)
+        script_content = self._generate_script(typescript_config, output_name, time_range)
         script_path = examples_dir / 'generated.ts'
         script_path.write_text(script_content)
 
-        # Run the fixture generator
-        cmd = [
-            'docker',
-            'run',
-            '--rm',
-            '-v',
-            f'{output_dir}:/kibana/output',
-            '-v',
-            f'{examples_dir}:/kibana/examples:ro',
-            '-v',
-            f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/generator-utils.ts:ro',
-            '-v',
-            f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/dataviews-mock.js:ro',
-            '-e',
-            'NODE_OPTIONS=--max-old-space-size=8192',
-            '-e',
-            f'KIBANA_VERSION={self.kibana_version}',
-            self.base_image,
-            'tsx',
-            'examples/generated.ts',
-        ]
+        # Create and run the container
+        config = {
+            'Image': self.base_image,
+            'Cmd': ['tsx', 'examples/generated.ts'],
+            'Env': [
+                'NODE_OPTIONS=--max-old-space-size=8192',
+                f'KIBANA_VERSION={self.kibana_version}',
+            ],
+            'HostConfig': {
+                'Binds': [
+                    f'{output_dir}:/kibana/output',
+                    f'{examples_dir}:/kibana/examples:ro',
+                    f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/generator-utils.ts:ro',
+                    f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/dataviews-mock.js:ro',
+                ],
+                'AutoRemove': True,
+            },
+        }
 
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300,  # 5 minutes
-            check=False,
-        )
+        container = await self._docker.containers.create(config=config)
+        try:
+            await container.start()
+            await container.wait()
 
-        if result.returncode != 0:
-            msg = f'Fixture generation failed: {result.stderr}'
-            raise RuntimeError(msg)
+            # Check logs for errors
+            logs = await container.log(stdout=True, stderr=True)
+            log_output = ''.join(logs)
+            if 'error' in log_output.lower() and 'TypeError' in log_output:
+                msg = f'Fixture generation failed: {log_output}'
+                raise RuntimeError(msg)
+        finally:
+            # Container auto-removes, but ensure cleanup
+            with contextlib.suppress(aiodocker.DockerError):
+                await container.delete(force=True)
 
         # Load and return the generated fixture
         fixture_path = output_dir / self.kibana_version / f'{output_name}.json'
@@ -419,71 +261,62 @@ class FixtureGenerator:
 
         return json.loads(fixture_path.read_text())
 
-    def generate_from_existing_example(self, example_name: str) -> dict[str, dict[str, Any]]:
-        """Generate fixtures using an existing example script.
+    def _generate_script(
+        self,
+        typescript_config: str,
+        output_name: str,
+        time_range: Mapping[str, str],
+    ) -> str:
+        """Generate TypeScript script content for fixture generation."""
+        time_range_json = json.dumps(dict(time_range))
 
-        Args:
-            example_name: Name of the example script (e.g., 'metric-basic.ts').
+        # Determine the config type from the TypeScript - look for chartType
+        # We need to import the right type
+        config_lower = typescript_config.lower()
+        if "'metric'" in config_lower or '"metric"' in config_lower:
+            type_name = 'LensMetricConfig'
+        elif "'pie'" in config_lower or '"pie"' in config_lower:
+            type_name = 'LensPieConfig'
+        elif "'xy'" in config_lower or '"xy"' in config_lower:
+            type_name = 'LensXYConfig'
+        elif "'gauge'" in config_lower or '"gauge"' in config_lower:
+            type_name = 'LensGaugeConfig'
+        elif "'heatmap'" in config_lower or '"heatmap"' in config_lower:
+            type_name = 'LensHeatmapConfig'
+        elif "'tagcloud'" in config_lower or '"tagcloud"' in config_lower:
+            type_name = 'LensTagcloudConfig'
+        elif "'treemap'" in config_lower or '"treemap"' in config_lower:
+            type_name = 'LensTreemapConfig'
+        elif "'waffle'" in config_lower or '"waffle"' in config_lower:
+            type_name = 'LensWaffleConfig'
+        elif "'datatable'" in config_lower or '"datatable"' in config_lower:
+            type_name = 'LensDatatableConfig'
+        else:
+            # Fallback - let TypeScript figure it out
+            type_name = 'LensConfig'
 
-        Returns:
-            Dictionary mapping fixture names to their content.
-        """
-        # Create temporary output directory
-        temp_dir = Path(tempfile.mkdtemp(prefix='fixture_gen_'))
-        self._temp_dirs.append(temp_dir)
-        output_dir = temp_dir / 'output'
-        output_dir.mkdir()
+        return f"""#!/usr/bin/env node
+import type {{ {type_name} }} from '@kbn/lens-embeddable-utils/config_builder';
+import {{ generateFixture }} from '../generator-utils.js';
 
-        # Run the fixture generator
-        cmd = [
-            'docker',
-            'run',
-            '--rm',
-            '-v',
-            f'{output_dir}:/kibana/output',
-            '-v',
-            f'{_FIXTURE_GEN_DIR}/examples:/kibana/examples:ro',
-            '-v',
-            f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/generator-utils.ts:ro',
-            '-v',
-            f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/dataviews-mock.js:ro',
-            '-e',
-            'NODE_OPTIONS=--max-old-space-size=8192',
-            '-e',
-            f'KIBANA_VERSION={self.kibana_version}',
-            self.base_image,
-            'tsx',
-            f'examples/{example_name}',
-        ]
+const config: {type_name} = {typescript_config};
 
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300,
-            check=False,
-        )
+await generateFixture(
+  '{output_name}.json',
+  config,
+  {{ timeRange: {time_range_json} }},
+  import.meta.url
+);
+"""
 
-        if result.returncode != 0:
-            msg = f'Fixture generation failed: {result.stderr}'
-            raise RuntimeError(msg)
-
-        # Load all generated fixtures
-        fixtures: dict[str, dict[str, Any]] = {}
-        fixture_dir = output_dir / self.kibana_version
-        if fixture_dir.exists():
-            for fixture_file in fixture_dir.glob('*.json'):
-                fixtures[fixture_file.stem] = json.loads(fixture_file.read_text())
-
-        return fixtures
-
-    def cleanup(self) -> None:
-        """Clean up temporary directories."""
+    async def cleanup(self) -> None:
+        """Clean up temporary directories and close Docker connection."""
         for temp_dir in self._temp_dirs:
             if temp_dir.exists():
                 shutil.rmtree(temp_dir)
         self._temp_dirs.clear()
 
-    def __del__(self) -> None:
-        """Ensure cleanup on destruction."""
-        self.cleanup()
+        if self._docker is not None:
+            await self._docker.close()
+            self._docker = None
+            self._initialized = False
