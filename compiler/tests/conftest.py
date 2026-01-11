@@ -1,12 +1,8 @@
 import json
-from collections.abc import AsyncGenerator
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 from freezegun.api import FrozenDateTimeFactory
-
-if TYPE_CHECKING:
-    from tests.fixtures.generator import FixtureGenerator
 
 
 @pytest.fixture(autouse=True)
@@ -53,15 +49,13 @@ def de_json_kbn_dashboard(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
 
 
 @pytest.fixture
-async def require_fixture_generator() -> AsyncGenerator['FixtureGenerator', None]:
-    """Async fixture that provides a FixtureGenerator, skipping if Docker unavailable."""
-    from tests.fixtures.generator import FixtureGenerator, docker_available
+async def require_docker() -> None:
+    """Fixture that skips the test if Docker or fixture image is not available."""
+    from tests.fixtures.generator import docker_available, fixture_image_available, pull_fixture_image
 
     if not await docker_available():
         pytest.skip('Docker not available for fixture generation')
 
-    try:
-        async with FixtureGenerator() as generator:
-            yield generator
-    except RuntimeError as e:
-        pytest.skip(f'Fixture generator unavailable: {e}')
+    # Try to ensure the image is available
+    if not await fixture_image_available() and not await pull_fixture_image():
+        pytest.skip('Fixture image not available and could not be pulled')

@@ -25,7 +25,7 @@ from tests.fixtures.fixture_utils import (
     normalize_compiled_panel,
     normalize_diff_paths,
 )
-from tests.fixtures.generator import FixtureGenerator
+from tests.fixtures.generator import generate_fixture
 
 
 def compile_yaml_content(yaml_content: str) -> dict[str, Any]:
@@ -66,7 +66,7 @@ def compute_diff_dynamic(
 
 @pytest.mark.slow
 async def test_metric_basic_esql_dynamic(
-    require_fixture_generator: FixtureGenerator,
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
     """Test basic metric compilation against dynamically generated fixture.
 
@@ -98,7 +98,7 @@ dashboards:
     }
     """
 
-    fixture = await require_fixture_generator.generate(
+    fixture = await generate_fixture(
         typescript_config,
         'metric-basic-dynamic',
         'LensMetricConfig',
@@ -112,27 +112,27 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['customLabel']": False,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['inMetricDimension']": True,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['label']": 'count',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]['meta']['esType']": 'long',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['customLabel']": False,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['inMetricDimension']": True,
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['label']": 'count',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]['meta']['esType']": 'long',
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]['inMetricDimension']": True,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]['label']": 'count',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]['meta']['esType']": 'long',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]['inMetricDimension']": True,
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]['label']": 'count',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]['meta']['esType']": 'long',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['timeField']": '@timestamp',
             },
             'dictionary_item_removed': {
                 ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['index']"
                 ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
                 "root['state']['visualization']['label']": 'Total Events',
             },
             'iterable_item_removed': {
                 "root['references'][0]": {
                     'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
-                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'name': 'indexpattern-datasource-layer-<LAYER>',
                     'type': 'index-pattern',
                 },
             },
@@ -148,7 +148,7 @@ dashboards:
 
 @pytest.mark.slow
 async def test_pie_chart_esql_dynamic(
-    require_fixture_generator: FixtureGenerator,
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
     """Test pie chart compilation against dynamically generated fixture."""
     yaml_content = """
@@ -179,7 +179,7 @@ dashboards:
     }
     """
 
-    fixture = await require_fixture_generator.generate(
+    fixture = await generate_fixture(
         typescript_config,
         'pie-chart-dynamic',
         'LensPieConfig',
@@ -193,7 +193,7 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['timeField']": '@timestamp',
                 "root['state']['visualization']['layers'][0]['colorMapping']": {
                     'assignments': [],
                     'colorMode': {'type': 'categorical'},
@@ -211,7 +211,7 @@ dashboards:
             'dictionary_item_removed': {
                 ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['index']"
                 ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
                 "root['state']['visualization']['layers'][0]['allowMultipleMetrics']": False,
                 "root['state']['visualization']['layers'][0]['legendPosition']": 'right',
@@ -219,12 +219,12 @@ dashboards:
             'iterable_item_removed': {
                 "root['references'][0]": {
                     'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
-                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'name': 'indexpattern-datasource-layer-<LAYER>',
                     'type': 'index-pattern',
                 },
             },
             'values_changed': {
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]": {
                     'old_value': {
                         'columnId': 'metric_formula_accessor_breakdown_0',
                         'fieldName': 'log.level',
@@ -238,7 +238,7 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][1]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor_breakdown_0',
@@ -247,7 +247,7 @@ dashboards:
                         'label': 'log.level',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]": {
                     'old_value': {
                         'columnId': 'metric_formula_accessor_breakdown_0',
                         'fieldName': 'log.level',
@@ -261,7 +261,7 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][1]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor_breakdown_0',
@@ -285,7 +285,7 @@ dashboards:
 
 @pytest.mark.slow
 async def test_xy_chart_esql_dynamic(
-    require_fixture_generator: FixtureGenerator,
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
     """Test XY line chart compilation against dynamically generated fixture."""
     yaml_content = """
@@ -320,7 +320,7 @@ dashboards:
     }
     """
 
-    fixture = await require_fixture_generator.generate(
+    fixture = await generate_fixture(
         typescript_config,
         'xy-chart-dynamic',
         'LensXYConfig',
@@ -334,7 +334,7 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['timeField']": '@timestamp',
                 "root['state']['visualization']['layers'][0]['colorMapping']": {
                     'assignments': [],
                     'colorMode': {'type': 'categorical'},
@@ -347,7 +347,7 @@ dashboards:
             'dictionary_item_removed': {
                 ('root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']'): {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['index']"
                 ): '{"index":"logs-*","timeFieldName":"@timestamp"}',
                 "root['state']['visualization']['axisTitlesVisibilitySettings']": {
                     'x': True,
@@ -375,12 +375,12 @@ dashboards:
             'iterable_item_removed': {
                 "root['references'][0]": {
                     'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
-                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'name': 'indexpattern-datasource-layer-<LAYER>',
                     'type': 'index-pattern',
                 },
             },
             'values_changed': {
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]": {
                     'old_value': {'columnId': 'x_metric_formula_accessor0', 'fieldName': '@timestamp'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor0_0',
@@ -391,7 +391,7 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][1]": {
                     'old_value': {
                         'columnId': 'metric_formula_accessor0_0',
                         'fieldName': 'count',
@@ -404,7 +404,7 @@ dashboards:
                         'label': '@timestamp',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]": {
                     'old_value': {'columnId': 'x_metric_formula_accessor0', 'fieldName': '@timestamp'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor0_0',
@@ -415,7 +415,7 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][1]": {
                     'old_value': {
                         'columnId': 'metric_formula_accessor0_0',
                         'fieldName': 'count',
@@ -439,7 +439,7 @@ dashboards:
 
 @pytest.mark.slow
 async def test_gauge_esql_dynamic(
-    require_fixture_generator: FixtureGenerator,
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
     """Test gauge compilation against dynamically generated fixture."""
     yaml_content = """
@@ -474,7 +474,7 @@ dashboards:
     }
     """
 
-    fixture = await require_fixture_generator.generate(
+    fixture = await generate_fixture(
         typescript_config,
         'gauge-dynamic',
         'LensGaugeConfig',
@@ -488,24 +488,24 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['timeField']": '@timestamp',
             },
             'dictionary_item_removed': {
                 ('root[\'state\'][\'adHocDataViews\'][\'{"index":"metrics-*","timeFieldName":"@timestamp"}\']'): {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['index']"
                 ): '{"index":"metrics-*","timeFieldName":"@timestamp"}',
                 "root['state']['visualization']['showBar']": True,
             },
             'iterable_item_removed': {
                 "root['references'][0]": {
                     'id': '{"index":"metrics-*","timeFieldName":"@timestamp"}',
-                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'name': 'indexpattern-datasource-layer-<LAYER>',
                     'type': 'index-pattern',
                 },
             },
             'values_changed': {
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'avg_cpu'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor',
@@ -516,19 +516,19 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][1]": {
                     'old_value': {'columnId': 'metric_formula_accessor_max', 'fieldName': '1'},
-                    'new_value': {'columnId': '<LAYER>_1', 'fieldName': '0'},
+                    'new_value': {'columnId': '<LAYER>', 'fieldName': '0'},
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][2]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][2]": {
                     'old_value': {'columnId': 'metric_formula_accessor_min', 'fieldName': '0'},
-                    'new_value': {'columnId': '<LAYER>_2', 'fieldName': '1'},
+                    'new_value': {'columnId': '<LAYER>', 'fieldName': '1'},
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][3]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][3]": {
                     'old_value': {'columnId': 'metric_formula_accessor_goal', 'fieldName': '0.8'},
-                    'new_value': {'columnId': '<LAYER>_3', 'fieldName': '0.8'},
+                    'new_value': {'columnId': '<LAYER>', 'fieldName': '0.8'},
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'avg_cpu'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor',
@@ -539,17 +539,17 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][1]": {
                     'old_value': {'columnId': 'metric_formula_accessor_max', 'fieldName': '1'},
-                    'new_value': {'columnId': '<LAYER>_1', 'fieldName': '0'},
+                    'new_value': {'columnId': '<LAYER>', 'fieldName': '0'},
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][2]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][2]": {
                     'old_value': {'columnId': 'metric_formula_accessor_min', 'fieldName': '0'},
-                    'new_value': {'columnId': '<LAYER>_2', 'fieldName': '1'},
+                    'new_value': {'columnId': '<LAYER>', 'fieldName': '1'},
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][3]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][3]": {
                     'old_value': {'columnId': 'metric_formula_accessor_goal', 'fieldName': '0.8'},
-                    'new_value': {'columnId': '<LAYER>_3', 'fieldName': '0.8'},
+                    'new_value': {'columnId': '<LAYER>', 'fieldName': '0.8'},
                 },
                 "root['state']['query']": {
                     'old_value': {'language': 'kuery', 'query': ''},
@@ -557,15 +557,15 @@ dashboards:
                 },
                 "root['state']['visualization']['goalAccessor']": {
                     'old_value': 'metric_formula_accessor_goal',
-                    'new_value': '<LAYER>_3',
+                    'new_value': '<LAYER>',
                 },
                 "root['state']['visualization']['maxAccessor']": {
                     'old_value': 'metric_formula_accessor_max',
-                    'new_value': '<LAYER>_2',
+                    'new_value': '<LAYER>',
                 },
                 "root['state']['visualization']['minAccessor']": {
                     'old_value': 'metric_formula_accessor_min',
-                    'new_value': '<LAYER>_1',
+                    'new_value': '<LAYER>',
                 },
             },
         }
@@ -574,7 +574,7 @@ dashboards:
 
 @pytest.mark.slow
 async def test_heatmap_esql_dynamic(
-    require_fixture_generator: FixtureGenerator,
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
     """Test heatmap compilation against dynamically generated fixture."""
     yaml_content = """
@@ -609,7 +609,7 @@ dashboards:
     }
     """
 
-    fixture = await require_fixture_generator.generate(
+    fixture = await generate_fixture(
         typescript_config,
         'heatmap-dynamic',
         'LensHeatmapConfig',
@@ -623,23 +623,23 @@ dashboards:
             'dictionary_item_added': {
                 "root['state']['datasourceStates']['formBased']": {'layers': {}},
                 "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['timeField']": '@timestamp',
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['timeField']": '@timestamp',
             },
             'dictionary_item_removed': {
                 'root[\'state\'][\'adHocDataViews\'][\'{"index":"kibana_sample_data_logs","timeFieldName":"@timestamp"}\']': {},
                 (
-                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['index']"
+                    "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['index']"
                 ): '{"index":"kibana_sample_data_logs","timeFieldName":"@timestamp"}',
             },
             'iterable_item_removed': {
                 "root['references'][0]": {
                     'id': '{"index":"kibana_sample_data_logs","timeFieldName":"@timestamp"}',
-                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'name': 'indexpattern-datasource-layer-<LAYER>',
                     'type': 'index-pattern',
                 },
             },
             'values_changed': {
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][0]": {
                     'old_value': {'columnId': 'y_metric_formula_accessor', 'fieldName': 'geo.dest'},
                     'new_value': {
                         'columnId': 'x_metric_formula_accessor',
@@ -648,7 +648,7 @@ dashboards:
                         'label': 'geo.src',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][1]": {
                     'old_value': {'columnId': 'x_metric_formula_accessor', 'fieldName': 'geo.src'},
                     'new_value': {
                         'columnId': 'y_metric_formula_accessor',
@@ -657,7 +657,7 @@ dashboards:
                         'label': 'geo.dest',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['allColumns'][2]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['allColumns'][2]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'bytes'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor',
@@ -668,7 +668,7 @@ dashboards:
                         'meta': {'esType': 'long', 'type': 'number'},
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][0]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][0]": {
                     'old_value': {'columnId': 'y_metric_formula_accessor', 'fieldName': 'geo.dest'},
                     'new_value': {
                         'columnId': 'x_metric_formula_accessor',
@@ -677,7 +677,7 @@ dashboards:
                         'label': 'geo.src',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][1]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][1]": {
                     'old_value': {'columnId': 'x_metric_formula_accessor', 'fieldName': 'geo.src'},
                     'new_value': {
                         'columnId': 'y_metric_formula_accessor',
@@ -686,7 +686,7 @@ dashboards:
                         'label': 'geo.dest',
                     },
                 },
-                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>_0']['columns'][2]": {
+                "root['state']['datasourceStates']['textBased']['layers']['<LAYER>']['columns'][2]": {
                     'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'bytes'},
                     'new_value': {
                         'columnId': 'metric_formula_accessor',
