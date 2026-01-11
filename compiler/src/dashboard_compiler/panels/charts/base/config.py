@@ -2,13 +2,16 @@ from enum import StrEnum
 
 from pydantic import Field, model_validator
 
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, IDMixin
 
 
-class BaseChart(BaseCfgModel):
-    """Represents a base chart configuration."""
+class BaseChart(IDMixin):
+    """Represents a base chart configuration.
 
-    id: str | None = Field(default=None)
+    Inherits from IDMixin to provide automatic deterministic ID generation.
+    If no explicit ID is provided, one will be generated based on the chart's
+    configuration using a stable hash.
+    """
 
     # data_view: str = Field(default=...)
 

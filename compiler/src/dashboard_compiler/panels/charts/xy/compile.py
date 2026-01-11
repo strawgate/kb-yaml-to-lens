@@ -492,7 +492,7 @@ def compile_lens_xy_chart(
     Returns:
         tuple[str, dict[str, KbnLensColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    # Compile metrics first to get accessor IDs for deterministic layer_id
+    # Compile metrics to get accessor IDs for visualization state
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_xy_chart.metrics:
@@ -545,7 +545,7 @@ def compile_esql_xy_chart(
     Returns:
         tuple[str, list[KbnESQLColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    # Compile metrics first to get columnIds for deterministic layer_id
+    # Compile metrics to get columnIds for visualization state
     metrics = compile_esql_metrics(esql_xy_chart.metrics)
     metric_ids = [metric.columnId for metric in metrics]
 

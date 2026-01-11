@@ -96,7 +96,7 @@ def compile_esql_tagcloud_chart(
         tuple[str, list[KbnESQLColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    # Compile dimension first to get columnId for deterministic layer_id
+    # Compile dimension to get tag_accessor_id for visualization state
     dimensions = compile_esql_dimensions(dimensions=[chart.dimension])
     tag_accessor_id = dimensions[0].columnId
 

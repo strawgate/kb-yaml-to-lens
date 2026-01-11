@@ -29,8 +29,9 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensTermsDimension,
 )
 from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
-from dashboard_compiler.shared.config import Sort, stable_id_generator
+from dashboard_compiler.shared.config import Sort
 from dashboard_compiler.shared.defaults import default_false, default_true
+from dashboard_compiler.shared.id import get_guaranteed_id
 
 # Maps user-friendly granularity levels (1=finest to 7=coarsest) to Kibana's
 # maxBars parameter. These values control histogram bucketing precision:
@@ -122,7 +123,7 @@ def compile_lens_dimension(
     custom_label = True if dimension.label is not None else None
 
     if isinstance(dimension, LensDateHistogramDimension):
-        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
+        dimension_id = get_guaranteed_id(dimension)
 
         return dimension_id, KbnLensDateHistogramDimensionColumn(
             label=dimension.label or dimension.field,
@@ -138,7 +139,7 @@ def compile_lens_dimension(
             ),
         )
     if isinstance(dimension, LensTermsDimension):
-        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, dimension.field])
+        dimension_id = get_guaranteed_id(dimension)
         label = dimension.label or f'Top {dimension.size or 3} values of {dimension.field}'
 
         order_by = _resolve_order_by(
@@ -171,7 +172,7 @@ def compile_lens_dimension(
     if isinstance(dimension, LensMultiTermsDimension):
         primary_field = dimension.fields[0]
         secondary_fields = dimension.fields[1:]
-        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label, *dimension.fields])
+        dimension_id = get_guaranteed_id(dimension)
 
         # Generate label
         if dimension.label is not None:
@@ -211,7 +212,7 @@ def compile_lens_dimension(
             ),
         )
     if isinstance(dimension, LensFiltersDimension):
-        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
+        dimension_id = get_guaranteed_id(dimension)
         return dimension_id, KbnLensFiltersDimensionColumn(
             label=dimension.label or 'Filters',
             customLabel=custom_label,
@@ -226,7 +227,7 @@ def compile_lens_dimension(
     # This check is necessary even though it appears redundant to type checkers
     # because dimension could be a more specific subclass at runtime
     if isinstance(dimension, LensIntervalsDimension):  # pyright: ignore[reportUnnecessaryIsInstance]
-        dimension_id = dimension.id or stable_id_generator([dimension.type, dimension.label])
+        dimension_id = get_guaranteed_id(dimension)
 
         if dimension.intervals is None:
             return dimension_id, KbnLensIntervalsDimensionColumn(

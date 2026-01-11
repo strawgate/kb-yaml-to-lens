@@ -19,13 +19,14 @@ def stable_id_generator(values: list[object]) -> str:
     such as controls, links, panels, and dashboards during compilation.
 
     Args:
-        values: List of values to hash. Values are converted to strings and joined.
+        values: List of values to hash. Values are JSON-serialized for collision safety.
 
     Returns:
         A deterministic UUID string based on the input values.
     """
-    # Convert all values to strings and join with colons
-    key = ':'.join(str(v) for v in values)
+    # Use JSON encoding to avoid collision risks from embedded separators
+    # e.g., ['a:b', 'c'] vs ['a', 'b:c'] would both be 'a:b:c' with colon joining
+    key = json.dumps(values, sort_keys=True, separators=(',', ':'), default=str)
     # SHA-1 hash truncated to UUID size (16 bytes)
     hash_bytes = hashlib.sha1(key.encode()).digest()[:MAX_BYTES_LENGTH]  # noqa: S324
     return str(uuid.UUID(bytes=hash_bytes))
@@ -93,22 +94,25 @@ class IDMixin(BaseCfgModel):
             object.__setattr__(self, 'id', str(uuid.UUID(bytes=hash_bytes)))
 
 
-def get_layer_id(chart_config: object) -> str:
+def get_layer_id(chart_config: HasId) -> str:
     """Get layer ID from chart config.
 
-    Simply returns the chart's id attribute, which should already be set by IDMixin.
-    Falls back to random UUID if no id is present (for backwards compatibility).
+    Returns the chart's id attribute. This function enforces that the id is present
+    to ensure deterministic ID generation.
 
     Args:
-        chart_config: Chart configuration object with 'id' attribute from IDMixin.
+        chart_config: Chart configuration object with an id attribute.
 
     Returns:
-        Layer ID string (from config.id, or random UUID as fallback)
+        Layer ID string from config.id.
+
+    Raises:
+        RuntimeError: If id is None.
     """
-    config_id: str | None = getattr(chart_config, 'id', None)
-    if config_id is not None:
-        return config_id
-    return random_id_generator()
+    if chart_config.id is None:
+        msg = f'{type(chart_config).__name__}.id is None - ensure the chart config has a deterministic ID set'
+        raise RuntimeError(msg)
+    return chart_config.id
 
 
 class Sort(BaseCfgModel):
