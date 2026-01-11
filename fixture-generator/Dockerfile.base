@@ -70,13 +70,15 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 # Note: bootstrap also builds packages, including compiling .peggy grammar files
 # Note: Kibana's .yarnrc configures an offline mirror which can cause integrity check
 #       failures when the cached checksums don't match npm registry. We disable offline
-#       mode and use --force to refetch packages and bypass cached integrity issues.
+#       mode, run yarn install with --update-checksums to fix mismatched checksums,
+#       then run bootstrap which will pass since yarn.lock is already updated.
 RUN rm -rf ~/.cache/yarn /usr/local/share/.cache/yarn && \
     yarn cache clean && \
     if [ -f .yarnrc ]; then \
         sed -i 's/--install.prefer-offline true/--install.prefer-offline false/' .yarnrc; \
     fi && \
-    yarn kbn bootstrap --allow-root --force-install
+    yarn install --update-checksums --network-timeout 600000 && \
+    yarn kbn bootstrap --allow-root
 
 # Install global dependencies needed for fixture generation
 # tsx: needed for TypeScript transpilation
