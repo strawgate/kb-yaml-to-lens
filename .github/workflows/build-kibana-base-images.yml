@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
       - fixture-generator/Dockerfile.base
+      - .github/workflows/build-kibana-base-images.yml
   # Allow manual triggering with default matrix
   workflow_dispatch: null
 permissions:
@@ -25,6 +26,14 @@ jobs:
             runner: ubuntu-24.04
             platform: linux/amd64
           - kibana_version: v9.2.2
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            platform: linux/arm64
+          - kibana_version: v8.19.9
+            arch: amd64
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - kibana_version: v8.19.9
             arch: arm64
             runner: ubuntu-24.04-arm
             platform: linux/arm64
@@ -78,6 +87,7 @@ jobs:
       matrix:
         kibana_version:
           - v9.2.2
+          - v8.19.9
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
