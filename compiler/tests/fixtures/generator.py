@@ -6,9 +6,9 @@ directly from pytest using Docker and the aiodocker library.
 
 from __future__ import annotations
 
+import base64
 import contextlib
 import json
-import shutil
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -105,7 +105,7 @@ class FixtureGenerator:
         """
         self.kibana_version = kibana_version
         self.base_image = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
-        self._temp_dirs: list[Path] = []
+        self._output_dirs: list[Path] = []
         self._docker: aiodocker.Docker | None = None
         self._initialized = False
 
@@ -171,6 +171,7 @@ class FixtureGenerator:
         self,
         typescript_config: str,
         output_name: str,
+        type_name: str,
         time_range: Mapping[str, str] | None = None,
     ) -> dict[str, Any]:
         """Generate a fixture from a TypeScript configuration.
@@ -178,9 +179,10 @@ class FixtureGenerator:
         Args:
             typescript_config: Raw TypeScript LensConfigBuilder configuration object.
                 This should be a valid TypeScript object literal that matches
-                one of the LensConfigBuilder config types (LensMetricConfig,
-                LensPieConfig, etc.).
+                one of the LensConfigBuilder config types.
             output_name: Name for the output file (without .json extension).
+            type_name: TypeScript type name for the config (e.g., 'LensMetricConfig',
+                'LensPieConfig', 'LensXYConfig').
             time_range: Optional time range dict with 'from', 'to', 'type' keys.
                 Defaults to {'from': 'now-24h', 'to': 'now', 'type': 'relative'}.
 
@@ -196,7 +198,9 @@ class FixtureGenerator:
                 value: 'count',
             }
             '''
-            fixture = await generator.generate(typescript_config, 'metric-basic')
+            fixture = await generator.generate(
+                typescript_config, 'metric-basic', 'LensMetricConfig'
+            )
         """
         if not self._initialized or self._docker is None:
             msg = 'FixtureGenerator not initialized. Use create() or async context manager.'
@@ -205,23 +209,21 @@ class FixtureGenerator:
         if time_range is None:
             time_range = {'from': 'now-24h', 'to': 'now', 'type': 'relative'}
 
-        # Create temporary directories for script and output
-        temp_dir = Path(tempfile.mkdtemp(prefix='fixture_gen_'))
-        self._temp_dirs.append(temp_dir)
-        examples_dir = temp_dir / 'examples'
-        output_dir = temp_dir / 'output'
-        examples_dir.mkdir()
-        output_dir.mkdir()
+        # Create output directory (still needed to retrieve the generated fixture)
+        output_dir = Path(tempfile.mkdtemp(prefix='fixture_gen_output_'))
+        self._output_dirs.append(output_dir)
 
-        # Generate the TypeScript script
-        script_content = self._generate_script(typescript_config, output_name, time_range)
-        script_path = examples_dir / 'generated.ts'
-        script_path.write_text(script_content)
+        # Generate and base64 encode the TypeScript script
+        script_content = self._generate_script(typescript_config, output_name, type_name, time_range)
+        script_b64 = base64.b64encode(script_content.encode()).decode()
+
+        # Run script via bash: decode base64, write to file, execute with tsx
+        bash_cmd = f'echo {script_b64} | base64 -d > /tmp/gen.ts && tsx /tmp/gen.ts'
 
         # Create and run the container
         config = {
             'Image': self.base_image,
-            'Cmd': ['tsx', 'examples/generated.ts'],
+            'Cmd': ['bash', '-c', bash_cmd],
             'Env': [
                 'NODE_OPTIONS=--max-old-space-size=8192',
                 f'KIBANA_VERSION={self.kibana_version}',
@@ -229,7 +231,6 @@ class FixtureGenerator:
             'HostConfig': {
                 'Binds': [
                     f'{output_dir}:/kibana/output',
-                    f'{examples_dir}:/kibana/examples:ro',
                     f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/generator-utils.ts:ro',
                     f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/dataviews-mock.js:ro',
                 ],
@@ -265,35 +266,11 @@ class FixtureGenerator:
         self,
         typescript_config: str,
         output_name: str,
+        type_name: str,
         time_range: Mapping[str, str],
     ) -> str:
         """Generate TypeScript script content for fixture generation."""
         time_range_json = json.dumps(dict(time_range))
-
-        # Determine the config type from the TypeScript - look for chartType
-        # We need to import the right type
-        config_lower = typescript_config.lower()
-        if "'metric'" in config_lower or '"metric"' in config_lower:
-            type_name = 'LensMetricConfig'
-        elif "'pie'" in config_lower or '"pie"' in config_lower:
-            type_name = 'LensPieConfig'
-        elif "'xy'" in config_lower or '"xy"' in config_lower:
-            type_name = 'LensXYConfig'
-        elif "'gauge'" in config_lower or '"gauge"' in config_lower:
-            type_name = 'LensGaugeConfig'
-        elif "'heatmap'" in config_lower or '"heatmap"' in config_lower:
-            type_name = 'LensHeatmapConfig'
-        elif "'tagcloud'" in config_lower or '"tagcloud"' in config_lower:
-            type_name = 'LensTagcloudConfig'
-        elif "'treemap'" in config_lower or '"treemap"' in config_lower:
-            type_name = 'LensTreemapConfig'
-        elif "'waffle'" in config_lower or '"waffle"' in config_lower:
-            type_name = 'LensWaffleConfig'
-        elif "'datatable'" in config_lower or '"datatable"' in config_lower:
-            type_name = 'LensDatatableConfig'
-        else:
-            # Fallback - let TypeScript figure it out
-            type_name = 'LensConfig'
 
         return f"""#!/usr/bin/env node
 import type {{ {type_name} }} from '@kbn/lens-embeddable-utils/config_builder';
@@ -310,11 +287,13 @@ await generateFixture(
 """
 
     async def cleanup(self) -> None:
-        """Clean up temporary directories and close Docker connection."""
-        for temp_dir in self._temp_dirs:
-            if temp_dir.exists():
-                shutil.rmtree(temp_dir)
-        self._temp_dirs.clear()
+        """Clean up output directories and close Docker connection."""
+        import shutil
+
+        for output_dir in self._output_dirs:
+            if output_dir.exists():
+                shutil.rmtree(output_dir)
+        self._output_dirs.clear()
 
         if self._docker is not None:
             await self._docker.close()

@@ -1,25 +1,19 @@
 """Fixture test utilities for comparing compiled output against Kibana fixtures.
 
-This module provides utilities for loading Kibana-generated fixture files
-and comparing them against compiled output using DeepDiff with built-in
-exclusion patterns for dynamic values like layer IDs.
+This module provides utilities for normalizing compiled panel output and
+comparing them against dynamically generated fixtures using DeepDiff.
 """
 
 from __future__ import annotations
 
 import copy
-import json
 import re
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from deepdiff import DeepDiff
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-# Default version for fixtures
-DEFAULT_FIXTURE_VERSION = 'v9.2.0'
 
 # UUID pattern for matching dynamic layer IDs (case-insensitive)
 UUID_PATTERN = r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
@@ -31,39 +25,6 @@ _LAYER_N_REGEX = re.compile(r'^layer_\d+$')
 # Patterns for normalizing paths in diff output (match UUIDs and layer_N with optional quotes)
 _UUID_IN_PATH_REGEX = re.compile(rf"['\"]?{UUID_PATTERN}['\"]?")
 _LAYER_N_IN_PATH_REGEX = re.compile(r"['\"]?layer_\d+['\"]?")
-
-# Project paths
-_TESTS_DIR = Path(__file__).parent.parent
-_COMPILER_DIR = _TESTS_DIR.parent
-_PROJECT_ROOT = _COMPILER_DIR.parent
-_FIXTURE_OUTPUT_DIR = _PROJECT_ROOT / 'fixture-generator' / 'output'
-
-
-def load_fixture(fixture_name: str, version: str = DEFAULT_FIXTURE_VERSION) -> dict[str, Any]:
-    """Load a fixture JSON file from fixture-generator/output/.
-
-    Args:
-        fixture_name: Name of the fixture file without .json extension.
-        version: Fixture version directory (default: v9.2.0).
-
-    Returns:
-        The parsed fixture JSON as a dictionary.
-
-    Raises:
-        FileNotFoundError: If the fixture file doesn't exist.
-        ValueError: If the fixture JSON is invalid.
-    """
-    fixture_path = _FIXTURE_OUTPUT_DIR / version / f'{fixture_name}.json'
-    if not fixture_path.exists():
-        msg = f'Fixture not found: {fixture_path}'
-        raise FileNotFoundError(msg)
-
-    try:
-        with fixture_path.open(encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        msg = f'Invalid JSON fixture: {fixture_path} ({e})'
-        raise ValueError(msg) from e
 
 
 def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
@@ -158,7 +119,7 @@ def compare_with_deepdiff(
 
     Args:
         compiled: Compiled panel configuration.
-        fixture: Loaded fixture JSON.
+        fixture: Generated fixture JSON.
         exclude_regex_paths: Optional regex patterns to exclude from comparison.
         normalize_layers: Whether to normalize layer IDs before comparison.
 
@@ -179,21 +140,6 @@ def compare_with_deepdiff(
         verbose_level=2,
         exclude_regex_paths=exclude_patterns,
     )
-
-
-def get_fixture_files(version: str = DEFAULT_FIXTURE_VERSION) -> list[Path]:
-    """Get all fixture JSON files for a given version.
-
-    Args:
-        version: Fixture version directory (default: v9.2.0).
-
-    Returns:
-        List of Path objects for each fixture file.
-    """
-    fixture_dir = _FIXTURE_OUTPUT_DIR / version
-    if not fixture_dir.exists():
-        return []
-    return sorted(fixture_dir.glob('*.json'))
 
 
 def normalize_diff_paths(diff: DeepDiff) -> dict[str, Any]:  # noqa: PLR0912
