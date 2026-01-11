@@ -28,7 +28,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensMultiTermsDimension,
     LensTermsDimension,
 )
-from dashboard_compiler.queries.compile import compile_nonesql_query  # Import compile_query
+from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.shared.config import Sort
 from dashboard_compiler.shared.defaults import default_false, default_true
 from dashboard_compiler.shared.id import get_guaranteed_id
@@ -126,21 +126,25 @@ def compile_lens_dimension(
         dimension_id = get_guaranteed_id(dimension)
 
         return dimension_id, KbnLensDateHistogramDimensionColumn(
-            label=dimension.label or dimension.field,
+            label=dimension.label if dimension.label is not None else dimension.field,
             customLabel=custom_label,
             dataType='date',
             operationType='date_histogram',
             sourceField=dimension.field,
             scale='interval',
             params=KbnLensDateHistogramDimensionColumnParams(
-                interval=dimension.minimum_interval or 'auto',
+                interval=dimension.minimum_interval if dimension.minimum_interval is not None else 'auto',
                 includeEmptyRows=True,
                 dropPartials=False,
             ),
         )
     if isinstance(dimension, LensTermsDimension):
         dimension_id = get_guaranteed_id(dimension)
-        label = dimension.label or f'Top {dimension.size or 3} values of {dimension.field}'
+        label = (
+            dimension.label
+            if dimension.label is not None
+            else f'Top {dimension.size if dimension.size is not None else 3} values of {dimension.field}'
+        )
 
         order_by = _resolve_order_by(
             sort=dimension.sort,
@@ -158,14 +162,14 @@ def compile_lens_dimension(
             params=KbnLensTermsDimensionColumnParams(
                 size=dimension.size,
                 orderBy=order_by,
-                orderDirection=dimension.sort.direction if dimension.sort else 'desc',
+                orderDirection=dimension.sort.direction if dimension.sort is not None else 'desc',
                 otherBucket=default_true(dimension.other_bucket),
                 missingBucket=default_false(dimension.missing_bucket),
                 parentFormat=KbnLensTermsParentFormat(id='terms'),
-                include=dimension.include or [],
-                exclude=dimension.exclude or [],
-                includeIsRegex=dimension.include_is_regex or False,
-                excludeIsRegex=dimension.exclude_is_regex or False,
+                include=dimension.include if dimension.include is not None else [],
+                exclude=dimension.exclude if dimension.exclude is not None else [],
+                includeIsRegex=dimension.include_is_regex if dimension.include_is_regex is not None else False,
+                excludeIsRegex=dimension.exclude_is_regex if dimension.exclude_is_regex is not None else False,
                 secondaryFields=None,
             ),
         )
@@ -200,27 +204,30 @@ def compile_lens_dimension(
             params=KbnLensTermsDimensionColumnParams(
                 size=dimension.size,
                 orderBy=order_by,
-                orderDirection=dimension.sort.direction if dimension.sort else 'desc',
+                orderDirection=dimension.sort.direction if dimension.sort is not None else 'desc',
                 otherBucket=default_true(dimension.other_bucket),
                 missingBucket=default_false(dimension.missing_bucket),
                 parentFormat=KbnLensTermsParentFormat(id='multi_terms'),
-                include=dimension.include or [],
-                exclude=dimension.exclude or [],
-                includeIsRegex=dimension.include_is_regex or False,
-                excludeIsRegex=dimension.exclude_is_regex or False,
+                include=dimension.include if dimension.include is not None else [],
+                exclude=dimension.exclude if dimension.exclude is not None else [],
+                includeIsRegex=dimension.include_is_regex if dimension.include_is_regex is not None else False,
+                excludeIsRegex=dimension.exclude_is_regex if dimension.exclude_is_regex is not None else False,
                 secondaryFields=secondary_fields,
             ),
         )
     if isinstance(dimension, LensFiltersDimension):
         dimension_id = get_guaranteed_id(dimension)
         return dimension_id, KbnLensFiltersDimensionColumn(
-            label=dimension.label or 'Filters',
+            label=dimension.label if dimension.label is not None else 'Filters',
             customLabel=custom_label,
             dataType='string',
             operationType='filters',
             scale='ordinal',
             params=KbnLensFiltersDimensionColumnParams(
-                filters=[KbnLensFiltersFilter(label=f.label or '', input=compile_nonesql_query(f.query)) for f in dimension.filters]
+                filters=[
+                    KbnLensFiltersFilter(label=f.label if f.label is not None else '', input=compile_nonesql_query(f.query))
+                    for f in dimension.filters
+                ]
             ),
         )
 
@@ -231,26 +238,26 @@ def compile_lens_dimension(
 
         if dimension.intervals is None:
             return dimension_id, KbnLensIntervalsDimensionColumn(
-                label=dimension.label or dimension.field or '',
+                label=dimension.label if dimension.label is not None else dimension.field,
                 customLabel=custom_label,
                 sourceField=dimension.field,
                 params=KbnLensIntervalsDimensionColumnParams(
                     includeEmptyRows=True,
                     type='histogram',
                     ranges=[KbnLensIntervalsRange(from_value=0, to_value=1000, label='')],
-                    maxBars=GRANULARITY_TO_BARS[dimension.granularity] if dimension.granularity else 'auto',
+                    maxBars=GRANULARITY_TO_BARS[dimension.granularity] if dimension.granularity is not None else 'auto',
                 ),
             )
         ranges = [
             KbnLensIntervalsRange(
                 from_value=interval.from_value,
                 to_value=interval.to_value,
-                label=interval.label or '',
+                label=interval.label if interval.label is not None else '',
             )
             for interval in dimension.intervals
         ]
         return dimension_id, KbnLensCustomInvervalsDimensionColumn(
-            label=dimension.label or dimension.field or '',
+            label=dimension.label if dimension.label is not None else dimension.field,
             customLabel=custom_label,
             sourceField=dimension.field,
             params=KbnLensCustomInvervalsDimensionColumnParams(
