@@ -27,7 +27,7 @@ jobs:
 
         # CREATING ISSUES
         ```
-        gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" \
+        gh issue create --repo "${{ github.repository }}" \
           --title "Issue title" --body "Description" --label "label1" --label "label2"
         ```
         Use clear titles, detailed descriptions, and appropriate labels (bug, enhancement, documentation).

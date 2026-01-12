@@ -5,7 +5,7 @@ on:
     types:
       - created
 concurrency:
-  group: claude-${{ github.event.pull_request.number || github.event.issue.number }}
+  group: claude-${{ github.event.issue.number }}
   cancel-in-progress: false
 permissions:
   contents: write
