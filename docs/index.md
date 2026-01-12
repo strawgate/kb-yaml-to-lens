@@ -179,20 +179,22 @@ Advanced documentation for contributors and programmatic usage:
 ```mermaid
 graph TB
     YAML[YAML Definition]
+    KIBANA[Kibana]
 
     subgraph "Interactive Development"
         EXT[VS Code Extension]
-        YAML --> EXT
         EXT --> PREVIEW[Live Preview]
-        EXT --> KIBANA[Direct Upload to Kibana]
     end
 
     subgraph "Automation/CI"
         CLI[CLI Compiler]
-        YAML --> CLI
         CLI --> NDJSON[NDJSON Files]
-        NDJSON --> KIBANA
     end
+
+    YAML --> EXT
+    YAML --> CLI
+    EXT --> KIBANA
+    NDJSON --> KIBANA
 ```
 
 ## License
