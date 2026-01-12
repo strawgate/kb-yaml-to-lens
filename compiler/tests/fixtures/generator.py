@@ -121,12 +121,17 @@ import {{ generateFixture }} from './generator-utils.js';
 
 const config: {type_name} = {typescript_config};
 
-await generateFixture(
-  '{output_name}.json',
-  config,
-  {{ timeRange: {time_range_json} }},
-  import.meta.url
-);
+(async () => {{
+  await generateFixture(
+    '{output_name}.json',
+    config,
+    {{ timeRange: {time_range_json} }},
+    import.meta.url
+  );
+}})().catch((err) => {{
+  console.error(err);
+  process.exit(1);
+}});
 """
 
 
