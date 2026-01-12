@@ -1,0 +1,110 @@
+{
+  "title": "Events with Value Labels",
+  "visualizationType": "lnsXY",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 10"
+            },
+            "columns": [
+              {
+                "columnId": "x_metric_formula_accessor0",
+                "fieldName": "log.level"
+              },
+              {
+                "columnId": "metric_formula_accessor0_0",
+                "fieldName": "count",
+                "meta": {
+                  "type": "number"
+                }
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "x_metric_formula_accessor0",
+                "fieldName": "log.level"
+              },
+              {
+                "columnId": "metric_formula_accessor0_0",
+                "fieldName": "count",
+                "meta": {
+                  "type": "number"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "axisTitlesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "legend": {
+        "isVisible": true,
+        "position": "right"
+      },
+      "hideEndzones": true,
+      "preferredSeriesType": "line",
+      "valueLabels": "show",
+      "emphasizeFitting": true,
+      "fittingFunction": "Linear",
+      "yLeftExtent": {
+        "mode": "full"
+      },
+      "tickLabelsVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "labelsOrientation": {
+        "x": 0,
+        "yLeft": 0,
+        "yRight": 0
+      },
+      "gridlinesVisibilitySettings": {
+        "x": true,
+        "yLeft": true,
+        "yRight": true
+      },
+      "layers": [
+        {
+          "layerId": "layer_0",
+          "layerType": "data",
+          "xAccessor": "x_metric_formula_accessor0",
+          "accessors": [
+            "metric_formula_accessor0_0"
+          ],
+          "seriesType": "bar",
+          "yConfig": [
+            {
+              "forAccessor": "metric_formula_accessor0_0"
+            }
+          ]
+        }
+      ]
+    },
+    "adHocDataViews": {
+      "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

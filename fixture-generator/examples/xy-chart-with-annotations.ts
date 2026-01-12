@@ -35,16 +35,13 @@ export async function generateXYChartWithAnnotations(): Promise<void> {
       },
       {
         type: 'annotation',
-        annotations: [
+        yAxis: [],
+        events: [
           {
-            type: 'manual',
-            label: 'Deployment',
-            // Note: 'now-1h' is intentionally relative for demo purposes.
-            // For deterministic fixtures, use an absolute ISO timestamp instead.
-            key: {
-              type: 'point_in_time',
-              timestamp: 'now-1h'
-            },
+            name: 'Deployment',
+            // Note: Using absolute timestamp for fixture reproducibility.
+            // In production, you might use relative times or query-based annotations.
+            datetime: '2024-01-15T12:00:00.000Z',
             color: '#0077CC',
             icon: 'tag'
           }
