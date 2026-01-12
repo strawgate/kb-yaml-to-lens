@@ -2,135 +2,79 @@
 
 > Multi-language project for compiling Kibana dashboards from YAML to Lens format
 > Python compiler · TypeScript VS Code extension · JavaScript fixture generator
->
-> **Note:** `CLAUDE.md` is a symlink to `AGENTS.md` throughout this repository. Both names reference the same file.
 
 ---
 
 ## Project Overview
 
-This repository contains three main components:
-
 1. **Dashboard Compiler** - Core YAML → JSON compilation engine
 2. **VS Code Extension** - Live preview and visual editing
 3. **Fixture Generator** - Kibana API-based test fixture generation
 
-### Repository Structure
+| Directory | Technology | Purpose |
+| --------- | ---------- | ------- |
+| `compiler/` | Python 3.12+ | Dashboard compiler (see `compiler/AGENTS.md`) |
+| `vscode-extension/` | TypeScript/Node.js | VS Code extension (see `vscode-extension/AGENTS.md`) |
+| `fixture-generator/` | JavaScript/Docker | Kibana fixture generation (see `fixture-generator/AGENTS.md`) |
 
-| Directory | Technology | Purpose | AGENTS.md |
-| --------- | ---------- | ------- | --------- |
-| `compiler/` | Python 3.12+ | Dashboard compiler | `compiler/AGENTS.md` |
-| `compiler/src/dashboard_compiler/` | Python 3.12+ | Core compilation logic | `compiler/AGENTS.md` |
-| `compiler/tests/` | Python pytest | Unit tests for compiler | `compiler/AGENTS.md` |
-| `compiler/inputs/` | YAML | Example dashboards | - |
-| `vscode-extension/` | TypeScript/Node.js | VS Code extension | `vscode-extension/AGENTS.md` |
-| `fixture-generator/` | JavaScript/Docker | Kibana fixture generation | `fixture-generator/AGENTS.md` |
-| `docs/` | Markdown | Documentation | - |
+---
 
-### Common Commands
-
-**Root-level commands** orchestrate all components:
+## Essential Commands
 
 | Command | Purpose |
-| --------- | --------- |
-| `make install` | Install all dependencies (all components) |
-| `make check` | **Run before committing** (fast: lint + typecheck + unit tests) |
-| `make ci` | Comprehensive CI checks (check + e2e tests, matches GitHub Actions) |
-| `make fix` | Auto-fix linting issues (compiler + extension) |
-| `make lint-all-check` | Check all linting without fixing |
-| `make test-unit` | Run unit tests only (fast) |
-| `make test-e2e` | Run end-to-end tests (requires setup) |
-| `make test-all` | Run all tests (unit + e2e + smoke) |
-| `make docs-build-strict` | Build docs with strict mode (fails on warnings) |
-| `make build-extension-binaries` | Build unified binary for VS Code extension (current platform) |
-| `make package-extension` | Package VS Code extension with binaries |
+| ------- | ------- |
+| `make check` | **Run before committing** (lint + typecheck + unit tests) |
+| `make ci` | Comprehensive CI checks (matches GitHub Actions) |
+| `make fix` | Auto-fix linting issues |
+| `make install` | Install all dependencies |
+| `make test-unit` | Run unit tests only |
+| `make test-e2e` | Run end-to-end tests |
 | `make clean` | Clean cache and temporary files |
-| `make clean-full` | Deep clean including virtual environments |
 
-**Compiler-specific commands** (run from `compiler/` directory):
-
-| Command | Purpose |
-| --------- | --------- |
-| `make build` | Build Python package for PyPI |
-| `make publish` | Publish package to PyPI (requires credentials) |
-| `make publish-test` | Publish to TestPyPI for testing |
-
-**Troubleshooting CI failures:** When GitHub Actions CI fails, run `make ci` locally to reproduce the exact checks that run in CI.
-
-**Component-specific Makefiles** provide focused workflows:
-
-- `compiler/Makefile` - Python compiler commands (see `compiler/AGENTS.md`)
-- `vscode-extension/Makefile` - Extension development commands (see `vscode-extension/AGENTS.md`)
-- `fixture-generator/Makefile` - Fixture generation commands (see `fixture-generator/AGENTS.md`)
-
-See `make help` in root or component directories for complete command lists.
-
-## AI Agent Guidelines
-
-### IMPORTANT: Post-Compaction Recovery
-
-If you have recently undergone context summarization/compaction:
-
-1. **IMMEDIATELY re-read this file** (`AGENTS.md`) before proceeding with any work
-2. **DO NOT rely on summarized references** to framework rules in your conversation history
-3. **DO NOT assume you remember project conventions** from the summary—the summary is lossy and paraphrased
-4. **Re-establish understanding** of: Core Principles, Code Style, Verification requirements, and project patterns
-
-**Why this matters:** Post-compaction behavioral compliance drops 30-40% when agents rely on paraphrased summaries instead of authoritative source files. AGENTS.md files survive compaction intact and are loaded fresh from disk—you have access to them, so use them.
+**Troubleshooting CI failures:** Run `make ci` locally to reproduce exact CI checks.
 
 ---
 
 ## Agent Operating Principles
 
-- **Read first** — Component README.md/AGENTS.md before working
-- **Search, don't speculate** — Use Grep/Glob to find how the codebase solves similar problems
-- **Pattern matching** — Follow existing patterns unless justified to diverge
-- **Verify** — Run tests, ensure checks pass (lint/typecheck/tests), test actual functionality
-- **Honest** — Document unresolved items, acknowledge uncertainty, never claim completion with critical issues
-- **Thorough** — Update docs/tests when changing code (search thoroughly—not always co-located), consider broader impact
-- **Zero slop** — No slop comments, code, logic, architecture, design. Avoid obvious comments or "this now does X" comparisons
-- **Investigate deeply** — LensConfigBuilder API limitations ≠ Kibana feature limitations. If a feature isn't in the builder API, investigate the Kibana codebase before concluding it doesn't exist.
+- **Read first** — Component AGENTS.md before working
+- **Search, don't speculate** — Use Grep/Glob to find existing patterns
+- **Follow patterns** — Match existing code style unless justified to diverge
+- **Verify** — Run `make check`, test actual functionality
+- **Be honest** — Document unresolved items, acknowledge uncertainty
+- **Zero slop** — No obvious comments, no "this now does X" comparisons
 
-**Code Style:** See component AGENTS.md files for language-specific conventions and detailed patterns.
+**Code Style:** See component AGENTS.md files for language-specific conventions.
 
 ---
 
 ## Code Review Feedback
 
-**Triage:** Critical (security, data corruption, type safety, test failures) → Important (error handling, performance, missing tests/types) → Optional (style, minor refactors)
+**Triage:** Critical (security, data corruption, type safety) → Important (error handling, performance) → Optional (style)
 
-**Evaluate:** Search for similar patterns before accepting. Pattern exists across files = likely intentional. Preserve consistency over isolated best practices.
-
-**Verify:** Critical/important issues addressed, component checks pass, manual testing done
-
----
-
-## CI/CD
-
-**Workflows:** Testing/quality checks, docs deployment (GitHub Pages), Claude AI assistance, Docker builds
-
-**Modifying workflows:** Claude cannot modify `.github/workflows/` (permission restriction). To request changes: Create exact file in `github/` folder (mirroring `.github/workflows/` structure), request maintainer/Copilot move to `.github/`. Copilot needs explicit instructions—no options, no trust.
+**Evaluate:** Search for similar patterns first. Pattern exists across files = likely intentional.
 
 ---
 
 ## Pull Requests
 
-**Requirements:** No merge conflicts, no unrelated changes/plan files, all checks pass, self-review done, use `.github/pull_request_template.md` for PR body
+**Requirements:** No merge conflicts, all checks pass, use `.github/pull_request_template.md`
 
-**Self-review:** Solves stated problem (reference issue), code complete/follows patterns, tests updated, docs accurate, `make ci` passes
+**Self-review:** Solves stated problem, code follows patterns, tests updated, `make ci` passes
 
-## Before Completion
+---
 
-When you think you've finished the job take one moment to review the original ask and ensure you have thoroughly addressed it. It's easy to get lost in the details and forget the original goal.
+## CI/CD
+
+**Modifying workflows:** Claude cannot modify `.github/workflows/`. Create exact file in `github/` folder, request maintainer move to `.github/`.
 
 ---
 
 ## Additional Resources
 
 | Resource | Location |
-| ---------- | ---------- |
-| Component AGENTS.md files | `compiler/AGENTS.md`, `vscode-extension/AGENTS.md`, `fixture-generator/AGENTS.md` |
-| Architecture details | `docs/architecture.md` |
-| Getting started guide | `docs/index.md` (includes installation and first dashboard tutorial) |
-| Contributing guide | `CONTRIBUTING.md` |
-| CLI documentation | `docs/CLI.md` |
+| -------- | -------- |
+| Architecture | `docs/architecture.md` |
+| Getting started | `docs/index.md` |
+| Contributing | `CONTRIBUTING.md` |
+| CLI docs | `docs/CLI.md` |
