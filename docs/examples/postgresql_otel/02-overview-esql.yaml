@@ -121,7 +121,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "postgresqlreceiver.otel"
             | WHERE postgresql.backends IS NOT NULL
-            | STATS connections = SUM(AVG_OVER_TIME(postgresql.backends)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            | STATS connections = MAX(AVG_OVER_TIME(postgresql.backends)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
             | SORT time_bucket ASC
           legend:
             visible: show
