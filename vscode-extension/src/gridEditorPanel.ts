@@ -36,6 +36,13 @@ export class GridEditorPanel {
         this.extensionPath = context.extensionPath;
     }
 
+    dispose(): void {
+        if (this.panel) {
+            this.panel.dispose();
+            this.panel = undefined;
+        }
+    }
+
     async show(dashboardPath: string, dashboardIndex: number = 0) {
         if (!this.isPathInWorkspace(dashboardPath)) {
             vscode.window.showErrorMessage('Dashboard file must be within the workspace');

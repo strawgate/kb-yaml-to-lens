@@ -1,9 +1,9 @@
 ---
 name: Publish VS Code Extension
 on:
-  release:
-    types:
-      - published
+  push:
+    tags:
+      - v*
 jobs:
   build-lsp-binaries:
     name: Build LSP Binary - ${{ matrix.os }}

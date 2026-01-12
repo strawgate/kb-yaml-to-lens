@@ -36,6 +36,13 @@ export class PreviewPanel {
     constructor(private compiler: DashboardCompilerLSP) {
     }
 
+    dispose(): void {
+        if (this.panel) {
+            this.panel.dispose();
+            this.panel = undefined;
+        }
+    }
+
     async show(dashboardPath: string, dashboardIndex: number = 0) {
         this.currentDashboardPath = dashboardPath;
         this.currentDashboardIndex = dashboardIndex;
@@ -323,8 +330,9 @@ export class PreviewPanel {
                     <pre><code>${escapeHtml(JSON.stringify(dashboard, null, 2))}</code></pre>
                 </div>
 
+                <script id="ndjson-data" type="application/json">${escapeHtml(ndjson)}</script>
                 <script>
-                    const ndjsonData = ${JSON.stringify(ndjson)};
+                    const ndjsonData = JSON.parse(document.getElementById('ndjson-data').textContent);
 
                     function toggleCollapsible(id) {
                         const content = document.getElementById(id);

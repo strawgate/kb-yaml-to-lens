@@ -37,6 +37,11 @@ suite('ConfigService Test Suite', () => {
         configService = new ConfigService(mockContext);
     });
 
+    setup(() => {
+        // Reset secrets store before each test to ensure isolation
+        secretsStore.clear();
+    });
+
     test('Should get default Kibana URL', () => {
         const url = configService.getKibanaUrl();
         assert.strictEqual(url, 'http://localhost:5601');
@@ -52,47 +57,54 @@ suite('ConfigService Test Suite', () => {
         assert.strictEqual(browserType, 'external');
     });
 
-    test('Should store and retrieve username', async () => {
-        const testUsername = 'testuser';
-        await configService.setKibanaUsername(testUsername);
-        const retrievedUsername = await configService.getKibanaUsername();
-        assert.strictEqual(retrievedUsername, testUsername);
-    });
+    interface CredentialCase {
+        label: string;
+        value: string;
+        secretKey: string;
+        setter: (val: string) => Promise<void>;
+        getter: () => Promise<string>;
+    }
 
-    test('Should store and retrieve password', async () => {
-        const testPassword = 'testpass123';
-        await configService.setKibanaPassword(testPassword);
-        const retrievedPassword = await configService.getKibanaPassword();
-        assert.strictEqual(retrievedPassword, testPassword);
-    });
+    const credentialCases: CredentialCase[] = [
+        {
+            label: 'username',
+            value: 'testuser',
+            secretKey: 'yamlDashboard.kibana.username',
+            setter: (val: string) => configService.setKibanaUsername(val),
+            getter: () => configService.getKibanaUsername(),
+        },
+        {
+            label: 'password',
+            value: 'testpass123',
+            secretKey: 'yamlDashboard.kibana.password',
+            setter: (val: string) => configService.setKibanaPassword(val),
+            getter: () => configService.getKibanaPassword(),
+        },
+        {
+            label: 'API key',
+            value: 'test-api-key-12345',
+            secretKey: 'yamlDashboard.kibana.apiKey',
+            setter: (val: string) => configService.setKibanaApiKey(val),
+            getter: () => configService.getKibanaApiKey(),
+        },
+    ];
 
-    test('Should store and retrieve API key', async () => {
-        const testApiKey = 'test-api-key-12345';
-        await configService.setKibanaApiKey(testApiKey);
-        const retrievedApiKey = await configService.getKibanaApiKey();
-        assert.strictEqual(retrievedApiKey, testApiKey);
-    });
+    for (const credential of credentialCases) {
+        test(`Should store and retrieve ${credential.label}`, async () => {
+            await credential.setter(credential.value);
+            const retrieved = await credential.getter();
+            assert.strictEqual(retrieved, credential.value);
+        });
 
-    test('Should clear username when set to empty string', async () => {
-        await configService.setKibanaUsername('testuser');
-        await configService.setKibanaUsername('');
-        const username = await configService.getKibanaUsername();
-        assert.strictEqual(username, '');
-    });
-
-    test('Should clear password when set to empty string', async () => {
-        await configService.setKibanaPassword('testpass');
-        await configService.setKibanaPassword('');
-        const password = await configService.getKibanaPassword();
-        assert.strictEqual(password, '');
-    });
-
-    test('Should clear API key when set to empty string', async () => {
-        await configService.setKibanaApiKey('testkey');
-        await configService.setKibanaApiKey('');
-        const apiKey = await configService.getKibanaApiKey();
-        assert.strictEqual(apiKey, '');
-    });
+        test(`Should delete ${credential.label} from storage when set to empty string`, async () => {
+            await credential.setter(credential.value);
+            assert.ok(secretsStore.has(credential.secretKey), 'Secret should exist before clearing');
+            await credential.setter('');
+            assert.ok(!secretsStore.has(credential.secretKey), 'Secret should be deleted from storage');
+            const cleared = await credential.getter();
+            assert.strictEqual(cleared, '');
+        });
+    }
 
     test('Should clear all credentials', async () => {
         // Set all credentials

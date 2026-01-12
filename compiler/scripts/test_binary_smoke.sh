@@ -56,7 +56,7 @@ echo "Test 3: Compile sample YAML"
 TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
-"$BINARY_PATH" compile --input-dir "$COMPILER_ROOT/inputs" --output-dir "$TEMP_OUTPUT"
+"$BINARY_PATH" compile --input-dir "$COMPILER_ROOT/../docs/examples" --output-dir "$TEMP_OUTPUT"
 
 # Verify output files exist
 if [ ! -f "$TEMP_OUTPUT/compiled_dashboards.ndjson" ]; then

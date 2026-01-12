@@ -1,8 +1,61 @@
 """Tests for the Kibana client."""
 
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
+
 import pytest
 
-from dashboard_compiler.kibana_client import KibanaClient
+if TYPE_CHECKING:
+    from pathlib import Path
+
+from dashboard_compiler.kibana_client import HTTP_SERVICE_UNAVAILABLE, KibanaClient
+
+
+@dataclass
+class _FakeResponse:
+    status: int = 200
+    headers: dict[str, str] = field(default_factory=dict)
+    json_data: dict[str, Any] | None = None
+    text_data: str = ''
+    read_data: bytes = b''
+
+    async def json(self) -> dict[str, Any]:
+        return self.json_data or {}
+
+    async def text(self) -> str:
+        return self.text_data
+
+    async def read(self) -> bytes:
+        return self.read_data
+
+    def raise_for_status(self) -> None:
+        if self.status >= 400:
+            msg = f'Request failed with status {self.status}'
+            raise RuntimeError(msg)
+
+
+@dataclass
+class _FakeResponseContext:
+    response: _FakeResponse
+
+    async def __aenter__(self) -> _FakeResponse:
+        return self.response
+
+    async def __aexit__(self, exc_type: object, exc: object, tb: object) -> None:
+        return None
+
+
+class _FakeSession:
+    def __init__(self, responses: list[_FakeResponse]) -> None:
+        self._responses = responses
+        self.calls: list[tuple[str, dict[str, str], object]] = []
+
+    def get(self, endpoint: str, headers: dict[str, str], auth: object) -> _FakeResponseContext:
+        self.calls.append((endpoint, headers, auth))
+        response = self._responses.pop(0)
+        return _FakeResponseContext(response)
 
 
 class TestKibanaClient:
@@ -143,3 +196,151 @@ class TestKibanaClient:
         assert session.closed
         assert connector is not None
         assert connector.closed
+
+    @pytest.mark.asyncio
+    async def test_upload_ndjson_string_payload(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test uploading NDJSON content from a string."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/saved_objects/_import?overwrite=true'
+            assert 'data' in kwargs
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'success': True,
+                        'successCount': 1,
+                        'successResults': [],
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        response = await client.upload_ndjson('{"type":"dashboard"}')
+        assert response.success is True
+        assert response.success_count == 1
+
+    @pytest.mark.asyncio
+    async def test_upload_ndjson_file_payload(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test uploading NDJSON content from a file."""
+        client = KibanaClient(url='http://localhost:5601')
+        ndjson_path = tmp_path / 'dashboard.ndjson'
+        ndjson_path.write_text('{"type":"dashboard"}', encoding='utf-8')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/saved_objects/_import?overwrite=true'
+            assert 'data' in kwargs
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'success': True,
+                        'successCount': 1,
+                        'successResults': [],
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        response = await client.upload_ndjson(ndjson_path)
+        assert response.success is True
+        assert response.success_count == 1
+
+    @pytest.mark.asyncio
+    async def test_generate_screenshot_returns_job_path(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test generating a screenshot returns the job path."""
+        client = KibanaClient(url='http://localhost:5601')
+        expected_path = '/api/reporting/jobs/download/123'
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/reporting/generate/pngV2'
+            assert 'params' in kwargs
+            return _FakeResponseContext(_FakeResponse(json_data={'path': expected_path}))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        job_path = await client.generate_screenshot(
+            dashboard_id='dashboard-1',
+            time_from='now-1h',
+            time_to='now',
+            width=800,
+            height=600,
+            browser_timezone='UTC',
+        )
+        assert job_path == expected_path
+
+    @pytest.mark.asyncio
+    async def test_wait_for_job_completion_returns_png(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test waiting for a reporting job returns PNG bytes."""
+        client = KibanaClient(url='http://localhost:5601')
+        responses = [
+            _FakeResponse(status=HTTP_SERVICE_UNAVAILABLE),
+            _FakeResponse(status=200, headers={'Content-Type': 'image/png'}, read_data=b'png-data'),
+        ]
+        fake_session = _FakeSession(responses)
+
+        monkeypatch.setattr(client, '_get_session', lambda: fake_session)
+
+        result = await client.wait_for_job_completion('/api/reporting/jobs/download/123', poll_interval=0)
+        assert result == b'png-data'
+
+    @pytest.mark.asyncio
+    async def test_wait_for_job_completion_unexpected_content_type(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test unexpected content type raises an error."""
+        client = KibanaClient(url='http://localhost:5601')
+        responses = [
+            _FakeResponse(status=200, headers={'Content-Type': 'application/json'}, text_data='oops'),
+        ]
+        fake_session = _FakeSession(responses)
+
+        monkeypatch.setattr(client, '_get_session', lambda: fake_session)
+
+        with pytest.raises(ValueError, match='Unexpected response from Kibana'):
+            await client.wait_for_job_completion('/api/reporting/jobs/download/123', poll_interval=0)
+
+    @pytest.mark.asyncio
+    async def test_download_screenshot_writes_file(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test download_screenshot writes the PNG to disk."""
+        client = KibanaClient(url='http://localhost:5601')
+        output_path = tmp_path / 'screenshots' / 'dashboard.png'
+
+        async def fake_generate_screenshot(  # noqa: PLR0913
+            dashboard_id: str,
+            time_from: str | None = None,
+            time_to: str | None = None,
+            width: int = 1920,
+            height: int = 1080,
+            browser_timezone: str = 'UTC',
+        ) -> str:
+            _ = (time_from, time_to, width, height, browser_timezone)  # Mark as used
+            assert dashboard_id == 'dashboard-1'
+            return '/api/reporting/jobs/download/123'
+
+        async def fake_wait_for_job_completion(job_path: str, timeout_seconds: int = 300) -> bytes:
+            assert job_path == '/api/reporting/jobs/download/123'
+            assert timeout_seconds == 300
+            return b'png-data'
+
+        monkeypatch.setattr(client, 'generate_screenshot', fake_generate_screenshot)
+        monkeypatch.setattr(client, 'wait_for_job_completion', fake_wait_for_job_completion)
+
+        await client.download_screenshot('dashboard-1', output_path)
+
+        assert output_path.exists() is True
+        assert output_path.read_bytes() == b'png-data'
+
+    @pytest.mark.asyncio
+    async def test_export_dashboard_returns_ndjson(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test exporting a dashboard returns NDJSON."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/saved_objects/_export'
+            assert kwargs['headers']['Content-Type'] == 'application/json'
+            return _FakeResponseContext(_FakeResponse(text_data='{"type":"dashboard"}'))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        result = await client.export_dashboard('dashboard-1')
+        assert result == '{"type":"dashboard"}'
