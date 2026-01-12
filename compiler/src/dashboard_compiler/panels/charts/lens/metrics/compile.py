@@ -134,7 +134,11 @@ def _create_aggregation_column(
         filter=filter_query,
         # Note: emptyAsNull=False for formula helper columns preserves null values
         # in intermediate calculations, matching Kibana's formula column behavior
-        params=KbnLensFormulaAggColumnParams(emptyAsNull=False),
+        params=KbnLensFormulaAggColumnParams(
+            emptyAsNull=False,
+            shift=agg_info.shift,
+            reducedTimeRange=agg_info.reduced_time_range,
+        ),
     )
 
 

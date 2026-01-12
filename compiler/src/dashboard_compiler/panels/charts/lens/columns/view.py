@@ -219,6 +219,12 @@ class KbnLensFormulaAggColumnParams(BaseVwModel):
     emptyAsNull: bool = False
     """Whether to treat empty results as null."""
 
+    shift: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Time shift for the aggregation (e.g., '1d', '1w')."""
+
+    reducedTimeRange: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Reduced time range for the aggregation (e.g., '1h', '1d')."""
+
 
 class KbnLensFormulaAggColumn(KbnLensBaseColumn):
     """Represents an aggregation helper column used in formula structures.

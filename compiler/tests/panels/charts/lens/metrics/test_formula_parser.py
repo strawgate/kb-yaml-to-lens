@@ -341,3 +341,242 @@ class TestFullReferenceInfo:
         assert ref.function_name == 'counter_rate'
         assert ref.operation_type == 'counter_rate'
         assert ref.inner_aggregation_index == 0
+
+
+class TestComparisonOperators:
+    """Test parsing and AST generation for comparison operators."""
+
+    def test_greater_than_operator(self) -> None:
+        """Test that > operator produces 'gt' function in AST."""
+        result = parse_formula('count() > 100')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['type'] == 'function'
+        assert ast['name'] == 'gt'
+        assert len(ast['args']) == 2
+        assert ast['args'][0] == 'col-X0'
+        assert ast['args'][1] == 100
+
+    def test_less_than_operator(self) -> None:
+        """Test that < operator produces 'lt' function in AST."""
+        result = parse_formula('count() < 50')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'lt'
+
+    def test_greater_than_or_equal_operator(self) -> None:
+        """Test that >= operator produces 'gte' function in AST."""
+        result = parse_formula('sum(bytes) >= 1000')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'gte'
+
+    def test_less_than_or_equal_operator(self) -> None:
+        """Test that <= operator produces 'lte' function in AST."""
+        result = parse_formula('sum(bytes) <= 500')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'lte'
+
+    def test_equality_operator(self) -> None:
+        """Test that == operator produces 'eq' function in AST."""
+        result = parse_formula('count() == 0')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'eq'
+
+
+class TestMathFunctions:
+    """Test parsing of tinymath math functions."""
+
+    def test_abs_function(self) -> None:
+        """Test parsing abs() function wrapping an aggregation."""
+        result = parse_formula('abs(sum(profit))')
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'sum'
+
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['type'] == 'function'
+        assert ast['name'] == 'abs'
+        assert ast['args'][0] == 'col-X0'
+
+    def test_sqrt_function(self) -> None:
+        """Test parsing sqrt() function."""
+        result = parse_formula('sqrt(sum(variance))')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'sqrt'
+
+    def test_pow_function(self) -> None:
+        """Test parsing pow() function with two arguments."""
+        result = parse_formula('pow(count(), 2)')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'pow'
+        assert ast['args'][0] == 'col-X0'
+        assert ast['args'][1] == 2
+
+    def test_ceil_function(self) -> None:
+        """Test parsing ceil() function."""
+        result = parse_formula('ceil(average(bytes))')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'ceil'
+
+    def test_floor_function(self) -> None:
+        """Test parsing floor() function."""
+        result = parse_formula('floor(average(response.time))')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'floor'
+
+    def test_round_function(self) -> None:
+        """Test parsing round() function."""
+        result = parse_formula('round(sum(bytes) / count())')
+        assert len(result.aggregations) == 2
+        column_refs = {0: 'col-X0', 1: 'col-X1'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'round'
+
+    def test_log_function(self) -> None:
+        """Test parsing log() function."""
+        result = parse_formula('log(count())')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'log'
+
+    def test_exp_function(self) -> None:
+        """Test parsing exp() function."""
+        result = parse_formula('exp(average(rate))')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'exp'
+
+    def test_clamp_function(self) -> None:
+        """Test parsing clamp() function with three arguments."""
+        result = parse_formula('clamp(sum(value), 0, 100)')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'clamp'
+        assert ast['args'][0] == 'col-X0'
+        assert ast['args'][1] == 0
+        assert ast['args'][2] == 100
+
+    def test_mod_function(self) -> None:
+        """Test parsing mod() function."""
+        result = parse_formula('mod(count(), 10)')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'mod'
+
+    def test_ifelse_function(self) -> None:
+        """Test parsing ifelse() conditional function."""
+        result = parse_formula('ifelse(count() > 100, sum(bytes), 0)')
+        # count() appears in the condition and the > comparison
+        assert len(result.aggregations) == 2
+        column_refs = {0: 'col-X0', 1: 'col-X1'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'ifelse'
+
+    def test_pick_max_function(self) -> None:
+        """Test parsing pick_max() function with multiple arguments."""
+        result = parse_formula('pick_max(sum(a), sum(b), sum(c))')
+        assert len(result.aggregations) == 3
+        column_refs = {0: 'col-X0', 1: 'col-X1', 2: 'col-X2'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'pick_max'
+        assert len(ast['args']) == 3
+
+    def test_pick_min_function(self) -> None:
+        """Test parsing pick_min() function with multiple arguments."""
+        result = parse_formula('pick_min(min(a), min(b))')
+        assert len(result.aggregations) == 2
+        column_refs = {0: 'col-X0', 1: 'col-X1'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'pick_min'
+
+    def test_defaults_function(self) -> None:
+        """Test parsing defaults() function (null coalescing)."""
+        result = parse_formula('defaults(sum(bytes), 0)')
+        column_refs = {0: 'col-X0'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'defaults'
+
+    def test_nested_math_functions(self) -> None:
+        """Test parsing nested math functions."""
+        result = parse_formula('round(abs(sum(profit) - sum(cost)))')
+        assert len(result.aggregations) == 2
+        column_refs = {0: 'col-X0', 1: 'col-X1'}
+        ast = build_tinymath_ast_with_refs(result, column_refs)
+        assert ast['name'] == 'round'
+        # The inner function should be abs
+        assert ast['args'][0]['name'] == 'abs'
+
+
+class TestDerivativeAlias:
+    """Test that derivative is properly aliased to differences."""
+
+    def test_derivative_parses_as_full_reference(self) -> None:
+        """Test that derivative() is recognized as a fullReference operation."""
+        result = parse_formula('derivative(sum(bytes))')
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].function_name == 'sum'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'derivative'
+        assert result.full_references[0].operation_type == 'differences'  # Maps to differences
+
+    def test_derivative_with_complex_inner_expression(self) -> None:
+        """Test derivative with a more complex inner aggregation."""
+        result = parse_formula("derivative(average(field='cpu.usage'))")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].source_field == 'cpu.usage'
+
+        assert len(result.full_references) == 1
+        assert result.full_references[0].function_name == 'derivative'
+
+
+class TestShiftAndReducedTimeRange:
+    """Test extraction of shift and reducedTimeRange parameters."""
+
+    def test_shift_parameter_extraction(self) -> None:
+        """Test that shift= parameter is extracted from aggregations."""
+        result = parse_formula("sum(bytes, shift='1d')")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].source_field == 'bytes'
+        assert result.aggregations[0].shift == '1d'
+
+    def test_reduced_time_range_parameter_extraction(self) -> None:
+        """Test that reducedTimeRange= parameter is extracted."""
+        result = parse_formula("count(reducedTimeRange='1h')")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].reduced_time_range == '1h'
+
+    def test_shift_and_kql_together(self) -> None:
+        """Test that shift and kql can be used together."""
+        result = parse_formula("count(kql='status:error', shift='1w')")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].filter_query == 'status:error'
+        assert result.aggregations[0].shift == '1w'
+
+    def test_year_over_year_comparison(self) -> None:
+        """Test parsing a year-over-year comparison formula."""
+        result = parse_formula("sum(revenue) - sum(revenue, shift='1y')")
+
+        assert len(result.aggregations) == 2
+        assert result.aggregations[0].shift is None
+        assert result.aggregations[1].shift == '1y'
+
+    def test_reduced_time_range_with_field(self) -> None:
+        """Test reducedTimeRange with field and aggregation."""
+        result = parse_formula("average(response.time, reducedTimeRange='5m')")
+
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].source_field == 'response.time'
+        assert result.aggregations[0].reduced_time_range == '5m'

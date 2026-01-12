@@ -146,6 +146,7 @@ KIBANA_FULL_REFERENCE_OPERATIONS = frozenset(
     {
         'counter_rate',
         'cumulative_sum',
+        'derivative',  # Alias for 'differences'
         'differences',
         'moving_average',
         'normalize',
@@ -167,6 +168,7 @@ FORMULA_TO_OPERATION_TYPE = {
     'count': 'count',
     'counter_rate': 'counter_rate',
     'cumulative_sum': 'cumulative_sum',
+    'derivative': 'differences',  # Alias for 'differences'
     'differences': 'differences',
     'last_value': 'last_value',
     'max': 'max',
@@ -224,6 +226,12 @@ class AggregationInfo:
 
     text: str
     """The original text of this aggregation in the formula."""
+
+    shift: str | None = None
+    """Optional time shift value (e.g., '1d', '1w') for time-shifted aggregations."""
+
+    reduced_time_range: str | None = None
+    """Optional reduced time range (e.g., '1h', '1d') to limit the aggregation window."""
 
 
 @dataclass
@@ -358,11 +366,20 @@ def _walk_ast(  # noqa: PLR0911, PLR0912
             return {'type': 'aggregation_ref', 'index': len(aggregations) - 1}
 
         # For other functions (math functions like abs, pow, etc.), walk the arguments
-        walked_args = _walk_ast(node.get('args'), aggregations, full_references, formula_text)
+        raw_args = node.get('args')
+        # argument_list produces {'args': [...], 'parseinfo': ...}
+        # so we need to extract the actual list from the 'args' key
+        args_list = raw_args['args'] if isinstance(raw_args, dict) and 'args' in raw_args else raw_args
+        walked_args = _walk_ast(args_list, aggregations, full_references, formula_text)
+        # Ensure walked_args is a list, not a dict or single value
+        if walked_args is None:
+            walked_args = []
+        elif not isinstance(walked_args, list):
+            walked_args = [walked_args]
         return {
             'type': 'function',
             'name': func_name,
-            'args': walked_args if walked_args else [],
+            'args': walked_args,
         }
 
     # Handle binary operations (add_subtract, multiply_divide)
@@ -493,6 +510,8 @@ def _extract_aggregation_info(  # noqa: PLR0912
     source_field: str | None = None
     filter_query: str | None = None
     percentile: int | None = None
+    shift: str | None = None
+    reduced_time_range: str | None = None
 
     # Flatten the args structure from TatSu
     flat_args = _flatten_args(args)
@@ -512,6 +531,10 @@ def _extract_aggregation_info(  # noqa: PLR0912
                     filter_query = arg_value
                 elif arg_name == 'percentile':
                     percentile = int(arg_value) if arg_value else None
+                elif arg_name == 'shift':
+                    shift = arg_value
+                elif arg_name == 'reducedTimeRange':
+                    reduced_time_range = arg_value
             elif source_field is None:
                 # Try to extract field from expression wrapper
                 extracted = _extract_field_from_expr(arg)
@@ -547,6 +570,8 @@ def _extract_aggregation_info(  # noqa: PLR0912
         percentile=percentile,
         position=(start, end),
         text=text,
+        shift=shift,
+        reduced_time_range=reduced_time_range,
     )
 
 

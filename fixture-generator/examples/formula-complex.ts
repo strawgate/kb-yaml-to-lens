@@ -227,6 +227,172 @@ export async function generateFormulaComplex(): Promise<void> {
     import.meta.url
   );
 
+  // ========================================
+  // 11. derivative formula (alias for differences)
+  // ========================================
+  const derivativeMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Derivative of Sum',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'derivative(sum(bytes))'
+  };
+
+  await generateFixture(
+    'formula-derivative.json',
+    derivativeMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 12. Math function - abs
+  // ========================================
+  const absMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Absolute Value of Difference',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'abs(sum(profit) - sum(cost))'
+  };
+
+  await generateFixture(
+    'formula-math-abs.json',
+    absMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 13. Math function - round and sqrt
+  // ========================================
+  const roundSqrtMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Rounded Square Root',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'round(sqrt(sum(variance)))'
+  };
+
+  await generateFixture(
+    'formula-math-round-sqrt.json',
+    roundSqrtMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 14. Math function - clamp
+  // ========================================
+  const clampMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Clamped Value',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'clamp(average(cpu.usage), 0, 100)'
+  };
+
+  await generateFixture(
+    'formula-math-clamp.json',
+    clampMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 15. pick_max function
+  // ========================================
+  const pickMaxMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Maximum of Three',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'pick_max(sum(a), sum(b), sum(c))'
+  };
+
+  await generateFixture(
+    'formula-math-pick-max.json',
+    pickMaxMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 16. Comparison operator - ifelse
+  // ========================================
+  const ifelseMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Conditional Formula',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'ifelse(count() > 100, sum(bytes), 0)'
+  };
+
+  await generateFixture(
+    'formula-ifelse.json',
+    ifelseMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 17. Simple average formula for baseline
+  // ========================================
+  const simpleAverageMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Simple Average',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'average(bytes)'
+  };
+
+  await generateFixture(
+    'formula-simple-average.json',
+    simpleAverageMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
+  // ========================================
+  // 18. Time-shifted comparison (shift parameter)
+  // ========================================
+  // Note: shift parameter requires Kibana 8.x+ and may not work with LensConfigBuilder
+  // in older versions. Including for documentation purposes.
+  // const shiftMetric: LensMetricConfig = {
+  //   chartType: 'metric',
+  //   title: 'Year over Year Comparison',
+  //   dataset: {
+  //     index: 'metrics-*'
+  //   },
+  //   value: "sum(revenue) - sum(revenue, shift='1y')"
+  // };
+
+  // ========================================
+  // 19. overall_average fullReference
+  // ========================================
+  const overallAverageMetric: LensMetricConfig = {
+    chartType: 'metric',
+    title: 'Overall Average',
+    dataset: {
+      index: 'metrics-*'
+    },
+    value: 'overall_average(average(cpu.usage))'
+  };
+
+  await generateFixture(
+    'formula-overall-average.json',
+    overallAverageMetric,
+    { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
+    import.meta.url
+  );
+
   console.log('✓ All formula fixtures generated successfully');
 }
 
