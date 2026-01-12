@@ -36,6 +36,18 @@ Best practices for designing effective Kibana dashboards, based on analysis of 4
 - Navigation and organization patterns
 - Color and formatting standards
 
+### [ES|QL Language Reference](esql-language-reference.md)
+
+Complete ES|QL syntax reference for creating dashboards with ES|QL queries. Helps avoid common mistakes like using SQL syntax instead of ES|QL.
+
+**Key topics:**
+
+- ES|QL vs SQL differences and common mistakes
+- Source commands (FROM, ROW, SHOW, TS)
+- Processing commands (WHERE, STATS, EVAL, KEEP, etc.)
+- Aggregation and time series functions
+- Dashboard query patterns for different chart types
+
 ## LLM Resources
 
 ### llms.txt
