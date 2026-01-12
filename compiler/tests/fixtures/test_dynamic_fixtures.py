@@ -692,3 +692,317 @@ dashboards:
             },
         }
     )
+
+
+@pytest.mark.slow
+async def test_tagcloud_esql_dynamic(
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
+) -> None:
+    """Test tagcloud compilation against dynamically generated fixture."""
+    yaml_content = """
+dashboards:
+  - name: Tagcloud Test
+    panels:
+      - title: Top Log Levels
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: tagcloud
+          query: FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20
+          dimension:
+            field: log.level
+            id: metric_formula_accessor_breakdown
+          metric:
+            field: count
+            id: metric_formula_accessor
+          layer_id: layer_0
+"""
+
+    typescript_config = """
+    {
+        chartType: 'tagcloud',
+        title: 'Top Log Levels',
+        dataset: { esql: 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20' },
+        value: 'count',
+        breakdown: 'log.level',
+    }
+    """
+
+    fixture = await generate_fixture(
+        typescript_config,
+        'tagcloud-dynamic',
+        'LensTagCloudConfig',
+        {'from': 'now-24h', 'to': 'now', 'type': 'relative'},
+    )
+
+    diff = compute_diff(yaml_content, fixture)
+
+    assert diff == snapshot(
+        {
+            'dictionary_item_added': {
+                "root['state']['datasourceStates']['formBased']": {'layers': {}},
+                "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['timeField']": '@timestamp',
+            },
+            'dictionary_item_removed': {
+                'root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']': {},
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['index']": '{"index":"logs-*","timeFieldName":"@timestamp"}',
+            },
+            'iterable_item_removed': {
+                "root['references'][0]": {
+                    'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'type': 'index-pattern',
+                },
+            },
+            'values_changed': {
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][0]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor',
+                        'customLabel': False,
+                        'fieldName': 'count',
+                        'inMetricDimension': True,
+                        'label': 'count',
+                        'meta': {'esType': 'long', 'type': 'number'},
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
+                },
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][1]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor_breakdown',
+                        'customLabel': False,
+                        'fieldName': 'log.level',
+                        'label': 'log.level',
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor_breakdown', 'fieldName': 'log.level'},
+                },
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][0]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor',
+                        'customLabel': False,
+                        'fieldName': 'count',
+                        'inMetricDimension': True,
+                        'label': 'count',
+                        'meta': {'esType': 'long', 'type': 'number'},
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
+                },
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][1]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor_breakdown',
+                        'customLabel': False,
+                        'fieldName': 'log.level',
+                        'label': 'log.level',
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor_breakdown', 'fieldName': 'log.level'},
+                },
+                "root['state']['query']": {
+                    'new_value': {'esql': 'FROM logs-* | STATS count = COUNT() BY log.level | SORT count DESC | LIMIT 20'},
+                    'old_value': {'language': 'kuery', 'query': ''},
+                },
+            },
+        }
+    )
+
+
+@pytest.mark.slow
+async def test_metric_with_breakdown_esql_dynamic(
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
+) -> None:
+    """Test metric with breakdown compilation against dynamically generated fixture."""
+    yaml_content = """
+dashboards:
+  - name: Metric Breakdown Test
+    panels:
+      - title: Count by Agent
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: metric
+          query: FROM logs-* | STATS count = COUNT() BY agent.name | SORT count DESC | LIMIT 5
+          primary:
+            field: count
+            id: metric_formula_accessor
+          breakdown:
+            field: agent.name
+            id: metric_formula_accessor_breakdown
+          layer_id: layer_0
+"""
+
+    typescript_config = """
+    {
+        chartType: 'metric',
+        title: 'Count by Agent',
+        dataset: { esql: 'FROM logs-* | STATS count = COUNT() BY agent.name | SORT count DESC | LIMIT 5' },
+        value: 'count',
+        breakdown: 'agent.name',
+        label: 'Events per Agent',
+    }
+    """
+
+    fixture = await generate_fixture(
+        typescript_config,
+        'metric-breakdown-dynamic',
+        'LensMetricConfig',
+        {'from': 'now-24h', 'to': 'now', 'type': 'relative'},
+    )
+
+    diff = compute_diff(yaml_content, fixture)
+
+    assert diff == snapshot(
+        {
+            'dictionary_item_added': {
+                "root['state']['datasourceStates']['formBased']": {'layers': {}},
+                "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][0]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][0]['label']": 'agent.name',
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][1]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][1]['inMetricDimension']": True,
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][1]['label']": 'count',
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][1]['meta']['esType']": 'long',
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][0]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][0]['label']": 'agent.name',
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][1]['customLabel']": False,
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][1]['inMetricDimension']": True,
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][1]['label']": 'count',
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][1]['meta']['esType']": 'long',
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['timeField']": '@timestamp',
+            },
+            'dictionary_item_removed': {
+                'root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']': {},
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['index']": '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                "root['state']['visualization']['label']": 'Events per Agent',
+                "root['state']['visualization']['showBar']": False,
+            },
+            'iterable_item_removed': {
+                "root['references'][0]": {
+                    'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'type': 'index-pattern',
+                },
+            },
+            'values_changed': {
+                "root['state']['query']": {
+                    'new_value': {'esql': 'FROM logs-* | STATS count = COUNT() BY agent.name | SORT count DESC | LIMIT 5'},
+                    'old_value': {'language': 'kuery', 'query': ''},
+                },
+            },
+        }
+    )
+
+
+@pytest.mark.slow
+async def test_datatable_esql_dynamic(
+    require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
+) -> None:
+    """Test datatable compilation against dynamically generated fixture."""
+    yaml_content = """
+dashboards:
+  - name: Datatable Test
+    panels:
+      - title: Agent Version Stats
+        grid: {x: 0, y: 0, w: 24, h: 15}
+        esql:
+          type: datatable
+          query: FROM logs-* | STATS count = COUNT() BY agent.version | SORT count DESC | LIMIT 10
+          dimensions:
+            - field: agent.version
+              id: metric_formula_accessor_breakdown_0
+          metrics:
+            - field: count
+              id: metric_formula_accessor
+          layer_id: layer_0
+"""
+
+    typescript_config = """
+    {
+        chartType: 'table',
+        title: 'Agent Version Stats',
+        dataset: { esql: 'FROM logs-* | STATS count = COUNT() BY agent.version | SORT count DESC | LIMIT 10' },
+        breakdown: ['agent.version'],
+        value: 'count',
+    }
+    """
+
+    fixture = await generate_fixture(
+        typescript_config,
+        'datatable-dynamic',
+        'LensTableConfig',
+        {'from': 'now-24h', 'to': 'now', 'type': 'relative'},
+    )
+
+    diff = compute_diff(yaml_content, fixture)
+
+    assert diff == snapshot(
+        {
+            'dictionary_item_added': {
+                "root['state']['datasourceStates']['formBased']": {'layers': {}},
+                "root['state']['datasourceStates']['indexpattern']": {'layers': {}},
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['timeField']": '@timestamp',
+                "root['state']['visualization']['layerType']": 'data',
+            },
+            'dictionary_item_removed': {
+                'root[\'state\'][\'adHocDataViews\'][\'{"index":"logs-*","timeFieldName":"@timestamp"}\']': {},
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['index']": '{"index":"logs-*","timeFieldName":"@timestamp"}',
+            },
+            'iterable_item_removed': {
+                "root['references'][0]": {
+                    'id': '{"index":"logs-*","timeFieldName":"@timestamp"}',
+                    'name': 'indexpattern-datasource-layer-layer_0',
+                    'type': 'index-pattern',
+                },
+            },
+            'values_changed': {
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][0]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor',
+                        'customLabel': False,
+                        'fieldName': 'count',
+                        'inMetricDimension': True,
+                        'label': 'count',
+                        'meta': {'esType': 'long', 'type': 'number'},
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor_breakdown_0', 'fieldName': 'agent.version'},
+                },
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['allColumns'][1]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor_breakdown_0',
+                        'customLabel': False,
+                        'fieldName': 'agent.version',
+                        'label': 'agent.version',
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
+                },
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][0]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor',
+                        'customLabel': False,
+                        'fieldName': 'count',
+                        'inMetricDimension': True,
+                        'label': 'count',
+                        'meta': {'esType': 'long', 'type': 'number'},
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor_breakdown_0', 'fieldName': 'agent.version'},
+                },
+                "root['state']['datasourceStates']['textBased']['layers']['layer_0']['columns'][1]": {
+                    'new_value': {
+                        'columnId': 'metric_formula_accessor_breakdown_0',
+                        'customLabel': False,
+                        'fieldName': 'agent.version',
+                        'label': 'agent.version',
+                    },
+                    'old_value': {'columnId': 'metric_formula_accessor', 'fieldName': 'count'},
+                },
+                "root['state']['query']": {
+                    'new_value': {'esql': 'FROM logs-* | STATS count = COUNT() BY agent.version | SORT count DESC | LIMIT 10'},
+                    'old_value': {'language': 'kuery', 'query': ''},
+                },
+                "root['state']['visualization']['columns'][0]": {
+                    'new_value': {'columnId': 'metric_formula_accessor_breakdown_0'},
+                    'old_value': {'columnId': 'metric_formula_accessor'},
+                },
+                "root['state']['visualization']['columns'][1]": {
+                    'new_value': {'columnId': 'metric_formula_accessor'},
+                    'old_value': {'columnId': 'metric_formula_accessor_breakdown_0'},
+                },
+            },
+        }
+    )
