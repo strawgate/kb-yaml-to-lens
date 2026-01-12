@@ -39,13 +39,14 @@ Provides a comprehensive view of PostgreSQL performance using Lens visualization
 
 Similar visualizations to the Lens dashboard but using ES|QL queries for data aggregation:
 
-- Uses ES|QL `FROM metrics-*` syntax for queries
+- Uses ES|QL `FROM metrics-*` syntax for KPI and aggregation queries
+- Uses ES|QL `TS metrics-*` syntax for time-series visualizations with `RATE()` and `TBUCKET()`
 - ES|QL metric panels for KPI metrics
 - ES|QL datatable for performance summary
-- Mixed approach: Lens for time series, ES|QL for aggregations
 - ES|QL pie charts for distributions
+- 100% ES|QL-based (no Lens dependencies)
 
-**Note**: This dashboard uses `FROM metrics-*` syntax. When the `TS` (time series) command becomes available in ES|QL, queries can be optimized to use `TS metrics-*` for better time series performance.
+**Note**: This dashboard uses ES|QL's `TS` (time series) command for time-series visualizations, which provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`. KPI metrics and aggregation panels use `FROM metrics-*` syntax.
 
 ## Metrics Reference
 
@@ -135,8 +136,6 @@ The navigation panel provides quick access between dashboards:
 
 - **Overview (Lens)**: Lens-based visualizations
 - **Overview (ES|QL)**: ES|QL-based visualizations
-- **Database Details**: Detailed per-database metrics (placeholder)
-- **Performance Analysis**: In-depth performance analysis (placeholder)
 
 ## Customization
 
