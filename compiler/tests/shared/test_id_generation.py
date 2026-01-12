@@ -1,8 +1,11 @@
 """Unit tests for ID generation functions."""
 
 import uuid
+from pathlib import Path
 
-from dashboard_compiler.shared.config import random_id_generator, stable_id_generator
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import load, render
+from dashboard_compiler.shared.config import stable_id_generator
 
 
 def test_stable_id_generator_consistency() -> None:
@@ -85,25 +88,84 @@ def test_stable_id_generator_empty_list() -> None:
     _ = uuid.UUID(id1)
 
 
-def test_random_id_generator_uniqueness() -> None:
-    """Verify that random IDs are unique."""
-    # Generate 100 random IDs
-    ids = {random_id_generator() for _ in range(100)}
-    # All should be unique
-    assert len(ids) == 100
+# Find example files for deterministic compilation tests
+_project_root = Path(__file__).parent.parent.parent.parent
+_example_dir = _project_root / 'docs' / 'examples'
 
 
-def test_random_id_generator_uuid_format() -> None:
-    """Verify that random ID generator produces valid UUIDs."""
-    result = random_id_generator()
-    # This will raise ValueError if the result is not a valid UUID
-    _ = uuid.UUID(result)
+def test_deterministic_compilation_controls_example() -> None:
+    """Verify dashboard with controls compiles deterministically."""
+    example_path = _example_dir / 'controls-example.yaml'
+    dashboards = load(str(example_path))
+
+    # Compile each dashboard twice and compare
+    for dashboard in dashboards:
+        result1 = render(dashboard).model_dump(by_alias=True)
+        result2 = render(dashboard).model_dump(by_alias=True)
+
+        assert result1 == result2, 'Same dashboard should compile to identical output'
 
 
-def test_random_id_generator_different_from_stable() -> None:
-    """Verify that random and stable generators produce different results."""
-    stable_id = stable_id_generator(['test'])
-    random_id = random_id_generator()
+def test_deterministic_compilation_multi_panel_showcase() -> None:
+    """Verify complex multi-panel dashboard compiles deterministically."""
+    example_path = _example_dir / 'multi-panel-showcase.yaml'
+    dashboards = load(str(example_path))
 
-    # These should be different (extremely unlikely to be the same)
-    assert stable_id != random_id
+    for dashboard in dashboards:
+        result1 = render(dashboard).model_dump(by_alias=True)
+        result2 = render(dashboard).model_dump(by_alias=True)
+
+        assert result1 == result2, 'Same dashboard should compile to identical output'
+
+
+def test_deterministic_compilation_dimensions_example() -> None:
+    """Verify dashboard with various dimension types compiles deterministically."""
+    example_path = _example_dir / 'dimensions-example.yaml'
+    dashboards = load(str(example_path))
+
+    for dashboard in dashboards:
+        result1 = render(dashboard).model_dump(by_alias=True)
+        result2 = render(dashboard).model_dump(by_alias=True)
+
+        assert result1 == result2, 'Same dashboard should compile to identical output'
+
+
+def test_deterministic_compilation_from_dict() -> None:
+    """Verify dashboard created from dict compiles deterministically."""
+    dashboard_dict = {
+        'name': 'Test Deterministic IDs',
+        'panels': [
+            {
+                'title': 'Test Pie Chart',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 12},
+                'lens': {
+                    'type': 'pie',
+                    'data_view': 'metrics-*',
+                    'dimensions': [{'field': 'host.name', 'type': 'values', 'size': 5}],
+                    'metrics': [{'aggregation': 'count'}],
+                },
+            },
+            {
+                'title': 'Test Line Chart',
+                'grid': {'x': 24, 'y': 0, 'w': 24, 'h': 12},
+                'lens': {
+                    'type': 'line',
+                    'data_view': 'metrics-*',
+                    'dimension': {'field': '@timestamp', 'type': 'date_histogram'},
+                    'metrics': [
+                        {'aggregation': 'average', 'field': 'system.cpu.total.pct'},
+                        {'aggregation': 'max', 'field': 'system.cpu.total.pct'},
+                    ],
+                },
+            },
+        ],
+    }
+
+    # Create dashboard twice from same dict
+    dashboard1 = Dashboard(**dashboard_dict)
+    dashboard2 = Dashboard(**dashboard_dict)
+
+    result1 = render(dashboard1).model_dump(by_alias=True)
+    result2 = render(dashboard2).model_dump(by_alias=True)
+
+    assert result1 == result2, 'Dashboards from same dict should compile identically'

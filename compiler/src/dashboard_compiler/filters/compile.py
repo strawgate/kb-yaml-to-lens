@@ -14,8 +14,10 @@ from dashboard_compiler.filters.config import FilterTypes
 from dashboard_compiler.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta
 from dashboard_compiler.shared.defaults import default_false
 from dashboard_compiler.shared.filter_utils import create_filter_state
+from dashboard_compiler.shared.logging import log_compile
 
 
+@log_compile
 def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile an ExistsFilter object into its Kibana view model representation.
 
@@ -42,6 +44,7 @@ def compile_exists_filter(*, exists_filter: ExistsFilter, negate: bool = False, 
     )
 
 
+@log_compile
 def compile_custom_filter(*, custom_filter: CustomFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile a custom filter object into its Kibana view model representation.
 
@@ -64,6 +67,7 @@ def compile_custom_filter(*, custom_filter: CustomFilter, negate: bool = False, 
     )
 
 
+@log_compile
 def compile_phrase_filter(*, phrase_filter: PhraseFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile a PhraseFilter object into its Kibana view model representation.
 
@@ -91,6 +95,7 @@ def compile_phrase_filter(*, phrase_filter: PhraseFilter, negate: bool = False, 
     )
 
 
+@log_compile
 def compile_phrases_filter(*, phrases_filter: PhrasesFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile a PhrasesFilter object into its Kibana view model representation.
 
@@ -123,6 +128,7 @@ def compile_phrases_filter(*, phrases_filter: PhrasesFilter, negate: bool = Fals
     )
 
 
+@log_compile
 def compile_range_filter(*, range_filter: RangeFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile a RangeFilter object into its Kibana view model representation.
 
@@ -159,6 +165,7 @@ def compile_range_filter(*, range_filter: RangeFilter, negate: bool = False, nes
     )
 
 
+@log_compile
 def compile_and_filter(*, and_filter: AndFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile an AndFilter object into its Kibana view model representation.
 
@@ -183,6 +190,7 @@ def compile_and_filter(*, and_filter: AndFilter, negate: bool = False, nested: b
     )
 
 
+@log_compile
 def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool = False) -> KbnFilter:
     """Compile an OrFilter object into its Kibana view model representation.
 
@@ -207,6 +215,7 @@ def compile_or_filter(*, or_filter: OrFilter, negate: bool = False, nested: bool
     )
 
 
+@log_compile
 def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = False) -> KbnFilter:  # noqa: PLR0911
     """Compile a single filter object into its Kibana view model representation.
 
@@ -239,6 +248,7 @@ def compile_filter(*, filter: FilterTypes, negate: bool = False, nested: bool = 
     raise NotImplementedError(msg)
 
 
+@log_compile
 def compile_filters(*, filters: Sequence[FilterTypes]) -> list[KbnFilter]:
     """Compile the filters of a Dashboard object into its Kibana view model representation.
 

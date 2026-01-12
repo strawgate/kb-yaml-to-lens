@@ -3,7 +3,7 @@ from typing import Literal
 from pydantic import Field
 
 from dashboard_compiler.panels.charts.lens.dimensions.config import CollapseAggregationEnum
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 type ESQLColumnTypes = ESQLDimension | ESQLMetric | ESQLStaticValue
 
@@ -49,11 +49,8 @@ class ESQLCustomMetricFormat(BaseCfgModel):
     """The pattern to display the number in."""
 
 
-class BaseESQLColumn(BaseCfgModel):
+class BaseESQLColumn(BaseIdentifiableModel):
     """A base class for ESQL columns."""
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the column. If not provided, one may be generated during compilation."""
 
 
 class ESQLDimension(BaseESQLColumn):

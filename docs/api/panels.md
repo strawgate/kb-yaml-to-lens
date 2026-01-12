@@ -78,6 +78,20 @@ Create pie chart visualizations to show distribution of categorical data.
 
 For configuration details and examples, see the [Pie Chart Panel Configuration](../panels/pie.md).
 
+### Heatmap Charts
+
+Create heatmap visualizations to show patterns across two categorical dimensions.
+
+For configuration details and examples, see the [Heatmap Chart Panel Configuration](../panels/heatmap.md).
+
+::: dashboard_compiler.panels.charts.heatmap.config.LensHeatmapChart
+    options:
+      show_source: true
+
+::: dashboard_compiler.panels.charts.heatmap.config.ESQLHeatmapChart
+    options:
+      show_source: true
+
 ### XY Charts
 
 Create line, bar, and area charts for time series and other data.
