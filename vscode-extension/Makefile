@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean copy-lsp-binary clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean copy-binary clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -16,12 +16,12 @@ help:
 	@echo "  watch            - Watch mode for development"
 	@echo "  lint             - Check linting"
 	@echo "  lint-check       - Alias for lint"
-	@echo "  package          - Create .vsix package"
-	@echo "  install-vscode   - Install packaged extension into VS Code"
-	@echo "  install-cursor   - Install packaged extension into Cursor"
-	@echo "  copy-lsp-binary  - Copy LSP binary from compiler (current platform)"
-	@echo "  clean            - Clean build artifacts"
-	@echo "  clean-binaries   - Clean copied LSP binaries"
+	@echo "  package        - Create .vsix package"
+	@echo "  install-vscode - Install packaged extension into VS Code"
+	@echo "  install-cursor - Install packaged extension into Cursor"
+	@echo "  copy-binary    - Copy unified binary from compiler (current platform)"
+	@echo "  clean          - Clean build artifacts"
+	@echo "  clean-binaries - Clean copied binaries"
 
 install:
 	@echo "Installing VSCode extension dependencies..."
@@ -133,9 +133,9 @@ install-cursor:
 	fi; \
 	echo "✓ Extension installed in Cursor"
 
-copy-lsp-binary:
-	@echo "Copying LSP binary from compiler..."
-	bash scripts/copy_lsp_binary.sh
+copy-binary:
+	@echo "Copying unified binary from compiler..."
+	bash scripts/copy_binary.sh
 
 clean:
 	@echo "Cleaning build artifacts..."
@@ -143,5 +143,5 @@ clean:
 	rm -rf node_modules/
 
 clean-binaries:
-	@echo "Cleaning copied LSP binaries..."
+	@echo "Cleaning copied binaries..."
 	rm -rf bin/

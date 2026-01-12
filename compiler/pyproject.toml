@@ -23,17 +23,12 @@ dependencies = [
     "aiohttp>=3.13",
     "prison>=0.2.1",
     "elasticsearch>=8.16.2",
-]
-
-[project.optional-dependencies]
-lsp = [
     "pygls>=2.0.0",
     "lsprotocol>=2024.0.0",
 ]
 
 [project.scripts]
 kb-dashboard = "dashboard_compiler.cli:cli"
-kb-dashboard-lsp = "dashboard_compiler.lsp.server:main"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
@@ -57,8 +52,6 @@ dev = [
     "dirty-equals>=0.8.0",
     "pytest-examples>=0.0.18",
     "yamlfix>=1.17.0",
-    "pygls>=2.0.0",
-    "lsprotocol>=2024.0.0",
 ]
 build = [
     "pyinstaller>=6.0",

@@ -46,6 +46,8 @@ Every slice helps reach your goal!
 
 ## Pie Chart Legend
 
+For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../advanced/legend-configuration.md).
+
 ::: dashboard_compiler.panels.charts.pie.config.PieLegend
     options:
       show_root_heading: false

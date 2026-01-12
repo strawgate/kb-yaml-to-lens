@@ -11,7 +11,7 @@ Manual color assignments are particularly valuable when:
 - **Consistency**: Colors need to be consistent across multiple dashboards
 - **Accessibility**: You need to ensure specific high-contrast color combinations
 
-For simple color customization without semantic meaning, consider using one of the [built-in color palettes](../panels/base.md#available-color-palettes) instead.
+For simple color customization without semantic meaning, consider using one of the [built-in color palettes](../panels/base.md#color-mapping-configuration) instead.
 
 ## Basic Example: HTTP Status Code Coloring
 

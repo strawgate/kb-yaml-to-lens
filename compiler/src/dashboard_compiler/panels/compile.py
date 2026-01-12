@@ -14,12 +14,16 @@ from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.view import KbnLinksPanel
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
 from dashboard_compiler.panels.markdown.view import KbnMarkdownPanel
+from dashboard_compiler.panels.search.compile import compile_search_panel_config
+from dashboard_compiler.panels.search.view import KbnSearchPanel
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData
 from dashboard_compiler.shared.config import stable_id_generator
+from dashboard_compiler.shared.logging import log_compile
 from dashboard_compiler.shared.view import KbnReference
 
 
+@log_compile
 def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
     """Convert a KbnReference object to a panel reference.
 
@@ -43,6 +47,7 @@ def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) ->
     )
 
 
+@log_compile
 def get_panel_type_name(panel: PanelTypes) -> str:
     """Get the type name for a panel.
 
@@ -70,6 +75,7 @@ def get_panel_type_name(panel: PanelTypes) -> str:
             raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
+@log_compile
 def compute_panel_grid(panel: PanelTypes) -> Grid:
     """Compute the grid position for a panel based on its size and position.
 
@@ -90,18 +96,19 @@ def compute_panel_grid(panel: PanelTypes) -> Grid:
     return Grid(x=panel.position.x, y=panel.position.y, w=panel.size.width, h=panel.size.h)
 
 
-def compile_panel_shared(panel: PanelTypes, grid: Grid) -> tuple[str, KbnGridData]:
+@log_compile
+def compile_panel_shared(panel: PanelTypes, grid: Grid, panel_type: str) -> tuple[str, KbnGridData]:
     """Compile shared properties of a panel into its Kibana view model representation.
 
     Args:
         panel (PanelTypes): The panel object to compile.
         grid (Grid): The computed grid position for the panel.
+        panel_type (str): The type name of the panel (e.g., 'markdown', 'links').
 
     Returns:
         tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
 
     """
-    panel_type = get_panel_type_name(panel)
     panel_index = panel.id or stable_id_generator(values=[panel_type, panel.title, str(grid)])
 
     grid_data = KbnGridData(x=grid.x, y=grid.y, w=grid.w, h=grid.h, i=panel_index)
@@ -109,6 +116,7 @@ def compile_panel_shared(panel: PanelTypes, grid: Grid) -> tuple[str, KbnGridDat
     return panel_index, grid_data
 
 
+@log_compile
 def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnReference], KbnBasePanel]:
     """Compile a single panel into its Kibana view model representation.
 
@@ -120,7 +128,8 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
         tuple: A tuple containing the compiled references and the Kibana panel view model.
 
     """
-    panel_index, grid_data = compile_panel_shared(panel, grid)
+    panel_type = get_panel_type_name(panel)
+    panel_index, grid_data = compile_panel_shared(panel, grid, panel_type)
 
     match panel:
         case MarkdownPanel():
@@ -133,8 +142,8 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
             references, embeddable_config = compile_image_panel_config(panel)
             return references, KbnImagePanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case SearchPanel():
-            msg = f'Panel type {type(panel).__name__} is not yet supported in the dashboard compilation.'
-            raise NotImplementedError(msg)
+            references, embeddable_config = compile_search_panel_config(panel)
+            return references, KbnSearchPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case LensPanel() | ESQLPanel():
             references, kbn_panel = compile_charts_panel_config(panel)
             return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)
@@ -144,6 +153,7 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
             raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
+@log_compile
 def compute_panel_positions(
     panels: Sequence[PanelTypes],
     algorithm: LayoutAlgorithm = 'up-left',
@@ -181,6 +191,7 @@ def compute_panel_positions(
     return position_map
 
 
+@log_compile
 def validate_no_overlapping_grids(grids: list[tuple[str, Grid]]) -> None:
     """Validate that no panels overlap on the grid.
 
@@ -203,6 +214,7 @@ def validate_no_overlapping_grids(grids: list[tuple[str, Grid]]) -> None:
                 raise ValueError(msg)
 
 
+@log_compile
 def compile_dashboard_panels(
     panels: Sequence[PanelTypes],
     layout_algorithm: LayoutAlgorithm = 'up-left',

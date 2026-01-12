@@ -62,7 +62,7 @@ export class BinaryResolver {
      * Get the platform-specific binary name.
      */
     private getBinaryName(): string {
-        return process.platform === 'win32' ? 'kb-dashboard-compiler-lsp.exe' : 'kb-dashboard-compiler-lsp';
+        return process.platform === 'win32' ? 'kb-dashboard.exe' : 'kb-dashboard';
     }
 
     /**
@@ -154,7 +154,7 @@ export class BinaryResolver {
      * Resolve LSP server configuration.
      *
      * Resolution order:
-     * 1. Bundled binary in bin/{platform}-{arch}/kb-dashboard-compiler-lsp
+     * 1. Bundled binary in bin/{platform}-{arch}/kb-dashboard
      * 2. Python script (development fallback)
      */
     resolveLSPServer(outputChannel?: vscode.OutputChannel): BinaryResolverResult {
@@ -165,7 +165,7 @@ export class BinaryResolver {
             outputChannel?.appendLine(`Using bundled LSP binary: ${binaryPath}`);
             return {
                 executable: binaryPath,
-                args: [],
+                args: ['lsp'],
                 cwd: this.extensionPath,
                 isBundled: true
             };

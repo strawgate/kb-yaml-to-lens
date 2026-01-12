@@ -1,6 +1,7 @@
 """Command-line interface for the dashboard compiler."""
 
 import asyncio
+import io
 import logging
 import os
 import sys
@@ -26,9 +27,11 @@ from dashboard_compiler.cli_options import (
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
+from dashboard_compiler.lsp.server import start_server as start_lsp_server
 from dashboard_compiler.sample_data.loader import load_sample_data
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
+from dashboard_compiler.utils import extract_dashboard_id_from_url
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 # This prevents ANSI escape sequences from appearing in mkdocs-click generated docs
@@ -39,10 +42,6 @@ if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
-
-logger = logging.getLogger(__name__)
-
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 console = Console()
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -102,7 +101,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
     if overwrite is True and output_path.exists():
         output_path.unlink()
 
-    with output_path.open('w') as f:
+    with output_path.open('w', encoding='utf-8') as f:
         for line in lines:
             _ = f.write(line + '\n')
 
@@ -162,8 +161,14 @@ def get_yaml_files(directory: Path) -> list[Path]:
 
 @click.group()
 @click.version_option(version='0.1.0')
+@click.option(
+    '--loglevel',
+    type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False),
+    default='WARNING',
+    help='Set logging verbosity level for compilation output.',
+)
 @click.pass_context
-def cli(ctx: click.Context) -> None:
+def cli(ctx: click.Context, loglevel: str) -> None:
     r"""Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format.
 
     This tool helps you manage Kibana dashboards as code by compiling YAML
@@ -187,6 +192,12 @@ def cli(ctx: click.Context) -> None:
     Use environment variables (KIBANA_URL, KIBANA_USERNAME, KIBANA_PASSWORD,
     KIBANA_API_KEY) to avoid passing credentials on the command line.
     """
+    # Configure logging based on CLI option
+    log_level: int = getattr(logging, loglevel.upper())  # pyright: ignore[reportAny]
+    logging.basicConfig(level=log_level, format='%(message)s')
+    # Also set level for our specific logger
+    logging.getLogger('dashboard_compiler').setLevel(log_level)
+
     _ = ctx.ensure_object(CliContext)
 
 
@@ -225,7 +236,7 @@ def cli(ctx: click.Context) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-def compile_dashboards(  # noqa: PLR0913, PLR0912
+def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
     output_dir: Path,
@@ -278,6 +289,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
 
     ndjson_lines: list[str] = []
     errors: list[str] = []
+    files_to_write: dict[Path, list[str]] = {}
 
     with Progress(
         SpinnerColumn(),
@@ -297,12 +309,17 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
             if len(compiled_jsons) > 0:
                 filename = yaml_file.parent.stem
                 individual_file = output_dir / f'{filename}.ndjson'
-                write_ndjson(individual_file, compiled_jsons, overwrite=True)
+                if individual_file not in files_to_write:
+                    files_to_write[individual_file] = []
+                files_to_write[individual_file].extend(compiled_jsons)
                 ndjson_lines.extend(compiled_jsons)
             elif error is not None:
                 errors.append(error)
 
             progress.advance(task)
+
+    for individual_file, jsons in files_to_write.items():
+        write_ndjson(individual_file, jsons, overwrite=True)
 
     if len(ndjson_lines) > 0:
         console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
@@ -350,32 +367,36 @@ async def upload_to_kibana(
         click.ClickException: If upload fails.
 
     """
-    try:
-        result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
+    async with client:
+        try:
+            result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
 
-        if result.success is True:
-            console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
+            if result.success is True:
+                console.print(f'[green]{ICON_SUCCESS}[/green] Successfully uploaded {result.success_count} object(s) to Kibana')
 
-            dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
+                dashboard_ids = [obj.destination_id or obj.id for obj in result.success_results if obj.type == 'dashboard']
 
-            if len(dashboard_ids) > 0 and open_browser is True:
-                dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
-                _ = webbrowser.open_new_tab(dashboard_url)
+                if len(dashboard_ids) > 0 and open_browser is True:
+                    dashboard_url = client.get_dashboard_url(dashboard_ids[0])
+                    console.print(f'[blue]{ICON_BROWSER}[/blue] Opening dashboard: {dashboard_url}')
+                    _ = webbrowser.open_new_tab(dashboard_url)
 
-            if len(result.errors) > 0:
-                console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result.errors)} error(s):')
-                console.print(create_error_table(result.errors))
-        else:
-            console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
-            if len(result.errors) > 0:
-                console.print(create_error_table(result.errors))
-            msg = 'Upload to Kibana failed'
-            raise click.ClickException(msg)
+                if len(result.errors) > 0:
+                    console.print(f'\n[yellow]{ICON_WARNING}[/yellow] Encountered {len(result.errors)} error(s):')
+                    console.print(create_error_table(result.errors))
+            else:
+                console.print(f'[red]{ICON_ERROR}[/red] Upload failed', style='red')
+                if len(result.errors) > 0:
+                    console.print(create_error_table(result.errors))
+                msg = 'Upload to Kibana failed'
+                raise click.ClickException(msg)
 
-    except (OSError, ValueError) as e:
-        msg = f'Error uploading to Kibana: {e}'
-        raise click.ClickException(msg) from e
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except (OSError, ValueError) as e:
+            msg = f'Error uploading to Kibana: {e}'
+            raise click.ClickException(msg) from e
 
 
 @cli.command('load-sample-data')
@@ -660,47 +681,48 @@ async def generate_screenshot(  # noqa: PLR0913
         click.ClickException: If screenshot generation fails.
 
     """
-    try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn('[progress.description]{task.description}'),
-            console=console,
-        ) as progress:
-            task = progress.add_task(f'Generating screenshot for dashboard: {dashboard_id}...', total=None)
-
-            await client.download_screenshot(
-                dashboard_id=dashboard_id,
-                output_path=output_path,
-                time_from=time_from,
-                time_to=time_to,
-                width=width,
-                height=height,
-                browser_timezone=browser_timezone,
-                timeout_seconds=timeout_seconds,
-            )
-
-            progress.update(task, description='Screenshot generated successfully')
-
+    async with client:
         try:
-            display_path = output_path.relative_to(PROJECT_ROOT)
-        except ValueError:
-            display_path = output_path
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[progress.description]{task.description}'),
+                console=console,
+            ) as progress:
+                task = progress.add_task(f'Generating screenshot for dashboard: {dashboard_id}...', total=None)
 
-        console.print(f'[green]{ICON_SUCCESS}[/green] Screenshot saved to: {display_path}')
-        console.print(f'  Dashboard: {dashboard_id}')
-        console.print(f'  Size: {width}x{height}')
-        if time_from is not None or time_to is not None:
-            console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
+                await client.download_screenshot(
+                    dashboard_id=dashboard_id,
+                    output_path=output_path,
+                    time_from=time_from,
+                    time_to=time_to,
+                    width=width,
+                    height=height,
+                    browser_timezone=browser_timezone,
+                    timeout_seconds=timeout_seconds,
+                )
 
-    except aiohttp.ClientError as e:
-        msg = f'Error communicating with Kibana: {e}'
-        raise click.ClickException(msg) from e
-    except TimeoutError as e:
-        msg = f'Screenshot generation timed out: {e}'
-        raise click.ClickException(msg) from e
-    except (OSError, ValueError) as e:
-        msg = f'Error generating screenshot: {e}'
-        raise click.ClickException(msg) from e
+                progress.update(task, description='Screenshot generated successfully')
+
+            try:
+                display_path = output_path.relative_to(PROJECT_ROOT)
+            except ValueError:
+                display_path = output_path
+
+            console.print(f'[green]{ICON_SUCCESS}[/green] Screenshot saved to: {display_path}')
+            console.print(f'  Dashboard: {dashboard_id}')
+            console.print(f'  Size: {width}x{height}')
+            if time_from is not None or time_to is not None:
+                console.print(f'  Time range: {time_from or "now-15m"} to {time_to or "now"}')
+
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except TimeoutError as e:
+            msg = f'Screenshot generation timed out: {e}'
+            raise click.ClickException(msg) from e
+        except (OSError, ValueError) as e:
+            msg = f'Error generating screenshot: {e}'
+            raise click.ClickException(msg) from e
 
 
 async def extract_data(
@@ -872,21 +894,22 @@ async def _export_dashboard_for_issue(
         click.ClickException: If export fails
 
     """
-    try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn('[progress.description]{task.description}'),
-            console=console,
-        ) as progress:
-            task = progress.add_task(f'Exporting dashboard: {dashboard_id}...', total=None)
+    async with client:
+        try:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[progress.description]{task.description}'),
+                console=console,
+            ) as progress:
+                task = progress.add_task(f'Exporting dashboard: {dashboard_id}...', total=None)
 
-            ndjson_data = await client.export_dashboard(dashboard_id)
+                ndjson_data = await client.export_dashboard(dashboard_id)
 
-            progress.update(task, description='Dashboard exported successfully')
+                progress.update(task, description='Dashboard exported successfully')
 
-        repo_url = 'https://github.com/strawgate/kb-yaml-to-lens'
-        issue_title = f'Dashboard support request: {dashboard_id}'
-        issue_body = f"""## Dashboard Export Request
+            repo_url = 'https://github.com/strawgate/kb-yaml-to-lens'
+            issue_title = f'Dashboard support request: {dashboard_id}'
+            issue_body = f"""## Dashboard Export Request
 
 I'd like to compile this dashboard using kb-yaml-to-lens.
 
@@ -903,35 +926,157 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
 
 """
 
-        encoded_title = urllib.parse.quote(issue_title)
-        encoded_body = urllib.parse.quote(issue_body)
+            encoded_title = urllib.parse.quote(issue_title)
+            encoded_body = urllib.parse.quote(issue_body)
 
-        issue_url = f'{repo_url}/issues/new?title={encoded_title}&body={encoded_body}'
+            issue_url = f'{repo_url}/issues/new?title={encoded_title}&body={encoded_body}'
 
-        if len(issue_url) > MAX_GITHUB_ISSUE_URL_LENGTH:
-            msg = (
-                f'[yellow]{ICON_WARNING}[/yellow] URL is very long ({len(issue_url)} chars). '
-                'Some browsers may truncate it. Consider copying the NDJSON manually.'
-            )
-            console.print(msg)
+            if len(issue_url) > MAX_GITHUB_ISSUE_URL_LENGTH:
+                msg = (
+                    f'[yellow]{ICON_WARNING}[/yellow] URL is very long ({len(issue_url)} chars). '
+                    'Some browsers may truncate it. Consider copying the NDJSON manually.'
+                )
+                console.print(msg)
 
-        console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard exported successfully')
-        console.print(f'  Dashboard ID: {dashboard_id}')
-        console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
-        console.print()
-        console.print('[blue]GitHub Issue URL:[/blue]')
-        console.print(f'  {issue_url}')
+            console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard exported successfully')
+            console.print(f'  Dashboard ID: {dashboard_id}')
+            console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
+            console.print()
+            console.print('[blue]GitHub Issue URL:[/blue]')
+            console.print(f'  {issue_url}')
 
-        if open_browser is True:
-            console.print(f'\n[blue]{ICON_BROWSER}[/blue] Opening pre-filled issue in browser...')
-            _ = webbrowser.open_new_tab(issue_url)
+            if open_browser is True:
+                console.print(f'\n[blue]{ICON_BROWSER}[/blue] Opening pre-filled issue in browser...')
+                _ = webbrowser.open_new_tab(issue_url)
 
-    except aiohttp.ClientError as e:
-        msg = f'Error communicating with Kibana: {e}'
-        raise click.ClickException(msg) from e
-    except (OSError, ValueError) as e:
-        msg = f'Error exporting dashboard: {e}'
-        raise click.ClickException(msg) from e
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except (OSError, ValueError) as e:
+            msg = f'Error exporting dashboard: {e}'
+            raise click.ClickException(msg) from e
+
+
+@cli.command('fetch')
+@click.argument('url_or_id', type=str, required=True)
+@click.option(
+    '-o',
+    '--output',
+    type=click.Path(path_type=Path),
+    required=True,
+    help='Output file path for the dashboard NDJSON.',
+)
+@kibana_options
+def fetch(
+    ctx: click.Context,
+    url_or_id: str,
+    output: Path,
+) -> None:
+    r"""Fetch a dashboard from Kibana and save it to a file.
+
+    This command retrieves a dashboard's NDJSON from Kibana using a dashboard URL or ID.
+    The dashboard and all its dependent objects (panels, data views) are exported and saved
+    to the specified output file.
+
+    URL_OR_ID can be:
+    - A Kibana dashboard URL (e.g., https://kibana.example.com/app/dashboards#/view/my-id)
+    - A plain dashboard ID (e.g., my-dashboard-id)
+
+    \b
+    Examples:
+        # Fetch using dashboard URL
+        kb-dashboard fetch "https://kibana.example.com/app/dashboards#/view/my-id" \
+            --output dashboard.ndjson
+
+        # Fetch using plain dashboard ID
+        kb-dashboard fetch my-dashboard-id --output dashboard.ndjson
+
+        # Fetch with API key authentication
+        kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+            --kibana-api-key "your-api-key"
+
+        # Fetch from specific space
+        kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
+            --kibana-space-id "my-space"
+    """
+    # Context is already populated by @kibana_options decorator
+    if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
+        msg = 'Context object must be CliContext'
+        raise TypeError(msg)
+    cli_context = ctx.obj
+
+    if cli_context.kibana_client is None:
+        msg = 'Kibana client not configured'
+        raise click.ClickException(msg)
+
+    asyncio.run(_fetch_dashboard(cli_context.kibana_client, url_or_id=url_or_id, output=output))
+
+
+async def _fetch_dashboard(
+    client: KibanaClient,
+    url_or_id: str,
+    output: Path,
+) -> None:
+    """Fetch dashboard from Kibana and save to file.
+
+    This function attempts to resolve the dashboard in the following order:
+    1. If input is a dashboard URL, extract ID from URL
+    2. Otherwise, treat input as a plain dashboard ID
+
+    Args:
+        client: Pre-configured Kibana client
+        url_or_id: Dashboard URL or ID to fetch
+        output: Path to save the NDJSON file
+
+    Raises:
+        click.ClickException: If fetch fails
+
+    """
+    async with client:
+        try:
+            # Try to extract dashboard ID from URL
+            # If extraction returns something different, it was a URL
+            extracted_id = extract_dashboard_id_from_url(url_or_id)
+            if extracted_id != url_or_id:
+                dashboard_id = extracted_id
+                lookup_method = 'URL'
+            else:
+                # Treat as a plain dashboard ID
+                dashboard_id = url_or_id
+                lookup_method = 'ID'
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[progress.description]{task.description}'),
+                console=console,
+            ) as progress:
+                task = progress.add_task(f'Fetching dashboard: {dashboard_id}...', total=None)
+
+                ndjson_data = await client.export_dashboard(dashboard_id)
+
+                progress.update(task, description='Dashboard fetched successfully')
+
+            # Write NDJSON to output file atomically
+            output.parent.mkdir(parents=True, exist_ok=True)
+            tmp_output = output.with_suffix(output.suffix + '.tmp')
+            _ = tmp_output.write_text(ndjson_data, encoding='utf-8')
+            _ = tmp_output.replace(output)
+
+            console.print(f'[green]{ICON_SUCCESS}[/green] Dashboard fetched successfully')
+            console.print(f'  Dashboard ID: {dashboard_id}')
+            console.print(f'  Lookup method: {lookup_method}')
+            console.print(f'  Exported objects: {len(ndjson_data.splitlines())} object(s)')
+            console.print(f'  Saved to: {output}')
+
+        except ValueError as e:
+            msg = f'Invalid dashboard URL or ID: {e}'
+            raise click.ClickException(msg) from e
+        except aiohttp.ClientError as e:
+            msg = f'Error communicating with Kibana: {e}'
+            raise click.ClickException(msg) from e
+        except OSError as e:
+            msg = f'Error writing to file: {e}'
+            raise click.ClickException(msg) from e
 
 
 @cli.command('disassemble')
@@ -972,9 +1117,13 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     """
     try:
         if input_file is None:
-            import sys
-
-            content = sys.stdin.read()
+            # Use TextIOWrapper to ensure UTF-8 encoding when reading from stdin
+            # This avoids issues on Windows where the default encoding might not be UTF-8
+            content = (
+                io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
+                if hasattr(sys.stdin, 'buffer')
+                else sys.stdin.read()  # Fallback for environments where stdin.buffer is not available
+            )
         else:
             content = input_file.read_text(encoding='utf-8')
 
@@ -1003,6 +1152,21 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     except (ValueError, OSError) as e:
         msg = f'Error disassembling dashboard: {e}'
         raise click.ClickException(msg) from e
+
+
+@cli.command()
+def lsp() -> None:
+    """Start the Language Server Protocol (LSP) server for IDE integration.
+
+    The LSP server provides real-time compilation, validation, and code
+    completion for YAML dashboard files in supported IDEs like VS Code.
+
+    This server communicates via stdin/stdout using the Language Server
+    Protocol specification.
+    """
+    # Force logging to stderr to prevent stdout contamination of JSON-RPC protocol
+    logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr, force=True)
+    start_lsp_server()
 
 
 if __name__ == '__main__':

@@ -151,6 +151,10 @@ export class DashboardCompilerLSP {
             throw new Error(result.error || 'Compilation failed');
         }
 
+        if (result.data === undefined) {
+            throw new Error('Compilation returned no data');
+        }
+
         return result.data as CompiledDashboard;
     }
 
@@ -174,7 +178,11 @@ export class DashboardCompilerLSP {
             throw new Error(result.error || 'Failed to get dashboards');
         }
 
-        return result.data || [];
+        if (result.data === undefined) {
+            throw new Error('getDashboards returned no data');
+        }
+
+        return result.data;
     }
 
     /**
@@ -199,7 +207,11 @@ export class DashboardCompilerLSP {
             throw new Error(result.error || 'Failed to get grid layout');
         }
 
-        return result.data || { title: '', description: '', panels: [] };
+        if (result.data === undefined) {
+            throw new Error('getGridLayout returned no data');
+        }
+
+        return result.data;
     }
 
     /**
