@@ -121,6 +121,7 @@ ignore = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
+    "E501", # Allow long lines in test files (snapshot strings)
 ]
 "vscode-extension/python/**/*.py" = [
     "PT009", # Allow unittest-style assertions in test files

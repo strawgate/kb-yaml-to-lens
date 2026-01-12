@@ -7,7 +7,6 @@ directly from pytest using Docker and the aiodocker library.
 from __future__ import annotations
 
 import base64
-import contextlib
 import json
 import re
 import shutil
@@ -105,6 +104,22 @@ await generateFixture(
 """
 
 
+async def _ensure_image_available(docker: aiodocker.Docker, base_image: str, auto_pull: bool) -> None:
+    """Ensure the Docker image is available, pulling if necessary."""
+    try:
+        await docker.images.inspect(base_image)
+    except aiodocker.DockerError as inspect_err:
+        if auto_pull:
+            try:
+                await docker.images.pull(base_image)
+            except aiodocker.DockerError as e:
+                msg = f'Failed to pull fixture image: {base_image}'
+                raise RuntimeError(msg) from e
+        else:
+            msg = f'Fixture image not available: {base_image}'
+            raise RuntimeError(msg) from inspect_err
+
+
 async def _run_fixture_container(
     docker: aiodocker.Docker,
     base_image: str,
@@ -128,7 +143,6 @@ async def _run_fixture_container(
                 f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/generator-utils.ts:ro',
                 f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/dataviews-mock.js:ro',
             ],
-            'AutoRemove': True,
         },
     }
 
@@ -143,8 +157,7 @@ async def _run_fixture_container(
             msg = f'Fixture generation failed: {log_output}'
             raise RuntimeError(msg)
     finally:
-        with contextlib.suppress(aiodocker.DockerError):
-            await container.delete(force=True)
+        await container.delete(force=True)
 
 
 async def generate_fixture(  # noqa: PLR0913
@@ -183,21 +196,8 @@ async def generate_fixture(  # noqa: PLR0913
         raise RuntimeError(msg) from e
 
     try:
-        # Ensure image is available
-        try:
-            await docker.images.inspect(base_image)
-        except aiodocker.DockerError as inspect_err:
-            if auto_pull:
-                try:
-                    await docker.images.pull(base_image)
-                except aiodocker.DockerError as e:
-                    msg = f'Failed to pull fixture image: {base_image}'
-                    raise RuntimeError(msg) from e
-            else:
-                msg = f'Fixture image not available: {base_image}'
-                raise RuntimeError(msg) from inspect_err
+        await _ensure_image_available(docker, base_image, auto_pull)
 
-        # Create output directory and run container
         output_dir = Path(tempfile.mkdtemp(prefix='fixture_gen_output_'))
         try:
             script_content = _generate_script(typescript_config, output_name, type_name, time_range)
