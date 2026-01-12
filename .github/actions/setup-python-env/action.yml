@@ -16,7 +16,7 @@ runs:
       uses: astral-sh/setup-uv@v7
     - name: Install dependencies
       shell: bash
-      run: uv sync --group dev --extra lsp
+      run: uv sync --group dev
       working-directory: compiler
     - name: Install markdownlint-cli
       shell: bash
