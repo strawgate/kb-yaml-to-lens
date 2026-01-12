@@ -1016,7 +1016,7 @@ dashboards:
       - title: Response Codes Distribution (Donut)
         grid: {x: 0, y: 0, w: 24, h: 15}
         esql:
-          type: donut
+          type: pie
           query: FROM logs-* | STATS count = COUNT() BY response.keyword
           metrics:
             - field: count
@@ -1024,6 +1024,8 @@ dashboards:
           dimensions:
             - field: response.keyword
               id: metric_formula_accessor_breakdown_0
+          appearance:
+            donut: medium
 """
 
     typescript_config = """
@@ -1353,10 +1355,10 @@ dashboards:
 async def test_gauge_semi_circle_esql_dynamic(
     require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
-    """Test gauge with semi-circle shape against dynamically generated fixture."""
+    """Test gauge with arc shape against dynamically generated fixture."""
     yaml_content = """
 dashboards:
-  - name: Gauge Semi-Circle Test
+  - name: Gauge Arc Test
     panels:
       - title: Memory Usage Gauge
         grid: {x: 0, y: 0, w: 24, h: 15}
@@ -1370,7 +1372,7 @@ dashboards:
           maximum: 1
           goal: 0.7
           appearance:
-            shape: semi_circle
+            shape: arc
 """
 
     typescript_config = """
@@ -1382,7 +1384,7 @@ dashboards:
         queryMinValue: '0',
         queryMaxValue: '1',
         queryGoalValue: '0.7',
-        shape: 'semiCircle',
+        shape: 'arc',
     }
     """
 
@@ -1468,7 +1470,7 @@ dashboards:
           maximum: 1000000
           goal: 500000
           appearance:
-            shape: horizontal_bullet
+            shape: horizontalBullet
 """
 
     typescript_config = """
@@ -1517,7 +1519,7 @@ dashboards:
           maximum: 5000
           goal: 1000
           appearance:
-            shape: vertical_bullet
+            shape: verticalBullet
 """
 
     typescript_config = """
