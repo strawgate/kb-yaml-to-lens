@@ -1,0 +1,253 @@
+---
+dashboards:
+  - id: heatmap-examples-001
+    name: '[Example] Heatmap Charts'
+    description: Comprehensive examples of heatmap chart configurations
+    panels:
+      - title: Heatmap Examples Overview
+        grid:
+          x: 0
+          y: 0
+          w: 48
+          h: 6
+        markdown:
+          content: "# Heatmap Chart Examples\nThis dashboard demonstrates various heatmap configurations:\n- **Basic 2D heatmap** - Time series\
+            \ cross-referenced with categories\n- **1D heatmap** - Single dimension intensity visualization\n- **Custom grid and legend** - Appearance\
+            \ customization\n- **ES|QL heatmap** - Using ES|QL queries for data\n\nHeatmaps are perfect for:\n- Visualizing server load patterns\
+            \ by time and host\n- Analyzing user activity by hour and day of week\n- Identifying patterns in multi-dimensional data\n"
+          font_size: 12
+
+      # Basic 2D Heatmap
+      - title: Request Activity by Hour and Service
+        description: Basic 2D heatmap showing request patterns
+        grid:
+          x: 0
+          y: 6
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          y_axis:
+            field: service.name
+            type: values
+            label: Service
+            size: 10
+            sort:
+              by: Request Count
+              direction: desc
+          value:
+            aggregation: count
+            label: Request Count
+
+      # 1D Heatmap
+      - title: Traffic Intensity Timeline
+        description: One-dimensional heatmap showing traffic over time
+        grid:
+          x: 24
+          y: 6
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          value:
+            aggregation: count
+            label: Events
+          legend:
+            visible: show
+            position: bottom
+
+      # Heatmap with Custom Grid Configuration
+      - title: Response Time Heatmap (Custom Grid)
+        description: Heatmap with custom cell labels and axis configuration
+        grid:
+          x: 0
+          y: 21
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: 1h
+            label: Hour
+          y_axis:
+            field: host.name
+            type: values
+            label: Server
+            size: 8
+          value:
+            aggregation: average
+            field: response.time
+            label: Avg Response (ms)
+            format:
+              type: duration
+          grid_config:
+            cells:
+              show_labels: true
+            x_axis:
+              show_labels: true
+              show_title: true
+            y_axis:
+              show_labels: true
+              show_title: true
+          legend:
+            visible: show
+            position: right
+
+      # Error Rate Heatmap
+      - title: Error Rate by Service and Hour
+        description: Using formula metric to calculate error rates
+        grid:
+          x: 24
+          y: 21
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          y_axis:
+            field: service.name
+            type: values
+            label: Service
+            size: 10
+          value:
+            formula: count(kql='log.level:error') / count()
+            label: Error Rate (%)
+            format:
+              type: percent
+
+      # ES|QL Heatmap
+      - title: User Activity Heatmap (ES|QL)
+        description: Heatmap using ES|QL query
+        grid:
+          x: 0
+          y: 36
+          w: 24
+          h: 15
+        esql:
+          type: heatmap
+          query: |
+            FROM logs-*
+            | STATS user_count = COUNT_DISTINCT(user.id) BY hour = DATE_TRUNC(1 hour, @timestamp), region = user.geo.region
+            | SORT hour ASC, region ASC
+          x_axis:
+            field: hour
+          y_axis:
+            field: region
+          value:
+            field: user_count
+            label: Unique Users
+
+      # Status Code Distribution Heatmap
+      - title: HTTP Status Codes by Endpoint
+        description: Visualizing status code distribution across endpoints
+        grid:
+          x: 24
+          y: 36
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: http.request.path
+            type: values
+            label: Endpoint
+            size: 15
+            sort:
+              by: Request Count
+              direction: desc
+          y_axis:
+            field: http.response.status_code
+            type: values
+            label: Status Code
+            size: 10
+          value:
+            aggregation: count
+            label: Request Count
+          filters:
+            - exists: http.request.path
+            - exists: http.response.status_code
+
+      # Percentile Heatmap
+      - title: 95th Percentile Response Time
+        description: Using percentile aggregation in heatmap
+        grid:
+          x: 0
+          y: 51
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          y_axis:
+            field: service.name
+            type: values
+            label: Service
+            size: 8
+          value:
+            aggregation: percentile
+            field: response.time
+            percentile: 95
+            label: P95 Response (ms)
+            format:
+              type: duration
+          grid_config:
+            cells:
+              show_labels: false
+            x_axis:
+              show_labels: true
+              show_title: true
+            y_axis:
+              show_labels: true
+              show_title: true
+
+      # Memory Usage Heatmap
+      - title: Memory Usage by Host and Time
+        description: Heatmap showing memory usage patterns
+        grid:
+          x: 24
+          y: 51
+          w: 24
+          h: 15
+        lens:
+          type: heatmap
+          data_view: metrics-*
+          x_axis:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          y_axis:
+            field: host.name
+            type: values
+            label: Host
+            size: 10
+          value:
+            aggregation: max
+            field: system.memory.used.pct
+            label: Max Memory %
+            format:
+              type: percent
+          legend:
+            visible: show
+            position: right

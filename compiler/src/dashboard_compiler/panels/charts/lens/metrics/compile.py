@@ -29,7 +29,6 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensSumAggregatedMetric,
 )
 from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_true
 
 FORMAT_TO_DEFAULT_DECIMALS = {
@@ -111,7 +110,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     """
     # Handle static values
     if isinstance(metric, LensStaticValue):
-        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
+        metric_id = metric.get_id()
         label = metric.label if metric.label is not None else str(metric.value)
         custom_label = metric.label is not None
 
@@ -128,7 +127,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
     metric_format = compile_lens_metric_format(metric.format) if metric.format is not None else None
 
     if isinstance(metric, LensFormulaMetric):
-        metric_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])
+        metric_id = metric.get_id()
 
         return metric_id, KbnLensFormulaColumn(
             label=metric.label or 'Formula',
@@ -146,7 +145,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> tuple[str, KbnLensMetricColu
 
     metric_column_params: KbnLensMetricColumnParams
     metric_filter: KbnQuery | None = None
-    metric_id = metric.id or stable_id_generator([metric.aggregation, metric.field])
+    metric_id = metric.get_id()
 
     # Generate Kibana-style default labels that match the native Lens editor UX.
     # Strategy varies by aggregation type to provide user-friendly descriptions:

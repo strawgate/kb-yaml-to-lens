@@ -12,6 +12,7 @@ class TestCreateFilterState:
         result = create_filter_state(nested=False)
         assert result is not None
         assert isinstance(result, KbnFilterState)
+        assert result.store == 'appState'
 
     def test_returns_none_when_nested(self) -> None:
         """Test that None is returned when nested is True."""

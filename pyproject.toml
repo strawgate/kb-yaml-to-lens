@@ -16,6 +16,7 @@ classifiers = [
 
 dependencies = [
     "kb-dashboard-compiler",
+    "click>=8.0",
 ]
 
 [tool.uv.sources]
@@ -29,4 +30,5 @@ docs = [
     "pymdown-extensions>=10.0",
     "griffe-pydantic>=1.1.8",
     "griffe-fieldz>=0.4.0",
+    "mkdocs-click>=0.8.0",
 ]
