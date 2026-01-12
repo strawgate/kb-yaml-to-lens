@@ -375,7 +375,7 @@ Time bucketing function:
 
 ### Metric Panel Queries
 
-Single value metrics:
+Single-value metrics:
 
 ```esql
 # Total count
@@ -475,13 +475,15 @@ FROM logs-*
 
 6. **Forgetting SORT for time series**: Add `SORT time_bucket ASC` for charts.
 
-7. **Using BUCKET without STATS**: `BUCKET()` is used within STATS...BY.
+7. **Using BUCKET as standalone command**: `BUCKET()` must be used within STATS...BY or EVAL, not as a separate command.
 
 8. **Case sensitivity**: Field names are case-sensitive.
 
 9. **Missing time filter**: Add `WHERE @timestamp >= NOW() - 1 day` for performance.
 
 10. **Assuming default order**: Always explicit SORT for predictable results.
+
+11. **Using window functions**: ES|QL has no `ROW_NUMBER() OVER (PARTITION BY ...)`. Use `VALUES()` + `MV_SORT()` + `MV_FIRST()`/`MV_LAST()` for latest-per-group patterns.
 
 ---
 
