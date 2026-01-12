@@ -56,8 +56,6 @@ def compute_diff(
 #
 # These tests generate fixtures on-the-fly using Docker and the real
 # LensConfigBuilder API. They require Docker to run.
-#
-# Note: We use layer_0 IDs to match what Kibana's LensConfigBuilder generates.
 # =============================================================================
 
 
@@ -1071,8 +1069,6 @@ dashboards:
           dimensions:
             - field: request.method
               id: metric_formula_accessor_breakdown_0
-          legend:
-            position: bottom
 """
 
     typescript_config = """
@@ -1082,7 +1078,7 @@ dashboards:
         dataset: { esql: 'FROM logs-* | STATS count = COUNT() BY request.method' },
         value: 'count',
         breakdown: ['request.method'],
-        legend: { show: true, position: 'bottom' },
+        legend: { show: true },
     }
     """
 
