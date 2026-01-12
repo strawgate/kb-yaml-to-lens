@@ -70,18 +70,26 @@ Extension tests are run in CI when changes are made to the `vscode-extension/` d
 Follow the existing pattern in `test_grid_extractor.py`:
 
 ```python
+import shutil
+import tempfile
 import unittest
 from pathlib import Path
 
 class TestMyFeature(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures"""
-        pass
+        self.temp_dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        """Clean up test fixtures"""
+        shutil.rmtree(self.temp_dir)
 
     def test_something(self):
         """Test description"""
         # Test implementation
-        self.assertEqual(actual, expected)
+        example_file = self.temp_dir / "example.txt"
+        example_file.write_text("hello")
+        self.assertEqual(example_file.read_text(), "hello")
 ```
 
 ## Test Coverage

@@ -36,10 +36,11 @@ from dashboard_compiler.controls.view import (
     SearchTechnique,
 )
 from dashboard_compiler.shared.compile import return_if, return_if_equals
-from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false, default_if_none
+from dashboard_compiler.shared.logging import log_compile
 
 
+@log_compile
 def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
     """Compile an OptionsListControl into its Kibana view model representation.
 
@@ -56,7 +57,6 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         MatchTechnique.CONTAINS: SearchTechnique.WILDCARD,
         MatchTechnique.EXACT: SearchTechnique.EXACT,
     }
-    stable_id = get_layer_id(control)
 
     # Determine singleSelect value from multiple field
     single_select_value: bool | None = None
@@ -68,7 +68,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         order=order,
         width=default_if_none(control.width, KBN_DEFAULT_CONTROL_WIDTH),
         explicitInput=KbnOptionsListControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             dataViewId=control.data_view,
             fieldName=control.field,
             title=control.label,
@@ -81,6 +81,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
     )
 
 
+@log_compile
 def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> KbnRangeSliderControl:
     """Compile a RangeSliderControl into its Kibana view model representation.
 
@@ -92,14 +93,12 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
         KbnRangeSliderControl: The compiled Kibana range slider control view model.
 
     """
-    stable_id = get_layer_id(control)
-
     return KbnRangeSliderControl(
         grow=default_false(control.fill_width),
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnRangeSliderControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             dataViewId=control.data_view,
             fieldName=control.field,
             step=default_if_none(control.step, 1),
@@ -108,6 +107,7 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
     )
 
 
+@log_compile
 def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> KbnTimeSliderControl:
     """Compile a TimeSliderControl into its Kibana view model representation.
 
@@ -119,20 +119,19 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
         KbnTimeSliderControl: The compiled Kibana time slider control view model.
 
     """
-    stable_id = get_layer_id(control)
-
     return KbnTimeSliderControl(
         grow=True,
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnTimeSliderControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             timesliceEndAsPercentageOfTimeRange=default_if_none(control.end_offset, 100.0),
             timesliceStartAsPercentageOfTimeRange=default_if_none(control.start_offset, 0.0),
         ),
     )
 
 
+@log_compile
 def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnESQLControl:
     """Compile an ESQLFieldControl into its Kibana view model representation.
 
@@ -144,7 +143,6 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control)
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -152,7 +150,7 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -165,6 +163,7 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
     )
 
 
+@log_compile
 def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -> KbnESQLControl:
     """Compile an ESQLFunctionControl into its Kibana view model representation.
 
@@ -176,7 +175,6 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control)
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -184,7 +182,7 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -197,6 +195,7 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
     )
 
 
+@log_compile
 def compile_esql_static_single_select_control(order: int, *, control: ESQLStaticSingleSelectControl) -> KbnESQLControl:
     """Compile an ESQLStaticSingleSelectControl into its Kibana view model representation.
 
@@ -208,9 +207,6 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control)
-
-    # Convert default to selectedOptions list
     selected_options: list[str] = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -218,7 +214,7 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -231,6 +227,7 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
     )
 
 
+@log_compile
 def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticMultiSelectControl) -> KbnESQLControl:
     """Compile an ESQLStaticMultiSelectControl into its Kibana view model representation.
 
@@ -242,9 +239,6 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control)
-
-    # Convert default to selectedOptions list
     selected_options: list[str] = control.default if control.default is not None else []
 
     return KbnESQLControl(
@@ -252,7 +246,7 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery='',
@@ -265,6 +259,7 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
     )
 
 
+@log_compile
 def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnESQLControl:
     """Compile an ESQLQueryControl into its Kibana view model representation.
 
@@ -276,14 +271,12 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    stable_id = get_layer_id(control)
-
     return KbnESQLControl(
         grow=False,
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnESQLControlExplicitInput(
-            id=stable_id,
+            id=control.get_id(),
             variableName=control.variable_name,
             variableType=control.variable_type,
             esqlQuery=control.query,
@@ -296,6 +289,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
     )
 
 
+@log_compile
 def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  # noqa: PLR0911
     """Compile a single control into its Kibana view model representation.
 
@@ -338,6 +332,7 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  #
     raise TypeError(msg)  # pyright: ignore[reportUnreachable]
 
 
+@log_compile
 def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:
     """Compile the control group input for a Dashboard object into its Kibana view model representation.
 
@@ -360,6 +355,7 @@ def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlP
     return kbn_control_panels_json
 
 
+@log_compile
 def compile_control_group(*, control_settings: ControlSettings, controls: Sequence[ControlTypes]) -> KbnControlGroupInput:
     """Compile a control group from a sequence of ControlTypes into a Kibana view model.
 

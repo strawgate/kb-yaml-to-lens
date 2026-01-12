@@ -43,8 +43,6 @@ click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-
 console = Console()
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
@@ -163,8 +161,14 @@ def get_yaml_files(directory: Path) -> list[Path]:
 
 @click.group()
 @click.version_option(version='0.1.0')
+@click.option(
+    '--loglevel',
+    type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False),
+    default='WARNING',
+    help='Set logging verbosity level for compilation output.',
+)
 @click.pass_context
-def cli(ctx: click.Context) -> None:
+def cli(ctx: click.Context, loglevel: str) -> None:
     r"""Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format.
 
     This tool helps you manage Kibana dashboards as code by compiling YAML
@@ -188,6 +192,12 @@ def cli(ctx: click.Context) -> None:
     Use environment variables (KIBANA_URL, KIBANA_USERNAME, KIBANA_PASSWORD,
     KIBANA_API_KEY) to avoid passing credentials on the command line.
     """
+    # Configure logging based on CLI option
+    log_level: int = getattr(logging, loglevel.upper())  # pyright: ignore[reportAny]
+    logging.basicConfig(level=log_level, format='%(message)s')
+    # Also set level for our specific logger
+    logging.getLogger('dashboard_compiler').setLevel(log_level)
+
     _ = ctx.ensure_object(CliContext)
 
 

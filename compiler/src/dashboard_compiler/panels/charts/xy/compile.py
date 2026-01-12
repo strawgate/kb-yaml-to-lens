@@ -42,7 +42,6 @@ from dashboard_compiler.panels.charts.xy.view import (
     XYReferenceLineLayerConfig,
     YConfig,
 )
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
@@ -100,8 +99,7 @@ def compile_lens_reference_line_layer(
             - columns: Dictionary of accessor ID -> static value column
             - ref_layers: List containing a single XYReferenceLineLayerConfig with all reference lines
     """
-    # Generate a primary layer ID for the data view reference and visualization layer
-    primary_layer_id = get_layer_id(layer)
+    primary_layer_id = layer.get_id()
 
     reference_line_columns: dict[str, KbnLensStaticValueColumn] = {}
     accessor_ids: list[str] = []
@@ -134,9 +132,6 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
     Returns:
         tuple[str, KbnLensStaticValueColumn, YConfig]: The accessor ID, static value column, and Y config.
     """
-    # Generate accessor ID
-    accessor_id = get_layer_id(ref_line)
-
     # Extract the numeric value from the ref_line.value field
     if isinstance(ref_line.value, float):
         numeric_value = ref_line.value
@@ -146,6 +141,8 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
         # This should never happen due to Pydantic validation
         msg = f'Invalid value type: {type(ref_line.value)}'
         raise TypeError(msg)
+
+    accessor_id = ref_line.get_id()
 
     # Create the static value column for the reference line
     static_value_column = KbnLensStaticValueColumn(
@@ -494,8 +491,7 @@ def compile_lens_xy_chart(
     Returns:
         tuple[str, dict[str, KbnLensColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    layer_id = get_layer_id(lens_xy_chart)
-
+    # Compile metrics to get accessor IDs for visualization state
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_xy_chart.metrics:
@@ -503,6 +499,7 @@ def compile_lens_xy_chart(
         metric_ids.append(metric_id)
         kbn_metric_columns[metric_id] = kbn_metric
 
+    # Compile dimensions
     kbn_dimension_columns: dict[str, KbnLensDimensionColumnTypes] = {}
     dimension_id = None
     if lens_xy_chart.dimension is not None:
@@ -520,6 +517,8 @@ def compile_lens_xy_chart(
         kbn_dimension_columns[breakdown_id] = kbn_breakdown_columns[breakdown_id]
 
     kbn_columns = {**kbn_dimension_columns, **kbn_metric_columns}
+
+    layer_id = lens_xy_chart.get_id()
 
     return (
         layer_id,
@@ -545,11 +544,11 @@ def compile_esql_xy_chart(
     Returns:
         tuple[str, list[KbnESQLColumnTypes], KbnXYVisualizationState]: The layer ID, columns, and visualization state.
     """
-    layer_id = get_layer_id(esql_xy_chart)
-
+    # Compile metrics to get columnIds for visualization state
     metrics = compile_esql_metrics(esql_xy_chart.metrics)
     metric_ids = [metric.columnId for metric in metrics]
 
+    # Compile dimensions
     dimensions = []
     dimension_id = None
     if esql_xy_chart.dimension is not None:
@@ -563,6 +562,8 @@ def compile_esql_xy_chart(
         dimensions.extend(breakdown)
 
     kbn_columns = [*metrics, *dimensions]
+
+    layer_id = esql_xy_chart.get_id()
 
     return (
         layer_id,

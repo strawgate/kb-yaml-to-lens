@@ -16,7 +16,8 @@ jobs:
   claude-pr-feedback:
     if: |
       (github.event.review.state == 'commented' || github.event.review.state == 'changes_requested') &&
-      !github.event.pull_request.draft && !github.event.pull_request.closed_at
+      !github.event.pull_request.draft && !github.event.pull_request.closed_at &&
+      !contains(github.event.pull_request.labels.*.name, 'no-claude')
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}
