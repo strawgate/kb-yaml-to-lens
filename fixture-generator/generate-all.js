@@ -91,7 +91,7 @@ async function generateAll() {
     }
   }
 
-  const kibanaVersion = process.env.KIBANA_VERSION || 'v9.2.0';
+  const kibanaVersion = process.env.KIBANA_VERSION || 'v9.2.2';
   console.log('\n✓ All fixtures generated successfully');
   console.log(`  Output directory: ./output/${kibanaVersion}/`);
 }

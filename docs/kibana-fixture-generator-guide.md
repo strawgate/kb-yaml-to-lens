@@ -303,7 +303,7 @@ make run
 
 **Common Kibana Versions:**
 
-- `v9.2.0` - Default version (recommended)
+- `v9.2.2` - Default version (recommended)
 - `main` - Latest development version
 - `v9.3.0` - Specific release tag
 - `8.15` - Branch for 8.15.x releases

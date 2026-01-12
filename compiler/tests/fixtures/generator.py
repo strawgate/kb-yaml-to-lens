@@ -39,7 +39,7 @@ _PROJECT_ROOT = _COMPILER_DIR.parent
 _FIXTURE_GEN_DIR = _PROJECT_ROOT / 'fixture-generator'
 
 # Docker image configuration
-DEFAULT_KIBANA_VERSION = 'v9.2.0'
+DEFAULT_KIBANA_VERSION = 'v9.2.2'
 DEFAULT_BASE_IMAGE = 'ghcr.io/strawgate/kb-yaml-to-lens/kibana-base'
 
 # Error patterns to detect in container output

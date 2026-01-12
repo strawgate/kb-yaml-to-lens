@@ -29,8 +29,8 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*
 
 # Clone Kibana FIRST to get the .node-version file
-# Note: Kibana tags use "v" prefix (e.g., v9.2.0)
-ARG KIBANA_VERSION=v9.2.0
+# Note: Kibana tags use "v" prefix (e.g., v9.2.2)
+ARG KIBANA_VERSION=v9.2.2
 WORKDIR /kibana
 RUN git clone --depth 1 --branch ${KIBANA_VERSION} https://github.com/elastic/kibana.git . || \
     git clone --depth 1 --branch v${KIBANA_VERSION} https://github.com/elastic/kibana.git . || \

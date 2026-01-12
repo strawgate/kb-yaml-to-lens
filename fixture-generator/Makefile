@@ -1,7 +1,7 @@
 # Kibana Fixture Generator
 # Generates test fixtures using Kibana's LensConfigBuilder API
 
-KIBANA_VERSION ?= v9.2.0
+KIBANA_VERSION ?= v9.2.2
 OUTPUT_DIR := $(shell pwd)/output
 BASE_IMAGE ?= ghcr.io/strawgate/kb-yaml-to-lens/kibana-base:$(KIBANA_VERSION)
 

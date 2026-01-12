@@ -51,7 +51,7 @@ export async function generateFixture(
     // Determine output directory relative to caller
     // Use version-specific subdirectory if KIBANA_VERSION is set
     const callerDir = path.dirname(fileURLToPath(callerFilePath));
-    const kibanaVersion = process.env.KIBANA_VERSION || 'v9.2.0';
+    const kibanaVersion = process.env.KIBANA_VERSION || 'v9.2.2';
     const outputDir = path.join(callerDir, '..', 'output', kibanaVersion);
 
     // Ensure output directory exists

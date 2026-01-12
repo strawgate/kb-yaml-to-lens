@@ -30,7 +30,7 @@ make pull
 make run
 
 # 3. Copy to Python tests
-cp output/v9.2.0/metric-basic-esql.json ../compiler/tests/fixtures/
+cp output/v9.2.2/metric-basic-esql.json ../compiler/tests/fixtures/
 ```
 
 ## Available Commands
@@ -155,7 +155,7 @@ make run KIBANA_VERSION=v8.19.9
 **Building locally** (for testing base image changes):
 
 ```bash
-make build-base KIBANA_VERSION=v9.2.0
+make build-base KIBANA_VERSION=v9.2.2
 ```
 
 **Adding new versions**: Edit `.github/workflows/build-kibana-base-images.yml` and add to `matrix.kibana_version`. The workflow runs weekly and can be triggered manually via GitHub Actions.
@@ -178,7 +178,7 @@ Build locally or trigger the GitHub Actions workflow to publish it:
 
 ```bash
 # Option 1: Build locally
-make build-base KIBANA_VERSION=v9.2.0
+make build-base KIBANA_VERSION=v9.2.2
 
 # Option 2: Trigger via GitHub Actions
 # Go to: Actions → Build and Publish Kibana Base Images → Run workflow
