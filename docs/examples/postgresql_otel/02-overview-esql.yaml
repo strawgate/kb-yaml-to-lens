@@ -33,8 +33,8 @@ dashboards:
       - grid: {x: 0, y: 2, w: 48, h: 2}
         markdown:
           content: |
-            **Note:** This dashboard uses ES|QL queries with `FROM metrics-*` syntax.
-            When the `TS` (time series) command becomes available, queries can be updated to use `TS metrics-*` for better time series optimization.
+            **Note:** This dashboard uses ES|QL queries with the `TS` (time series) command for optimized time series analysis.
+            The `TS` command provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`.
           font_size: 12
 
       # KPI Metrics Row using ES|QL
@@ -91,7 +91,8 @@ dashboards:
       - title: Database Performance Summary
         grid: {x: 0, y: 9, w: 48, h: 18}
         description: Shows cumulative counter values and current state metrics per database. The commit_total, rollback_total, and blocks_read_total
-          columns are cumulative totals (not per-second rates) since ES|QL lacks counter_rate().
+          columns are cumulative totals (not per-second rates). For rate calculations, see the time-series charts below which use the TS command
+          with RATE().
         esql:
           type: datatable
           query:
@@ -116,112 +117,122 @@ dashboards:
             - field: rollback_total
             - field: blocks_read_total
 
-      # Connections Over Time (using Lens for time series)
+      # Connections Over Time using ES|QL TS
       - title: Active Connections Over Time
         grid: {x: 0, y: 27, w: 48, h: 10}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.backends IS NOT NULL
+            | STATS connections = SUM(AVG_OVER_TIME(postgresql.backends)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: resource.attributes.postgresql.database.name
-            type: values
-            size: 20
+            field: time_bucket
           metrics:
-            - formula: sum(postgresql.backends)
+            - field: connections
               label: Active Connections
+          breakdown:
+            field: database
 
-      # Transaction Metrics (using Lens for rate calculations)
+      # Transaction Metrics using ES|QL TS
       - title: Transaction Rate - Commits
         grid: {x: 0, y: 37, w: 24, h: 10}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.commits IS NOT NULL
+            | STATS commits_rate = SUM(RATE(postgresql.commits)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: resource.attributes.postgresql.database.name
-            type: values
-            size: 20
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(postgresql.commits))
+            - field: commits_rate
               label: Commits/sec
               format:
                 type: number
-                pattern: 0,0.00
+                decimals: 2
+          breakdown:
+            field: database
       - title: Transaction Rate - Rollbacks
         grid: {x: 24, y: 37, w: 24, h: 10}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.rollbacks IS NOT NULL
+            | STATS rollbacks_rate = SUM(RATE(postgresql.rollbacks)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: resource.attributes.postgresql.database.name
-            type: values
-            size: 20
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(postgresql.rollbacks))
+            - field: rollbacks_rate
               label: Rollbacks/sec
               format:
                 type: number
-                pattern: 0,0.00
+                decimals: 2
+          breakdown:
+            field: database
 
-      # Block I/O Metrics (using Lens for rate calculations)
+      # Block I/O Metrics using ES|QL TS
       - title: Block I/O - By Source
         grid: {x: 0, y: 47, w: 48, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.blocks_read IS NOT NULL
+            | STATS blocks_rate = SUM(RATE(postgresql.blocks_read)) BY time_bucket = TBUCKET(1 minute), source = attributes.source
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.source
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(postgresql.blocks_read))
+            - field: blocks_rate
               label: Blocks Read/sec
+          breakdown:
+            field: source
 
-      # Database Operations (using Lens for rate calculations)
+      # Database Operations using ES|QL TS
       - title: Database Operations by Type
         grid: {x: 0, y: 59, w: 48, h: 12}
-        lens:
+        esql:
           type: bar
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "postgresqlreceiver.otel"
+            | WHERE postgresql.operations IS NOT NULL
+            | STATS operations_rate = SUM(RATE(postgresql.operations)) BY time_bucket = TBUCKET(1 minute), operation = attributes.operation
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.operation
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(postgresql.operations))
+            - field: operations_rate
               label: Operations/sec
+          breakdown:
+            field: operation
 
       # Database Sizes using ES|QL Pie Chart
       - title: Database Sizes
