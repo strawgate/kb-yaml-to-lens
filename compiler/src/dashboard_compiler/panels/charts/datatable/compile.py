@@ -29,7 +29,6 @@ from dashboard_compiler.panels.charts.lens.columns.view import (
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def _build_datatable_visualization_state(
@@ -158,7 +157,7 @@ def compile_lens_datatable_chart(
             - kbn_state_visualization (KbnDatatableVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(lens_datatable_chart)
+    layer_id = lens_datatable_chart.get_id()
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     column_order: list[str] = []
 
@@ -226,7 +225,7 @@ def compile_esql_datatable_chart(
             - kbn_state_visualization (KbnDatatableVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(esql_datatable_chart)
+    layer_id = esql_datatable_chart.get_id()
     kbn_columns: list[KbnESQLColumnTypes] = []
     column_order: list[str] = []
 

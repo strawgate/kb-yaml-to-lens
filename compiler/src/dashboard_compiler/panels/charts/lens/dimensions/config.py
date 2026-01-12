@@ -6,18 +6,15 @@ from typing import Literal
 from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
-from dashboard_compiler.shared.config import BaseCfgModel, Sort
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel, Sort
 
 type LensDimensionTypes = (
     LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 )
 
 
-class BaseDimension(BaseCfgModel):
+class BaseDimension(BaseIdentifiableModel):
     """Base model for defining dimensions."""
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the dimension. If not provided, one may be generated during compilation."""
 
     # color: ColorMapping | None = Field(default=None)
 

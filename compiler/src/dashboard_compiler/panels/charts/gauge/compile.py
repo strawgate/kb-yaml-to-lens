@@ -10,7 +10,6 @@ from dashboard_compiler.panels.charts.gauge.view import KbnGaugeVisualizationSta
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.lens.metrics.config import LensStaticValue
 from dashboard_compiler.shared.compile import normalize_static_metric
-from dashboard_compiler.shared.config import get_layer_id
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
@@ -105,7 +104,7 @@ def compile_lens_gauge_chart(
         goal_id, goal_column = compile_lens_metric(goal_metric)
         kbn_columns_by_id[goal_id] = goal_column
 
-    layer_id = get_layer_id(lens_gauge_chart)
+    layer_id = lens_gauge_chart.get_id()
 
     return (
         layer_id,
@@ -136,14 +135,14 @@ def compile_esql_gauge_chart(
             - kbn_state_visualization (KbnGaugeVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(esql_gauge_chart)
-
     kbn_columns: list[KbnESQLColumnTypes] = []
 
     # Compile primary metric
     metric_column = compile_esql_metric(esql_gauge_chart.metric)
     metric_id: str = metric_column.columnId
     kbn_columns.append(metric_column)
+
+    layer_id = esql_gauge_chart.get_id()
 
     # Compile optional min/max/goal - handle both static values and metrics
     min_id: str | None = None
