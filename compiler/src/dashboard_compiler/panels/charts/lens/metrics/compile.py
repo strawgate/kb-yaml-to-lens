@@ -186,6 +186,17 @@ def _create_full_reference_column(
     """
     label = f'Part of {formula_text}'
 
+    # Build params with optional window for moving_average
+    params = KbnLensFullReferenceColumnParams(
+        emptyAsNull=False,
+        window=full_ref_info.window,
+    )
+
+    # Determine timeScale for rate operations (counter_rate uses per-second)
+    time_scale: str | None = None
+    if full_ref_info.operation_type == 'counter_rate':
+        time_scale = 's'
+
     return KbnLensFullReferenceColumn(
         label=label,
         customLabel=True,
@@ -195,8 +206,9 @@ def _create_full_reference_column(
         scale='ratio',
         # Note: emptyAsNull=False for fullReference columns preserves null values
         # in intermediate calculations, matching Kibana's formula column behavior
-        params=KbnLensFullReferenceColumnParams(emptyAsNull=False),
+        params=params,
         references=[referenced_column_id],
+        timeScale=time_scale,
     )
 
 

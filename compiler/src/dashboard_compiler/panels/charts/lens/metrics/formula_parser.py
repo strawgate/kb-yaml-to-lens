@@ -249,6 +249,9 @@ class FullReferenceInfo:
     text: str
     """The original text of this operation in the formula."""
 
+    window: int | None = None
+    """Window size for moving_average operations."""
+
 
 @dataclass
 class FormulaParseResult:
@@ -323,6 +326,9 @@ def _walk_ast(  # noqa: PLR0911, PLR0912
             # Find the inner aggregation reference from the walked args
             inner_agg_index = _find_inner_aggregation_index(walked_args, aggregations)
 
+            # Extract named parameters (e.g., window for moving_average)
+            window = _extract_named_param_from_args(node.get('args'), 'window')
+
             # Get position info
             start, end = 0, len(formula_text)
             parseinfo = node.get('parseinfo')
@@ -340,6 +346,7 @@ def _walk_ast(  # noqa: PLR0911, PLR0912
                 inner_aggregation_index=inner_agg_index,
                 position=(start, end),
                 text=formula_text[start:end] if end > start else str(node),
+                window=window,
             )
             full_references.append(full_ref_info)
             return {'type': 'full_reference_ref', 'index': len(full_references) - 1}
@@ -421,6 +428,35 @@ def _find_inner_aggregation_index(walked_args: Any, aggregations: list[Aggregati
                 return result
 
     return -1
+
+
+def _extract_named_param_from_args(args: Any, param_name: str) -> int | None:
+    """Extract a named integer parameter from function arguments.
+
+    Used to extract params like 'window' from moving_average(avg(field), window=5).
+
+    Args:
+        args: The raw arguments structure from TatSu parsing.
+        param_name: The name of the parameter to extract (e.g., 'window').
+
+    Returns:
+        The parameter value as an integer, or None if not found.
+
+    """
+    if args is None:
+        return None
+
+    flat_args = _flatten_args(args)
+    for arg in flat_args:
+        if isinstance(arg, dict) and 'name' in arg and 'value' in arg and arg['name'] == param_name:
+            value = arg['value']
+            if isinstance(value, str):
+                value = value.strip('\'"')
+            try:
+                return int(value)
+            except (ValueError, TypeError):
+                return None
+    return None
 
 
 def _extract_field_from_expr(expr: Any) -> str | None:

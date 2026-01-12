@@ -411,6 +411,7 @@ class TestFormulaFullReferenceOperations:
                 'scale': 'ratio',
                 'params': {'emptyAsNull': False},
                 'references': [agg_col_id],
+                'timeScale': 's',
             }
         )
 

@@ -249,6 +249,9 @@ class KbnLensFullReferenceColumnParams(BaseVwModel):
     emptyAsNull: bool = False
     """Whether to treat empty results as null."""
 
+    window: Annotated[int | None, OmitIfNone()] = Field(default=None)
+    """Window size for moving_average operations."""
+
 
 class KbnLensFullReferenceColumn(KbnLensBaseColumn):
     """Represents a fullReference operation column used in formula structures.
@@ -272,6 +275,9 @@ class KbnLensFullReferenceColumn(KbnLensBaseColumn):
 
     references: list[str] = Field(default_factory=list)
     """List of referenced column IDs that this operation wraps."""
+
+    timeScale: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Time scale for rate calculations (e.g., 's' for per-second rates)."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):
