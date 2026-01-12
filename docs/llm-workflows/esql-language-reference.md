@@ -63,7 +63,7 @@ Optimized source command for time series data streams. Available in Elasticsearc
 ```esql
 TS my_metrics
 | WHERE @timestamp >= NOW() - 1 day
-| STATS SUM(RATE(requests)) BY host, TBUCKET(1h)
+| STATS SUM(RATE(requests)) BY TBUCKET(1 hour), host
 ```
 
 ---
@@ -264,11 +264,13 @@ For use with the TS source command (Elasticsearch 9.2+):
 | `FIRST_OVER_TIME(field)` | Earliest value by timestamp | `STATS MAX(FIRST_OVER_TIME(value))` |
 | `LAST_OVER_TIME(field)` | Latest value by timestamp | `STATS MAX(LAST_OVER_TIME(value))` |
 
-Time bucketing function:
+Time bucketing function (for use with TS source command):
 
 | Function | Description | Example |
 | -------- | ----------- | ------- |
-| `TBUCKET(interval)` | Groups by time buckets | `BY TBUCKET(1h)`, `BY TBUCKET(5minute)` |
+| `TBUCKET(interval)` | Groups @timestamp into time buckets for time-series aggregations | `BY TBUCKET(1 hour)`, `BY TBUCKET(5minute)` |
+
+**Note:** `TBUCKET` is specialized for `@timestamp` in time-series queries (TS + STATS). For general-purpose bucketing of any date/numeric field, use `BUCKET()` instead (see Date/Time Functions below).
 
 ---
 
@@ -297,7 +299,7 @@ Time bucketing function:
 | `DATE_DIFF(unit, d1, d2)` | Difference between dates | `EVAL age_days = DATE_DIFF("day", created, NOW())` |
 | `DATE_FORMAT(date, fmt)` | Format date as string | `EVAL formatted = DATE_FORMAT(@timestamp, "yyyy-MM-dd")` |
 | `DATE_PARSE(fmt, s)` | Parse string to date | `EVAL parsed = DATE_PARSE("yyyy-MM-dd", date_str)` |
-| `BUCKET(date, interval)` | Create time buckets | `STATS count = COUNT(*) BY BUCKET(@timestamp, 1 hour)` |
+| `BUCKET(field, size)` | General-purpose bucketing for any date/numeric field | `STATS count = COUNT(*) BY BUCKET(@timestamp, 1 hour)` |
 
 ### Numeric Functions
 
