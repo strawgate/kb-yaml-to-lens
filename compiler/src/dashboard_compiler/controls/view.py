@@ -25,7 +25,8 @@ from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone, RootDict
 #             "type": "optionsListControl",
 #             "width": "medium",
 #             "explicitInput": {                        <-- KbnOptionsListControlExplicitInput
-#                 "dataViewId": "metrics-*",
+#                 "id": "0086b299-caf9-4d42-a574-31eec9226a48",
+#                 "dataViewRefName": "0086b299-caf9-4d42-a574-31eec9226a48:optionsListDataView",
 #                 "fieldName": "host.architecture",
 #                 "searchTechnique": "prefix",
 #                 "selectedOptions": [],
@@ -41,7 +42,8 @@ from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone, RootDict
 #             "type": "rangeSliderControl",
 #             "width": "medium",
 #             "explicitInput": {                        <-- KbnRangeSliderControlExplicitInput
-#                 "dataViewId": "metrics-*",
+#                 "id": "4094a542-c799-47ba-9d20-e1ad557924f6",
+#                 "dataViewRefName": "4094a542-c799-47ba-9d20-e1ad557924f6:rangeSliderDataView",
 #                 "fieldName": "severity_number",
 #                 "step": 1
 #             }
@@ -49,6 +51,11 @@ from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone, RootDict
 #     },
 #     "showApplySelections": false
 # },
+# Each control's dataViewRefName corresponds to an entry in the dashboard's "references" array:
+# "references": [
+#     {"type": "index-pattern", "id": "metrics-*", "name": "0086b299-caf9-4d42-a574-31eec9226a48:optionsListDataView"},
+#     {"type": "index-pattern", "id": "metrics-*", "name": "4094a542-c799-47ba-9d20-e1ad557924f6:rangeSliderDataView"}
+# ]
 
 KBN_DEFAULT_CONTROL_WIDTH = 'medium'
 KBN_DEFAULT_SEARCH_TECHNIQUE = 'prefix'
@@ -87,8 +94,8 @@ class SearchTechnique(str, Enum):
 class KbnOptionsListControlExplicitInput(KbnBaseControlExplicitInput):
     """Explicit input for options list controls."""
 
-    dataViewId: str = Field(...)
-    """The ID of the data view (index pattern) the control operates on."""
+    dataViewRefName: str = Field(...)
+    """Reference name for the data view, linking to an entry in the dashboard's references array."""
 
     fieldName: str = Field(...)
     """The name of the field within the data view that the control is associated with."""
@@ -114,8 +121,8 @@ class KbnOptionsListControlExplicitInput(KbnBaseControlExplicitInput):
 class KbnRangeSliderControlExplicitInput(KbnBaseControlExplicitInput):
     """Explicit input for range slider controls."""
 
-    dataViewId: str = Field(...)
-    """The ID of the data view (index pattern) the control operates on."""
+    dataViewRefName: str = Field(...)
+    """Reference name for the data view, linking to an entry in the dashboard's references array."""
 
     fieldName: str = Field(...)
     """The name of the field within the data view that the control is associated with."""

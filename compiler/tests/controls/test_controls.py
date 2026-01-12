@@ -1,10 +1,10 @@
 """Test the compilation of controls from config models to view models."""
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 from pydantic import BaseModel, ValidationError
 
@@ -17,9 +17,6 @@ from dashboard_compiler.controls.config import (
     TimeSliderControl,
 )
 
-if TYPE_CHECKING:
-    from dashboard_compiler.controls.view import KbnControlGroupInput, KbnControlTypes
-
 
 class ControlHolder(BaseModel):
     """A holder for control configurations to be used in tests."""
@@ -31,14 +28,14 @@ class ControlHolder(BaseModel):
 def compile_control_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile control config and return dict for snapshot testing."""
     control_holder: ControlHolder = ControlHolder.model_validate({'control': config})
-    kbn_control_group_input: KbnControlTypes = compile_control(order=0, control=control_holder.control)
-    return kbn_control_group_input.model_dump(by_alias=True)
+    kbn_control, _reference = compile_control(order=0, control=control_holder.control)
+    return kbn_control.model_dump(by_alias=True)
 
 
 def compile_control_settings_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile control settings config and return dict for snapshot testing."""
     control_settings = ControlSettings.model_validate(obj=config)
-    kbn_control_group_input: KbnControlGroupInput = compile_control_group(control_settings=control_settings, controls=[])
+    kbn_control_group_input, _references = compile_control_group(control_settings=control_settings, controls=[])
     result = kbn_control_group_input.model_dump(by_alias=True)
 
     if 'ignoreParentSettingsJSON' in result and isinstance(result['ignoreParentSettingsJSON'], str):
@@ -66,7 +63,7 @@ async def test_normal_options_list() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'searchTechnique': 'prefix',
                 'selectedOptions': [],
@@ -93,7 +90,7 @@ async def test_options_list_with_custom_label() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Custom Label',
                 'searchTechnique': 'prefix',
@@ -122,7 +119,7 @@ async def test_options_list_with_large_width() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Large Option',
                 'searchTechnique': 'prefix',
@@ -152,7 +149,7 @@ async def test_options_list_with_large_width_and_expand() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Large Option with Expand',
                 'searchTechnique': 'prefix',
@@ -183,7 +180,7 @@ async def test_options_list_with_small_width_and_single_select() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Small Option Single Select',
                 'searchTechnique': 'prefix',
@@ -213,7 +210,7 @@ async def test_options_list_with_contains_search_technique() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Contains',
                 'searchTechnique': 'wildcard',
@@ -242,7 +239,7 @@ async def test_options_list_with_exact_search_technique() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Exact',
                 'searchTechnique': 'exact',
@@ -271,7 +268,7 @@ async def test_options_list_with_ignore_timeout() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'ignore-timeout',
                 'searchTechnique': 'prefix',
@@ -300,7 +297,7 @@ async def test_range_slider_with_default_step_size() -> None:
             'type': 'rangeSliderControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:rangeSliderDataView'),
                 'fieldName': 'aerospike.namespace.geojson.region_query_cells',
                 'title': 'Default Range',
                 'step': 1,
@@ -327,7 +324,7 @@ async def test_range_slider_with_step_size_10() -> None:
             'type': 'rangeSliderControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:rangeSliderDataView'),
                 'fieldName': 'aerospike.namespace.geojson.region_query_cells',
                 'title': 'Range step 10',
                 'step': 10,
@@ -555,7 +552,7 @@ async def test_options_list_with_multi_select() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Multi Select Test',
                 'searchTechnique': 'prefix',
@@ -585,7 +582,7 @@ async def test_options_list_without_wait_for_results() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'No Wait Test',
                 'searchTechnique': 'prefix',
@@ -932,7 +929,7 @@ async def test_options_list_with_multiple_true() -> None:
             'type': 'optionsListControl',
             'explicitInput': {
                 'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
+                'dataViewRefName': IsStr(regex=r'[a-f0-9-]+:optionsListDataView'),
                 'fieldName': 'aerospike.namespace',
                 'title': 'Multiple Test',
                 'searchTechnique': 'prefix',
@@ -942,3 +939,81 @@ async def test_options_list_with_multiple_true() -> None:
             },
         }
     )
+
+
+async def test_options_list_control_returns_reference() -> None:
+    """Test that options list control returns a data view reference."""
+    config = {
+        'type': 'options',
+        'data_view': 'metrics-*',
+        'field': 'host.name',
+        'label': 'Host',
+    }
+    control_holder = ControlHolder.model_validate({'control': config})
+    kbn_control, reference = compile_control(order=0, control=control_holder.control)
+
+    # Verify the control uses dataViewRefName
+    assert 'dataViewRefName' in kbn_control.model_dump(by_alias=True)['explicitInput']
+
+    # Verify the reference is returned and has correct structure
+    assert reference is not None
+    assert reference.type == 'index-pattern'
+    assert reference.id == 'metrics-*'
+    assert reference.name.endswith(':optionsListDataView')
+
+
+async def test_range_slider_control_returns_reference() -> None:
+    """Test that range slider control returns a data view reference."""
+    config = {
+        'type': 'range',
+        'data_view': 'logs-*',
+        'field': 'response_time',
+        'label': 'Response Time',
+    }
+    control_holder = ControlHolder.model_validate({'control': config})
+    kbn_control, reference = compile_control(order=0, control=control_holder.control)
+
+    # Verify the control uses dataViewRefName
+    assert 'dataViewRefName' in kbn_control.model_dump(by_alias=True)['explicitInput']
+
+    # Verify the reference is returned and has correct structure
+    assert reference is not None
+    assert reference.type == 'index-pattern'
+    assert reference.id == 'logs-*'
+    assert reference.name.endswith(':rangeSliderDataView')
+
+
+async def test_time_slider_control_returns_no_reference() -> None:
+    """Test that time slider control returns no data view reference."""
+    config = {
+        'type': 'time',
+        'start_offset': 0.0,
+        'end_offset': 1.0,
+    }
+    control_holder = ControlHolder.model_validate({'control': config})
+    _kbn_control, reference = compile_control(order=0, control=control_holder.control)
+
+    # Time sliders don't use data views
+    assert reference is None
+
+
+async def test_control_group_returns_references() -> None:
+    """Test that control group compilation returns references for all data view controls."""
+    controls = [
+        {'type': 'options', 'data_view': 'metrics-*', 'field': 'host.name'},
+        {'type': 'range', 'data_view': 'logs-*', 'field': 'bytes'},
+        {'type': 'time', 'start_offset': 0.0, 'end_offset': 1.0},
+    ]
+
+    control_holders = [ControlHolder.model_validate({'control': c}).control for c in controls]
+    control_settings = ControlSettings.model_validate({})
+
+    _control_group, references = compile_control_group(control_settings=control_settings, controls=control_holders)
+
+    # Should have 2 references (options list + range slider, but not time slider)
+    assert len(references) == 2
+
+    # Verify reference data views
+    ref_ids = [r.id for r in references]
+    assert 'metrics-*' in ref_ids
+    assert 'logs-*' in ref_ids
