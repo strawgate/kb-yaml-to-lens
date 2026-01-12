@@ -19,7 +19,6 @@ from dashboard_compiler.panels.charts.esql.columns.view import (
     KbnESQLMetricFormatParams,
     KbnESQLStaticValueColumn,
 )
-from dashboard_compiler.shared.config import get_layer_id, stable_id_generator
 
 
 def compile_esql_metric_format(metric_format: ESQLMetricFormatTypes) -> KbnESQLMetricFormat:
@@ -71,22 +70,16 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         KbnESQLMetricColumnTypes: The compiled Kibana column.
 
     """
-    # Handle static values
     if isinstance(metric, ESQLStaticValue):
-        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
         field_name = metric.label if metric.label is not None else str(metric.value)
-
         return KbnESQLStaticValueColumn(
             fieldName=field_name,
-            columnId=metric_id,
+            columnId=metric.get_id(),
         )
 
-    # Handle regular field-based metrics (aggregations always return numbers in ES|QL)
     if not isinstance(metric, ESQLMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = f'Unknown metric type: {type(metric).__name__}'
         raise TypeError(msg)  # pyright: ignore[reportUnreachable]
-
-    metric_id = metric.id or stable_id_generator([metric.field])
 
     # Compile format if provided
     params = None
@@ -94,16 +87,13 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         esql_format = compile_esql_metric_format(metric.format)
         params = KbnESQLMetricColumnParams(format=esql_format)
 
-    # Determine label (use custom label if provided, otherwise use field name)
     label = metric.label if metric.label is not None else metric.field
     custom_label = metric.label is not None
-
-    # ES|QL aggregations always return numbers
     meta = KbnESQLColumnMeta(type='number', esType='long')
 
     return KbnESQLFieldMetricColumn(
         fieldName=metric.field,
-        columnId=metric_id,
+        columnId=metric.get_id(),
         label=label,
         customLabel=custom_label,
         meta=meta,
@@ -135,7 +125,7 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
         KbnESQLFieldDimensionColumn: The compiled Kibana view model.
 
     """
-    dimension_id = get_layer_id(dimension)
+    dimension_id = dimension.get_id()
 
     # Add meta information for date fields if data_type is explicitly set
     meta = None
