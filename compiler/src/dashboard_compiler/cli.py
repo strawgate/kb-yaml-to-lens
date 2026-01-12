@@ -1,6 +1,7 @@
 """Command-line interface for the dashboard compiler."""
 
 import asyncio
+import io
 import logging
 import os
 import sys
@@ -41,8 +42,6 @@ if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
-
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 console = Console()
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -102,7 +101,7 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
     if overwrite is True and output_path.exists():
         output_path.unlink()
 
-    with output_path.open('w') as f:
+    with output_path.open('w', encoding='utf-8') as f:
         for line in lines:
             _ = f.write(line + '\n')
 
@@ -162,8 +161,14 @@ def get_yaml_files(directory: Path) -> list[Path]:
 
 @click.group()
 @click.version_option(version='0.1.0')
+@click.option(
+    '--loglevel',
+    type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False),
+    default='WARNING',
+    help='Set logging verbosity level for compilation output.',
+)
 @click.pass_context
-def cli(ctx: click.Context) -> None:
+def cli(ctx: click.Context, loglevel: str) -> None:
     r"""Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format.
 
     This tool helps you manage Kibana dashboards as code by compiling YAML
@@ -187,6 +192,12 @@ def cli(ctx: click.Context) -> None:
     Use environment variables (KIBANA_URL, KIBANA_USERNAME, KIBANA_PASSWORD,
     KIBANA_API_KEY) to avoid passing credentials on the command line.
     """
+    # Configure logging based on CLI option
+    log_level: int = getattr(logging, loglevel.upper())  # pyright: ignore[reportAny]
+    logging.basicConfig(level=log_level, format='%(message)s')
+    # Also set level for our specific logger
+    logging.getLogger('dashboard_compiler').setLevel(log_level)
+
     _ = ctx.ensure_object(CliContext)
 
 
@@ -225,7 +236,7 @@ def cli(ctx: click.Context) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-def compile_dashboards(  # noqa: PLR0913, PLR0912
+def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
     output_dir: Path,
@@ -278,6 +289,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
 
     ndjson_lines: list[str] = []
     errors: list[str] = []
+    files_to_write: dict[Path, list[str]] = {}
 
     with Progress(
         SpinnerColumn(),
@@ -297,12 +309,17 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912
             if len(compiled_jsons) > 0:
                 filename = yaml_file.parent.stem
                 individual_file = output_dir / f'{filename}.ndjson'
-                write_ndjson(individual_file, compiled_jsons, overwrite=True)
+                if individual_file not in files_to_write:
+                    files_to_write[individual_file] = []
+                files_to_write[individual_file].extend(compiled_jsons)
                 ndjson_lines.extend(compiled_jsons)
             elif error is not None:
                 errors.append(error)
 
             progress.advance(task)
+
+    for individual_file, jsons in files_to_write.items():
+        write_ndjson(individual_file, jsons, overwrite=True)
 
     if len(ndjson_lines) > 0:
         console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
@@ -1100,9 +1117,13 @@ def disassemble(input_file: Path | None, output: Path) -> None:
     """
     try:
         if input_file is None:
-            import sys
-
-            content = sys.stdin.read()
+            # Use TextIOWrapper to ensure UTF-8 encoding when reading from stdin
+            # This avoids issues on Windows where the default encoding might not be UTF-8
+            content = (
+                io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
+                if hasattr(sys.stdin, 'buffer')
+                else sys.stdin.read()  # Fallback for environments where stdin.buffer is not available
+            )
         else:
             content = input_file.read_text(encoding='utf-8')
 

@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
 
 all: check
 
@@ -55,6 +55,12 @@ help:
 	@echo "  gh-get-comments-since        - Get comments since timestamp (OWNER REPO ISSUE SINCE [AUTHOR])"
 	@echo "  gh-minimize-outdated-comments - Minimize outdated PR comments (OWNER REPO PR)"
 	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
+	@echo ""
+	@echo "Release:"
+	@echo "  bump-patch        - Bump patch version across all components"
+	@echo "  bump-minor        - Bump minor version across all components"
+	@echo "  bump-major        - Bump major version across all components"
+	@echo "  bump-version-show - Show current versions across all components"
 	@echo ""
 	@echo "=== Component-Specific Commands ==="
 	@echo ""
@@ -239,6 +245,19 @@ gh-minimize-outdated-comments:
 
 gh-check-repo-activity:
 	@.github/scripts/gh-check-repo-activity.sh $(filter-out $@,$(MAKECMDGOALS))
+
+# Version bumping
+bump-patch:
+	@uv run scripts/bump-version.py patch
+
+bump-minor:
+	@uv run scripts/bump-version.py minor
+
+bump-major:
+	@uv run scripts/bump-version.py major
+
+bump-version-show:
+	@uv run scripts/bump-version.py show
 
 # Prevent make from trying to build targets passed as arguments to scripts
 %:

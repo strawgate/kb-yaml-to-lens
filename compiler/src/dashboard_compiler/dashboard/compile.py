@@ -10,12 +10,14 @@ from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_false, default_true
+from dashboard_compiler.shared.logging import log_compile
 from dashboard_compiler.shared.view import KbnReference
 
 CORE_MIGRATION_VERSION: str = '8.8.0'
 TYPE_MIGRATION_VERSION: str = '10.2.0'
 
 
+@log_compile
 def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOptions:
     """Compile the Kibana Dashboard Options view model.
 
@@ -35,6 +37,7 @@ def compile_dashboard_options(settings: DashboardSettings) -> KbnDashboardOption
     )
 
 
+@log_compile
 def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReference], KbnDashboardAttributes]:
     """Compile the attributes of a Dashboard object into its Kibana view model representation.
 
@@ -67,6 +70,7 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
     )
 
 
+@log_compile
 def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
     """Compile a Dashboard object into its Kibana view model representation.
 
