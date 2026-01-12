@@ -4,15 +4,13 @@ from typing import Any
 
 from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
 
 def compile_markdown_panel_snapshot(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Compile markdown panel config and return dict for snapshot testing."""
-    panel_grid = Grid(x=0, y=0, w=24, h=10)
-    markdown_panel = MarkdownPanel(grid=panel_grid, **config)
+    markdown_panel = MarkdownPanel(size={'w': 24, 'h': 10}, position={'x': 0, 'y': 0}, **config)
     kbn_references, kbn_panel_config = compile_markdown_panel_config(markdown_panel=markdown_panel)
     kbn_panel_as_dict = kbn_panel_config.model_dump(by_alias=True)
     kbn_references_as_dicts = [ref.model_dump(by_alias=True) for ref in kbn_references]

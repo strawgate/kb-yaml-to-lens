@@ -5,9 +5,7 @@ dashboards:
     description: Demonstrates various panel-level filter types and combinations
     panels:
       - title: Filter Types Reference
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 6
         markdown:
@@ -18,9 +16,7 @@ dashboards:
           font_size: 12
       - title: Error Logs Only
         description: "Using equals filter: log.level = 'error'"
-        grid:
-          x: 0
-          y: 6
+        size:
           w: 12
           h: 8
         lens:
@@ -34,9 +30,7 @@ dashboards:
               equals: error
       - title: HTTP Requests Only
         description: 'Using exists filter: http.response.status_code exists'
-        grid:
-          x: 12
-          y: 6
+        size:
           w: 12
           h: 8
         lens:
@@ -49,9 +43,7 @@ dashboards:
             - exists: http.response.status_code
       - title: Slow Requests (≥500ms)
         description: 'Using gte filter: http.response.time >= 500'
-        grid:
-          x: 24
-          y: 6
+        size:
           w: 12
           h: 8
         lens:
@@ -65,9 +57,7 @@ dashboards:
               gte: '500'
       - title: Non-Success HTTP Codes
         description: 'Using not filter: NOT (http.response.status_code = 200)'
-        grid:
-          x: 36
-          y: 6
+        size:
           w: 12
           h: 8
         lens:
@@ -83,9 +73,7 @@ dashboards:
                 equals: '200'
       - title: Critical Production Errors
         description: "Multiple filters: level='error' AND environment='production'"
-        grid:
-          x: 0
-          y: 14
+        size:
           w: 24
           h: 10
         lens:
@@ -106,9 +94,7 @@ dashboards:
             - exists: error.message
       - title: 4xx HTTP Status Codes
         description: 'Range filter: 400 <= status_code < 500'
-        grid:
-          x: 24
-          y: 14
+        size:
           w: 24
           h: 10
         lens:
@@ -132,9 +118,7 @@ dashboards:
               lt: '500'
       - title: Non-Health-Check Requests
         description: Excluding health check endpoints
-        grid:
-          x: 0
-          y: 24
+        size:
           w: 24
           h: 12
         lens:
@@ -159,9 +143,7 @@ dashboards:
                 equals: /ping
       - title: Application Logs Only
         description: Filter by data stream dataset
-        grid:
-          x: 24
-          y: 24
+        size:
           w: 24
           h: 12
         lens:

@@ -58,11 +58,12 @@ class TestCompileDashboard(unittest.TestCase):
   description: A test dashboard
   panels:
   - title: Test Panel
-    grid:
-      x: 0
-      y: 0
+    size:
       w: 12
       h: 10
+    position:
+      x: 0
+      y: 0
     markdown:
       content: "# Test"
 """
@@ -138,7 +139,9 @@ class TestCompileDashboard(unittest.TestCase):
   description: The second one
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 12, h: 10}
+    size: {w: 12, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -396,11 +399,12 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   description: A test dashboard
   panels:
   - title: Test Panel
-    grid:
-      x: 0
-      y: 0
+    size:
       w: 24
       h: 12
+    position:
+      x: 0
+      y: 0
     markdown:
       content: "# Test"
 """
@@ -426,11 +430,15 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Multi Panel Dashboard
   panels:
   - title: Panel 1
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "1"
   - title: Panel 2
-    grid: {x: 24, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 24, y: 0}
     markdown:
       content: "2"
 """
@@ -479,7 +487,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Test Dashboard
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -498,7 +508,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Test Dashboard
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -517,14 +529,18 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: First Dashboard
   panels:
   - title: First Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "1"
 - name: Second Dashboard
   description: The second one
   panels:
   - title: Second Panel
-    grid: {x: 0, y: 0, w: 48, h: 20}
+    size: {w: 48, h: 20}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "2"
 """
@@ -544,7 +560,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Default Dashboard
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -564,7 +582,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Test
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -583,13 +603,17 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: First
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 - name: Second
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -620,7 +644,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Only
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """
@@ -639,7 +665,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 - name: Only
   panels:
   - title: Panel
-    grid: {x: 0, y: 0, w: 24, h: 10}
+    size: {w: 24, h: 10}
+
+    position: {x: 0, y: 0}
     markdown:
       content: "Test"
 """

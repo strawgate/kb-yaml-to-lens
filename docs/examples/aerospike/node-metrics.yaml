@@ -12,9 +12,7 @@ dashboards:
         field: aerospike.node.name
         match_technique: contains
     panels:
-      - grid:
-          x: 0
-          y: 0
+      - size:
           w: 48
           h: 2
         links:
@@ -26,16 +24,12 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - grid:
-          x: 0
-          y: 2
+      - size:
           w: 48
           h: 2
         markdown:
           content: "This dashboard is intended to be used with a single Aerospike node. Filter to a specific node before using this dashboard.\n"
-      - grid:
-          x: 0
-          y: 4
+      - size:
           w: 7
           h: 5
         lens:
@@ -48,9 +42,7 @@ dashboards:
           filters:
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 9
+      - size:
           w: 10
           h: 5
         lens:
@@ -63,9 +55,7 @@ dashboards:
           filters:
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 10
-          y: 4
+      - size:
           w: 38
           h: 9
         lens:
@@ -91,9 +81,7 @@ dashboards:
           filters:
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 10
-          y: 13
+      - size:
           w: 17
           h: 14
         lens:
@@ -119,9 +107,7 @@ dashboards:
           filters:
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 27
-          y: 13
+      - size:
           w: 21
           h: 14
         lens:

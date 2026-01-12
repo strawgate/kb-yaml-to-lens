@@ -24,7 +24,7 @@ dashboards:
         field: resource.attributes.host.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -40,7 +40,7 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: Host Metadata
-        grid: {x: 0, y: 2, w: 24, h: 12}
+        size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
@@ -61,7 +61,7 @@ dashboards:
             - field: Resource Attribute
             - field: Value
       - title: Host CPU Metadata
-        grid: {x: 24, y: 2, w: 24, h: 12}
+        size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
@@ -83,7 +83,7 @@ dashboards:
             - field: Resource Attribute
             - field: Value
       - title: Operating System Metadata
-        grid: {x: 0, y: 14, w: 24, h: 7}
+        size: {w: 24, h: 7}
         esql:
           type: datatable
           query:
@@ -102,7 +102,7 @@ dashboards:
             - field: Resource Attribute
             - field: Value
       - title: Cloud Metadata
-        grid: {x: 24, y: 14, w: 24, h: 12}
+        size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
@@ -123,7 +123,7 @@ dashboards:
             - field: Resource Attribute
             - field: Value
       - title: Kubernetes Metadata
-        grid: {x: 0, y: 21, w: 24, h: 5}
+        size: {w: 24, h: 5}
         esql:
           type: datatable
           query:

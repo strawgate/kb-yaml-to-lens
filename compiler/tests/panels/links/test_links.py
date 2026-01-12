@@ -6,15 +6,13 @@ import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.config import LinksPanel, get_link_type
 
 
 def compile_links_panel_snapshot(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Compile links panel config and return dict for snapshot testing."""
-    panel_grid = Grid(x=0, y=0, w=24, h=10)
-    links_panel = LinksPanel(grid=panel_grid, **config)
+    links_panel = LinksPanel(size={'w': 24, 'h': 10}, position={'x': 0, 'y': 0}, **config)
     kbn_references, kbn_panel_config = compile_links_panel_config(links_panel=links_panel)
     kbn_panel_as_dict = kbn_panel_config.model_dump(by_alias=True)
     kbn_references_as_dicts = [ref.model_dump(by_alias=True) for ref in kbn_references]

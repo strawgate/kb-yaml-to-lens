@@ -17,9 +17,7 @@ dashboards:
         match_technique: prefix
     panels:
       - title: Using Dashboard Controls
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 4
         markdown:
@@ -30,9 +28,7 @@ dashboards:
           font_size: 12
       - title: Selected Events Count
         description: Total events matching control filters
-        grid:
-          x: 0
-          y: 4
+        size:
           w: 16
           h: 6
         lens:
@@ -43,9 +39,7 @@ dashboards:
             label: Filtered Events
       - title: Unique Hosts in Selection
         description: Number of unique hosts in filtered data
-        grid:
-          x: 16
-          y: 4
+        size:
           w: 16
           h: 6
         lens:
@@ -57,9 +51,7 @@ dashboards:
             label: Hosts
       - title: Average Response Time
         description: Average response time for selected events
-        grid:
-          x: 32
-          y: 4
+        size:
           w: 16
           h: 6
         lens:
@@ -73,9 +65,7 @@ dashboards:
             - exists: http.response.time
       - title: Events Over Time (Filtered)
         description: Time series view of filtered events
-        grid:
-          x: 0
-          y: 10
+        size:
           w: 48
           h: 12
         lens:
@@ -90,9 +80,7 @@ dashboards:
               label: Event Count
       - title: Service Distribution (Filtered)
         description: Distribution of events across services
-        grid:
-          x: 0
-          y: 22
+        size:
           w: 24
           h: 12
         lens:
@@ -106,9 +94,7 @@ dashboards:
             - aggregation: count
       - title: Top URLs (Filtered)
         description: Most frequently accessed URLs
-        grid:
-          x: 24
-          y: 22
+        size:
           w: 24
           h: 12
         lens:

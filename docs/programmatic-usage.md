@@ -17,7 +17,7 @@ While YAML is great for simple, static dashboards, creating dashboards programma
 ```python
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import render
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Size
 from dashboard_compiler.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
 
 # Create a dashboard
@@ -28,7 +28,7 @@ dashboard = Dashboard(
 
 # Add a markdown panel
 panel = MarkdownPanel(
-    grid=Grid(x=0, y=0, w=24, h=15),
+    size=Size(w=24, h=15),
     markdown=MarkdownPanelConfig(
         content='# Hello from Python!',
     ),
@@ -56,33 +56,35 @@ dashboard = Dashboard(
 )
 ```
 
-### Grid Layout
+### Panel Sizing
 
-Kibana uses a 48-column grid system. Panels are positioned using the `Grid` class:
+Kibana uses a 48-column grid system for output. Panels are sized using the `Size` class, with optional `Position` for explicit positioning:
 
 ```python
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Position, Size
 
-# Full-width panel
-grid = Grid(x=0, y=0, w=48, h=15)
+# Full-width panel (auto-positioned)
+size = Size(w=48, h=15)
 
-# Half-width panels (left and right)
-left_grid = Grid(x=0, y=0, w=24, h=15)
-right_grid = Grid(x=24, y=0, w=24, h=15)
+# Half-width panels
+size_half = Size(w=24, h=15)
 
 # Quarter-width panels
-grid1 = Grid(x=0, y=0, w=12, h=15)
-grid2 = Grid(x=12, y=0, w=12, h=15)
-grid3 = Grid(x=24, y=0, w=12, h=15)
-grid4 = Grid(x=36, y=0, w=12, h=15)
+size_quarter = Size(w=12, h=15)
+
+# Explicit position when needed
+position = Position(x=0, y=0)
 ```
 
-**Grid Parameters:**
+**Size Parameters:**
+
+- `w`: Width in grid units (1-48)
+- `h`: Height in grid units (1+)
+
+**Position Parameters (optional):**
 
 - `x`: Horizontal position (0-47)
 - `y`: Vertical position (0+)
-- `w`: Width in grid units (1-48)
-- `h`: Height in grid units (1+)
 
 ### Adding Panels
 
@@ -113,7 +115,7 @@ from dashboard_compiler.panels.charts.config import (
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Size
 
 dashboard = Dashboard(name='Metrics Dashboard')
 
@@ -123,12 +125,10 @@ metrics_config = [
     {'name': 'Disk I/O', 'field': 'disk_io'},
 ]
 
-for i, metric in enumerate(metrics_config):
+for metric in metrics_config:
     panel = LensPanel(
         title=metric['name'],
-        grid=Grid(
-            x=(i % 3) * 16,  # 3 columns
-            y=(i // 3) * 15,
+        size=Size(
             w=16,
             h=15,
         ),
@@ -147,11 +147,11 @@ for i, metric in enumerate(metrics_config):
 ### Building Reusable Helper Functions
 
 ```python
-def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
+def create_metric_panel(title: str, field: str) -> LensPanel:
     """Helper function to create a standard metric panel."""
     return LensPanel(
         title=title,
-        grid=Grid(x=x, y=y, w=24, h=15),
+        size=Size(w=24, h=15),  # Auto-positioned
         lens=LensMetricPanelConfig(
             type='metric',
             data_view='logs-*',
@@ -160,8 +160,8 @@ def create_metric_panel(title: str, field: str, x: int, y: int) -> LensPanel:
     )
 
 # Use the helper function
-dashboard.add_panel(create_metric_panel('Avg Response Time', 'response_time', 0, 0))
-dashboard.add_panel(create_metric_panel('Avg Bytes', 'bytes', 24, 0))
+dashboard.add_panel(create_metric_panel('Avg Response Time', 'response_time'))
+dashboard.add_panel(create_metric_panel('Avg Bytes', 'bytes'))
 ```
 
 ## Filters and Controls

@@ -6,9 +6,7 @@ dashboards:
     panels:
       - title: Dashboard Navigation
         description: Navigate between related dashboards
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 2
         links:
@@ -22,9 +20,7 @@ dashboards:
               dashboard: nav-analytics-001
       - title: Overview Dashboard Guide
         hide_title: false
-        grid:
-          x: 0
-          y: 2
+        size:
           w: 48
           h: 3
         markdown:
@@ -33,9 +29,7 @@ dashboards:
           font_size: 12
       - title: Total Events
         description: Total log events in the selected time range
-        grid:
-          x: 0
-          y: 5
+        size:
           w: 12
           h: 6
         lens:
@@ -46,9 +40,7 @@ dashboards:
             label: Events
       - title: Unique Hosts
         description: Number of unique hosts reporting
-        grid:
-          x: 12
-          y: 5
+        size:
           w: 12
           h: 6
         lens:
@@ -60,9 +52,7 @@ dashboards:
             label: Hosts
       - title: Error Rate
         description: Percentage of error-level logs
-        grid:
-          x: 24
-          y: 5
+        size:
           w: 12
           h: 6
         lens:
@@ -76,9 +66,7 @@ dashboards:
               equals: error
       - title: Warning Rate
         description: Percentage of warning-level logs
-        grid:
-          x: 36
-          y: 5
+        size:
           w: 12
           h: 6
         lens:
@@ -92,9 +80,7 @@ dashboards:
               equals: warning
       - title: Event Trends Over Time
         description: Time series view of log events
-        grid:
-          x: 0
-          y: 11
+        size:
           w: 48
           h: 12
         lens:
@@ -116,9 +102,7 @@ dashboards:
     description: Detailed view with host-level breakdowns
     panels:
       - title: Dashboard Navigation
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 2
         links:
@@ -132,9 +116,7 @@ dashboards:
               dashboard: nav-analytics-001
       - title: Events by Host
         description: Top hosts by event count
-        grid:
-          x: 0
-          y: 2
+        size:
           w: 24
           h: 15
         lens:
@@ -153,9 +135,7 @@ dashboards:
               label: Event Count
       - title: Log Level Distribution
         description: Distribution of log severity levels
-        grid:
-          x: 24
-          y: 2
+        size:
           w: 24
           h: 15
         lens:
@@ -172,9 +152,7 @@ dashboards:
     description: Advanced analytics with multiple visualizations
     panels:
       - title: Dashboard Navigation
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 2
         links:
@@ -188,9 +166,7 @@ dashboards:
               dashboard: nav-analytics-001
       - title: Cumulative Event Volume
         description: Stacked area chart showing cumulative trends
-        grid:
-          x: 0
-          y: 2
+        size:
           w: 24
           h: 15
         lens:
@@ -207,9 +183,7 @@ dashboards:
             field: log.level
       - title: Common Tags
         description: Most frequent tags in log data
-        grid:
-          x: 24
-          y: 2
+        size:
           w: 24
           h: 15
         lens:
