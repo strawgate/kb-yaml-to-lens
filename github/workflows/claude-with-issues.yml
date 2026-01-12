@@ -4,6 +4,9 @@ on:
   issue_comment:
     types:
       - created
+concurrency:
+  group: claude-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
 permissions:
   contents: read
   pull-requests: read
@@ -31,6 +34,6 @@ jobs:
           --title "Issue title" --body "Description" --label "label1" --label "label2"
         ```
         Use clear titles, detailed descriptions, and appropriate labels (bug, enhancement, documentation).
-      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(gh:issue:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

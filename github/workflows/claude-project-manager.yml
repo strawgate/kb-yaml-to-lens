@@ -100,7 +100,7 @@ jobs:
 
         # OUTPUT
         Create issue via: `gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" --title "📊 PM Report - $(date +%Y-%m-%d)" --body "REPORT" --label "project-manager"`
-      allowed-tools: Bash(git:*,gh:issue:*)
+      allowed-tools: Bash(git:*,gh:issue:*,gh:pr:*)
       track-progress: false
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
