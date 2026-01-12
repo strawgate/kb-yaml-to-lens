@@ -7,7 +7,6 @@ from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_len
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
 from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
 from dashboard_compiler.panels.charts.tagcloud.view import KbnTagcloudVisualizationState
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_tagcloud_chart_visualization_state(
@@ -67,8 +66,6 @@ def compile_lens_tagcloud_chart(
         tuple[str, dict[str, KbnLensColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    layer_id = get_layer_id(chart)
-
     # Compile metric first
     metric_id, metric_column = compile_lens_metric(metric=chart.metric)
     kbn_metric_column_by_id = {metric_id: metric_column}
@@ -78,6 +75,8 @@ def compile_lens_tagcloud_chart(
     tag_accessor_id = next(iter(dimension_columns.keys()))
 
     kbn_columns = {**dimension_columns, **kbn_metric_column_by_id}
+
+    layer_id = chart.get_id()
 
     visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
 
@@ -96,9 +95,7 @@ def compile_esql_tagcloud_chart(
         tuple[str, list[KbnESQLColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
-    layer_id = get_layer_id(chart)
-
-    # Compile dimension
+    # Compile dimension to get tag_accessor_id for visualization state
     dimensions = compile_esql_dimensions(dimensions=[chart.dimension])
     tag_accessor_id = dimensions[0].columnId
 
@@ -107,6 +104,8 @@ def compile_esql_tagcloud_chart(
     metric_id = metric.columnId
 
     kbn_columns: list[KbnESQLColumnTypes] = [*dimensions, metric]
+
+    layer_id = chart.get_id()
 
     visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
 
