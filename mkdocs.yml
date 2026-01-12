@@ -133,6 +133,7 @@ nav:
               - Overview: llm-workflows/index.md
               - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
               - Dashboard Style Guide: dashboard-style-guide.md
+              - ES|QL Language Reference: llm-workflows/esql-language-reference.md
           - Custom Color Assignments: advanced/color-assignments.md
           - Legend Configuration: advanced/legend-configuration.md
           - ES|QL "views": advanced/esql-views.md
