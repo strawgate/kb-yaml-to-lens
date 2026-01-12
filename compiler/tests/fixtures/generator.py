@@ -171,7 +171,9 @@ class FixtureContainer:
             RuntimeError: If the script execution fails.
         """
         script_b64 = base64.b64encode(script_content.encode()).decode()
-        bash_cmd = f'echo {script_b64} | base64 -d > /kibana/gen.ts && tsx /kibana/gen.ts'
+        bash_cmd = (
+            f'mkdir -p /tmp /kibana/examples && echo {script_b64} | base64 -d > /kibana/examples/gen.ts && tsx /kibana/examples/gen.ts'
+        )
 
         config = {
             'Image': self.base_image,
@@ -183,8 +185,8 @@ class FixtureContainer:
             'HostConfig': {
                 'Binds': [
                     f'{self.output_dir}:/kibana/output',
-                    f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/generator-utils.ts:ro',
-                    f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/dataviews-mock.js:ro',
+                    f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/examples/generator-utils.ts:ro',
+                    f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/examples/dataviews-mock.js:ro',
                 ],
             },
         }

@@ -66,7 +66,6 @@ async def test_metric_basic_esql_dynamic(
     require_docker: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
 ) -> None:
     """Test basic metric compilation against dynamically generated fixture."""
-    # Use layer_0 to match what LensConfigBuilder generates
     yaml_content = """
 dashboards:
   - name: Basic Count Metric Test
@@ -79,7 +78,6 @@ dashboards:
           primary:
             field: count
             id: metric_formula_accessor
-          layer_id: layer_0
 """
 
     typescript_config = """
