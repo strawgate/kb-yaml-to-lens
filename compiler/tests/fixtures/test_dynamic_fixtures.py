@@ -156,7 +156,6 @@ dashboards:
           dimensions:
             - field: log.level
               id: metric_formula_accessor_breakdown_0
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -292,7 +291,6 @@ dashboards:
           metrics:
             - field: count
               id: metric_formula_accessor0_0
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -447,7 +445,6 @@ dashboards:
           goal: 0.8
           appearance:
             shape: arc
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -582,7 +579,6 @@ dashboards:
           value:
             field: bytes
             id: metric_formula_accessor
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -712,7 +708,6 @@ dashboards:
           metric:
             field: count
             id: metric_formula_accessor
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -822,7 +817,6 @@ dashboards:
           breakdown:
             field: agent.name
             id: metric_formula_accessor_breakdown
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -907,7 +901,6 @@ dashboards:
           metrics:
             - field: count
               id: metric_formula_accessor
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1033,7 +1026,6 @@ dashboards:
           dimensions:
             - field: response.keyword
               id: metric_formula_accessor_breakdown_0
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1081,7 +1073,6 @@ dashboards:
               id: metric_formula_accessor_breakdown_0
           legend:
             position: bottom
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1127,7 +1118,6 @@ dashboards:
           metrics:
             - field: count
               id: metric_formula_accessor0_0
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1177,7 +1167,6 @@ dashboards:
           metrics:
             - field: count
               id: metric_formula_accessor0_0
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1230,7 +1219,6 @@ dashboards:
           appearance:
             missing_values: Linear
             show_as_dotted: true
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1283,7 +1271,6 @@ dashboards:
               id: metric_formula_accessor0_0
           legend:
             position: bottom
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1336,7 +1323,6 @@ dashboards:
           breakdown:
             field: log.level
             id: breakdown_metric_formula_accessor0
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1389,7 +1375,6 @@ dashboards:
           goal: 0.7
           appearance:
             shape: semi_circle
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1439,7 +1424,6 @@ dashboards:
           goal: 0.9
           appearance:
             shape: circle
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1489,7 +1473,6 @@ dashboards:
           goal: 500000
           appearance:
             shape: horizontal_bullet
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1539,7 +1522,6 @@ dashboards:
           goal: 1000
           appearance:
             shape: vertical_bullet
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1590,7 +1572,6 @@ dashboards:
           value:
             field: count
             id: metric_formula_accessor
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1637,7 +1618,6 @@ dashboards:
           metric:
             field: count
             id: metric_formula_accessor
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1686,7 +1666,6 @@ dashboards:
               id: metric_formula_accessor
             - field: avg_bytes
               id: metric_formula_accessor_1
-          layer_id: layer_0
 """
 
     typescript_config = """
@@ -1731,7 +1710,6 @@ dashboards:
           secondary:
             field: max_bytes
             id: metric_formula_accessor_secondary
-          layer_id: layer_0
 """
 
     typescript_config = """
