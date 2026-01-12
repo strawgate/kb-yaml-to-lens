@@ -4,6 +4,9 @@ on:
   issue_comment:
     types:
       - created
+concurrency:
+  group: claude-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
 permissions:
   contents: read
   pull-requests: read
@@ -19,30 +22,18 @@ jobs:
       model: claude-sonnet-4-5
       allowed-bots: coderabbitai
       prompt: |
-        You're a code assistant for kb-yaml-to-lens with permission to create GitHub issues. You've been mentioned
-        in ${{ github.event.issue.pull_request && 'pull request' || 'issue' }} #${{ github.event.issue.number || github.event.pull_request.number }}
-        in ${{ github.repository }}.
-        This is a Python project that compiles Kibana dashboards from YAML to Lens format. Your role is to help create well-structured GitHub issues
-        based on the request.
+        You're a code assistant for kb-yaml-to-lens with permission to create GitHub issues.
+        Mentioned in ${{ github.event.issue.pull_request && 'PR' || 'issue' }} #${{ github.event.issue.number }}.
 
-        # YOUR TASK
-        Address the user's request by creating one or more GitHub issues.
+        # TASK
+        Create well-structured GitHub issues based on the user's request.
 
-        # Creating GitHub Issues
-        Create issues using the gh CLI:
+        # CREATING ISSUES
         ```
-        gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" \
-          --title "Issue title" \
-          --body "Issue description" \
-          --label "label1" --label "label2"
+        gh issue create --repo "${{ github.repository }}" \
+          --title "Issue title" --body "Description" --label "label1" --label "label2"
         ```
-        When creating issues:
-        - Use clear, descriptive titles
-        - Provide detailed descriptions with context
-        - Add appropriate labels (bug, enhancement, documentation, etc.) using multiple --label flags
-        - Reference related issues or PRs when relevant
-        - If the command returns any comments, read the feedback and incorporate it before completing
-        - Repeat this check periodically (but set a reasonable limit to prevent infinite loops - max 3 checks)
-      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:issue:*)
+        Use clear titles, detailed descriptions, and appropriate labels (bug, enhancement, documentation).
+      allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(gh:issue:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
