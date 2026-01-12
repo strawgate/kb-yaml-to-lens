@@ -162,9 +162,12 @@ formula: counter_rate(max(postgresql.commits))
 
 For ES|QL panels, modify the query:
 
-```yaml
-# Example: Change aggregation interval
+```sql
+-- Example: Change aggregation interval (for FROM queries)
 STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 5 minutes)
+
+-- Example: For TS (time series) queries, use TBUCKET instead
+STATS commits = SUM(RATE(postgresql.commits)) BY time_bucket = TBUCKET(5 minutes)
 ```
 
 ### Adding Alerts
