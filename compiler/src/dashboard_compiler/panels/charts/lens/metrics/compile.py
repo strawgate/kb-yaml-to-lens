@@ -44,7 +44,6 @@ from dashboard_compiler.panels.charts.lens.metrics.formula_parser import (
     parse_formula,
 )
 from dashboard_compiler.queries.view import KbnQuery
-from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.defaults import default_true
 
 FORMAT_TO_DEFAULT_DECIMALS = {
@@ -237,7 +236,7 @@ def _compile_formula_metric(
 
     """
     custom_label = None if metric.label is None else True
-    formula_id = metric.id or stable_id_generator(['formula', metric.formula, metric.label or 'Formula'])
+    formula_id = metric.get_id()
 
     # Parse the formula to extract aggregations and fullReference operations
     parse_result = parse_formula(metric.formula)
@@ -393,7 +392,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> CompiledMetricResult:
     """
     # Handle static values
     if isinstance(metric, LensStaticValue):
-        metric_id = metric.id or stable_id_generator(['static_value', str(metric.value)])
+        metric_id = metric.get_id()
         label = metric.label if metric.label is not None else str(metric.value)
         custom_label = metric.label is not None
 
@@ -417,7 +416,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> CompiledMetricResult:
 
     metric_column_params: KbnLensMetricColumnParams
     metric_filter: KbnQuery | None = None
-    metric_id = metric.id or stable_id_generator([metric.aggregation, metric.field])
+    metric_id = metric.get_id()
 
     # Generate Kibana-style default labels that match the native Lens editor UX.
     # Strategy varies by aggregation type to provide user-friendly descriptions:

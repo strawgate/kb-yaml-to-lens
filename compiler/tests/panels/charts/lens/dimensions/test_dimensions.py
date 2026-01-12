@@ -103,6 +103,7 @@ async def test_terms_dimension_with_sorting() -> None:
             'isBucketed': True,
             'scale': 'ordinal',
             'params': {
+                'size': 3,
                 'orderBy': {'type': 'column', 'columnId': IsUUID},
                 'orderDirection': 'desc',
                 'otherBucket': True,
