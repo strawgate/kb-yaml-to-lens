@@ -52,7 +52,7 @@ class MarkdownPanel(BasePanel):
                   content: |
                     # Setup Guide
 
-                    Please follow the [official documentation](https://example.com/docs) for setup instructions.
+                    Please follow the [official documentation](https://strawgate.github.io/kb-yaml-to-lens/) for setup instructions.
 
                     Key steps:
                     1. **Download** the installer.

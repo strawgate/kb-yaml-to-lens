@@ -9,6 +9,7 @@ import yaml
 
 from dashboard_compiler.dashboard.compile import compile_dashboard
 from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.loader import DashboardConfig
 
 
 def find_docstring_yaml_examples() -> list[dict[str, str]]:
@@ -43,8 +44,10 @@ def find_docstring_yaml_examples() -> list[dict[str, str]]:
 # Collect all examples at module load time
 EXAMPLES = find_docstring_yaml_examples()
 
-# Fail fast if no examples are found
-assert EXAMPLES, 'No YAML examples found in docstrings'
+
+def test_examples_exist() -> None:
+    """Ensure that we found some docstring examples to test."""
+    assert EXAMPLES, 'No YAML examples found in docstrings'
 
 
 @pytest.mark.parametrize('example', EXAMPLES, ids=lambda ex: f'{ex["file"]}::{ex["description"]}')
@@ -58,8 +61,17 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
     except yaml.YAMLError as e:
         pytest.fail(f'Invalid YAML in {example["file"]} - {example["description"]}: {e}')
 
-    # Check if this is a full dashboard or just a panel snippet
-    if 'panels' in config:
+    # Check if this is a full dashboard configuration
+    if 'dashboards' in config:
+        try:
+            dashboard_config = DashboardConfig.model_validate(config)
+            for dashboard in dashboard_config.dashboards:
+                result = compile_dashboard(dashboard)
+                assert result, f'Compilation failed for {example["file"]} - {example["description"]}'
+        except Exception as e:
+            pytest.fail(f'Compilation error in {example["file"]} - {example["description"]}: {e}')
+    # Check if this is a single dashboard object
+    elif 'panels' in config:
         # Full dashboard - validate and compile it directly
         try:
             dashboard = Dashboard.model_validate(config)
@@ -70,7 +82,8 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
     else:
         # Panel snippet - wrap it in a minimal dashboard
         # Determine the panel type from the top-level keys
-        if 'lens' in config or 'esql' in config:
+        supported_keys = {'lens', 'esql', 'markdown', 'image', 'text', 'map'}
+        if any(key in config for key in supported_keys):
             panel_config = config
         else:
             # Unknown format - skip

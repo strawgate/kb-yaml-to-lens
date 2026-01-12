@@ -14,8 +14,7 @@ from dashboard_compiler.panels.view import KbnBasePanel
 # Define nested models for Search panel embeddableConfig based on samples
 class KbnSearchEmbeddableConfig(BaseModel):
     enhancements: dict[str, Any] = Field(default_factory=dict)
-    # savedSearchId might be here based on some samples, need to confirm
-    # savedSearchId: str
+    savedSearchRefName: str
 
 
 class KbnSearchPanel(KbnBasePanel):

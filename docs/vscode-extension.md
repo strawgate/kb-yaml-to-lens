@@ -11,16 +11,90 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 - **Error Reporting** – Clear error messages when compilation fails
 - **Context Menu Integration** – Right-click commands in YAML files for quick access
 
+## Why Use the Extension?
+
+The VS Code extension is the **easiest way to get started** with the Kibana Dashboard Compiler:
+
+### No Python Installation Required
+
+- **Bundled LSP binary** - Extension includes pre-built server binary for all platforms
+- **Zero configuration** - Works immediately after installation
+- **No dependency management** - No `pip`, `uv`, or virtual environments needed
+
+### Instant Feedback
+
+- **Live preview** - See your dashboard as you type
+- **Auto-compile on save** - Background compilation with error reporting
+- **Visual validation** - Schema-based validation catches errors before upload
+
+### Productivity Features
+
+- **Code snippets** - 40+ pre-built snippets for panels, controls, layouts
+- **Visual grid editor** - Drag-and-drop panel positioning
+- **Schema auto-complete** - IntelliSense for all YAML properties
+- **One-click upload** - Direct integration with Kibana
+
+**When to use CLI instead:** CI/CD pipelines, batch processing, scripting, environments without VS Code
+
+---
+
 ## Installation
 
 ### Prerequisites
 
-- **Python 3.12 or higher** – The extension requires Python with the dashboard compiler package
-- **dashboard_compiler package** – Must be installed and available in your Python environment
-- **VS Code 1.85.0 or higher**
-- **Red Hat YAML extension** – Automatically installed as a dependency for schema-based features
+#### For End Users (Installing from Registry/VSIX)
 
-### Building and Installing
+- VS Code 1.85.0 or higher
+- Red Hat YAML extension (automatically installed)
+- **No Python required** - Bundled binary included
+
+#### For Extension Developers Only
+
+- Python 3.12+ with `dashboard_compiler` package
+- Node.js 18+ for building the extension
+- VS Code 1.85.0 or higher
+
+### Installing the Extension
+
+#### Option 1: Install from OpenVSX Registry
+
+Works with Cursor, VSCodium, and other VS Code forks:
+
+1. Open Extensions view (Ctrl+Shift+X)
+2. Search for "Kibana Dashboard Compiler"
+3. Click Install
+
+#### Option 2: Manual Installation (VSIX)
+
+For restricted environments or offline installation:
+
+1. Download platform-specific `.vsix` from [releases page](https://github.com/strawgate/kb-yaml-to-lens/releases)
+2. In VS Code: Extensions view (Ctrl+Shift+X) → "..." menu → "Install from VSIX..."
+3. Select the downloaded `.vsix` file
+
+**That's it!** The extension includes everything needed - no additional setup required.
+
+### Verify Installation
+
+After installation, confirm the extension is working:
+
+1. **Check extension is active:**
+   - Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P on Mac)
+   - Type "YAML Dashboard" - you should see multiple commands listed
+
+2. **Test snippet functionality:**
+   - Create a new file: `test-dashboard.yaml`
+   - Type `dashboard` and press Tab
+   - A complete dashboard structure should be inserted
+
+3. **Troubleshooting:**
+   - If commands don't appear: Restart VS Code
+   - If snippets don't work: Ensure file extension is `.yaml`
+   - Check Output panel: View → Output → "Kibana Dashboard Compiler"
+
+### For Extension Developers
+
+Only needed if you're developing the extension itself:
 
 1. Build the extension:
 
@@ -40,20 +114,21 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 
 ## Setup
 
-### Python Environment
+### Extension Configuration
 
-The extension requires the `dashboard_compiler` package to be installed in your Python environment.
+Configure in VS Code settings (File → Preferences → Settings, search for "Kibana Dashboard"):
 
-From the repository root:
+**`yamlDashboard.compileOnSave`** - Enable/disable automatic compilation on save (default: `true`)
 
-```bash
-# Or using uv
-uv sync
-```
+**`yamlDashboard.kibana.url`** - Kibana URL for uploads (default: `http://localhost:5601`)
 
-**`yamlDashboard.compileOnSave`**
+**`yamlDashboard.kibana.sslVerify`** - Verify SSL certificates (default: `true`)
 
-Enable/disable automatic compilation on save (default: `true`)
+**`yamlDashboard.kibana.browserType`** - Browser for opening dashboards - `external` or `simple` (default: `external`)
+
+**`yamlDashboard.kibana.uploadOnSave`** - Auto-upload on save (default: `false`)
+
+**`yamlDashboard.pythonPath`** - Python interpreter path (optional - only needed for development; bundled binary is used by default)
 
 ## Usage
 
@@ -65,20 +140,51 @@ The extension provides the following commands (accessible via Command Palette - 
 - **YAML Dashboard: Preview Dashboard** – Open preview panel for the current YAML file
 - **YAML Dashboard: Edit Dashboard Layout** – Open visual grid layout editor for drag-and-drop panel positioning
 - **YAML Dashboard: Export Dashboard to NDJSON** – Copy compiled NDJSON to clipboard
+- **YAML Dashboard: Open in Kibana** – Upload compiled dashboard to Kibana and open in browser
+- **YAML Dashboard: Set Kibana API Key** – Store API credentials for Kibana uploads
 
-### Workflow
+## Complete Workflow Walkthrough
 
-1. Open a YAML dashboard file (e.g., `my-dashboard.yaml`)
-2. The extension activates automatically for YAML files
-3. Save the file (Ctrl+S) - it will automatically compile if `compileOnSave` is enabled
-4. Run **YAML Dashboard: Preview Dashboard** to see the compiled output
-5. Run **YAML Dashboard: Edit Dashboard Layout** to visually rearrange panels:
-   - Drag panels to move them on the 48-column Kibana grid
-   - Drag the bottom-right corner of panels to resize them
-   - Changes are saved automatically to the YAML file
-   - Use "Show Grid Lines" and "Snap to Grid" options for easier alignment
-6. The preview updates automatically when you save changes
-7. Use the **Copy NDJSON** button in the preview to export for Kibana
+### First-Time Setup (5 minutes)
+
+1. **Install the extension** (see Installation section above)
+2. **Configure Kibana connection** (optional - only needed for uploads):
+   - Open Settings (File → Preferences → Settings)
+   - Search: "Kibana Dashboard"
+   - Set `yamlDashboard.kibana.url` (e.g., `http://localhost:5601`)
+   - Run command: **"YAML Dashboard: Set Kibana API Key"** (recommended) or set username/password
+
+### Daily Development Workflow
+
+1. **Create or open** a YAML dashboard file
+2. **Use snippets** for rapid scaffolding:
+   - Type `dashboard` + Tab for complete dashboard structure
+   - Type `panel-lens-metric` + Tab for metric panel
+   - Type `grid-half` + Tab for half-width grid layout
+3. **Save (Ctrl+S)** - automatic compilation runs in background
+4. **Preview** your work:
+   - Command: **"YAML Dashboard: Preview Dashboard"**
+   - Panel opens side-by-side with live reload
+5. **Visual layout adjustment** (optional):
+   - Command: **"YAML Dashboard: Edit Dashboard Layout"**
+   - Drag panels to reposition, resize by dragging corners
+   - Changes auto-save back to YAML
+6. **Upload to Kibana**:
+   - Command: **"YAML Dashboard: Open in Kibana"**
+   - Dashboard uploads and opens in browser automatically
+
+### Quick Commands Reference
+
+Access via Command Palette (Ctrl+Shift+P):
+
+| Command | Purpose | When to Use |
+| ------- | ------- | ----------- |
+| **Compile Dashboard** | Manual compilation | After disabling auto-compile |
+| **Preview Dashboard** | Open live preview | First time or after closing preview |
+| **Edit Dashboard Layout** | Visual grid editor | Positioning panels visually |
+| **Export to NDJSON** | Copy to clipboard | Manual Kibana import |
+| **Open in Kibana** | Upload + open browser | Deploy to Kibana |
+| **Set Kibana API Key** | Store credentials | One-time Kibana setup (recommended) |
 
 ### Keyboard Shortcuts
 
@@ -86,7 +192,7 @@ You can add custom keyboard shortcuts in VS Code (File → Preferences → Keybo
 
 ```json
 {
-  "key": "ctrl+shift+p",
+  "key": "ctrl+shift+d",
   "command": "yamlDashboard.preview",
   "when": "resourceLangId == yaml"
 }

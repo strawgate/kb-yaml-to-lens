@@ -15,7 +15,7 @@ npm run compile
 
 The extension will automatically fall back to using Python + the `dashboard_compiler` package.
 
-### Building LSP Binary (Current Platform)
+### Building Unified Binary (Current Platform)
 
 ```bash
 # From repository root
@@ -23,12 +23,12 @@ make build-extension-binaries
 
 # Or build compiler binary and copy separately
 cd compiler
-make build-lsp-binary
+make build-binary
 cd ../vscode-extension
-make copy-lsp-binary
+make copy-binary
 ```
 
-Creates `bin/{platform}-{arch}/kb-dashboard-compiler-lsp` for your current platform.
+Creates `bin/{platform}-{arch}/kb-dashboard` for your current platform.
 
 **Prerequisites**: Python 3.12+, uv package manager, dashboard_compiler package installed
 
@@ -50,7 +50,7 @@ Creates `kb-dashboard-compiler-{version}@{platform}.vsix` files ready for distri
 
 The `BinaryResolver` class intelligently chooses the LSP server:
 
-1. **Production**: Bundled binary at `bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
+1. **Production**: Bundled binary at `bin/{platform}-{arch}/kb-dashboard` (invoked with `lsp` subcommand)
 2. **Development**: Falls back to Python module `dashboard_compiler.lsp.server`
 
 Platform directories:
@@ -62,17 +62,17 @@ Platform directories:
 
 ### Binary Build Process
 
-The LSP binary is built using the compiler's unified binary builder:
+The unified binary is built using the compiler's binary builder:
 
-1. **Compiler builds binary**: `compiler/scripts/build_binaries.py` creates the LSP binary using PyInstaller
-2. **Extension copies binary**: `vscode-extension/scripts/copy_lsp_binary.sh` copies the binary to the correct platform directory
+1. **Compiler builds binary**: `compiler/scripts/build_binaries.py` creates the unified binary (CLI + LSP) using PyInstaller
+2. **Extension copies binary**: `vscode-extension/scripts/copy_binary.sh` copies the binary to the correct platform directory
 3. **Packaging includes binary**: When creating VSIX packages, the binary is bundled with the extension
 
-This approach eliminates duplicate Python dependencies in the extension and ensures consistency between the compiler and extension binaries.
+This approach eliminates duplicate Python dependencies in the extension and provides a single binary with both CLI and LSP capabilities.
 
 ### What Gets Bundled
 
-- ✅ **LSP server binary**: Built from `compiler/src/dashboard_compiler/lsp/server.py` using the compiler's build system
+- ✅ **Unified binary**: Built from `compiler/src/dashboard_compiler/cli.py` with LSP subcommand support
 - ✅ **Compiled TypeScript**: JavaScript output in `out/` directory
 - ❌ **Grid scripts**: Not bundled - require Python runtime (used by grid editor feature)
 
@@ -82,10 +82,10 @@ To build for all platforms, run the build script on each target platform:
 
 | Platform | GitHub Actions Runner | Creates |
 | -------- | --------------------- | ------- |
-| Linux x64 | `ubuntu-latest` | `bin/linux-x64/kb-dashboard-compiler-lsp` |
-| macOS Intel | `macos-13` | `bin/darwin-x64/kb-dashboard-compiler-lsp` |
-| macOS ARM64 | `macos-14` | `bin/darwin-arm64/kb-dashboard-compiler-lsp` |
-| Windows x64 | `windows-latest` | `bin/win32-x64/kb-dashboard-compiler-lsp.exe` |
+| Linux x64 | `ubuntu-latest` | `bin/linux-x64/kb-dashboard` |
+| macOS Intel | `macos-13` | `bin/darwin-x64/kb-dashboard` |
+| macOS ARM64 | `macos-14` | `bin/darwin-arm64/kb-dashboard` |
+| Windows x64 | `windows-latest` | `bin/win32-x64/kb-dashboard.exe` |
 
 **Note**: PyInstaller can only create binaries for the platform it runs on (no cross-compilation).
 
@@ -126,16 +126,16 @@ uv sync --group build
 
 If the extension falls back to Python in production:
 
-1. Verify binary exists: `ls bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
+1. Verify binary exists: `ls bin/{platform}-{arch}/kb-dashboard`
 2. Check `.vscodeignore` doesn't exclude `bin/`
-3. Verify binary is executable (Unix): `file bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
+3. Verify binary is executable (Unix): `file bin/{platform}-{arch}/kb-dashboard`
 
 ### Package Size Too Small
 
 If the VSIX is ~180kb instead of ~18MB, the binary wasn't included:
 
 1. Ensure you ran `make build-extension-binaries` before packaging
-2. Check that `bin/{platform}-{arch}/kb-dashboard-compiler-lsp` exists
-3. Verify the binary is ~18MB: `ls -lh bin/{platform}-{arch}/kb-dashboard-compiler-lsp`
+2. Check that `bin/{platform}-{arch}/kb-dashboard` exists
+3. Verify the binary is ~18MB: `ls -lh bin/{platform}-{arch}/kb-dashboard`
 
 For more details on the architecture and development workflow, see [README.md](./README.md).

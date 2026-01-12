@@ -42,7 +42,12 @@ def get_panel_type(v: dict[str, object] | object) -> str:
             return 'esql'
 
     if isinstance(v, dict):
-        msg = f'Cannot determine panel type from dict with keys: {list(v)}'  # pyright: ignore[reportUnknownArgumentType]
+        keys = list(v)  # pyright: ignore[reportUnknownArgumentType]
+        msg = (
+            f'Cannot determine panel type from dict with keys: {keys}. '
+            'Each panel must have exactly one type discriminator key: '
+            "'markdown', 'search', 'links', 'image', 'lens', or 'esql'."
+        )
     else:
         msg = f'Cannot determine panel type from object: {type(v).__name__}'
     raise ValueError(msg)
