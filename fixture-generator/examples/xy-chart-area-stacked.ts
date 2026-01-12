@@ -9,7 +9,6 @@ import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateXYChartAreaStacked(): Promise<void> {
-  // Shared configuration between both variants
   const sharedConfig: Partial<LensXYConfig> = {
     legend: {
       show: true,
@@ -17,19 +16,18 @@ export async function generateXYChartAreaStacked(): Promise<void> {
     }
   };
 
-  // ES|QL variant
   const esqlConfig: LensXYConfig = {
     chartType: 'xy',
     ...sharedConfig,
     title: 'Events by Status (Stacked Area)',
     dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT() BY @timestamp, log.level'
+      esql: 'FROM logs-* | STATS count = COUNT() BY timestamp_bucket = BUCKET(@timestamp, 1 hour), log.level'
     },
     layers: [
       {
         type: 'series',
         seriesType: 'area_stacked',
-        xAxis: '@timestamp',
+        xAxis: 'timestamp_bucket',
         breakdown: 'log.level',
         yAxis: [
           {
@@ -41,7 +39,6 @@ export async function generateXYChartAreaStacked(): Promise<void> {
     ]
   };
 
-  // Data View variant
   const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
     ...sharedConfig,

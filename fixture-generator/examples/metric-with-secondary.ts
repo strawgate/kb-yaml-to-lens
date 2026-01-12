@@ -9,12 +9,10 @@ import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricWithSecondary(): Promise<void> {
-  // Shared configuration between both variants
   const sharedConfig: Partial<LensMetricConfig> = {
     label: 'Response Time'
   };
 
-  // ES|QL variant
   const esqlConfig: LensMetricConfig = {
     chartType: 'metric',
     ...sharedConfig,
@@ -26,7 +24,6 @@ export async function generateMetricWithSecondary(): Promise<void> {
     querySecondaryMetric: 'max_time'
   };
 
-  // Data View variant
   const dataviewConfig: LensMetricConfig = {
     chartType: 'metric',
     ...sharedConfig,

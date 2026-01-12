@@ -9,7 +9,6 @@ import type { LensXYConfig } from '@kbn/lens-embeddable-utils/config_builder';
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateXYChartValueLabels(): Promise<void> {
-  // Shared configuration between both variants
   const sharedConfig: Partial<LensXYConfig> = {
     legend: {
       show: true,
@@ -18,7 +17,6 @@ export async function generateXYChartValueLabels(): Promise<void> {
     valueLabels: 'show'
   };
 
-  // ES|QL variant
   const esqlConfig: LensXYConfig = {
     chartType: 'xy',
     ...sharedConfig,
@@ -41,7 +39,6 @@ export async function generateXYChartValueLabels(): Promise<void> {
     ]
   };
 
-  // Data View variant
   const dataviewConfig: LensXYConfig = {
     chartType: 'xy',
     ...sharedConfig,

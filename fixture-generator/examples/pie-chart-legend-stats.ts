@@ -2,7 +2,7 @@
 /**
  * Example: Generate pie chart with legend statistics (Data View only)
  *
- * Demonstrates creating a pie chart with legend showing min/max/avg statistics.
+ * Demonstrates creating a pie chart with legend showing current/last value and average statistics.
  * Note: Legend statistics require Data View, not ES|QL.
  */
 

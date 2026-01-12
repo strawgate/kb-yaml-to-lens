@@ -9,18 +9,16 @@ import type { LensTableConfig } from '@kbn/lens-embeddable-utils/config_builder'
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateDatatableMultiColumn(): Promise<void> {
-  // ES|QL variant
   const esqlConfig: LensTableConfig = {
     chartType: 'table',
     title: 'Log Events by Source and Level',
     dataset: {
-      esql: 'FROM logs-* | STATS count = COUNT(), bytes = SUM(bytes) BY log.level, source.ip | SORT count DESC | LIMIT 100'
+      esql: 'FROM logs-* | STATS count = COUNT() BY log.level, source.ip | SORT count DESC | LIMIT 100'
     },
     breakdown: ['log.level', 'source.ip'],
     value: 'count'
   };
 
-  // Data View variant
   const dataviewConfig: LensTableConfig = {
     chartType: 'table',
     title: 'Log Events by Source and Level (Data View)',

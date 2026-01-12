@@ -9,7 +9,6 @@ import type { LensGaugeConfig } from '@kbn/lens-embeddable-utils/config_builder'
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateGaugeCircle(): Promise<void> {
-  // Shared configuration between both variants
   const sharedConfig: Partial<LensGaugeConfig> = {
     queryMinValue: '0',
     queryMaxValue: '1',
@@ -17,7 +16,6 @@ export async function generateGaugeCircle(): Promise<void> {
     shape: 'circle'
   };
 
-  // ES|QL variant
   const esqlConfig: LensGaugeConfig = {
     chartType: 'gauge',
     ...sharedConfig,
@@ -28,7 +26,6 @@ export async function generateGaugeCircle(): Promise<void> {
     value: 'avg_mem'
   };
 
-  // Data View variant
   const dataviewConfig: LensGaugeConfig = {
     chartType: 'gauge',
     ...sharedConfig,

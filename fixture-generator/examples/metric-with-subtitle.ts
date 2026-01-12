@@ -9,13 +9,11 @@ import type { LensMetricConfig } from '@kbn/lens-embeddable-utils/config_builder
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateMetricWithSubtitle(): Promise<void> {
-  // Shared configuration between both variants
   const sharedConfig: Partial<LensMetricConfig> = {
     label: 'Total Events',
     subtitle: 'Last 24 hours'
   };
 
-  // ES|QL variant
   const esqlConfig: LensMetricConfig = {
     chartType: 'metric',
     ...sharedConfig,
@@ -26,7 +24,6 @@ export async function generateMetricWithSubtitle(): Promise<void> {
     value: 'count'
   };
 
-  // Data View variant
   const dataviewConfig: LensMetricConfig = {
     chartType: 'metric',
     ...sharedConfig,

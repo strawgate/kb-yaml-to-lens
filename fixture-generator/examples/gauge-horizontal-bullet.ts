@@ -9,7 +9,6 @@ import type { LensGaugeConfig } from '@kbn/lens-embeddable-utils/config_builder'
 import { generateDualFixture, runIfMain } from '../generator-utils.js';
 
 export async function generateGaugeHorizontalBullet(): Promise<void> {
-  // Shared configuration between both variants
   const sharedConfig: Partial<LensGaugeConfig> = {
     queryMinValue: '0',
     queryMaxValue: '100',
@@ -17,7 +16,6 @@ export async function generateGaugeHorizontalBullet(): Promise<void> {
     shape: 'horizontalBullet'
   };
 
-  // ES|QL variant
   const esqlConfig: LensGaugeConfig = {
     chartType: 'gauge',
     ...sharedConfig,
@@ -28,7 +26,6 @@ export async function generateGaugeHorizontalBullet(): Promise<void> {
     value: 'avg_disk'
   };
 
-  // Data View variant
   const dataviewConfig: LensGaugeConfig = {
     chartType: 'gauge',
     ...sharedConfig,
@@ -36,7 +33,7 @@ export async function generateGaugeHorizontalBullet(): Promise<void> {
     dataset: {
       index: 'metrics-*'
     },
-    value: 'average(system.disk.used.pct)'
+    value: 'average(system.disk.used.pct) * 100'
   };
 
   await generateDualFixture(

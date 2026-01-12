@@ -39,6 +39,8 @@ export async function generateXYChartWithAnnotations(): Promise<void> {
           {
             type: 'manual',
             label: 'Deployment',
+            // Note: 'now-1h' is intentionally relative for demo purposes.
+            // For deterministic fixtures, use an absolute ISO timestamp instead.
             key: {
               type: 'point_in_time',
               timestamp: 'now-1h'
