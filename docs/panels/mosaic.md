@@ -1,6 +1,6 @@
 # Mosaic Chart Panel Configuration
 
-The Mosaic chart panel visualizes categorical data as proportional rectangles, showing category distributions at a glance. Mosaic charts support exactly one dimension and one metric.
+The Mosaic chart panel visualizes categorical data as proportional rectangles, showing category distributions at a glance. Mosaic charts support exactly one metric, one dimension, and an optional breakdown.
 
 ---
 

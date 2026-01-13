@@ -73,6 +73,7 @@ class LensMosaicChart(BaseMosaicChart):
 
     Mosaic charts visualize categorical data as proportional rectangles,
     where each rectangle's area represents its proportion of the whole.
+    Mosaic charts support exactly one metric, one dimension, and an optional breakdown.
 
     Examples:
         Simple mosaic chart showing request distribution:
@@ -80,11 +81,26 @@ class LensMosaicChart(BaseMosaicChart):
         lens:
           type: mosaic
           data_view: "logs-*"
-          dimensions:
-            - field: "http.request.method"
-              type: values
-          metrics:
-            - aggregation: count
+          dimension:
+            field: "http.request.method"
+            type: values
+          metric:
+            aggregation: count
+        ```
+
+        Mosaic chart with breakdown:
+        ```yaml
+        lens:
+          type: mosaic
+          data_view: "logs-*"
+          dimension:
+            field: "http.request.method"
+            type: values
+          breakdown:
+            field: "service.name"
+            type: values
+          metric:
+            aggregation: count
         ```
 
         Mosaic chart with custom colors:
@@ -92,11 +108,11 @@ class LensMosaicChart(BaseMosaicChart):
         lens:
           type: mosaic
           data_view: "metrics-*"
-          dimensions:
-            - field: "service.name"
-              type: values
-          metrics:
-            - aggregation: count
+          dimension:
+            field: "service.name"
+            type: values
+          metric:
+            aggregation: count
           color:
             palette: 'eui_amsterdam_color_blind'
             assignments:
@@ -111,11 +127,11 @@ class LensMosaicChart(BaseMosaicChart):
         lens:
           type: mosaic
           data_view: "logs-*"
-          dimensions:
-            - field: "http.request.method"
-              type: values
-          metrics:
-            - aggregation: count
+          dimension:
+            field: "http.request.method"
+            type: values
+          metric:
+            aggregation: count
           legend:
             visible: show
             position: bottom
@@ -126,11 +142,14 @@ class LensMosaicChart(BaseMosaicChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the mosaic chart."""
 
-    metrics: list[LensMetricTypes] = Field(default=..., min_length=1, max_length=1)
+    metric: LensMetricTypes = Field(default=...)
     """Metric that determines the size of rectangles. Mosaic charts support only one metric."""
 
-    dimensions: list[LensDimensionTypes] = Field(default=..., min_length=1, max_length=1)
-    """Dimension for grouping data. Mosaic charts support only one dimension."""
+    dimension: LensDimensionTypes = Field(default=...)
+    """Primary dimension for grouping data. Mosaic charts support only one dimension."""
+
+    breakdown: LensDimensionTypes | None = Field(default=None)
+    """Optional secondary dimension for breaking down the mosaic into sub-groups."""
 
 
 class ESQLMosaicChart(BaseMosaicChart):
@@ -138,6 +157,7 @@ class ESQLMosaicChart(BaseMosaicChart):
 
     Mosaic charts visualize categorical data as proportional rectangles,
     using ES|QL queries to aggregate and group the data.
+    Mosaic charts support exactly one metric, one dimension, and an optional breakdown.
 
     Examples:
         ES|QL mosaic chart with STATS query:
@@ -147,15 +167,33 @@ class ESQLMosaicChart(BaseMosaicChart):
           query: |
             FROM logs-*
             | STATS count = COUNT(*) BY http.request.method
-          metrics:
-            - field: "count"
-          dimensions:
-            - field: "http.request.method"
+          metric:
+            field: "count"
+          dimension:
+            field: "http.request.method"
+        ```
+
+        ES|QL mosaic chart with breakdown:
+        ```yaml
+        esql:
+          type: mosaic
+          query: |
+            FROM logs-*
+            | STATS count = COUNT(*) BY http.request.method, service.name
+          metric:
+            field: "count"
+          dimension:
+            field: "http.request.method"
+          breakdown:
+            field: "service.name"
         ```
     """
 
-    metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1, max_length=1)
+    metric: ESQLMetricTypes = Field(default=...)
     """Metric that determines the size of rectangles. Mosaic charts support only one metric."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(default=..., min_length=1, max_length=1)
-    """Dimension for grouping data. Mosaic charts support only one dimension."""
+    dimension: ESQLDimensionTypes = Field(default=...)
+    """Primary dimension for grouping data. Mosaic charts support only one dimension."""
+
+    breakdown: ESQLDimensionTypes | None = Field(default=None)
+    """Optional secondary dimension for breaking down the mosaic into sub-groups."""

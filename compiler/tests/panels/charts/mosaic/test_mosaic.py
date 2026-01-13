@@ -13,15 +13,15 @@ async def test_basic_mosaic_chart() -> None:
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
         'type': 'mosaic',
         'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
-        'metrics': [{'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -78,13 +78,51 @@ async def test_basic_mosaic_chart() -> None:
     )
 
 
+async def test_mosaic_chart_with_breakdown() -> None:
+    """Test mosaic chart with breakdown dimension."""
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'secondaryGroups': ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+        }
+    )
+
+
 async def test_mosaic_chart_with_legend_options() -> None:
     """Test mosaic chart with legend configuration."""
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'legend': {'visible': 'show', 'width': 'medium', 'nested': True},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -121,8 +159,8 @@ async def test_mosaic_chart_with_value_display() -> None:
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'titles_and_text': {'value_format': 'value'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -158,8 +196,8 @@ async def test_mosaic_chart_with_hidden_values() -> None:
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'titles_and_text': {'value_format': 'hidden'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -176,10 +214,8 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
-            {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
-        ],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -215,8 +251,8 @@ async def test_mosaic_chart_with_custom_colors() -> None:
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {
             'palette': 'eui_amsterdam_color_blind',
             'assignments': [
@@ -240,8 +276,8 @@ async def test_mosaic_chart_with_legend_position() -> None:
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'legend': {'visible': 'show', 'position': 'bottom'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -252,3 +288,23 @@ async def test_mosaic_chart_with_legend_position() -> None:
     layer = kbn_state_visualization.layers[0]
     assert layer.legendPosition == 'bottom'
     assert layer.legendDisplay == 'show'
+
+
+async def test_esql_mosaic_chart_with_breakdown() -> None:
+    """Test ES|QL mosaic chart with breakdown dimension."""
+    esql_config = {
+        'type': 'mosaic',
+        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method, service.name',
+        'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'field': 'service.name', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_mosaic_chart(esql_mosaic_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
+    assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
+    assert layer.metrics == ['8f020607-379e-4b54-bc9e-e5550e84f5d5']

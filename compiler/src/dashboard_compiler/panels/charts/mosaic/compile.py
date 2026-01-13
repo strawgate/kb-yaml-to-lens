@@ -19,12 +19,13 @@ from dashboard_compiler.panels.charts.mosaic.view import (
 from dashboard_compiler.shared.defaults import default_false
 
 
-def compile_mosaic_chart_visualization_state(
+def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: LensMosaicChart | ESQLMosaicChart,
-    group_by_ids: list[str],
-    metric_ids: list[str],
+    dimension_id: str,
+    breakdown_id: str | None,
+    metric_id: str,
     collapse_fns: dict[str, str] | None,
 ) -> KbnMosaicVisualizationState:
     """Compile a MosaicChart config object into a Kibana Mosaic visualization state.
@@ -32,8 +33,9 @@ def compile_mosaic_chart_visualization_state(
     Args:
         layer_id: The ID of the layer.
         chart: The MosaicChart config object.
-        group_by_ids: The IDs of the group by dimensions.
-        metric_ids: The IDs of the metrics.
+        dimension_id: The ID of the primary dimension.
+        breakdown_id: The ID of the breakdown dimension, or None if not specified.
+        metric_id: The ID of the metric.
         collapse_fns: Mapping of dimension ID to collapse function.
 
     Returns:
@@ -75,8 +77,9 @@ def compile_mosaic_chart_visualization_state(
 
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
         layerId=layer_id,
-        primaryGroups=group_by_ids,
-        metrics=metric_ids,
+        primaryGroups=[dimension_id],
+        secondaryGroups=[breakdown_id] if breakdown_id is not None else None,
+        metrics=[metric_id],
         allowMultipleMetrics=False,
         collapseFns=collapse_fns if collapse_fns is not None and len(collapse_fns) > 0 else None,
         numberDisplay=number_display,
@@ -112,24 +115,35 @@ def compile_lens_mosaic_chart(
     """
     layer_id = lens_mosaic_chart.get_id()
 
+    # Compile the single metric
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
-    metric_ids: list[str] = []
-    for metric_config in lens_mosaic_chart.metrics:
-        metric_id, metric = compile_lens_metric(metric=metric_config)
-        kbn_metric_column_by_id[metric_id] = metric
-        metric_ids.append(metric_id)
+    metric_id, metric = compile_lens_metric(metric=lens_mosaic_chart.metric)
+    kbn_metric_column_by_id[metric_id] = metric
 
-    groups_by_ids = compile_lens_dimensions(dimensions=lens_mosaic_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)
-    dimension_ids = list(groups_by_ids.keys())
+    # Compile the dimension
+    dimension_columns = compile_lens_dimensions(dimensions=[lens_mosaic_chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
+    dimension_id = next(iter(dimension_columns.keys()))
 
+    # Compile the breakdown (if present)
+    breakdown_id: str | None = None
+    breakdown_columns: dict[str, KbnLensColumnTypes] = {}
+    if lens_mosaic_chart.breakdown is not None:
+        compiled_breakdown = compile_lens_dimensions(
+            dimensions=[lens_mosaic_chart.breakdown], kbn_metric_column_by_id=kbn_metric_column_by_id
+        )
+        breakdown_id = next(iter(compiled_breakdown.keys()))
+        breakdown_columns = dict(compiled_breakdown)
+
+    # Build collapse functions
     collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim_id in zip(lens_mosaic_chart.dimensions, dimension_ids, strict=True):
-        if dim_config.collapse is not None:
-            if collapse_fns is None:
-                collapse_fns = {}
-            collapse_fns[compiled_dim_id] = str(dim_config.collapse)
+    if lens_mosaic_chart.dimension.collapse is not None:
+        collapse_fns = {dimension_id: str(lens_mosaic_chart.dimension.collapse)}
+    if lens_mosaic_chart.breakdown is not None and lens_mosaic_chart.breakdown.collapse is not None and breakdown_id is not None:
+        if collapse_fns is None:
+            collapse_fns = {}
+        collapse_fns[breakdown_id] = str(lens_mosaic_chart.breakdown.collapse)
 
-    kbn_columns: dict[str, KbnLensColumnTypes] = {**groups_by_ids, **kbn_metric_column_by_id}
+    kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(dimension_columns), **breakdown_columns, **kbn_metric_column_by_id}
 
     return (
         layer_id,
@@ -137,8 +151,9 @@ def compile_lens_mosaic_chart(
         compile_mosaic_chart_visualization_state(
             layer_id=layer_id,
             chart=lens_mosaic_chart,
-            group_by_ids=dimension_ids,
-            metric_ids=metric_ids,
+            dimension_id=dimension_id,
+            breakdown_id=breakdown_id,
+            metric_id=metric_id,
             collapse_fns=collapse_fns,
         ),
     )
@@ -161,20 +176,32 @@ def compile_esql_mosaic_chart(
     """
     layer_id = esql_mosaic_chart.get_id()
 
-    metrics = [compile_esql_metric(m) for m in esql_mosaic_chart.metrics]
-    metric_ids = [m.columnId for m in metrics]
+    # Compile the single metric
+    metric = compile_esql_metric(esql_mosaic_chart.metric)
+    metric_id = metric.columnId
 
-    dimensions = compile_esql_dimensions(dimensions=esql_mosaic_chart.dimensions)
-    dimension_ids = [d.columnId for d in dimensions]
+    # Compile the dimension
+    dimensions = compile_esql_dimensions(dimensions=[esql_mosaic_chart.dimension])
+    dimension_id = dimensions[0].columnId
 
+    # Compile the breakdown (if present)
+    breakdown_id: str | None = None
+    breakdown_columns: list[KbnESQLColumnTypes] = []
+    if esql_mosaic_chart.breakdown is not None:
+        compiled_breakdown = compile_esql_dimensions(dimensions=[esql_mosaic_chart.breakdown])
+        breakdown_id = compiled_breakdown[0].columnId
+        breakdown_columns = list(compiled_breakdown)
+
+    # Build collapse functions
     collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim in zip(esql_mosaic_chart.dimensions, dimensions, strict=True):
-        if dim_config.collapse is not None:
-            if collapse_fns is None:
-                collapse_fns = {}
-            collapse_fns[compiled_dim.columnId] = str(dim_config.collapse)
+    if esql_mosaic_chart.dimension.collapse is not None:
+        collapse_fns = {dimension_id: str(esql_mosaic_chart.dimension.collapse)}
+    if esql_mosaic_chart.breakdown is not None and esql_mosaic_chart.breakdown.collapse is not None and breakdown_id is not None:
+        if collapse_fns is None:
+            collapse_fns = {}
+        collapse_fns[breakdown_id] = str(esql_mosaic_chart.breakdown.collapse)
 
-    kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions]
+    kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(dimensions), *breakdown_columns]
 
     return (
         layer_id,
@@ -182,8 +209,9 @@ def compile_esql_mosaic_chart(
         compile_mosaic_chart_visualization_state(
             layer_id=layer_id,
             chart=esql_mosaic_chart,
-            group_by_ids=dimension_ids,
-            metric_ids=metric_ids,
+            dimension_id=dimension_id,
+            breakdown_id=breakdown_id,
+            metric_id=metric_id,
             collapse_fns=collapse_fns,
         ),
     )
