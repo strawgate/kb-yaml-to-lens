@@ -26,7 +26,7 @@ For more details on using the compiler, see the [main examples documentation](..
 
 ## Dashboard Overview
 
-**[AWS VPC OTEL] VPC Flow Logs Overview** is a comprehensive DevOps/SRE monitoring dashboard that provides deep visibility into VPC network traffic, security, and performance. It includes 18 visualization panels organized into 8 functional sections:
+**[AWS VPC OTEL] VPC Flow Logs Overview** is a comprehensive DevOps/SRE monitoring dashboard that provides deep visibility into VPC network traffic, security, and performance. It includes 17 visualization panels organized into 8 functional sections:
 
 1. **Navigation & Controls** - Dashboard controls and contextual information
 2. **KPI Metrics** - High-level key performance indicators
@@ -67,29 +67,23 @@ These controls help you drill down into specific network segments or investigate
 
 ## Panels
 
-### Section 1: Navigation & Context
+### Section 1: Context
 
-#### 1. Navigation Links (ES|QL Links Panel)
-
-Provides navigation to related dashboards (expandable for future multi-dashboard navigation).
-
-**Grid Position:** `x: 0, y: 0, w: 48, h: 2`
-
-#### 2. Overview Markdown
+#### 1. Overview Markdown
 
 Contextual information explaining the dashboard's purpose, organization, and quick insights. Helps users understand what insights each section provides.
 
-**Grid Position:** `x: 0, y: 2, w: 48, h: 3`
+**Grid Position:** `x: 0, y: 0, w: 48, h: 3`
 
 ### Section 2: KPI Metrics
 
 High-level key performance indicators providing at-a-glance visibility into network health.
 
-#### 3. Total Flow Records (ES|QL Metric)
+#### 2. Total Flow Records (ES|QL Metric)
 
 Total count of all VPC flow log records in the selected time range.
 
-**Grid Position:** `x: 0, y: 5, w: 12, h: 6`
+**Grid Position:** `x: 0, y: 3, w: 12, h: 6`
 
 **ES|QL Query:**
 
@@ -101,11 +95,11 @@ FROM logs-*
 
 **Use Case:** Understand overall traffic volume and detect unusual spikes or drops in network activity.
 
-#### 4. Rejection Rate (ES|QL Metric)
+#### 3. Rejection Rate (ES|QL Metric)
 
 Percentage of rejected flows out of total flows, calculated as `(rejected_flows / total_flows) * 100`.
 
-**Grid Position:** `x: 12, y: 5, w: 12, h: 6`
+**Grid Position:** `x: 12, y: 3, w: 12, h: 6`
 
 **ES|QL Query:**
 
@@ -118,11 +112,11 @@ FROM logs-*
 
 **Use Case:** Monitor security posture by tracking the rate of rejected connections. High rejection rates may indicate security threats or misconfigured security groups.
 
-#### 5. Total Bandwidth (ES|QL Metric)
+#### 4. Total Bandwidth (ES|QL Metric)
 
 Total bytes transferred across all flows, formatted as human-readable bytes (KB, MB, GB, etc.).
 
-**Grid Position:** `x: 24, y: 5, w: 12, h: 6`
+**Grid Position:** `x: 24, y: 3, w: 12, h: 6`
 
 **ES|QL Query:**
 
@@ -134,11 +128,11 @@ FROM logs-*
 
 **Use Case:** Track bandwidth consumption for capacity planning and cost optimization.
 
-#### 6. Unique Active Interfaces (ES|QL Metric)
+#### 5. Unique Active Interfaces (ES|QL Metric)
 
 Count of distinct network interfaces that have processed traffic in the selected time range.
 
-**Grid Position:** `x: 36, y: 5, w: 12, h: 6`
+**Grid Position:** `x: 36, y: 3, w: 12, h: 6`
 
 **ES|QL Query:**
 
@@ -154,11 +148,11 @@ FROM logs-*
 
 Analyze how traffic is distributed across protocols, interfaces, and ports.
 
-#### 7. Top Protocols (ES|QL Pie Chart)
+#### 6. Top Protocols (ES|QL Pie Chart)
 
 Distribution of flow records by network protocol (TCP, UDP, ICMP, etc.). Limited to top 10 protocols.
 
-**Grid Position:** `x: 0, y: 11, w: 16, h: 12`
+**Grid Position:** `x: 0, y: 9, w: 16, h: 12`
 
 **ES|QL Query:**
 
@@ -172,11 +166,11 @@ FROM logs-*
 
 **Use Case:** Understand protocol mix and identify unusual protocol usage that might indicate security threats or application issues.
 
-#### 8. Top Interfaces by Traffic (ES|QL Bar Chart)
+#### 7. Top Interfaces by Traffic (ES|QL Bar Chart)
 
 Top 10 network interfaces ranked by total bytes transferred. Shows which interfaces handle the most bandwidth.
 
-**Grid Position:** `x: 16, y: 11, w: 16, h: 12`
+**Grid Position:** `x: 16, y: 9, w: 16, h: 12`
 
 **ES|QL Query:**
 
@@ -190,11 +184,11 @@ FROM logs-*
 
 **Use Case:** Identify high-traffic interfaces for capacity planning and performance optimization. Detect interfaces with unexpectedly high traffic.
 
-#### 9. Top Destination Ports (ES|QL Bar Chart)
+#### 8. Top Destination Ports (ES|QL Bar Chart)
 
 Top 10 destination ports by flow count. Identifies which services are receiving the most connection attempts.
 
-**Grid Position:** `x: 32, y: 11, w: 16, h: 12`
+**Grid Position:** `x: 32, y: 9, w: 16, h: 12`
 
 **ES|QL Query:**
 
@@ -212,11 +206,11 @@ FROM logs-*
 
 Visualize traffic patterns over time to identify trends, anomalies, and periodic patterns.
 
-#### 10. Traffic Volume Over Time (ES|QL Area Chart)
+#### 9. Traffic Volume Over Time (ES|QL Area Chart)
 
 Stacked area chart showing flow count over time, broken down by action (ACCEPT/REJECT). Uses 50 time buckets across the selected time range.
 
-**Grid Position:** `x: 0, y: 23, w: 48, h: 14`
+**Grid Position:** `x: 0, y: 21, w: 48, h: 14`
 
 **ES|QL Query:**
 
@@ -229,11 +223,11 @@ FROM logs-*
 
 **Use Case:** Monitor traffic patterns over time, identify traffic spikes or drops, and correlate rejected traffic with security incidents. The breakdown by action helps distinguish between accepted and rejected flows.
 
-#### 11. Bandwidth Usage Over Time (ES|QL Line Chart)
+#### 10. Bandwidth Usage Over Time (ES|QL Line Chart)
 
 Line chart showing total bandwidth (bytes) over time. Uses 50 time buckets across the selected time range.
 
-**Grid Position:** `x: 0, y: 37, w: 48, h: 14`
+**Grid Position:** `x: 0, y: 35, w: 48, h: 14`
 
 **ES|QL Query:**
 
@@ -250,11 +244,11 @@ FROM logs-*
 
 Deep dive into traffic sources to identify top contributors and analyze IP range patterns.
 
-#### 12. Top Source IPs - Detailed (ES|QL Datatable)
+#### 11. Top Source IPs - Detailed (ES|QL Datatable)
 
 Detailed table showing top 20 source IPs with comprehensive metrics: total flows, accepted flows, rejected flows, rejection rate percentage, bytes, and packets. Paginated with 20 rows per page.
 
-**Grid Position:** `x: 0, y: 51, w: 24, h: 15`
+**Grid Position:** `x: 0, y: 49, w: 24, h: 15`
 
 **ES|QL Query:**
 
@@ -269,11 +263,11 @@ FROM logs-*
 
 **Use Case:** Identify top traffic sources, investigate sources with high rejection rates (potential attackers), and analyze bandwidth consumption by source. Use this to whitelist/blacklist specific IPs or investigate security incidents.
 
-#### 13. Top Source IP Ranges (ES|QL Bar Chart)
+#### 12. Top Source IP Ranges (ES|QL Bar Chart)
 
-Top 10 source IP ranges (aggregated to /16 CIDR blocks) by flow count. Uses ES|QL's SPLIT and CONCAT functions to extract the first two octets and create /16 ranges.
+Top 10 source IP ranges (aggregated to /16 CIDR blocks) by flow count. Uses ES|QL's SPLIT, MV_FIRST, MV_SLICE, and CONCAT functions to extract the first two octets and create /16 ranges.
 
-**Grid Position:** `x: 24, y: 51, w: 24, h: 15`
+**Grid Position:** `x: 24, y: 49, w: 24, h: 15`
 
 **ES|QL Query:**
 
@@ -281,7 +275,9 @@ Top 10 source IP ranges (aggregated to /16 CIDR blocks) by flow count. Uses ES|Q
 FROM logs-*
 | WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
 | EVAL ip_parts = SPLIT(source.address, ".")
-| EVAL ip_range = CONCAT(ip_parts[0], ".", ip_parts[1], ".0.0/16")
+| EVAL first_octet = TO_STRING(MV_FIRST(ip_parts))
+| EVAL second_octet = TO_STRING(MV_SLICE(ip_parts, 1, 2))
+| EVAL ip_range = CONCAT(first_octet, ".", second_octet, ".0.0/16")
 | STATS flow_count = COUNT() BY ip_range
 | SORT flow_count DESC
 | LIMIT 10
@@ -293,11 +289,11 @@ FROM logs-*
 
 Comprehensive security analysis focused on rejected traffic and potential threats.
 
-#### 14. Rejected Traffic by Protocol (ES|QL Bar Chart)
+#### 13. Rejected Traffic by Protocol (ES|QL Bar Chart)
 
 Top 10 protocols for rejected connections. Shows which protocols are most frequently blocked.
 
-**Grid Position:** `x: 0, y: 66, w: 24, h: 15`
+**Grid Position:** `x: 0, y: 64, w: 24, h: 15`
 
 **ES|QL Query:**
 
@@ -311,11 +307,11 @@ FROM logs-*
 
 **Use Case:** Identify which protocols are being blocked most frequently. High rejection rates for specific protocols might indicate misconfigured security groups or ongoing attacks.
 
-#### 15. Top Rejected Ports (ES|QL Bar Chart)
+#### 14. Top Rejected Ports (ES|QL Bar Chart)
 
 Top 10 destination ports for rejected connections. Identifies which services are being targeted.
 
-**Grid Position:** `x: 24, y: 66, w: 24, h: 15`
+**Grid Position:** `x: 24, y: 64, w: 24, h: 15`
 
 **ES|QL Query:**
 
@@ -329,11 +325,11 @@ FROM logs-*
 
 **Use Case:** Detect port scanning activity, identify commonly targeted services, and validate that security groups are blocking expected ports. Common attack ports (22, 3389, 445, etc.) appearing here might indicate reconnaissance activity.
 
-#### 16. Detailed Rejection Logs (ES|QL Datatable)
+#### 15. Detailed Rejection Logs (ES|QL Datatable)
 
 Full detailed logs of rejected connections showing timestamp, source/destination addresses, port, protocol, interface, bytes, and packets. Paginated with 25 rows per page and limited to 1000 most recent records.
 
-**Grid Position:** `x: 0, y: 81, w: 48, h: 15`
+**Grid Position:** `x: 0, y: 79, w: 48, h: 15`
 
 **ES|QL Query:**
 
@@ -351,11 +347,11 @@ FROM logs-*
 
 Interface-level performance metrics and traffic breakdown.
 
-#### 17. Interface Traffic Analysis (ES|QL Stacked Bar Chart)
+#### 16. Interface Traffic Analysis (ES|QL Stacked Bar Chart)
 
 Stacked bar chart showing flow count by network interface, broken down by action (ACCEPT/REJECT). Shows which interfaces handle the most traffic and their acceptance/rejection patterns.
 
-**Grid Position:** `x: 0, y: 96, w: 48, h: 15`
+**Grid Position:** `x: 0, y: 94, w: 48, h: 15`
 
 **ES|QL Query:**
 
@@ -372,11 +368,11 @@ FROM logs-*
 
 Multi-account traffic monitoring for organizations with multiple AWS accounts.
 
-#### 18. Traffic by Cloud Account (ES|QL Datatable)
+#### 17. Traffic by Cloud Account (ES|QL Datatable)
 
 Comprehensive multi-account analysis showing total flows, accepted flows, rejected flows, rejection rate, bytes, unique interfaces, and unique sources per AWS account. Paginated with 20 rows per page.
 
-**Grid Position:** `x: 0, y: 111, w: 48, h: 15`
+**Grid Position:** `x: 0, y: 109, w: 48, h: 15`
 
 **ES|QL Query:**
 
