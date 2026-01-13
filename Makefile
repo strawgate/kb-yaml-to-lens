@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector prepare-extension package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
 
 all: check
 
@@ -35,8 +35,10 @@ help:
 	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "VS Code Extension:"
-	@echo "  prepare-extension            - Download uv + bundle compiler (current platform)"
-	@echo "  package-extension            - Prepare and package extension"
+	@echo "  prepare-extension            - Download uv + bundle compiler (current platform, for dev)"
+	@echo "  prepare-extension-all        - Download uv for all platforms + bundle compiler (for release)"
+	@echo "  package-extension            - Prepare and package extension (current platform)"
+	@echo "  package-extension-all        - Prepare and package extension (all platforms, for release)"
 	@echo "  install-extension-vscode     - Package and install into VS Code"
 	@echo "  install-extension-cursor     - Package and install into Cursor"
 	@echo ""
@@ -201,11 +203,24 @@ prepare-extension:
 	$(call run-in-component,vscode-extension,prepare)
 	@echo "✓ Extension prepared"
 
+prepare-extension-all:
+	@echo "Preparing VS Code extension for all platforms..."
+	@echo ""
+	$(call run-in-component,vscode-extension,prepare-all)
+	@echo "✓ Extension prepared for all platforms"
+
 package-extension: prepare-extension
 	@echo "Packaging VS Code extension..."
 	@echo ""
 	$(call run-in-component,vscode-extension,package)
 	@echo "✓ Extension packaged"
+
+package-extension-all: prepare-extension-all
+	@echo "Packaging VS Code extension (all platforms)..."
+	@echo ""
+	$(call run-in-component,vscode-extension,ci)
+	$(call run-in-component,vscode-extension,package)
+	@echo "✓ Extension packaged for all platforms"
 
 install-extension-vscode: package-extension
 	@echo "Installing extension into VS Code..."

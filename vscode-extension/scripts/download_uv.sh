@@ -11,17 +11,26 @@ BIN_DIR="$EXTENSION_ROOT/bin"
 # uv version to download (pin for reproducibility)
 UV_VERSION="${UV_VERSION:-0.9.18}"
 
-# Platform configurations: platform -> (download_name, binary_name)
-declare -A PLATFORMS=(
-    ["linux-x64"]="uv-x86_64-unknown-linux-gnu"
-    ["darwin-x64"]="uv-x86_64-apple-darwin"
-    ["darwin-arm64"]="uv-aarch64-apple-darwin"
-    ["win32-x64"]="uv-x86_64-pc-windows-msvc"
-)
+# Map platform to uv release name (compatible with bash 3.x on macOS)
+get_uv_target() {
+    local platform="$1"
+    case "$platform" in
+        linux-x64)    echo "uv-x86_64-unknown-linux-gnu" ;;
+        darwin-x64)   echo "uv-x86_64-apple-darwin" ;;
+        darwin-arm64) echo "uv-aarch64-apple-darwin" ;;
+        win32-x64)    echo "uv-x86_64-pc-windows-msvc" ;;
+        *) return 1 ;;
+    esac
+}
 
 download_uv() {
     local platform="$1"
-    local download_name="${PLATFORMS[$platform]}"
+    local download_name
+    download_name="$(get_uv_target "$platform")" || {
+        echo "Error: Unknown platform: $platform"
+        return 1
+    }
+
     local target_dir="$BIN_DIR/$platform"
     local binary_name="uv"
     local archive_ext=".tar.gz"
@@ -50,14 +59,12 @@ download_uv() {
     # Extract the binary
     mkdir -p "$target_dir"
     if [[ "$archive_ext" == ".zip" ]]; then
-        # Windows zip archive
+        # Windows zip archive - binary is at root level
         unzip -q -o "$archive_path" -d "$temp_dir/extracted"
-        # The binary is inside a directory with the same name as the archive (without extension)
         cp "$temp_dir/extracted/$binary_name" "$target_dir/$binary_name"
     else
-        # Unix tar.gz archive
+        # Unix tar.gz archive - binary is in subdirectory
         tar -xzf "$archive_path" -C "$temp_dir"
-        # The binary is inside a directory with the same name as the archive (without extension)
         cp "$temp_dir/${download_name}/$binary_name" "$target_dir/$binary_name"
         chmod +x "$target_dir/$binary_name"
     fi
@@ -71,25 +78,27 @@ download_uv() {
 }
 
 download_current_platform() {
-    # Detect current platform
     local os arch platform
-    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    os="$(uname -s)"
     arch="$(uname -m)"
 
     case "$os" in
-        msys*|mingw*|cygwin*) os="win32" ;;
-        darwin*) os="darwin" ;;
-        linux*) os="linux" ;;
+        MSYS*|MINGW*|CYGWIN*) os="win32" ;;
+        Darwin) os="darwin" ;;
+        Linux) os="linux" ;;
+        *) echo "Error: Unsupported OS: $os"; exit 1 ;;
     esac
 
     case "$arch" in
         x86_64|amd64) arch="x64" ;;
         aarch64|arm64) arch="arm64" ;;
+        *) echo "Error: Unsupported architecture: $arch"; exit 1 ;;
     esac
 
     platform="${os}-${arch}"
 
-    if [[ -z "${PLATFORMS[$platform]:-}" ]]; then
+    # Validate platform is supported
+    if ! get_uv_target "$platform" > /dev/null 2>&1; then
         echo "Error: Unsupported platform: $platform"
         exit 1
     fi
@@ -97,30 +106,33 @@ download_current_platform() {
     download_uv "$platform"
 }
 
+download_all_platforms() {
+    local platforms="linux-x64 darwin-x64 darwin-arm64 win32-x64"
+    for platform in $platforms; do
+        download_uv "$platform"
+    done
+}
+
 main() {
     local mode="${1:-all}"
+
+    mkdir -p "$BIN_DIR"
 
     case "$mode" in
         all)
             echo "Downloading uv ${UV_VERSION} for all platforms..."
-            mkdir -p "$BIN_DIR"
-            for platform in "${!PLATFORMS[@]}"; do
-                download_uv "$platform"
-            done
+            download_all_platforms
             echo ""
             echo "✓ All uv binaries downloaded successfully"
             ;;
         current)
             echo "Downloading uv ${UV_VERSION} for current platform..."
-            mkdir -p "$BIN_DIR"
             download_current_platform
             echo ""
             echo "✓ uv binary downloaded for current platform"
             ;;
         linux-x64|darwin-x64|darwin-arm64|win32-x64)
-            # Download for a specific platform (used by CI matrix jobs)
             echo "Downloading uv ${UV_VERSION} for $mode..."
-            mkdir -p "$BIN_DIR"
             download_uv "$mode"
             echo ""
             echo "✓ uv binary downloaded for $mode"

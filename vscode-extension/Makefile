@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean prepare clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean prepare prepare-all clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -19,7 +19,8 @@ help:
 	@echo "  package          - Create .vsix package"
 	@echo "  install-vscode   - Install packaged extension into VS Code"
 	@echo "  install-cursor   - Install packaged extension into Cursor"
-	@echo "  prepare          - Download uv + bundle compiler (for packaging)"
+	@echo "  prepare          - Download uv + bundle compiler (current platform, for dev)"
+	@echo "  prepare-all      - Download uv for all platforms + bundle compiler (for release)"
 	@echo "  clean            - Clean build artifacts"
 	@echo "  clean-binaries   - Clean downloaded binaries and bundled compiler"
 
@@ -138,6 +139,12 @@ prepare:
 	bash scripts/download_uv.sh current
 	bash scripts/bundle_compiler.sh
 	@echo "✓ Extension prepared"
+
+prepare-all:
+	@echo "Preparing extension for all platforms..."
+	bash scripts/download_uv.sh all
+	bash scripts/bundle_compiler.sh
+	@echo "✓ Extension prepared for all platforms"
 
 clean:
 	@echo "Cleaning build artifacts..."
