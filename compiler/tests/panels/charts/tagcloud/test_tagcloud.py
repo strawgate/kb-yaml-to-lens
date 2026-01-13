@@ -1,18 +1,23 @@
 """Test the compilation of tagcloud charts from config models to view models using inline snapshots."""
 
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.charts.config import ESQLTagcloudPanelConfig
 from dashboard_compiler.panels.charts.tagcloud.compile import (
     compile_esql_tagcloud_chart,
     compile_lens_tagcloud_chart,
 )
 from dashboard_compiler.panels.charts.tagcloud.config import LensTagcloudChart
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 # Type alias for the fixture return type
 CompileTagcloudSnapshot = Callable[[dict[str, Any], str], dict[str, Any]]
@@ -343,3 +348,47 @@ def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: Compile
 
         # Verify orientation is correctly applied
         assert result['orientation'] == expected_orientation
+
+
+def test_tagcloud_chart_dashboard_references_bubble_up() -> None:
+    """Test that tagcloud chart data view references bubble up to dashboard level correctly.
+
+    Tagcloud charts reference a data view (index-pattern), so this reference should appear
+    at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test Tagcloud Chart Dashboard',
+        panels=[
+            {
+                'title': 'Tag Cloud',
+                'id': 'tagcloud-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'tagcloud',
+                    'data_view': 'logs-*',
+                    'dimension': {
+                        'type': 'values',
+                        'field': 'tags',
+                        'id': 'tag-dimension',
+                    },
+                    'metric': {
+                        'aggregation': 'count',
+                        'id': 'count-metric',
+                    },
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [
+            {
+                'id': 'logs-*',
+                'name': IsStr(regex=r'tagcloud-panel-1:indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        ]
+    )

@@ -1,14 +1,21 @@
 """Test panel compilation functions."""
 
+from typing import TYPE_CHECKING
+
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.compile import compile_dashboard_panel, get_panel_type_name
 from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.images.config import ImagePanel, ImagePanelConfig
 from dashboard_compiler.panels.links.config import LinksPanel, LinksPanelConfig, UrlLink
 from dashboard_compiler.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
 from dashboard_compiler.panels.search.config import SearchPanel, SearchPanelConfig
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 class TestGetPanelTypeName:
@@ -130,3 +137,56 @@ class TestCompileDashboardPanel:
             'type': 'search',
             'id': 'search-id',
         }
+
+
+class TestDashboardReferenceBubbleUp:
+    """Test that panel references bubble up to dashboard level correctly."""
+
+    def test_search_panel_references_bubble_up(self) -> None:
+        """Test that search panel references bubble up to dashboard level correctly.
+
+        Search panels reference saved searches, so these references should appear
+        at the dashboard's top-level references array with proper panel namespacing.
+        """
+        dashboard = Dashboard(
+            name='Test Search Dashboard',
+            panels=[
+                {
+                    'title': 'My Saved Search',
+                    'id': 'search-panel-1',
+                    'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                    'search': {
+                        'saved_search_id': 'my-saved-search',
+                    },
+                }
+            ],
+        )
+
+        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+        references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+        assert references == snapshot([{'id': 'my-saved-search', 'name': 'search-panel-1:search:my-saved-search', 'type': 'search'}])
+
+    def test_image_panel_references_bubble_up(self) -> None:
+        """Test that image panel references bubble up to dashboard level correctly.
+
+        Image panels have no external references, so the dashboard's references array should be empty.
+        """
+        dashboard = Dashboard(
+            name='Test Image Dashboard',
+            panels=[
+                {
+                    'title': 'Test Image',
+                    'id': 'image-panel-1',
+                    'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                    'image': {
+                        'from_url': 'https://example.com/image.png',
+                    },
+                }
+            ],
+        )
+
+        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+        references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+        assert references == snapshot([])
