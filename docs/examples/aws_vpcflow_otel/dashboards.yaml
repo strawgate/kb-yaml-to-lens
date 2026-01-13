@@ -249,7 +249,7 @@ dashboards:
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
             - EVAL ip_parts = SPLIT(source.address, ".")
             - EVAL first_octet = TO_STRING(MV_FIRST(ip_parts))
-            - EVAL second_octet = TO_STRING(MV_SLICE(ip_parts, 1, 2))
+            - EVAL second_octet = TO_STRING(MV_SLICE(ip_parts, 1))
             - EVAL ip_range = CONCAT(first_octet, ".", second_octet, ".0.0/16")
             - STATS flow_count = COUNT() BY ip_range
             - SORT flow_count DESC
