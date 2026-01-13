@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       artifact-prefix:
-        description: 'Prefix for artifact names'
+        description: Prefix for artifact names
         required: false
         type: string
-        default: 'kb-dashboard'
+        default: kb-dashboard
       retention-days:
-        description: 'Number of days to retain artifacts'
+        description: Number of days to retain artifacts
         required: false
         type: number
         default: 7

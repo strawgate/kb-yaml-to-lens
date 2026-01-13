@@ -37,15 +37,12 @@ jobs:
           mkdir -p vscode-extension/bin/linux-x64
           cp binaries/binary-linux-x64/kb-dashboard-linux-x64 vscode-extension/bin/linux-x64/kb-dashboard
           chmod +x vscode-extension/bin/linux-x64/kb-dashboard
-          
           mkdir -p vscode-extension/bin/darwin-x64
           cp binaries/binary-darwin-x64/kb-dashboard-darwin-x64 vscode-extension/bin/darwin-x64/kb-dashboard
           chmod +x vscode-extension/bin/darwin-x64/kb-dashboard
-          
           mkdir -p vscode-extension/bin/darwin-arm64
           cp binaries/binary-darwin-arm64/kb-dashboard-darwin-arm64 vscode-extension/bin/darwin-arm64/kb-dashboard
           chmod +x vscode-extension/bin/darwin-arm64/kb-dashboard
-          
           mkdir -p vscode-extension/bin/win32-x64
           cp binaries/binary-win32-x64/kb-dashboard-windows-x64.exe vscode-extension/bin/win32-x64/kb-dashboard.exe
       - name: Install dependencies
