@@ -125,7 +125,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: collector_name
+            field: name
             type: values
             size: 10
           metrics:
@@ -140,7 +140,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: collector_name
+            field: name
             type: values
             size: 10
           metrics:
@@ -159,7 +159,7 @@ dashboards:
               size: 50
             - id: collector
               type: values
-              field: collector_name
+              field: name
               label: Collector
               size: 10
           metrics:
@@ -219,7 +219,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: memory_pool_name
+            field: name
             type: values
             size: 10
           metrics:
@@ -237,7 +237,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: memory_pool_name
+            field: name
             type: values
             size: 10
           metrics:

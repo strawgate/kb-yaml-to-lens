@@ -52,7 +52,7 @@ dashboards:
               size: 50
             - id: breaker
               type: values
-              field: circuit_breaker_name
+              field: name
               label: Circuit Breaker
               size: 20
           metrics:
@@ -86,7 +86,7 @@ dashboards:
           type: line
           data_view: metrics-*
           filters:
-            - field: circuit_breaker_name
+            - field: name
               equals: request
           dimension:
             field: '@timestamp'
@@ -112,7 +112,7 @@ dashboards:
           type: line
           data_view: metrics-*
           filters:
-            - field: circuit_breaker_name
+            - field: name
               equals: request
           dimension:
             field: '@timestamp'
@@ -132,7 +132,7 @@ dashboards:
           type: line
           data_view: metrics-*
           filters:
-            - field: circuit_breaker_name
+            - field: name
               equals: fielddata
           dimension:
             field: '@timestamp'
@@ -158,7 +158,7 @@ dashboards:
           type: line
           data_view: metrics-*
           filters:
-            - field: circuit_breaker_name
+            - field: name
               equals: fielddata
           dimension:
             field: '@timestamp'
@@ -178,7 +178,7 @@ dashboards:
           type: line
           data_view: metrics-*
           filters:
-            - field: circuit_breaker_name
+            - field: name
               equals: parent
           dimension:
             field: '@timestamp'
@@ -204,7 +204,7 @@ dashboards:
           type: line
           data_view: metrics-*
           filters:
-            - field: circuit_breaker_name
+            - field: name
               equals: parent
           dimension:
             field: '@timestamp'
@@ -231,7 +231,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: circuit_breaker_name
+            field: name
             type: values
             size: 50
           metrics:
@@ -250,7 +250,7 @@ dashboards:
               size: 50
             - id: breaker
               type: values
-              field: circuit_breaker_name
+              field: name
               label: Circuit Breaker
               size: 20
           metrics:
@@ -274,7 +274,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           breakdown:
-            field: circuit_breaker_name
+            field: name
             type: values
             size: 50
           metrics:

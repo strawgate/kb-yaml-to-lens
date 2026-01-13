@@ -259,7 +259,7 @@ dashboards:
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
             - STATS estimated = AVG(elasticsearch.breaker.memory.estimated), limit = AVG(elasticsearch.breaker.memory.limit) BY node = elasticsearch.node.name,
-              breaker = circuit_breaker_name
+              breaker = name
             - EVAL estimated_mb = ROUND(estimated / 1048576, 2)
             - EVAL limit_mb = ROUND(limit / 1048576, 2)
             - EVAL utilization_pct = CASE(limit == 0 OR limit IS NULL, null, ROUND((estimated / limit) * 100, 1))
