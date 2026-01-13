@@ -140,7 +140,6 @@ class TestCompileDashboard(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 12, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -431,13 +430,11 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel 1
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "1"
   - title: Panel 2
     size: {w: 24, h: 10}
-
     position: {x: 24, y: 0}
     markdown:
       content: "2"
@@ -488,7 +485,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -509,7 +505,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -530,7 +525,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: First Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "1"
@@ -539,7 +533,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Second Panel
     size: {w: 48, h: 20}
-
     position: {x: 0, y: 0}
     markdown:
       content: "2"
@@ -561,7 +554,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -583,7 +575,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -604,7 +595,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -612,7 +602,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -645,7 +634,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"
@@ -666,7 +654,6 @@ class TestGetGridLayoutCustom(unittest.TestCase):
   panels:
   - title: Panel
     size: {w: 24, h: 10}
-
     position: {x: 0, y: 0}
     markdown:
       content: "Test"

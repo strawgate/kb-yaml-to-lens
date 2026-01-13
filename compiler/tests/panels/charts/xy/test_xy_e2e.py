@@ -27,7 +27,6 @@ dashboards:
     panels:
       - title: ES|QL Line Chart
         size: {w: 48, h: 16}
-
         position: {x: 0, y: 0}
         esql:
           type: line
@@ -98,7 +97,6 @@ dashboards:
     panels:
       - title: Stacked Bar Chart
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         esql:
           type: bar
@@ -176,7 +174,6 @@ dashboards:
     panels:
       - title: Area Chart with Breakdown
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         esql:
           type: area
@@ -257,7 +254,6 @@ dashboards:
     panels:
       - title: ES|QL Line Chart with Two Metrics
         size: {w: 48, h: 16}
-
         position: {x: 0, y: 0}
         esql:
           type: line

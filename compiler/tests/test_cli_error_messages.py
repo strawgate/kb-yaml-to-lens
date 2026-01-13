@@ -320,7 +320,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello World

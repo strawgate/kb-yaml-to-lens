@@ -22,14 +22,12 @@ def _write_dashboard(tmp_path: Path) -> Path:
               - id: "panel-a"
                 title: "Markdown A"
                 size: {w: 10, h: 5}
-
                 position: {x: 0, y: 0}
                 markdown:
                   content: "Hello"
               - id: "panel-b"
                 title: "Markdown B"
                 size: {w: 10, h: 5}
-
                 position: {x: 10, y: 0}
                 markdown:
                   content: "World"

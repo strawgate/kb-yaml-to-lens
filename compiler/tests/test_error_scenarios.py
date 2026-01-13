@@ -84,7 +84,6 @@ dashboards:
   - name: Test
     panels:
       - size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello
@@ -119,7 +118,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown: {}
 """)
@@ -139,7 +137,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         esql:
           type: metric
@@ -217,7 +214,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: "zero", y: 0}
         markdown:
           content: Hello
@@ -259,7 +255,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: -24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello
@@ -279,7 +274,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 1000, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello
@@ -299,7 +293,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         esql:
           type: invalid_type
@@ -321,7 +314,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         esql:
           type: metric
@@ -348,13 +340,11 @@ dashboards:
     panels:
       - title: Panel 1
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: First
       - title: Panel 2
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Second
@@ -374,7 +364,6 @@ dashboards:
     panels:
       - title: Panel Outside
         size: {w: 24, h: 12}
-
         position: {x: 100, y: 0}
         markdown:
           content: Outside
@@ -398,7 +387,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
@@ -417,7 +405,6 @@ dashboards:
     panels:
       - title: Test Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello
@@ -445,7 +432,6 @@ dashboards:
   - description: Missing name
     panels:
       - size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello
@@ -466,7 +452,6 @@ dashboards:
     panels:
       - title: Chart Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         esql:
           type: metric
@@ -553,7 +538,6 @@ dashboards:
     panels:
       - title: Simple Panel
         size: {w: 24, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: Hello World
@@ -571,13 +555,11 @@ dashboards:
     panels:
       - title: Panel 1
         size: {w: 12, h: 12}
-
         position: {x: 0, y: 0}
         markdown:
           content: First
       - title: Panel 2
         size: {w: 12, h: 12}
-
         position: {x: 12, y: 0}
         markdown:
           content: Second
