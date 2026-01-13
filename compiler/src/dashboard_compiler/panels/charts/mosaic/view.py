@@ -42,7 +42,7 @@ class KbnMosaicStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     """List of field accessor IDs for metrics to display (rectangle sizes)."""
 
     allowMultipleMetrics: Annotated[bool | None, OmitIfNone()] = Field(None)
-    """Whether to allow multiple metrics. Always False for mosaic charts."""
+    """Whether to allow multiple metrics. Should be False for mosaic charts; omitted when None."""
 
     collapseFns: Annotated[dict[str, str] | None, OmitIfNone()] = Field(None)
     """Aggregation functions for collapsing values by accessor ID."""

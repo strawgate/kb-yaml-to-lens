@@ -44,38 +44,35 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
 
     """
     number_display = 'percent'
-    if chart.titles_and_text and chart.titles_and_text.value_format:
+    if chart.titles_and_text is not None and chart.titles_and_text.value_format is not None:
         number_display = chart.titles_and_text.value_format
 
     category_display = 'default'
 
     legend_display = 'default'
-    if chart.legend and chart.legend.visible:
-        legend_display = chart.legend.visible
-
     legend_size = None
-    if chart.legend and chart.legend.width:
-        legend_size = chart.legend.width
-
     truncate_legend = None
     legend_max_lines = None
-    if chart.legend and isinstance(chart.legend.truncate_labels, int):
-        if chart.legend.truncate_labels == 0:
-            truncate_legend = False
-        else:
-            legend_max_lines = chart.legend.truncate_labels
-
     nested_legend = None
-    if chart.legend and chart.legend.nested is not None:
-        nested_legend = chart.legend.nested
-
     show_single_series = None
-    if chart.legend and chart.legend.show_single_series is not None:
-        show_single_series = chart.legend.show_single_series
-
     legend_position = 'right'
-    if chart.legend and chart.legend.position is not None:
-        legend_position = chart.legend.position
+
+    if chart.legend is not None:
+        if chart.legend.visible is not None:
+            legend_display = chart.legend.visible
+        if chart.legend.width is not None:
+            legend_size = chart.legend.width
+        if chart.legend.truncate_labels is not None:
+            if chart.legend.truncate_labels == 0:
+                truncate_legend = False
+            else:
+                legend_max_lines = chart.legend.truncate_labels
+        if chart.legend.nested is not None:
+            nested_legend = chart.legend.nested
+        if chart.legend.show_single_series is not None:
+            show_single_series = chart.legend.show_single_series
+        if chart.legend.position is not None:
+            legend_position = chart.legend.position
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
@@ -84,7 +81,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         primaryGroups=group_by_ids,
         secondaryGroups=secondary_group_by_ids if secondary_group_by_ids else None,
         metrics=metric_ids,
-        allowMultipleMetrics=None,
+        allowMultipleMetrics=False,
         collapseFns=collapse_fns if collapse_fns else None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
@@ -94,7 +91,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         layerType='data',
         colorMapping=kbn_color_mapping,
         legendSize=legend_size,
-        truncateLegend=False if truncate_legend == 0 else None,
+        truncateLegend=False if truncate_legend is False else None,
         legendMaxLines=legend_max_lines,
         showSingleSeries=show_single_series,
     )
@@ -133,7 +130,7 @@ def compile_lens_mosaic_chart(
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim_id in zip(lens_mosaic_chart.dimensions, all_dimension_ids, strict=True):
-        if dim_config.collapse:
+        if dim_config.collapse is not None:
             if collapse_fns is None:
                 collapse_fns = {}
             collapse_fns[compiled_dim_id] = str(dim_config.collapse)
@@ -181,7 +178,7 @@ def compile_esql_mosaic_chart(
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim in zip(esql_mosaic_chart.dimensions, dimensions, strict=True):
-        if dim_config.collapse:
+        if dim_config.collapse is not None:
             if collapse_fns is None:
                 collapse_fns = {}
             collapse_fns[compiled_dim.columnId] = str(dim_config.collapse)
