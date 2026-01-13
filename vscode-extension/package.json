@@ -2,7 +2,7 @@
   "name": "kb-dashboard-compiler",
   "displayName": "Kibana Dashboard Compiler",
   "description": "Compile and preview Kibana YAML dashboards with live reload",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "strawgate",
   "icon": "images/icon.png",
   "engines": {

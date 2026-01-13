@@ -29,9 +29,10 @@ jobs:
           - os: macos-14
             platform: darwin-arm64
             binary-name: kb-dashboard-darwin-arm64
-          - os: windows-latest
-            platform: win32-x64
-            binary-name: kb-dashboard-windows-x64.exe
+          # Windows build disabled
+          # - os: windows-latest
+          #   platform: win32-x64
+          #   binary-name: kb-dashboard-windows-x64.exe
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
