@@ -1,22 +1,29 @@
 """Compilation logic for heatmap chart visualizations."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from dashboard_compiler.panels.charts.base.config import LegendVisibleEnum
-from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
+from dashboard_compiler.panels.charts.base.protocol import ColumnCompiler
+from dashboard_compiler.panels.charts.esql.compiler import ESQLColumnCompiler
 from dashboard_compiler.panels.charts.heatmap.view import (
     KbnHeatmapGridConfig,
     KbnHeatmapLegendConfig,
     KbnHeatmapVisualizationState,
 )
-from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
-from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
+from dashboard_compiler.panels.charts.lens.compiler import LensColumnCompiler
 from dashboard_compiler.shared.defaults import default_false
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
     from dashboard_compiler.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
-    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes, KbnLensMetricColumnTypes
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
+
+# Type variables for generic heatmap chart compilation
+ColumnT = TypeVar('ColumnT')
+MetricColumnT = TypeVar('MetricColumnT')
+DimensionColumnT = TypeVar('DimensionColumnT')
+MetricConfigT = TypeVar('MetricConfigT')
+DimensionConfigT = TypeVar('DimensionConfigT')
 
 
 def compile_heatmap_chart_visualization_state(
@@ -82,6 +89,51 @@ def compile_heatmap_chart_visualization_state(
     )
 
 
+def _compile_heatmap_chart(
+    chart: 'LensHeatmapChart | ESQLHeatmapChart',
+    compiler: ColumnCompiler[ColumnT, MetricColumnT, DimensionColumnT, MetricConfigT, DimensionConfigT],
+    x_axis: DimensionConfigT,
+    y_axis: DimensionConfigT | None,
+    value: MetricConfigT,
+) -> tuple[str, ColumnT, KbnHeatmapVisualizationState]:
+    """Compile a heatmap chart using the provided column compiler.
+
+    Args:
+        chart: The heatmap chart configuration (Lens or ESQL).
+        compiler: The column compiler to use for metrics and dimensions.
+        x_axis: The X-axis dimension configuration.
+        y_axis: The optional Y-axis dimension configuration.
+        value: The value metric configuration.
+
+    Returns:
+        tuple: (layer_id, columns, visualization_state)
+    """
+    layer_id = chart.get_id()
+
+    # Build list of dimensions (x_axis is required, y_axis is optional)
+    dimensions: list[DimensionConfigT] = [x_axis]
+    if y_axis is not None:
+        dimensions.append(y_axis)
+
+    # Compile using the compiler
+    result = compiler.compile_all(metrics=[value], dimensions=dimensions)
+
+    # Get accessor IDs for visualization state
+    x_accessor_id = result.dimension_ids[0]
+    y_accessor_id = result.dimension_ids[1] if len(result.dimension_ids) > 1 else None
+    value_accessor_id = result.metric_ids[0]
+
+    visualization_state = compile_heatmap_chart_visualization_state(
+        layer_id=layer_id,
+        x_accessor_id=x_accessor_id,
+        value_accessor_id=value_accessor_id,
+        chart=chart,
+        y_accessor_id=y_accessor_id,
+    )
+
+    return layer_id, result.columns, visualization_state
+
+
 def compile_lens_heatmap_chart(
     lens_heatmap_chart: 'LensHeatmapChart',
 ) -> 'tuple[str, dict[str, KbnLensColumnTypes], KbnHeatmapVisualizationState]':
@@ -95,45 +147,14 @@ def compile_lens_heatmap_chart(
             - layer_id (str): The ID of the layer.
             - kbn_columns (dict[str, KbnLensColumnTypes]): A dictionary of columns for the layer.
             - kbn_state_visualization (KbnHeatmapVisualizationState): The compiled visualization state.
-
     """
-    kbn_columns_by_id: 'dict[str, KbnLensColumnTypes]' = {}  # noqa: UP037
-
-    # Compile value metric first (dimensions may reference it)
-    value_id, value_column = compile_lens_metric(lens_heatmap_chart.value)
-    kbn_metric_columns_by_id: 'dict[str, KbnLensMetricColumnTypes]' = {value_id: value_column}  # noqa: UP037
-
-    # Compile X-axis dimension (required)
-    x_id, x_column = compile_lens_dimension(
-        lens_heatmap_chart.x_axis,
-        kbn_metric_column_by_id=kbn_metric_columns_by_id,
-    )
-    kbn_columns_by_id[x_id] = x_column
-
-    # Compile Y-axis dimension (optional)
-    y_id: str | None = None
-    if lens_heatmap_chart.y_axis is not None:
-        y_id, y_column = compile_lens_dimension(
-            lens_heatmap_chart.y_axis,
-            kbn_metric_column_by_id=kbn_metric_columns_by_id,
-        )
-        kbn_columns_by_id[y_id] = y_column
-
-    # Add value metric to columns
-    kbn_columns_by_id[value_id] = value_column
-
-    layer_id = lens_heatmap_chart.get_id()
-
-    return (
-        layer_id,
-        kbn_columns_by_id,
-        compile_heatmap_chart_visualization_state(
-            layer_id=layer_id,
-            x_accessor_id=x_id,
-            value_accessor_id=value_id,
-            chart=lens_heatmap_chart,
-            y_accessor_id=y_id,
-        ),
+    compiler = LensColumnCompiler()
+    return _compile_heatmap_chart(
+        chart=lens_heatmap_chart,
+        compiler=compiler,
+        x_axis=lens_heatmap_chart.x_axis,
+        y_axis=lens_heatmap_chart.y_axis,
+        value=lens_heatmap_chart.value,
     )
 
 
@@ -150,37 +171,12 @@ def compile_esql_heatmap_chart(
             - layer_id (str): The ID of the layer.
             - kbn_columns (list[KbnESQLColumnTypes]): A list of columns for the layer.
             - kbn_state_visualization (KbnHeatmapVisualizationState): The compiled visualization state.
-
     """
-    layer_id = esql_heatmap_chart.get_id()
-
-    kbn_columns: 'list[KbnESQLColumnTypes]' = []  # noqa: UP037
-
-    # Compile X-axis dimension (required)
-    x_column = compile_esql_dimension(esql_heatmap_chart.x_axis)
-    x_id = x_column.columnId
-    kbn_columns.append(x_column)
-
-    # Compile Y-axis dimension (optional)
-    y_id: str | None = None
-    if esql_heatmap_chart.y_axis is not None:
-        y_column = compile_esql_dimension(esql_heatmap_chart.y_axis)
-        y_id = y_column.columnId
-        kbn_columns.append(y_column)
-
-    # Compile value metric (required)
-    value_column = compile_esql_metric(esql_heatmap_chart.value)
-    value_id = value_column.columnId
-    kbn_columns.append(value_column)
-
-    return (
-        layer_id,
-        kbn_columns,
-        compile_heatmap_chart_visualization_state(
-            layer_id=layer_id,
-            x_accessor_id=x_id,
-            value_accessor_id=value_id,
-            chart=esql_heatmap_chart,
-            y_accessor_id=y_id,
-        ),
+    compiler = ESQLColumnCompiler()
+    return _compile_heatmap_chart(
+        chart=esql_heatmap_chart,
+        compiler=compiler,
+        x_axis=esql_heatmap_chart.x_axis,
+        y_axis=esql_heatmap_chart.y_axis,
+        value=esql_heatmap_chart.value,
     )

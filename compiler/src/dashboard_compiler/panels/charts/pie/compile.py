@@ -1,16 +1,13 @@
 """Compile Lens pie visualizations into their Kibana view models."""
 
+from typing import Any, TypeVar
+
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
-from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
+from dashboard_compiler.panels.charts.base.protocol import ColumnCompiler
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
-from dashboard_compiler.panels.charts.lens.columns.view import (
-    KbnLensColumnTypes,
-    KbnLensMetricColumnTypes,
-)
-from dashboard_compiler.panels.charts.lens.dimensions.compile import (
-    compile_lens_dimensions,
-)
-from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
+from dashboard_compiler.panels.charts.esql.compiler import ESQLColumnCompiler
+from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
+from dashboard_compiler.panels.charts.lens.compiler import LensColumnCompiler
 from dashboard_compiler.panels.charts.pie.config import ESQLPieChart, LensPieChart
 from dashboard_compiler.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
@@ -18,6 +15,13 @@ from dashboard_compiler.panels.charts.pie.view import (
 )
 from dashboard_compiler.shared.compile import split_dimensions
 from dashboard_compiler.shared.defaults import default_false
+
+# Type variables for generic pie chart compilation
+ColumnT = TypeVar('ColumnT')
+MetricColumnT = TypeVar('MetricColumnT')
+DimensionColumnT = TypeVar('DimensionColumnT')
+MetricConfigT = TypeVar('MetricConfigT')
+DimensionConfigT = TypeVar('DimensionConfigT')
 
 
 def compile_pie_chart_visualization_state(  # noqa: PLR0913
@@ -110,6 +114,53 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     return KbnPieVisualizationState(shape=shape, layers=[kbn_layer_visualization])
 
 
+def _compile_pie_chart(
+    chart: LensPieChart | ESQLPieChart,
+    compiler: ColumnCompiler[ColumnT, MetricColumnT, DimensionColumnT, MetricConfigT, DimensionConfigT],
+    metrics: list[MetricConfigT],
+    dimensions: list[DimensionConfigT],
+) -> tuple[str, ColumnT, KbnPieVisualizationState]:
+    """Compile a pie chart using the provided column compiler.
+
+    Args:
+        chart: The pie chart configuration (Lens or ESQL).
+        compiler: The column compiler to use for metrics and dimensions.
+        metrics: The metric configurations to compile.
+        dimensions: The dimension configurations to compile.
+
+    Returns:
+        tuple: (layer_id, columns, visualization_state)
+    """
+    layer_id = chart.get_id()
+
+    # Compile using the compiler
+    result = compiler.compile_all(metrics=metrics, dimensions=dimensions)
+
+    # Split dimensions into primary and secondary groups
+    primary_dimension_ids, secondary_dimension_ids = split_dimensions(result.dimension_ids)
+
+    # Build collapse functions from dimension configs
+    # All pie chart dimension types have a collapse attribute
+    collapse_fns: dict[str, str] | None = None
+    for dim_config, dim_id in zip(dimensions, result.dimension_ids, strict=True):
+        dim_config_any: Any = dim_config
+        if hasattr(dim_config_any, 'collapse') and dim_config_any.collapse is not None:  # pyright: ignore[reportAny]
+            if collapse_fns is None:
+                collapse_fns = {}
+            collapse_fns[dim_id] = str(dim_config_any.collapse)  # pyright: ignore[reportAny]
+
+    visualization_state = compile_pie_chart_visualization_state(
+        layer_id=layer_id,
+        chart=chart,
+        slice_by_ids=primary_dimension_ids,
+        secondary_slice_by_ids=secondary_dimension_ids,
+        metric_ids=result.metric_ids,
+        collapse_fns=collapse_fns,
+    )
+
+    return layer_id, result.columns, visualization_state
+
+
 def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str, KbnLensColumnTypes], KbnPieVisualizationState]:
     """Compile a LensPieChart config object into a Kibana Pie visualization state.
 
@@ -118,42 +169,13 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
 
     Returns:
         tuple[str, dict[str, KbnLensColumnTypes], KbnPieVisualizationState]: The layer ID and the compiled visualization state.
-
     """
-    layer_id = lens_pie_chart.get_id()
-
-    kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
-    metric_ids: list[str] = []
-    for metric_config in lens_pie_chart.metrics:
-        metric_id, metric = compile_lens_metric(metric=metric_config)
-        kbn_metric_column_by_id[metric_id] = metric
-        metric_ids.append(metric_id)
-
-    slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)
-    all_dimension_ids = list(slices_by_ids.keys())
-
-    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
-
-    collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim_id in zip(lens_pie_chart.dimensions, all_dimension_ids, strict=True):
-        if dim_config.collapse:
-            if collapse_fns is None:
-                collapse_fns = {}
-            collapse_fns[compiled_dim_id] = str(dim_config.collapse)
-
-    kbn_columns: dict[str, KbnLensColumnTypes] = {**slices_by_ids, **kbn_metric_column_by_id}
-
-    return (
-        layer_id,
-        kbn_columns,
-        compile_pie_chart_visualization_state(
-            layer_id=layer_id,
-            chart=lens_pie_chart,
-            slice_by_ids=primary_dimension_ids,
-            secondary_slice_by_ids=secondary_dimension_ids,
-            metric_ids=metric_ids,
-            collapse_fns=collapse_fns,
-        ),
+    compiler = LensColumnCompiler()
+    return _compile_pie_chart(
+        chart=lens_pie_chart,
+        compiler=compiler,
+        metrics=list(lens_pie_chart.metrics),
+        dimensions=list(lens_pie_chart.dimensions),
     )
 
 
@@ -166,37 +188,12 @@ def compile_esql_pie_chart(
         esql_pie_chart (ESQLPieChart): The ESQLPieChart config object.
 
     Returns:
-        tuple[str, list[KbnESQLMetricColumnTypes], KbnESQLDimensionColumnTypes]: The layer ID and the compiled visualization state.
-
+        tuple[str, list[KbnESQLColumnTypes], KbnPieVisualizationState]: The layer ID and the compiled visualization state.
     """
-    layer_id = esql_pie_chart.get_id()
-
-    metrics = [compile_esql_metric(m) for m in esql_pie_chart.metrics]
-    metric_ids = [m.columnId for m in metrics]
-
-    dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.dimensions)
-    all_dimension_ids = [d.columnId for d in dimensions]
-
-    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
-
-    collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim in zip(esql_pie_chart.dimensions, dimensions, strict=True):
-        if dim_config.collapse:
-            if collapse_fns is None:
-                collapse_fns = {}
-            collapse_fns[compiled_dim.columnId] = str(dim_config.collapse)
-
-    kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions]
-
-    return (
-        layer_id,
-        kbn_columns,
-        compile_pie_chart_visualization_state(
-            layer_id=layer_id,
-            chart=esql_pie_chart,
-            slice_by_ids=primary_dimension_ids,
-            secondary_slice_by_ids=secondary_dimension_ids,
-            metric_ids=metric_ids,
-            collapse_fns=collapse_fns,
-        ),
+    compiler = ESQLColumnCompiler()
+    return _compile_pie_chart(
+        chart=esql_pie_chart,
+        compiler=compiler,
+        metrics=list(esql_pie_chart.metrics),
+        dimensions=list(esql_pie_chart.dimensions),
     )
