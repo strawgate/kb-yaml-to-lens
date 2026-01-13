@@ -30,7 +30,7 @@ dashboards:
             - **KPI Metrics** - Track total flows, rejection rates, bandwidth, and active interfaces
             - **Distribution Analysis** - Identify top protocols, interfaces, and destination ports
             - **Time-Series Trends** - Visualize traffic volume and bandwidth patterns over time
-            - **Source Analysis** - Analyze traffic patterns from source IPs and IP ranges
+            - **Source Analysis** - Analyze traffic patterns from top source IPs
             - **Security Deep Dive** - Investigate rejected traffic by protocol, port, and detailed logs
             - **Performance Analysis** - Monitor interface-level traffic breakdown by action
             - **Account Analysis** - Track multi-account traffic metrics and patterns
@@ -59,7 +59,7 @@ dashboards:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
             - STATS total_flows = COUNT(), rejected_flows = COUNT(*) WHERE aws.vpc.flow.action == "REJECT"
-            - EVAL rejection_rate = (rejected_flows / total_flows) * 100
+            - EVAL rejection_rate = rejected_flows / total_flows
           primary:
             field: rejection_rate
             label: Rejection Rate
@@ -204,7 +204,7 @@ dashboards:
 
       # Section 5: Source Analysis (y:49-64)
       - title: Top Source IPs - Detailed
-        size: {w: 24, h: 15}
+        size: {w: 48, h: 15}
         position: {x: 0, y: 49}
         esql:
           type: datatable
@@ -213,7 +213,7 @@ dashboards:
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
             - STATS total_flows = COUNT(), accepted_flows = COUNT(*) WHERE aws.vpc.flow.action == "ACCEPT", rejected_flows = COUNT(*) WHERE aws.vpc.flow.action
               == "REJECT", total_bytes = SUM(aws.vpc.flow.bytes), total_packets = SUM(aws.vpc.flow.packets) BY source.address
-            - EVAL rejection_rate = (rejected_flows / total_flows) * 100
+            - EVAL rejection_rate = rejected_flows / total_flows
             - SORT total_flows DESC
             - LIMIT 20
           dimensions:
@@ -239,31 +239,6 @@ dashboards:
           paging:
             enabled: true
             page_size: 20
-      - title: Top Source IP Ranges
-        size: {w: 24, h: 15}
-        position: {x: 24, y: 49}
-        esql:
-          type: bar
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
-            - EVAL ip_parts = SPLIT(source.address, ".")
-            - EVAL first_octet = TO_STRING(MV_FIRST(ip_parts))
-            - EVAL second_octet = TO_STRING(MV_SLICE(ip_parts, 1))
-            - EVAL ip_range = CONCAT(first_octet, ".", second_octet, ".0.0/16")
-            - STATS flow_count = COUNT() BY ip_range
-            - SORT flow_count DESC
-            - LIMIT 10
-          dimension:
-            field: ip_range
-          metrics:
-            - field: flow_count
-              label: Flow Count
-          legend:
-            visible: hide
-          appearance:
-            y_left_axis:
-              title: Flow Count
 
       # Section 6: Security Deep Dive (y:64-94)
       - title: Rejected Traffic by Protocol
@@ -373,7 +348,7 @@ dashboards:
             - STATS total_flows = COUNT(), accepted_flows = COUNT(*) WHERE aws.vpc.flow.action == "ACCEPT", rejected_flows = COUNT(*) WHERE aws.vpc.flow.action
               == "REJECT", total_bytes = SUM(aws.vpc.flow.bytes), unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources =
               COUNT_DISTINCT(source.address) BY cloud.account.id
-            - EVAL rejection_rate = (rejected_flows / total_flows) * 100
+            - EVAL rejection_rate = rejected_flows / total_flows
             - SORT total_flows DESC
           dimensions:
             - field: cloud.account.id

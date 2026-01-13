@@ -31,7 +31,7 @@ kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir out
 | Network Interface | `network.interface.name` | Filter by ENI |
 | Action | `aws.vpc.flow.action` | Filter ACCEPT/REJECT |
 
-## Panels (17 total)
+## Panels (16 total)
 
 ### KPI Metrics
 - **Total Flow Records** - Count of all flow logs
@@ -50,7 +50,6 @@ kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir out
 
 ### Source Analysis
 - **Top Source IPs** - Datatable with flows, bytes, rejection rate
-- **Top Source IP Ranges** - Bar chart of /16 CIDR blocks
 
 ### Security
 - **Rejected Traffic by Protocol** - Bar chart
