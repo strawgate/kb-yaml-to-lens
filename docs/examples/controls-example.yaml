@@ -98,6 +98,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 22
         lens:
           type: pie
           data_view: logs-*
@@ -112,6 +115,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 22
         lens:
           type: bar
           mode: stacked
