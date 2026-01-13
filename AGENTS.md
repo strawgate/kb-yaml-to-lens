@@ -1,7 +1,7 @@
 # Agent Guidelines: kb-yaml-to-lens Project
 
 > Multi-language project for compiling Kibana dashboards from YAML to Lens format
-> Python compiler · TypeScript VS Code extension · JavaScript fixture generator
+> Python compiler · TypeScript VS Code extension
 
 ---
 
@@ -9,13 +9,11 @@
 
 1. **Dashboard Compiler** - Core YAML → JSON compilation engine
 2. **VS Code Extension** - Live preview and visual editing
-3. **Fixture Generator** - Kibana API-based test fixture generation
 
 | Directory | Technology | Purpose |
 | --------- | ---------- | ------- |
 | `compiler/` | Python 3.12+ | Dashboard compiler (see `compiler/AGENTS.md`) |
 | `vscode-extension/` | TypeScript/Node.js | VS Code extension (see `vscode-extension/AGENTS.md`) |
-| `fixture-generator/` | JavaScript/Docker | Kibana fixture generation (see `fixture-generator/AGENTS.md`) |
 
 ---
 

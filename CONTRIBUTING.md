@@ -10,7 +10,6 @@ See component-specific AGENTS.md files for code style conventions:
 
 - Python/Compiler: [compiler/AGENTS.md](compiler/AGENTS.md#code-conventions)
 - TypeScript/VS Code Extension: [vscode-extension/AGENTS.md](vscode-extension/AGENTS.md#development-guidelines)
-- JavaScript/Fixture Generator: [fixture-generator/AGENTS.md](fixture-generator/AGENTS.md)
 
 ## Pull Request Requirements
 

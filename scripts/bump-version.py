@@ -25,7 +25,6 @@ import click
 VERSION_FILES = {
     'compiler/pyproject.toml': 'toml',
     'vscode-extension/package.json': 'json',
-    'fixture-generator/package.json': 'json',
     'pyproject.toml': 'toml',
 }
 
