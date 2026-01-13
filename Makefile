@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector build-extension-binaries package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector download-extension-uv bundle-extension-compiler prepare-extension package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
 
 all: check
 
@@ -35,10 +35,12 @@ help:
 	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "VS Code Extension:"
-	@echo "  build-extension-binaries - Build unified binary for extension (current platform)"
-	@echo "  package-extension        - Package extension with binaries"
-	@echo "  install-extension-vscode - Build, package, and install extension into VS Code"
-	@echo "  install-extension-cursor - Build, package, and install extension into Cursor"
+	@echo "  download-extension-uv    - Download uv for extension (current platform)"
+	@echo "  bundle-extension-compiler - Bundle compiler source for extension"
+	@echo "  prepare-extension        - Prepare extension (download uv + bundle compiler)"
+	@echo "  package-extension        - Package extension with uv and compiler"
+	@echo "  install-extension-vscode - Prepare, package, and install extension into VS Code"
+	@echo "  install-extension-cursor - Prepare, package, and install extension into Cursor"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -195,14 +197,22 @@ docs-deploy:
 	NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
 
 # VS Code Extension
-build-extension-binaries:
-	@echo "Building unified binary for VS Code extension..."
+download-extension-uv:
+	@echo "Downloading uv for VS Code extension..."
 	@echo ""
-	$(call run-in-component,compiler,build-binary)
-	$(call run-in-component,vscode-extension,copy-binary)
-	@echo "✓ Extension binary ready"
+	$(call run-in-component,vscode-extension,download-uv)
+	@echo "✓ uv binary ready"
 
-package-extension: build-extension-binaries
+bundle-extension-compiler:
+	@echo "Bundling compiler source for VS Code extension..."
+	@echo ""
+	$(call run-in-component,vscode-extension,bundle-compiler)
+	@echo "✓ Compiler bundled"
+
+prepare-extension: download-extension-uv bundle-extension-compiler
+	@echo "✓ Extension prepared (uv + compiler bundled)"
+
+package-extension: prepare-extension
 	@echo "Packaging VS Code extension..."
 	@echo ""
 	$(call run-in-component,vscode-extension,package)
