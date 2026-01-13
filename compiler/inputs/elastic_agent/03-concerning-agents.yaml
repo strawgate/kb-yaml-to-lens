@@ -41,7 +41,6 @@ dashboards:
               label: Errors Logged
               format: {type: number, decimals: 0}
             - {id: metric3, aggregation: count, label: Part of Errors Logged}
-            - {id: metric4, label: Part of Errors Logged}
             - id: metric5
               aggregation: count
               label: Warnings
