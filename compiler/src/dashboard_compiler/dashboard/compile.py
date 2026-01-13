@@ -45,15 +45,23 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         dashboard (Dashboard): The Dashboard object to compile.
 
     Returns:
-        KbnDashboardAttributes: The compiled Kibana dashboard attributes view model.
+        tuple: A tuple containing the list of references and the compiled dashboard attributes.
 
     """
-    references, panels = compile_dashboard_panels(
+    panel_references, panels = compile_dashboard_panels(
         dashboard.panels,
         layout_algorithm=dashboard.settings.layout_algorithm,
     )
 
-    return references, KbnDashboardAttributes(
+    control_group_input, control_references = compile_control_group(
+        control_settings=dashboard.settings.controls,
+        controls=dashboard.controls,
+    )
+
+    # Combine panel and control references
+    all_references = panel_references + control_references
+
+    return all_references, KbnDashboardAttributes(
         title=dashboard.name,
         description=dashboard.description or '',
         panelsJSON=panels,
@@ -66,7 +74,7 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
         optionsJSON=compile_dashboard_options(settings=dashboard.settings),
         timeRestore=False,
         version=1,
-        controlGroupInput=compile_control_group(control_settings=dashboard.settings.controls, controls=dashboard.controls),
+        controlGroupInput=control_group_input,
     )
 
 
