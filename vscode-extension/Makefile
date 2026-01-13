@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean download-uv bundle-compiler clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean download-uv download-uv-all bundle-compiler organize-uv-binaries prepare prepare-all verify clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -20,7 +20,12 @@ help:
 	@echo "  install-vscode   - Install packaged extension into VS Code"
 	@echo "  install-cursor   - Install packaged extension into Cursor"
 	@echo "  download-uv      - Download uv binary for current platform"
+	@echo "  download-uv-all  - Download uv binaries for all platforms"
 	@echo "  bundle-compiler  - Bundle compiler source code"
+	@echo "  organize-uv-binaries - Organize uv binaries from CI artifacts"
+	@echo "  prepare          - Prepare extension for current platform (download-uv + bundle-compiler)"
+	@echo "  prepare-all      - Prepare extension for all platforms (download-uv-all + bundle-compiler)"
+	@echo "  verify           - Verify extension works (prepare + compile + test + package)"
 	@echo "  clean            - Clean build artifacts"
 	@echo "  clean-binaries   - Clean downloaded binaries and bundled compiler"
 
@@ -141,6 +146,36 @@ download-uv:
 bundle-compiler:
 	@echo "Bundling compiler source code..."
 	bash scripts/bundle_compiler.sh
+
+download-uv-all:
+	@echo "Downloading uv binaries for all platforms..."
+	bash scripts/download_uv.sh all
+
+organize-uv-binaries:
+	@echo "Organizing uv binaries from CI artifacts..."
+	bash scripts/organize_uv_binaries.sh
+
+prepare: download-uv bundle-compiler
+	@echo "✓ Extension prepared for current platform"
+
+prepare-all: download-uv-all bundle-compiler
+	@echo "✓ Extension prepared for all platforms"
+
+verify: prepare
+	@echo "Verifying extension..."
+	@if [ ! -d "node_modules" ]; then \
+		echo "⚠ Dependencies not installed, installing..."; \
+		$(MAKE) install; \
+	fi
+	@echo "Running compile..."
+	npm run compile
+	@echo "Running lint..."
+	npm run lint
+	@echo "Running tests..."
+	npm run test:unit
+	@echo "Packaging extension..."
+	npm run package
+	@echo "✓ Extension verified successfully"
 
 clean:
 	@echo "Cleaning build artifacts..."

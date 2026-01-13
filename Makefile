@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector download-extension-uv bundle-extension-compiler prepare-extension package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector download-extension-uv download-extension-uv-all bundle-extension-compiler organize-extension-uv-binaries prepare-extension prepare-extension-all verify-extension package-extension install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
 
 all: check
 
@@ -35,12 +35,16 @@ help:
 	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
 	@echo ""
 	@echo "VS Code Extension:"
-	@echo "  download-extension-uv    - Download uv for extension (current platform)"
-	@echo "  bundle-extension-compiler - Bundle compiler source for extension"
-	@echo "  prepare-extension        - Prepare extension (download uv + bundle compiler)"
-	@echo "  package-extension        - Package extension with uv and compiler"
-	@echo "  install-extension-vscode - Prepare, package, and install extension into VS Code"
-	@echo "  install-extension-cursor - Prepare, package, and install extension into Cursor"
+	@echo "  download-extension-uv        - Download uv for extension (current platform)"
+	@echo "  download-extension-uv-all    - Download uv for all platforms"
+	@echo "  bundle-extension-compiler    - Bundle compiler source for extension"
+	@echo "  organize-extension-uv-binaries - Organize CI uv artifacts into bin/"
+	@echo "  prepare-extension            - Prepare extension (current platform)"
+	@echo "  prepare-extension-all        - Prepare extension (all platforms)"
+	@echo "  verify-extension             - Verify extension builds correctly"
+	@echo "  package-extension            - Package extension with uv and compiler"
+	@echo "  install-extension-vscode     - Prepare, package, and install into VS Code"
+	@echo "  install-extension-cursor     - Prepare, package, and install into Cursor"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean cache and temporary files"
@@ -203,14 +207,35 @@ download-extension-uv:
 	$(call run-in-component,vscode-extension,download-uv)
 	@echo "✓ uv binary ready"
 
+download-extension-uv-all:
+	@echo "Downloading uv for all platforms..."
+	@echo ""
+	$(call run-in-component,vscode-extension,download-uv-all)
+	@echo "✓ uv binaries ready for all platforms"
+
 bundle-extension-compiler:
 	@echo "Bundling compiler source for VS Code extension..."
 	@echo ""
 	$(call run-in-component,vscode-extension,bundle-compiler)
 	@echo "✓ Compiler bundled"
 
+organize-extension-uv-binaries:
+	@echo "Organizing uv binaries from CI artifacts..."
+	@echo ""
+	$(call run-in-component,vscode-extension,organize-uv-binaries)
+	@echo "✓ uv binaries organized"
+
 prepare-extension: download-extension-uv bundle-extension-compiler
 	@echo "✓ Extension prepared (uv + compiler bundled)"
+
+prepare-extension-all: download-extension-uv-all bundle-extension-compiler
+	@echo "✓ Extension prepared for all platforms"
+
+verify-extension:
+	@echo "Verifying VS Code extension..."
+	@echo ""
+	$(call run-in-component,vscode-extension,verify)
+	@echo "✓ Extension verified"
 
 package-extension: prepare-extension
 	@echo "Packaging VS Code extension..."

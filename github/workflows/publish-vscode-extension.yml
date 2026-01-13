@@ -31,23 +31,9 @@ jobs:
         with:
           path: uv-binaries
       - name: Organize uv binaries
-        run: |
-          mkdir -p vscode-extension/bin
-          # Copy uv binaries to platform-specific directories
-          mkdir -p vscode-extension/bin/linux-x64
-          cp uv-binaries/uv-linux-x64/uv vscode-extension/bin/linux-x64/uv
-          chmod +x vscode-extension/bin/linux-x64/uv
-          mkdir -p vscode-extension/bin/darwin-x64
-          cp uv-binaries/uv-darwin-x64/uv vscode-extension/bin/darwin-x64/uv
-          chmod +x vscode-extension/bin/darwin-x64/uv
-          mkdir -p vscode-extension/bin/darwin-arm64
-          cp uv-binaries/uv-darwin-arm64/uv vscode-extension/bin/darwin-arm64/uv
-          chmod +x vscode-extension/bin/darwin-arm64/uv
-          mkdir -p vscode-extension/bin/win32-x64
-          cp uv-binaries/uv-win32-x64/uv.exe vscode-extension/bin/win32-x64/uv.exe
+        run: make organize-extension-uv-binaries
       - name: Bundle compiler source
-        run: |
-          bash vscode-extension/scripts/bundle_compiler.sh
+        run: make bundle-extension-compiler
       - name: Install dependencies
         working-directory: vscode-extension
         run: make install
