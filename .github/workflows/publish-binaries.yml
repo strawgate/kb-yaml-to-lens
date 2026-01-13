@@ -30,7 +30,8 @@ jobs:
           mkdir -p artifacts
           # Rename to match expected release names
           cp binaries/binary-linux-x64/kb-dashboard-linux-x64 artifacts/kb-dashboard-linux-x64
-          cp binaries/binary-darwin-x64/kb-dashboard-darwin-x64 artifacts/kb-dashboard-darwin-x64
+          # macOS Intel binary disabled (smoke tests failing)
+          # cp binaries/binary-darwin-x64/kb-dashboard-darwin-x64 artifacts/kb-dashboard-darwin-x64
           cp binaries/binary-darwin-arm64/kb-dashboard-darwin-arm64 artifacts/kb-dashboard-darwin-arm64
           # Windows binary disabled
           # cp binaries/binary-win32-x64/kb-dashboard-windows-x64.exe artifacts/kb-dashboard-windows-x64.exe
