@@ -2,9 +2,8 @@
 name: PM Claude
 on:
   schedule:
-    # Run daily at 9 AM UTC (adjust as needed)
     - cron: 0 9 * * *
-  workflow_dispatch: null  # Allow manual triggering
+  workflow_dispatch: null
 permissions:
   contents: read
   issues: write
@@ -21,66 +20,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full history for git log
+          fetch-depth: 0
       - name: Check for recent activity
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get the last open Project Manager issue number
-          LAST_PM_ISSUE=$(gh issue list \
-            --label "project-manager" \
-            --state open \
-            --limit 1 \
-            --json number \
-            --jq '.[0].number // ""')
+          LAST_PM_ISSUE=$(gh issue list --label "project-manager" --state open --limit 1 --json number --jq '.[0].number // ""')
           echo "last_pm_issue=$LAST_PM_ISSUE" >> $GITHUB_OUTPUT
-
-          # If there's an open PM issue, check if there's been activity since it was created
           if [ -n "$LAST_PM_ISSUE" ]; then
-            echo "Found open PM issue #$LAST_PM_ISSUE"
-
-            # Get the creation date of the last PM issue
             ISSUE_CREATED=$(gh issue view "$LAST_PM_ISSUE" --json createdAt --jq '.createdAt')
-
-            # Check for commits since the issue was created
             COMMIT_COUNT=$(git log --since="$ISSUE_CREATED" --oneline | wc -l)
-
-            # Check for new issues (excluding PM issues)
-            NEW_ISSUES=$(gh issue list \
-              --search "created:>=$ISSUE_CREATED -label:project-manager" \
-              --json number \
-              --jq 'length')
-
-            # Check for new PRs
-            NEW_PRS=$(gh pr list \
-              --search "created:>=$ISSUE_CREATED" \
-              --json number \
-              --jq 'length')
-
-            # Check for PR merges
-            MERGED_PRS=$(gh pr list \
-              --search "merged:>=$ISSUE_CREATED" \
-              --state merged \
-              --json number \
-              --jq 'length')
+            NEW_ISSUES=$(gh issue list --search "created:>=$ISSUE_CREATED -label:project-manager" --json number --jq 'length')
+            NEW_PRS=$(gh pr list --search "created:>=$ISSUE_CREATED" --json number --jq 'length')
+            MERGED_PRS=$(gh pr list --search "merged:>=$ISSUE_CREATED" --state merged --json number --jq 'length')
             TOTAL_ACTIVITY=$((COMMIT_COUNT + NEW_ISSUES + NEW_PRS + MERGED_PRS))
-            echo "Activity since last PM issue:"
-            echo "  Commits: $COMMIT_COUNT"
-            echo "  New Issues: $NEW_ISSUES"
-            echo "  New PRs: $NEW_PRS"
-            echo "  Merged PRs: $MERGED_PRS"
-            echo "  Total: $TOTAL_ACTIVITY"
-            # Threshold: require at least 3 activity items to justify a new PM report
             if [ $TOTAL_ACTIVITY -lt 3 ]; then
-              echo "Not enough activity to create new PM issue"
               echo "has_activity=false" >> $GITHUB_OUTPUT
             else
-              echo "Sufficient activity detected"
               echo "has_activity=true" >> $GITHUB_OUTPUT
             fi
           else
-            echo "No open PM issue found, will create one"
             echo "has_activity=true" >> $GITHUB_OUTPUT
           fi
   close-previous-pm-issue:
@@ -88,8 +48,6 @@ jobs:
     if: needs.check-activity.outputs.has_activity == 'true' && needs.check-activity.outputs.last_pm_issue != ''
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Close previous PM issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,9 +55,7 @@ jobs:
           OWNER="${{ github.repository_owner }}"
           REPO="${{ github.event.repository.name }}"
           LAST_ISSUE="${{ needs.check-activity.outputs.last_pm_issue }}"
-          COMMENT="Closing this PM report. New daily report has been generated."
-          echo "Closing previous PM issue #$LAST_ISSUE"
-          gh issue comment "$LAST_ISSUE" --repo "$OWNER/$REPO" --body "$COMMENT"
+          gh issue comment "$LAST_ISSUE" --repo "$OWNER/$REPO" --body "Closing. New report generated."
           gh issue close "$LAST_ISSUE" --repo "$OWNER/$REPO"
   project-manager-review:
     needs:
@@ -113,100 +69,38 @@ jobs:
     with:
       model: claude-sonnet-4-5
       prompt: |
-        You are a Project Manager for the kb-yaml-to-lens repository - a Python project that compiles Kibana dashboards from
-        YAML to Lens format.
+        You're a Project Manager for kb-yaml-to-lens (Python YAML → Kibana dashboard compiler).
 
-        # YOUR ROLE
-        You are NOT a coder. You are a project manager who reviews the current state of the project and creates a prioritized
-        list of actionable items that need maintainer attention.
+        # ROLE
+        Review project state. DO NOT make code changes or PRs.
 
-        # IMPORTANT RULES
-        1. **DO NOT** make code changes, create branches, or open pull requests
-        2. **DO** analyze open issues, PRs, and recent activity
-        3. **DO** identify blockers, stale items, and what needs maintainer decisions
-        4. **DO** prioritize items by impact and urgency
-        5. **BE SPECIFIC** - provide issue/PR numbers and concrete next steps
-        6. You can search issues and PRs using available tools
-        7. You can read the codebase to understand context
-        8. You can run `git` commands to inspect repository state
-        9. Focus on project health: Are issues being addressed? Are PRs stale? What's blocking progress?
-        10. **DETECT MISALIGNMENT** - Look for patterns where Claude, CodeRabbit, or the maintainer have conflicting expectations
-          or repeated corrections.
-
-        # DETECTING MISALIGNMENT PATTERNS
-        When reviewing recent activity, pay special attention to:
-        **Signs of Agent Misalignment:**
-        - Claude repeatedly making the same type of error across multiple PRs
-        - CodeRabbit flagging issues that should have been prevented by existing guidelines
-        - Maintainer feedback that contradicts what's documented in agents.md or README.md
-        - PR comments like "this isn't the project convention" or "please review the guidelines"
-        - Back-and-forth discussions about code style, architecture, or process
-        - Claude misunderstanding the scope or approach for issues
-        **What to Check:**
-        - Review closed and merged PRs from the past week for correction patterns
-        - Look at issue comments for confusion about project standards
-        - Check if agents.md accurately reflects current project practices
-        - Verify README.md has clear guidance on contribution process
-        - Ensure workflow files have appropriate guardrails and instructions
-        **When to Recommend Updates:**
-        - 2+ instances of the same type of misunderstanding in recent activity
-        - Maintainer explicitly mentions documentation needs updating
-        - New patterns emerging that aren't covered by existing docs
-        - Workflow changes that should be reflected in documentation
-
-        # YOUR TASK
-        Analyze the project and create a structured report with these sections:
+        # TASK
+        Analyze open issues, PRs, and recent activity. Create a report with:
 
         ## 🎯 Easy Pickings
-        Items that are immediately ready to act on with minimal effort:
-        - PRs that are approved and ready to merge
-        - Issues that can be closed (already resolved, duplicates, or no longer relevant)
-        - Quick wins that require minimal discussion
+        PRs ready to merge, issues to close, quick wins
 
         ## 🚨 Urgent Items
-        Items that are blocking progress or need immediate attention.
+        Blockers needing immediate attention
 
-        ## 📋 Issues Requiring Decisions
-        Open issues or PRs that need maintainer input to move forward.
+        ## 📋 Decisions Needed
+        Items requiring maintainer input
 
         ## 🔄 Stale Items
-        Issues or PRs that haven't seen activity in a while and may need a status update.
+        Inactive issues/PRs needing status update
 
         ## ✅ Recent Progress
-        Summary of what's been accomplished recently (merged PRs, closed issues).
+        Merged PRs, closed issues
 
-        ## 🔧 Configuration Alignment Recommendations
-        **Look for patterns of misalignment** between the maintainer, Claude (AI assistant), and CodeRabbit (code reviewer):
-        - PRs where Claude's initial work required significant corrections or rework
-        - Issues where the same type of mistake/misunderstanding keeps recurring
-        - Comments indicating Claude or CodeRabbit misunderstood project conventions
-        - Patterns where agents.md, README.md, or workflow instructions appear outdated or unclear
-        - Discrepancies between documented practices and actual project expectations
-        **If you detect misalignment patterns, provide specific recommendations:**
-        - Which file needs updating (agents.md, README.md, specific workflow files)
-        - What specific guidance should be added or clarified
-        - Examples of the misalignment (reference specific issues/PRs)
-        - Suggested text or changes to prevent future misalignment
-        **If no significant misalignment is detected, state:** "No significant misalignment patterns detected in recent activity."
+        ## 🔧 Alignment Recommendations
+        Patterns where Claude/CodeRabbit misunderstood conventions. Suggest doc updates if 2+ similar issues found.
 
-        ## 💡 Suggested Next Steps
-        Based on the current project state, what should maintainers focus on?
+        ## 💡 Next Steps
+        Prioritized recommendations
 
-        # OUTPUT FORMAT
-        Create a GitHub issue with your findings by calling:
-        ```
-        gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" \
-          --title "📊 Project Manager Report - $(date +%Y-%m-%d)" \
-          --body "YOUR_REPORT_HERE" \
-          --label "project-manager"
-        ```
-        Use clear markdown formatting in the issue body with:
-        - Issue/PR references using `#number` format
-        - Bulleted lists for action items
-        - Clear section headers
-        - Checkboxes [ ] for actionable items
-        - Emojis for visual organization
-      allowed-tools: Bash(git:*,gh:issue:*,make:*)
+        # OUTPUT
+        Create issue via: `gh issue create --repo "${{ github.repository_owner }}/${{ github.event.repository.name }}" --title "📊 PM Report - $(date +%Y-%m-%d)" --body "REPORT" --label "project-manager"`
+      allowed-tools: Bash(git:*,gh:issue:*,gh:pr:*)
       track-progress: false
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

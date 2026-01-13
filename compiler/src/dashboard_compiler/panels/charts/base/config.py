@@ -2,13 +2,11 @@ from enum import StrEnum
 
 from pydantic import Field, model_validator
 
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
-class BaseChart(BaseCfgModel):
-    """Represents a base chart configuration."""
-
-    id: str | None = Field(default=None)
+class BaseChart(BaseIdentifiableModel):
+    """Base configuration for all chart types."""
 
     # data_view: str = Field(default=...)
 

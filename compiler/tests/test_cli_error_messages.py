@@ -319,7 +319,8 @@ dashboards:
   - name: Test Dashboard
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello World
 """)

@@ -133,6 +133,7 @@ nav:
               - Overview: llm-workflows/index.md
               - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
               - Dashboard Style Guide: dashboard-style-guide.md
+              - ES|QL Language Reference: llm-workflows/esql-language-reference.md
           - Custom Color Assignments: advanced/color-assignments.md
           - Legend Configuration: advanced/legend-configuration.md
           - ES|QL "views": advanced/esql-views.md
@@ -149,4 +150,3 @@ nav:
           - Queries API: api/queries.md
       - Advanced Topics:
           - Kibana Architecture Reference: kibana-architecture.md
-          - Fixture Generator Guide: kibana-fixture-generator-guide.md

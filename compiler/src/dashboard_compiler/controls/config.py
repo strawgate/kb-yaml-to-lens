@@ -6,7 +6,7 @@ from typing import Literal, Self
 from pydantic import Field, model_validator
 
 from dashboard_compiler.controls.types import ESQLVariableType
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
 def validate_default_in_choices(default: str | list[str] | None, choices: list[str] | None) -> None:
@@ -63,15 +63,12 @@ class ControlSettings(BaseCfgModel):
     """Whether to require users to click the apply button before applying changes. Defaults to false if not set."""
 
 
-class BaseControl(BaseCfgModel):
+class BaseControl(BaseIdentifiableModel):
     """Base class for defining controls within the YAML schema.
 
     These controls are used to filter data or adjust visualization settings
     on a dashboard.
     """
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the control. If not provided, one may be generated."""
 
     width: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """The width of the control in the dashboard layout. If not set, defaults to 'medium'."""
