@@ -629,7 +629,7 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
     )
 
 
-async def test_pie_chart_dashboard_references_bubble_up() -> None:
+def test_pie_chart_dashboard_references_bubble_up() -> None:
     """Test that pie chart data view references bubble up to dashboard level correctly.
 
     Pie charts reference a data view (index-pattern), so this reference should appear

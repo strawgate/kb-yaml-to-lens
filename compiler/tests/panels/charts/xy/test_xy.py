@@ -1467,7 +1467,7 @@ async def test_mixed_metrics_some_with_appearance() -> None:
     assert layer.yConfig[1].model_dump() == snapshot({'forAccessor': 'metric3', 'axisMode': 'right', 'color': '#0000FF'})
 
 
-async def test_xy_chart_dashboard_references_bubble_up() -> None:
+def test_xy_chart_dashboard_references_bubble_up() -> None:
     """Test that XY chart data view references bubble up to dashboard level correctly.
 
     XY charts (line, bar, area) reference a data view (index-pattern), so this reference
