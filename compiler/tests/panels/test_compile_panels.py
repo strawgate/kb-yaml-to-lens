@@ -154,7 +154,7 @@ class TestDashboardReferenceBubbleUp:
                 {
                     'title': 'My Saved Search',
                     'id': 'search-panel-1',
-                    'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                    'size': {'w': 24, 'h': 15},
                     'search': {
                         'saved_search_id': 'my-saved-search',
                     },
@@ -178,7 +178,7 @@ class TestDashboardReferenceBubbleUp:
                 {
                     'title': 'Test Image',
                     'id': 'image-panel-1',
-                    'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                    'size': {'w': 24, 'h': 15},
                     'image': {
                         'from_url': 'https://example.com/image.png',
                     },
