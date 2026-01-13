@@ -35,7 +35,8 @@ dashboards:
         equals: dockerstatsreceiver.otel
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -43,21 +44,24 @@ dashboards:
               dashboard: docker-otel-overview
             - label: Container Stats
               dashboard: docker-otel-container-stats
-      - grid: {x: 0, y: 2, w: 6, h: 6}
+      - size: {w: 6, h: 6}
+        position: {x: 0, y: 2}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(container.id, reducedTimeRange='1h')
             label: Active Containers
-      - grid: {x: 6, y: 2, w: 6, h: 6}
+      - size: {w: 6, h: 6}
+        position: {x: 6, y: 2}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(container.id)
             label: Total Containers
-      - grid: {x: 12, y: 2, w: 36, h: 6}
+      - size: {w: 36, h: 6}
+        position: {x: 12, y: 2}
         lens:
           type: bar
           data_view: metrics-*
@@ -69,7 +73,8 @@ dashboards:
               aggregation: unique_count
               label: Containers
       - title: Containers by Runtime
-        grid: {x: 0, y: 8, w: 16, h: 11}
+        size: {w: 16, h: 11}
+        position: {x: 0, y: 8}
         lens:
           type: datatable
           data_view: metrics-*
@@ -85,7 +90,8 @@ dashboards:
               aggregation: unique_count
               label: Containers
       - title: Containers by Image
-        grid: {x: 16, y: 8, w: 16, h: 11}
+        size: {w: 16, h: 11}
+        position: {x: 16, y: 8}
         lens:
           type: datatable
           data_view: metrics-*
@@ -101,7 +107,8 @@ dashboards:
               aggregation: unique_count
               label: Containers
       - title: Containers by Name
-        grid: {x: 32, y: 8, w: 16, h: 11}
+        size: {w: 16, h: 11}
+        position: {x: 32, y: 8}
         lens:
           type: datatable
           data_view: metrics-*
@@ -117,7 +124,8 @@ dashboards:
               aggregation: unique_count
               label: Containers
       - title: CPU Usage
-        grid: {x: 0, y: 19, w: 48, h: 8}
+        size: {w: 48, h: 8}
+        position: {x: 0, y: 19}
         hide_title: true
         lens:
           type: line
@@ -137,7 +145,8 @@ dashboards:
               format:
                 type: percent
       - title: Memory Usage
-        grid: {x: 0, y: 27, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 27}
         hide_title: true
         lens:
           type: area
@@ -158,7 +167,8 @@ dashboards:
               format:
                 type: percent
       - title: Memory Usage (Bytes)
-        grid: {x: 24, y: 27, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 27}
         hide_title: true
         lens:
           type: area
@@ -180,7 +190,8 @@ dashboards:
               format:
                 type: bytes
       - title: Disk I/O - Read
-        grid: {x: 0, y: 35, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 35}
         lens:
           type: area
           mode: stacked
@@ -203,7 +214,8 @@ dashboards:
               format:
                 type: bytes
       - title: Disk I/O - Write
-        grid: {x: 24, y: 35, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 35}
         lens:
           type: area
           mode: stacked
@@ -226,7 +238,8 @@ dashboards:
               format:
                 type: bytes
       - title: Network I/O - Received
-        grid: {x: 0, y: 43, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 43}
         lens:
           type: area
           mode: stacked
@@ -246,7 +259,8 @@ dashboards:
               format:
                 type: bytes
       - title: Network I/O - Transmitted
-        grid: {x: 24, y: 43, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 43}
         lens:
           type: area
           mode: stacked

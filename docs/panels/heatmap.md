@@ -37,7 +37,7 @@ dashboards:
   - name: "Server Activity Dashboard"
     panels:
       - title: "Activity by Hour and Day"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: heatmap
           data_view: "logs-*"
@@ -63,7 +63,7 @@ dashboards:
   - name: "Customized Heatmap"
     panels:
       - title: "Response Time Heatmap"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: heatmap
           data_view: "logs-*"
@@ -101,7 +101,7 @@ dashboards:
   - name: "Hourly Traffic Pattern"
     panels:
       - title: "Traffic Intensity by Hour"
-        grid: { x: 0, y: 0, w: 48, h: 8 }
+        size: {w: 48, h: 8}
         lens:
           type: heatmap
           data_view: "logs-*"

@@ -19,7 +19,8 @@ dashboards:
         equals: hostmetricsreceiver.otel
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -35,7 +36,8 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: Number of Hosts
-        grid: {x: 0, y: 3, w: 48, h: 4}
+        size: {w: 48, h: 4}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -44,7 +46,8 @@ dashboards:
             field: resource.attributes.host.name
             label: Total Hosts
       - title: Hosts by OS
-        grid: {x: 0, y: 7, w: 48, h: 4}
+        size: {w: 48, h: 4}
+        position: {x: 0, y: 7}
         lens:
           type: metric
           data_view: metrics-*
@@ -57,7 +60,8 @@ dashboards:
             field: resource.attributes.host.name
             label: Hosts
       - title: Host Performance Summary
-        grid: {x: 0, y: 11, w: 48, h: 25}
+        size: {w: 48, h: 25}
+        position: {x: 0, y: 11}
         lens:
           type: datatable
           data_view: metrics-*

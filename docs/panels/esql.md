@@ -41,7 +41,7 @@ dashboards:
   - name: "ESQL Metrics Dashboard"
     panels:
       - title: "Total Processed Events"
-        grid: { x: 0, y: 0, w: 16, h: 3 }
+        size: {w: 16, h: 3}
         esql:
           type: metric
           query: |
@@ -61,7 +61,8 @@ dashboards:
   - name: "ESQL Event Analysis"
     panels:
       - title: "Events by Type (ESQL)"
-        grid: { x: 16, y: 0, w: 32, h: 3 }
+        size: {w: 32, h: 3}
+        position: {x: 16, y: 0}
         esql:
           type: pie # Specifies an ESQLPieChart
           query: |
@@ -108,7 +109,7 @@ dashboards:
   - name: "Custom Time Field Example"
     panels:
       - title: "Events Over Time"
-        grid: { x: 0, y: 0, w: 48, h: 20 }
+        size: {w: 48, h: 20}
         esql:
           type: bar
           query: |
@@ -145,7 +146,7 @@ dashboards:
     description: "Example of ESQL metric panel with primary, secondary, and breakdown"
     panels:
       - title: "Service Performance Metrics"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         esql:
           type: metric
           query: |
@@ -185,7 +186,7 @@ dashboards:
     description: "Example of ESQL pie chart with donut appearance"
     panels:
       - title: "Error Types Distribution"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         esql:
           type: pie
           query: |
@@ -227,7 +228,7 @@ dashboards:
     description: "Example of ESQL bar chart with stacked mode"
     panels:
       - title: "Events Over Time by Category"
-        grid: { x: 0, y: 0, w: 48, h: 20 }
+        size: {w: 48, h: 20}
         esql:
           type: bar
           query: |
@@ -268,7 +269,7 @@ dashboards:
     description: "Example of ESQL line chart with breakdown"
     panels:
       - title: "Average Response Time by Service"
-        grid: { x: 0, y: 0, w: 48, h: 20 }
+        size: {w: 48, h: 20}
         esql:
           type: line
           query: |
@@ -309,7 +310,7 @@ dashboards:
     description: "Example of ESQL area chart with stacked mode"
     panels:
       - title: "Total Bytes by Host"
-        grid: { x: 0, y: 0, w: 48, h: 20 }
+        size: {w: 48, h: 20}
         esql:
           type: area
           query: |
@@ -373,7 +374,7 @@ dashboards:
     description: "Example showing various metric formatting options"
     panels:
       - title: "Formatted Metrics"
-        grid: { x: 0, y: 0, w: 48, h: 20 }
+        size: {w: 48, h: 20}
         esql:
           type: bar
           query: |
@@ -433,7 +434,7 @@ dashboards:
   - name: "Time Series with BUCKET Example"
     panels:
       - title: "Events Over Time (Hourly Buckets)"
-        grid: { x: 0, y: 0, w: 48, h: 20 }
+        size: {w: 48, h: 20}
         esql:
           type: bar
           query: |

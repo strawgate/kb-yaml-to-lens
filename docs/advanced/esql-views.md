@@ -32,7 +32,7 @@ dashboards:
   - name: "Application Logs"
     panels:
       - title: "Total Requests"
-        grid: { x: 0, y: 0, w: 16, h: 8 }
+        size: {w: 16, h: 8}
         esql:
           type: metric
           query:
@@ -42,7 +42,8 @@ dashboards:
             field: total
 
       - title: "Requests by Status"
-        grid: { x: 16, y: 0, w: 16, h: 8 }
+        size: {w: 16, h: 8}
+        position: {x: 16, y: 0}
         esql:
           type: pie
           query:
@@ -54,7 +55,8 @@ dashboards:
             - field: http.response.status_code
 
       - title: "Average Response Time"
-        grid: { x: 32, y: 0, w: 16, h: 8 }
+        size: {w: 16, h: 8}
+        position: {x: 32, y: 0}
         esql:
           type: metric
           query:
@@ -84,7 +86,7 @@ dashboards:
   - name: "Production Metrics"
     panels:
       - title: "Successful Requests"
-        grid: { x: 0, y: 0, w: 24, h: 8 }
+        size: {w: 24, h: 8}
         esql:
           type: metric
           query:
@@ -96,7 +98,8 @@ dashboards:
             field: count
 
       - title: "Error Rate"
-        grid: { x: 24, y: 0, w: 24, h: 8 }
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 0}
         esql:
           type: metric
           query:
@@ -125,7 +128,7 @@ dashboards:
   - name: "API Dashboard"
     panels:
       - title: "Request Volume"
-        grid: { x: 0, y: 0, w: 16, h: 8 }
+        size: {w: 16, h: 8}
         esql:
           type: metric
           query:
@@ -135,7 +138,8 @@ dashboards:
             field: requests
 
       - title: "P95 Response Time"
-        grid: { x: 16, y: 0, w: 16, h: 8 }
+        size: {w: 16, h: 8}
+        position: {x: 16, y: 0}
         esql:
           type: metric
           query:
@@ -145,7 +149,8 @@ dashboards:
             field: p95
 
       - title: "Requests by Endpoint"
-        grid: { x: 32, y: 0, w: 16, h: 8 }
+        size: {w: 16, h: 8}
+        position: {x: 32, y: 0}
         esql:
           type: pie
           query:
@@ -176,7 +181,7 @@ dashboards:
   - name: "Host Metrics"
     panels:
       - title: "CPU by Host"
-        grid: { x: 0, y: 0, w: 24, h: 12 }
+        size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
@@ -187,7 +192,8 @@ dashboards:
             - SORT avg_cpu DESC
 
       - title: "Memory by Host"
-        grid: { x: 24, y: 0, w: 24, h: 12 }
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 0}
         esql:
           type: datatable
           query:

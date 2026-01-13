@@ -2,7 +2,7 @@
   "name": "kb-dashboard-compiler",
   "displayName": "Kibana Dashboard Compiler",
   "description": "Compile and preview Kibana YAML dashboards with live reload",
-  "version": "0.1.1",
+  "version": "0.1.6",
   "publisher": "strawgate",
   "icon": "images/icon.png",
   "engines": {
@@ -173,7 +173,6 @@
     "test": "npm run compile && node ./out/test/runTest.js",
     "test:unit": "npm run compile && (mocha out/test/unit/**/*.test.js --ui tdd 2>/dev/null || echo 'No unit tests found - skipping')",
     "lint": "eslint src --ext ts",
-    "copy-binary": "bash scripts/copy_binary.sh",
     "package": "vsce package",
     "package:linux": "npm run package-bundle && vsce package --target linux-x64",
     "package:macos-x64": "npm run package-bundle && vsce package --target darwin-x64",
