@@ -201,6 +201,16 @@ jobs:
         run: make test
         env:
           DISPLAY: :99.0
+  build-binaries:
+    name: Build Binaries
+    needs:
+      - lint-python
+      - lint-yaml
+      - typecheck-python
+    uses: ./.github/workflows/build-compiler-binaries.yml
+    with:
+      artifact-prefix: kb-dashboard-ci
+      retention-days: 1
   checks-passed:
     name: All Checks Passed
     runs-on: ubuntu-latest
@@ -217,6 +227,7 @@ jobs:
       - build-docs
       - test-vscode-extension-typescript
       - test-vscode-extension-e2e
+      - build-binaries
     steps:
       - name: All Checks Passed
         run: |-
