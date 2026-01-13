@@ -1,0 +1,59 @@
+{
+  "title": "Event Count with Subtitle",
+  "visualizationType": "lnsMetric",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM logs-* | STATS count = COUNT()"
+            },
+            "columns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "count",
+                "meta": {
+                  "type": "number"
+                }
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "count",
+                "meta": {
+                  "type": "number"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "subtitle": "Last 24 hours",
+      "showBar": false
+    },
+    "adHocDataViews": {
+      "{\"index\":\"logs-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

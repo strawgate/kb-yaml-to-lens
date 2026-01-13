@@ -1,0 +1,67 @@
+{
+  "title": "Response Time with Secondary Metric",
+  "visualizationType": "lnsMetric",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM metrics-* | STATS avg_time = AVG(response_time), max_time = MAX(response_time)"
+            },
+            "columns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "avg_time",
+                "meta": {
+                  "type": "number"
+                }
+              },
+              {
+                "columnId": "metric_formula_accessor_secondary",
+                "fieldName": "max_time"
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "avg_time",
+                "meta": {
+                  "type": "number"
+                }
+              },
+              {
+                "columnId": "metric_formula_accessor_secondary",
+                "fieldName": "max_time"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "metricAccessor": "metric_formula_accessor",
+      "showBar": false,
+      "secondaryMetricAccessor": "metric_formula_accessor_secondary"
+    },
+    "adHocDataViews": {
+      "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}

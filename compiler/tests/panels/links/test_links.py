@@ -1,13 +1,18 @@
 """Test the compilation of links panels from config models to view models."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.links.compile import compile_links_panel_config
 from dashboard_compiler.panels.links.config import LinksPanel, get_link_type
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 def compile_links_panel_snapshot(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -225,3 +230,64 @@ def test_get_link_type_raises_error_for_invalid_object() -> None:
     invalid_obj = InvalidLink()
     with pytest.raises(ValueError, match='Cannot determine link type from object'):
         _ = get_link_type(invalid_obj)
+
+
+def test_links_panel_url_link_dashboard_references_bubble_up() -> None:
+    """Test that URL link panels have no references at dashboard level.
+
+    URL links don't reference any Kibana saved objects, so the dashboard's references array should be empty.
+    """
+    dashboard = Dashboard(
+        name='Test Links Dashboard',
+        panels=[
+            {
+                'title': 'Test Links',
+                'id': 'links-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 4},
+                'links': {
+                    'items': [
+                        {'url': 'https://elastic.co', 'label': 'Elastic'},
+                    ],
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot([])
+
+
+def test_links_panel_dashboard_link_references_bubble_up() -> None:
+    """Test that dashboard link references bubble up to dashboard level correctly.
+
+    Dashboard links reference other dashboards, so these references should appear
+    at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test Dashboard Links',
+        panels=[
+            {
+                'title': 'Navigation Links',
+                'id': 'links-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 4},
+                'links': {
+                    'items': [
+                        {
+                            'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
+                            'label': 'Go to Dashboard',
+                            'id': 'link-1',
+                        },
+                    ],
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'links-panel-1:link_link-1_dashboard', 'type': 'dashboard'}]
+    )
