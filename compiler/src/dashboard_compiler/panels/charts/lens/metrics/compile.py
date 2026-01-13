@@ -293,8 +293,8 @@ def _compile_formula_metric(
         all_helper_column_ids.append(full_ref_id)
         next_column_index += 1
 
-    # Build tinymathAST with column references
-    tinymath_ast = build_tinymath_ast_with_refs(parse_result, agg_column_refs, full_ref_column_refs)
+    # Build tinymathAST with column references (returns Any due to untyped TatSu AST)
+    tinymath_ast = build_tinymath_ast_with_refs(parse_result, agg_column_refs, full_ref_column_refs)  # pyright: ignore[reportAny]
 
     # Check if formula is a simple aggregation/fullReference (tinymath_ast is just a string column ID)
     # This happens when the formula is literally just one operation like "counter_rate(max(field))"
@@ -317,7 +317,7 @@ def _compile_formula_metric(
     else:
         # Create math column (Xm where m = next_column_index)
         math_id = f'{formula_id}X{next_column_index}'
-        math_column = _create_math_column(tinymath_ast, all_helper_column_ids, metric.formula)
+        math_column = _create_math_column(tinymath_ast, all_helper_column_ids, metric.formula)  # pyright: ignore[reportAny]
         helper_columns[math_id] = math_column
 
         # Create formula column referencing the math column
