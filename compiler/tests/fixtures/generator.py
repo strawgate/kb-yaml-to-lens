@@ -1,36 +1,18 @@
 """Fixture generator integration for pytest.
 
-This module provides utilities to invoke the TypeScript fixture generator
-directly from pytest using Docker and the aiodocker library.
-
-The main entry point is the `fixture_container` async context manager which
-handles container lifecycle. Tests can use it directly:
-
-    async with fixture_container(output_dir) as container:
-        script = generate_fixture_script(ts_config, 'output', 'LensMetricConfig')
-        await run_fixture_script(container, script)
-        # Read output from output_dir
-
-For simpler usage, the `generate_fixture` function wraps all of this:
-
-    fixture = await generate_fixture(ts_config, 'output', 'LensMetricConfig')
+Simple Docker-based fixture generation using aiodocker.
+Each function does one thing and does it well.
 """
 
-from __future__ import annotations
-
+import asyncio
 import base64
 import json
-import re
-import shutil
-import tempfile
+from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import aiodocker
-
-if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Mapping
 
 # Project paths
 _TESTS_DIR = Path(__file__).parent.parent
@@ -38,77 +20,146 @@ _COMPILER_DIR = _TESTS_DIR.parent
 _PROJECT_ROOT = _COMPILER_DIR.parent
 _FIXTURE_GEN_DIR = _PROJECT_ROOT / 'fixture-generator'
 
-# Docker image configuration
+# Docker configuration
 DEFAULT_KIBANA_VERSION = 'v9.2.2'
 DEFAULT_BASE_IMAGE = 'ghcr.io/strawgate/kb-yaml-to-lens/kibana-base'
 
-# Error patterns to detect in container output
-_ERROR_PATTERN = re.compile(r'\b[A-Z][a-zA-Z]*Error\b')
+
+# =============================================================================
+# Docker client helpers
+# =============================================================================
+
+
+@asynccontextmanager
+async def docker_client() -> AsyncIterator[aiodocker.Docker]:
+    """Context manager for Docker client with automatic cleanup."""
+    docker = aiodocker.Docker()
+    try:
+        yield docker
+    finally:
+        await docker.close()
 
 
 async def docker_available() -> bool:
     """Check if Docker is available and running."""
     try:
-        docker = aiodocker.Docker()
-        try:
+        async with docker_client() as docker:
             await docker.version()
-        finally:
-            await docker.close()
+        return True
     except Exception:
         return False
-    return True
 
 
-async def fixture_image_available(kibana_version: str = DEFAULT_KIBANA_VERSION) -> bool:
-    """Check if the fixture generator Docker image is available locally."""
-    image_name = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
+async def ensure_image(docker: aiodocker.Docker, image: str) -> None:
+    """Ensure a Docker image is available, pulling if necessary.
+
+    Args:
+        docker: Docker client
+        image: Image name (e.g. 'repo/image:tag')
+
+    Raises:
+        RuntimeError: If image cannot be obtained
+    """
     try:
-        docker = aiodocker.Docker()
+        await docker.images.inspect(image)
+    except aiodocker.DockerError:
+        # Image not available, try to pull
         try:
-            await docker.images.inspect(image_name)
-        except aiodocker.DockerError:
-            return False
-        else:
-            return True
-        finally:
-            await docker.close()
-    except Exception:
-        return False
+            await docker.images.pull(image)
+        except aiodocker.DockerError as e:
+            msg = f'Failed to pull image {image}'
+            raise RuntimeError(msg) from e
 
 
-async def pull_fixture_image(kibana_version: str = DEFAULT_KIBANA_VERSION) -> bool:
-    """Pull the fixture generator Docker image from GHCR."""
-    image_name = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
+# =============================================================================
+# Container operations
+# =============================================================================
+
+
+@asynccontextmanager
+async def managed_container(
+    docker: aiodocker.Docker,
+    config: dict[str, Any],
+) -> AsyncIterator[Any]:
+    """Context manager for a Docker container with automatic cleanup.
+
+    Args:
+        docker: Docker client
+        config: Container configuration dict
+
+    Yields:
+        Container object
+    """
+    container = await docker.containers.create(config=config)
     try:
-        docker = aiodocker.Docker()
+        await container.start()  # pyright: ignore[reportUnknownMemberType]
+        yield container
+    finally:
+        await container.delete(force=True)
+
+
+async def exec_command(container: Any, command: str, timeout: float = 30.0) -> tuple[int, str]:
+    """Execute a command in a container and return exit code and output.
+
+    Args:
+        container: Docker container object
+        command: Shell command to execute
+        timeout: Timeout in seconds
+
+    Returns:
+        Tuple of (exit_code, output_text)
+    """
+    exec_instance = await container.exec(cmd=['bash', '-c', command])  # pyright: ignore[reportUnknownMemberType]
+    stream = exec_instance.start(detach=False)  # pyright: ignore[reportUnknownMemberType]
+
+    # Read all output from stream
+    output_chunks = []
+    while True:
         try:
-            await docker.images.pull(image_name)
-        except aiodocker.DockerError:
-            return False
-        else:
-            return True
-        finally:
-            await docker.close()
-    except Exception:
-        return False
+            chunk = await asyncio.wait_for(stream.read_out(), timeout=timeout)  # pyright: ignore[reportUnknownMemberType]
+            if chunk is None:
+                break
+            # Handle aiodocker Message objects
+            if hasattr(chunk, 'data'):
+                data = chunk.data  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+                output_chunks.append(data.decode() if isinstance(data, bytes) else str(data))
+            elif isinstance(chunk, bytes):
+                output_chunks.append(chunk.decode())
+            else:
+                output_chunks.append(str(chunk))
+        except TimeoutError:
+            break
+        except Exception:
+            break
+
+    # Get exit code
+    result = await exec_instance.inspect()  # pyright: ignore[reportUnknownMemberType]
+    exit_code = result.get('ExitCode', -1)
+
+    return exit_code, ''.join(output_chunks)
 
 
-def generate_fixture_script(
+# =============================================================================
+# Fixture generation helpers
+# =============================================================================
+
+
+def build_typescript_script(
     typescript_config: str,
     output_name: str,
     type_name: str,
     time_range: Mapping[str, str] | None = None,
 ) -> str:
-    """Generate TypeScript script content for fixture generation.
+    """Build a TypeScript script for fixture generation.
 
     Args:
-        typescript_config: Raw TypeScript LensConfigBuilder configuration object.
-        output_name: Name for the output file (without .json extension).
-        type_name: TypeScript type name for the config (e.g., 'LensMetricConfig').
-        time_range: Optional time range dict with 'from', 'to', 'type' keys.
+        typescript_config: Raw TypeScript config object
+        output_name: Output filename (without .json)
+        type_name: TypeScript type name
+        time_range: Optional time range dict
 
     Returns:
-        TypeScript script content ready to execute in the fixture container.
+        Complete TypeScript script as string
     """
     if time_range is None:
         time_range = {'from': 'now-24h', 'to': 'now', 'type': 'relative'}
@@ -135,175 +186,132 @@ const config: {type_name} = {typescript_config};
 """
 
 
-class FixtureContainer:
-    """Wrapper around a Docker container for fixture generation.
+async def run_script_in_container(container: Any, script_content: str) -> None:
+    """Run a TypeScript script in a container.
 
-    This class manages the container lifecycle and provides methods
-    for running fixture scripts. It's designed to be used with the
-    `fixture_container` async context manager.
+    Args:
+        container: Docker container (must have tsx, node, etc.)
+        script_content: TypeScript script to execute
+
+    Raises:
+        RuntimeError: If script execution fails
     """
+    # Step 1: Create directories
+    exit_code, output = await exec_command(container, 'mkdir -p /tmp /kibana/examples')
+    if exit_code != 0:
+        msg = f'Failed to create directories: {output}'
+        raise RuntimeError(msg)
 
-    def __init__(
-        self,
-        docker: aiodocker.Docker,
-        output_dir: Path,
-        kibana_version: str,
-    ) -> None:
-        """Initialize the fixture container wrapper.
+    # Step 2: Write script file
+    script_b64 = base64.b64encode(script_content.encode()).decode()
+    exit_code, output = await exec_command(container, f'echo {script_b64} | base64 -d > /kibana/examples/gen.ts')
+    if exit_code != 0:
+        msg = f'Failed to write script: {output}'
+        raise RuntimeError(msg)
 
-        Args:
-            docker: The aiodocker client.
-            output_dir: Local directory to mount for output.
-            kibana_version: Kibana version for the base image.
-        """
-        self.docker = docker
-        self.output_dir = output_dir
-        self.kibana_version = kibana_version
-        self.base_image = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
+    # Step 3: Execute script
+    exit_code, output = await exec_command(container, 'tsx /kibana/examples/gen.ts')
+    if exit_code != 0:
+        msg = f'Fixture generation failed:\n{output}'
+        raise RuntimeError(msg)
 
-    async def run_script(self, script_content: str) -> None:
-        """Run a TypeScript fixture generation script in the container.
 
-        Args:
-            script_content: TypeScript script content to execute.
+def build_container_config(
+    image: str,
+    output_dir: Path,
+    kibana_version: str,
+) -> dict[str, Any]:
+    """Build Docker container configuration for persistent fixture generation.
 
-        Raises:
-            RuntimeError: If the script execution fails.
-        """
-        script_b64 = base64.b64encode(script_content.encode()).decode()
-        bash_cmd = (
-            f'mkdir -p /tmp /kibana/examples && echo {script_b64} | base64 -d > /kibana/examples/gen.ts && tsx /kibana/examples/gen.ts'
-        )
+    Args:
+        image: Docker image name
+        output_dir: Host directory to mount for output
+        kibana_version: Kibana version
 
-        config = {
-            'Image': self.base_image,
-            'Cmd': ['bash', '-c', bash_cmd],
-            'Env': [
-                'NODE_OPTIONS=--max-old-space-size=8192',
-                f'KIBANA_VERSION={self.kibana_version}',
+    Returns:
+        Container config dict
+    """
+    return {
+        'Image': image,
+        'Cmd': ['tail', '-f', '/dev/null'],  # Keep alive
+        'Env': [
+            'NODE_OPTIONS=--max-old-space-size=8192',
+            f'KIBANA_VERSION={kibana_version}',
+        ],
+        'HostConfig': {
+            'Binds': [
+                f'{output_dir}:/kibana/output',
+                f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/examples/generator-utils.ts:ro',
+                f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/examples/dataviews-mock.js:ro',
             ],
-            'HostConfig': {
-                'Binds': [
-                    f'{self.output_dir}:/kibana/output',
-                    f'{_FIXTURE_GEN_DIR}/generator-utils.ts:/kibana/examples/generator-utils.ts:ro',
-                    f'{_FIXTURE_GEN_DIR}/dataviews-mock.js:/kibana/examples/dataviews-mock.js:ro',
-                ],
-            },
-        }
+        },
+    }
 
-        container = await self.docker.containers.create(config=config)
-        try:
-            await container.start()  # pyright: ignore[reportUnknownMemberType]
-            await container.wait()  # pyright: ignore[reportUnknownMemberType]
 
-            logs = await container.log(stdout=True, stderr=True)  # pyright: ignore[reportUnknownMemberType]
-            log_output = ''.join(logs)
-            if _ERROR_PATTERN.search(log_output):
-                msg = f'Fixture generation failed: {log_output}'
-                raise RuntimeError(msg)
-        finally:
-            await container.delete(force=True)
+# =============================================================================
+# High-level fixture generation
+# =============================================================================
 
 
 @asynccontextmanager
-async def fixture_container(
+async def shared_fixture_container(
     output_dir: Path,
     kibana_version: str = DEFAULT_KIBANA_VERSION,
-    auto_pull: bool = True,
-) -> AsyncIterator[FixtureContainer]:
-    """Async context manager for fixture generation with Docker.
-
-    This is the primary interface for running fixture generation. It handles:
-    - Docker client lifecycle
-    - Image availability checks (with optional auto-pull)
-    - Cleanup on exit
-
-    Example:
-        output_dir = Path(tempfile.mkdtemp())
-        async with fixture_container(output_dir) as container:
-            script = generate_fixture_script(ts_config, 'metric', 'LensMetricConfig')
-            await container.run_script(script)
-            # Read results from output_dir / kibana_version / 'metric.json'
+) -> AsyncIterator[Any]:
+    """Create a persistent container for multiple fixture generations.
 
     Args:
-        output_dir: Directory where fixture output will be written.
-        kibana_version: Kibana version to use for fixture generation.
-        auto_pull: Whether to automatically pull the image if not available.
+        output_dir: Directory for fixture output
+        kibana_version: Kibana version
 
     Yields:
-        FixtureContainer instance for running scripts.
+        Container object that can be reused
 
     Raises:
-        RuntimeError: If Docker is not available or image cannot be obtained.
+        RuntimeError: If Docker or image unavailable
     """
-    base_image = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
+    image = f'{DEFAULT_BASE_IMAGE}:{kibana_version}'
 
-    try:
-        docker = aiodocker.Docker()
-    except Exception as e:
-        msg = 'Docker is not available'
-        raise RuntimeError(msg) from e
-
-    try:
-        # Ensure image is available
-        try:
-            await docker.images.inspect(base_image)
-        except aiodocker.DockerError as inspect_err:
-            if auto_pull:
-                try:
-                    await docker.images.pull(base_image)
-                except aiodocker.DockerError as e:
-                    msg = f'Failed to pull fixture image: {base_image}'
-                    raise RuntimeError(msg) from e
-            else:
-                msg = f'Fixture image not available: {base_image}'
-                raise RuntimeError(msg) from inspect_err
-
-        yield FixtureContainer(docker, output_dir, kibana_version)
-    finally:
-        await docker.close()
+    async with docker_client() as docker:
+        await ensure_image(docker, image)
+        config = build_container_config(image, output_dir, kibana_version)
+        async with managed_container(docker, config) as container:
+            yield container
 
 
-async def generate_fixture(  # noqa: PLR0913
+async def generate_fixture(
+    container: Any,
+    output_dir: Path,
     typescript_config: str,
     output_name: str,
     type_name: str,
     time_range: Mapping[str, str] | None = None,
     kibana_version: str = DEFAULT_KIBANA_VERSION,
-    auto_pull: bool = True,
 ) -> dict[str, Any]:
-    """Generate a fixture from a TypeScript configuration.
-
-    This is a convenience function that wraps the fixture_container context
-    manager for simple, one-off fixture generation. For multiple fixtures
-    or more control, use fixture_container directly.
+    """Generate a fixture from TypeScript configuration.
 
     Args:
-        typescript_config: Raw TypeScript LensConfigBuilder configuration object.
-        output_name: Name for the output file (without .json extension).
-        type_name: TypeScript type name for the config (e.g., 'LensMetricConfig').
-        time_range: Optional time range dict with 'from', 'to', 'type' keys.
-        kibana_version: Kibana version to use for fixture generation.
-        auto_pull: Whether to automatically pull the Docker image if not available.
+        container: Docker container to run script in
+        output_dir: Output directory where fixture will be written
+        typescript_config: Raw TypeScript config object
+        output_name: Output filename (without .json)
+        type_name: TypeScript type name
+        time_range: Optional time range
+        kibana_version: Kibana version
 
     Returns:
-        The generated fixture as a dictionary.
+        Generated fixture as dict
 
     Raises:
-        RuntimeError: If Docker is not available, image pull fails, or generation fails.
+        RuntimeError: If generation fails
     """
-    output_dir = Path(tempfile.mkdtemp(prefix='fixture_gen_output_'))
-    try:
-        async with fixture_container(output_dir, kibana_version, auto_pull) as container:
-            script = generate_fixture_script(typescript_config, output_name, type_name, time_range)
-            await container.run_script(script)
+    script = build_typescript_script(typescript_config, output_name, type_name, time_range)
+    await run_script_in_container(container, script)
 
-            fixture_path = output_dir / kibana_version / f'{output_name}.json'
-            if not fixture_path.exists():
-                msg = f'Generated fixture not found: {fixture_path}'
-                raise RuntimeError(msg)
+    # Read generated fixture
+    fixture_path = output_dir / kibana_version / f'{output_name}.json'
+    if not fixture_path.exists():
+        msg = f'Generated fixture not found: {fixture_path}'
+        raise RuntimeError(msg)
 
-            return json.loads(fixture_path.read_text())
-    finally:
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
+    return json.loads(fixture_path.read_text())

@@ -2,6 +2,7 @@ import json
 from typing import Any
 
 import pytest
+import pytest_asyncio
 from freezegun.api import FrozenDateTimeFactory
 
 
@@ -48,14 +49,29 @@ def de_json_kbn_dashboard(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
     return kbn_dashboard_dict
 
 
-@pytest.fixture
-async def require_docker() -> None:
-    """Fixture that skips the test if Docker or fixture image is not available."""
-    from tests.fixtures.generator import docker_available, fixture_image_available, pull_fixture_image
+@pytest_asyncio.fixture(scope='session', loop_scope='session')
+async def shared_fixture_container():
+    """Session-scoped fixture providing a persistent container for fixture generation.
 
-    if not await docker_available():
-        pytest.skip('Docker not available for fixture generation')
+    This fixture creates a single Docker container that persists for the entire
+    test session, significantly improving test performance by avoiding container
+    startup overhead for each test.
 
-    # Try to ensure the image is available
-    if not await fixture_image_available() and not await pull_fixture_image():
-        pytest.skip('Fixture image not available and could not be pulled')
+    Yields:
+        Tuple of (container, output_dir) for use with generate_fixture
+    """
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    from .fixtures.generator import shared_fixture_container as get_container
+
+    # Create a temporary output directory for the session
+    output_dir = Path(tempfile.mkdtemp(prefix='fixture_shared_'))
+    try:
+        async with get_container(output_dir) as container:
+            yield (container, output_dir)
+    finally:
+        # Cleanup output directory
+        if output_dir.exists():
+            shutil.rmtree(output_dir)

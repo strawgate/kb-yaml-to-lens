@@ -1,7 +1,6 @@
-"""Fixture test utilities for comparing compiled output against Kibana fixtures.
+"""Utilities for comparing compiler output against generated fixtures.
 
-This module provides utilities for comparing compiled panel output
-against dynamically generated fixtures using DeepDiff.
+Simple helpers for normalizing and diffing compiled panels vs Kibana fixtures.
 """
 
 from __future__ import annotations
@@ -12,16 +11,15 @@ from deepdiff import DeepDiff
 
 
 def normalize_compiled_panel(compiled_panel: dict[str, Any]) -> dict[str, Any]:
-    """Normalize a compiled panel's embeddableConfig for fixture comparison.
+    """Extract and normalize embeddableConfig from a compiled panel.
 
-    Extracts the embeddableConfig from a compiled panel and normalizes it
-    to match the fixture format.
+    Extracts the relevant fields to match fixture format.
 
     Args:
-        compiled_panel: A panel from the compiled dashboard's panelsJSON.
+        compiled_panel: Panel from compiled dashboard's panelsJSON
 
     Returns:
-        Normalized embeddableConfig dictionary.
+        Normalized embeddableConfig dictionary
     """
     config = compiled_panel.get('embeddableConfig', {})
     attributes = config.get('attributes', {})
@@ -41,11 +39,11 @@ def compare_with_deepdiff(
     """Compare compiled output to fixture using DeepDiff.
 
     Args:
-        compiled: Compiled panel configuration.
-        fixture: Generated fixture JSON.
+        compiled: Compiled panel configuration
+        fixture: Generated fixture JSON
 
     Returns:
-        A DeepDiff object containing the differences.
+        DeepDiff object containing differences
     """
     return DeepDiff(
         fixture,
