@@ -51,7 +51,7 @@ DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 
 # Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
 # The Windows console uses cp1252 by default which cannot encode Unicode symbols
-_USE_ASCII_ICONS = sys.platform == 'win32' and not os.environ.get('PYTHONUTF8')
+_USE_ASCII_ICONS = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
 
 ICON_SUCCESS = '[OK]' if _USE_ASCII_ICONS else '✓'
 ICON_ERROR = '[X]' if _USE_ASCII_ICONS else '✗'

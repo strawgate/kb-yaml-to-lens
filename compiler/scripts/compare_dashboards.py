@@ -14,11 +14,11 @@ import sys
 from pathlib import Path
 
 # Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
-_USE_ASCII = sys.platform == 'win32' and not os.environ.get('PYTHONUTF8')
+_USE_ASCII = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
 
 _ICON_CHECK = '[OK]' if _USE_ASCII else '✓'
 _ICON_CROSS = '[X]' if _USE_ASCII else '✗'
-_ICON_WARNING = '[!]' if _USE_ASCII else '⚠️'
+_ICON_WARNING = '[!]' if _USE_ASCII else '⚠'
 _ICON_SUCCESS = '[OK]' if _USE_ASCII else '✅'
 
 
