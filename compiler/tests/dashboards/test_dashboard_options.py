@@ -6,7 +6,6 @@ from dashboard_compiler.controls.config import OptionsListControl
 from dashboard_compiler.dashboard.compile import compile_dashboard_options
 from dashboard_compiler.dashboard.config import Dashboard, DashboardSettings, DashboardSyncSettings
 from dashboard_compiler.filters.config import PhraseFilter
-from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
 
@@ -75,8 +74,8 @@ def test_dashboard_add_control() -> None:
 def test_dashboard_add_panel() -> None:
     """Test Dashboard.add_panel adds panels and returns self for chaining."""
     dashboard = Dashboard(name='Test Dashboard')
-    panel1 = MarkdownPanel(grid=Grid(x=0, y=0, w=12, h=5), markdown={'content': 'Panel 1'})
-    panel2 = MarkdownPanel(grid=Grid(x=12, y=0, w=12, h=5), markdown={'content': 'Panel 2'})
+    panel1 = MarkdownPanel(size={'w': 12, 'h': 5}, position={'x': 0, 'y': 0}, markdown={'content': 'Panel 1'})
+    panel2 = MarkdownPanel(size={'w': 12, 'h': 5}, position={'x': 12, 'y': 0}, markdown={'content': 'Panel 2'})
 
     result = dashboard.add_panel(panel1).add_panel(panel2)
 

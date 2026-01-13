@@ -22,7 +22,7 @@ dashboards:
   - name: Test
     panels:
       - title: Bad Panel
-        grid: {x: 0, y: 0, w: 24
+        size: {w: 24
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
@@ -83,7 +83,8 @@ dashboards:
 dashboards:
   - name: Test
     panels:
-      - grid: {x: 0, y: 0, w: 24, h: 12}
+      - size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello
 """)
@@ -116,7 +117,8 @@ dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown: {}
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
@@ -134,7 +136,8 @@ dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         esql:
           type: metric
           primary:
@@ -183,39 +186,42 @@ dashboards:
   • dashboards[0].panels: Expected a list\
 """)
 
-    def test_grid_not_a_dict(self, tmp_path: Path) -> None:
-        """Test error when grid is not a dict."""
-        yaml_file = tmp_path / 'grid-not-dict.yaml'
+    def test_size_not_a_dict(self, tmp_path: Path) -> None:
+        """Test error when size is not a dict."""
+        yaml_file = tmp_path / 'size-not-dict.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: "0,0,24,12"
+        size: "24,12"
         markdown:
           content: Hello
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
-        # Grid validator only processes dicts; non-dict values are ignored and defaults apply
-        assert error is None, f'Expected successful compilation with default grid, got error: {error}'
-        assert len(json_lines) == 1
+        # Size must be a dict; non-dict values cause validation error
+        assert json_lines == []
+        assert error is not None
+        assert 'size-not-dict.yaml' in error
+        assert 'size' in error.lower()
 
-    def test_grid_coordinates_wrong_type(self, tmp_path: Path) -> None:
-        """Test error when grid coordinates are wrong type."""
-        yaml_file = tmp_path / 'grid-coords-wrong.yaml'
+    def test_position_coordinates_wrong_type(self, tmp_path: Path) -> None:
+        """Test error when position coordinates are wrong type."""
+        yaml_file = tmp_path / 'position-coords-wrong.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: "zero", y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: "zero", y: 0}
         markdown:
           content: Hello
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
-1 validation error in grid-coords-wrong.yaml:
+1 validation error in position-coords-wrong.yaml:
   • dashboards[0].panels[0].markdown.position.x: Expected an integer value\
 """)
 
@@ -240,15 +246,16 @@ dashboards:
 class TestInvalidValues:
     """Test error messages for invalid values."""
 
-    def test_negative_grid_width(self, tmp_path: Path) -> None:
-        """Test error when grid width is negative."""
+    def test_negative_size_width(self, tmp_path: Path) -> None:
+        """Test error when size width is negative."""
         yaml_file = tmp_path / 'negative-width.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: -24, h: 12}
+        size: {w: -24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello
 """)
@@ -258,15 +265,16 @@ dashboards:
         assert 'negative-width.yaml' in error
         assert 'Width must be between 1 and 48, got -24' in error
 
-    def test_grid_width_too_large(self, tmp_path: Path) -> None:
-        """Test error when grid width exceeds maximum."""
+    def test_size_width_too_large(self, tmp_path: Path) -> None:
+        """Test error when size width exceeds maximum."""
         yaml_file = tmp_path / 'width-too-large.yaml'
         yaml_file.write_text("""
 dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 1000, h: 12}
+        size: {w: 1000, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello
 """)
@@ -284,7 +292,8 @@ dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         esql:
           type: invalid_type
           query:
@@ -304,7 +313,8 @@ dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         esql:
           type: metric
           primary:
@@ -329,11 +339,13 @@ dashboards:
   - name: Test
     panels:
       - title: Panel 1
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: First
       - title: Panel 2
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Second
 """)
@@ -351,7 +363,8 @@ dashboards:
   - name: Test
     panels:
       - title: Panel Outside
-        grid: {x: 100, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 100, y: 0}
         markdown:
           content: Outside
 """)
@@ -373,13 +386,14 @@ dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error is not None
         assert 'no-panel-type.yaml' in error
-        assert "Cannot determine panel type from dict with keys: ['title', 'grid']" in error
+        assert "Cannot determine panel type from dict with keys: ['title', 'size', 'position']" in error
         assert "Each panel must have exactly one type discriminator key: 'markdown', 'search', 'links', 'image', 'lens', or 'esql'" in error
 
     def test_multiple_panel_types(self, tmp_path: Path) -> None:
@@ -390,7 +404,8 @@ dashboards:
   - name: Test
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello
         esql:
@@ -416,7 +431,8 @@ class TestComplexValidationErrors:
 dashboards:
   - description: Missing name
     panels:
-      - grid: {x: 0, y: 0, w: 24, h: 12}
+      - size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello
 """)
@@ -435,7 +451,8 @@ dashboards:
   - name: Test
     panels:
       - title: Chart Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         esql:
           type: metric
           primary:
@@ -520,7 +537,8 @@ dashboards:
   - name: Minimal Dashboard
     panels:
       - title: Simple Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello World
 """)
@@ -536,11 +554,13 @@ dashboards:
   - name: Multi Panel Dashboard
     panels:
       - title: Panel 1
-        grid: {x: 0, y: 0, w: 12, h: 12}
+        size: {w: 12, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: First
       - title: Panel 2
-        grid: {x: 12, y: 0, w: 12, h: 12}
+        size: {w: 12, h: 12}
+        position: {x: 12, y: 0}
         markdown:
           content: Second
 """)

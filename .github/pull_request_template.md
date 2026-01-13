@@ -33,18 +33,6 @@ make install
 make compile  # or other relevant commands
 ```
 
-### Fixture Generation (Chart Types Only)
-
-<!-- If this PR modifies chart types in `panels/charts/`, complete this checklist -->
-<!-- Delete this section if not applicable -->
-
-- [ ] Checked existing fixtures in `fixture-generator/output/`
-- [ ] Created/updated fixture generator script (if needed)
-- [ ] Verified compiler output matches Kibana fixture
-- [ ] Committed both generator script and output files
-
-See `fixture-generator/AGENTS.md` for details.
-
 ## Related Issues
 
 Fixes #

@@ -5,11 +5,12 @@ dashboards:
     description: Comprehensive examples of metric number formatting options
     panels:
       - title: Metric Formatting Examples Overview
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 5
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Metric Formatting Examples\nThis dashboard demonstrates various number formatting options for metric charts:\n- **Suffix\
             \ formatting** - Add custom text after numbers (\" requests/sec\", \" users\")\n- **Compact notation** - Display large numbers as\
@@ -20,11 +21,12 @@ dashboards:
       # Suffix Formatting Examples
       - title: Request Rate
         description: Using suffix to add units
-        grid:
-          x: 0
-          y: 5
+        size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 5
         lens:
           type: metric
           data_view: logs-*
@@ -36,11 +38,12 @@ dashboards:
               suffix: ' req/sec'
       - title: Active Users
         description: Suffix for context
-        grid:
-          x: 12
-          y: 5
+        size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 5
         lens:
           type: metric
           data_view: logs-*
@@ -53,11 +56,12 @@ dashboards:
               suffix: ' users'
       - title: Temperature
         description: Suffix with units
-        grid:
-          x: 24
-          y: 5
+        size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 5
         lens:
           type: metric
           data_view: metrics-*
@@ -71,11 +75,12 @@ dashboards:
               suffix: °C
       - title: API Calls
         description: Suffix with period
-        grid:
-          x: 36
-          y: 5
+        size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 5
         lens:
           type: metric
           data_view: logs-*
@@ -89,11 +94,12 @@ dashboards:
       # Compact Notation Examples
       - title: Total Events (Compact)
         description: Compact notation for large numbers
-        grid:
-          x: 0
-          y: 13
+        size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -105,11 +111,12 @@ dashboards:
               compact: true
       - title: Unique IPs (Compact)
         description: Compact with custom suffix
-        grid:
-          x: 12
-          y: 13
+        size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -123,11 +130,12 @@ dashboards:
               suffix: ' IPs'
       - title: Data Processed
         description: Bytes format with compact notation
-        grid:
-          x: 24
-          y: 13
+        size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -140,11 +148,12 @@ dashboards:
               compact: true
       - title: Response Time
         description: Duration format
-        grid:
-          x: 36
-          y: 13
+        size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -158,11 +167,12 @@ dashboards:
       # Custom Pattern Examples
       - title: Revenue
         description: Currency pattern with 2 decimals
-        grid:
-          x: 0
-          y: 21
+        size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -176,11 +186,12 @@ dashboards:
               suffix: ' USD'
       - title: Success Rate
         description: Pattern with abbreviation
-        grid:
-          x: 12
-          y: 21
+        size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -193,11 +204,12 @@ dashboards:
               suffix: '%'
       - title: Cache Hit Ratio
         description: Percentage with 3 decimals
-        grid:
-          x: 24
-          y: 21
+        size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -208,11 +220,12 @@ dashboards:
               type: percent
       - title: Error Count
         description: No decimals with thousands separator
-        grid:
-          x: 36
-          y: 21
+        size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -228,11 +241,12 @@ dashboards:
       # Built-in Format Examples
       - title: Network Throughput
         description: Bytes format
-        grid:
-          x: 0
-          y: 29
+        size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -244,11 +258,12 @@ dashboards:
               type: bytes
       - title: Network Bits
         description: Bits format
-        grid:
-          x: 12
-          y: 29
+        size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -260,11 +275,12 @@ dashboards:
               type: bits
       - title: CPU Usage
         description: Percent format
-        grid:
-          x: 24
-          y: 29
+        size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -276,11 +292,12 @@ dashboards:
               type: percent
       - title: Uptime
         description: Duration format
-        grid:
-          x: 36
-          y: 29
+        size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -294,11 +311,12 @@ dashboards:
       # Combined Format Options
       - title: Bandwidth Usage
         description: Combining multiple format options
-        grid:
-          x: 0
-          y: 37
+        size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 37
         lens:
           type: metric
           data_view: metrics-*
@@ -312,11 +330,12 @@ dashboards:
               suffix: /day
       - title: Transaction Volume
         description: Compact with custom pattern
-        grid:
-          x: 12
-          y: 37
+        size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 37
         lens:
           type: metric
           data_view: logs-*
@@ -330,11 +349,12 @@ dashboards:
               suffix: ' txn'
       - title: Average Latency
         description: Duration with custom suffix
-        grid:
-          x: 24
-          y: 37
+        size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 37
         lens:
           type: metric
           data_view: logs-*
@@ -347,11 +367,12 @@ dashboards:
               suffix: ' (avg)'
       - title: Data Transfer Rate
         description: Bits with rate suffix
-        grid:
-          x: 36
-          y: 37
+        size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 37
         lens:
           type: metric
           data_view: metrics-*
@@ -367,11 +388,12 @@ dashboards:
       # Custom Format Type
       - title: Custom Format Example
         description: Using custom format type
-        grid:
-          x: 0
-          y: 45
+        size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 45
         lens:
           type: metric
           data_view: logs-*
@@ -383,11 +405,12 @@ dashboards:
               pattern: 0,0.0a
       - title: Precise Decimal Control
         description: Custom pattern for precise control
-        grid:
-          x: 12
-          y: 45
+        size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 45
         lens:
           type: metric
           data_view: metrics-*
@@ -400,11 +423,12 @@ dashboards:
               pattern: '0.000'
       - title: No Formatting
         description: Plain number without formatting
-        grid:
-          x: 24
-          y: 45
+        size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 45
         lens:
           type: metric
           data_view: logs-*
@@ -413,11 +437,12 @@ dashboards:
             label: Raw Count
       - title: Formula with Formatting
         description: Formula metric with custom format
-        grid:
-          x: 36
-          y: 45
+        size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 45
         lens:
           type: metric
           data_view: logs-*

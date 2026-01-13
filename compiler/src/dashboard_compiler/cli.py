@@ -49,12 +49,16 @@ DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
 DEFAULT_SCENARIO_DIR = PROJECT_ROOT / 'tests/dashboards/scenarios'
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 
-ICON_SUCCESS = '✓'
-ICON_ERROR = '✗'
-ICON_WARNING = '⚠'
-ICON_UPLOAD = '📤'
-ICON_DOWNLOAD = '📥'
-ICON_BROWSER = '🌐'
+# Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
+# The Windows console uses cp1252 by default which cannot encode Unicode symbols
+_USE_ASCII_ICONS = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
+
+ICON_SUCCESS = '[OK]' if _USE_ASCII_ICONS else '✓'
+ICON_ERROR = '[X]' if _USE_ASCII_ICONS else '✗'
+ICON_WARNING = '[!]' if _USE_ASCII_ICONS else '⚠'
+ICON_UPLOAD = '[^]' if _USE_ASCII_ICONS else '📤'
+ICON_DOWNLOAD = '[v]' if _USE_ASCII_ICONS else '📥'
+ICON_BROWSER = '[>]' if _USE_ASCII_ICONS else '🌐'
 
 MAX_GITHUB_ISSUE_URL_LENGTH = 8000
 

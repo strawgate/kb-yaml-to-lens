@@ -240,7 +240,7 @@ dashboards:
   - name: "Sales Dashboard"
     panels:
       - title: "Revenue by Region"
-        grid: { x: 0, y: 0, w: 6, h: 6 }
+        size: { w: 6, h: 6 }
         lens:
           type: pie
           data_view: "logs-*"
@@ -263,7 +263,7 @@ dashboards:
   - name: "Status Monitoring"
     panels:
       - title: "Request Status Distribution"
-        grid: { x: 0, y: 0, w: 6, h: 6 }
+        size: { w: 6, h: 6 }
         lens:
           type: pie
           data_view: "logs-*"

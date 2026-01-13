@@ -1,11 +1,18 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
-from dirty_equals import IsUUID
+from typing import TYPE_CHECKING
+
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.charts.config import ESQLPiePanelConfig
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
 from dashboard_compiler.panels.charts.pie.config import LensPieChart
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 async def test_basic_pie_chart() -> None:
@@ -619,4 +626,41 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
             'legendDisplay': 'default',
             'nestedLegend': False,
         }
+    )
+
+
+def test_pie_chart_dashboard_references_bubble_up() -> None:
+    """Test that pie chart data view references bubble up to dashboard level correctly.
+
+    Pie charts reference a data view (index-pattern), so this reference should appear
+    at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test Pie Chart Dashboard',
+        panels=[
+            {
+                'title': 'Pie Chart',
+                'id': 'pie-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'pie',
+                    'data_view': 'metrics-*',
+                    'metrics': [{'aggregation': 'count', 'id': 'count-metric'}],
+                    'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'host-dimension'}],
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [
+            {
+                'id': 'metrics-*',
+                'name': IsStr(regex=r'pie-panel-1:indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        ]
     )

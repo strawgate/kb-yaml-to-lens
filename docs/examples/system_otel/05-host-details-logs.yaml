@@ -22,7 +22,8 @@ dashboards:
         field: resource.attributes.host.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -38,7 +39,8 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: Logs
-        grid: {x: 0, y: 2, w: 48, h: 56}
+        size: {w: 48, h: 56}
+        position: {x: 0, y: 2}
         esql:
           type: datatable
           query:

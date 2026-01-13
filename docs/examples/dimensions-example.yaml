@@ -5,11 +5,12 @@ dashboards:
     description: Demonstrates complex dimension configurations and breakdowns
     panels:
       - title: Multi-Dimensional Visualizations
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 5
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Multi-Dimensional Chart Examples\nThis dashboard demonstrates advanced dimension and breakdown configurations:\n- **Single\
             \ dimension** - Basic time series\n- **Multiple dimensions** - Cross-tabulation\n- **Breakdowns** - Additional grouping layer\n- **Top\
@@ -17,11 +18,12 @@ dashboards:
           font_size: 12
       - title: Simple Time Series
         description: Single time dimension, no breakdown
-        grid:
-          x: 0
-          y: 5
+        size:
           w: 24
           h: 10
+        position:
+          x: 0
+          y: 5
         lens:
           type: line
           data_view: logs-*
@@ -34,11 +36,12 @@ dashboards:
               label: Events
       - title: Multi-Dimensional Line Chart
         description: Time dimension with log level breakdown
-        grid:
-          x: 24
-          y: 5
+        size:
           w: 24
           h: 10
+        position:
+          x: 24
+          y: 5
         lens:
           type: line
           data_view: logs-*
@@ -60,11 +63,12 @@ dashboards:
               label: Event Count
       - title: Top 10 Hosts by Traffic
         description: Sorted by metric value, showing top N
-        grid:
-          x: 0
-          y: 15
+        size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 15
         lens:
           type: bar
           mode: stacked
@@ -84,11 +88,12 @@ dashboards:
               label: Event Count
       - title: HTTP Response Analysis
         description: Multiple metrics on same chart
-        grid:
-          x: 24
-          y: 15
+        size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 15
         lens:
           type: line
           data_view: logs-*
@@ -109,11 +114,12 @@ dashboards:
             - exists: http.response.time
       - title: Stacked Area with Breakdown
         description: Time dimension with service breakdown
-        grid:
-          x: 0
-          y: 27
+        size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 27
         lens:
           type: area
           mode: stacked
@@ -135,11 +141,12 @@ dashboards:
             other_bucket: true
       - title: HTTP Methods by Status Code
         description: 'Cross-tabulation: method × status_code'
-        grid:
-          x: 24
-          y: 27
+        size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 27
         lens:
           type: bar
           mode: stacked
@@ -164,11 +171,12 @@ dashboards:
             - exists: http.response.status_code
       - title: Response Time Percentiles
         description: Multiple percentile metrics
-        grid:
-          x: 0
-          y: 39
+        size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 39
         lens:
           type: line
           data_view: logs-*
@@ -194,11 +202,12 @@ dashboards:
               gte: '0'
       - title: Unique Users per Service
         description: Unique count aggregation with breakdown
-        grid:
-          x: 24
-          y: 39
+        size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 39
         lens:
           type: bar
           mode: stacked
