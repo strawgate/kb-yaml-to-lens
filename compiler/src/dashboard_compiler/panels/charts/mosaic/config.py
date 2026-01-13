@@ -22,6 +22,9 @@ class MosaicLegend(BaseCfgModel):
     visible: LegendVisibleEnum | None = Field(default=None, strict=False)
     """Visibility of the legend in the mosaic chart. Kibana defaults to 'auto' if not specified."""
 
+    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
+    """Position of the legend. Kibana defaults to 'right' if not specified."""
+
     width: LegendWidthEnum | None = Field(default=None, strict=False)
     """Width of the legend in the mosaic chart. Kibana defaults to 'medium' if not specified."""
 

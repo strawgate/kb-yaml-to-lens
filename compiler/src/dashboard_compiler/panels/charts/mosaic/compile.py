@@ -73,6 +73,10 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     if chart.legend and chart.legend.show_single_series is not None:
         show_single_series = chart.legend.show_single_series
 
+    legend_position = 'right'
+    if chart.legend and chart.legend.position is not None:
+        legend_position = chart.legend.position
+
     kbn_color_mapping = compile_color_mapping(chart.color)
 
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
@@ -85,6 +89,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
+        legendPosition=legend_position,
         nestedLegend=default_false(nested_legend),
         layerType='data',
         colorMapping=kbn_color_mapping,

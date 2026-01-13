@@ -12,6 +12,8 @@ from pydantic import Field
 from dashboard_compiler.panels.charts.base.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
 from dashboard_compiler.shared.view import OmitIfNone
 
+LegendPositionType = Literal['top', 'right', 'bottom', 'left']
+
 
 class KbnMosaicStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     """View model for mosaic chart visualization layer configuration.
@@ -56,6 +58,9 @@ class KbnMosaicStateVisualizationLayer(KbnBaseStateVisualizationLayer):
 
     nestedLegend: bool
     """Whether to show nested legend for multi-level grouping."""
+
+    legendPosition: LegendPositionType = Field(default='right')
+    """Position of the legend ('top', 'right', 'bottom', 'left'). Defaults to 'right'."""
 
     legendSize: Annotated[str | None, OmitIfNone()] = Field(None)
     """Size of the legend ('small', 'medium', 'large', 'xlarge')."""

@@ -45,6 +45,7 @@ async def test_basic_mosaic_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -69,6 +70,7 @@ async def test_basic_mosaic_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -117,6 +119,7 @@ async def test_mosaic_chart_with_secondary_groups() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -141,6 +144,7 @@ async def test_mosaic_chart_with_secondary_groups() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -176,6 +180,7 @@ async def test_mosaic_chart_with_legend_options() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'show',
+            'legendPosition': 'right',
             'nestedLegend': True,
             'legendSize': 'medium',
         }
@@ -212,6 +217,7 @@ async def test_mosaic_chart_with_value_display() -> None:
             'numberDisplay': 'value',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -267,6 +273,7 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -295,3 +302,22 @@ async def test_mosaic_chart_with_custom_colors() -> None:
     assert layer.colorMapping is not None
     assert layer.colorMapping.paletteId == 'eui_amsterdam_color_blind'
     assert len(layer.colorMapping.assignments) == 2
+
+
+async def test_mosaic_chart_with_legend_position() -> None:
+    """Test mosaic chart with legend position configuration."""
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'legend': {'visible': 'show', 'position': 'bottom'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.legendPosition == 'bottom'
+    assert layer.legendDisplay == 'show'
