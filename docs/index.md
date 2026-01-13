@@ -8,41 +8,9 @@ This tool simplifies the process of creating and managing Kibana dashboards by
 allowing you to define them in a clean, maintainable YAML format instead of
 hand-crafting complex JSON.
 
-```mermaid
-graph TB
-    YAML[YAML Definition]
-
-    subgraph "Interactive Development"
-        EXT[VS Code Extension]
-        YAML --> EXT
-        EXT --> PREVIEW[Live Preview]
-        EXT --> KIBANA[Direct Upload to Kibana]
-    end
-
-    subgraph "Automation/CI"
-        CLI[CLI Compiler]
-        YAML --> CLI
-        CLI --> NDJSON[NDJSON Files]
-        NDJSON --> KIBANA
-    end
-```
-
-## Features
-
-- **YAML-based Definition** – Define dashboards, panels, filters, and queries in simple, readable YAML.
-- **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+.
-- **Rich Panel Support** – Support for Lens (metric, pie, XY charts), Markdown, Links, Image, and Search panels.
-- **Color Palettes** – Choose from color-blind safe, brand, and other built-in color palettes.
-- **Interactive Controls** – Add options lists, range sliders, and time sliders with chaining support.
-- **Flexible Filtering** – Use a comprehensive filter DSL (exists, phrase, range) or raw KQL/Lucene/ESQL queries.
-- **Direct Upload** – Compile and upload to Kibana in one step, with support for authentication and API keys.
-- **Screenshot Export** – Generate high-quality PNG screenshots of your dashboards programmatically.
-
 ## Getting Started
 
-### Choose Your Path
-
-#### ⭐ VS Code Extension (Recommended)
+### VS Code Extension (Recommended)
 
 **Best for interactive development** - Live preview, visual editing, built-in snippets
 
@@ -55,32 +23,45 @@ graph TB
    - **Manual**: Download `.vsix` from [releases](https://github.com/strawgate/kb-yaml-to-lens/releases)
 
 2. **Create your first dashboard:**
-   - Create new file: `my-dashboard.yaml`
-   - Type `dashboard` and press Tab to insert snippet
-   - Modify the template with your content
-   - Save (Ctrl+S) to auto-compile
 
-3. **Verify installation:**
+   Create a new file called `my-dashboard.yaml` and add the following content:
+
+   ```yaml
+   dashboards:
+   - name: My First Dashboard
+     description: A simple dashboard with markdown
+     panels:
+       - title: Hello Panel
+         markdown:
+           content: |
+             # Hello, Kibana!
+
+             This is my first markdown panel.
+         grid: { x: 0, y: 0, w: 24, h: 15 }
+   ```
+
+   Or use snippets: type `dashboard` and press Tab to insert a template.
+
+3. **Preview your dashboard:**
+   - Save the file (Ctrl+S) to auto-compile
    - Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
-   - Type "YAML Dashboard" - you should see extension commands
-   - Create test file, type `dashboard` + Tab to verify snippets work
+   - Run **"YAML Dashboard: Preview Dashboard"**
 
-4. **Preview and upload:**
-   - Command Palette (Ctrl+Shift+P): **"YAML Dashboard: Preview Dashboard"**
+4. **Upload to Kibana:**
    - Configure Kibana URL in VS Code settings
-   - Command: **"YAML Dashboard: Open in Kibana"**
+   - Run **"YAML Dashboard: Open in Kibana"**
 
 **Full guide:** [VS Code Extension Documentation](vscode-extension.md)
 
 ---
 
-#### CLI (For Automation & Scripting)
+### CLI (For Automation & Scripting)
 
 **Best for:** CI/CD pipelines, batch processing, programmatic usage
 
-**Installation:** Requires Python 3.12+
+**Requirements:** Python 3.12+
 
-Using [uv](https://github.com/astral-sh/uv):
+**Installation** using [uv](https://github.com/astral-sh/uv):
 
 ```bash
 cd compiler
@@ -120,41 +101,31 @@ uv sync
 
 ---
 
-### Example Dashboards
+## Features
 
-Both the extension and CLI use the same YAML format. Here are some examples:
+- **YAML-based Definition** – Define dashboards, panels, filters, and queries in simple, readable YAML.
+- **Kibana Integration** – Compile to NDJSON format compatible with Kibana 8+.
+- **Rich Panel Support** – Support for Lens (metric, pie, XY charts), Markdown, Links, Image, and Search panels.
+- **Color Palettes** – Choose from color-blind safe, brand, and other built-in color palettes.
+- **Interactive Controls** – Add options lists, range sliders, and time sliders with chaining support.
+- **Flexible Filtering** – Use a comprehensive filter DSL (exists, phrase, range) or raw KQL/Lucene/ESQL queries.
+- **Direct Upload** – Compile and upload to Kibana in one step, with support for authentication and API keys.
+- **Screenshot Export** – Generate high-quality PNG screenshots of your dashboards programmatically.
 
-#### Example 1: Simple Markdown Panel
+## More Examples
 
-Here's a dashboard with a single markdown panel:
+### Lens Metric Panel
 
-```yaml
-dashboards:
-- name: My First Dashboard
-  description: A simple dashboard with markdown
-  panels:
-    - title: Hello Panel
-      markdown:
-        content: |
-          # Hello, Kibana!
-
-          This is my first markdown panel.
-      grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
-```
-
-#### Example 2: Simple Lens Metric Panel
-
-Here's a dashboard with a single Lens metric panel displaying a count:
+Here's a dashboard with a Lens metric panel displaying a count:
 
 ```yaml
 dashboards:
--
-  name: Metric Dashboard
+- name: Metric Dashboard
   description: A dashboard with a single metric panel
   panels:
     - title: Document Count
       type: lens
-      grid: { x: 0, y: 0, w: 24, h: 15 }  # Half-width on 48-column grid
+      grid: { x: 0, y: 0, w: 24, h: 15 }
       index_pattern: your-index-pattern-*
       chart:
         type: metric
@@ -165,7 +136,7 @@ dashboards:
 
 ### Programmatic Alternative
 
-While this guide focuses on YAML, you can also create dashboards entirely in Python code! This approach offers:
+While this guide focuses on YAML, you can also create dashboards entirely in Python code. This approach offers:
 
 - Dynamic dashboard generation based on runtime data
 - Type safety with Pydantic models
@@ -203,9 +174,28 @@ Advanced documentation for contributors and programmatic usage:
 - **[Kibana Architecture Reference](kibana-architecture.md)** - Understanding Kibana's internal structure.
 - **[Fixture Generator Guide](kibana-fixture-generator-guide.md)** - Generating test fixtures from live Kibana instances.
 
-## Requirements
+## How It Works
 
-- Python 3.12+
+```mermaid
+graph TB
+    YAML[YAML Definition]
+    KIBANA[Kibana]
+
+    subgraph "Interactive Development"
+        EXT[VS Code Extension]
+        EXT --> PREVIEW[Live Preview]
+    end
+
+    subgraph "Automation/CI"
+        CLI[CLI Compiler]
+        CLI --> NDJSON[NDJSON Files]
+    end
+
+    YAML --> EXT
+    YAML --> CLI
+    EXT --> KIBANA
+    NDJSON --> KIBANA
+```
 
 ## License
 

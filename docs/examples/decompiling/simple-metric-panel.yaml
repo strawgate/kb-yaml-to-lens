@@ -5,7 +5,7 @@ dashboards:
     panels:
       - title: Total Documents
         description: Count of all documents in the index
-        grid: {x: 0, y: 0, w: 24, h: 15}
+        size: {w: 24, h: 15}
         esql:
           type: metric
           primary:

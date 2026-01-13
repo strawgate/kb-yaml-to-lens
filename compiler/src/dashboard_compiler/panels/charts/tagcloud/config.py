@@ -68,7 +68,7 @@ class LensTagcloudChart(BaseTagcloudChart):
         - name: "Log Analysis"
           panels:
             - title: "Top Error Messages"
-              grid: { x: 0, y: 0, w: 48, h: 6 }
+              size: { w: 48, h: 6 }
               lens:
                 type: tagcloud
                 data_view: "logs-*"
@@ -85,7 +85,7 @@ class LensTagcloudChart(BaseTagcloudChart):
         - name: "Advanced Tag Cloud"
           panels:
             - title: "Service Labels"
-              grid: { x: 0, y: 0, w: 48, h: 8 }
+              size: { w: 48, h: 8 }
               lens:
                 type: tagcloud
                 data_view: "logs-*"
@@ -124,7 +124,7 @@ class ESQLTagcloudChart(BaseTagcloudChart):
         - name: "Log Analysis"
           panels:
             - title: "Top Error Messages"
-              grid: { x: 0, y: 0, w: 48, h: 6 }
+              size: { w: 48, h: 6 }
               esql:
                 type: tagcloud
                 query: "FROM logs-* | STATS error_count = count(*) BY error.message"

@@ -24,7 +24,8 @@ dashboards:
         field: resource.attributes.host.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -40,11 +41,13 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: CPU Section
-        grid: {x: 0, y: 3, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
         markdown:
           content: '### CPU'
       - title: CPU Utilization
-        grid: {x: 0, y: 5, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -59,7 +62,8 @@ dashboards:
               format:
                 type: percent
       - title: CPU Utilization by State
-        grid: {x: 24, y: 5, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 5}
         lens:
           type: area
           data_view: metrics-*
@@ -74,7 +78,8 @@ dashboards:
               field: metrics.system.cpu.utilization
               label: CPU %
       - title: Load Average
-        grid: {x: 0, y: 17, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -92,7 +97,8 @@ dashboards:
               field: metrics.system.cpu.load_average.15m
               label: 15m
       - title: Normalized Load
-        grid: {x: 24, y: 17, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -105,11 +111,13 @@ dashboards:
               format:
                 type: percent
       - title: Memory Section
-        grid: {x: 0, y: 29, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 29}
         markdown:
           content: '### Memory'
       - title: Memory Utilization
-        grid: {x: 0, y: 31, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 31}
         lens:
           type: area
           data_view: metrics-*
@@ -122,7 +130,8 @@ dashboards:
               format:
                 type: percent
       - title: Memory Utilization by State
-        grid: {x: 24, y: 31, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 31}
         lens:
           type: area
           data_view: metrics-*
@@ -137,11 +146,13 @@ dashboards:
               field: metrics.system.memory.utilization
               label: Memory %
       - title: Disk Section
-        grid: {x: 0, y: 43, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 43}
         markdown:
           content: '### Disk'
       - title: Disk Usage by Mount Point
-        grid: {x: 0, y: 45, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 45}
         lens:
           type: line
           data_view: metrics-*
@@ -158,7 +169,8 @@ dashboards:
               format:
                 type: percent
       - title: Disk Operations
-        grid: {x: 24, y: 45, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 45}
         lens:
           type: area
           data_view: metrics-*

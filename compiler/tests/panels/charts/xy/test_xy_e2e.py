@@ -26,7 +26,8 @@ dashboards:
         field: aerospike.namespace
     panels:
       - title: ES|QL Line Chart
-        grid: {x: 0, y: 0, w: 48, h: 16}
+        size: {w: 48, h: 16}
+        position: {x: 0, y: 0}
         esql:
           type: line
           query: "FROM logs-* | STATS count() BY @timestamp"
@@ -95,7 +96,8 @@ dashboards:
   - name: 'ES|QL Bar Chart Test'
     panels:
       - title: Stacked Bar Chart
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         esql:
           type: bar
           mode: stacked
@@ -171,7 +173,8 @@ dashboards:
   - name: 'ES|QL Area Chart Test'
     panels:
       - title: Area Chart with Breakdown
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         esql:
           type: area
           query: "FROM metrics-* | STATS count() BY @timestamp, service.name"
@@ -250,7 +253,8 @@ dashboards:
   - name: 'Multi-Metric Test'
     panels:
       - title: ES|QL Line Chart with Two Metrics
-        grid: {x: 0, y: 0, w: 48, h: 16}
+        size: {w: 48, h: 16}
+        position: {x: 0, y: 0}
         esql:
           type: line
           query: "FROM logs-* | STATS count(), avg(response_time) BY @timestamp"

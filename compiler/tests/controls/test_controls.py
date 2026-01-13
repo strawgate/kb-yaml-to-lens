@@ -1,7 +1,7 @@
 """Test the compilation of controls from config models to view models."""
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 from dirty_equals import IsUUID
@@ -17,9 +17,6 @@ from dashboard_compiler.controls.config import (
     TimeSliderControl,
 )
 
-if TYPE_CHECKING:
-    from dashboard_compiler.controls.view import KbnControlGroupInput, KbnControlTypes
-
 
 class ControlHolder(BaseModel):
     """A holder for control configurations to be used in tests."""
@@ -31,14 +28,14 @@ class ControlHolder(BaseModel):
 def compile_control_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile control config and return dict for snapshot testing."""
     control_holder: ControlHolder = ControlHolder.model_validate({'control': config})
-    kbn_control_group_input: KbnControlTypes = compile_control(order=0, control=control_holder.control)
-    return kbn_control_group_input.model_dump(by_alias=True)
+    kbn_control, _ = compile_control(order=0, control=control_holder.control)
+    return kbn_control.model_dump(by_alias=True)
 
 
 def compile_control_settings_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile control settings config and return dict for snapshot testing."""
     control_settings = ControlSettings.model_validate(obj=config)
-    kbn_control_group_input: KbnControlGroupInput = compile_control_group(control_settings=control_settings, controls=[])
+    kbn_control_group_input, _ = compile_control_group(control_settings=control_settings, controls=[])
     result = kbn_control_group_input.model_dump(by_alias=True)
 
     if 'ignoreParentSettingsJSON' in result and isinstance(result['ignoreParentSettingsJSON'], str):
@@ -942,3 +939,103 @@ async def test_options_list_with_multiple_true() -> None:
             },
         }
     )
+
+
+async def test_options_list_control_returns_reference() -> None:
+    """Test that options list control returns a data view reference for dashboard."""
+    from dashboard_compiler.controls.compile import compile_options_list_control
+    from dashboard_compiler.controls.config import OptionsListControl
+
+    control = OptionsListControl.model_validate(
+        {
+            'type': 'options',
+            'data_view': 'metrics-*',
+            'field': 'host.name',
+            'label': 'Host Name',
+        }
+    )
+    kbn_control, reference = compile_options_list_control(order=0, control=control)
+
+    # Verify the control uses dataViewId
+    assert kbn_control.explicitInput.dataViewId == 'metrics-*'
+
+    # Verify a reference is returned
+    assert reference.type == 'index-pattern'
+    assert reference.id == 'metrics-*'
+    assert reference.name == f'controlGroup_{kbn_control.explicitInput.id}:optionsListDataView'
+
+
+async def test_range_slider_control_returns_reference() -> None:
+    """Test that range slider control returns a data view reference for dashboard."""
+    from dashboard_compiler.controls.compile import compile_range_slider_control
+    from dashboard_compiler.controls.config import RangeSliderControl
+
+    control = RangeSliderControl.model_validate(
+        {
+            'type': 'range',
+            'data_view': 'logs-*',
+            'field': 'response.time',
+            'label': 'Response Time',
+        }
+    )
+    kbn_control, reference = compile_range_slider_control(order=0, control=control)
+
+    # Verify the control uses dataViewId
+    assert kbn_control.explicitInput.dataViewId == 'logs-*'
+
+    # Verify a reference is returned
+    assert reference.type == 'index-pattern'
+    assert reference.id == 'logs-*'
+    assert reference.name == f'controlGroup_{kbn_control.explicitInput.id}:rangeSliderDataView'
+
+
+async def test_time_slider_control_returns_no_reference() -> None:
+    """Test that time slider control returns no reference (no data view needed)."""
+    control = TimeSliderControl.model_validate(
+        {
+            'type': 'time',
+            'start_offset': 0.0,
+            'end_offset': 1.0,
+        }
+    )
+    _, reference = compile_control(order=0, control=control)
+
+    # Time slider has no data view, so no reference should be returned
+    assert reference is None
+
+
+async def test_control_group_returns_references() -> None:
+    """Test that control group compilation returns references for bubble-up."""
+    from dashboard_compiler.controls.config import OptionsListControl, RangeSliderControl
+
+    controls = [
+        OptionsListControl.model_validate(
+            {
+                'type': 'options',
+                'data_view': 'metrics-*',
+                'field': 'host.name',
+            }
+        ),
+        RangeSliderControl.model_validate(
+            {
+                'type': 'range',
+                'data_view': 'logs-*',
+                'field': 'response.time',
+            }
+        ),
+        TimeSliderControl.model_validate(
+            {
+                'type': 'time',
+                'start_offset': 0.0,
+                'end_offset': 1.0,
+            }
+        ),
+    ]
+    control_settings = ControlSettings.model_validate({})
+    _, references = compile_control_group(control_settings=control_settings, controls=controls)
+
+    # Should have 2 references (options list + range slider), not 3 (time slider has none)
+    assert len(references) == 2
+    assert all(ref.type == 'index-pattern' for ref in references)
+    data_view_ids = {ref.id for ref in references}
+    assert data_view_ids == {'metrics-*', 'logs-*'}
