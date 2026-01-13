@@ -117,8 +117,11 @@ def compile_lens_mosaic_chart(
 
     # Compile the single metric
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
-    metric_id, metric = compile_lens_metric(metric=lens_mosaic_chart.metric)
+    result = compile_lens_metric(metric=lens_mosaic_chart.metric)
+    metric_id = result.primary_id
+    metric = result.primary_column
     kbn_metric_column_by_id[metric_id] = metric
+    kbn_metric_column_by_id.update(result.helper_columns)
 
     # Compile the dimension
     dimension_columns = compile_lens_dimensions(dimensions=[lens_mosaic_chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
