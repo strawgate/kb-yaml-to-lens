@@ -4,6 +4,8 @@
 from collections import namedtuple
 from pathlib import Path
 
+import pytest
+
 from dashboard_compiler.lsp.server import (
     _compile_dashboard,
     _params_to_dict,
@@ -72,6 +74,11 @@ class TestParamsToDict:
         result = _params_to_dict(params)
 
         assert result == {'path': '/test.yaml', 'dashboard_index': 0}
+
+    def test_unsupported_type_raises_typeerror(self) -> None:
+        """Test that unsupported types raise TypeError."""
+        with pytest.raises(TypeError, match='Unable to convert params of type int to dict'):
+            _params_to_dict(42)
 
 
 class TestCompileDashboard:
