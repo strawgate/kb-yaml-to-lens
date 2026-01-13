@@ -33,10 +33,7 @@ class KbnMosaicStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     """Always 'data' for mosaic chart layers."""
 
     primaryGroups: list[str]
-    """List of field accessor IDs for primary grouping dimension."""
-
-    secondaryGroups: Annotated[list[str] | None, OmitIfNone()] = Field(None)
-    """List of field accessor IDs for secondary grouping dimension."""
+    """List of field accessor IDs for the grouping dimension. Mosaic charts support only one dimension."""
 
     metrics: list[str]
     """List of field accessor IDs for metrics to display (rectangle sizes)."""

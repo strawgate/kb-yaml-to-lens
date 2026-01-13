@@ -16,16 +16,14 @@ from dashboard_compiler.panels.charts.mosaic.view import (
     KbnMosaicStateVisualizationLayer,
     KbnMosaicVisualizationState,
 )
-from dashboard_compiler.shared.compile import split_dimensions
 from dashboard_compiler.shared.defaults import default_false
 
 
-def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
+def compile_mosaic_chart_visualization_state(
     *,
     layer_id: str,
     chart: LensMosaicChart | ESQLMosaicChart,
     group_by_ids: list[str],
-    secondary_group_by_ids: list[str] | None,
     metric_ids: list[str],
     collapse_fns: dict[str, str] | None,
 ) -> KbnMosaicVisualizationState:
@@ -34,8 +32,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     Args:
         layer_id: The ID of the layer.
         chart: The MosaicChart config object.
-        group_by_ids: The IDs of the primary group by dimensions.
-        secondary_group_by_ids: The IDs of the secondary group by dimensions.
+        group_by_ids: The IDs of the group by dimensions.
         metric_ids: The IDs of the metrics.
         collapse_fns: Mapping of dimension ID to collapse function.
 
@@ -79,10 +76,9 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=group_by_ids,
-        secondaryGroups=secondary_group_by_ids if secondary_group_by_ids else None,
         metrics=metric_ids,
         allowMultipleMetrics=False,
-        collapseFns=collapse_fns if collapse_fns else None,
+        collapseFns=collapse_fns if collapse_fns is not None and len(collapse_fns) > 0 else None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
@@ -124,12 +120,10 @@ def compile_lens_mosaic_chart(
         metric_ids.append(metric_id)
 
     groups_by_ids = compile_lens_dimensions(dimensions=lens_mosaic_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)
-    all_dimension_ids = list(groups_by_ids.keys())
-
-    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
+    dimension_ids = list(groups_by_ids.keys())
 
     collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim_id in zip(lens_mosaic_chart.dimensions, all_dimension_ids, strict=True):
+    for dim_config, compiled_dim_id in zip(lens_mosaic_chart.dimensions, dimension_ids, strict=True):
         if dim_config.collapse is not None:
             if collapse_fns is None:
                 collapse_fns = {}
@@ -143,8 +137,7 @@ def compile_lens_mosaic_chart(
         compile_mosaic_chart_visualization_state(
             layer_id=layer_id,
             chart=lens_mosaic_chart,
-            group_by_ids=primary_dimension_ids,
-            secondary_group_by_ids=secondary_dimension_ids,
+            group_by_ids=dimension_ids,
             metric_ids=metric_ids,
             collapse_fns=collapse_fns,
         ),
@@ -172,9 +165,7 @@ def compile_esql_mosaic_chart(
     metric_ids = [m.columnId for m in metrics]
 
     dimensions = compile_esql_dimensions(dimensions=esql_mosaic_chart.dimensions)
-    all_dimension_ids = [d.columnId for d in dimensions]
-
-    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
+    dimension_ids = [d.columnId for d in dimensions]
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim in zip(esql_mosaic_chart.dimensions, dimensions, strict=True):
@@ -191,8 +182,7 @@ def compile_esql_mosaic_chart(
         compile_mosaic_chart_visualization_state(
             layer_id=layer_id,
             chart=esql_mosaic_chart,
-            group_by_ids=primary_dimension_ids,
-            secondary_group_by_ids=secondary_dimension_ids,
+            group_by_ids=dimension_ids,
             metric_ids=metric_ids,
             collapse_fns=collapse_fns,
         ),

@@ -71,18 +71,8 @@ class BaseMosaicChart(BaseChart):
 class LensMosaicChart(BaseMosaicChart):
     """Represents a Mosaic chart configuration within a Lens panel.
 
-    Mosaic charts visualize multi-dimensional categorical data as nested rectangles,
-    where each rectangle's area represents its proportion of the whole. They are
-    excellent for showing how categories break down across multiple dimensions.
-
-    ```
-    In rectangles stacked and sized with care,
-    Your data's proportions laid out fair,
-    From left to right, the mosaic grows,
-    Each colored tile a story shows.
-    When pie charts just won't cut it right,
-    The mosaic brings your stats to light!
-    ```
+    Mosaic charts visualize categorical data as proportional rectangles,
+    where each rectangle's area represents its proportion of the whole.
 
     Examples:
         Simple mosaic chart showing request distribution:
@@ -95,26 +85,6 @@ class LensMosaicChart(BaseMosaicChart):
               type: values
           metrics:
             - aggregation: count
-        ```
-
-        Multi-dimensional mosaic showing traffic by source and destination:
-        ```yaml
-        lens:
-          type: mosaic
-          data_view: "logs-*"
-          dimensions:
-            - field: "geo.src"
-              type: values
-              size: 5
-            - field: "geo.dest"
-              type: values
-              size: 5
-          metrics:
-            - aggregation: sum
-              field: bytes
-          legend:
-            visible: show
-            width: medium
         ```
 
         Mosaic chart with custom colors:
@@ -135,6 +105,22 @@ class LensMosaicChart(BaseMosaicChart):
               - values: ['database']
                 color: '#006BB4'
         ```
+
+        Mosaic chart with legend options:
+        ```yaml
+        lens:
+          type: mosaic
+          data_view: "logs-*"
+          dimensions:
+            - field: "http.request.method"
+              type: values
+          metrics:
+            - aggregation: count
+          legend:
+            visible: show
+            position: bottom
+            width: medium
+        ```
     """
 
     data_view: str = Field(default=...)
@@ -143,14 +129,14 @@ class LensMosaicChart(BaseMosaicChart):
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1, max_length=1)
     """Metric that determines the size of rectangles. Mosaic charts support only one metric."""
 
-    dimensions: list[LensDimensionTypes] = Field(default=..., min_length=1)
-    """Dimensions for grouping. First is primary, additional create nested groups."""
+    dimensions: list[LensDimensionTypes] = Field(default=..., min_length=1, max_length=1)
+    """Dimension for grouping data. Mosaic charts support only one dimension."""
 
 
 class ESQLMosaicChart(BaseMosaicChart):
     """Represents a Mosaic chart configuration within an ES|QL panel.
 
-    Mosaic charts visualize multi-dimensional categorical data as nested rectangles,
+    Mosaic charts visualize categorical data as proportional rectangles,
     using ES|QL queries to aggregate and group the data.
 
     Examples:
@@ -166,24 +152,10 @@ class ESQLMosaicChart(BaseMosaicChart):
           dimensions:
             - field: "http.request.method"
         ```
-
-        Multi-dimensional ES|QL mosaic:
-        ```yaml
-        esql:
-          type: mosaic
-          query: |
-            FROM logs-*
-            | STATS bytes = SUM(bytes) BY geo.src, geo.dest
-          metrics:
-            - field: "bytes"
-          dimensions:
-            - field: "geo.src"
-            - field: "geo.dest"
-        ```
     """
 
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1, max_length=1)
     """Metric that determines the size of rectangles. Mosaic charts support only one metric."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(default=..., min_length=1)
-    """Dimensions for grouping. First is primary, additional create nested groups."""
+    dimensions: list[ESQLDimensionTypes] = Field(default=..., min_length=1, max_length=1)
+    """Dimension for grouping data. Mosaic charts support only one dimension."""

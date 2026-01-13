@@ -1,32 +1,6 @@
 # Mosaic Chart Panel Configuration
 
-The Mosaic chart panel visualizes multi-dimensional categorical data as proportional rectangles, showing how categories nest and relate to each other.
-
-## A Poem for the Mosaic Mavens
-
-_For those who appreciate art in their analytics:_
-
-```text
-In rectangles stacked and sized with care,
-Your data's proportions laid out fair,
-From left to right, the mosaic grows,
-Each colored tile a story shows.
-
-Where pie charts spin in circles round,
-The mosaic keeps your data grounded—
-Categories stack, dimensions nest,
-Proportions clear from east to west.
-
-Like stained glass windows tell their tales,
-Your metrics shine in colored scales.
-Traffic, users, bytes, and more—
-Each rectangle opens up a door.
-
-So when your data needs to flex,
-And show relationships complex,
-Don't settle for a simple chart—
-Make your dashboards work of art!
-```
+The Mosaic chart panel visualizes categorical data as proportional rectangles, showing category distributions at a glance. Mosaic charts support exactly one dimension and one metric.
 
 ---
 

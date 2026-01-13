@@ -3,7 +3,8 @@
  * Example: Generate mosaic chart visualizations (both ES|QL and Data View)
  *
  * Demonstrates creating a mosaic chart with various configurations including
- * legend positioning, multi-dimensional grouping, and custom formatting.
+ * legend positioning and custom formatting. Mosaic charts support only one
+ * dimension and one metric.
  */
 
 import type { LensMosaicConfig } from '@kbn/lens-embeddable-utils/config_builder';
@@ -50,15 +51,15 @@ export async function generateMosaic(): Promise<void> {
   );
 }
 
-export async function generateMosaicMultiDimensional(): Promise<void> {
-  // ES|QL variant - multi-dimensional mosaic
+export async function generateMosaicWithLegendPosition(): Promise<void> {
+  // ES|QL variant - mosaic with bottom legend
   const esqlConfig: LensMosaicConfig = {
     chartType: 'mosaic',
-    title: 'Traffic by Source and Destination',
+    title: 'Traffic by Source Country',
     dataset: {
-      esql: 'FROM logs-* | STATS bytes = SUM(bytes) BY geo.src, geo.dest'
+      esql: 'FROM logs-* | STATS bytes = SUM(bytes) BY geo.src'
     },
-    breakdown: ['geo.src', 'geo.dest'],
+    breakdown: ['geo.src'],
     value: 'bytes',
     legend: {
       show: true,
@@ -66,15 +67,15 @@ export async function generateMosaicMultiDimensional(): Promise<void> {
     }
   };
 
-  // Data View variant - multi-dimensional mosaic
+  // Data View variant - mosaic with bottom legend
   const dataviewConfig: LensMosaicConfig = {
     chartType: 'mosaic',
-    title: 'Traffic by Source and Destination (Data View)',
+    title: 'Traffic by Source Country (Data View)',
     dataset: {
       index: 'logs-*',
       timeFieldName: '@timestamp'
     },
-    breakdown: ['geo.src', 'geo.dest'],
+    breakdown: ['geo.src'],
     value: 'sum(bytes)',
     legend: {
       show: true,
@@ -83,7 +84,7 @@ export async function generateMosaicMultiDimensional(): Promise<void> {
   };
 
   await generateDualFixture(
-    'mosaic-multi-dimensional',
+    'mosaic-legend-position',
     esqlConfig,
     dataviewConfig,
     { timeRange: { from: 'now-24h', to: 'now', type: 'relative' } },
@@ -93,5 +94,5 @@ export async function generateMosaicMultiDimensional(): Promise<void> {
 
 runIfMain(async () => {
   await generateMosaic();
-  await generateMosaicMultiDimensional();
+  await generateMosaicWithLegendPosition();
 }, import.meta.url);
