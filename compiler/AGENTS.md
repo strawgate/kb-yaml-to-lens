@@ -81,18 +81,6 @@ def handle_panel(panel: PanelTypes) -> str:
 
 ---
 
-## Working on Chart Types
-
-Get reference data using the fixture generator:
-
-1. **Check existing fixtures** in `fixture-generator/output/`
-2. **Create new fixtures** via `cd fixture-generator && make run-example EXAMPLE=<chart-type>.js`
-3. Compare compiler output against fixture
-
-See `fixture-generator/AGENTS.md` for details.
-
----
-
 ## Verification
 
 - Run `make typecheck` and `make check` after changes

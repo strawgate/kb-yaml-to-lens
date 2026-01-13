@@ -1,15 +1,20 @@
 """Test the compilation of heatmap charts from config models to view models using inline snapshots."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.charts.heatmap.compile import (
     compile_esql_heatmap_chart,
     compile_lens_heatmap_chart,
 )
 from dashboard_compiler.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 def compile_heatmap_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
@@ -576,3 +581,47 @@ def test_compile_heatmap_chart_partial_legend_config() -> None:
     # Should fill in default position when only visibility is specified
     assert result['legend']['isVisible'] is False
     assert result['legend']['position'] == 'right'
+
+
+def test_heatmap_chart_dashboard_references_bubble_up() -> None:
+    """Test that heatmap chart data view references bubble up to dashboard level correctly.
+
+    Heatmap charts reference a data view (index-pattern), so this reference should appear
+    at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test Heatmap Chart Dashboard',
+        panels=[
+            {
+                'title': 'Heatmap',
+                'id': 'heatmap-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'heatmap',
+                    'data_view': 'logs-*',
+                    'x_axis': {
+                        'type': 'values',
+                        'field': 'host.name',
+                        'id': 'x_accessor',
+                    },
+                    'value': {
+                        'aggregation': 'count',
+                        'id': 'value_accessor',
+                    },
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [
+            {
+                'id': 'logs-*',
+                'name': IsStr(regex=r'heatmap-panel-1:indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        ]
+    )

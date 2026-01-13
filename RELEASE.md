@@ -16,7 +16,7 @@ make bump-patch    # or bump-minor/bump-major
 # Preview changes first: uv run scripts/bump-version.py patch --dry-run
 
 # 2. Commit and tag
-git add compiler/pyproject.toml vscode-extension/package.json fixture-generator/package.json pyproject.toml
+git add compiler/pyproject.toml vscode-extension/package.json pyproject.toml
 git commit -m "chore: Bump version to 1.0.0"
 git tag v1.0.0
 git push origin main && git push origin v1.0.0

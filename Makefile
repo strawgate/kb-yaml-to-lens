@@ -67,7 +67,6 @@ help:
 	@echo "For component-specific commands, use:"
 	@echo "  cd compiler/ && make help        - Compiler commands"
 	@echo "  cd vscode-extension/ && make help - VS Code extension commands"
-	@echo "  cd fixture-generator/ && make help - Fixture generator commands"
 
 # Component iteration helper
 # Run target in component
@@ -142,7 +141,6 @@ test-all: test-unit test-e2e
 	@echo ""
 	$(call run-in-component,compiler,test-links)
 	$(call run-in-component,compiler,test-smoke)
-	$(call run-in-component,fixture-generator,test)
 	@echo "✓ All tests passed"
 
 # Markdown linting (global)
@@ -160,7 +158,6 @@ clean:
 	@echo ""
 	$(call run-in-component,compiler,clean)
 	$(call run-in-component,vscode-extension,clean)
-	$(call run-in-component,fixture-generator,clean)
 	@echo "✓ Cleaning complete"
 
 clean-full:
@@ -168,7 +165,6 @@ clean-full:
 	@echo ""
 	$(call run-in-component,compiler,clean-full)
 	$(call run-in-component,vscode-extension,clean)
-	$(call run-in-component,fixture-generator,clean-image)
 	@echo "✓ Deep cleaning complete"
 
 # Helpers

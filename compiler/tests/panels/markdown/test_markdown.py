@@ -1,18 +1,21 @@
 """Test the compilation of markdown panels from config models to view models."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.markdown.compile import compile_markdown_panel_config
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 def compile_markdown_panel_snapshot(config: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Compile markdown panel config and return dict for snapshot testing."""
-    panel_grid = Grid(x=0, y=0, w=24, h=10)
-    markdown_panel = MarkdownPanel(grid=panel_grid, **config)
+    markdown_panel = MarkdownPanel(size={'w': 24, 'h': 10}, position={'x': 0, 'y': 0}, **config)
     kbn_references, kbn_panel_config = compile_markdown_panel_config(markdown_panel=markdown_panel)
     kbn_panel_as_dict = kbn_panel_config.model_dump(by_alias=True)
     kbn_references_as_dicts = [ref.model_dump(by_alias=True) for ref in kbn_references]
@@ -125,3 +128,28 @@ def test_compile_markdown_panel_new_tab() -> None:
             },
         }
     )
+
+
+def test_markdown_panel_dashboard_references_bubble_up() -> None:
+    """Test that markdown panel references bubble up to dashboard level correctly.
+
+    Markdown panels have no external references, so the dashboard's references array should be empty.
+    """
+    dashboard = Dashboard(
+        name='Test Markdown Dashboard',
+        panels=[
+            {
+                'title': 'Test Markdown',
+                'id': 'markdown-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 10},
+                'markdown': {
+                    'content': '# Test Content',
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot([])

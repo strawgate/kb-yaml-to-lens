@@ -5,11 +5,12 @@ dashboards:
     description: Comprehensive examples of heatmap chart configurations
     panels:
       - title: Heatmap Examples Overview
-        grid:
-          x: 0
-          y: 0
+        size:
           w: 48
           h: 6
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Heatmap Chart Examples\nThis dashboard demonstrates various heatmap configurations:\n- **Basic 2D heatmap** - Time series\
             \ cross-referenced with categories\n- **1D heatmap** - Single dimension intensity visualization\n- **Custom grid and legend** - Appearance\
@@ -20,11 +21,12 @@ dashboards:
       # Basic 2D Heatmap
       - title: Request Activity by Hour and Service
         description: Basic 2D heatmap showing request patterns
-        grid:
-          x: 0
-          y: 6
+        size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 6
         lens:
           type: heatmap
           data_view: logs-*
@@ -47,11 +49,12 @@ dashboards:
       # 1D Heatmap
       - title: Traffic Intensity Timeline
         description: One-dimensional heatmap showing traffic over time
-        grid:
-          x: 24
-          y: 6
+        size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 6
         lens:
           type: heatmap
           data_view: logs-*
@@ -69,11 +72,12 @@ dashboards:
       # Heatmap with Custom Grid Configuration
       - title: Response Time Heatmap (Custom Grid)
         description: Heatmap with custom cell labels and axis configuration
-        grid:
-          x: 0
-          y: 21
+        size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 21
         lens:
           type: heatmap
           data_view: logs-*
@@ -109,11 +113,12 @@ dashboards:
       # Error Rate Heatmap
       - title: Error Rate by Service and Hour
         description: Using formula metric to calculate error rates
-        grid:
-          x: 24
-          y: 21
+        size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 21
         lens:
           type: heatmap
           data_view: logs-*
@@ -135,11 +140,12 @@ dashboards:
       # ES|QL Heatmap
       - title: User Activity Heatmap (ES|QL)
         description: Heatmap using ES|QL query
-        grid:
-          x: 0
-          y: 36
+        size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 36
         esql:
           type: heatmap
           query: |
@@ -157,11 +163,12 @@ dashboards:
       # Status Code Distribution Heatmap
       - title: HTTP Status Codes by Endpoint
         description: Visualizing status code distribution across endpoints
-        grid:
-          x: 24
-          y: 36
+        size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 36
         lens:
           type: heatmap
           data_view: logs-*
@@ -188,11 +195,12 @@ dashboards:
       # Percentile Heatmap
       - title: 95th Percentile Response Time
         description: Using percentile aggregation in heatmap
-        grid:
-          x: 0
-          y: 51
+        size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 51
         lens:
           type: heatmap
           data_view: logs-*
@@ -225,11 +233,12 @@ dashboards:
       # Memory Usage Heatmap
       - title: Memory Usage by Host and Time
         description: Heatmap showing memory usage patterns
-        grid:
-          x: 24
-          y: 51
+        size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 51
         lens:
           type: heatmap
           data_view: metrics-*
