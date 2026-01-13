@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from dashboard_compiler.panels.charts.base.config import LegendVisibleEnum
+from dashboard_compiler.panels.charts.base.compile import compile_legend_position, compile_legend_visibility
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 from dashboard_compiler.panels.charts.heatmap.view import (
     KbnHeatmapGridConfig,
@@ -62,12 +62,13 @@ def compile_heatmap_chart_visualization_state(
 
     # Compile legend configuration (always present, use defaults if not provided)
     if chart.legend is not None:
-        # Map enum values: 'show' -> True, 'hide' -> False, None -> True (Kibana default)
-        legend_visible = chart.legend.visible != LegendVisibleEnum.HIDE if chart.legend.visible is not None else True
+        # Heatmap uses slightly different default: visible=True when AUTO (unlike XY which uses None/omit)
+        legend_visible_raw = compile_legend_visibility(chart.legend.visible)
+        legend_visible = legend_visible_raw if legend_visible_raw is not None else True
 
         legend = KbnHeatmapLegendConfig(
             isVisible=legend_visible,
-            position=chart.legend.position if chart.legend.position is not None else 'right',
+            position=compile_legend_position(chart.legend.position),
         )
     else:
         legend = KbnHeatmapLegendConfig()

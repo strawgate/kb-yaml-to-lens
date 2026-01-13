@@ -1,6 +1,8 @@
 """Compilation utilities for base chart components."""
 
-from dashboard_compiler.panels.charts.base.config import ColorMapping
+from typing import Literal
+
+from dashboard_compiler.panels.charts.base.config import ColorMapping, LegendVisibleEnum
 from dashboard_compiler.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
@@ -75,3 +77,53 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
         assignments=kbn_assignments,
         specialAssignments=special_assignments,
     )
+
+
+def compile_legend_visibility(
+    visible: LegendVisibleEnum | None,
+) -> bool | None:
+    """Convert a LegendVisibleEnum value to a boolean visibility state.
+
+    Maps legend visibility enum values to Kibana's expected boolean representation:
+    - SHOW -> True (always show legend)
+    - HIDE -> False (always hide legend)
+    - AUTO/None -> None (omit field, let Kibana decide based on series count)
+
+    Args:
+        visible: The legend visibility enum value, or None for auto.
+
+    Returns:
+        True to show, False to hide, or None to let Kibana auto-determine.
+    """
+    if visible is None:
+        return None
+
+    match visible:
+        case LegendVisibleEnum.SHOW:
+            return True
+        case LegendVisibleEnum.HIDE:
+            return False
+        case LegendVisibleEnum.AUTO:
+            return None
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            msg = f'Unknown legend visibility value: {visible}'
+            raise ValueError(msg)  # pyright: ignore[reportUnreachable]
+
+
+LegendPosition = Literal['top', 'bottom', 'left', 'right']
+
+
+def compile_legend_position(
+    position: LegendPosition | None,
+    default: LegendPosition = 'right',
+) -> LegendPosition:
+    """Get the legend position, using a default if not specified.
+
+    Args:
+        position: The configured legend position, or None.
+        default: The default position to use if not specified.
+
+    Returns:
+        The legend position string.
+    """
+    return position if position is not None else default

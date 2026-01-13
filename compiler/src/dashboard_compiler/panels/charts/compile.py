@@ -14,10 +14,12 @@ from dashboard_compiler.panels.charts.config import (
 )
 from dashboard_compiler.panels.charts.datatable.compile import compile_esql_datatable_chart, compile_lens_datatable_chart
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
+from dashboard_compiler.panels.charts.esql.layers.compile import compile_text_based_layer
 from dashboard_compiler.panels.charts.gauge.compile import compile_esql_gauge_chart, compile_lens_gauge_chart
 from dashboard_compiler.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.heatmap.compile import compile_esql_heatmap_chart, compile_lens_heatmap_chart
 from dashboard_compiler.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
+from dashboard_compiler.panels.charts.lens.layers.compile import compile_form_based_layer
 from dashboard_compiler.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
 from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
@@ -27,7 +29,6 @@ from dashboard_compiler.panels.charts.tagcloud.config import ESQLTagcloudChart, 
 from dashboard_compiler.panels.charts.view import (
     KbnDataSourceState,
     KbnFormBasedDataSourceState,
-    KbnFormBasedDataSourceStateLayer,
     KbnFormBasedDataSourceStateLayerById,
     KbnIndexPatternBasedDataSourceState,
     KbnIndexPatternBasedDataSourceStateById,
@@ -35,7 +36,6 @@ from dashboard_compiler.panels.charts.view import (
     KbnLensPanelEmbeddableConfig,
     KbnLensPanelState,
     KbnTextBasedDataSourceState,
-    KbnTextBasedDataSourceStateLayer,
     KbnTextBasedDataSourceStateLayerById,
     KbnVisualizationTypeEnum,
 )
@@ -58,7 +58,7 @@ from dashboard_compiler.shared.view import KbnReference
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
-    from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
+    from dashboard_compiler.panels.charts.view import KbnFormBasedDataSourceStateLayer, KbnVisualizationStateTypes
     from dashboard_compiler.panels.charts.xy.view import XYReferenceLineLayerConfig
 
 
@@ -150,10 +150,8 @@ def compile_lens_chart_state(  # noqa: PLR0912
             )
         )
 
-        form_based_datasource_state_layer_by_id[layer_id] = KbnFormBasedDataSourceStateLayer(
+        form_based_datasource_state_layer_by_id[layer_id] = compile_form_based_layer(
             columns=lens_columns_by_id,
-            columnOrder=list(lens_columns_by_id.keys()),
-            sampling=1,
         )
 
     if visualization_state is None:
@@ -199,8 +197,6 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
 
     visualization_state: KbnVisualizationStateTypes
 
-    text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
-
     chart = panel.esql
 
     match chart:
@@ -222,15 +218,14 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
-    text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        query=compile_esql_query(chart.query),
+    text_based_layer = compile_text_based_layer(
+        query=chart.query,
         columns=esql_columns,
-        allColumns=esql_columns,
-        timeField=panel.esql.time_field,
+        time_field=panel.esql.time_field,
     )
 
     datasource_states = KbnDataSourceState(
-        textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id))
+        textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById({layer_id: text_based_layer}))
     )
 
     panel_state = KbnLensPanelState(

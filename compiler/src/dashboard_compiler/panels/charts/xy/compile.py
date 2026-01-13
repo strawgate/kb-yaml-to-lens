@@ -2,8 +2,7 @@
 
 from typing import Literal
 
-from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
-from dashboard_compiler.panels.charts.base.config import LegendVisibleEnum
+from dashboard_compiler.panels.charts.base.compile import compile_color_mapping, compile_legend_position, compile_legend_visibility
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metrics
 from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
@@ -272,28 +271,17 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
     Returns:
         XYLegendConfig: The compiled legend configuration.
     """
-    legend_visible = None  # Default to None (omit field, let Kibana decide)
-    legend_position = 'right'
+    legend_visible: bool | None = None
+    legend_position = compile_legend_position(None)
     legend_show_single_series = None
     legend_size = None
     legend_should_truncate = None
     legend_max_lines = None
 
     if chart.legend is not None:
-        if chart.legend.visible is not None:
-            match chart.legend.visible:
-                case LegendVisibleEnum.SHOW:
-                    legend_visible = True
-                case LegendVisibleEnum.HIDE:
-                    legend_visible = False
-                case LegendVisibleEnum.AUTO:
-                    legend_visible = None  # Omit field, let Kibana decide based on series count
-                case _:  # pyright: ignore[reportUnnecessaryComparison]
-                    # This should never happen due to Pydantic enum validation, but we handle it defensively
-                    msg = f'Unknown legend visibility value: {chart.legend.visible}'
-                    raise ValueError(msg)  # pyright: ignore[reportUnreachable]
-        if chart.legend.position is not None:
-            legend_position = chart.legend.position
+        legend_visible = compile_legend_visibility(chart.legend.visible)
+        legend_position = compile_legend_position(chart.legend.position)
+
         if chart.legend.show_single_series is not None:
             legend_show_single_series = chart.legend.show_single_series
         if chart.legend.size is not None:
