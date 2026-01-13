@@ -38,7 +38,8 @@ jobs:
             uv-target: x86_64-pc-windows-msvc
             binary-name: uv.exe
     steps:
-      - name: Download uv binary
+      - name: Download uv binary (Unix)
+        if: matrix.platform != 'win32-x64'
         run: |
           mkdir -p bin
           curl -fsSL --retry 3 \
@@ -48,6 +49,16 @@ jobs:
           cp "uv-${{ matrix.uv-target }}/${{ matrix.binary-name }}" "bin/${{ matrix.binary-name }}"
           chmod +x "bin/${{ matrix.binary-name }}"
           rm -rf uv.tar.gz "uv-${{ matrix.uv-target }}"
+      - name: Download uv binary (Windows)
+        if: matrix.platform == 'win32-x64'
+        run: |
+          mkdir -p bin
+          curl -fsSL --retry 3 \
+            "https://github.com/astral-sh/uv/releases/download/${{ inputs.uv-version }}/uv-${{ matrix.uv-target }}.zip" \
+            -o uv.zip
+          unzip -q uv.zip
+          cp "${{ matrix.binary-name }}" "bin/${{ matrix.binary-name }}"
+          rm -rf uv.zip
       - name: Verify uv binary
         if: matrix.platform == 'linux-x64'
         run: |
