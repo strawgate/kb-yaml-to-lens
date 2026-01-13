@@ -249,14 +249,4 @@ export class BinaryResolver {
             isBundled: false
         };
     }
-
-    /**
-     * Resolve Python executable for standalone scripts (grid extractor/updater).
-     *
-     * @deprecated Use resolveForScripts() instead for uv support.
-     * This method is kept for backwards compatibility during transition.
-     */
-    resolvePythonForScripts(outputChannel?: vscode.OutputChannel): string {
-        return this.resolvePythonPath(outputChannel);
-    }
 }
