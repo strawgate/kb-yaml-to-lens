@@ -2,7 +2,7 @@
 
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
-from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
+from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes, KbnESQLMetricColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
@@ -16,7 +16,11 @@ from dashboard_compiler.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from dashboard_compiler.shared.compile import split_dimensions
+from dashboard_compiler.shared.compile import (
+    apply_decimal_places_to_esql_metric,
+    apply_decimal_places_to_lens_metric,
+    split_dimensions,
+)
 from dashboard_compiler.shared.defaults import default_false
 
 
@@ -126,6 +130,11 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
     metric_ids: list[str] = []
     for metric_config in lens_pie_chart.metrics:
         metric_id, metric = compile_lens_metric(metric=metric_config)
+
+        # Apply value_decimal_places override if specified
+        if lens_pie_chart.titles_and_text is not None and lens_pie_chart.titles_and_text.value_decimal_places is not None:
+            metric = apply_decimal_places_to_lens_metric(metric, lens_pie_chart.titles_and_text.value_decimal_places)
+
         kbn_metric_column_by_id[metric_id] = metric
         metric_ids.append(metric_id)
 
@@ -171,7 +180,16 @@ def compile_esql_pie_chart(
     """
     layer_id = esql_pie_chart.get_id()
 
-    metrics = [compile_esql_metric(m) for m in esql_pie_chart.metrics]
+    metrics: list[KbnESQLMetricColumnTypes] = []
+    for metric_config in esql_pie_chart.metrics:
+        metric = compile_esql_metric(metric_config)
+
+        # Apply value_decimal_places override if specified
+        if esql_pie_chart.titles_and_text is not None and esql_pie_chart.titles_and_text.value_decimal_places is not None:
+            metric = apply_decimal_places_to_esql_metric(metric, esql_pie_chart.titles_and_text.value_decimal_places)
+
+        metrics.append(metric)
+
     metric_ids = [m.columnId for m in metrics]
 
     dimensions = compile_esql_dimensions(dimensions=esql_pie_chart.dimensions)

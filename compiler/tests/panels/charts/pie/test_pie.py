@@ -629,6 +629,151 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
     )
 
 
+async def test_lens_pie_chart_with_value_decimal_places() -> None:
+    """Test Lens pie chart with value_decimal_places applied to metric format."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'aggregation': 'sum',
+                'field': 'bytes',
+                'format': {'type': 'number'},
+                'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5',
+            }
+        ],
+        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 4},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+
+    # Verify the metric column has the decimal places overridden
+    metric_column = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    assert isinstance(metric_column, KbnLensFieldMetricColumn)
+    assert metric_column.params.format is not None
+    assert metric_column.params.format.params.decimals == 4
+
+
+async def test_lens_pie_chart_with_value_decimal_places_zero() -> None:
+    """Test Lens pie chart with value_decimal_places set to 0."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'aggregation': 'sum',
+                'field': 'bytes',
+                'format': {'type': 'number'},
+                'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5',
+            }
+        ],
+        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 0},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+
+    metric_column = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    assert isinstance(metric_column, KbnLensFieldMetricColumn)
+    assert metric_column.params.format is not None
+    assert metric_column.params.format.params.decimals == 0
+
+
+async def test_lens_pie_chart_without_format_ignores_decimal_places() -> None:
+    """Test that value_decimal_places is ignored when metric has no format."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 4},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+
+    # Count metrics without explicit format should not have format params set
+    metric_column = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    assert isinstance(metric_column, KbnLensFieldMetricColumn)
+    assert metric_column.params.format is None
+
+
+async def test_lens_pie_chart_with_multiple_metrics_and_decimal_places() -> None:
+    """Test Lens pie chart with value_decimal_places applied to multiple metrics."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'aggregation': 'sum',
+                'field': 'bytes',
+                'format': {'type': 'number'},
+                'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5',
+            },
+            {
+                'aggregation': 'average',
+                'field': 'duration',
+                'format': {'type': 'number'},
+                'id': '9g131718-490f-5c65-cd0f-f6661g95g6f7',
+            },
+        ],
+        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 3},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+
+    # Both metrics should have decimal places overridden
+    metric1 = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    metric2 = kbn_columns['9g131718-490f-5c65-cd0f-f6661g95g6f7']
+    assert isinstance(metric1, KbnLensFieldMetricColumn)
+    assert isinstance(metric2, KbnLensFieldMetricColumn)
+    assert metric1.params.format is not None
+    assert metric2.params.format is not None
+    assert metric1.params.format.params.decimals == 3
+    assert metric2.params.format.params.decimals == 3
+
+
+async def test_esql_pie_chart_with_value_decimal_places() -> None:
+    """Test ES|QL pie chart with value_decimal_places applied to metric format."""
+    from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldMetricColumn
+
+    esql_config = {
+        'type': 'pie',
+        'query': 'FROM metrics-* | STATS total = SUM(bytes) by aerospike.namespace',
+        'metrics': [{'field': 'total', 'format': {'type': 'number'}, 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
+
+    # Find the metric column in the list
+    metric_column = next(c for c in kbn_columns if c.columnId == '8f020607-379e-4b54-bc9e-e5550e84f5d5')
+    assert isinstance(metric_column, KbnESQLFieldMetricColumn)
+    assert metric_column.params is not None
+    assert metric_column.params.format is not None
+    assert metric_column.params.format.params.decimals == 5
+
+
 def test_pie_chart_dashboard_references_bubble_up() -> None:
     """Test that pie chart data view references bubble up to dashboard level correctly.
 

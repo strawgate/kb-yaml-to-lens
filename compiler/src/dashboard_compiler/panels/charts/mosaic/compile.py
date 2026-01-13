@@ -2,7 +2,7 @@
 
 from dashboard_compiler.panels.charts.base.compile import compile_color_mapping
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
-from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes
+from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLColumnTypes, KbnESQLMetricColumnTypes
 from dashboard_compiler.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
@@ -15,6 +15,10 @@ from dashboard_compiler.panels.charts.mosaic.config import ESQLMosaicChart, Lens
 from dashboard_compiler.panels.charts.mosaic.view import (
     KbnMosaicStateVisualizationLayer,
     KbnMosaicVisualizationState,
+)
+from dashboard_compiler.shared.compile import (
+    apply_decimal_places_to_esql_metric,
+    apply_decimal_places_to_lens_metric,
 )
 from dashboard_compiler.shared.defaults import default_false
 
@@ -118,6 +122,11 @@ def compile_lens_mosaic_chart(
     # Compile the single metric
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_id, metric = compile_lens_metric(metric=lens_mosaic_chart.metric)
+
+    # Apply value_decimal_places override if specified
+    if lens_mosaic_chart.titles_and_text is not None and lens_mosaic_chart.titles_and_text.value_decimal_places is not None:
+        metric = apply_decimal_places_to_lens_metric(metric, lens_mosaic_chart.titles_and_text.value_decimal_places)
+
     kbn_metric_column_by_id[metric_id] = metric
 
     # Compile the dimension
@@ -177,7 +186,12 @@ def compile_esql_mosaic_chart(
     layer_id = esql_mosaic_chart.get_id()
 
     # Compile the single metric
-    metric = compile_esql_metric(esql_mosaic_chart.metric)
+    metric: KbnESQLMetricColumnTypes = compile_esql_metric(esql_mosaic_chart.metric)
+
+    # Apply value_decimal_places override if specified
+    if esql_mosaic_chart.titles_and_text is not None and esql_mosaic_chart.titles_and_text.value_decimal_places is not None:
+        metric = apply_decimal_places_to_esql_metric(metric, esql_mosaic_chart.titles_and_text.value_decimal_places)
+
     metric_id = metric.columnId
 
     # Compile the dimension

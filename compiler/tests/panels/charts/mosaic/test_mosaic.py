@@ -308,3 +308,104 @@ async def test_esql_mosaic_chart_with_breakdown() -> None:
     assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
     assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
     assert layer.metrics == ['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+
+
+async def test_lens_mosaic_chart_with_value_decimal_places() -> None:
+    """Test Lens mosaic chart with value_decimal_places applied to metric format."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {
+            'aggregation': 'sum',
+            'field': 'bytes',
+            'format': {'type': 'number'},
+            'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5',
+        },
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 4},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+
+    # Verify the metric column has the decimal places overridden
+    metric_column = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    assert isinstance(metric_column, KbnLensFieldMetricColumn)
+    assert metric_column.params.format is not None
+    assert metric_column.params.format.params.decimals == 4
+
+
+async def test_lens_mosaic_chart_with_value_decimal_places_zero() -> None:
+    """Test Lens mosaic chart with value_decimal_places set to 0."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {
+            'aggregation': 'sum',
+            'field': 'bytes',
+            'format': {'type': 'number'},
+            'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5',
+        },
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 0},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+
+    metric_column = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    assert isinstance(metric_column, KbnLensFieldMetricColumn)
+    assert metric_column.params.format is not None
+    assert metric_column.params.format.params.decimals == 0
+
+
+async def test_lens_mosaic_chart_without_format_ignores_decimal_places() -> None:
+    """Test that value_decimal_places is ignored when metric has no format."""
+    from dashboard_compiler.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
+
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 4},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+
+    # Count metrics without explicit format should not have format params set
+    metric_column = kbn_columns['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+    assert isinstance(metric_column, KbnLensFieldMetricColumn)
+    assert metric_column.params.format is None
+
+
+async def test_esql_mosaic_chart_with_value_decimal_places() -> None:
+    """Test ES|QL mosaic chart with value_decimal_places applied to metric format."""
+    from dashboard_compiler.panels.charts.esql.columns.view import KbnESQLFieldMetricColumn
+
+    esql_config = {
+        'type': 'mosaic',
+        'query': 'FROM logs-* | STATS total = SUM(bytes) BY http.request.method',
+        'metric': {'field': 'total', 'format': {'type': 'number'}, 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 3},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_esql_mosaic_chart(esql_mosaic_chart=esql_chart)
+
+    # Find the metric column in the list
+    metric_column = next(c for c in kbn_columns if c.columnId == '8f020607-379e-4b54-bc9e-e5550e84f5d5')
+    assert isinstance(metric_column, KbnESQLFieldMetricColumn)
+    assert metric_column.params is not None
+    assert metric_column.params.format is not None
+    assert metric_column.params.format.params.decimals == 3
