@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean download-uv download-uv-all bundle-compiler organize-uv-binaries prepare prepare-all verify clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean prepare clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -19,13 +19,7 @@ help:
 	@echo "  package          - Create .vsix package"
 	@echo "  install-vscode   - Install packaged extension into VS Code"
 	@echo "  install-cursor   - Install packaged extension into Cursor"
-	@echo "  download-uv      - Download uv binary for current platform"
-	@echo "  download-uv-all  - Download uv binaries for all platforms"
-	@echo "  bundle-compiler  - Bundle compiler source code"
-	@echo "  organize-uv-binaries - Organize uv binaries from CI artifacts"
-	@echo "  prepare          - Prepare extension for current platform (download-uv + bundle-compiler)"
-	@echo "  prepare-all      - Prepare extension for all platforms (download-uv-all + bundle-compiler)"
-	@echo "  verify           - Verify extension works (prepare + compile + test + package)"
+	@echo "  prepare          - Download uv + bundle compiler (for packaging)"
 	@echo "  clean            - Clean build artifacts"
 	@echo "  clean-binaries   - Clean downloaded binaries and bundled compiler"
 
@@ -139,30 +133,11 @@ install-cursor:
 	fi; \
 	echo "✓ Extension installed in Cursor"
 
-download-uv:
-	@echo "Downloading uv binary for current platform..."
+prepare:
+	@echo "Preparing extension (downloading uv + bundling compiler)..."
 	bash scripts/download_uv.sh current
-
-bundle-compiler:
-	@echo "Bundling compiler source code..."
 	bash scripts/bundle_compiler.sh
-
-download-uv-all:
-	@echo "Downloading uv binaries for all platforms..."
-	bash scripts/download_uv.sh all
-
-organize-uv-binaries:
-	@echo "Organizing uv binaries from CI artifacts..."
-	bash scripts/organize_uv_binaries.sh
-
-prepare: download-uv bundle-compiler
-	@echo "✓ Extension prepared for current platform"
-
-prepare-all: download-uv-all bundle-compiler
-	@echo "✓ Extension prepared for all platforms"
-
-verify: prepare ci package
-	@echo "✓ Extension verified successfully"
+	@echo "✓ Extension prepared"
 
 clean:
 	@echo "Cleaning build artifacts..."
