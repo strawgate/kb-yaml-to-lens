@@ -20,6 +20,9 @@ dashboards:
       - size:
           w: 48
           h: 2
+        position:
+          x: 0
+          y: 0
         links:
           layout: horizontal
           items:
@@ -32,12 +35,18 @@ dashboards:
       - size:
           w: 48
           h: 2
+        position:
+          x: 0
+          y: 2
         markdown:
           content: "This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.\nFilter to a specific\
             \ node and namespace before using this dashboard.\n"
       - size:
           w: 9
           h: 4
+        position:
+          x: 0
+          y: 4
         lens:
           type: metric
           data_view: metrics-*
@@ -51,11 +60,17 @@ dashboards:
       - size:
           w: 48
           h: 3
+        position:
+          x: 0
+          y: 8
         markdown:
           content: "## Query Information\n"
       - size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 11
         lens:
           type: line
           data_view: metrics-*
@@ -87,6 +102,9 @@ dashboards:
       - size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 11
         lens:
           type: line
           data_view: metrics-*
@@ -117,11 +135,17 @@ dashboards:
       - size:
           w: 48
           h: 3
+        position:
+          x: 0
+          y: 23
         markdown:
           content: "## Transaction Information\n"
       - size:
           w: 48
           h: 10
+        position:
+          x: 0
+          y: 26
         lens:
           type: line
           data_view: metrics-*

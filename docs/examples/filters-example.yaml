@@ -8,6 +8,9 @@ dashboards:
         size:
           w: 48
           h: 6
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Advanced Filtering Techniques\nThis dashboard demonstrates various filter types available for panels:\n\n## Filter Types\n\
             1. **Equals Filter** - Exact field value match\n2. **Exists Filter** - Field existence check\n3. **Comparison Filters** - Greater\
@@ -19,6 +22,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 6
         lens:
           type: metric
           data_view: logs-*
@@ -33,6 +39,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 6
         lens:
           type: metric
           data_view: logs-*
@@ -46,6 +55,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 6
         lens:
           type: metric
           data_view: logs-*
@@ -60,6 +72,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 6
         lens:
           type: metric
           data_view: logs-*
@@ -76,6 +91,9 @@ dashboards:
         size:
           w: 24
           h: 10
+        position:
+          x: 0
+          y: 14
         lens:
           type: line
           data_view: logs-*
@@ -97,6 +115,9 @@ dashboards:
         size:
           w: 24
           h: 10
+        position:
+          x: 24
+          y: 14
         lens:
           type: bar
           mode: stacked
@@ -121,6 +142,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 24
         lens:
           type: area
           mode: stacked
@@ -146,6 +170,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 24
         lens:
           type: line
           data_view: logs-*

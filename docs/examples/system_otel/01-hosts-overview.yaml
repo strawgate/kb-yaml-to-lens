@@ -20,6 +20,7 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -36,6 +37,7 @@ dashboards:
               dashboard: otel-host-details-logs
       - title: Number of Hosts
         size: {w: 48, h: 4}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -45,6 +47,7 @@ dashboards:
             label: Total Hosts
       - title: Hosts by OS
         size: {w: 48, h: 4}
+        position: {x: 0, y: 7}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,6 +61,7 @@ dashboards:
             label: Hosts
       - title: Host Performance Summary
         size: {w: 48, h: 25}
+        position: {x: 0, y: 11}
         lens:
           type: datatable
           data_view: metrics-*

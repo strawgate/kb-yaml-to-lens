@@ -8,6 +8,9 @@ dashboards:
         size:
           w: 48
           h: 5
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Metric Formatting Examples\nThis dashboard demonstrates various number formatting options for metric charts:\n- **Suffix\
             \ formatting** - Add custom text after numbers (\" requests/sec\", \" users\")\n- **Compact notation** - Display large numbers as\
@@ -21,6 +24,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 5
         lens:
           type: metric
           data_view: logs-*
@@ -35,6 +41,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 5
         lens:
           type: metric
           data_view: logs-*
@@ -50,6 +59,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 5
         lens:
           type: metric
           data_view: metrics-*
@@ -66,6 +78,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 5
         lens:
           type: metric
           data_view: logs-*
@@ -82,6 +97,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -96,6 +114,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -112,6 +133,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -127,6 +151,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 13
         lens:
           type: metric
           data_view: logs-*
@@ -143,6 +170,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -159,6 +189,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -174,6 +207,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -187,6 +223,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 21
         lens:
           type: metric
           data_view: logs-*
@@ -205,6 +244,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -219,6 +261,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -233,6 +278,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -247,6 +295,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 29
         lens:
           type: metric
           data_view: metrics-*
@@ -263,6 +314,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 37
         lens:
           type: metric
           data_view: metrics-*
@@ -279,6 +333,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 37
         lens:
           type: metric
           data_view: logs-*
@@ -295,6 +352,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 37
         lens:
           type: metric
           data_view: logs-*
@@ -310,6 +370,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 37
         lens:
           type: metric
           data_view: metrics-*
@@ -328,6 +391,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 0
+          y: 45
         lens:
           type: metric
           data_view: logs-*
@@ -342,6 +408,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 12
+          y: 45
         lens:
           type: metric
           data_view: metrics-*
@@ -357,6 +426,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 24
+          y: 45
         lens:
           type: metric
           data_view: logs-*
@@ -368,6 +440,9 @@ dashboards:
         size:
           w: 12
           h: 8
+        position:
+          x: 36
+          y: 45
         lens:
           type: metric
           data_view: logs-*

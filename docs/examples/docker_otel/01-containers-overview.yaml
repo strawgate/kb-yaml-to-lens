@@ -36,6 +36,7 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -44,6 +45,7 @@ dashboards:
             - label: Container Stats
               dashboard: docker-otel-container-stats
       - size: {w: 6, h: 6}
+        position: {x: 0, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -51,6 +53,7 @@ dashboards:
             formula: unique_count(container.id, reducedTimeRange='1h')
             label: Active Containers
       - size: {w: 6, h: 6}
+        position: {x: 6, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,6 +61,7 @@ dashboards:
             formula: unique_count(container.id)
             label: Total Containers
       - size: {w: 36, h: 6}
+        position: {x: 12, y: 2}
         lens:
           type: bar
           data_view: metrics-*
@@ -70,6 +74,7 @@ dashboards:
               label: Containers
       - title: Containers by Runtime
         size: {w: 16, h: 11}
+        position: {x: 0, y: 8}
         lens:
           type: datatable
           data_view: metrics-*
@@ -86,6 +91,7 @@ dashboards:
               label: Containers
       - title: Containers by Image
         size: {w: 16, h: 11}
+        position: {x: 16, y: 8}
         lens:
           type: datatable
           data_view: metrics-*
@@ -102,6 +108,7 @@ dashboards:
               label: Containers
       - title: Containers by Name
         size: {w: 16, h: 11}
+        position: {x: 32, y: 8}
         lens:
           type: datatable
           data_view: metrics-*
@@ -118,6 +125,7 @@ dashboards:
               label: Containers
       - title: CPU Usage
         size: {w: 48, h: 8}
+        position: {x: 0, y: 19}
         hide_title: true
         lens:
           type: line
@@ -138,6 +146,7 @@ dashboards:
                 type: percent
       - title: Memory Usage
         size: {w: 24, h: 8}
+        position: {x: 0, y: 27}
         hide_title: true
         lens:
           type: area
@@ -159,6 +168,7 @@ dashboards:
                 type: percent
       - title: Memory Usage (Bytes)
         size: {w: 24, h: 8}
+        position: {x: 24, y: 27}
         hide_title: true
         lens:
           type: area
@@ -181,6 +191,7 @@ dashboards:
                 type: bytes
       - title: Disk I/O - Read
         size: {w: 24, h: 8}
+        position: {x: 0, y: 35}
         lens:
           type: area
           mode: stacked
@@ -204,6 +215,7 @@ dashboards:
                 type: bytes
       - title: Disk I/O - Write
         size: {w: 24, h: 8}
+        position: {x: 24, y: 35}
         lens:
           type: area
           mode: stacked
@@ -227,6 +239,7 @@ dashboards:
                 type: bytes
       - title: Network I/O - Received
         size: {w: 24, h: 8}
+        position: {x: 0, y: 43}
         lens:
           type: area
           mode: stacked
@@ -247,6 +260,7 @@ dashboards:
                 type: bytes
       - title: Network I/O - Transmitted
         size: {w: 24, h: 8}
+        position: {x: 24, y: 43}
         lens:
           type: area
           mode: stacked

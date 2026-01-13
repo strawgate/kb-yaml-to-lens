@@ -25,6 +25,7 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -41,6 +42,7 @@ dashboards:
               dashboard: otel-host-details-logs
       - title: CPU Utilization
         size: {w: 12, h: 5}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -53,6 +55,7 @@ dashboards:
               type: percent
       - title: Normalized Load
         size: {w: 12, h: 5}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -63,6 +66,7 @@ dashboards:
               type: percent
       - title: Memory Utilization
         size: {w: 12, h: 5}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -73,6 +77,7 @@ dashboards:
               type: percent
       - title: Disk Usage
         size: {w: 12, h: 5}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -84,6 +89,7 @@ dashboards:
               type: percent
       - title: CPU Utilization Over Time
         size: {w: 24, h: 14}
+        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -99,6 +105,7 @@ dashboards:
                 type: percent
       - title: Memory Utilization Over Time
         size: {w: 24, h: 14}
+        position: {x: 24, y: 8}
         lens:
           type: area
           data_view: metrics-*
@@ -112,6 +119,7 @@ dashboards:
                 type: percent
       - title: Normalized Load Over Time
         size: {w: 24, h: 14}
+        position: {x: 0, y: 22}
         lens:
           type: line
           data_view: metrics-*
@@ -125,6 +133,7 @@ dashboards:
                 type: percent
       - title: Disk Usage by Mount Point
         size: {w: 24, h: 14}
+        position: {x: 24, y: 22}
         lens:
           type: line
           data_view: metrics-*

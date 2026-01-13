@@ -9,6 +9,9 @@ dashboards:
         size:
           w: 48
           h: 6
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Welcome to the Multi-Panel Showcase\nThis dashboard demonstrates all supported panel types in the kb-yaml-to-lens compiler:\n\
             - **Markdown panels** - Rich text content with formatting\n- **Links panels** - Navigation to dashboards and external URLs\n- **Chart\
@@ -21,6 +24,9 @@ dashboards:
         size:
           w: 48
           h: 3
+        position:
+          x: 0
+          y: 6
         links:
           layout: horizontal
           items:
@@ -35,6 +41,9 @@ dashboards:
         size:
           w: 24
           h: 10
+        position:
+          x: 0
+          y: 9
         lens:
           type: metric
           data_view: logs-*
@@ -45,6 +54,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 9
         lens:
           type: pie
           data_view: logs-*
@@ -59,6 +71,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 24
         lens:
           type: line
           data_view: logs-*
@@ -72,6 +87,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 24
         lens:
           type: bar
           mode: stacked
@@ -86,6 +104,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 39
         lens:
           type: area
           mode: stacked
@@ -103,6 +124,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 39
         lens:
           type: tagcloud
           data_view: logs-*

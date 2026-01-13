@@ -25,6 +25,7 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -41,6 +42,7 @@ dashboards:
               dashboard: otel-host-details-logs
       - title: Host Metadata
         size: {w: 24, h: 12}
+        position: {x: 0, y: 2}
         esql:
           type: datatable
           query:
@@ -62,6 +64,7 @@ dashboards:
             - field: Value
       - title: Host CPU Metadata
         size: {w: 24, h: 12}
+        position: {x: 24, y: 2}
         esql:
           type: datatable
           query:
@@ -84,6 +87,7 @@ dashboards:
             - field: Value
       - title: Operating System Metadata
         size: {w: 24, h: 7}
+        position: {x: 0, y: 14}
         esql:
           type: datatable
           query:
@@ -103,6 +107,7 @@ dashboards:
             - field: Value
       - title: Cloud Metadata
         size: {w: 24, h: 12}
+        position: {x: 24, y: 14}
         esql:
           type: datatable
           query:
@@ -124,6 +129,7 @@ dashboards:
             - field: Value
       - title: Kubernetes Metadata
         size: {w: 24, h: 5}
+        position: {x: 0, y: 21}
         esql:
           type: datatable
           query:

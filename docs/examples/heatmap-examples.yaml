@@ -8,6 +8,9 @@ dashboards:
         size:
           w: 48
           h: 6
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Heatmap Chart Examples\nThis dashboard demonstrates various heatmap configurations:\n- **Basic 2D heatmap** - Time series\
             \ cross-referenced with categories\n- **1D heatmap** - Single dimension intensity visualization\n- **Custom grid and legend** - Appearance\
@@ -21,6 +24,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 6
         lens:
           type: heatmap
           data_view: logs-*
@@ -46,6 +52,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 6
         lens:
           type: heatmap
           data_view: logs-*
@@ -66,6 +75,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 21
         lens:
           type: heatmap
           data_view: logs-*
@@ -104,6 +116,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 21
         lens:
           type: heatmap
           data_view: logs-*
@@ -128,6 +143,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 36
         esql:
           type: heatmap
           query: |
@@ -148,6 +166,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 36
         lens:
           type: heatmap
           data_view: logs-*
@@ -177,6 +198,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 0
+          y: 51
         lens:
           type: heatmap
           data_view: logs-*
@@ -212,6 +236,9 @@ dashboards:
         size:
           w: 24
           h: 15
+        position:
+          x: 24
+          y: 51
         lens:
           type: heatmap
           data_view: metrics-*

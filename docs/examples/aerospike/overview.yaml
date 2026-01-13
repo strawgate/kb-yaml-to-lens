@@ -7,6 +7,9 @@ dashboards:
       - size:
           w: 48
           h: 2
+        position:
+          x: 0
+          y: 0
         links:
           layout: horizontal
           items:
@@ -19,6 +22,9 @@ dashboards:
       - size:
           w: 10
           h: 3
+        position:
+          x: 0
+          y: 2
         lens:
           type: metric
           data_view: metrics-*
@@ -32,6 +38,9 @@ dashboards:
       - size:
           w: 38
           h: 9
+        position:
+          x: 10
+          y: 2
         lens:
           type: line
           data_view: metrics-*
@@ -58,6 +67,9 @@ dashboards:
       - size:
           w: 10
           h: 3
+        position:
+          x: 0
+          y: 5
         lens:
           type: metric
           data_view: metrics-*
@@ -71,6 +83,9 @@ dashboards:
       - size:
           w: 48
           h: 9
+        position:
+          x: 0
+          y: 11
         lens:
           type: line
           data_view: metrics-*

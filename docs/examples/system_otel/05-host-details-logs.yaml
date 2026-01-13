@@ -23,6 +23,7 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -39,6 +40,7 @@ dashboards:
               dashboard: otel-host-details-logs
       - title: Logs
         size: {w: 48, h: 56}
+        position: {x: 0, y: 2}
         esql:
           type: datatable
           query:

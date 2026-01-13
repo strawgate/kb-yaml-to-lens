@@ -8,6 +8,9 @@ dashboards:
         size:
           w: 48
           h: 5
+        position:
+          x: 0
+          y: 0
         markdown:
           content: "# Multi-Dimensional Chart Examples\nThis dashboard demonstrates advanced dimension and breakdown configurations:\n- **Single\
             \ dimension** - Basic time series\n- **Multiple dimensions** - Cross-tabulation\n- **Breakdowns** - Additional grouping layer\n- **Top\
@@ -18,6 +21,9 @@ dashboards:
         size:
           w: 24
           h: 10
+        position:
+          x: 0
+          y: 5
         lens:
           type: line
           data_view: logs-*
@@ -33,6 +39,9 @@ dashboards:
         size:
           w: 24
           h: 10
+        position:
+          x: 24
+          y: 5
         lens:
           type: line
           data_view: logs-*
@@ -57,6 +66,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 15
         lens:
           type: bar
           mode: stacked
@@ -79,6 +91,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 15
         lens:
           type: line
           data_view: logs-*
@@ -102,6 +117,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 27
         lens:
           type: area
           mode: stacked
@@ -126,6 +144,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 27
         lens:
           type: bar
           mode: stacked
@@ -153,6 +174,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 39
         lens:
           type: line
           data_view: logs-*
@@ -181,6 +205,9 @@ dashboards:
         size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 39
         lens:
           type: bar
           mode: stacked
