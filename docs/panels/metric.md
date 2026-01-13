@@ -37,7 +37,7 @@ dashboards:
   - name: "KPI Dashboard"
     panels:
       - title: "Total Hosts"
-        grid: { x: 0, y: 0, w: 12, h: 2 }
+        size: {w: 12, h: 2}
         lens:
           type: metric
           data_view: "metrics-*"
@@ -55,7 +55,7 @@ dashboards:
   - name: "Error Monitoring"
     panels:
       - title: "Error Rate"
-        grid: { x: 0, y: 0, w: 12, h: 2 }
+        size: {w: 12, h: 2}
         lens:
           type: metric
           data_view: "logs-*"
@@ -280,7 +280,7 @@ dashboards:
   - name: "Metrics with Suffixes"
     panels:
       - title: "Request Rate"
-        grid: { x: 0, y: 0, w: 12, h: 8 }
+        size: {w: 12, h: 8}
         lens:
           type: metric
           data_view: "logs-*"
@@ -292,7 +292,8 @@ dashboards:
               suffix: " req/sec"
 
       - title: "Active Users"
-        grid: { x: 12, y: 0, w: 12, h: 8 }
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 0}
         lens:
           type: metric
           data_view: "logs-*"
@@ -314,7 +315,7 @@ dashboards:
   - name: "Compact Metrics"
     panels:
       - title: "Total Events (Compact)"
-        grid: { x: 0, y: 0, w: 12, h: 8 }
+        size: {w: 12, h: 8}
         lens:
           type: metric
           data_view: "logs-*"
@@ -335,7 +336,7 @@ dashboards:
   - name: "Formatted Metrics"
     panels:
       - title: "Revenue (Currency)"
-        grid: { x: 0, y: 0, w: 12, h: 8 }
+        size: {w: 12, h: 8}
         lens:
           type: metric
           data_view: "sales-*"
@@ -348,7 +349,8 @@ dashboards:
               pattern: "0,0.00"  # Comma separators, 2 decimals
 
       - title: "Success Rate"
-        grid: { x: 12, y: 0, w: 12, h: 8 }
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 0}
         lens:
           type: metric
           data_view: "logs-*"
@@ -370,7 +372,7 @@ dashboards:
   - name: "Combined Formatting"
     panels:
       - title: "Bandwidth Usage"
-        grid: { x: 0, y: 0, w: 12, h: 8 }
+        size: {w: 12, h: 8}
         lens:
           type: metric
           data_view: "network-*"

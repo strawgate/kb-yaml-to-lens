@@ -37,7 +37,7 @@ hand-crafting complex JSON.
              # Hello, Kibana!
 
              This is my first markdown panel.
-         grid: { x: 0, y: 0, w: 24, h: 15 }
+         size: {w: 24, h: 15}
    ```
 
    Or use snippets: type `dashboard` and press Tab to insert a template.
@@ -78,7 +78,7 @@ uv sync
      description: A simple dashboard
      panels:
        - title: Welcome
-         grid: { x: 0, y: 0, w: 24, h: 15 }
+         size: {w: 24, h: 15}
          markdown:
            content: |
              # Welcome to Kibana!
@@ -125,7 +125,7 @@ dashboards:
   panels:
     - title: Document Count
       type: lens
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      size: {w: 24, h: 15}
       index_pattern: your-index-pattern-*
       chart:
         type: metric
