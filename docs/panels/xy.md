@@ -97,7 +97,7 @@ dashboards:
   - name: "Custom Axis Titles"
     panels:
       - title: "Request Latency Over Time"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: line
           data_view: "logs-*"
@@ -124,7 +124,7 @@ dashboards:
   - name: "Custom Axis Bounds"
     panels:
       - title: "CPU Usage (0-100%)"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: area
           data_view: "metrics-*"
@@ -153,7 +153,7 @@ dashboards:
   - name: "Logarithmic Scale"
     panels:
       - title: "Event Count (Log Scale)"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: bar
           data_view: "logs-*"
@@ -178,7 +178,7 @@ dashboards:
   - name: "Data Bounds Mode"
     panels:
       - title: "Response Time"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: line
           data_view: "logs-*"
@@ -203,7 +203,7 @@ dashboards:
   - name: "Dual Axis Chart"
     panels:
       - title: "Requests vs Response Time"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: line
           data_view: "logs-*"
@@ -267,7 +267,7 @@ dashboards:
   - name: "Basic Reference Line"
     panels:
       - title: "Response Time with SLA Threshold"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: line
           data_view: "logs-*"
@@ -295,7 +295,7 @@ dashboards:
   - name: "Styled Reference Lines"
     panels:
       - title: "CPU Usage with Multiple Thresholds"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: area
           data_view: "metrics-*"
@@ -339,7 +339,7 @@ dashboards:
   - name: "Reference Lines with Fill"
     panels:
       - title: "Error Rate with Acceptable Range"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: line
           data_view: "logs-*"
@@ -376,7 +376,7 @@ dashboards:
   - name: "Reference Lines with Icons"
     panels:
       - title: "Memory Usage with Limits"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: area
           data_view: "metrics-*"
@@ -414,7 +414,7 @@ dashboards:
   - name: "Multi-Metric with Thresholds"
     panels:
       - title: "Request Metrics with SLA"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: line
           data_view: "logs-*"
@@ -458,7 +458,7 @@ dashboards:
   - name: "Threshold-Aware Visualization"
     panels:
       - title: "Requests Above Threshold"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: bar
           data_view: "logs-*"
