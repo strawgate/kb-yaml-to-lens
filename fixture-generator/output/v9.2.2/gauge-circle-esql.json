@@ -1,0 +1,82 @@
+{
+  "title": "Memory Usage Gauge (Circle)",
+  "visualizationType": "lnsGauge",
+  "references": [],
+  "state": {
+    "datasourceStates": {
+      "textBased": {
+        "layers": {
+          "layer_0": {
+            "index": "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}",
+            "query": {
+              "esql": "FROM metrics-* | STATS avg_mem = AVG(system.memory.used.pct)"
+            },
+            "columns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "avg_mem"
+              },
+              {
+                "columnId": "metric_formula_accessor_max",
+                "fieldName": "1"
+              },
+              {
+                "columnId": "metric_formula_accessor_min",
+                "fieldName": "0"
+              },
+              {
+                "columnId": "metric_formula_accessor_goal",
+                "fieldName": "0.8"
+              }
+            ],
+            "allColumns": [
+              {
+                "columnId": "metric_formula_accessor",
+                "fieldName": "avg_mem"
+              },
+              {
+                "columnId": "metric_formula_accessor_max",
+                "fieldName": "1"
+              },
+              {
+                "columnId": "metric_formula_accessor_min",
+                "fieldName": "0"
+              },
+              {
+                "columnId": "metric_formula_accessor_goal",
+                "fieldName": "0.8"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internalReferences": [
+      {
+        "type": "index-pattern",
+        "id": "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}",
+        "name": "indexpattern-datasource-layer-layer_0"
+      }
+    ],
+    "filters": [],
+    "query": {
+      "language": "kuery",
+      "query": ""
+    },
+    "visualization": {
+      "layerId": "layer_0",
+      "layerType": "data",
+      "ticksPosition": "auto",
+      "shape": "circle",
+      "labelMajorMode": "auto",
+      "metricAccessor": "metric_formula_accessor",
+      "goalAccessor": "metric_formula_accessor_goal",
+      "maxAccessor": "metric_formula_accessor_max",
+      "showBar": true,
+      "minAccessor": "metric_formula_accessor_min"
+    },
+    "adHocDataViews": {
+      "{\"index\":\"metrics-*\",\"timeFieldName\":\"@timestamp\"}": {}
+    }
+  }
+}
