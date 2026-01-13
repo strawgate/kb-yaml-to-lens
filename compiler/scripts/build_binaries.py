@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build standalone binaries for kb-dashboard using PyInstaller."""
 
+import argparse
 import platform
 import shutil
 import subprocess
@@ -18,13 +19,19 @@ def get_platform_name() -> str:
     return f'{system}-{arch}'
 
 
-def build_cli_binary(platform_name: str) -> Path:
-    """Build the unified CLI binary with LSP support."""
-    binary_name = f'kb-dashboard-{platform_name}'
+def build_binary(binary_name: str) -> Path:
+    """Build a binary with the specified name.
+
+    Args:
+        binary_name: Name for the output binary (without .exe extension on Windows)
+
+    Returns:
+        Path to the built binary
+    """
     if platform.system() == 'Windows':
         binary_name += '.exe'
 
-    print(f'Building unified binary: {binary_name}...')
+    print(f'Building binary: {binary_name}...')
 
     # Sync dependencies (LSP is now a main dependency, no extra group needed)
     subprocess.run(['uv', 'sync', '--group', 'build'], check=True, cwd=COMPILER_ROOT)  # noqa: S607
@@ -40,14 +47,34 @@ def build_cli_binary(platform_name: str) -> Path:
     # Report success
     binary_path = COMPILER_ROOT / 'dist' / binary_name
     size_mb = binary_path.stat().st_size / (1024 * 1024)
-    print(f'Built unified binary: {binary_path} ({size_mb:.1f} MB)')
+    print(f'Built binary: {binary_path} ({size_mb:.1f} MB)')
     return binary_path
 
 
+def build_cli_binary(platform_name: str) -> Path:
+    """Build the unified CLI binary with LSP support."""
+    binary_name = f'kb-dashboard-{platform_name}'
+    return build_binary(binary_name)
+
+
+def build_lsp_binary() -> Path:
+    """Build the LSP binary for VS Code extension.
+
+    This builds the same unified binary but with a fixed name expected by the
+    VS Code extension workflow.
+    """
+    return build_binary('kb-dashboard-compiler-lsp')
+
+
 def main() -> None:
-    """Build standalone unified binary for current platform."""
-    platform_name = get_platform_name()
-    print(f'Building unified binary for platform: {platform_name}')
+    """Build standalone binaries for current platform."""
+    parser = argparse.ArgumentParser(description='Build standalone binaries for kb-dashboard')
+    parser.add_argument(
+        '--lsp',
+        action='store_true',
+        help='Build LSP binary for VS Code extension (kb-dashboard-compiler-lsp)',
+    )
+    args = parser.parse_args()
 
     # Clean previous builds
     for d in ['build', 'dist']:
@@ -55,10 +82,15 @@ def main() -> None:
         if path.exists():
             shutil.rmtree(path)
 
-    # Build unified binary
-    build_cli_binary(platform_name)
-
-    print('Unified binary built successfully!')
+    if args.lsp:
+        print('Building LSP binary for VS Code extension...')
+        build_lsp_binary()
+        print('LSP binary built successfully!')
+    else:
+        platform_name = get_platform_name()
+        print(f'Building unified binary for platform: {platform_name}')
+        build_cli_binary(platform_name)
+        print('Unified binary built successfully!')
 
 
 if __name__ == '__main__':
