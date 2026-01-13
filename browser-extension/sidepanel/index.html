@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kibana Dashboard Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>📊 Kibana Dashboard Builder</h1>
+      <div class="status-bar">
+        <span id="status" class="status">Initializing...</span>
+        <div class="actions">
+          <button id="new-dashboard" class="btn" title="New Dashboard">New</button>
+          <button id="import-dashboard" class="btn btn-warning" title="Import Current Dashboard" disabled>Import</button>
+          <button id="export-ndjson" class="btn btn-primary" title="Export as NDJSON">Export</button>
+          <button id="upload-kibana" class="btn btn-success" title="Upload to Kibana">Upload</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Split Pane -->
+    <div class="split-pane">
+      <!-- Left: YAML Editor -->
+      <div class="pane editor-pane">
+        <div class="pane-header">
+          <h2>YAML Editor</h2>
+          <button id="format-yaml" class="btn-small">Format</button>
+        </div>
+        <div id="editor-container"></div>
+      </div>
+
+      <!-- Resizer -->
+      <div class="resizer"></div>
+
+      <!-- Right: Preview -->
+      <div class="pane preview-pane">
+        <div class="pane-header">
+          <h2>Preview</h2>
+          <div class="tabs">
+            <button class="tab active" data-tab="visual">Visual</button>
+            <button class="tab" data-tab="json">JSON</button>
+          </div>
+        </div>
+        
+        <div class="preview-content">
+          <!-- Visual Preview Tab -->
+          <div id="visual-preview" class="tab-content active">
+            <div id="dashboard-info" class="dashboard-info"></div>
+            <div id="grid-preview" class="grid-preview"></div>
+          </div>
+          
+          <!-- JSON Preview Tab -->
+          <div id="json-preview" class="tab-content">
+            <pre id="json-output"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="error-panel" class="error-panel hidden">
+      <div class="error-header">
+        <span>⚠️ Error</span>
+        <button id="close-error" class="btn-close">✕</button>
+      </div>
+      <pre id="error-message"></pre>
+    </div>
+  </div>
+
+  <!-- js-yaml MUST load BEFORE Monaco's AMD loader to avoid conflicts -->
+  <script src="../lib/js-yaml.min.js"></script>
+  
+  <!-- Monaco Editor loader (local bundle) -->
+  <script src="../lib/monaco-editor/vs/loader.js"></script>
+  
+  <!-- Scripts -->
+  <script src="pyodide-loader.js"></script>
+  <script src="editor.js"></script>
+  <script src="preview.js"></script>
+  <script src="actions.js"></script>
+</body>
+</html>

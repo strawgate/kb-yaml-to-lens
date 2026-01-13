@@ -1,0 +1,18 @@
+{
+  "name": "kibana-dashboard-builder-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for building Kibana dashboards",
+  "scripts": {
+    "test": "node tests/run-tests.js",
+    "test:validate": "node tests/validate.js",
+    "test:simple": "node tests/simple-test.js",
+    "test:integration": "node tests/integration.js",
+    "test:open": "node tests/open-extension.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^21.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

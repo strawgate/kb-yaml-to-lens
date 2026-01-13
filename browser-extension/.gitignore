@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Test artifacts
+test-failure.png
+.extension-id
+
+# OS files
+.DS_Store
+Thumbs.db
