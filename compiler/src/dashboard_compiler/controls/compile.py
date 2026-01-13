@@ -38,10 +38,11 @@ from dashboard_compiler.controls.view import (
 from dashboard_compiler.shared.compile import return_if, return_if_equals
 from dashboard_compiler.shared.defaults import default_false, default_if_none
 from dashboard_compiler.shared.logging import log_compile
+from dashboard_compiler.shared.view import KbnReference
 
 
 @log_compile
-def compile_options_list_control(order: int, *, control: OptionsListControl) -> KbnOptionsListControl:
+def compile_options_list_control(order: int, *, control: OptionsListControl) -> tuple[KbnOptionsListControl, KbnReference]:
     """Compile an OptionsListControl into its Kibana view model representation.
 
     Args:
@@ -49,7 +50,7 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         control (OptionsListControl): The OptionsListControl object to compile.
 
     Returns:
-        KbnOptionsListControl: The compiled Kibana options list control view model.
+        tuple: A tuple containing the compiled control and its data view reference.
 
     """
     match_technique_to_search_technique: dict[MatchTechnique | None, SearchTechnique] = {
@@ -63,12 +64,14 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
     if control.multiple is not None:
         single_select_value = not control.multiple
 
-    return KbnOptionsListControl(
+    control_id = control.get_id()
+
+    kbn_control = KbnOptionsListControl(
         grow=default_false(control.fill_width),
         order=order,
         width=default_if_none(control.width, KBN_DEFAULT_CONTROL_WIDTH),
         explicitInput=KbnOptionsListControlExplicitInput(
-            id=control.get_id(),
+            id=control_id,
             dataViewId=control.data_view,
             fieldName=control.field,
             title=control.label,
@@ -80,9 +83,17 @@ def compile_options_list_control(order: int, *, control: OptionsListControl) -> 
         ),
     )
 
+    reference = KbnReference(
+        type='index-pattern',
+        id=control.data_view,
+        name=f'controlGroup_{control_id}:optionsListDataView',
+    )
+
+    return kbn_control, reference
+
 
 @log_compile
-def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> KbnRangeSliderControl:
+def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> tuple[KbnRangeSliderControl, KbnReference]:
     """Compile a RangeSliderControl into its Kibana view model representation.
 
     Args:
@@ -90,21 +101,31 @@ def compile_range_slider_control(order: int, *, control: RangeSliderControl) -> 
         control (RangeSliderControl): The RangeSliderControl object to compile.
 
     Returns:
-        KbnRangeSliderControl: The compiled Kibana range slider control view model.
+        tuple: A tuple containing the compiled control and its data view reference.
 
     """
-    return KbnRangeSliderControl(
+    control_id = control.get_id()
+
+    kbn_control = KbnRangeSliderControl(
         grow=default_false(control.fill_width),
         order=order,
         width=default_if_none(control.width, 'medium'),
         explicitInput=KbnRangeSliderControlExplicitInput(
-            id=control.get_id(),
+            id=control_id,
             dataViewId=control.data_view,
             fieldName=control.field,
             step=default_if_none(control.step, 1),
             title=control.label,
         ),
     )
+
+    reference = KbnReference(
+        type='index-pattern',
+        id=control.data_view,
+        name=f'controlGroup_{control_id}:rangeSliderDataView',
+    )
+
+    return kbn_control, reference
 
 
 @log_compile
@@ -290,7 +311,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
 
 
 @log_compile
-def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  # noqa: PLR0911
+def compile_control(order: int, *, control: ControlTypes) -> tuple[KbnControlTypes, KbnReference | None]:  # noqa: PLR0911
     """Compile a single control into its Kibana view model representation.
 
     Args:
@@ -298,34 +319,34 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  #
         control (ControlTypes): The control object to compile.
 
     Returns:
-        KbnControlTypes: The compiled Kibana control view model.
+        tuple: A tuple containing the compiled control and an optional data view reference.
 
     """
     if isinstance(control, OptionsListControl):
         return compile_options_list_control(order, control=control)
 
     if isinstance(control, TimeSliderControl):
-        return compile_time_slider_control(order, control=control)
+        return compile_time_slider_control(order, control=control), None
 
     if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
 
     # NEW CONTROLS (before deprecated ones for proper precedence)
     if isinstance(control, ESQLFieldControl):
-        return compile_esql_field_control(order, control=control)
+        return compile_esql_field_control(order, control=control), None
 
     if isinstance(control, ESQLFunctionControl):
-        return compile_esql_function_control(order, control=control)
+        return compile_esql_function_control(order, control=control), None
 
     # DEPRECATED (backward compatibility)
     if isinstance(control, ESQLStaticSingleSelectControl):
-        return compile_esql_static_single_select_control(order, control=control)
+        return compile_esql_static_single_select_control(order, control=control), None
 
     if isinstance(control, ESQLStaticMultiSelectControl):
-        return compile_esql_static_multi_select_control(order, control=control)
+        return compile_esql_static_multi_select_control(order, control=control), None
 
     if isinstance(control, ESQLQueryControl):  # pyright: ignore[reportUnnecessaryIsInstance]
-        return compile_esql_query_control(order, control=control)
+        return compile_esql_query_control(order, control=control), None
 
     # Explicit check to satisfy exhaustive checking pattern
     msg = f'Unknown control type: {type(control).__name__}'
@@ -333,30 +354,36 @@ def compile_control(order: int, *, control: ControlTypes) -> KbnControlTypes:  #
 
 
 @log_compile
-def compile_control_panels_json(controls: Sequence[ControlTypes]) -> KbnControlPanelsJson:
+def compile_control_panels_json(controls: Sequence[ControlTypes]) -> tuple[KbnControlPanelsJson, list[KbnReference]]:
     """Compile the control group input for a Dashboard object into its Kibana view model representation.
 
     Args:
         controls (Sequence[ControlTypes]): The sequence of control objects to compile.
 
     Returns:
-        KbnControlPanelsJson: The compiled Kibana control panels JSON view model.
+        tuple: A tuple containing the control panels JSON and a list of references.
 
     """
     kbn_control_panels_json: KbnControlPanelsJson = KbnControlPanelsJson()
+    references: list[KbnReference] = []
 
     for i, config_control in enumerate(iterable=controls):
-        kbn_control: KbnControlTypes = compile_control(i, control=config_control)
+        kbn_control, reference = compile_control(i, control=config_control)
 
         kbn_control_id: str = kbn_control.explicitInput.id
 
         kbn_control_panels_json.add(key=kbn_control_id, value=kbn_control)
 
-    return kbn_control_panels_json
+        if reference is not None:
+            references.append(reference)
+
+    return kbn_control_panels_json, references
 
 
 @log_compile
-def compile_control_group(*, control_settings: ControlSettings, controls: Sequence[ControlTypes]) -> KbnControlGroupInput:
+def compile_control_group(
+    *, control_settings: ControlSettings, controls: Sequence[ControlTypes]
+) -> tuple[KbnControlGroupInput, list[KbnReference]]:
     """Compile a control group from a sequence of ControlTypes into a Kibana view model.
 
     Args:
@@ -364,10 +391,10 @@ def compile_control_group(*, control_settings: ControlSettings, controls: Sequen
         controls (Sequence[ControlTypes]): The sequence of control configurations to compile.
 
     Returns:
-        KbnControlGroupInput: The compiled Kibana control group input view model.
+        tuple: A tuple containing the control group input and a list of data view references.
 
     """
-    panels_json = compile_control_panels_json(controls)
+    panels_json, references = compile_control_panels_json(controls)
 
     # Kibana's control API uses "ignore" semantics (ignoreFilters, ignoreQuery, etc.)
     # but our config uses "apply" semantics for better UX. We invert the booleans here:
@@ -380,7 +407,7 @@ def compile_control_group(*, control_settings: ControlSettings, controls: Sequen
         ignoreValidations=return_if(var=control_settings.ignore_zero_results, is_true=True, is_false=False, default=False),
     )
 
-    return KbnControlGroupInput(
+    control_group_input = KbnControlGroupInput(
         chainingSystem=return_if(
             var=control_settings.chain_controls,
             is_false=ChainingSystemEnum.NONE,
@@ -398,3 +425,5 @@ def compile_control_group(*, control_settings: ControlSettings, controls: Sequen
         panelsJSON=panels_json,
         showApplySelections=control_settings.click_to_apply or False,
     )
+
+    return control_group_input, references
