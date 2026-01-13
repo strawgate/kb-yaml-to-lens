@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -11,6 +12,16 @@ def freezer(freezer: FrozenDateTimeFactory) -> FrozenDateTimeFactory:
     # Freeze time to a fixed point for consistency in tests
     freezer.move_to('2023-10-01T12:00:00Z')
     return freezer
+
+
+@pytest.fixture
+def temp_yaml_file(tmp_path: Path) -> Path:
+    """Provide a temporary YAML file path for tests requiring file I/O.
+
+    The file is created in a temporary directory that is automatically
+    cleaned up after the test.
+    """
+    return tmp_path / 'test_dashboard.yaml'
 
 
 def de_json_kbn_dashboard(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:

@@ -40,231 +40,173 @@ def _get_single_layer(state: Any) -> tuple[str, Any]:
     return layer_id, layer
 
 
+# Test data for chart_type_to_kbn_type_lens function
+# Each tuple: (chart_class, config, expected_visualization_type)
+CHART_TYPE_TEST_CASES = [
+    # Pie charts
+    pytest.param(
+        LensPieChart,
+        {
+            'type': 'pie',
+            'data_view': 'metrics-*',
+            'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        },
+        KbnVisualizationTypeEnum.PIE,
+        id='lens-pie',
+    ),
+    pytest.param(
+        ESQLPieChart,
+        {'type': 'pie', 'dimensions': [{'field': 'status', 'id': 'group1'}], 'metrics': [{'field': 'count(*)', 'id': 'metric1'}]},
+        KbnVisualizationTypeEnum.PIE,
+        id='esql-pie',
+    ),
+    # XY charts (Lens)
+    pytest.param(
+        LensLineChart,
+        {
+            'type': 'line',
+            'data_view': 'metrics-*',
+            'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        },
+        KbnVisualizationTypeEnum.XY,
+        id='lens-line',
+    ),
+    pytest.param(
+        LensBarChart,
+        {
+            'type': 'bar',
+            'data_view': 'metrics-*',
+            'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        },
+        KbnVisualizationTypeEnum.XY,
+        id='lens-bar',
+    ),
+    pytest.param(
+        LensAreaChart,
+        {
+            'type': 'area',
+            'data_view': 'metrics-*',
+            'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        },
+        KbnVisualizationTypeEnum.XY,
+        id='lens-area',
+    ),
+    pytest.param(
+        LensReferenceLineLayer,
+        {'data_view': 'metrics-*', 'reference_lines': [{'value': 100.0, 'id': 'ref1'}]},
+        KbnVisualizationTypeEnum.XY,
+        id='lens-reference-line',
+    ),
+    # XY charts (ESQL)
+    pytest.param(
+        ESQLAreaChart,
+        {'type': 'area', 'dimension': {'field': '@timestamp', 'id': 'dim1'}, 'metrics': [{'field': 'count(*)', 'id': 'metric1'}]},
+        KbnVisualizationTypeEnum.XY,
+        id='esql-area',
+    ),
+    pytest.param(
+        ESQLBarChart,
+        {'type': 'bar', 'dimension': {'field': '@timestamp', 'id': 'dim1'}, 'metrics': [{'field': 'count(*)', 'id': 'metric1'}]},
+        KbnVisualizationTypeEnum.XY,
+        id='esql-bar',
+    ),
+    pytest.param(
+        ESQLLineChart,
+        {'type': 'line', 'dimension': {'field': '@timestamp', 'id': 'dim1'}, 'metrics': [{'field': 'count(*)', 'id': 'metric1'}]},
+        KbnVisualizationTypeEnum.XY,
+        id='esql-line',
+    ),
+    # Metric charts
+    pytest.param(
+        LensMetricChart,
+        {'type': 'metric', 'data_view': 'metrics-*', 'primary': {'aggregation': 'count', 'id': 'metric1'}},
+        KbnVisualizationTypeEnum.METRIC,
+        id='lens-metric',
+    ),
+    pytest.param(
+        ESQLMetricChart,
+        {'type': 'metric', 'primary': {'field': 'count(*)', 'id': 'metric1'}},
+        KbnVisualizationTypeEnum.METRIC,
+        id='esql-metric',
+    ),
+    # Datatable charts
+    pytest.param(
+        LensDatatableChart,
+        {'type': 'datatable', 'data_view': 'metrics-*', 'metrics': [{'field': 'test', 'id': 'test-id', 'aggregation': 'count'}]},
+        KbnVisualizationTypeEnum.DATATABLE,
+        id='lens-datatable',
+    ),
+    pytest.param(
+        ESQLDatatableChart,
+        {'type': 'datatable', 'metrics': [{'field': 'count(*)', 'id': 'test-id'}]},
+        KbnVisualizationTypeEnum.DATATABLE,
+        id='esql-datatable',
+    ),
+    # Gauge charts
+    pytest.param(
+        LensGaugeChart,
+        {'type': 'gauge', 'data_view': 'metrics-*', 'metric': {'aggregation': 'count', 'id': 'metric1'}},
+        KbnVisualizationTypeEnum.GAUGE,
+        id='lens-gauge',
+    ),
+    pytest.param(
+        ESQLGaugeChart,
+        {'type': 'gauge', 'metric': {'field': 'count(*)', 'id': 'metric1'}},
+        KbnVisualizationTypeEnum.GAUGE,
+        id='esql-gauge',
+    ),
+    # Heatmap charts
+    pytest.param(
+        LensHeatmapChart,
+        {
+            'type': 'heatmap',
+            'data_view': 'metrics-*',
+            'x_axis': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'x1'},
+            'value': {'aggregation': 'count', 'id': 'metric1'},
+        },
+        KbnVisualizationTypeEnum.HEATMAP,
+        id='lens-heatmap',
+    ),
+    pytest.param(
+        ESQLHeatmapChart,
+        {'type': 'heatmap', 'x_axis': {'field': '@timestamp', 'id': 'x1'}, 'value': {'field': 'count(*)', 'id': 'metric1'}},
+        KbnVisualizationTypeEnum.HEATMAP,
+        id='esql-heatmap',
+    ),
+    # Tagcloud charts
+    pytest.param(
+        LensTagcloudChart,
+        {
+            'type': 'tagcloud',
+            'data_view': 'metrics-*',
+            'dimension': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
+            'metric': {'aggregation': 'count', 'id': 'metric1'},
+        },
+        KbnVisualizationTypeEnum.TAGCLOUD,
+        id='lens-tagcloud',
+    ),
+    pytest.param(
+        ESQLTagcloudChart,
+        {'type': 'tagcloud', 'dimension': {'field': 'tag', 'id': 'tags1'}, 'metric': {'field': 'count(*)', 'id': 'metric1'}},
+        KbnVisualizationTypeEnum.TAGCLOUD,
+        id='esql-tagcloud',
+    ),
+]
+
+
 class TestChartTypeToKbnTypeLens:
     """Tests for chart_type_to_kbn_type_lens function."""
 
-    def test_identifies_lens_pie_chart(self) -> None:
-        """Test that LensPieChart is identified correctly."""
-        chart = LensPieChart.model_validate(
-            {
-                'type': 'pie',
-                'data_view': 'metrics-*',
-                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
-                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            }
-        )
+    @pytest.mark.parametrize(('chart_class', 'config', 'expected_type'), CHART_TYPE_TEST_CASES)
+    def test_identifies_chart_type(self, chart_class: type, config: dict[str, Any], expected_type: KbnVisualizationTypeEnum) -> None:
+        """Test that chart types are correctly identified."""
+        chart = chart_class.model_validate(config)  # pyright: ignore[reportUnknownMemberType]
         result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.PIE
-
-    def test_identifies_esql_pie_chart(self) -> None:
-        """Test that ESQLPieChart is identified correctly."""
-        chart = ESQLPieChart.model_validate(
-            {
-                'type': 'pie',
-                'dimensions': [{'field': 'status', 'id': 'group1'}],
-                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.PIE
-
-    def test_identifies_lens_line_chart(self) -> None:
-        """Test that LensLineChart is identified as XY."""
-        chart = LensLineChart.model_validate(
-            {
-                'type': 'line',
-                'data_view': 'metrics-*',
-                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
-                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.XY
-
-    def test_identifies_lens_bar_chart(self) -> None:
-        """Test that LensBarChart is identified as XY."""
-        chart = LensBarChart.model_validate(
-            {
-                'type': 'bar',
-                'data_view': 'metrics-*',
-                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
-                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.XY
-
-    def test_identifies_lens_area_chart(self) -> None:
-        """Test that LensAreaChart is identified as XY."""
-        chart = LensAreaChart.model_validate(
-            {
-                'type': 'area',
-                'data_view': 'metrics-*',
-                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
-                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.XY
-
-    def test_identifies_lens_reference_line_layer(self) -> None:
-        """Test that LensReferenceLineLayer is identified as XY."""
-        chart = LensReferenceLineLayer.model_validate(
-            {
-                'data_view': 'metrics-*',
-                'reference_lines': [{'value': 100.0, 'id': 'ref1'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.XY
-
-    def test_identifies_esql_xy_charts(self) -> None:
-        """Test that ESQL XY charts are identified correctly."""
-        area_chart = ESQLAreaChart.model_validate(
-            {
-                'type': 'area',
-                'dimension': {'field': '@timestamp', 'id': 'dim1'},
-                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-            }
-        )
-        assert chart_type_to_kbn_type_lens(area_chart) == KbnVisualizationTypeEnum.XY
-
-        bar_chart = ESQLBarChart.model_validate(
-            {
-                'type': 'bar',
-                'dimension': {'field': '@timestamp', 'id': 'dim1'},
-                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-            }
-        )
-        assert chart_type_to_kbn_type_lens(bar_chart) == KbnVisualizationTypeEnum.XY
-
-        line_chart = ESQLLineChart.model_validate(
-            {
-                'type': 'line',
-                'dimension': {'field': '@timestamp', 'id': 'dim1'},
-                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-            }
-        )
-        assert chart_type_to_kbn_type_lens(line_chart) == KbnVisualizationTypeEnum.XY
-
-    def test_identifies_lens_metric_chart(self) -> None:
-        """Test that LensMetricChart is identified correctly."""
-        chart = LensMetricChart.model_validate(
-            {
-                'type': 'metric',
-                'data_view': 'metrics-*',
-                'primary': {'aggregation': 'count', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.METRIC
-
-    def test_identifies_esql_metric_chart(self) -> None:
-        """Test that ESQLMetricChart is identified correctly."""
-        chart = ESQLMetricChart.model_validate(
-            {
-                'type': 'metric',
-                'primary': {'field': 'count(*)', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.METRIC
-
-    def test_identifies_lens_datatable_chart(self) -> None:
-        """Test that LensDatatableChart is identified correctly."""
-        chart = LensDatatableChart.model_validate(
-            {
-                'type': 'datatable',
-                'data_view': 'metrics-*',
-                'metrics': [{'field': 'test', 'id': 'test-id', 'aggregation': 'count'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.DATATABLE
-
-    def test_identifies_esql_datatable_chart(self) -> None:
-        """Test that ESQLDatatableChart is identified correctly."""
-        chart = ESQLDatatableChart.model_validate(
-            {
-                'type': 'datatable',
-                'metrics': [{'field': 'count(*)', 'id': 'test-id'}],
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.DATATABLE
-
-    def test_identifies_lens_gauge_chart(self) -> None:
-        """Test that LensGaugeChart is identified correctly."""
-        chart = LensGaugeChart.model_validate(
-            {
-                'type': 'gauge',
-                'data_view': 'metrics-*',
-                'metric': {'aggregation': 'count', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.GAUGE
-
-    def test_identifies_esql_gauge_chart(self) -> None:
-        """Test that ESQLGaugeChart is identified correctly."""
-        chart = ESQLGaugeChart.model_validate(
-            {
-                'type': 'gauge',
-                'metric': {'field': 'count(*)', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.GAUGE
-
-    def test_identifies_lens_heatmap_chart(self) -> None:
-        """Test that LensHeatmapChart is identified correctly."""
-        chart = LensHeatmapChart.model_validate(
-            {
-                'type': 'heatmap',
-                'data_view': 'metrics-*',
-                'x_axis': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'x1'},
-                'value': {'aggregation': 'count', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.HEATMAP
-
-    def test_identifies_esql_heatmap_chart(self) -> None:
-        """Test that ESQLHeatmapChart is identified correctly."""
-        chart = ESQLHeatmapChart.model_validate(
-            {
-                'type': 'heatmap',
-                'x_axis': {'field': '@timestamp', 'id': 'x1'},
-                'value': {'field': 'count(*)', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.HEATMAP
-
-    def test_identifies_lens_tagcloud_chart(self) -> None:
-        """Test that LensTagcloudChart is identified correctly."""
-        chart = LensTagcloudChart.model_validate(
-            {
-                'type': 'tagcloud',
-                'data_view': 'metrics-*',
-                'dimension': {'type': 'values', 'field': 'tag', 'id': 'tags1'},
-                'metric': {'aggregation': 'count', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.TAGCLOUD
-
-    def test_identifies_esql_tagcloud_chart(self) -> None:
-        """Test that ESQLTagcloudChart is identified correctly."""
-        chart = ESQLTagcloudChart.model_validate(
-            {
-                'type': 'tagcloud',
-                'dimension': {'field': 'tag', 'id': 'tags1'},
-                'metric': {'field': 'count(*)', 'id': 'metric1'},
-            }
-        )
-        result = chart_type_to_kbn_type_lens(chart)
-        assert result == KbnVisualizationTypeEnum.TAGCLOUD
+        assert result == expected_type
 
 
 class TestCompileLensChartState:
