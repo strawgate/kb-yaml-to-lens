@@ -117,10 +117,20 @@ main() {
             echo ""
             echo "✓ uv binary downloaded for current platform"
             ;;
+        linux-x64|darwin-x64|darwin-arm64|win32-x64)
+            # Download for a specific platform (used by CI matrix jobs)
+            echo "Downloading uv ${UV_VERSION} for $mode..."
+            mkdir -p "$BIN_DIR"
+            download_uv "$mode"
+            echo ""
+            echo "✓ uv binary downloaded for $mode"
+            ;;
         *)
-            echo "Usage: $0 [all|current]"
-            echo "  all     - Download uv for all supported platforms (default)"
-            echo "  current - Download uv for current platform only"
+            echo "Usage: $0 [all|current|<platform>]"
+            echo "  all            - Download uv for all supported platforms (default)"
+            echo "  current        - Download uv for current platform only"
+            echo "  <platform>     - Download for specific platform:"
+            echo "                   linux-x64, darwin-x64, darwin-arm64, win32-x64"
             exit 1
             ;;
     esac

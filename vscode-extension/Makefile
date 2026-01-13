@@ -161,20 +161,7 @@ prepare: download-uv bundle-compiler
 prepare-all: download-uv-all bundle-compiler
 	@echo "✓ Extension prepared for all platforms"
 
-verify: prepare
-	@echo "Verifying extension..."
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi
-	@echo "Running compile..."
-	npm run compile
-	@echo "Running lint..."
-	npm run lint
-	@echo "Running tests..."
-	npm run test:unit
-	@echo "Packaging extension..."
-	npm run package
+verify: prepare ci package
 	@echo "✓ Extension verified successfully"
 
 clean:

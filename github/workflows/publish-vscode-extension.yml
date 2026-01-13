@@ -30,6 +30,8 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           path: uv-binaries
+          pattern: uv-*
+          merge-multiple: false
       - name: Organize uv binaries
         run: make organize-extension-uv-binaries
       - name: Bundle compiler source
