@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean copy-binary clean-binaries
+.PHONY: help all install ci check fix test test-unit compile watch lint lint-check package install-vscode install-cursor clean prepare prepare-all clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -16,12 +16,13 @@ help:
 	@echo "  watch            - Watch mode for development"
 	@echo "  lint             - Check linting"
 	@echo "  lint-check       - Alias for lint"
-	@echo "  package        - Create .vsix package"
-	@echo "  install-vscode - Install packaged extension into VS Code"
-	@echo "  install-cursor - Install packaged extension into Cursor"
-	@echo "  copy-binary    - Copy unified binary from compiler (current platform)"
-	@echo "  clean          - Clean build artifacts"
-	@echo "  clean-binaries - Clean copied binaries"
+	@echo "  package          - Create .vsix package"
+	@echo "  install-vscode   - Install packaged extension into VS Code"
+	@echo "  install-cursor   - Install packaged extension into Cursor"
+	@echo "  prepare          - Download uv + bundle compiler (current platform, for dev)"
+	@echo "  prepare-all      - Download uv for all platforms + bundle compiler (for release)"
+	@echo "  clean            - Clean build artifacts"
+	@echo "  clean-binaries   - Clean downloaded binaries and bundled compiler"
 
 install:
 	@echo "Installing VSCode extension dependencies..."
@@ -133,9 +134,17 @@ install-cursor:
 	fi; \
 	echo "✓ Extension installed in Cursor"
 
-copy-binary:
-	@echo "Copying unified binary from compiler..."
-	bash scripts/copy_binary.sh
+prepare:
+	@echo "Preparing extension (downloading uv + bundling compiler)..."
+	bash scripts/download_uv.sh current
+	bash scripts/bundle_compiler.sh
+	@echo "✓ Extension prepared"
+
+prepare-all:
+	@echo "Preparing extension for all platforms..."
+	bash scripts/download_uv.sh all
+	bash scripts/bundle_compiler.sh
+	@echo "✓ Extension prepared for all platforms"
 
 clean:
 	@echo "Cleaning build artifacts..."
@@ -143,5 +152,6 @@ clean:
 	rm -rf node_modules/
 
 clean-binaries:
-	@echo "Cleaning copied binaries..."
+	@echo "Cleaning downloaded binaries and bundled compiler..."
 	rm -rf bin/
+	rm -rf compiler/

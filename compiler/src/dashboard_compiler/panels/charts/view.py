@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .gauge.view import KbnGaugeVisualizationState
     from .heatmap.view import KbnHeatmapVisualizationState
     from .metric.view import KbnESQLMetricVisualizationState, KbnMetricVisualizationState
+    from .mosaic.view import KbnMosaicVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
         | KbnXYVisualizationState
         | KbnDatatableVisualizationState
         | KbnTagcloudVisualizationState
+        | KbnMosaicVisualizationState
     )
 
 # region Form Data Source

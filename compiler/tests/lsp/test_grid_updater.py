@@ -21,12 +21,14 @@ def _write_dashboard(tmp_path: Path) -> Path:
             panels:
               - id: "panel-a"
                 title: "Markdown A"
-                grid: { x: 0, y: 0, w: 10, h: 5 }
+                size: {w: 10, h: 5}
+                position: {x: 0, y: 0}
                 markdown:
                   content: "Hello"
               - id: "panel-b"
                 title: "Markdown B"
-                grid: { x: 10, y: 0, w: 10, h: 5 }
+                size: {w: 10, h: 5}
+                position: {x: 10, y: 0}
                 markdown:
                   content: "World"
         """)

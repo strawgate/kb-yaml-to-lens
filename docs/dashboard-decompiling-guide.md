@@ -157,7 +157,7 @@ dashboards:
       # Title
 
       Content here
-  grid: {x: 0, y: 0, w: 48, h: 3}
+  size: {w: 48, h: 3}
 ```
 
 ### Lens Metric Panels
@@ -204,7 +204,8 @@ dashboards:
 
 ```yaml
 - title: Total Documents
-  grid: {x: 0, y: 3, w: 24, h: 15}
+  size: {w: 24, h: 15}
+  position: {x: 0, y: 3}
   lens:
     type: metric
     data_view: logs-*
@@ -247,7 +248,8 @@ dashboards:
 
 ```yaml
 - title: Status Breakdown
-  grid: {x: 24, y: 3, w: 24, h: 15}
+  size: {w: 24, h: 15}
+  position: {x: 24, y: 3}
   lens:
     type: pie
     data_view: logs-*
@@ -574,7 +576,8 @@ dashboards:
     description: Real-time application metrics
     panels:
       - title: Total Documents
-        grid: {x: 0, y: 3, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*

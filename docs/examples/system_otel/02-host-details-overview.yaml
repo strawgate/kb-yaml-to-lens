@@ -24,7 +24,8 @@ dashboards:
         field: resource.attributes.host.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         description: Links to related dashboards
         links:
           layout: horizontal
@@ -40,7 +41,8 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: CPU Utilization
-        grid: {x: 0, y: 3, w: 12, h: 5}
+        size: {w: 12, h: 5}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -52,7 +54,8 @@ dashboards:
             format:
               type: percent
       - title: Normalized Load
-        grid: {x: 12, y: 3, w: 12, h: 5}
+        size: {w: 12, h: 5}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -62,7 +65,8 @@ dashboards:
             format:
               type: percent
       - title: Memory Utilization
-        grid: {x: 24, y: 3, w: 12, h: 5}
+        size: {w: 12, h: 5}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -72,7 +76,8 @@ dashboards:
             format:
               type: percent
       - title: Disk Usage
-        grid: {x: 36, y: 3, w: 12, h: 5}
+        size: {w: 12, h: 5}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -83,7 +88,8 @@ dashboards:
             format:
               type: percent
       - title: CPU Utilization Over Time
-        grid: {x: 0, y: 8, w: 24, h: 14}
+        size: {w: 24, h: 14}
+        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -98,7 +104,8 @@ dashboards:
               format:
                 type: percent
       - title: Memory Utilization Over Time
-        grid: {x: 24, y: 8, w: 24, h: 14}
+        size: {w: 24, h: 14}
+        position: {x: 24, y: 8}
         lens:
           type: area
           data_view: metrics-*
@@ -111,7 +118,8 @@ dashboards:
               format:
                 type: percent
       - title: Normalized Load Over Time
-        grid: {x: 0, y: 22, w: 24, h: 14}
+        size: {w: 24, h: 14}
+        position: {x: 0, y: 22}
         lens:
           type: line
           data_view: metrics-*
@@ -124,7 +132,8 @@ dashboards:
               format:
                 type: percent
       - title: Disk Usage by Mount Point
-        grid: {x: 24, y: 22, w: 24, h: 14}
+        size: {w: 24, h: 14}
+        position: {x: 24, y: 22}
         lens:
           type: line
           data_view: metrics-*

@@ -1,17 +1,22 @@
 """Test the compilation of Lens datatable charts from config models to view models using inline snapshots."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 from pydantic import ValidationError
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.charts.datatable.compile import (
     compile_esql_datatable_chart,
     compile_lens_datatable_chart,
 )
 from dashboard_compiler.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 def compile_datatable_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
@@ -513,3 +518,40 @@ def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
     assert chart is not None
     assert len(chart.metrics) == 0
     assert len(chart.dimensions) == 1
+
+
+def test_datatable_chart_dashboard_references_bubble_up() -> None:
+    """Test that datatable chart data view references bubble up to dashboard level correctly.
+
+    Datatable charts reference a data view (index-pattern), so this reference should appear
+    at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test Datatable Chart Dashboard',
+        panels=[
+            {
+                'title': 'Datatable',
+                'id': 'datatable-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'datatable',
+                    'data_view': 'logs-*',
+                    'metrics': [{'aggregation': 'count', 'id': 'count-metric'}],
+                    'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'host-dim'}],
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [
+            {
+                'id': 'logs-*',
+                'name': IsStr(regex=r'datatable-panel-1:indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        ]
+    )

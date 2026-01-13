@@ -150,4 +150,3 @@ nav:
           - Queries API: api/queries.md
       - Advanced Topics:
           - Kibana Architecture Reference: kibana-architecture.md
-          - Fixture Generator Guide: kibana-fixture-generator-guide.md

@@ -1,13 +1,15 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 from pydantic import ValidationError
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.charts.xy.compile import (
     compile_esql_xy_chart,
     compile_lens_reference_line_layer,
@@ -26,6 +28,9 @@ from dashboard_compiler.panels.charts.xy.config import (
     XYReferenceLineValue,
 )
 from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig, XYLegendConfig
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 async def test_bar_stacked_chart() -> None:
@@ -1460,3 +1465,40 @@ async def test_mixed_metrics_some_with_appearance() -> None:
     assert len(layer.yConfig) == 2  # Only metric1 and metric3
     assert layer.yConfig[0].model_dump() == snapshot({'forAccessor': 'metric1', 'color': '#FF0000'})
     assert layer.yConfig[1].model_dump() == snapshot({'forAccessor': 'metric3', 'axisMode': 'right', 'color': '#0000FF'})
+
+
+def test_xy_chart_dashboard_references_bubble_up() -> None:
+    """Test that XY chart data view references bubble up to dashboard level correctly.
+
+    XY charts (line, bar, area) reference a data view (index-pattern), so this reference
+    should appear at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test XY Chart Dashboard',
+        panels=[
+            {
+                'title': 'Line Chart',
+                'id': 'xy-panel-1',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'line',
+                    'data_view': 'logs-*',
+                    'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                    'metrics': [{'aggregation': 'count', 'id': 'count-metric'}],
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [
+            {
+                'id': 'logs-*',
+                'name': IsStr(regex=r'xy-panel-1:indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        ]
+    )

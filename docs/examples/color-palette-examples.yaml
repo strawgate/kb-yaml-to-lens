@@ -6,7 +6,8 @@ dashboards:
     panels:
       # Example 1: Categorical colors with custom palette
       - title: CPU States (Custom Colors)
-        grid: {x: 0, y: 0, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 0}
         lens:
           type: pie
           data_view: metrics-*
@@ -31,7 +32,8 @@ dashboards:
 
       # Example 2: Line chart with OS-specific colors
       - title: CPU Load by OS Type
-        grid: {x: 12, y: 0, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 0}
         lens:
           type: line
           data_view: metrics-*
@@ -58,7 +60,8 @@ dashboards:
 
       # Example 3: Bar chart with memory state colors
       - title: Memory Utilization by State
-        grid: {x: 24, y: 0, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 0}
         lens:
           type: bar
           mode: stacked
@@ -86,7 +89,8 @@ dashboards:
 
       # Example 4: Area chart with elastic brand palette
       - title: Disk Operations by Device (Elastic Brand Colors)
-        grid: {x: 0, y: 8, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 8}
         lens:
           type: area
           mode: stacked
@@ -105,7 +109,8 @@ dashboards:
 
       # Example 5: Pie chart with grayscale palette
       - title: Filesystem Usage by Mount Point (Grayscale)
-        grid: {x: 12, y: 8, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 8}
         lens:
           type: pie
           data_view: metrics-*
@@ -120,7 +125,8 @@ dashboards:
 
       # Example 6: Multi-value assignment example
       - title: OS Types (Grouped Colors)
-        grid: {x: 24, y: 8, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 8}
         lens:
           type: pie
           data_view: metrics-*
@@ -148,7 +154,8 @@ dashboards:
 
       # Example 7: Legacy Kibana palette
       - title: Hosts by Cloud Provider (Legacy Colors)
-        grid: {x: 36, y: 8, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 8}
         lens:
           type: bar
           data_view: metrics-*
@@ -163,7 +170,8 @@ dashboards:
 
       # Example 8: XY chart with custom breakdown colors
       - title: CPU Utilization by State Over Time
-        grid: {x: 0, y: 16, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 16}
         lens:
           type: line
           data_view: metrics-*

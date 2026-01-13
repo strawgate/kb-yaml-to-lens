@@ -36,7 +36,8 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -46,14 +47,16 @@ dashboards:
               dashboard: docker-otel-container-stats
 
       # Warning markdown panel
-      - grid: {x: 0, y: 2, w: 48, h: 2}
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
         markdown:
           content: This dashboard is only intended to be used when filtered to one container at a time.
           font_size: 12
 
       # Container count metric
       - title: Containers count
-        grid: {x: 0, y: 4, w: 7, h: 4}
+        size: {w: 7, h: 4}
+        position: {x: 0, y: 4}
         hide_title: true
         lens:
           type: metric
@@ -65,7 +68,8 @@ dashboards:
 
       # Container info table
       - title: Container info
-        grid: {x: 7, y: 4, w: 41, h: 4}
+        size: {w: 41, h: 4}
+        position: {x: 7, y: 4}
         lens:
           type: datatable
           data_view: metrics-*
@@ -115,7 +119,8 @@ dashboards:
 
       # CPU Usage (line chart) - y=8
       - title: CPU Usage
-        grid: {x: 0, y: 8, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -133,7 +138,8 @@ dashboards:
 
       # Memory Usage (line chart) - y=17
       - title: Memory Usage
-        grid: {x: 0, y: 17, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -151,7 +157,8 @@ dashboards:
 
       # Disk I/O (line chart by device) - y=26
       - title: Disk I/O
-        grid: {x: 0, y: 26, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 26}
         lens:
           type: line
           data_view: metrics-*
@@ -173,7 +180,8 @@ dashboards:
 
       # Network I/O (line chart with rx and tx) - y=35
       - title: Network I/O
-        grid: {x: 0, y: 35, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 35}
         lens:
           type: line
           data_view: metrics-*
@@ -198,14 +206,16 @@ dashboards:
                 type: bytes
 
       # "Detailed information" markdown panel - y=44
-      - grid: {x: 0, y: 44, w: 48, h: 3}
+      - size: {w: 48, h: 3}
+        position: {x: 0, y: 44}
         markdown:
           content: '## Detailed information'
           font_size: 12
 
       # CPU Usage (area stacked chart) - y=47
       - title: CPU Usage
-        grid: {x: 0, y: 47, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 47}
         lens:
           type: area
           mode: stacked
@@ -224,7 +234,8 @@ dashboards:
 
       # Memory Usage with limit (line chart) - y=56 left
       - title: Memory Usage with limit
-        grid: {x: 0, y: 56, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 56}
         lens:
           type: line
           data_view: metrics-*
@@ -247,7 +258,8 @@ dashboards:
 
       # Memory Usage (line chart percentage) - y=56 right
       - title: Memory Usage
-        grid: {x: 24, y: 56, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 56}
         lens:
           type: line
           data_view: metrics-*
@@ -265,7 +277,8 @@ dashboards:
       # Disk I/O (line chart by device) - y=65
       # Note: This is NOT a duplicate - it's a second visualization of disk I/O
       - title: Disk I/O
-        grid: {x: 0, y: 65, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 65}
         lens:
           type: line
           data_view: metrics-*
@@ -287,7 +300,8 @@ dashboards:
 
       # Network - Received Bytes (line chart) - y=74 left
       - title: Network - Received Bytes
-        grid: {x: 0, y: 74, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 74}
         lens:
           type: line
           data_view: metrics-*
@@ -309,7 +323,8 @@ dashboards:
 
       # Network - Transmitted Bytes (line chart) - y=74 right
       - title: Network - Transmitted Bytes
-        grid: {x: 24, y: 74, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 74}
         lens:
           type: line
           data_view: metrics-*

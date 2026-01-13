@@ -17,11 +17,12 @@ dashboards:
         field: aerospike.namespace
         match_technique: prefix
     panels:
-      - grid:
-          x: 0
-          y: 0
+      - size:
           w: 48
           h: 2
+        position:
+          x: 0
+          y: 0
         links:
           layout: horizontal
           items:
@@ -31,19 +32,21 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - grid:
-          x: 0
-          y: 2
+      - size:
           w: 48
           h: 2
+        position:
+          x: 0
+          y: 2
         markdown:
           content: "This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.\nFilter to a specific\
             \ node and namespace before using this dashboard.\n"
-      - grid:
-          x: 0
-          y: 4
+      - size:
           w: 9
           h: 4
+        position:
+          x: 0
+          y: 4
         lens:
           type: metric
           data_view: metrics-*
@@ -54,18 +57,20 @@ dashboards:
           filters:
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 8
+      - size:
           w: 48
           h: 3
+        position:
+          x: 0
+          y: 8
         markdown:
           content: "## Query Information\n"
-      - grid:
-          x: 0
-          y: 11
+      - size:
           w: 24
           h: 12
+        position:
+          x: 0
+          y: 11
         lens:
           type: line
           data_view: metrics-*
@@ -94,11 +99,12 @@ dashboards:
                 equals: '0'
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 24
-          y: 11
+      - size:
           w: 24
           h: 12
+        position:
+          x: 24
+          y: 11
         lens:
           type: line
           data_view: metrics-*
@@ -126,18 +132,20 @@ dashboards:
               equals: secondary
             - field: data_stream.dataset
               equals: aerospikereceiver.otel
-      - grid:
-          x: 0
-          y: 23
+      - size:
           w: 48
           h: 3
+        position:
+          x: 0
+          y: 23
         markdown:
           content: "## Transaction Information\n"
-      - grid:
-          x: 0
-          y: 26
+      - size:
           w: 48
           h: 10
+        position:
+          x: 0
+          y: 26
         lens:
           type: line
           data_view: metrics-*

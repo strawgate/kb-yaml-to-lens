@@ -41,7 +41,7 @@ dashboards:
   - name: "Key Metrics Dashboard"
     panels:
       - title: "Total Users"
-        grid: { x: 0, y: 0, w: 16, h: 3 }
+        size: {w: 16, h: 3}
         lens:
           type: metric # Specifies a LensMetricChart
           data_view: "logs-*"
@@ -60,7 +60,8 @@ dashboards:
   - name: "Traffic Analysis"
     panels:
       - title: "Traffic by Source"
-        grid: { x: 16, y: 0, w: 32, h: 3 }
+        size: {w: 32, h: 3}
+        position: {x: 16, y: 0}
         lens:
           type: pie # Specifies a LensPieChart
           data_view: "weblogs-*"
@@ -117,7 +118,7 @@ dashboards:
     description: "Example of Lens metric panel with primary, secondary, and breakdown"
     panels:
       - title: "Data Transfer Metrics"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: metric
           data_view: "logs-*"
@@ -164,7 +165,7 @@ dashboards:
     description: "Example of Lens pie chart with appearance and legend options"
     panels:
       - title: "Disk Operations by Device"
-        grid: { x: 0, y: 0, w: 24, h: 15 }
+        size: {w: 24, h: 15}
         lens:
           type: pie
           data_view: "metrics-*"
