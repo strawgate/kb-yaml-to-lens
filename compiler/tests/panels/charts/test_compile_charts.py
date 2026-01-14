@@ -903,6 +903,39 @@ class TestCompileESQLChartState:
         assert state_default.adHocDataViews[layer_default.index]['title'] == 'logs-*'
         assert state_custom.adHocDataViews[layer_custom.index]['title'] == 'logs-*'
 
+    def test_esql_triple_quoted_index_pattern(self) -> None:
+        """Test that ES|QL triple-quoted index patterns are correctly extracted.
+
+        ES|QL supports triple-quoted index names (e.g., FROM \"\"\"my "index" with spaces\"\"\")
+        to escape special characters including embedded quotes.
+        """
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        # Panel with triple-quoted index pattern containing spaces and embedded quotes
+        panel = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM """my "special" index-*""" | STATS count()',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        state, _ = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layer = next(iter(state.datasourceStates.textBased.layers.root.values()))
+
+        # Verify index is a valid hash
+        assert len(layer.index) == 64
+
+        # Verify the data view title is the extracted triple-quoted index pattern
+        assert layer.index in state.adHocDataViews
+        data_view = state.adHocDataViews[layer.index]
+        assert data_view['title'] == 'my "special" index-*', 'Triple-quoted pattern should extract correctly'
+
     def test_esql_pie_chart_custom_time_field(self) -> None:
         """Test that ES|QL pie chart correctly compiles with custom time field."""
         from dashboard_compiler.panels.charts.config import ESQLPanel

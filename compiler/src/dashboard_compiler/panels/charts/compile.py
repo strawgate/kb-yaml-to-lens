@@ -80,14 +80,16 @@ def _extract_index_pattern_from_esql(query: str) -> str:
 
     """
     # Match FROM clause with support for quoted index names:
+    # - Triple-quoted: FROM """my "index" with spaces"""
     # - Double-quoted: FROM "my index-*"
     # - Single-quoted: FROM 'my index-*'
     # - Unquoted: FROM logs-*
     # Also handles patterns with METADATA clause: FROM logs-* METADATA _id
-    match = re.search(r'\bFROM\s+(?:"([^"]+)"|\'([^\']+)\'|([^\s|,]+))', query, re.IGNORECASE)
+    # Triple-quoted must come first to match before double-quoted
+    match = re.search(r'\bFROM\s+(?:"""(.*?)"""|"([^"]+)"|\'([^\']+)\'|([^\s|,]+))', query, re.IGNORECASE)
     if match:
-        # Return the first non-None group (double-quoted, single-quoted, or unquoted)
-        return match.group(1) or match.group(2) or match.group(3)
+        # Return the first non-None group (triple-quoted, double-quoted, single-quoted, or unquoted)
+        return match.group(1) or match.group(2) or match.group(3) or match.group(4)
     msg = f'Could not extract index pattern from ESQL query: {query[:100]}...'
     raise ValueError(msg)
 
