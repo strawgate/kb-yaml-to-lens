@@ -241,7 +241,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
 
     panel_state = KbnLensPanelState(
         visualization=visualization_state,
-        query=KbnQuery(query='', language='kuery'),
+        query=compile_esql_query(chart.query),
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],
