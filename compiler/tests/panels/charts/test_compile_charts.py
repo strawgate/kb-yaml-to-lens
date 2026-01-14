@@ -763,8 +763,14 @@ class TestCompileLensChartState:
 class TestCompileESQLChartState:
     """Tests for compile_esql_chart_state function."""
 
-    def test_esql_metric_chart_default_time_field(self) -> None:
-        """Test that ES|QL metric chart uses default time field (@timestamp) correctly."""
+    def test_esql_metric_chart_index_pattern_format(self) -> None:
+        """Test that ES|QL metric chart uses 8.19.9 format for index fields.
+
+        In the 8.19.9 format:
+        - layer.index is the simple index pattern string (e.g., 'logs-*')
+        - internalReferences.name uses 'indexpattern-datasource-layer-{layerId}' format
+        - adHocDataViews contains an empty object value
+        """
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -787,35 +793,25 @@ class TestCompileESQLChartState:
         assert len(layers) == 1
         layer = next(iter(layers.values()))
 
-        # Verify index field is a hash ID referencing the ad-hoc data view
-        assert len(layer.index) == 64  # SHA-256 hash length
+        # Verify index field is the simple index pattern (8.19.9 format)
+        assert layer.index == 'logs-*'
         assert layer.index in state.adHocDataViews
 
         # Verify layer_id is returned
         assert layer_id in layers
 
-        # Verify adHocDataViews contains the full data view object
-        data_view = state.adHocDataViews[layer.index]
-        assert data_view['id'] == layer.index
-        assert data_view['title'] == 'logs-*'
-        assert data_view['name'] == 'logs-*'
-        assert data_view['type'] == 'esql'
-        assert data_view['sourceFilters'] == []
-        assert data_view['fieldFormats'] == {}
-        assert data_view['runtimeFieldMap'] == {}
-        assert data_view['allowNoIndex'] is False
-        assert data_view['allowHidden'] is False
-        assert data_view['managed'] is False
+        # Verify adHocDataViews contains empty object (8.19.9 format)
+        assert state.adHocDataViews[layer.index] == {}
 
-        # Verify internalReferences use correct name format
+        # Verify internalReferences use correct name format (8.19.9 format)
         assert len(state.internalReferences) == 1
         ref = state.internalReferences[0]
         assert ref.type == 'index-pattern'
-        assert ref.id == layer.index
-        assert ref.name == f'textBasedLanguages-datasource-layer-{layer_id}'
+        assert ref.id == 'logs-*'
+        assert ref.name == f'indexpattern-datasource-layer-{layer_id}'
 
-    def test_esql_metric_chart_custom_time_field(self) -> None:
-        """Test that ES|QL metric chart uses custom time field when specified."""
+    def test_esql_metric_chart_with_custom_time_field(self) -> None:
+        """Test that ES|QL metric chart still uses index pattern even with custom time field."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -838,22 +834,19 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify index field is a hash ID
-        assert len(layer.index) == 64  # SHA-256 hash length
+        # Verify index field is the simple index pattern (time_field doesn't affect it in 8.19.9 format)
+        assert layer.index == 'logs-*'
         assert layer.index in state.adHocDataViews
-
-        # Verify adHocDataViews has correct title (index pattern from query)
-        data_view = state.adHocDataViews[layer.index]
-        assert data_view['title'] == 'logs-*'
+        assert state.adHocDataViews[layer.index] == {}
 
         # Verify layer_id is returned
         assert layer_id in layers
 
-    def test_esql_hash_differs_with_different_time_fields(self) -> None:
-        """Test that different time fields produce different hash IDs.
+    def test_esql_panels_with_same_index_pattern_have_same_index(self) -> None:
+        """Test that panels with the same index pattern produce the same index value.
 
-        The hash is computed from index_pattern + time_field, so changing the time field
-        should result in a different data view ID, ensuring proper isolation of data views.
+        In the 8.19.9 format, the index field is simply the index pattern string,
+        so panels with the same FROM clause will have the same index value.
         """
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
@@ -869,7 +862,7 @@ class TestCompileESQLChartState:
             }
         )
 
-        # Panel with custom time field
+        # Panel with custom time field but same index pattern
         panel_custom = ESQLPanel.model_validate(
             {
                 'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
@@ -885,7 +878,7 @@ class TestCompileESQLChartState:
         state_default, _ = compile_esql_chart_state(panel_default)
         state_custom, _ = compile_esql_chart_state(panel_custom)
 
-        # Get the hash IDs from each state
+        # Get the index from each state
         assert state_default.datasourceStates.textBased is not None
         assert state_default.datasourceStates.textBased.layers is not None
         assert state_custom.datasourceStates.textBased is not None
@@ -893,16 +886,10 @@ class TestCompileESQLChartState:
         layer_default = next(iter(state_default.datasourceStates.textBased.layers.root.values()))
         layer_custom = next(iter(state_custom.datasourceStates.textBased.layers.root.values()))
 
-        # Both should be valid hashes
-        assert len(layer_default.index) == 64
-        assert len(layer_custom.index) == 64
-
-        # The hashes should be different because time_field differs
-        assert layer_default.index != layer_custom.index, 'Hash should differ when time_field differs'
-
-        # Both should have correct index pattern in data view
-        assert state_default.adHocDataViews[layer_default.index]['title'] == 'logs-*'
-        assert state_custom.adHocDataViews[layer_custom.index]['title'] == 'logs-*'
+        # Both should have the same index pattern string
+        assert layer_default.index == 'logs-*'
+        assert layer_custom.index == 'logs-*'
+        assert layer_default.index == layer_custom.index
 
     def test_esql_triple_quoted_index_pattern(self) -> None:
         """Test that ES|QL triple-quoted index patterns are correctly extracted.
@@ -929,16 +916,13 @@ class TestCompileESQLChartState:
         assert state.datasourceStates.textBased.layers is not None
         layer = next(iter(state.datasourceStates.textBased.layers.root.values()))
 
-        # Verify index is a valid hash
-        assert len(layer.index) == 64
-
-        # Verify the data view title is the extracted triple-quoted index pattern
+        # Verify index is the extracted triple-quoted index pattern
+        assert layer.index == 'my "special" index-*'
         assert layer.index in state.adHocDataViews
-        data_view = state.adHocDataViews[layer.index]
-        assert data_view['title'] == 'my "special" index-*', 'Triple-quoted pattern should extract correctly'
+        assert state.adHocDataViews[layer.index] == {}
 
-    def test_esql_pie_chart_custom_time_field(self) -> None:
-        """Test that ES|QL pie chart correctly compiles with custom time field."""
+    def test_esql_pie_chart_index_pattern(self) -> None:
+        """Test that ES|QL pie chart correctly uses 8.19.9 format."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -960,14 +944,13 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify index field is a hash ID and adHocDataViews has correct title
-        assert len(layer.index) == 64  # SHA-256 hash length
+        # Verify index field is the simple index pattern
+        assert layer.index == 'logs-*'
         assert layer.index in state.adHocDataViews
-        data_view = state.adHocDataViews[layer.index]
-        assert data_view['title'] == 'logs-*'
+        assert state.adHocDataViews[layer.index] == {}
 
-    def test_esql_bar_chart_custom_time_field(self) -> None:
-        """Test that ES|QL bar chart correctly compiles with custom time field."""
+    def test_esql_bar_chart_index_pattern(self) -> None:
+        """Test that ES|QL bar chart correctly uses 8.19.9 format."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
         panel = ESQLPanel.model_validate(
@@ -989,17 +972,16 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify index field is a hash ID and adHocDataViews has correct title
-        assert len(layer.index) == 64  # SHA-256 hash length
+        # Verify index field is the simple index pattern
+        assert layer.index == 'metrics-*'
         assert layer.index in state.adHocDataViews
-        data_view = state.adHocDataViews[layer.index]
-        assert data_view['title'] == 'metrics-*'
+        assert state.adHocDataViews[layer.index] == {}
 
     def test_esql_all_chart_types_have_index_field(self) -> None:
-        """Test that all ES|QL chart types correctly populate the index field.
+        """Test that all ES|QL chart types correctly populate the index field using 8.19.9 format.
 
         This ensures consistency across metric, gauge, heatmap, pie, datatable, tagcloud, and XY charts.
-        The index field is a hash ID that references the ad-hoc data view in adHocDataViews.
+        The index field is the simple index pattern string that references the ad-hoc data view.
         """
         from dashboard_compiler.panels.charts.config import ESQLPanel
 
@@ -1061,21 +1043,18 @@ class TestCompileESQLChartState:
             layers = state.datasourceStates.textBased.layers.root
             layer = next(iter(layers.values()))
 
-            # Verify index field is a hash ID referencing ad-hoc data view
-            assert len(layer.index) == 64, f'Chart type {chart_config["type"]} index is not a hash'
+            # Verify index field is the simple index pattern (8.19.9 format)
+            assert layer.index == 'logs-*', f'Chart type {chart_config["type"]} index is not the expected pattern'
             assert layer.index in state.adHocDataViews, f'Chart type {chart_config["type"]} index not in adHocDataViews'
 
-            # Verify adHocDataViews contains full data view object
-            data_view = state.adHocDataViews[layer.index]
-            assert data_view['title'] == 'logs-*', f'Chart type {chart_config["type"]} has incorrect title'
-            assert data_view['type'] == 'esql', f'Chart type {chart_config["type"]} has incorrect type'
-            assert data_view['id'] == layer.index, f'Chart type {chart_config["type"]} has mismatched id'
+            # Verify adHocDataViews contains empty object (8.19.9 format)
+            assert state.adHocDataViews[layer.index] == {}, f'Chart type {chart_config["type"]} adHocDataViews should be empty'
 
             # Verify layer_id is returned and internalReferences use correct name format
             assert layer_id in layers
             assert len(state.internalReferences) == 1
             ref = state.internalReferences[0]
-            assert ref.name == f'textBasedLanguages-datasource-layer-{layer_id}'
+            assert ref.name == f'indexpattern-datasource-layer-{layer_id}'
 
 
 class TestESQLDataTypeDate:

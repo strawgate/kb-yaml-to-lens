@@ -1,4 +1,3 @@
-import hashlib
 import re
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
@@ -99,51 +98,6 @@ def _extract_index_pattern_from_esql(query: str) -> str:
                 return group_val
     msg = f'Could not extract index pattern from ESQL query: {query[:100]}...'
     raise ValueError(msg)
-
-
-def _create_adhoc_data_view_id(index_pattern: str, time_field: str) -> str:
-    """Create a deterministic hash ID for ad-hoc data views in ESQL panels.
-
-    Kibana uses hash IDs to identify ad-hoc data views. We generate a deterministic
-    ID based on the index pattern and time field so the same input always produces
-    the same ID.
-
-    Args:
-        index_pattern: The Elasticsearch index pattern (e.g., 'logs-*').
-        time_field: The time field name (e.g., '@timestamp').
-
-    Returns:
-        A SHA-256 hash string used as the data view ID.
-
-    """
-    # Create deterministic hash from index pattern and time field
-    hash_input = f'{index_pattern}:{time_field}'
-    return hashlib.sha256(hash_input.encode()).hexdigest()
-
-
-def _create_adhoc_data_view(data_view_id: str, index_pattern: str) -> dict[str, Any]:
-    """Create the ad-hoc data view object for ESQL panels.
-
-    Args:
-        data_view_id: The unique identifier for this data view.
-        index_pattern: The Elasticsearch index pattern (e.g., 'logs-*').
-
-    Returns:
-        A dictionary containing the full ad-hoc data view configuration.
-
-    """
-    return {
-        'id': data_view_id,
-        'title': index_pattern,
-        'sourceFilters': [],
-        'type': 'esql',
-        'fieldFormats': {},
-        'runtimeFieldMap': {},
-        'allowNoIndex': False,
-        'name': index_pattern,
-        'allowHidden': False,
-        'managed': False,
-    }
 
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
@@ -313,14 +267,10 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
     # Get index pattern from config or extract from query
     esql_query_str = panel.esql.query.root
     index_pattern = panel.esql.index_pattern if panel.esql.index_pattern is not None else _extract_index_pattern_from_esql(esql_query_str)
-    time_field = panel.esql.time_field
 
-    # Create the ad-hoc data view ID and object
-    data_view_id = _create_adhoc_data_view_id(index_pattern, time_field)
-    data_view = _create_adhoc_data_view(data_view_id, index_pattern)
-
+    # Use the index pattern directly as the data view ID (8.19.9 format)
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        index=data_view_id,
+        index=index_pattern,
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
@@ -330,17 +280,17 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
         textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id))
     )
 
-    # Create internal references for the ESQL datasource layer
+    # Create internal references using indexpattern-datasource-layer format (8.19.9 format)
     internal_references = [
         KbnReference(
             type='index-pattern',
-            id=data_view_id,
-            name=f'textBasedLanguages-datasource-layer-{layer_id}',
+            id=index_pattern,
+            name=f'indexpattern-datasource-layer-{layer_id}',
         )
     ]
 
-    # Create ad-hoc data views with full data view configuration
-    ad_hoc_data_views: dict[str, dict[str, Any]] = {data_view_id: data_view}
+    # Create ad-hoc data views with empty object value (8.19.9 format)
+    ad_hoc_data_views: dict[str, dict[str, Any]] = {index_pattern: {}}
 
     panel_state = KbnLensPanelState(
         visualization=visualization_state,
