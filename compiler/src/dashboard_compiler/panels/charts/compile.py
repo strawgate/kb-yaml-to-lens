@@ -313,6 +313,7 @@ def compile_charts_panel_config(
     """
     attributes, references = compile_charts_attributes(panel)
     return references, KbnLensPanelEmbeddableConfig(
+        hidePanelTitles=panel.hide_title,
         enhancements={'dynamicActions': {'events': []}},
         attributes=attributes,
         syncTooltips=False,

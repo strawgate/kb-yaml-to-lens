@@ -1,4 +1,10 @@
-"""End-to-end tests for ES|QL XY charts - YAML to dashboard JSON compilation."""
+"""End-to-end tests for ES|QL XY charts - YAML to dashboard JSON compilation.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/xy-chart-esql.json
+    - Data View: output/<version>/xy-chart-dataview.json
+"""
 
 from pathlib import Path
 
