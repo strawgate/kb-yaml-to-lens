@@ -12,11 +12,7 @@ dashboards:
     panels:
       - markdown:
           content: "Welcome to the dashboard!"
-        grid:
-          x: 0
-          y: 0
-          w: 6
-          h: 3
+        size: {w: 6, h: 3}
 ```
 
 ## Complex Configuration Example
@@ -52,7 +48,7 @@ dashboards:
     panels:
       - markdown:
           content: "### Key Performance Indicators"
-        grid: { x: 0, y: 0, w: 12, h: 2 }
+        size: {w: 12, h: 2}
       - lens:
           type: metric
           primary:
@@ -60,7 +56,8 @@ dashboards:
             field: resource.attributes.host.name
           data_view: "metrics-*"
         title: "Total Hosts"
-        grid: { x: 0, y: 2, w: 4, h: 4 }
+        size: {w: 4, h: 4}
+        position: {x: 0, y: 2}
       - lens:
           type: bar
           dimension:
@@ -71,7 +68,8 @@ dashboards:
               field: resource.attributes.host.name
           data_view: "metrics-*"
         title: "Hosts by OS Type"
-        grid: { x: 4, y: 2, w: 8, h: 4 }
+        size: {w: 8, h: 4}
+        position: {x: 4, y: 2}
 ```
 
 ## Full Configuration Options

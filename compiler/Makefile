@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary test-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -59,10 +59,6 @@ help:
 	@echo "  docker-test        - Test Docker image"
 	@echo "  docker-publish     - Publish Docker image to GHCR"
 	@echo "  test-docker-smoke  - Run Docker smoke tests"
-	@echo ""
-	@echo "Binary Distribution:"
-	@echo "  build-binary       - Build standalone unified binary (CLI + LSP)"
-	@echo "  test-binary-smoke  - Run binary smoke tests (CLI + LSP)"
 	@echo ""
 	@echo "PyPI Publishing:"
 	@echo "  build         - Build package for PyPI"
@@ -204,16 +200,6 @@ docker-publish:
 test-docker-smoke:
 	@echo "Running Docker smoke tests..."
 	@bash scripts/test_docker_smoke.sh
-
-# Binary building
-build-binary:
-	@echo "Building standalone unified binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py
-
-test-binary-smoke:
-	@echo "Running unified binary smoke tests..."
-	@bash scripts/test_binary_smoke.sh
 
 # Cleaning
 clean:

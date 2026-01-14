@@ -8,6 +8,7 @@ from dashboard_compiler.panels.charts.datatable import ESQLDatatableChart, LensD
 from dashboard_compiler.panels.charts.gauge import ESQLGaugeChart, LensGaugeChart
 from dashboard_compiler.panels.charts.heatmap import ESQLHeatmapChart, LensHeatmapChart
 from dashboard_compiler.panels.charts.metric import ESQLMetricChart, LensMetricChart
+from dashboard_compiler.panels.charts.mosaic import ESQLMosaicChart, LensMosaicChart
 from dashboard_compiler.panels.charts.pie import ESQLPieChart, LensPieChart
 from dashboard_compiler.panels.charts.tagcloud import ESQLTagcloudChart, LensTagcloudChart
 from dashboard_compiler.panels.charts.xy.config import (
@@ -28,7 +29,7 @@ type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
 type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
-type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart | LensHeatmapChart
+type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart | LensHeatmapChart | LensMosaicChart
 
 type ESQLChartTypes = (
     ESQLMetricChart
@@ -40,6 +41,7 @@ type ESQLChartTypes = (
     | ESQLLineChart
     | ESQLDatatableChart
     | ESQLTagcloudChart
+    | ESQLMosaicChart
 )
 
 
@@ -96,6 +98,10 @@ class LensDatatablePanelConfig(LensDatatableChart, LensPanelFieldsMixin):
     """Configuration for a Lens datatable panel."""
 
 
+class LensMosaicPanelConfig(LensMosaicChart, LensPanelFieldsMixin):
+    """Configuration for a Lens mosaic panel."""
+
+
 type LensPanelConfig = Annotated[
     Annotated[LensMetricPanelConfig, Tag('metric')]
     | Annotated[LensGaugePanelConfig, Tag('gauge')]
@@ -105,7 +111,8 @@ type LensPanelConfig = Annotated[
     | Annotated[LensBarPanelConfig, Tag('bar')]
     | Annotated[LensAreaPanelConfig, Tag('area')]
     | Annotated[LensTagcloudPanelConfig, Tag('tagcloud')]
-    | Annotated[LensDatatablePanelConfig, Tag('datatable')],
+    | Annotated[LensDatatablePanelConfig, Tag('datatable')]
+    | Annotated[LensMosaicPanelConfig, Tag('mosaic')],
     Discriminator('type'),
 ]
 
@@ -156,6 +163,10 @@ class ESQLDatatablePanelConfig(ESQLDatatableChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL datatable panel."""
 
 
+class ESQLMosaicPanelConfig(ESQLMosaicChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL mosaic panel."""
+
+
 type ESQLPanelConfig = Annotated[
     Annotated[ESQLMetricPanelConfig, Tag('metric')]
     | Annotated[ESQLGaugePanelConfig, Tag('gauge')]
@@ -165,7 +176,8 @@ type ESQLPanelConfig = Annotated[
     | Annotated[ESQLBarPanelConfig, Tag('bar')]
     | Annotated[ESQLAreaPanelConfig, Tag('area')]
     | Annotated[ESQLTagcloudPanelConfig, Tag('tagcloud')]
-    | Annotated[ESQLDatatablePanelConfig, Tag('datatable')],
+    | Annotated[ESQLDatatablePanelConfig, Tag('datatable')]
+    | Annotated[ESQLMosaicPanelConfig, Tag('mosaic')],
     Discriminator('type'),
 ]
 
