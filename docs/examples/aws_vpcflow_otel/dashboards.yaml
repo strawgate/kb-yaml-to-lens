@@ -381,7 +381,8 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - EVAL midpoint = ?_tstart + (?_tend - ?_tstart) / 2
+            - EVAL half_duration = DATE_DIFF("milliseconds", ?_tstart, ?_tend) / 2
+            - EVAL midpoint = DATE_ADD("milliseconds", half_duration, ?_tstart)
             - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
             - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
             - WHERE is_first_half == 1 OR is_second_half == 1
@@ -418,7 +419,8 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
-            - EVAL midpoint = ?_tstart + (?_tend - ?_tstart) / 2
+            - EVAL half_duration = DATE_DIFF("milliseconds", ?_tstart, ?_tend) / 2
+            - EVAL midpoint = DATE_ADD("milliseconds", half_duration, ?_tstart)
             - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
             - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
             - WHERE is_first_half == 1 OR is_second_half == 1
@@ -737,7 +739,8 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - EVAL midpoint = ?_tstart + (?_tend - ?_tstart) / 2
+            - EVAL half_duration = DATE_DIFF("milliseconds", ?_tstart, ?_tend) / 2
+            - EVAL midpoint = DATE_ADD("milliseconds", half_duration, ?_tstart)
             - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
             - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
             - WHERE is_first_half == 1 OR is_second_half == 1
