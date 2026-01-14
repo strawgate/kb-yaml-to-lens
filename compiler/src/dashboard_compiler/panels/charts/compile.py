@@ -89,7 +89,14 @@ def _extract_index_pattern_from_esql(query: str) -> str:
     match = re.search(r'\bFROM\s+(?:"""(.*?)"""|"([^"]+)"|\'([^\']+)\'|([^\s|,]+))', query, re.IGNORECASE)
     if match:
         # Return the first non-None group (triple-quoted, double-quoted, single-quoted, or unquoted)
-        return match.group(1) or match.group(2) or match.group(3) or match.group(4)
+        # Use explicit None checks per coding guidelines to handle empty string edge cases
+        for group_num in (1, 2, 3, 4):
+            group_val = match.group(group_num)
+            if group_val is not None:
+                if len(group_val) == 0:
+                    msg = f'Empty index pattern in ESQL query: {query[:100]}...'
+                    raise ValueError(msg)
+                return group_val
     msg = f'Could not extract index pattern from ESQL query: {query[:100]}...'
     raise ValueError(msg)
 
