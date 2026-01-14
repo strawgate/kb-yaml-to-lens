@@ -1,4 +1,10 @@
-"""Test the compilation of heatmap charts from config models to view models using inline snapshots."""
+"""Test the compilation of heatmap charts from config models to view models using inline snapshots.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/heatmap-esql.json
+    - Data View: output/<version>/heatmap-dataview.json
+"""
 
 from typing import TYPE_CHECKING, Any
 

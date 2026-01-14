@@ -1,3 +1,11 @@
+"""End-to-end tests for dashboard compilation to Kibana JSON format.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    Contains complete Kibana dashboard JSON structures including panel configurations.
+    Useful for understanding expected output format when debugging test failures.
+"""
+
 from typing import TYPE_CHECKING, Any
 
 from dirty_equals import IsUUID

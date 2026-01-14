@@ -87,6 +87,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     empty_size_ratio = 0.0 if len(metric_ids) > 1 else None
 
+    percent_decimals = None
+    if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
+        percent_decimals = chart.titles_and_text.value_decimal_places
+
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=slice_by_ids,
@@ -102,9 +106,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,
         legendSize=legend_size,
-        truncateLegend=False if truncate_legend == 0 else None,
+        truncateLegend=False if truncate_legend is False else None,
         legendMaxLines=legend_max_lines,
         showSingleSeries=show_single_series,
+        percentDecimals=percent_decimals,
     )
 
     return KbnPieVisualizationState(shape=shape, layers=[kbn_layer_visualization])

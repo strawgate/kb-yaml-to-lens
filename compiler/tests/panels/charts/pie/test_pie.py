@@ -1,4 +1,10 @@
-"""Test the compilation of Lens metrics from config models to view models."""
+"""Test the compilation of Lens metrics from config models to view models.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/pie-chart-esql.json
+    - Data View: output/<version>/pie-chart-dataview.json
+"""
 
 from typing import TYPE_CHECKING
 
@@ -627,6 +633,106 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
             'nestedLegend': False,
         }
     )
+
+
+async def test_pie_chart_with_value_decimal_places() -> None:
+    """Test pie chart with value_decimal_places specified at layer level."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+    esql_config = {
+        'type': 'pie',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+            'percentDecimals': 5,
+        }
+    )
+
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'nestedLegend': False,
+            'percentDecimals': 5,
+        }
+    )
+
+
+async def test_pie_chart_without_value_decimal_places() -> None:
+    """Test that pie chart omits percentDecimals when not specified."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+    esql_config = {
+        'type': 'pie',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    dumped = layer.model_dump()
+    assert 'percentDecimals' not in dumped
+
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    dumped = layer.model_dump()
+    assert 'percentDecimals' not in dumped
 
 
 def test_pie_chart_dashboard_references_bubble_up() -> None:
