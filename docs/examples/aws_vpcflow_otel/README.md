@@ -35,10 +35,10 @@ High-level KPIs and time-series trends for quick status assessment.
 
 **Controls (3):** Cloud Account ID, Network Interface, Action
 
-**Panels (14):**
+**Panels (12):**
 
 - Navigation (1 links panel)
-- KPI Metrics (5 metrics + 1 header)
+- KPI Metrics (5 metrics)
   - Total Flow Records, Rejection Rate, Total Bandwidth, Active Interfaces, Cloud Accounts
 - Quick Insights (2 charts + 1 header)
   - Top 5 Interfaces by Rejected Traffic, Top 5 Rejected Destination Ports
@@ -52,17 +52,17 @@ High-level KPIs and time-series trends for quick status assessment.
 
 Detailed traffic distribution, source analysis, and security deep dive.
 
-**Controls (7):** Cloud Account ID, Network Interface, Action, Source IP, Destination IP, Source Port, Destination Port
+**Controls (6):** Cloud Account ID, Network Interface, Action, Protocol, Destination Port, Source Port
 
-**Panels (15):**
+**Panels (13):**
 
 - Navigation (1 links panel)
-- Traffic Distribution (3 charts + 1 header)
-  - Top Protocols (pie), Top Interfaces by Traffic (bar), Top Destination Ports (bar)
-- Volume Change Detection (2 tables + 1 header)
-  - Significant Volume Changes by Source IP, Significant Volume Changes by Destination Port
+- Traffic Distribution (3 charts)
+  - Top Protocols (pie), Top Destination Ports (bar), Top Interfaces by Bandwidth (bar)
 - Source Analysis (1 table + 1 header)
   - Top Source IPs - Detailed
+- Volume Change Detection (2 tables + 1 header)
+  - Significant Volume Changes by Source IP, Significant Volume Changes by Destination Port
 - Security Deep Dive (3 panels + 1 header)
   - Rejected Traffic by Protocol (bar), Top Rejected Ports (bar), Detailed Rejection Logs (table)
 
@@ -70,15 +70,18 @@ Detailed traffic distribution, source analysis, and security deep dive.
 
 **ID:** `aws-vpcflow-otel-interface`
 
-Per-interface and per-account metrics for infrastructure analysis.
+Per-interface analysis for investigating specific network interfaces.
 
-**Controls (3):** Cloud Account ID, Network Interface, Action
+**Controls (5):** Cloud Account ID, Network Interface, Action, Destination Port, Protocol
 
-**Panels (8):**
+**Panels (13):**
 
 - Navigation (1 links panel)
-- Interface Analysis (1 chart + 1 header)
-  - Interface Traffic Analysis (stacked bar - ACCEPT/REJECT)
+- Interface Traffic Analysis (1 stacked bar)
+- Top Traffic by Interface (3 charts + 1 header)
+  - Top Destination Ports, Top Destination IPs, Top Source IPs
+- Traffic Details (2 charts + 1 header)
+  - Accepted vs Rejected by Protocol, Bandwidth by Protocol
 - Volume Change Detection (1 table + 1 header)
   - Significant Volume Changes by Interface
 - Account Analysis (1 table + 1 header)
@@ -88,11 +91,12 @@ Per-interface and per-account metrics for infrastructure analysis.
 
 - **Dashboard Navigation**: Links panel at the top of each dashboard for easy navigation between Overview, Traffic Analysis, and Interface Analysis
 - **Color coding**: REJECT traffic is shown in red (#BD271E), ACCEPT in green (#00BF6F)
-- **Section headers**: Markdown panels organize each dashboard into logical sections
+- **Section headers**: Markdown panels organize each dashboard into logical sections (except the first section)
 - **Compact metrics**: KPI metrics use `hide_title: true` for a cleaner look
 - **Auto-layout**: Panels use only `size` - positions are calculated automatically
-- **Volume change detection**: Compares a 30-minute baseline window with current window to detect anomalies
+- **Volume change detection**: Compares a 30-minute baseline window with current window to detect anomalies, sorted by absolute change
 - **Filter preservation**: Navigation links use `with_time` and `with_filters` to preserve context when navigating
+- **Division by zero protection**: Rejection rate calculations use CASE() to avoid NaN values
 
 ## Source
 
