@@ -1,3 +1,5 @@
+import json
+import re
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
@@ -62,6 +64,42 @@ if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.lens.columns.view import KbnLensColumnTypes
     from dashboard_compiler.panels.charts.view import KbnVisualizationStateTypes
     from dashboard_compiler.panels.charts.xy.view import XYReferenceLineLayerConfig
+
+
+def _extract_index_pattern_from_esql(query: str) -> str:
+    """Extract the index pattern from an ESQL query's FROM clause.
+
+    Args:
+        query: The ESQL query string.
+
+    Returns:
+        The index pattern extracted from the FROM clause.
+
+    Raises:
+        ValueError: If no FROM clause is found in the query.
+
+    """
+    # Match FROM clause: FROM <index_pattern> (with optional metadata clause)
+    # Handles patterns like: FROM logs-*, FROM "logs-*", FROM logs-* METADATA _id
+    match = re.search(r'\bFROM\s+([^\s|,]+)', query, re.IGNORECASE)
+    if match:
+        return match.group(1).strip('"\'')
+    msg = f'Could not extract index pattern from ESQL query: {query[:100]}...'
+    raise ValueError(msg)
+
+
+def _create_esql_index_string(index_pattern: str, time_field: str) -> str:
+    """Create the JSON-encoded index string for ESQL panels.
+
+    Args:
+        index_pattern: The Elasticsearch index pattern (e.g., 'logs-*').
+        time_field: The time field name (e.g., '@timestamp').
+
+    Returns:
+        A JSON-encoded string like '{"index":"logs-*","timeFieldName":"@timestamp"}'.
+
+    """
+    return json.dumps({'index': index_pattern, 'timeFieldName': time_field}, separators=(',', ':'))
 
 
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
@@ -228,24 +266,44 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
+    # Get index pattern from config or extract from query
+    esql_query_str = panel.esql.query.root
+    index_pattern = panel.esql.index_pattern or _extract_index_pattern_from_esql(esql_query_str)
+    time_field = panel.esql.time_field
+
+    # Create the JSON-encoded index string used by Kibana for ESQL panels
+    index_string = _create_esql_index_string(index_pattern, time_field)
+
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
+        index=index_string,
         query=compile_esql_query(chart.query),
         columns=esql_columns,
         allColumns=esql_columns,
-        timeField=panel.esql.time_field,
     )
 
     datasource_states = KbnDataSourceState(
         textBased=KbnTextBasedDataSourceState(layers=KbnTextBasedDataSourceStateLayerById(text_based_datasource_state_layer_by_id))
     )
 
+    # Create internal references for the ESQL datasource layer
+    internal_references = [
+        KbnReference(
+            type='index-pattern',
+            id=index_string,
+            name=f'indexpattern-datasource-layer-{layer_id}',
+        )
+    ]
+
+    # Create ad-hoc data views (empty object keyed by index string)
+    ad_hoc_data_views: dict[str, dict[str, object]] = {index_string: {}}
+
     panel_state = KbnLensPanelState(
         visualization=visualization_state,
         query=KbnQuery(query='', language='kuery'),
         filters=[],
         datasourceStates=datasource_states,
-        internalReferences=[],
-        adHocDataViews={},
+        internalReferences=internal_references,
+        adHocDataViews=ad_hoc_data_views,
     )
 
     return panel_state, layer_id

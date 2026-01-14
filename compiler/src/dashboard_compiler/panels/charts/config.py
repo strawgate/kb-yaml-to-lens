@@ -126,6 +126,9 @@ class ESQLPanelFieldsMixin(BaseCfgModel):
     time_field: str = Field(default='@timestamp')
     """The time field to use for the dashboard time picker. Defaults to '@timestamp'."""
 
+    index_pattern: str | None = Field(default=None)
+    """The index pattern to use for the ES|QL query. If not specified, it will be extracted from the FROM clause."""
+
 
 class ESQLMetricPanelConfig(ESQLMetricChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL metric panel."""

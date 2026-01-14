@@ -306,7 +306,7 @@ dashboards:
         # fmt: on
 
     def test_empty_esql_query_list(self, tmp_path: Path) -> None:
-        """Test that empty ESQL query lists are accepted."""
+        """Test that empty ESQL query lists result in an error because index pattern cannot be extracted."""
         yaml_file = tmp_path / 'empty-query.yaml'
         yaml_file.write_text("""
 dashboards:
@@ -323,7 +323,31 @@ dashboards:
           query: []
 """)
         json_lines, error = compile_yaml_to_json(yaml_file)
-        # Empty query lists are accepted (no minimum length validation)
+        # Empty query lists result in an error because the index pattern cannot be extracted
+        assert error is not None
+        assert 'Could not extract index pattern from ESQL query' in error
+        assert len(json_lines) == 0
+
+    def test_empty_esql_query_list_with_index_pattern(self, tmp_path: Path) -> None:
+        """Test that empty ESQL query lists are accepted when index_pattern is specified."""
+        yaml_file = tmp_path / 'empty-query-with-index.yaml'
+        yaml_file.write_text("""
+dashboards:
+  - name: Test
+    panels:
+      - title: Test Panel
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
+        esql:
+          type: metric
+          primary:
+            field: count
+            id: count_id
+          query: []
+          index_pattern: logs-*
+""")
+        json_lines, error = compile_yaml_to_json(yaml_file)
+        # Empty query lists are accepted when index_pattern is explicitly specified
         assert error is None
         assert len(json_lines) == 1
 

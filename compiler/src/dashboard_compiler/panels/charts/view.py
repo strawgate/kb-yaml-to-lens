@@ -113,10 +113,11 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
+    index: str
+    """JSON-encoded string containing the index pattern and time field, e.g. '{"index":"logs-*","timeFieldName":"@timestamp"}'."""
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
-    timeField: str
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):
