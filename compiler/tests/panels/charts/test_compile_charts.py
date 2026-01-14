@@ -848,6 +848,61 @@ class TestCompileESQLChartState:
         # Verify layer_id is returned
         assert layer_id in layers
 
+    def test_esql_hash_differs_with_different_time_fields(self) -> None:
+        """Test that different time fields produce different hash IDs.
+
+        The hash is computed from index_pattern + time_field, so changing the time field
+        should result in a different data view ID, ensuring proper isolation of data views.
+        """
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        # Panel with default time field (@timestamp)
+        panel_default = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS count()',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        # Panel with custom time field
+        panel_custom = ESQLPanel.model_validate(
+            {
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS count()',
+                    'time_field': 'event.created',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        state_default, _ = compile_esql_chart_state(panel_default)
+        state_custom, _ = compile_esql_chart_state(panel_custom)
+
+        # Get the hash IDs from each state
+        assert state_default.datasourceStates.textBased is not None
+        assert state_default.datasourceStates.textBased.layers is not None
+        assert state_custom.datasourceStates.textBased is not None
+        assert state_custom.datasourceStates.textBased.layers is not None
+        layer_default = next(iter(state_default.datasourceStates.textBased.layers.root.values()))
+        layer_custom = next(iter(state_custom.datasourceStates.textBased.layers.root.values()))
+
+        # Both should be valid hashes
+        assert len(layer_default.index) == 64
+        assert len(layer_custom.index) == 64
+
+        # The hashes should be different because time_field differs
+        assert layer_default.index != layer_custom.index, 'Hash should differ when time_field differs'
+
+        # Both should have correct index pattern in data view
+        assert state_default.adHocDataViews[layer_default.index]['title'] == 'logs-*'
+        assert state_custom.adHocDataViews[layer_custom.index]['title'] == 'logs-*'
+
     def test_esql_pie_chart_custom_time_field(self) -> None:
         """Test that ES|QL pie chart correctly compiles with custom time field."""
         from dashboard_compiler.panels.charts.config import ESQLPanel
