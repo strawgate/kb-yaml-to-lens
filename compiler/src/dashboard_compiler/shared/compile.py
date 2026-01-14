@@ -1,15 +1,5 @@
 from typing import TYPE_CHECKING, Any, TypeVar, overload
 
-from dashboard_compiler.panels.charts.esql.columns.view import (
-    KbnESQLFieldMetricColumn,
-    KbnESQLMetricColumnTypes,
-)
-from dashboard_compiler.panels.charts.lens.columns.view import (
-    KbnLensFieldMetricColumn,
-    KbnLensFormulaColumn,
-    KbnLensMetricColumnTypes,
-)
-
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.config import ESQLMetricTypes, ESQLStaticValue
     from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes, LensStaticValue
@@ -98,53 +88,3 @@ def split_dimensions(all_dimension_ids: list[str]) -> tuple[list[str], list[str]
     primary = [all_dimension_ids[0]] if len(all_dimension_ids) > 0 else []
     secondary = all_dimension_ids[1:] if len(all_dimension_ids) > 1 else None
     return primary, secondary
-
-
-def apply_decimal_places_to_lens_metric(
-    metric: KbnLensMetricColumnTypes,
-    decimal_places: int,
-) -> KbnLensMetricColumnTypes:
-    """Apply decimal places override to a compiled Lens metric column.
-
-    Creates a new metric column with the decimals value overridden in the format params.
-    Only applies to metrics that have a format defined. Preserves all other format properties.
-
-    Args:
-        metric: The compiled Lens metric column.
-        decimal_places: The number of decimal places to apply.
-
-    Returns:
-        A new metric column with the decimals value overridden, or the original if no format is defined.
-
-    """
-    if isinstance(metric, (KbnLensFieldMetricColumn, KbnLensFormulaColumn)) and metric.params.format is not None:
-        new_format_params = metric.params.format.params.model_copy(update={'decimals': decimal_places})
-        new_format = metric.params.format.model_copy(update={'params': new_format_params})
-        new_params = metric.params.model_copy(update={'format': new_format})
-        return metric.model_copy(update={'params': new_params})
-    return metric
-
-
-def apply_decimal_places_to_esql_metric(
-    metric: KbnESQLMetricColumnTypes,
-    decimal_places: int,
-) -> KbnESQLMetricColumnTypes:
-    """Apply decimal places override to a compiled ES|QL metric column.
-
-    Creates a new metric column with the decimals value overridden in the format params.
-    Only applies to metrics that have a format defined. Preserves all other format properties.
-
-    Args:
-        metric: The compiled ES|QL metric column.
-        decimal_places: The number of decimal places to apply.
-
-    Returns:
-        A new metric column with the decimals value overridden, or the original if no format is defined.
-
-    """
-    if isinstance(metric, KbnESQLFieldMetricColumn) and metric.params is not None and metric.params.format is not None:
-        new_format_params = metric.params.format.params.model_copy(update={'decimals': decimal_places})
-        new_format = metric.params.format.model_copy(update={'params': new_format_params})
-        new_params = metric.params.model_copy(update={'format': new_format})
-        return metric.model_copy(update={'params': new_params})
-    return metric

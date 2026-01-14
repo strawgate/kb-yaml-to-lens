@@ -65,6 +65,9 @@ class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     showSingleSeries: Annotated[bool | None, OmitIfNone()] = Field(None)
     """Whether to show legend when there is only one series."""
 
+    percentDecimals: Annotated[int | None, OmitIfNone()] = Field(None)
+    """Number of decimal places for percent display values."""
+
 
 class KbnPieVisualizationState(KbnBaseStateVisualization):
     """View model for pie chart visualization state after compilation to Kibana Lens format.
