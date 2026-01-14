@@ -94,7 +94,7 @@ Per-interface analysis for investigating specific network interfaces.
 - **Section headers**: Markdown panels organize each dashboard into logical sections (except the first section)
 - **Compact metrics**: KPI metrics use `hide_title: true` for a cleaner look
 - **Auto-layout**: Panels use only `size` - positions are calculated automatically
-- **Volume change detection**: Compares a 30-minute baseline window with current window to detect anomalies, sorted by absolute change
+- **Volume change detection**: Splits the dashboard time window in half and compares flow counts between the first and second halves, sorted by absolute change - works with any time range
 - **Filter preservation**: Navigation links use `with_time` and `with_filters` to preserve context when navigating
 - **Division by zero protection**: Rejection rate calculations use CASE() to avoid NaN values
 

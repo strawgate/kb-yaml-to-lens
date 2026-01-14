@@ -373,32 +373,32 @@ dashboards:
           content: '### Volume Change Detection'
         size: {w: 48, h: 3}
       - title: Significant Volume Changes by Source IP
+        description: Compares flow counts from the first half of the time window to the second half. Shows source IPs with the largest absolute
+          change in traffic volume.
         size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - EVAL ingest_window = COALESCE(event.ingested, @timestamp)
-            - EVAL baseline_start = ?_tstart + 10 minutes, baseline_end = ?_tstart + 40 minutes
-            - EVAL now_start = ?_tend - 40 minutes, now_end = ?_tend - 10 minutes
-            - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
-            - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
-            - WHERE is_in_baseline == 1 OR is_in_now == 1
-            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY source.address
-            - WHERE in_baseline > 0
-            - EVAL change_count = in_now - in_baseline
-            - EVAL change_pct = change_count / in_baseline
+            - EVAL midpoint = ?_tstart + (?_tend - ?_tstart) / 2
+            - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
+            - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
+            - WHERE is_first_half == 1 OR is_second_half == 1
+            - STATS first_half_count = SUM(is_first_half), second_half_count = SUM(is_second_half) BY source.address
+            - WHERE first_half_count > 0
+            - EVAL change_count = second_half_count - first_half_count
+            - EVAL change_pct = change_count / first_half_count
             - EVAL abs_change = ABS(change_count)
             - SORT abs_change DESC
             - LIMIT 20
           dimensions:
             - field: source.address
           metrics:
-            - field: in_baseline
-              label: Baseline Count
-            - field: in_now
-              label: Current Count
+            - field: first_half_count
+              label: First Half
+            - field: second_half_count
+              label: Second Half
             - field: change_count
               label: Change (Count)
             - field: change_pct
@@ -410,32 +410,32 @@ dashboards:
             enabled: true
             page_size: 10
       - title: Significant Volume Changes by Destination Port
+        description: Compares flow counts from the first half of the time window to the second half. Shows destination ports with the largest
+          absolute change in traffic volume.
         size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
-            - EVAL ingest_window = COALESCE(event.ingested, @timestamp)
-            - EVAL baseline_start = ?_tstart + 10 minutes, baseline_end = ?_tstart + 40 minutes
-            - EVAL now_start = ?_tend - 40 minutes, now_end = ?_tend - 10 minutes
-            - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
-            - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
-            - WHERE is_in_baseline == 1 OR is_in_now == 1
-            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY destination.port
-            - WHERE in_baseline > 0
-            - EVAL change_count = in_now - in_baseline
-            - EVAL change_pct = change_count / in_baseline
+            - EVAL midpoint = ?_tstart + (?_tend - ?_tstart) / 2
+            - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
+            - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
+            - WHERE is_first_half == 1 OR is_second_half == 1
+            - STATS first_half_count = SUM(is_first_half), second_half_count = SUM(is_second_half) BY destination.port
+            - WHERE first_half_count > 0
+            - EVAL change_count = second_half_count - first_half_count
+            - EVAL change_pct = change_count / first_half_count
             - EVAL abs_change = ABS(change_count)
             - SORT abs_change DESC
             - LIMIT 20
           dimensions:
             - field: destination.port
           metrics:
-            - field: in_baseline
-              label: Baseline Count
-            - field: in_now
-              label: Current Count
+            - field: first_half_count
+              label: First Half
+            - field: second_half_count
+              label: Second Half
             - field: change_count
               label: Change (Count)
             - field: change_pct
@@ -729,32 +729,32 @@ dashboards:
           content: '### Volume Change Detection'
         size: {w: 48, h: 3}
       - title: Significant Volume Changes by Interface
+        description: Compares flow counts from the first half of the time window to the second half. Shows network interfaces with the largest
+          absolute change in traffic volume.
         size: {w: 48, h: 12}
         esql:
           type: datatable
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - EVAL ingest_window = COALESCE(event.ingested, @timestamp)
-            - EVAL baseline_start = ?_tstart + 10 minutes, baseline_end = ?_tstart + 40 minutes
-            - EVAL now_start = ?_tend - 40 minutes, now_end = ?_tend - 10 minutes
-            - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
-            - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
-            - WHERE is_in_baseline == 1 OR is_in_now == 1
-            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY network.interface.name
-            - WHERE in_baseline > 0
-            - EVAL change_count = in_now - in_baseline
-            - EVAL change_pct = change_count / in_baseline
+            - EVAL midpoint = ?_tstart + (?_tend - ?_tstart) / 2
+            - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
+            - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
+            - WHERE is_first_half == 1 OR is_second_half == 1
+            - STATS first_half_count = SUM(is_first_half), second_half_count = SUM(is_second_half) BY network.interface.name
+            - WHERE first_half_count > 0
+            - EVAL change_count = second_half_count - first_half_count
+            - EVAL change_pct = change_count / first_half_count
             - EVAL abs_change = ABS(change_count)
             - SORT abs_change DESC
             - LIMIT 20
           dimensions:
             - field: network.interface.name
           metrics:
-            - field: in_baseline
-              label: Baseline Count
-            - field: in_now
-              label: Current Count
+            - field: first_half_count
+              label: First Half
+            - field: second_half_count
+              label: Second Half
             - field: change_count
               label: Change (Count)
             - field: change_pct
