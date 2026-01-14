@@ -268,7 +268,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
 
     # Get index pattern from config or extract from query
     esql_query_str = panel.esql.query.root
-    index_pattern = panel.esql.index_pattern or _extract_index_pattern_from_esql(esql_query_str)
+    index_pattern = panel.esql.index_pattern if panel.esql.index_pattern is not None else _extract_index_pattern_from_esql(esql_query_str)
     time_field = panel.esql.time_field
 
     # Create the JSON-encoded index string used by Kibana for ESQL panels

@@ -1,5 +1,6 @@
 """Tests for chart compilation utilities."""
 
+import json
 from typing import Any
 
 import pytest
@@ -786,9 +787,10 @@ class TestCompileESQLChartState:
         assert len(layers) == 1
         layer = next(iter(layers.values()))
 
-        # Verify index field is set with correct structure (contains timeFieldName)
-        assert '"timeFieldName":"@timestamp"' in layer.index
-        assert '"index":"logs-*"' in layer.index
+        # Verify index field is set with correct structure via JSON parsing
+        index_data = json.loads(layer.index)
+        assert index_data['timeFieldName'] == '@timestamp'
+        assert index_data['index'] == 'logs-*'
 
         # Verify layer_id is returned
         assert layer_id in layers
@@ -821,9 +823,10 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify index field contains custom timeFieldName
-        assert '"timeFieldName":"event.created"' in layer.index
-        assert '"index":"logs-*"' in layer.index
+        # Verify index field contains custom timeFieldName via JSON parsing
+        index_data = json.loads(layer.index)
+        assert index_data['timeFieldName'] == 'event.created'
+        assert index_data['index'] == 'logs-*'
 
         # Verify layer_id is returned
         assert layer_id in layers
@@ -851,9 +854,10 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify index field contains custom timeFieldName
-        assert '"timeFieldName":"timestamp"' in layer.index
-        assert '"index":"logs-*"' in layer.index
+        # Verify index field contains custom timeFieldName via JSON parsing
+        index_data = json.loads(layer.index)
+        assert index_data['timeFieldName'] == 'timestamp'
+        assert index_data['index'] == 'logs-*'
 
     def test_esql_bar_chart_custom_time_field(self) -> None:
         """Test that ES|QL bar chart correctly compiles with custom time field."""
@@ -878,9 +882,10 @@ class TestCompileESQLChartState:
         layers = state.datasourceStates.textBased.layers.root
         layer = next(iter(layers.values()))
 
-        # Verify index field contains custom timeFieldName
-        assert '"timeFieldName":"event.timestamp"' in layer.index
-        assert '"index":"metrics-*"' in layer.index
+        # Verify index field contains custom timeFieldName via JSON parsing
+        index_data = json.loads(layer.index)
+        assert index_data['timeFieldName'] == 'event.timestamp'
+        assert index_data['index'] == 'metrics-*'
 
     def test_esql_all_chart_types_have_index_field(self) -> None:
         """Test that all ES|QL chart types correctly populate the index field.
@@ -948,9 +953,10 @@ class TestCompileESQLChartState:
             layers = state.datasourceStates.textBased.layers.root
             layer = next(iter(layers.values()))
 
-            # Verify index field contains default timeFieldName
-            assert '"timeFieldName":"@timestamp"' in layer.index, f'Chart type {chart_config["type"]} missing or incorrect timeFieldName'
-            assert '"index":"logs-*"' in layer.index, f'Chart type {chart_config["type"]} missing or incorrect index'
+            # Verify index field contains default timeFieldName via JSON parsing
+            index_data = json.loads(layer.index)
+            assert index_data['timeFieldName'] == '@timestamp', f'Chart type {chart_config["type"]} missing or incorrect timeFieldName'
+            assert index_data['index'] == 'logs-*', f'Chart type {chart_config["type"]} missing or incorrect index'
 
             # Verify layer_id is returned and adHocDataViews contains the index string
             assert layer_id in layers
