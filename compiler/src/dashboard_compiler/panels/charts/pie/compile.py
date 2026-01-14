@@ -106,7 +106,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,
         legendSize=legend_size,
-        truncateLegend=False if truncate_legend == 0 else None,
+        truncateLegend=False if truncate_legend is False else None,
         legendMaxLines=legend_max_lines,
         showSingleSeries=show_single_series,
         percentDecimals=percent_decimals,

@@ -706,9 +706,23 @@ async def test_pie_chart_without_value_decimal_places() -> None:
         'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
+    esql_config = {
+        'type': 'pie',
+        'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
+        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
 
     lens_chart = LensPieChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    dumped = layer.model_dump()
+    assert 'percentDecimals' not in dumped
+
+    esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
     layer = kbn_state_visualization.layers[0]
     dumped = layer.model_dump()
