@@ -17,12 +17,12 @@ def test_compile_section_basic() -> None:
     section = Section(
         title='System Metrics',
     )
-    kbn_section = compile_section(section, section_y=0)
+    kbn_section = compile_section(section, section_y=0, section_id='test-section-id')
     result = kbn_section.model_dump(by_alias=True)
 
     assert result['title'] == 'System Metrics'
     assert result['gridData'] == {'y': 0}
-    assert 'uid' in result  # UID is generated
+    assert result['uid'] == 'test-section-id'
     assert 'collapsed' not in result  # Not collapsed by default
 
 
@@ -32,13 +32,13 @@ def test_compile_section_collapsed() -> None:
         title='Advanced Options',
         collapsed=True,
     )
-    kbn_section = compile_section(section, section_y=10)
+    kbn_section = compile_section(section, section_y=10, section_id='collapsed-section-id')
     result = kbn_section.model_dump(by_alias=True)
 
     assert result['title'] == 'Advanced Options'
     assert result['collapsed'] is True
     assert result['gridData'] == {'y': 10}
-    assert 'uid' in result
+    assert result['uid'] == 'collapsed-section-id'
 
 
 def test_compile_section_with_custom_id() -> None:
@@ -47,7 +47,7 @@ def test_compile_section_with_custom_id() -> None:
         id='custom-section-id',
         title='Custom Section',
     )
-    kbn_section = compile_section(section, section_y=5)
+    kbn_section = compile_section(section, section_y=5, section_id='custom-section-id')
     result = kbn_section.model_dump(by_alias=True)
 
     assert result['uid'] == 'custom-section-id'

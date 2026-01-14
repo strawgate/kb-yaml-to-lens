@@ -70,7 +70,7 @@ def compile_dashboard_sections(
         section_id = section.id or stable_id_generator(values=['section', section.title])
 
         # Compile the section
-        kbn_section = compile_section(section, section_y)
+        kbn_section = compile_section(section, section_y, section_id)
         kbn_sections.append(kbn_section)
 
         # Compile panels within the section

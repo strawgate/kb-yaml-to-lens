@@ -7,6 +7,7 @@ from dashboard_compiler.panels.alerts.view import (
     KbnAlertsQuery,
     KbnAlertsTableConfig,
 )
+from dashboard_compiler.shared.logging import log_compile
 from dashboard_compiler.shared.view import KbnReference
 
 
@@ -50,6 +51,7 @@ def compile_alerts_table_config(alerts_panel: AlertsPanel) -> KbnAlertsTableConf
     )
 
 
+@log_compile
 def compile_alerts_panel_config(alerts_panel: AlertsPanel) -> tuple[list[KbnReference], KbnAlertsEmbeddableConfig]:
     """Compile an AlertsPanel into its Kibana view model representation.
 

@@ -4,29 +4,27 @@ from dashboard_compiler.panels.compile import compile_dashboard_panel, compute_p
 from dashboard_compiler.panels.view import KbnBasePanel, KbnGridData
 from dashboard_compiler.sections.config import Section
 from dashboard_compiler.sections.view import KbnSection, KbnSectionGridData
-from dashboard_compiler.shared.config import stable_id_generator
 from dashboard_compiler.shared.logging import log_compile
 from dashboard_compiler.shared.view import KbnReference
 
 
 @log_compile
-def compile_section(section: Section, section_y: int) -> KbnSection:
+def compile_section(section: Section, section_y: int, section_id: str) -> KbnSection:
     """Compile a Section into its Kibana view model representation.
 
     Args:
         section: The Section object to compile.
         section_y: The calculated y position for the section.
+        section_id: The unique identifier for the section.
 
     Returns:
         KbnSection: The compiled Kibana section view model.
 
     """
-    section_id = section.id or stable_id_generator(values=['section', section.title])
-
     return KbnSection(
         uid=section_id,
         title=section.title,
-        collapsed=section.collapsed if section.collapsed else None,
+        collapsed=section.collapsed if section.collapsed is True else None,
         gridData=KbnSectionGridData(y=section_y),
     )
 

@@ -4,6 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from dashboard_compiler.panels.alerts.config import AlertSolution
 from dashboard_compiler.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
 from dashboard_compiler.shared.view import BaseVwModel
 
@@ -54,7 +55,7 @@ class KbnAlertsQuery(BaseVwModel):
 class KbnAlertsTableConfig(BaseVwModel):
     """Configuration for the alerts table embeddable."""
 
-    solution: str = Field(...)
+    solution: AlertSolution = Field(...)
     """The solution context (observability, security, or stack)."""
 
     query: KbnAlertsQuery = Field(...)
