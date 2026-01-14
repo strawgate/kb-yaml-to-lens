@@ -288,17 +288,17 @@ Detailed single-container performance analysis and resource utilization.
 
 ### AWS VPC Flow Logs OpenTelemetry Dashboards
 
-AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data.
+AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnected navigation.
 
 **Use this when:** Monitoring AWS VPC network traffic with OpenTelemetry AWS VPC Flow Logs receiver.
 
-**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboard. Demonstrates ES|QL queries with area charts, bar charts, and datatables. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboard. Demonstrates ES|QL queries with area charts, bar charts, datatables, and dashboard links. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
 
-Includes 3 dashboards:
+Includes 3 interconnected dashboards with navigation links:
 
-- **VPC Flow Logs Overview** - High-level KPIs and time-series trends
-- **Traffic Analysis** - Traffic distribution, source analysis, and security deep dive
-- **Interface Analysis** - Per-interface and per-account metrics
+- **VPC Flow Logs Overview** (`aws-vpcflow-otel-overview`) - High-level KPIs, quick insights, and time-series trends
+- **Traffic Analysis** (`aws-vpcflow-otel-traffic`) - Traffic distribution, volume change detection, source analysis, and security deep dive
+- **Interface Analysis** (`aws-vpcflow-otel-interface`) - Per-interface analysis, volume changes, and per-account metrics
 
 <!-- markdownlint-disable MD046 -->
 ??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"

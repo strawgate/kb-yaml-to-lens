@@ -1,7 +1,9 @@
 ---
 dashboards:
   # Dashboard 1: Overview - High-level KPIs and trends
-  - name: '[AWS VPC OTEL] VPC Flow Logs Overview'
+  - id: aws-vpcflow-otel-overview
+    name: '[AWS VPC OTEL] VPC Flow Logs Overview'
+    description: High-level status and trends for AWS VPC Flow Logs
     filters:
       - field: data_stream.dataset
         equals: aws.vpcflow.otel
@@ -22,10 +24,26 @@ dashboards:
         data_view: logs-*
         field: aws.vpc.flow.action
     panels:
+      # Navigation
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: aws-vpcflow-otel-overview
+            - label: Traffic Analysis
+              dashboard: aws-vpcflow-otel-traffic
+              with_time: true
+              with_filters: true
+            - label: Interface Analysis
+              dashboard: aws-vpcflow-otel-interface
+              with_time: true
+              with_filters: true
+
       # KPI Metrics
       - markdown:
           content: '### KPI Metrics'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Total Flow Records
         hide_title: true
         size: {w: 10, h: 4}
@@ -93,10 +111,67 @@ dashboards:
             field: unique_accounts
             label: Cloud Accounts
 
+      # Quick Insights
+      - markdown:
+          content: '### Quick Insights'
+        size: {w: 48, h: 3}
+      - title: Top 5 Interfaces by Rejected Traffic
+        size: {w: 24, h: 10}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND network.interface.name IS NOT NULL
+            - STATS rejected_count = COUNT() BY network.interface.name
+            - SORT rejected_count DESC
+            - LIMIT 5
+          dimension:
+            field: network.interface.name
+          metrics:
+            - field: rejected_count
+              label: Rejected Flows
+          legend:
+            visible: hide
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - values:
+                  - '*'
+                color: '#BD271E'
+          appearance:
+            y_left_axis:
+              title: Rejected Flows
+      - title: Top 5 Rejected Destination Ports
+        size: {w: 24, h: 10}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND destination.port IS NOT NULL
+            - STATS rejected_count = COUNT() BY destination.port
+            - SORT rejected_count DESC
+            - LIMIT 5
+          dimension:
+            field: destination.port
+          metrics:
+            - field: rejected_count
+              label: Rejected Flows
+          legend:
+            visible: hide
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - values:
+                  - '*'
+                color: '#BD271E'
+          appearance:
+            y_left_axis:
+              title: Rejected Flows
+
       # Time-Series Trends
       - markdown:
           content: '### Time-Series Trends'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Traffic Volume Over Time
         size: {w: 48, h: 12}
         esql:
@@ -149,7 +224,9 @@ dashboards:
               title: Bandwidth
 
   # Dashboard 2: Traffic Analysis - Distribution, sources, and security
-  - name: '[AWS VPC OTEL] Traffic Analysis'
+  - id: aws-vpcflow-otel-traffic
+    name: '[AWS VPC OTEL] Traffic Analysis'
+    description: Detailed traffic distribution, source analysis, and security deep dive
     filters:
       - field: data_stream.dataset
         equals: aws.vpcflow.otel
@@ -190,10 +267,26 @@ dashboards:
         data_view: logs-*
         field: destination.port
     panels:
+      # Navigation
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: aws-vpcflow-otel-overview
+              with_time: true
+              with_filters: true
+            - label: Traffic Analysis
+              dashboard: aws-vpcflow-otel-traffic
+            - label: Interface Analysis
+              dashboard: aws-vpcflow-otel-interface
+              with_time: true
+              with_filters: true
+
       # Traffic Distribution
       - markdown:
           content: '### Traffic Distribution'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Top Protocols
         size: {w: 16, h: 12}
         esql:
@@ -255,9 +348,9 @@ dashboards:
       # Volume Change Detection
       - markdown:
           content: '### Volume Change Detection'
-        size: {w: 48, h: 2}
-      - title: Significant Volume Changes by Interface
-        size: {w: 48, h: 12}
+        size: {w: 48, h: 3}
+      - title: Significant Volume Changes by Source IP
+        size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
@@ -269,14 +362,50 @@ dashboards:
             - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
             - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
             - WHERE is_in_baseline == 1 OR is_in_now == 1
-            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY network.interface.name
+            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY source.address
             - WHERE in_baseline > 0
             - EVAL change_pct = in_now / in_baseline
             - EVAL change_count = in_now - in_baseline
             - SORT change_count ASC
             - LIMIT 20
           dimensions:
-            - field: network.interface.name
+            - field: source.address
+          metrics:
+            - field: in_baseline
+              label: Baseline Count
+            - field: in_now
+              label: Current Count
+            - field: change_count
+              label: Change (Count)
+            - field: change_pct
+              label: Change %
+              format:
+                type: percent
+                decimals: 1
+          paging:
+            enabled: true
+            page_size: 10
+      - title: Significant Volume Changes by Destination Port
+        size: {w: 24, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - EVAL ingest_window = COALESCE(event.ingested, @timestamp)
+            - EVAL baseline_start = ?_tstart + 10 minutes, baseline_end = ?_tstart + 40 minutes
+            - EVAL now_start = ?_tend - 40 minutes, now_end = ?_tend - 10 minutes
+            - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
+            - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
+            - WHERE is_in_baseline == 1 OR is_in_now == 1
+            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY destination.port
+            - WHERE in_baseline > 0
+            - EVAL change_pct = in_now / in_baseline
+            - EVAL change_count = in_now - in_baseline
+            - SORT change_count ASC
+            - LIMIT 20
+          dimensions:
+            - field: destination.port
           metrics:
             - field: in_baseline
               label: Baseline Count
@@ -296,7 +425,7 @@ dashboards:
       # Source Analysis
       - markdown:
           content: '### Source Analysis'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Top Source IPs - Detailed
         size: {w: 48, h: 13}
         esql:
@@ -336,7 +465,7 @@ dashboards:
       # Security Deep Dive
       - markdown:
           content: '### Security Deep Dive'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Rejected Traffic by Protocol
         size: {w: 24, h: 12}
         esql:
@@ -384,14 +513,7 @@ dashboards:
           legend:
             visible: hide
           color:
-            palette: eui_amsterdam_color_blind
-            assignments:
-              - values:
-                  - '22'
-                  - '3389'
-                  - '445'
-                  - '23'
-                color: '#BD271E'
+            palette: negative
           appearance:
             y_left_axis:
               title: Rejected Count
@@ -425,7 +547,9 @@ dashboards:
             page_size: 15
 
   # Dashboard 3: Interface Analysis - Per-interface and account metrics
-  - name: '[AWS VPC OTEL] Interface Analysis'
+  - id: aws-vpcflow-otel-interface
+    name: '[AWS VPC OTEL] Interface Analysis'
+    description: Per-interface and per-account metrics for infrastructure analysis
     filters:
       - field: data_stream.dataset
         equals: aws.vpcflow.otel
@@ -446,10 +570,26 @@ dashboards:
         data_view: logs-*
         field: aws.vpc.flow.action
     panels:
+      # Navigation
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: aws-vpcflow-otel-overview
+              with_time: true
+              with_filters: true
+            - label: Traffic Analysis
+              dashboard: aws-vpcflow-otel-traffic
+              with_time: true
+              with_filters: true
+            - label: Interface Analysis
+              dashboard: aws-vpcflow-otel-interface
+
       # Interface Analysis
       - markdown:
           content: '### Interface Analysis'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Interface Traffic Analysis
         size: {w: 48, h: 13}
         esql:
@@ -478,10 +618,51 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
+      # Volume Change Detection
+      - markdown:
+          content: '### Volume Change Detection'
+        size: {w: 48, h: 3}
+      - title: Significant Volume Changes by Interface
+        size: {w: 48, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - EVAL ingest_window = COALESCE(event.ingested, @timestamp)
+            - EVAL baseline_start = ?_tstart + 10 minutes, baseline_end = ?_tstart + 40 minutes
+            - EVAL now_start = ?_tend - 40 minutes, now_end = ?_tend - 10 minutes
+            - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
+            - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
+            - WHERE is_in_baseline == 1 OR is_in_now == 1
+            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY network.interface.name
+            - WHERE in_baseline > 0
+            - EVAL change_pct = in_now / in_baseline
+            - EVAL change_count = in_now - in_baseline
+            - SORT change_count ASC
+            - LIMIT 20
+          dimensions:
+            - field: network.interface.name
+          metrics:
+            - field: in_baseline
+              label: Baseline Count
+            - field: in_now
+              label: Current Count
+            - field: change_count
+              label: Change (Count)
+            - field: change_pct
+              label: Change %
+              format:
+                type: percent
+                decimals: 1
+          paging:
+            enabled: true
+            page_size: 10
+
       # Account Analysis
       - markdown:
           content: '### Account Analysis'
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
       - title: Traffic by Cloud Account
         size: {w: 48, h: 13}
         esql:

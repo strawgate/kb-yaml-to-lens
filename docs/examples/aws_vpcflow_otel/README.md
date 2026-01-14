@@ -25,34 +25,42 @@ kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir out
 
 ## Dashboards
 
-This example includes 3 dashboards:
+This example includes 3 interconnected dashboards with navigation links:
 
 ### 1. VPC Flow Logs Overview
+
+**ID:** `aws-vpcflow-otel-overview`
 
 High-level KPIs and time-series trends for quick status assessment.
 
 **Controls (3):** Cloud Account ID, Network Interface, Action
 
-**Panels (8):**
+**Panels (14):**
 
+- Navigation (1 links panel)
 - KPI Metrics (5 metrics + 1 header)
   - Total Flow Records, Rejection Rate, Total Bandwidth, Active Interfaces, Cloud Accounts
+- Quick Insights (2 charts + 1 header)
+  - Top 5 Interfaces by Rejected Traffic, Top 5 Rejected Destination Ports
 - Time-Series Trends (2 charts + 1 header)
   - Traffic Volume Over Time (stacked area - ACCEPT/REJECT)
   - Bandwidth Usage Over Time (line chart)
 
 ### 2. Traffic Analysis
 
+**ID:** `aws-vpcflow-otel-traffic`
+
 Detailed traffic distribution, source analysis, and security deep dive.
 
 **Controls (7):** Cloud Account ID, Network Interface, Action, Source IP, Destination IP, Source Port, Destination Port
 
-**Panels (12):**
+**Panels (15):**
 
+- Navigation (1 links panel)
 - Traffic Distribution (3 charts + 1 header)
   - Top Protocols (pie), Top Interfaces by Traffic (bar), Top Destination Ports (bar)
-- Volume Change Detection (1 table + 1 header)
-  - Significant Volume Changes by Interface
+- Volume Change Detection (2 tables + 1 header)
+  - Significant Volume Changes by Source IP, Significant Volume Changes by Destination Port
 - Source Analysis (1 table + 1 header)
   - Top Source IPs - Detailed
 - Security Deep Dive (3 panels + 1 header)
@@ -60,24 +68,31 @@ Detailed traffic distribution, source analysis, and security deep dive.
 
 ### 3. Interface Analysis
 
+**ID:** `aws-vpcflow-otel-interface`
+
 Per-interface and per-account metrics for infrastructure analysis.
 
 **Controls (3):** Cloud Account ID, Network Interface, Action
 
-**Panels (4):**
+**Panels (8):**
 
+- Navigation (1 links panel)
 - Interface Analysis (1 chart + 1 header)
   - Interface Traffic Analysis (stacked bar - ACCEPT/REJECT)
+- Volume Change Detection (1 table + 1 header)
+  - Significant Volume Changes by Interface
 - Account Analysis (1 table + 1 header)
   - Traffic by Cloud Account
 
 ## Features
 
+- **Dashboard Navigation**: Links panel at the top of each dashboard for easy navigation between Overview, Traffic Analysis, and Interface Analysis
 - **Color coding**: REJECT traffic is shown in red (#BD271E), ACCEPT in green (#00BF6F)
 - **Section headers**: Markdown panels organize each dashboard into logical sections
 - **Compact metrics**: KPI metrics use `hide_title: true` for a cleaner look
 - **Auto-layout**: Panels use only `size` - positions are calculated automatically
-- **Volume change detection**: Compares a 30-minute baseline window with current window
+- **Volume change detection**: Compares a 30-minute baseline window with current window to detect anomalies
+- **Filter preservation**: Navigation links use `with_time` and `with_filters` to preserve context when navigating
 
 ## Source
 
