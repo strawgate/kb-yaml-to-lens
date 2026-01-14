@@ -20,27 +20,36 @@ dashboards:
         width: small
         data_view: logs-*
         field: aws.vpc.flow.action
+      - type: options
+        label: Source IP
+        width: medium
+        data_view: logs-*
+        field: source.address
+      - type: options
+        label: Destination IP
+        width: medium
+        data_view: logs-*
+        field: destination.address
+      - type: options
+        label: Source Port
+        width: small
+        data_view: logs-*
+        field: source.port
+      - type: options
+        label: Destination Port
+        width: small
+        data_view: logs-*
+        field: destination.port
     panels:
-      # Section 1: Context (y:0-3)
+      # Section 1: KPI Metrics (y:0-5)
       - markdown:
-          content: |
-            ## AWS VPC Flow Logs DevOps/SRE Dashboard
-            Monitor VPC network traffic, security, and performance with actionable insights.
-            **Quick Insights:**
-            - **KPI Metrics** - Track total flows, rejection rates, bandwidth, and active interfaces
-            - **Distribution Analysis** - Identify top protocols, interfaces, and destination ports
-            - **Time-Series Trends** - Visualize traffic volume and bandwidth patterns over time
-            - **Source Analysis** - Analyze traffic patterns from top source IPs
-            - **Security Deep Dive** - Investigate rejected traffic by protocol, port, and detailed logs
-            - **Performance Analysis** - Monitor interface-level traffic breakdown by action
-            - **Account Analysis** - Track multi-account traffic metrics and patterns
-        size: {w: 48, h: 3}
+          content: '### KPI Metrics'
+        size: {w: 48, h: 1}
         position: {x: 0, y: 0}
-
-      # Section 2: KPI Metrics (y:3-9)
       - title: Total Flow Records
-        size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
+        hide_title: true
+        size: {w: 10, h: 4}
+        position: {x: 0, y: 1}
         esql:
           type: metric
           query:
@@ -51,8 +60,9 @@ dashboards:
             field: total_flows
             label: Flow Records
       - title: Rejection Rate
-        size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
+        hide_title: true
+        size: {w: 10, h: 4}
+        position: {x: 10, y: 1}
         esql:
           type: metric
           query:
@@ -67,8 +77,9 @@ dashboards:
               type: percent
               decimals: 1
       - title: Total Bandwidth
-        size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
+        hide_title: true
+        size: {w: 10, h: 4}
+        position: {x: 20, y: 1}
         esql:
           type: metric
           query:
@@ -80,9 +91,10 @@ dashboards:
             label: Total Bandwidth
             format:
               type: bytes
-      - title: Unique Active Interfaces
-        size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
+      - title: Active Interfaces
+        hide_title: true
+        size: {w: 9, h: 4}
+        position: {x: 30, y: 1}
         esql:
           type: metric
           query:
@@ -92,11 +104,28 @@ dashboards:
           primary:
             field: unique_interfaces
             label: Active Interfaces
+      - title: Cloud Accounts
+        hide_title: true
+        size: {w: 9, h: 4}
+        position: {x: 39, y: 1}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
+            - STATS unique_accounts = COUNT_DISTINCT(cloud.account.id)
+          primary:
+            field: unique_accounts
+            label: Cloud Accounts
 
-      # Section 3: Traffic Distribution (y:9-21)
+      # Section 2: Traffic Distribution (y:5-18)
+      - markdown:
+          content: '### Traffic Distribution'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 5}
       - title: Top Protocols
         size: {w: 16, h: 12}
-        position: {x: 0, y: 9}
+        position: {x: 0, y: 6}
         esql:
           type: pie
           query:
@@ -112,7 +141,7 @@ dashboards:
             - field: network.protocol.name
       - title: Top Interfaces by Traffic
         size: {w: 16, h: 12}
-        position: {x: 16, y: 9}
+        position: {x: 16, y: 6}
         esql:
           type: bar
           query:
@@ -135,7 +164,7 @@ dashboards:
               title: Bytes
       - title: Top Destination Ports
         size: {w: 16, h: 12}
-        position: {x: 32, y: 9}
+        position: {x: 32, y: 6}
         esql:
           type: bar
           query:
@@ -155,10 +184,14 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Section 4: Time-Series Trends (y:21-49)
+      # Section 3: Time-Series Trends (y:18-44)
+      - markdown:
+          content: '### Time-Series Trends'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 18}
       - title: Traffic Volume Over Time
-        size: {w: 48, h: 14}
-        position: {x: 0, y: 21}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 19}
         esql:
           type: area
           query:
@@ -174,14 +207,21 @@ dashboards:
               label: Flow Count
           breakdown:
             field: aws.vpc.flow.action
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: REJECT
+                color: '#BD271E'
+              - value: ACCEPT
+                color: '#00BF6F'
           appearance:
             x_axis:
               title: '@timestamp'
             y_left_axis:
               title: Flow Count
       - title: Bandwidth Usage Over Time
-        size: {w: 48, h: 14}
-        position: {x: 0, y: 35}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 31}
         esql:
           type: line
           query:
@@ -202,10 +242,57 @@ dashboards:
             y_left_axis:
               title: Bandwidth
 
-      # Section 5: Source Analysis (y:49-64)
+      # Section 4: Volume Change Detection (y:43-56)
+      - markdown:
+          content: '### Volume Change Detection'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 43}
+      - title: Significant Volume Changes by Interface
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 44}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - EVAL ingest_window = COALESCE(event.ingested, @timestamp)
+            - EVAL baseline_start = ?_tstart + 10 minutes, baseline_end = ?_tstart + 40 minutes
+            - EVAL now_start = ?_tend - 40 minutes, now_end = ?_tend - 10 minutes
+            - EVAL is_in_baseline = TO_INTEGER(baseline_end > ingest_window AND ingest_window > baseline_start)
+            - EVAL is_in_now = TO_INTEGER(now_end > ingest_window AND ingest_window > now_start)
+            - WHERE is_in_baseline == 1 OR is_in_now == 1
+            - STATS in_now = SUM(is_in_now), in_baseline = SUM(is_in_baseline) BY network.interface.name
+            - WHERE in_baseline > 0
+            - EVAL change_pct = in_now / in_baseline
+            - EVAL change_count = in_now - in_baseline
+            - SORT change_count ASC
+            - LIMIT 20
+          dimensions:
+            - field: network.interface.name
+          metrics:
+            - field: in_baseline
+              label: Baseline Count
+            - field: in_now
+              label: Current Count
+            - field: change_count
+              label: Change (Count)
+            - field: change_pct
+              label: Change %
+              format:
+                type: percent
+                decimals: 1
+          paging:
+            enabled: true
+            page_size: 10
+
+      # Section 5: Source Analysis (y:56-70)
+      - markdown:
+          content: '### Source Analysis'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 56}
       - title: Top Source IPs - Detailed
-        size: {w: 48, h: 15}
-        position: {x: 0, y: 49}
+        size: {w: 48, h: 13}
+        position: {x: 0, y: 57}
         esql:
           type: datatable
           query:
@@ -238,12 +325,16 @@ dashboards:
               label: Packets
           paging:
             enabled: true
-            page_size: 20
+            page_size: 10
 
-      # Section 6: Security Deep Dive (y:64-94)
+      # Section 6: Security Deep Dive (y:70-97)
+      - markdown:
+          content: '### Security Deep Dive'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 70}
       - title: Rejected Traffic by Protocol
-        size: {w: 24, h: 15}
-        position: {x: 0, y: 64}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 71}
         esql:
           type: bar
           query:
@@ -259,12 +350,21 @@ dashboards:
               label: Rejected Count
           legend:
             visible: hide
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - values:
+                  - tcp
+                  - udp
+                  - icmp
+                  - igmp
+                color: '#BD271E'
           appearance:
             y_left_axis:
               title: Rejected Count
       - title: Top Rejected Ports
-        size: {w: 24, h: 15}
-        position: {x: 24, y: 64}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 71}
         esql:
           type: bar
           query:
@@ -280,12 +380,21 @@ dashboards:
               label: Rejected Count
           legend:
             visible: hide
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - values:
+                  - '22'
+                  - '3389'
+                  - '445'
+                  - '23'
+                color: '#BD271E'
           appearance:
             y_left_axis:
               title: Rejected Count
       - title: Detailed Rejection Logs
-        size: {w: 48, h: 15}
-        position: {x: 0, y: 79}
+        size: {w: 48, h: 13}
+        position: {x: 0, y: 83}
         esql:
           type: datatable
           query:
@@ -311,12 +420,16 @@ dashboards:
               label: Packets
           paging:
             enabled: true
-            page_size: 25
+            page_size: 15
 
-      # Section 7: Performance Analysis (y:94-109)
+      # Section 7: Interface Analysis (y:96-110)
+      - markdown:
+          content: '### Interface Analysis'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 96}
       - title: Interface Traffic Analysis
-        size: {w: 48, h: 15}
-        position: {x: 0, y: 94}
+        size: {w: 48, h: 13}
+        position: {x: 0, y: 97}
         esql:
           type: bar
           query:
@@ -332,14 +445,25 @@ dashboards:
               label: Flow Count
           breakdown:
             field: aws.vpc.flow.action
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: REJECT
+                color: '#BD271E'
+              - value: ACCEPT
+                color: '#00BF6F'
           appearance:
             y_left_axis:
               title: Flow Count
 
-      # Section 8: Account Analysis (y:109-124)
+      # Section 8: Account Analysis (y:110-124)
+      - markdown:
+          content: '### Account Analysis'
+        size: {w: 48, h: 1}
+        position: {x: 0, y: 110}
       - title: Traffic by Cloud Account
-        size: {w: 48, h: 15}
-        position: {x: 0, y: 109}
+        size: {w: 48, h: 13}
+        position: {x: 0, y: 111}
         esql:
           type: datatable
           query:
@@ -374,4 +498,4 @@ dashboards:
               label: Unique Sources
           paging:
             enabled: true
-            page_size: 20
+            page_size: 10
