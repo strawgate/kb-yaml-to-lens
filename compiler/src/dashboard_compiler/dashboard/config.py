@@ -9,6 +9,7 @@ from dashboard_compiler.panels.auto_layout import LayoutAlgorithm
 from dashboard_compiler.panels.types import PanelTypes
 from dashboard_compiler.queries.types import LegacyQueryTypes
 from dashboard_compiler.sample_data.config import SampleData
+from dashboard_compiler.sections import Section
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
@@ -66,6 +67,9 @@ class Dashboard(BaseCfgModel):
     panels: list[PanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
 
+    sections: list[Section] = Field(default_factory=list)
+    """A list of collapsible sections for organizing panels into groups."""
+
     sample_data: SampleData | None = Field(default=None)
     """Optional sample data to bundle with the dashboard for testing and demonstration."""
 
@@ -108,5 +112,19 @@ class Dashboard(BaseCfgModel):
 
         """
         self.panels.append(panel)
+
+        return self
+
+    def add_section(self, section: Section) -> Self:
+        """Add a collapsible section to the dashboard.
+
+        Args:
+            section: The section object to add.
+
+        Returns:
+            Self: The current instance of the Dashboard for method chaining.
+
+        """
+        self.sections.append(section)
 
         return self

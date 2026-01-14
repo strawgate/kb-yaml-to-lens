@@ -40,6 +40,11 @@ class TestGetPanelType:
         panel_dict = {'esql': {'charts': []}, 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
         assert get_panel_type(panel_dict) == 'esql'
 
+    def test_identifies_alerts_from_dict(self) -> None:
+        """Test that alerts panel type is identified from a dict."""
+        panel_dict = {'alerts': {'solution': 'observability'}, 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        assert get_panel_type(panel_dict) == 'alerts'
+
     def test_raises_error_for_unknown_dict(self) -> None:
         """Test that an error is raised for a dict with unknown keys."""
         panel_dict = {'unknown': 'value', 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
@@ -99,6 +104,14 @@ class TestGetPanelType:
             esql: ClassVar[dict[str, object]] = {}
 
         assert get_panel_type(MockPanel()) == 'esql'
+
+    def test_identifies_panel_from_object_with_alerts_attr(self) -> None:
+        """Test that panel type is identified from an object with alerts attribute."""
+
+        class MockPanel:
+            alerts: ClassVar[dict[str, object]] = {}
+
+        assert get_panel_type(MockPanel()) == 'alerts'
 
     def test_raises_error_for_object_without_panel_attrs(self) -> None:
         """Test that an error is raised for an object without panel attributes."""

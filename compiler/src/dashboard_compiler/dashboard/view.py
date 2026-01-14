@@ -1,9 +1,10 @@
 import json
 
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, Field, SerializerFunctionWrapHandler, field_serializer, model_serializer
 
 from dashboard_compiler.controls.view import KbnControlGroupInput
 from dashboard_compiler.panels.view import KbnBasePanel, KbnSavedObjectMeta
+from dashboard_compiler.sections.view import KbnSection
 from dashboard_compiler.shared.view import KbnReference
 
 
@@ -31,6 +32,7 @@ class KbnDashboardAttributes(BaseModel):
     timeRestore: bool
     version: int
     controlGroupInput: KbnControlGroupInput | None = None
+    sections: list[KbnSection] | None = None
 
     @field_serializer('panelsJSON', when_used='always')
     def panels_json_stringified(self, panelsJSON: list[KbnBasePanel]) -> str:
@@ -42,6 +44,12 @@ class KbnDashboardAttributes(BaseModel):
     def options_json_stringified(self, optionsJSON: KbnDashboardOptions) -> str:
         """Kibana wants this field to be stringified JSON."""
         return optionsJSON.model_dump_json(by_alias=True)
+
+    @model_serializer(mode='wrap')
+    def serialize_exclude_none(self, handler: SerializerFunctionWrapHandler) -> dict[str, object]:
+        """Exclude None values from serialization (sections is omitted when empty)."""
+        result = dict[str, object](handler(self))  # pyright: ignore[reportAny]
+        return {k: v for k, v in result.items() if v is not None}
 
 
 class KbnDashboard(BaseModel):

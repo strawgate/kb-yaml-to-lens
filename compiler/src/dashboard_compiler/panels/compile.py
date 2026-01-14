@@ -2,7 +2,9 @@
 
 from collections.abc import Sequence
 
-from dashboard_compiler.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
+from dashboard_compiler.panels import AlertsPanel, ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
+from dashboard_compiler.panels.alerts.compile import compile_alerts_panel_config
+from dashboard_compiler.panels.alerts.view import KbnAlertsPanel
 from dashboard_compiler.panels.auto_layout import LayoutAlgorithm, create_layout_engine
 from dashboard_compiler.panels.charts.compile import compile_charts_panel_config
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
@@ -67,6 +69,8 @@ def get_panel_type_name(panel: PanelTypes) -> str:
             return 'image'
         case SearchPanel():
             return 'search'
+        case AlertsPanel():
+            return 'alerts'
         case LensPanel() | ESQLPanel():
             return 'charts'
         case _:  # pyright: ignore[reportUnnecessaryComparison]
@@ -144,6 +148,9 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
         case SearchPanel():
             references, embeddable_config = compile_search_panel_config(panel)
             return references, KbnSearchPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+        case AlertsPanel():
+            references, embeddable_config = compile_alerts_panel_config(panel)
+            return references, KbnAlertsPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case LensPanel() | ESQLPanel():
             references, kbn_panel = compile_charts_panel_config(panel)
             return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)

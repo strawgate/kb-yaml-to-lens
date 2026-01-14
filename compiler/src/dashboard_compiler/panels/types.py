@@ -2,6 +2,7 @@ from typing import Annotated
 
 from pydantic import Discriminator, Tag
 
+from dashboard_compiler.panels.alerts import AlertsPanel
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_compiler.panels.images import ImagePanel
 from dashboard_compiler.panels.links import LinksPanel
@@ -21,8 +22,8 @@ def get_panel_type(v: dict[str, object] | object) -> str:
         str: The panel type identifier.
 
     """
-    simple_types = {'markdown': 'markdown', 'search': 'search', 'links': 'links', 'image': 'image'}
-    simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image'}
+    simple_types = {'markdown': 'markdown', 'search': 'search', 'links': 'links', 'image': 'image', 'alerts': 'alerts'}
+    simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image', 'alerts': 'alerts'}
 
     if isinstance(v, dict):
         for key, panel_type in simple_types.items():
@@ -46,7 +47,7 @@ def get_panel_type(v: dict[str, object] | object) -> str:
         msg = (
             f'Cannot determine panel type from dict with keys: {keys}. '
             'Each panel must have exactly one type discriminator key: '
-            "'markdown', 'search', 'links', 'image', 'lens', or 'esql'."
+            "'markdown', 'search', 'links', 'image', 'lens', 'esql', or 'alerts'."
         )
     else:
         msg = f'Cannot determine panel type from object: {type(v).__name__}'
@@ -59,6 +60,7 @@ type PanelTypes = Annotated[
     | Annotated[LinksPanel, Tag('links')]
     | Annotated[ImagePanel, Tag('image')]
     | Annotated[LensPanel, Tag('lens')]
-    | Annotated[ESQLPanel, Tag('esql')],
+    | Annotated[ESQLPanel, Tag('esql')]
+    | Annotated[AlertsPanel, Tag('alerts')],
     Discriminator(get_panel_type),
 ]

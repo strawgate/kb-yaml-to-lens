@@ -26,6 +26,8 @@ class KbnGridData(BaseVwModel):
     w: int
     h: int
     i: str
+    section_id: Annotated[str | None, OmitIfNone()] = Field(default=None, serialization_alias='sectionId')
+    """Optional section ID for panels within collapsible sections."""
 
 
 class KbnBasePanelEmbeddableConfig(BaseVwModel):
