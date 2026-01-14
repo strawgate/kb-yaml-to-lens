@@ -114,7 +114,7 @@ class KbnFormBasedDataSourceState(BaseVwModel):
 
 class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     index: str
-    """JSON-encoded string containing the index pattern and time field, e.g. '{"index":"logs-*","timeFieldName":"@timestamp"}'."""
+    """Hash ID referencing the ad-hoc data view in adHocDataViews."""
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
