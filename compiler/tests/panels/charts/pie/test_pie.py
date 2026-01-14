@@ -1,4 +1,10 @@
-"""Test the compilation of Lens metrics from config models to view models."""
+"""Test the compilation of Lens metrics from config models to view models.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/pie-chart-esql.json
+    - Data View: output/<version>/pie-chart-dataview.json
+"""
 
 from typing import TYPE_CHECKING
 
