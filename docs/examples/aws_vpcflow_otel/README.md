@@ -1,6 +1,6 @@
-# AWS VPC Flow Logs OTEL Dashboard
+# AWS VPC Flow Logs OTEL Dashboards
 
-DevOps/SRE monitoring dashboard for AWS VPC Flow Logs collected via OpenTelemetry.
+DevOps/SRE monitoring dashboards for AWS VPC Flow Logs collected via OpenTelemetry.
 
 ## Usage
 
@@ -23,59 +23,61 @@ kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir out
   - `source.address`, `source.port`, `destination.address`, `destination.port`
   - `network.protocol.name`, `network.interface.name`, `cloud.account.id`
 
-## Dashboard Controls (7)
+## Dashboards
 
-| Control | Field | Purpose |
-|---------|-------|---------|
-| Cloud Account ID | `cloud.account.id` | Filter by AWS account |
-| Network Interface | `network.interface.name` | Filter by ENI |
-| Action | `aws.vpc.flow.action` | Filter ACCEPT/REJECT |
-| Source IP | `source.address` | Filter by source IP |
-| Destination IP | `destination.address` | Filter by destination IP |
-| Source Port | `source.port` | Filter by source port |
-| Destination Port | `destination.port` | Filter by destination port |
+This example includes 3 dashboards:
 
-## Panels (22 total)
+### 1. VPC Flow Logs Overview
 
-### KPI Metrics (5 metrics + 1 header)
-- **Total Flow Records** - Count of all flow logs
-- **Rejection Rate** - Percentage of rejected flows
-- **Total Bandwidth** - Sum of bytes transferred
-- **Active Interfaces** - Count of unique ENIs
-- **Cloud Accounts** - Count of unique AWS accounts
+High-level KPIs and time-series trends for quick status assessment.
 
-### Traffic Distribution (3 charts + 1 header)
-- **Top Protocols** - Pie chart by protocol
-- **Top Interfaces by Traffic** - Bar chart by bytes
-- **Top Destination Ports** - Bar chart by flow count
+**Controls (3):** Cloud Account ID, Network Interface, Action
 
-### Time-Series Trends (2 charts + 1 header)
-- **Traffic Volume Over Time** - Stacked area chart (ACCEPT/REJECT) with color coding
-- **Bandwidth Usage Over Time** - Line chart of bytes
+**Panels (8):**
 
-### Volume Change Detection (1 table + 1 header)
-- **Significant Volume Changes by Interface** - Compares baseline period vs current period to detect traffic anomalies
+- KPI Metrics (5 metrics + 1 header)
+  - Total Flow Records, Rejection Rate, Total Bandwidth, Active Interfaces, Cloud Accounts
+- Time-Series Trends (2 charts + 1 header)
+  - Traffic Volume Over Time (stacked area - ACCEPT/REJECT)
+  - Bandwidth Usage Over Time (line chart)
 
-### Source Analysis (1 table + 1 header)
-- **Top Source IPs** - Datatable with flows, bytes, rejection rate
+### 2. Traffic Analysis
 
-### Security Deep Dive (3 panels + 1 header)
-- **Rejected Traffic by Protocol** - Bar chart (red color)
-- **Top Rejected Ports** - Bar chart (red color)
-- **Detailed Rejection Logs** - Datatable with full log details
+Detailed traffic distribution, source analysis, and security deep dive.
 
-### Interface Analysis (1 chart + 1 header)
-- **Interface Traffic Analysis** - Stacked bar by interface with ACCEPT (green) / REJECT (red) breakdown
+**Controls (7):** Cloud Account ID, Network Interface, Action, Source IP, Destination IP, Source Port, Destination Port
 
-### Account Analysis (1 table + 1 header)
-- **Traffic by Cloud Account** - Multi-account metrics datatable
+**Panels (12):**
+
+- Traffic Distribution (3 charts + 1 header)
+  - Top Protocols (pie), Top Interfaces by Traffic (bar), Top Destination Ports (bar)
+- Volume Change Detection (1 table + 1 header)
+  - Significant Volume Changes by Interface
+- Source Analysis (1 table + 1 header)
+  - Top Source IPs - Detailed
+- Security Deep Dive (3 panels + 1 header)
+  - Rejected Traffic by Protocol (bar), Top Rejected Ports (bar), Detailed Rejection Logs (table)
+
+### 3. Interface Analysis
+
+Per-interface and per-account metrics for infrastructure analysis.
+
+**Controls (3):** Cloud Account ID, Network Interface, Action
+
+**Panels (4):**
+
+- Interface Analysis (1 chart + 1 header)
+  - Interface Traffic Analysis (stacked bar - ACCEPT/REJECT)
+- Account Analysis (1 table + 1 header)
+  - Traffic by Cloud Account
 
 ## Features
 
 - **Color coding**: REJECT traffic is shown in red (#BD271E), ACCEPT in green (#00BF6F)
-- **Section headers**: Thin markdown panels organize the dashboard into logical sections
+- **Section headers**: Markdown panels organize each dashboard into logical sections
 - **Compact metrics**: KPI metrics use `hide_title: true` for a cleaner look
-- **Volume change detection**: Compares a 30-minute baseline window (10-40 min after time picker start) with current window (40-10 min before time picker end)
+- **Auto-layout**: Panels use only `size` - positions are calculated automatically
+- **Volume change detection**: Compares a 30-minute baseline window with current window
 
 ## Source
 

@@ -1,6 +1,155 @@
 ---
 dashboards:
+  # Dashboard 1: Overview - High-level KPIs and trends
   - name: '[AWS VPC OTEL] VPC Flow Logs Overview'
+    filters:
+      - field: data_stream.dataset
+        equals: aws.vpcflow.otel
+    controls:
+      - type: options
+        label: Cloud Account ID
+        width: medium
+        data_view: logs-*
+        field: cloud.account.id
+      - type: options
+        label: Network Interface
+        width: medium
+        data_view: logs-*
+        field: network.interface.name
+      - type: options
+        label: Action
+        width: small
+        data_view: logs-*
+        field: aws.vpc.flow.action
+    panels:
+      # KPI Metrics
+      - markdown:
+          content: '### KPI Metrics'
+        size: {w: 48, h: 2}
+      - title: Total Flow Records
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - STATS total_flows = COUNT()
+          primary:
+            field: total_flows
+            label: Flow Records
+      - title: Rejection Rate
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - STATS total_flows = COUNT(), rejected_flows = COUNT(*) WHERE aws.vpc.flow.action == "REJECT"
+            - EVAL rejection_rate = rejected_flows / total_flows
+          primary:
+            field: rejection_rate
+            label: Rejection Rate
+            format:
+              type: percent
+              decimals: 1
+      - title: Total Bandwidth
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes)
+          primary:
+            field: total_bytes
+            label: Total Bandwidth
+            format:
+              type: bytes
+      - title: Active Interfaces
+        hide_title: true
+        size: {w: 9, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
+            - STATS unique_interfaces = COUNT_DISTINCT(network.interface.name)
+          primary:
+            field: unique_interfaces
+            label: Active Interfaces
+      - title: Cloud Accounts
+        hide_title: true
+        size: {w: 9, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
+            - STATS unique_accounts = COUNT_DISTINCT(cloud.account.id)
+          primary:
+            field: unique_accounts
+            label: Cloud Accounts
+
+      # Time-Series Trends
+      - markdown:
+          content: '### Time-Series Trends'
+        size: {w: 48, h: 2}
+      - title: Traffic Volume Over Time
+        size: {w: 48, h: 12}
+        esql:
+          type: area
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
+            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
+          mode: stacked
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          breakdown:
+            field: aws.vpc.flow.action
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: REJECT
+                color: '#BD271E'
+              - value: ACCEPT
+                color: '#00BF6F'
+          appearance:
+            x_axis:
+              title: '@timestamp'
+            y_left_axis:
+              title: Flow Count
+      - title: Bandwidth Usage Over Time
+        size: {w: 48, h: 12}
+        esql:
+          type: line
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: total_bytes
+              label: Bytes
+              format:
+                type: bytes
+          appearance:
+            x_axis:
+              title: '@timestamp'
+            y_left_axis:
+              title: Bandwidth
+
+  # Dashboard 2: Traffic Analysis - Distribution, sources, and security
+  - name: '[AWS VPC OTEL] Traffic Analysis'
     filters:
       - field: data_stream.dataset
         equals: aws.vpcflow.otel
@@ -41,91 +190,12 @@ dashboards:
         data_view: logs-*
         field: destination.port
     panels:
-      # Section 1: KPI Metrics (y:0-5)
-      - markdown:
-          content: '### KPI Metrics'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 0}
-      - title: Total Flow Records
-        hide_title: true
-        size: {w: 10, h: 4}
-        position: {x: 0, y: 1}
-        esql:
-          type: metric
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - STATS total_flows = COUNT()
-          primary:
-            field: total_flows
-            label: Flow Records
-      - title: Rejection Rate
-        hide_title: true
-        size: {w: 10, h: 4}
-        position: {x: 10, y: 1}
-        esql:
-          type: metric
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - STATS total_flows = COUNT(), rejected_flows = COUNT(*) WHERE aws.vpc.flow.action == "REJECT"
-            - EVAL rejection_rate = rejected_flows / total_flows
-          primary:
-            field: rejection_rate
-            label: Rejection Rate
-            format:
-              type: percent
-              decimals: 1
-      - title: Total Bandwidth
-        hide_title: true
-        size: {w: 10, h: 4}
-        position: {x: 20, y: 1}
-        esql:
-          type: metric
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
-            - STATS total_bytes = SUM(aws.vpc.flow.bytes)
-          primary:
-            field: total_bytes
-            label: Total Bandwidth
-            format:
-              type: bytes
-      - title: Active Interfaces
-        hide_title: true
-        size: {w: 9, h: 4}
-        position: {x: 30, y: 1}
-        esql:
-          type: metric
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
-            - STATS unique_interfaces = COUNT_DISTINCT(network.interface.name)
-          primary:
-            field: unique_interfaces
-            label: Active Interfaces
-      - title: Cloud Accounts
-        hide_title: true
-        size: {w: 9, h: 4}
-        position: {x: 39, y: 1}
-        esql:
-          type: metric
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
-            - STATS unique_accounts = COUNT_DISTINCT(cloud.account.id)
-          primary:
-            field: unique_accounts
-            label: Cloud Accounts
-
-      # Section 2: Traffic Distribution (y:5-18)
+      # Traffic Distribution
       - markdown:
           content: '### Traffic Distribution'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 5}
+        size: {w: 48, h: 2}
       - title: Top Protocols
         size: {w: 16, h: 12}
-        position: {x: 0, y: 6}
         esql:
           type: pie
           query:
@@ -141,7 +211,6 @@ dashboards:
             - field: network.protocol.name
       - title: Top Interfaces by Traffic
         size: {w: 16, h: 12}
-        position: {x: 16, y: 6}
         esql:
           type: bar
           query:
@@ -164,7 +233,6 @@ dashboards:
               title: Bytes
       - title: Top Destination Ports
         size: {w: 16, h: 12}
-        position: {x: 32, y: 6}
         esql:
           type: bar
           query:
@@ -184,72 +252,12 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Section 3: Time-Series Trends (y:18-44)
-      - markdown:
-          content: '### Time-Series Trends'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 18}
-      - title: Traffic Volume Over Time
-        size: {w: 48, h: 12}
-        position: {x: 0, y: 19}
-        esql:
-          type: area
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
-            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
-            - SORT time_bucket ASC
-          mode: stacked
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: flow_count
-              label: Flow Count
-          breakdown:
-            field: aws.vpc.flow.action
-          color:
-            palette: eui_amsterdam_color_blind
-            assignments:
-              - value: REJECT
-                color: '#BD271E'
-              - value: ACCEPT
-                color: '#00BF6F'
-          appearance:
-            x_axis:
-              title: '@timestamp'
-            y_left_axis:
-              title: Flow Count
-      - title: Bandwidth Usage Over Time
-        size: {w: 48, h: 12}
-        position: {x: 0, y: 31}
-        esql:
-          type: line
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
-            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: total_bytes
-              label: Bytes
-              format:
-                type: bytes
-          appearance:
-            x_axis:
-              title: '@timestamp'
-            y_left_axis:
-              title: Bandwidth
-
-      # Section 4: Volume Change Detection (y:43-56)
+      # Volume Change Detection
       - markdown:
           content: '### Volume Change Detection'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 43}
+        size: {w: 48, h: 2}
       - title: Significant Volume Changes by Interface
         size: {w: 48, h: 12}
-        position: {x: 0, y: 44}
         esql:
           type: datatable
           query:
@@ -285,14 +293,12 @@ dashboards:
             enabled: true
             page_size: 10
 
-      # Section 5: Source Analysis (y:56-70)
+      # Source Analysis
       - markdown:
           content: '### Source Analysis'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 56}
+        size: {w: 48, h: 2}
       - title: Top Source IPs - Detailed
         size: {w: 48, h: 13}
-        position: {x: 0, y: 57}
         esql:
           type: datatable
           query:
@@ -327,14 +333,12 @@ dashboards:
             enabled: true
             page_size: 10
 
-      # Section 6: Security Deep Dive (y:70-97)
+      # Security Deep Dive
       - markdown:
           content: '### Security Deep Dive'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 70}
+        size: {w: 48, h: 2}
       - title: Rejected Traffic by Protocol
         size: {w: 24, h: 12}
-        position: {x: 0, y: 71}
         esql:
           type: bar
           query:
@@ -364,7 +368,6 @@ dashboards:
               title: Rejected Count
       - title: Top Rejected Ports
         size: {w: 24, h: 12}
-        position: {x: 24, y: 71}
         esql:
           type: bar
           query:
@@ -394,7 +397,6 @@ dashboards:
               title: Rejected Count
       - title: Detailed Rejection Logs
         size: {w: 48, h: 13}
-        position: {x: 0, y: 83}
         esql:
           type: datatable
           query:
@@ -422,14 +424,34 @@ dashboards:
             enabled: true
             page_size: 15
 
-      # Section 7: Interface Analysis (y:96-110)
+  # Dashboard 3: Interface Analysis - Per-interface and account metrics
+  - name: '[AWS VPC OTEL] Interface Analysis'
+    filters:
+      - field: data_stream.dataset
+        equals: aws.vpcflow.otel
+    controls:
+      - type: options
+        label: Cloud Account ID
+        width: medium
+        data_view: logs-*
+        field: cloud.account.id
+      - type: options
+        label: Network Interface
+        width: medium
+        data_view: logs-*
+        field: network.interface.name
+      - type: options
+        label: Action
+        width: small
+        data_view: logs-*
+        field: aws.vpc.flow.action
+    panels:
+      # Interface Analysis
       - markdown:
           content: '### Interface Analysis'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 96}
+        size: {w: 48, h: 2}
       - title: Interface Traffic Analysis
         size: {w: 48, h: 13}
-        position: {x: 0, y: 97}
         esql:
           type: bar
           query:
@@ -456,14 +478,12 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Section 8: Account Analysis (y:110-124)
+      # Account Analysis
       - markdown:
           content: '### Account Analysis'
-        size: {w: 48, h: 1}
-        position: {x: 0, y: 110}
+        size: {w: 48, h: 2}
       - title: Traffic by Cloud Account
         size: {w: 48, h: 13}
-        position: {x: 0, y: 111}
         esql:
           type: datatable
           query:
