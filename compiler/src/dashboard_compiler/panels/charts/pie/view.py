@@ -1,3 +1,11 @@
+"""View models for pie and donut chart visualizations in Kibana Lens format.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/pie-chart-esql.json
+    - Data View: output/<version>/pie-chart-dataview.json
+"""
+
 from typing import Annotated, Literal
 
 from pydantic import Field

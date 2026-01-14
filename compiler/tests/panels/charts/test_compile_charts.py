@@ -8,6 +8,7 @@ from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.compile import (
     chart_type_to_kbn_type_lens,
+    compile_charts_panel_config,
     compile_esql_chart_state,
     compile_lens_chart_state,
 )
@@ -1108,3 +1109,90 @@ class TestESQLDataTypeDate:
         assert hasattr(x_axis_column, 'meta')
         assert x_axis_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
         assert x_axis_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+
+
+class TestCompileChartsPanelConfig:
+    """Tests for compile_charts_panel_config function."""
+
+    def test_lens_panel_with_hide_title_true(self) -> None:
+        """Test that hide_title=True is correctly passed to embeddable config."""
+        from dashboard_compiler.panels.charts.config import LensPanel
+
+        panel = LensPanel.model_validate(
+            {
+                'title': 'My Metric Panel',
+                'hide_title': True,
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is True
+
+    def test_lens_panel_with_hide_title_false(self) -> None:
+        """Test that hide_title=False is correctly passed to embeddable config."""
+        from dashboard_compiler.panels.charts.config import LensPanel
+
+        panel = LensPanel.model_validate(
+            {
+                'title': 'My Metric Panel',
+                'hide_title': False,
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is False
+
+    def test_lens_panel_without_hide_title(self) -> None:
+        """Test that hide_title defaults to None when not specified."""
+        from dashboard_compiler.panels.charts.config import LensPanel
+
+        panel = LensPanel.model_validate(
+            {
+                'title': 'My Metric Panel',
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is None
+
+    def test_esql_panel_with_hide_title_true(self) -> None:
+        """Test that hide_title=True is correctly passed for ESQL panels."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'title': 'My ESQL Metric',
+                'hide_title': True,
+                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS count()',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is True

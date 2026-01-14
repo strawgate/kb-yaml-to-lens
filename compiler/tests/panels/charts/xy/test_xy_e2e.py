@@ -1,4 +1,10 @@
-"""End-to-end tests for ES|QL XY charts - YAML to dashboard JSON compilation."""
+"""End-to-end tests for ES|QL XY charts - YAML to dashboard JSON compilation.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/xy-chart-esql.json
+    - Data View: output/<version>/xy-chart-dataview.json
+"""
 
 from pathlib import Path
 
@@ -84,9 +90,9 @@ dashboards:
         }
     )
 
-    # Verify the query (ESQL panels have empty kuery at state.query level)
+    # Verify the query
     query_state = panel['embeddableConfig']['attributes']['state']['query']
-    assert query_state == {'language': 'kuery', 'query': ''}
+    assert query_state['esql'] == 'FROM logs-* | STATS count() BY @timestamp'
 
 
 def test_esql_bar_chart_e2e(tmp_path: Path) -> None:
@@ -161,9 +167,9 @@ dashboards:
         }
     )
 
-    # Verify the query (ESQL panels have empty kuery at state.query level)
+    # Verify the query
     query_state = panel['embeddableConfig']['attributes']['state']['query']
-    assert query_state == {'language': 'kuery', 'query': ''}
+    assert query_state['esql'] == 'FROM metrics-* | STATS count() BY @timestamp, aerospike.namespace.name'
 
 
 def test_esql_area_chart_e2e(tmp_path: Path) -> None:
@@ -237,9 +243,9 @@ dashboards:
         }
     )
 
-    # Verify the query (ESQL panels have empty kuery at state.query level)
+    # Verify the query
     query_state = panel['embeddableConfig']['attributes']['state']['query']
-    assert query_state == {'language': 'kuery', 'query': ''}
+    assert query_state['esql'] == 'FROM metrics-* | STATS count() BY @timestamp, service.name'
 
 
 def test_esql_line_chart_two_metrics_e2e(tmp_path: Path) -> None:
@@ -311,6 +317,6 @@ dashboards:
         }
     )
 
-    # Verify the query (ESQL panels have empty kuery at state.query level)
+    # Verify the query
     query_state = panel['embeddableConfig']['attributes']['state']['query']
-    assert query_state == {'language': 'kuery', 'query': ''}
+    assert query_state['esql'] == 'FROM logs-* | STATS count(), avg(response_time) BY @timestamp'
