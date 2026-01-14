@@ -286,6 +286,28 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### AWS VPC Flow Logs OpenTelemetry Dashboards
+
+VPC Flow Logs monitoring dashboards for AWS network traffic analysis via OpenTelemetry.
+
+**Use this when:** Monitoring AWS VPC network traffic, identifying security issues, and analyzing traffic patterns.
+
+**Note:** Based on the [aws_vpcflow_otel](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) package from elastic/integrations.
+
+For detailed documentation, see the [README](aws_vpcflow_otel/README.md).
+
+#### All Dashboards
+
+Three interconnected dashboards with navigation links: Overview, Traffic Analysis, and Interface Analysis.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/dashboards.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:
