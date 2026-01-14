@@ -1,4 +1,10 @@
-"""Test the compilation of gauge charts from config models to view models using inline snapshots."""
+"""Test the compilation of gauge charts from config models to view models using inline snapshots.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/gauge-esql.json
+    - Data View: output/<version>/gauge-dataview.json
+"""
 
 from typing import TYPE_CHECKING, Any
 

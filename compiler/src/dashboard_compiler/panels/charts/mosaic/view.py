@@ -3,6 +3,11 @@
 Mosaic charts in Kibana use the lnsPie visualization type with shape: 'mosaic'.
 These models represent the compiled structure sent to Kibana for configuring
 mosaic chart layers in Lens visualizations.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/mosaic-esql.json
+    - Data View: output/<version>/mosaic-dataview.json
 """
 
 from typing import Annotated, Literal
@@ -73,6 +78,9 @@ class KbnMosaicStateVisualizationLayer(KbnBaseStateVisualizationLayer):
 
     showSingleSeries: Annotated[bool | None, OmitIfNone()] = Field(None)
     """Whether to show legend when there is only one series."""
+
+    percentDecimals: Annotated[int | None, OmitIfNone()] = Field(None)
+    """Number of decimal places for percent display values."""
 
 
 class KbnMosaicVisualizationState(KbnBaseStateVisualization):
