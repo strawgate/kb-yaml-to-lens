@@ -82,7 +82,8 @@ async def test_dashboard_with_one_pie_chart() -> None:
                     {
                         'title': 'Pie Chart of Aerospike Namespace',
                         'id': 'c7a35c4f-e82d-4f16-b1a6-12229363244e',
-                        'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                        'position': {'x': 0, 'y': 0},
+                        'size': {'w': 24, 'h': 15},
                         'lens': {
                             'type': 'pie',
                             'id': '21cb2847-7b10-404e-9672-4ee2f2beca6e',
@@ -426,7 +427,8 @@ async def test_dashboard_with_custom_options() -> None:
                 'panels': [
                     {
                         'title': 'Test Panel',
-                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'position': {'x': 0, 'y': 0},
+                        'size': {'w': 12, 'h': 10},
                         'markdown': {
                             'content': '# Testing dashboard options\n',
                         },
@@ -516,7 +518,8 @@ async def test_dashboard_with_default_options() -> None:
                 'panels': [
                     {
                         'title': 'Test Panel',
-                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'position': {'x': 0, 'y': 0},
+                        'size': {'w': 12, 'h': 10},
                         'markdown': {
                             'content': '# Testing default dashboard options\n',
                         },

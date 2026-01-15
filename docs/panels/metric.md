@@ -191,11 +191,12 @@ from dashboard_compiler.panels.charts.config import (
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Position, Size
 
 panel = LensPanel(
     title='Total Documents',
-    grid=Grid(x=0, y=0, w=24, h=15),
+    position=Position(x=0, y=0),
+    size=Size(w=24, h=15),
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
@@ -214,11 +215,12 @@ from dashboard_compiler.panels.charts.config import (
 from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Position, Size
 
 panel = LensPanel(
     title='Avg Response Time',
-    grid=Grid(x=0, y=0, w=24, h=15),
+    position=Position(x=0, y=0),
+    size=Size(w=24, h=15),
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
@@ -238,11 +240,12 @@ from dashboard_compiler.panels.charts.lens.metrics.config import (
     LensFormulaMetric,
     LensMetricFormat,
 )
-from dashboard_compiler.panels.config import Grid
+from dashboard_compiler.panels.config import Position, Size
 
 panel = LensPanel(
     title='Error Rate',
-    grid=Grid(x=0, y=0, w=24, h=15),
+    position=Position(x=0, y=0),
+    size=Size(w=24, h=15),
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',

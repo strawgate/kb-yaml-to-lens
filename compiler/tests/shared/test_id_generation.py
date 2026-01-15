@@ -137,7 +137,8 @@ def test_deterministic_compilation_from_dict() -> None:
         'panels': [
             {
                 'title': 'Test Pie Chart',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 12},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 12},
                 'lens': {
                     'type': 'pie',
                     'data_view': 'metrics-*',
@@ -147,7 +148,8 @@ def test_deterministic_compilation_from_dict() -> None:
             },
             {
                 'title': 'Test Line Chart',
-                'grid': {'x': 24, 'y': 0, 'w': 24, 'h': 12},
+                'position': {'x': 24, 'y': 0},
+                'size': {'w': 24, 'h': 12},
                 'lens': {
                     'type': 'line',
                     'data_view': 'metrics-*',
