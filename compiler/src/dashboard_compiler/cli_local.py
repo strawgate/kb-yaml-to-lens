@@ -255,7 +255,6 @@ async def _upload_to_kibana(
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
-@click.pass_context
 def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
