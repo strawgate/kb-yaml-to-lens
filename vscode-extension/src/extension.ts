@@ -552,6 +552,21 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // Register enable/disable open on save commands
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.enableOpenOnSave', async () => {
+            await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.openOnSave', true, vscode.ConfigurationTarget.Global);
+            vscode.window.showInformationMessage('Open in Kibana on Save enabled');
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.disableOpenOnSave', async () => {
+            await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.openOnSave', false, vscode.ConfigurationTarget.Global);
+            vscode.window.showInformationMessage('Open in Kibana on Save disabled');
+        })
+    );
+
     // Register compile folder and upload to Kibana command
     context.subscriptions.push(
         vscode.commands.registerCommand('yamlDashboard.compileFolderAndUpload', async (uri: vscode.Uri) => {

@@ -57,6 +57,30 @@ This will:
 - Create individual NDJSON files per scenario
 - Create a combined `compiled_dashboards.ndjson` file
 
+### Export Individual JSON Files
+
+For workflows that require individual JSON files per dashboard (e.g., Fleet integration):
+
+```bash
+kb-dashboard compile --format json --output-dir ./output
+```
+
+This will:
+
+- Create one pretty-printed JSON file per dashboard
+- Name files based on the dashboard title (sanitized for filesystem safety)
+- Set the exit code to the number of files that changed (useful for CI)
+
+The exit code feature is useful for CI pipelines to detect when YAML and JSON files are out of sync:
+
+```bash
+kb-dashboard compile --format json --output-dir ./dashboards
+if [ $? -ne 0 ]; then
+    echo "Dashboard JSON files are out of sync with YAML sources"
+    exit 1
+fi
+```
+
 ### Compile and Upload to Kibana
 
 Compile dashboards and upload them directly to Kibana:

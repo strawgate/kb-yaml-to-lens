@@ -24,7 +24,7 @@ dashboards:
       - title: Bad Panel
         size: {w: 24
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot(
             "YAML syntax error in unclosed-brace.yaml at line 7, column 1: expected ',' or '}', but got '<stream end>'"
@@ -38,7 +38,7 @@ dashboards:
   - name: Test
    panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot(
             "YAML syntax error in invalid-indent.yaml at line 4, column 4: expected <block end>, but found '<block mapping start>'"
@@ -55,7 +55,7 @@ class TestMissingRequiredFields:
 panels:
   - title: Test
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot(
             'no-dashboards.yaml: Field is required. Your YAML file must have a "dashboards:" section at the top level.'
@@ -69,7 +69,7 @@ dashboards:
   - description: Test dashboard without name
     panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in no-name.yaml:
@@ -88,7 +88,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         # Title is optional with default empty string
         assert error is None
         assert len(json_lines) == 1
@@ -104,7 +104,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         # Grid is optional, will use default size and position
         assert error is None
         assert len(json_lines) == 1
@@ -121,7 +121,7 @@ dashboards:
         position: {x: 0, y: 0}
         markdown: {}
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in no-markdown-content.yaml:
@@ -144,7 +144,7 @@ dashboards:
             field: count
             id: count_id
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in no-esql-query.yaml:
@@ -163,7 +163,7 @@ dashboards:
   name: Test
   panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in dashboards-not-list.yaml:
@@ -179,7 +179,7 @@ dashboards:
     panels:
       title: Should be a list
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in panels-not-list.yaml:
@@ -198,7 +198,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         # Size must be a dict; non-dict values cause validation error
         assert json_lines == []
         assert error is not None
@@ -218,7 +218,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in position-coords-wrong.yaml:
@@ -235,7 +235,7 @@ dashboards:
       hide_panel_titles: "yes"
     panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in unknown-field.yaml:
@@ -259,7 +259,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error is not None
         assert 'negative-width.yaml' in error
@@ -278,7 +278,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error is not None
         assert 'width-too-large.yaml' in error
@@ -299,7 +299,7 @@ dashboards:
           query:
             - FROM logs-*
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         # fmt: off
         assert error == snapshot("1 validation error in invalid-chart-type.yaml:\n  • dashboards[0].panels[0].esql: Unknown type 'invalid_type'. Valid types: 'metric', 'gauge', 'heatmap', 'pie', 'line', 'bar', 'area', 'tagcloud', 'datatable', 'mosaic'")  # noqa: E501
@@ -322,7 +322,7 @@ dashboards:
             id: count_id
           query: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         # Empty query lists are accepted (no minimum length validation)
         assert error is None
         assert len(json_lines) == 1
@@ -349,7 +349,7 @@ dashboards:
         markdown:
           content: Second
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error is not None
         assert 'overlapping.yaml' in error
@@ -368,7 +368,7 @@ dashboards:
         markdown:
           content: Outside
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error is not None
         assert 'outside-grid.yaml' in error
@@ -389,7 +389,7 @@ dashboards:
         size: {w: 24, h: 12}
         position: {x: 0, y: 0}
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error is not None
         assert 'no-panel-type.yaml' in error
@@ -413,7 +413,7 @@ dashboards:
           query:
             - FROM logs-*
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         # Multiple discriminators are rejected (extra='forbid' behavior)
         assert json_lines == []
         assert error == snapshot(
@@ -436,7 +436,7 @@ dashboards:
         markdown:
           content: Hello
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot("""\
 1 validation error in single-error.yaml:
@@ -464,7 +464,7 @@ dashboards:
           breakdown:
             field: missing_required_field
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         # Deeply nested structures should compile successfully
         assert error is None
         assert len(json_lines) == 1
@@ -478,7 +478,7 @@ class TestEmptyOrMinimalFiles:
         yaml_file = tmp_path / 'empty.yaml'
         yaml_file.write_text('')
 
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot('empty.yaml: File is empty or invalid. Expected a YAML document with a "dashboards" key.')
 
@@ -487,7 +487,7 @@ class TestEmptyOrMinimalFiles:
         yaml_file = tmp_path / 'whitespace.yaml'
         yaml_file.write_text('   \n  \n   ')
 
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot('whitespace.yaml: File is empty or invalid. Expected a YAML document with a "dashboards" key.')
 
@@ -496,7 +496,7 @@ class TestEmptyOrMinimalFiles:
         yaml_file = tmp_path / 'comments-only.yaml'
         yaml_file.write_text('# This is just a comment\n# No actual content')
 
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         assert error == snapshot('comments-only.yaml: File is empty or invalid. Expected a YAML document with a "dashboards" key.')
 
@@ -512,7 +512,7 @@ dashboards:
   - name: Test @invalid
     panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert error is None
         assert len(json_lines) == 1
 
@@ -525,7 +525,7 @@ dashboards:
     name: Test2
     panels: []
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert error is None
         assert len(json_lines) == 1
 
@@ -542,7 +542,7 @@ dashboards:
         markdown:
           content: Hello World
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert error is None
         assert len(json_lines) == 1
 
@@ -564,6 +564,6 @@ dashboards:
         markdown:
           content: Second
 """)
-        json_lines, error = compile_yaml_to_json(yaml_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
         assert error is None
         assert len(json_lines) == 1

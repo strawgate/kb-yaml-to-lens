@@ -15,7 +15,7 @@ export function setupFileWatcher(
         }
 
         const compileOnSave = configService.getCompileOnSave();
-        const uploadOnSave = configService.getKibanaUploadOnSave();
+        const openOnSave = configService.getKibanaOpenOnSave();
 
         if (compileOnSave) {
             try {
@@ -35,8 +35,8 @@ export function setupFileWatcher(
             }
         }
 
-        // Upload to Kibana if enabled
-        if (uploadOnSave) {
+        // Upload and open in Kibana if enabled
+        if (openOnSave) {
             try {
                 // Get Kibana configuration
                 const kibanaUrl = configService.getKibanaUrl();
@@ -44,6 +44,7 @@ export function setupFileWatcher(
                 const password = await configService.getKibanaPassword();
                 const apiKey = await configService.getKibanaApiKey();
                 const sslVerify = configService.getKibanaSslVerify();
+                const browserType = configService.getKibanaBrowserType();
 
                 // Skip if no URL or credentials configured
                 if (!kibanaUrl || kibanaUrl.includes('localhost') || kibanaUrl.includes('127.0.0.1')) {
@@ -58,9 +59,9 @@ export function setupFileWatcher(
 
                 await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Window,
-                    title: 'Uploading to Kibana...'
+                    title: 'Opening in Kibana...'
                 }, async () => {
-                    const { dashboardId } = await compiler.uploadToKibana(
+                    const { dashboardUrl, dashboardId } = await compiler.uploadToKibana(
                         document.fileName,
                         0, // Default to first dashboard
                         kibanaUrl,
@@ -70,12 +71,20 @@ export function setupFileWatcher(
                         sslVerify
                     );
 
+                    // Open the dashboard in browser
+                    const uri = vscode.Uri.parse(dashboardUrl);
+                    if (browserType === 'simple') {
+                        await vscode.commands.executeCommand('simpleBrowser.show', dashboardUrl);
+                    } else {
+                        await vscode.env.openExternal(uri);
+                    }
+
                     // Show subtle success message in status bar
-                    vscode.window.setStatusBarMessage(`$(cloud-upload) Uploaded to Kibana (ID: ${dashboardId})`, 5000);
+                    vscode.window.setStatusBarMessage(`$(link-external) Opened in Kibana (ID: ${dashboardId})`, 5000);
                 });
             } catch (error) {
                 // Silent failure - just show in status bar, don't interrupt workflow
-                vscode.window.setStatusBarMessage(`$(error) Kibana upload failed: ${error instanceof Error ? error.message : String(error)}`, 5000);
+                vscode.window.setStatusBarMessage(`$(error) Kibana open failed: ${error instanceof Error ? error.message : String(error)}`, 5000);
             }
         }
     });

@@ -254,7 +254,7 @@ class TestCompileYamlToJsonErrorHandling:
         empty_file = tmp_path / 'empty.yaml'
         empty_file.write_text('')
 
-        json_lines, error = compile_yaml_to_json(empty_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(empty_file)
         assert json_lines == []
         assert error is not None
         assert 'empty.yaml' in error
@@ -266,7 +266,7 @@ class TestCompileYamlToJsonErrorHandling:
         invalid_file = tmp_path / 'invalid.yaml'
         invalid_file.write_text('dashboards:\n  - name: Test\n    panels:\n      - title: Bad\n      grid: {x: 0\n')
 
-        json_lines, error = compile_yaml_to_json(invalid_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(invalid_file)
         assert json_lines == []
         assert error is not None
         assert 'YAML syntax error in invalid.yaml' in error
@@ -279,7 +279,7 @@ class TestCompileYamlToJsonErrorHandling:
         missing_key_file = tmp_path / 'missing-key.yaml'
         missing_key_file.write_text('panels:\n  - title: Test\n')
 
-        json_lines, error = compile_yaml_to_json(missing_key_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(missing_key_file)
         assert json_lines == []
         assert error is not None
         assert 'missing-key.yaml' in error
@@ -292,7 +292,7 @@ class TestCompileYamlToJsonErrorHandling:
         missing_name_file = tmp_path / 'missing-name.yaml'
         missing_name_file.write_text('dashboards:\n  - description: Test\n    panels: []\n')
 
-        json_lines, error = compile_yaml_to_json(missing_name_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(missing_name_file)
         assert json_lines == []
         assert error is not None
         assert 'missing-name.yaml' in error
@@ -304,7 +304,7 @@ class TestCompileYamlToJsonErrorHandling:
 
         nonexistent_file = tmp_path / 'nonexistent.yaml'
 
-        json_lines, error = compile_yaml_to_json(nonexistent_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(nonexistent_file)
         assert json_lines == []
         assert error is not None
         assert 'not found' in error
@@ -325,6 +325,7 @@ dashboards:
           content: Hello World
 """)
 
-        json_lines, error = compile_yaml_to_json(valid_file)
+        json_lines, dashboards, error = compile_yaml_to_json(valid_file)
         assert error is None
         assert len(json_lines) == 1
+        assert len(dashboards) == 1
