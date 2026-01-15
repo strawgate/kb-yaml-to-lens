@@ -446,7 +446,8 @@ dashboards:
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
             - EVAL is_accepted = CASE(aws.vpc.flow.action == "ACCEPT", 1, 0)
             - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
-            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes), total_packets = SUM(aws.vpc.flow.packets) BY source.address
+            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes),
+              total_packets = SUM(aws.vpc.flow.packets) BY source.address
             - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
             - LIMIT 20
@@ -971,7 +972,8 @@ dashboards:
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
             - EVAL is_accepted = CASE(aws.vpc.flow.action == "ACCEPT", 1, 0)
             - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
-            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes), unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources = COUNT_DISTINCT(source.address) BY cloud.account.id
+            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes),
+              unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources = COUNT_DISTINCT(source.address) BY cloud.account.id
             - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
           dimensions:
