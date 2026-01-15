@@ -700,6 +700,7 @@ class TestCompileLensChartState:
         )
 
         # Verify datasource layers
+        assert state.datasourceStates.formBased is not None
         form_based_layers = list(state.datasourceStates.formBased.layers.root.values())
         assert len(form_based_layers) == 2
 

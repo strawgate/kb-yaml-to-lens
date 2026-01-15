@@ -144,6 +144,7 @@ class KbnIndexPatternBasedDataSourceState(BaseVwModel):
 
 # endregion Index Pattern
 
+
 # region DataSourceState
 class KbnDataSourceState(BaseVwModel):
     """Represents the overall datasource states for a Lens panel in the Kibana JSON structure."""
