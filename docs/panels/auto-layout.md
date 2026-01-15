@@ -249,41 +249,6 @@ dashboards:
 
 The auto-layout algorithm respects locked panels and positions auto panels around them.
 
-## Migration from Grid-Based Layout
-
-### Old Way (Grid)
-
-```yaml
-panels:
-  - markdown:
-      content: "My panel"
-    title: "Panel"
-    grid:
-      x: 0
-      y: 0
-      w: 24
-      h: 12
-```
-
-### New Way (Size + Position)
-
-```yaml
-panels:
-  - markdown:
-      content: "My panel"
-    title: "Panel"
-    size:
-      w: half  # or 24
-      h: 12
-    position:  # Optional for auto-layout
-      x: 0
-      y: 0
-```
-
-### Backward Compatibility
-
-The old `grid` field is still supported for backward compatibility, but new dashboards should use `size` and `position` fields for better flexibility and auto-layout support.
-
 ## Field Aliases
 
 Both `size` and `position` support verbose aliases for readability:

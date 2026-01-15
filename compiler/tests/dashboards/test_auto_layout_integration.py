@@ -104,32 +104,6 @@ class TestAutoLayoutIntegration:
         assert kbn_panels[2].gridData.x == 36  # Next panel at 24 + 12 = 36
         assert kbn_panels[2].gridData.y == 0
 
-    def test_legacy_grid_field_still_works(self) -> None:
-        """Test that legacy grid field still works for backward compatibility."""
-        dashboard = Dashboard(
-            name='Legacy Grid Test',
-            panels=[
-                MarkdownPanel(
-                    title='Legacy',
-                    grid={'x': 10, 'y': 5, 'w': 20, 'h': 15},
-                    markdown={'content': 'Test'},
-                ),
-            ],
-        )
-
-        # Legacy grid should translate to position and size
-        assert dashboard.panels[0].position.x == 10
-        assert dashboard.panels[0].position.y == 5
-        assert dashboard.panels[0].size.w == 20
-        assert dashboard.panels[0].size.h == 15
-
-        _, kbn_panels = compile_dashboard_panels(dashboard.panels)
-
-        assert kbn_panels[0].gridData.x == 10
-        assert kbn_panels[0].gridData.y == 5
-        assert kbn_panels[0].gridData.w == 20
-        assert kbn_panels[0].gridData.h == 15
-
     def test_full_width_panel_then_auto_panels(self) -> None:
         """Test full-width panel followed by auto-positioned panels."""
         dashboard = Dashboard(

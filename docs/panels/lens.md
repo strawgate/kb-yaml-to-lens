@@ -88,7 +88,8 @@ This is the main object for a Lens-based visualization. It inherits from the [Ba
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
-| `grid` | `Grid` object | Defines the panel's position and size. Inherited from BasePanel. See [Grid Object Configuration](base.md#grid-object-configuration-legacy). | N/A | Yes |
+| `size` | `Size` object | Defines the panel's width and height. Inherited from BasePanel. See [Size Object Configuration](base.md#size-object-configuration-size). | `w: 12, h: 8` | No |
+| `position` | `Position` object | Defines the panel's x/y coordinates. Inherited from BasePanel. See [Position Object Configuration](base.md#position-object-configuration-position). | Auto-calculated | No |
 | `query` | `LegacyQueryTypes` object (KQL or Lucene) | A panel-specific query to filter data for this Lens visualization. See [Queries Documentation](../queries/config.md). | `None` (uses dashboard query) | No |
 | `filters` | `list of FilterTypes` | A list of panel-specific filters. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `chart` | `LensChartTypes` object | Defines the actual Lens visualization configuration. This will be one of [Lens Metric Chart](#lens-metric-chart-charttype-metric) or [Lens Pie Chart](#lens-pie-chart-charttype-pie). | N/A | Yes |

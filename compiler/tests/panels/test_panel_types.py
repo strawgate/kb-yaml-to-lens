@@ -12,37 +12,41 @@ class TestGetPanelType:
 
     def test_identifies_markdown_from_dict(self) -> None:
         """Test that markdown panel type is identified from a dict."""
-        panel_dict = {'markdown': 'Some markdown content', 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {'markdown': 'Some markdown content', 'position': {'x': 0, 'y': 0}, 'size': {'w': 12, 'h': 4}}
         assert get_panel_type(panel_dict) == 'markdown'
 
     def test_identifies_search_from_dict(self) -> None:
         """Test that search panel type is identified from a dict."""
-        panel_dict = {'search': 'search-id', 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {'search': 'search-id', 'position': {'x': 0, 'y': 0}, 'size': {'w': 12, 'h': 4}}
         assert get_panel_type(panel_dict) == 'search'
 
     def test_identifies_links_from_dict(self) -> None:
         """Test that links panel type is identified from a dict."""
-        panel_dict = {'links': [{'url': 'https://example.com', 'label': 'Example'}], 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {
+            'links': [{'url': 'https://example.com', 'label': 'Example'}],
+            'position': {'x': 0, 'y': 0},
+            'size': {'w': 12, 'h': 4},
+        }
         assert get_panel_type(panel_dict) == 'links'
 
     def test_identifies_image_from_dict(self) -> None:
         """Test that image panel type is identified from a dict."""
-        panel_dict = {'image': 'https://example.com/image.png', 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {'image': 'https://example.com/image.png', 'position': {'x': 0, 'y': 0}, 'size': {'w': 12, 'h': 4}}
         assert get_panel_type(panel_dict) == 'image'
 
     def test_identifies_lens_from_dict(self) -> None:
         """Test that lens panel type is identified from a dict."""
-        panel_dict = {'lens': {'charts': []}, 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {'lens': {'charts': []}, 'position': {'x': 0, 'y': 0}, 'size': {'w': 12, 'h': 4}}
         assert get_panel_type(panel_dict) == 'lens'
 
     def test_identifies_esql_from_dict(self) -> None:
         """Test that esql panel type is identified from a dict."""
-        panel_dict = {'esql': {'charts': []}, 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {'esql': {'charts': []}, 'position': {'x': 0, 'y': 0}, 'size': {'w': 12, 'h': 4}}
         assert get_panel_type(panel_dict) == 'esql'
 
     def test_raises_error_for_unknown_dict(self) -> None:
         """Test that an error is raised for a dict with unknown keys."""
-        panel_dict = {'unknown': 'value', 'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 4}}
+        panel_dict = {'unknown': 'value', 'position': {'x': 0, 'y': 0}, 'size': {'w': 12, 'h': 4}}
         with pytest.raises(ValueError, match='Cannot determine panel type from dict with keys'):
             _ = get_panel_type(panel_dict)
 

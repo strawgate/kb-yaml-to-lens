@@ -770,7 +770,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS count()',
@@ -803,7 +804,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS count()',
@@ -833,7 +835,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
@@ -858,7 +861,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM metrics-* | STATS count() BY @timestamp',
@@ -934,7 +938,7 @@ class TestCompileESQLChartState:
         ]
 
         for chart_config in test_cases:
-            panel = ESQLPanel.model_validate({'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15}, 'esql': chart_config})
+            panel = ESQLPanel.model_validate({'position': {'x': 0, 'y': 0}, 'size': {'w': 24, 'h': 15}, 'esql': chart_config})
 
             state, layer_id = compile_esql_chart_state(panel)
             assert state.datasourceStates.textBased is not None
@@ -963,7 +967,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM logs-* | STATS count() BY time_bucket',
@@ -995,7 +1000,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
@@ -1025,7 +1031,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM logs-* | STATS count() BY category, time_bucket',
@@ -1058,7 +1065,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY date_bucket',
@@ -1087,7 +1095,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'heatmap',
                     'query': 'FROM logs-* | STATS count() BY time_bucket, status',
@@ -1123,7 +1132,8 @@ class TestCompileChartsPanelConfig:
             {
                 'title': 'My Metric Panel',
                 'hide_title': True,
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'lens': {
                     'type': 'metric',
                     'data_view': 'metrics-*',
@@ -1144,7 +1154,8 @@ class TestCompileChartsPanelConfig:
             {
                 'title': 'My Metric Panel',
                 'hide_title': False,
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'lens': {
                     'type': 'metric',
                     'data_view': 'metrics-*',
@@ -1164,7 +1175,8 @@ class TestCompileChartsPanelConfig:
         panel = LensPanel.model_validate(
             {
                 'title': 'My Metric Panel',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'lens': {
                     'type': 'metric',
                     'data_view': 'metrics-*',
@@ -1185,7 +1197,8 @@ class TestCompileChartsPanelConfig:
             {
                 'title': 'My ESQL Metric',
                 'hide_title': True,
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS count()',

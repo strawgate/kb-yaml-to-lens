@@ -376,7 +376,8 @@ def test_metric_chart_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Metric',
                 'id': 'metric-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 8},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 12, 'h': 8},
                 'lens': {
                     'type': 'metric',
                     'data_view': 'metrics-*',

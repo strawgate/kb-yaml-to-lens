@@ -53,7 +53,7 @@ dashboards:
         y: 0
 ```
 
-**Note:** The newer `size` and `position` fields are recommended over the legacy `grid` field. See [Auto-Layout Guide](./auto-layout.md) for details on automatic panel positioning.
+**Note:** See [Auto-Layout Guide](./auto-layout.md) for details on automatic panel positioning.
 
 ## Full Configuration Options
 
@@ -67,11 +67,8 @@ These fields are available for all panel types and are inherited from the `BaseP
 | `title` | `string` | The title displayed on the panel header. Can be an empty string if you wish for no visible title. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title (even if defined) will be hidden. | `false` (title is shown) | No |
 | `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
-| `size` | `Size` object | **Recommended:** Defines the panel's width and height. See [Size Object Configuration](#size-object-configuration-size) below. | `w: 12, h: 8` | No* |
+| `size` | `Size` object | Defines the panel's width and height. See [Size Object Configuration](#size-object-configuration-size) below. | `w: 12, h: 8` | No |
 | `position` | `Position` object | **Optional:** Defines the panel's x/y coordinates. Omit for automatic positioning. See [Position Object Configuration](#position-object-configuration-position) below. | Auto-calculated | No |
-| `grid` | `Grid` object | **Legacy:** Combined position and size. See [Grid Object Configuration](#grid-object-configuration-legacy) below. Use `size` + `position` instead. | N/A | No* |
-
-\* Either `grid` OR (`size` + optional `position`) must be provided. The `size` + `position` approach is recommended for new dashboards.
 
 **Note on Panel Types**: Each panel must have exactly one key identifying its type (e.g., `markdown`, `lens`, `search`, `links`, `image`, `esql`). This key contains the type-specific configuration.
 
@@ -141,48 +138,6 @@ position:
 size:
   w: quarter
   h: 8
-```
-
-### Grid Object Configuration (Legacy)
-
-**Note:** The `grid` field is supported for backward compatibility, but the `size` + `position` approach is recommended for new dashboards.
-
-The `grid` object combines position and size in a single field. The dashboard uses a 48-column grid, and `w` and `h` are unitless and relative to this grid system.
-
-Both shorthand and verbose parameter names are supported for improved readability. You can mix and match both forms in the same configuration.
-
-| YAML Key | Verbose Alternative | Data Type | Description | Kibana Default | Required |
-| -------- | ------------------- | --------- | ------------------------------------------------------------------------ | -------------- | -------- |
-| `x` | `from_left` | `integer` | The horizontal starting position of the panel on the grid (0-based index). | N/A | Yes |
-| `y` | `from_top` | `integer` | The vertical starting position of the panel on the grid (0-based index). | N/A | Yes |
-| `w` | `width` | `integer` | The width of the panel in grid units. | N/A | Yes |
-| `h` | `height` | `integer` | The height of the panel in grid units. | N/A | Yes |
-
-**Example of `grid` usage:**
-
-```yaml
-# Shorthand syntax (concise)
-panels:
-  - markdown:
-      content: "..."
-    title: "Top Left Panel"
-    size: {w: 24, h: 5}  # Half width (24 out of 48 columns), height of 5 units
-    position: {x: 0, y: 0}  # Starts at far left, very top
-
-  # Verbose syntax (explicit)
-  - lens:
-      type: metric
-      # ... lens configuration ...
-    title: "Top Right Panel"
-    size: {width: 24, height: 5}      # Remaining 24 columns, height of 5
-    position: {from_left: 24, from_top: 0}  # Starts at 25th column, very top
-
-  # Mixed syntax (both forms work together)
-  - markdown:
-      content: "..."
-    title: "Bottom Panel"
-    size: {width: 48, h: 10}   # Full width (48), height of 10
-    position: {x: 0, from_top: 5}  # Starts at left, 5 units from top
 ```
 
 ## Panel Types (Specific Configurations)

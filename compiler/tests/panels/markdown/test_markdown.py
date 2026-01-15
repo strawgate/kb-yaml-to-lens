@@ -141,7 +141,8 @@ def test_markdown_panel_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Test Markdown',
                 'id': 'markdown-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 10},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 10},
                 'markdown': {
                     'content': '# Test Content',
                 },

@@ -358,7 +358,8 @@ def test_gauge_chart_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Gauge',
                 'id': 'gauge-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 12, 'h': 10},
                 'lens': {
                     'type': 'gauge',
                     'data_view': 'metrics-*',

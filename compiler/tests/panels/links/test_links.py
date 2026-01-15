@@ -243,7 +243,8 @@ def test_links_panel_url_link_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Test Links',
                 'id': 'links-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 4},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 4},
                 'links': {
                     'items': [
                         {'url': 'https://elastic.co', 'label': 'Elastic'},
@@ -271,7 +272,8 @@ def test_links_panel_dashboard_link_references_bubble_up() -> None:
             {
                 'title': 'Navigation Links',
                 'id': 'links-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 4},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 4},
                 'links': {
                     'items': [
                         {
