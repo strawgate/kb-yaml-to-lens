@@ -71,14 +71,30 @@ echo "Test 11: Actual compilation test"
 TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
-# Note: compile command returns exit code = number of changed files (capped at 125).
-# This is intentional for CI sync detection. Since we're writing to a fresh temp dir,
-# all files will be "new" (changed), so we expect a non-zero exit code.
-# We use || true to prevent set -e from failing, then check for actual errors.
+# Default behavior: compile returns exit code 0 on success
+uv run kb-dashboard compile \
+  --input-dir "$PROJECT_ROOT/docs/examples" \
+  --output-dir "$TEMP_OUTPUT" > /dev/null 2>&1
+
+# Verify output files exist
+if [ ! -f "$TEMP_OUTPUT/examples.ndjson" ]; then
+  echo "✗ Expected output file not found"
+  exit 1
+fi
+echo "✓ Compilation works and generates output"
+
+# Test 12: Test --exit-non-zero-on-change flag
+echo "Test 12: Test --exit-non-zero-on-change flag"
+TEMP_OUTPUT_FLAG=$(mktemp -d)
+trap 'rm -rf "$TEMP_OUTPUT" "$TEMP_OUTPUT_FLAG"' EXIT
+
+# With --exit-non-zero-on-change, compile returns exit code = number of changed files (capped at 125).
+# Since we're writing to a fresh temp dir, all files will be "new" (changed), so we expect non-zero.
 compile_exit_code=0
 uv run kb-dashboard compile \
   --input-dir "$PROJECT_ROOT/docs/examples" \
-  --output-dir "$TEMP_OUTPUT" > /dev/null 2>&1 || compile_exit_code=$?
+  --output-dir "$TEMP_OUTPUT_FLAG" \
+  --exit-non-zero-on-change > /dev/null 2>&1 || compile_exit_code=$?
 
 # Exit codes 1-125 indicate changed files (success). Exit codes > 125 indicate actual errors.
 if [ $compile_exit_code -gt 125 ]; then
@@ -86,15 +102,15 @@ if [ $compile_exit_code -gt 125 ]; then
   exit 1
 fi
 
-# Verify output files exist
-if [ ! -f "$TEMP_OUTPUT/examples.ndjson" ]; then
-  echo "✗ Expected output file not found"
+if [ $compile_exit_code -eq 0 ]; then
+  echo "✗ Expected non-zero exit code with --exit-non-zero-on-change flag"
   exit 1
 fi
-echo "✓ Compilation works and generates output (exit code $compile_exit_code indicates $compile_exit_code changed files)"
 
-# Test 12: Verify NDJSON format
-echo "Test 12: Verify NDJSON output format"
+echo "✓ --exit-non-zero-on-change flag works (exit code $compile_exit_code indicates $compile_exit_code changed files)"
+
+# Test 13: Verify NDJSON format
+echo "Test 13: Verify NDJSON output format"
 if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/examples.ndjson"; then
   echo "✗ Output doesn't contain expected dashboard JSON"
   exit 1

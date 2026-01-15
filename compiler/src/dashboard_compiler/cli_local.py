@@ -262,6 +262,11 @@ async def _upload_to_kibana(
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
+@click.option(
+    '--exit-non-zero-on-change',
+    is_flag=True,
+    help='Exit with non-zero code when files change (useful for CI sync detection).',
+)
 def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
@@ -271,6 +276,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     upload: bool,
     no_browser: bool,
     overwrite: bool,
+    exit_non_zero_on_change: bool,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -284,8 +290,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     - ndjson (default): Groups dashboards by directory into NDJSON files
     - json: Creates individual pretty-printed JSON files per dashboard
 
-    The exit code indicates the number of files that changed (capped at 125),
-    which is useful for CI workflows to detect when YAML and JSON are out of sync.
+    By default, the command exits with code 0 on success. Use --exit-non-zero-on-change
+    to enable CI sync detection mode, where the exit code equals the number of files
+    that changed (capped at 125).
 
     \b
     Examples:
@@ -419,8 +426,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             combined_file = output_dir / output_file
             asyncio.run(_upload_to_kibana(cli_context.kibana_client, combined_file, overwrite, not no_browser))
 
-    exit_code = min(changed_files_count, MAX_EXIT_CODE)
-    ctx.exit(exit_code)
+    if exit_non_zero_on_change is True:
+        exit_code = min(changed_files_count, MAX_EXIT_CODE)
+        ctx.exit(exit_code)
 
 
 @click.command('disassemble')
