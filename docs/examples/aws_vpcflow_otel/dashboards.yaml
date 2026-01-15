@@ -60,8 +60,9 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - STATS total_flows = COUNT(), rejected_flows = COUNT(*) WHERE aws.vpc.flow.action == "REJECT"
-            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows / total_flows, 0)
+            - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
+            - STATS total_flows = COUNT(), rejected_flows = SUM(is_rejected)
+            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
           primary:
             field: rejection_rate
             label: Rejection Rate
@@ -443,9 +444,10 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
-            - STATS total_flows = COUNT(), accepted_flows = COUNT(*) WHERE aws.vpc.flow.action == "ACCEPT", rejected_flows = COUNT(*) WHERE aws.vpc.flow.action
-              == "REJECT", total_bytes = SUM(aws.vpc.flow.bytes), total_packets = SUM(aws.vpc.flow.packets) BY source.address
-            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows / total_flows, 0)
+            - EVAL is_accepted = CASE(aws.vpc.flow.action == "ACCEPT", 1, 0)
+            - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
+            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes), total_packets = SUM(aws.vpc.flow.packets) BY source.address
+            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
             - LIMIT 20
           dimensions:
@@ -493,7 +495,7 @@ dashboards:
             - STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY source.address
             - WHERE first_half_count > 0
             - EVAL change_count = second_half_count - first_half_count
-            - EVAL change_pct = change_count / first_half_count
+            - EVAL change_pct = change_count::double / first_half_count::double
             - EVAL abs_change = ABS(change_count)
             - SORT abs_change DESC
             - LIMIT 20
@@ -531,7 +533,7 @@ dashboards:
             - STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY destination.port
             - WHERE first_half_count > 0
             - EVAL change_count = second_half_count - first_half_count
-            - EVAL change_pct = change_count / first_half_count
+            - EVAL change_pct = change_count::double / first_half_count::double
             - EVAL abs_change = ABS(change_count)
             - SORT abs_change DESC
             - LIMIT 20
@@ -934,7 +936,7 @@ dashboards:
             - STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY network.interface.name
             - WHERE first_half_count > 0
             - EVAL change_count = second_half_count - first_half_count
-            - EVAL change_pct = change_count / first_half_count
+            - EVAL change_pct = change_count::double / first_half_count::double
             - EVAL abs_change = ABS(change_count)
             - SORT abs_change DESC
             - LIMIT 20
@@ -967,10 +969,10 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
-            - STATS total_flows = COUNT(), accepted_flows = COUNT(*) WHERE aws.vpc.flow.action == "ACCEPT", rejected_flows = COUNT(*) WHERE aws.vpc.flow.action
-              == "REJECT", total_bytes = SUM(aws.vpc.flow.bytes), unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources =
-              COUNT_DISTINCT(source.address) BY cloud.account.id
-            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows / total_flows, 0)
+            - EVAL is_accepted = CASE(aws.vpc.flow.action == "ACCEPT", 1, 0)
+            - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
+            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes), unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources = COUNT_DISTINCT(source.address) BY cloud.account.id
+            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
           dimensions:
             - field: cloud.account.id
