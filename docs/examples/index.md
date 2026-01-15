@@ -286,6 +286,50 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### AWS VPC Flow Logs Dashboards
+
+AWS VPC Flow Logs monitoring dashboards using OpenTelemetry data format.
+
+**Use this when:** Monitoring AWS VPC Flow Logs for network traffic analysis and security monitoring.
+
+**Features:** Advanced ES|QL queries, traffic distribution analysis, rejection rate tracking, interface-level monitoring, and security deep dives.
+
+#### VPC Flow Logs Overview
+
+High-level KPIs and trends including flow records, rejection rates, bandwidth, active interfaces, and top rejected traffic.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (vpc_flow_otel/01-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/vpc_flow_otel/01-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Traffic Analysis
+
+Detailed traffic distribution, source analysis, and security deep dive with protocol analysis and rejected traffic logs.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (vpc_flow_otel/02-traffic-analysis.yaml)"
+
+    ```yaml
+    --8<-- "examples/vpc_flow_otel/02-traffic-analysis.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Interface Analysis
+
+Per-interface deep dive for investigating specific network interfaces with traffic breakdowns and cloud account analysis.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (vpc_flow_otel/03-interface-analysis.yaml)"
+
+    ```yaml
+    --8<-- "examples/vpc_flow_otel/03-interface-analysis.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/examples/` directory of the repository. You can:
