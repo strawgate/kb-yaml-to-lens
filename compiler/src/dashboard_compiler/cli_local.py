@@ -20,6 +20,7 @@ from dashboard_compiler.cli_output import (
     console,
     create_error_table,
     create_progress,
+    print_bullet,
     print_dim_bullet,
     print_error,
     print_plain,
@@ -62,6 +63,13 @@ def sanitize_filename(name: str, max_length: int = 200) -> str:
     # Replace spaces with underscores and trim whitespace
     result = result.strip().replace(' ', '_')
 
+    # Strip leading dots to avoid hidden files and reserved names
+    result = result.lstrip('.')
+
+    # Handle empty or reserved results
+    if len(result) == 0 or result in ('.', '..'):
+        result = 'untitled'
+
     # Truncate to max length
     if len(result) > max_length:
         result = result[:max_length]
@@ -70,18 +78,18 @@ def sanitize_filename(name: str, max_length: int = 200) -> str:
 
 
 def file_content_changed(file_path: Path, new_content: str) -> bool:
-    """Check if a file's content differs from new content.
+    """Check if writing new content would change the filesystem.
 
     Args:
         file_path: Path to the existing file.
         new_content: New content to compare against.
 
     Returns:
-        True if the file exists and has different content, False otherwise.
+        True if the file doesn't exist or has different content, False otherwise.
 
     """
     if not file_path.exists():
-        return False
+        return True
 
     existing_content = file_path.read_text(encoding='utf-8')
     return existing_content != new_content
@@ -96,8 +104,8 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
         overwrite: Whether to overwrite the output file if it exists.
 
     """
-    if overwrite is True and output_path.exists():
-        output_path.unlink()
+    if overwrite is False and output_path.exists():
+        return
 
     with output_path.open('w', encoding='utf-8') as f:
         for line in lines:
@@ -310,6 +318,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
         raise TypeError(msg)
     cli_context = ctx.obj
 
+    # Normalize output format once for consistent comparisons
+    output_format_lower = output_format.lower()
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_files = get_yaml_files(input_dir)
@@ -335,7 +346,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             compiled_jsons, kbn_dashboards, error = compile_yaml_to_json(yaml_file)
 
             if len(compiled_jsons) > 0:
-                if output_format.lower() == 'json':
+                if output_format_lower == 'json':
                     for kbn_dashboard in kbn_dashboards:
                         dashboard_name = kbn_dashboard.attributes.title
                         safe_name = sanitize_filename(dashboard_name)
@@ -354,7 +365,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
             progress.advance(task)
 
-    if output_format.lower() == 'json':
+    if output_format_lower == 'json':
         for json_file, json_content in json_files_to_write:
             if file_content_changed(json_file, json_content):
                 changed_files_count += 1
@@ -373,15 +384,13 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     if len(errors) > 0:
         print_warning(f'Encountered {len(errors)} error(s):')
         for error in errors:
-            from dashboard_compiler.cli_output import print_bullet
-
             print_bullet(error)
 
     if len(ndjson_lines) == 0:
         print_error('No valid YAML configurations found or compiled.')
         return
 
-    if output_format.lower() == 'json':
+    if output_format_lower == 'json':
         print_success(f'Wrote {len(json_files_to_write)} individual JSON file(s)')
     else:
         combined_file = output_dir / output_file
@@ -401,7 +410,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
         print_success('No files changed')
 
     if upload is True:
-        if output_format.lower() == 'json':
+        if output_format_lower == 'json':
             print_warning('Upload is not supported with --format json')
         else:
             if cli_context.kibana_client is None:

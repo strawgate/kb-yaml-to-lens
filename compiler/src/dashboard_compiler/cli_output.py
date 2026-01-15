@@ -26,6 +26,8 @@ ICON_BROWSER = '[>]' if _USE_ASCII_ICONS else '🌐'
 def print_success(message: str) -> None:
     """Print a success message with green checkmark icon.
 
+    The icon is styled green while the message text remains default.
+
     Args:
         message: The message to display.
 
@@ -36,21 +38,25 @@ def print_success(message: str) -> None:
 def print_error(message: str) -> None:
     """Print an error message with red X icon.
 
+    The icon is styled red while the message text remains default.
+
     Args:
         message: The message to display.
 
     """
-    console.print(f'[red]{ICON_ERROR}[/red] {message}', style='red')
+    console.print(f'[red]{ICON_ERROR}[/red] {message}')
 
 
 def print_warning(message: str) -> None:
     """Print a warning message with yellow warning icon.
 
+    The icon is styled yellow while the message text remains default.
+
     Args:
         message: The message to display.
 
     """
-    console.print(f'[yellow]{ICON_WARNING}[/yellow] {message}', style='yellow')
+    console.print(f'[yellow]{ICON_WARNING}[/yellow] {message}')
 
 
 def print_info(message: str, icon: str | None = None) -> None:

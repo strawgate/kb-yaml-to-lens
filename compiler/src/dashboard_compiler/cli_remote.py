@@ -1,6 +1,7 @@
 """CLI commands for remote Kibana and Elasticsearch operations."""
 
 import asyncio
+import json
 import urllib.parse
 import webbrowser
 from pathlib import Path
@@ -18,6 +19,7 @@ from dashboard_compiler.cli_options import elasticsearch_options, kibana_options
 from dashboard_compiler.cli_output import (
     create_progress,
     print_browser,
+    print_bullet,
     print_detail,
     print_download,
     print_error,
@@ -539,8 +541,6 @@ async def _load_all_sample_data(
         click.ClickException: If sample data loading fails.
 
     """
-    from dashboard_compiler.cli_output import print_bullet
-
     try:
         total_loaded = 0
         total_errors: list[str] = []
@@ -674,8 +674,6 @@ async def _extract_data(
         click.ClickException: If extraction fails.
 
     """
-    import json
-
     try:
         response = await es_client.search(
             index=index,
@@ -691,11 +689,15 @@ async def _extract_data(
             print_plain('No documents found matching the query.', style='yellow')
             return
 
-        with output.open('w') as f:
+        # Write to temp file first, then atomically replace
+        output.parent.mkdir(parents=True, exist_ok=True)
+        tmp_output = output.with_suffix(output.suffix + '.tmp')
+        with tmp_output.open('w') as f:
             for hit in hits:  # pyright: ignore[reportAny]
                 source = hit['_source']  # pyright: ignore[reportAny]
                 _ = f.write(json.dumps(source))
                 _ = f.write('\n')
+        _ = tmp_output.replace(output)
 
         print_success(f'Successfully extracted {doc_count} document(s) to {output}')
 
