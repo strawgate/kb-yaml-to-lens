@@ -8,7 +8,7 @@ from pathlib import Path
 
 from inline_snapshot import snapshot
 
-from dashboard_compiler.cli import compile_yaml_to_json
+from dashboard_compiler.cli_local import compile_yaml_to_json
 
 
 class TestYamlSyntaxErrors:
