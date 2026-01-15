@@ -83,6 +83,16 @@
         "command": "yamlDashboard.compileFolderAndUpload",
         "title": "Compile Folder and Upload to Kibana",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.enableOpenOnSave",
+        "title": "Enable Open in Kibana on Save",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.disableOpenOnSave",
+        "title": "Disable Open in Kibana on Save",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -118,10 +128,10 @@
           ],
           "description": "Browser type to use when opening Kibana dashboards"
         },
-        "yamlDashboard.kibana.uploadOnSave": {
+        "yamlDashboard.kibana.openOnSave": {
           "type": "boolean",
           "default": false,
-          "description": "Automatically upload dashboard to Kibana when YAML file is saved (requires Kibana URL and credentials to be configured)"
+          "description": "Automatically upload and open dashboard in Kibana when YAML file is saved (requires Kibana URL and credentials to be configured)"
         }
       }
     },
@@ -141,6 +151,16 @@
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.openInKibana",
           "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.enableOpenOnSave",
+          "group": "2_kibana"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.disableOpenOnSave",
+          "group": "2_kibana"
         }
       ],
       "editor/title": [
