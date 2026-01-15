@@ -7,9 +7,6 @@ import sys
 import webbrowser
 from pathlib import Path
 
-# Import TYPE_CHECKING for forward reference
-from typing import TYPE_CHECKING
-
 import rich_click as click
 import yaml
 from pydantic import ValidationError
@@ -31,11 +28,9 @@ from dashboard_compiler.cli_output import (
 )
 from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.dashboard_compiler import load, render
+from dashboard_compiler.kibana_client import KibanaClient  # noqa: TC001
 from dashboard_compiler.shared.error_formatter import format_validation_error, format_yaml_error
 from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_ndjson
-
-if TYPE_CHECKING:
-    from dashboard_compiler.kibana_client import KibanaClient
 
 # Constants
 PROJECT_ROOT = Path(__file__).parent.parent.parent
