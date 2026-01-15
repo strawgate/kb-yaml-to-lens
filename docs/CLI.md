@@ -69,17 +69,20 @@ This will:
 
 - Create one pretty-printed JSON file per dashboard
 - Name files based on the dashboard title (sanitized for filesystem safety)
-- Set the exit code to the number of files that changed (useful for CI)
 
-The exit code feature is useful for CI pipelines to detect when YAML and JSON files are out of sync:
+### CI Sync Detection
+
+Use the `--exit-non-zero-on-change` flag to detect when YAML and JSON files are out of sync in CI pipelines:
 
 ```bash
-kb-dashboard compile --format json --output-dir ./dashboards
+kb-dashboard compile --format json --output-dir ./dashboards --exit-non-zero-on-change
 if [ $? -ne 0 ]; then
     echo "Dashboard JSON files are out of sync with YAML sources"
     exit 1
 fi
 ```
+
+When this flag is enabled, the exit code equals the number of files that changed (capped at 125). By default, the command exits with code 0 on success regardless of whether files changed.
 
 ### Compile and Upload to Kibana
 
