@@ -55,8 +55,15 @@ jobs:
         working-directory: compiler
         run: make typecheck
   test-python:
-    name: Test Python
-    runs-on: ubuntu-latest
+    name: Test Python (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -108,8 +115,15 @@ jobs:
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
         run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
   test-python-cli:
-    name: Test Python CLI
-    runs-on: ubuntu-latest
+    name: Test Python CLI (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
