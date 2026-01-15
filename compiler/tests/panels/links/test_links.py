@@ -210,6 +210,53 @@ def test_compile_links_panel_dashboard_link_inverted_options() -> None:
     )
 
 
+def test_compile_links_panel_dashboard_link_partial_options() -> None:
+    """Test that dashboard links open in same tab by default when only with_time/with_filters are set.
+
+    This tests the fix for issue #925 - links should only open in a new tab when explicitly
+    configured with new_tab: true. When other options like with_time are set but new_tab is
+    not specified, openInNewTab should default to false.
+    """
+    references, result = compile_links_panel_snapshot(
+        {
+            'id': '71a1e537-eb91-4b8a-bcbe-ffa0ff9c9abf',
+            'links': {
+                'layout': 'vertical',
+                'items': [
+                    {
+                        'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
+                        'label': 'Opens in Same Tab',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'with_time': True,
+                        'with_filters': True,
+                    },
+                ],
+            },
+        }
+    )
+    assert references == snapshot(
+        [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}]
+    )
+    assert result == snapshot(
+        {
+            'attributes': {
+                'layout': 'vertical',
+                'links': [
+                    {
+                        'label': 'Opens in Same Tab',
+                        'type': 'dashboardLink',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'order': 0,
+                        'destinationRefName': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard',
+                        'options': {'openInNewTab': False, 'useCurrentDateRange': True, 'useCurrentFilters': True},
+                    }
+                ],
+            },
+            'enhancements': {},
+        }
+    )
+
+
 def test_get_link_type_raises_error_for_invalid_dict() -> None:
     """Test that get_link_type raises ValueError for dict without url or dashboard keys."""
     invalid_dict = {'label': 'Test', 'id': '123'}
