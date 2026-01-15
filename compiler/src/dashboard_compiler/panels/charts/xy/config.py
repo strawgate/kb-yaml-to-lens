@@ -447,15 +447,125 @@ class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
 
 
 class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
-    """Represents a Bar chart configuration within a ESQL panel."""
+    """Represents a Bar chart configuration within an ESQL panel.
+
+    ESQL bar charts display data from ES|QL queries as vertical bars. The `field`
+    names in the chart configuration must correspond to column names produced by
+    the ESQL query.
+
+    Examples:
+        Simple bar chart with time series:
+        ```yaml
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER timestamp_bucket ASC
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "event_count"
+        ```
+
+        Stacked bar chart with breakdown:
+        ```yaml
+        esql:
+          type: bar
+          mode: stacked
+          query: |
+            FROM logs-*
+            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), event.category
+            | ORDER timestamp_bucket ASC
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "event_count"
+          breakdown:
+            field: "event.category"
+        ```
+    """
 
 
 class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
-    """Represents a Line chart configuration within a ESQL panel."""
+    """Represents a Line chart configuration within an ESQL panel.
+
+    ESQL line charts display data from ES|QL queries as connected lines. The `field`
+    names in the chart configuration must correspond to column names produced by
+    the ESQL query.
+
+    Examples:
+        Simple line chart with time series:
+        ```yaml
+        esql:
+          type: line
+          query: |
+            FROM logs-*
+            | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER timestamp_bucket ASC
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "avg_response_time"
+        ```
+
+        Line chart with breakdown by service:
+        ```yaml
+        esql:
+          type: line
+          query: |
+            FROM logs-*
+            | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), service.name
+            | ORDER timestamp_bucket ASC
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "avg_response_time"
+          breakdown:
+            field: "service.name"
+        ```
+    """
 
 
 class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
-    """Represents an Area chart configuration within a ESQL panel."""
+    """Represents an Area chart configuration within an ESQL panel.
+
+    ESQL area charts display data from ES|QL queries as filled areas. The `field`
+    names in the chart configuration must correspond to column names produced by
+    the ESQL query. Supports stacked, unstacked, and percentage modes.
+
+    Examples:
+        Simple area chart with time series:
+        ```yaml
+        esql:
+          type: area
+          query: |
+            FROM logs-*
+            | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
+            | ORDER timestamp_bucket ASC
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "bytes_total"
+        ```
+
+        Stacked area chart with breakdown:
+        ```yaml
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            FROM logs-*
+            | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), host.name
+            | ORDER timestamp_bucket ASC
+          dimension:
+            field: "timestamp_bucket"
+          metrics:
+            - field: "bytes_total"
+          breakdown:
+            field: "host.name"
+        ```
+    """
 
 
 class LensReferenceLineLayer(BaseChart):
