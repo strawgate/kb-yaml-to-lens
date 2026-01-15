@@ -20,6 +20,7 @@ from dashboard_compiler.cli_output import (
     console,
     create_error_table,
     create_progress,
+    print_browser,
     print_bullet,
     print_dim_bullet,
     print_error,
@@ -198,8 +199,6 @@ async def _upload_to_kibana(
 
                 if len(dashboard_ids) > 0 and open_browser is True:
                     dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                    from dashboard_compiler.cli_output import print_browser
-
                     print_browser(f'Opening dashboard: {dashboard_url}')
                     _ = webbrowser.open_new_tab(dashboard_url)
 
