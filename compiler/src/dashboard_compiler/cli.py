@@ -25,6 +25,7 @@ from dashboard_compiler.cli_options import (
     kibana_options,
 )
 from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard.view import KbnDashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient, SavedObjectError
 from dashboard_compiler.lsp.server import start_server as start_lsp_server
@@ -61,6 +62,52 @@ ICON_DOWNLOAD = '[v]' if _USE_ASCII_ICONS else '📥'
 ICON_BROWSER = '[>]' if _USE_ASCII_ICONS else '🌐'
 
 MAX_GITHUB_ISSUE_URL_LENGTH = 8000
+MAX_EXIT_CODE = 125
+
+
+def sanitize_filename(name: str, max_length: int = 200) -> str:
+    """Convert a string to a filesystem-safe filename.
+
+    Args:
+        name: The name to sanitize.
+        max_length: Maximum length for the filename (default: 200).
+
+    Returns:
+        A sanitized filename safe for all filesystems.
+
+    """
+    # Replace filesystem-unsafe characters with underscores
+    unsafe_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
+    result = name
+    for char in unsafe_chars:
+        result = result.replace(char, '_')
+
+    # Replace spaces with underscores and trim whitespace
+    result = result.strip().replace(' ', '_')
+
+    # Truncate to max length
+    if len(result) > max_length:
+        result = result[:max_length]
+
+    return result
+
+
+def file_content_changed(file_path: Path, new_content: str) -> bool:
+    """Check if a file's content differs from new content.
+
+    Args:
+        file_path: Path to the existing file.
+        new_content: New content to compare against.
+
+    Returns:
+        True if the file exists and has different content, False otherwise.
+
+    """
+    if not file_path.exists():
+        return False
+
+    existing_content = file_path.read_text(encoding='utf-8')
+    return existing_content != new_content
 
 
 def create_error_table(errors: list[SavedObjectError]) -> Table:
@@ -110,32 +157,34 @@ def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) ->
             _ = f.write(line + '\n')
 
 
-def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], str | None]:
+def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], list[KbnDashboard], str | None]:
     """Compile dashboard YAML to JSON strings for NDJSON.
 
     Args:
         yaml_path: Path to the dashboard YAML configuration file.
 
     Returns:
-        Tuple of (list of JSON strings for NDJSON lines, error message or None).
+        Tuple of (list of JSON strings for NDJSON lines, list of dashboard models, error message or None).
 
     """
     try:
         dashboards = load(str(yaml_path))
         json_lines: list[str] = []
+        kbn_dashboards: list[KbnDashboard] = []
         for dashboard in dashboards:
             dashboard_kbn_model = render(dashboard)
             json_lines.append(dashboard_kbn_model.model_dump_json(by_alias=True))
+            kbn_dashboards.append(dashboard_kbn_model)
     except FileNotFoundError:
-        return [], f'YAML file not found: {yaml_path}'
+        return [], [], f'YAML file not found: {yaml_path}'
     except yaml.YAMLError as e:
-        return [], format_yaml_error(e, yaml_path)
+        return [], [], format_yaml_error(e, yaml_path)
     except ValidationError as e:
-        return [], format_validation_error(e, yaml_path)
+        return [], [], format_validation_error(e, yaml_path)
     except (ValueError, TypeError, KeyError) as e:
-        return [], f'Error compiling {yaml_path}: {e}'
+        return [], [], f'Error compiling {yaml_path}: {e}'
     else:
-        return json_lines, None
+        return json_lines, kbn_dashboards, None
 
 
 def get_yaml_files(directory: Path) -> list[Path]:
@@ -225,6 +274,13 @@ def cli(ctx: click.Context, loglevel: str) -> None:
     help='Filename for the combined output NDJSON file containing all dashboards.',
 )
 @click.option(
+    '--format',
+    'output_format',
+    type=click.Choice(['ndjson', 'json'], case_sensitive=False),
+    default='ndjson',
+    help='Output format: "ndjson" for combined files (default), "json" for individual pretty-printed files per dashboard.',
+)
+@click.option(
     '--upload',
     is_flag=True,
     help='Upload compiled dashboards to Kibana immediately after compilation.',
@@ -240,11 +296,13 @@ def cli(ctx: click.Context, loglevel: str) -> None:
     default=True,
     help='Whether to overwrite existing dashboards in Kibana (default: overwrite).',
 )
+@click.pass_context
 def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
     output_dir: Path,
     output_file: str,
+    output_format: str,
     upload: bool,
     no_browser: bool,
     overwrite: bool,
@@ -257,6 +315,13 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     Optionally, you can upload the compiled dashboards directly to Kibana
     using the --upload flag.
 
+    The --format option controls output format:
+    - ndjson (default): Groups dashboards by directory into NDJSON files
+    - json: Creates individual pretty-printed JSON files per dashboard
+
+    The exit code indicates the number of files that changed (capped at 125),
+    which is useful for CI workflows to detect when YAML and JSON are out of sync.
+
     \b
     Examples:
         # Compile dashboards from default directory
@@ -264,6 +329,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
         # Compile with custom input and output directories
         kb-dashboard compile --input-dir ./dashboards --output-dir ./output
+
+        # Compile to individual JSON files per dashboard
+        kb-dashboard compile --format json --output-dir ./output
 
         # Compile and upload to Kibana using basic auth
         kb-dashboard compile --upload --kibana-url https://kibana.example.com \
@@ -294,6 +362,8 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ndjson_lines: list[str] = []
     errors: list[str] = []
     files_to_write: dict[Path, list[str]] = {}
+    json_files_to_write: list[tuple[Path, str]] = []
+    changed_files_count = 0
 
     with Progress(
         SpinnerColumn(),
@@ -308,22 +378,40 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             except ValueError:
                 display_path = yaml_file
             progress.update(task, description=f'Compiling: {display_path}')
-            compiled_jsons, error = compile_yaml_to_json(yaml_file)
+            compiled_jsons, kbn_dashboards, error = compile_yaml_to_json(yaml_file)
 
             if len(compiled_jsons) > 0:
-                filename = yaml_file.parent.stem
-                individual_file = output_dir / f'{filename}.ndjson'
-                if individual_file not in files_to_write:
-                    files_to_write[individual_file] = []
-                files_to_write[individual_file].extend(compiled_jsons)
+                if output_format.lower() == 'json':
+                    for kbn_dashboard in kbn_dashboards:
+                        dashboard_name = kbn_dashboard.attributes.title
+                        safe_name = sanitize_filename(dashboard_name)
+                        json_file = output_dir / f'{safe_name}.json'
+                        pretty_json = kbn_dashboard.model_dump_json(by_alias=True, indent=2)
+                        json_files_to_write.append((json_file, pretty_json))
+                else:
+                    filename = yaml_file.parent.stem
+                    individual_file = output_dir / f'{filename}.ndjson'
+                    if individual_file not in files_to_write:
+                        files_to_write[individual_file] = []
+                    files_to_write[individual_file].extend(compiled_jsons)
                 ndjson_lines.extend(compiled_jsons)
             elif error is not None:
                 errors.append(error)
 
             progress.advance(task)
 
-    for individual_file, jsons in files_to_write.items():
-        write_ndjson(individual_file, jsons, overwrite=True)
+    if output_format.lower() == 'json':
+        for json_file, json_content in json_files_to_write:
+            if file_content_changed(json_file, json_content):
+                changed_files_count += 1
+            with json_file.open('w', encoding='utf-8') as f:
+                _ = f.write(json_content)
+    else:
+        for individual_file, jsons in files_to_write.items():
+            content = '\n'.join(jsons) + '\n'
+            if file_content_changed(individual_file, content):
+                changed_files_count += 1
+            write_ndjson(individual_file, jsons, overwrite=True)
 
     if len(ndjson_lines) > 0:
         console.print(f'[green]{ICON_SUCCESS}[/green] Successfully compiled {len(ndjson_lines)} dashboard(s)')
@@ -337,20 +425,38 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
         console.print(f'[red]{ICON_ERROR}[/red] No valid YAML configurations found or compiled.', style='red')
         return
 
-    combined_file = output_dir / output_file
-    write_ndjson(combined_file, ndjson_lines, overwrite=True)
-    try:
-        display_path = combined_file.relative_to(PROJECT_ROOT)
-    except ValueError:
-        display_path = combined_file
-    console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
+    if output_format.lower() == 'json':
+        console.print(f'[green]{ICON_SUCCESS}[/green] Wrote {len(json_files_to_write)} individual JSON file(s)')
+    else:
+        combined_file = output_dir / output_file
+        combined_content = '\n'.join(ndjson_lines) + '\n'
+        if file_content_changed(combined_file, combined_content):
+            changed_files_count += 1
+        write_ndjson(combined_file, ndjson_lines, overwrite=True)
+        try:
+            display_path = combined_file.relative_to(PROJECT_ROOT)
+        except ValueError:
+            display_path = combined_file
+        console.print(f'[green]{ICON_SUCCESS}[/green] Wrote combined file: {display_path}')
+
+    if changed_files_count > 0:
+        console.print(f'[yellow]{ICON_WARNING}[/yellow] {changed_files_count} file(s) changed')
+    else:
+        console.print(f'[green]{ICON_SUCCESS}[/green] No files changed')
 
     if upload is True:
-        if cli_context.kibana_client is None:
-            msg = 'Kibana client not configured'
-            raise click.ClickException(msg)
-        console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana...')
-        asyncio.run(upload_to_kibana(cli_context.kibana_client, combined_file, overwrite, not no_browser))
+        if output_format.lower() == 'json':
+            console.print(f'[yellow]{ICON_WARNING}[/yellow] Upload is not supported with --format json')
+        else:
+            if cli_context.kibana_client is None:
+                msg = 'Kibana client not configured'
+                raise click.ClickException(msg)
+            console.print(f'\n[blue]{ICON_UPLOAD}[/blue] Uploading to Kibana...')
+            combined_file = output_dir / output_file
+            asyncio.run(upload_to_kibana(cli_context.kibana_client, combined_file, overwrite, not no_browser))
+
+    exit_code = min(changed_files_count, MAX_EXIT_CODE)
+    ctx.exit(exit_code)
 
 
 async def upload_to_kibana(
