@@ -17,3 +17,7 @@ test/**
 TESTING.md
 AGENTS.md
 CLAUDE.md
+# Exclude unnecessary compiler files (bin/ and compiler/ are included)
+compiler/.venv/**
+compiler/**/__pycache__/**
+compiler/**/*.pyc

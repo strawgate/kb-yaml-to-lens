@@ -302,7 +302,7 @@ dashboards:
         json_lines, error = compile_yaml_to_json(yaml_file)
         assert json_lines == []
         # fmt: off
-        assert error == snapshot("1 validation error in invalid-chart-type.yaml:\n  • dashboards[0].panels[0].esql: Unknown type 'invalid_type'. Valid types: 'metric', 'gauge', 'heatmap', 'pie', 'line', 'bar', 'area', 'tagcloud', 'datatable'")  # noqa: E501
+        assert error == snapshot("1 validation error in invalid-chart-type.yaml:\n  • dashboards[0].panels[0].esql: Unknown type 'invalid_type'. Valid types: 'metric', 'gauge', 'heatmap', 'pie', 'line', 'bar', 'area', 'tagcloud', 'datatable', 'mosaic'")  # noqa: E501
         # fmt: on
 
     def test_empty_esql_query_list(self, tmp_path: Path) -> None:

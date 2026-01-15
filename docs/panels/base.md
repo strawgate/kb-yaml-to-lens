@@ -166,32 +166,23 @@ panels:
   - markdown:
       content: "..."
     title: "Top Left Panel"
-    grid:
-      x: 0  # Starts at the far left
-      y: 0  # Starts at the very top
-      w: 24 # Occupies 24 out of 48 columns (half width)
-      h: 5  # Height of 5 grid units
+    size: {w: 24, h: 5}  # Half width (24 out of 48 columns), height of 5 units
+    position: {x: 0, y: 0}  # Starts at far left, very top
 
   # Verbose syntax (explicit)
   - lens:
       type: metric
       # ... lens configuration ...
     title: "Top Right Panel"
-    grid:
-      from_left: 24  # Starts at the 25th column (0-indexed)
-      from_top: 0    # Starts at the very top
-      width: 24      # Occupies the remaining 24 columns
-      height: 5      # Same height
+    size: {width: 24, height: 5}      # Remaining 24 columns, height of 5
+    position: {from_left: 24, from_top: 0}  # Starts at 25th column, very top
 
   # Mixed syntax (both forms work together)
   - markdown:
       content: "..."
     title: "Bottom Panel"
-    grid:
-      x: 0        # Shorthand for horizontal position
-      from_top: 5 # Verbose for vertical position
-      width: 48   # Verbose for full width
-      h: 10       # Shorthand for height
+    size: {width: 48, h: 10}   # Full width (48), height of 10
+    position: {x: 0, from_top: 5}  # Starts at left, 5 units from top
 ```
 
 ## Panel Types (Specific Configurations)

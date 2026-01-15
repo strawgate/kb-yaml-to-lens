@@ -1,4 +1,10 @@
-"""Test the compilation of Lens metrics from config models to view models using inline snapshots."""
+"""Test the compilation of Lens metrics from config models to view models using inline snapshots.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/metric-basic-esql.json
+    - Data View: output/<version>/metric-basic-dataview.json
+"""
 
 from typing import TYPE_CHECKING, Any
 

@@ -23,7 +23,7 @@ dashboards:
   name: Status Monitoring
   panels:
     - title: HTTP Response Codes
-      grid: { x: 0, y: 0, w: 24, h: 15 }
+      size: {w: 24, h: 15}
       lens:
         type: pie
         data_view: "logs-*"
