@@ -1,4 +1,10 @@
-"""Tagcloud chart view models for Kibana JSON output."""
+"""Tagcloud chart view models for Kibana JSON output.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/tagcloud-esql.json
+    - Data View: output/<version>/tagcloud-dataview.json
+"""
 
 from typing import Annotated
 

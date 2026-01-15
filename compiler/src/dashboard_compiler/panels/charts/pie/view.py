@@ -1,3 +1,11 @@
+"""View models for pie and donut chart visualizations in Kibana Lens format.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/pie-chart-esql.json
+    - Data View: output/<version>/pie-chart-dataview.json
+"""
+
 from typing import Annotated, Literal
 
 from pydantic import Field
@@ -64,6 +72,9 @@ class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
 
     showSingleSeries: Annotated[bool | None, OmitIfNone()] = Field(None)
     """Whether to show legend when there is only one series."""
+
+    percentDecimals: Annotated[int | None, OmitIfNone()] = Field(None)
+    """Number of decimal places for percent display values."""
 
 
 class KbnPieVisualizationState(KbnBaseStateVisualization):

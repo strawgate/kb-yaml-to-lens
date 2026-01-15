@@ -34,6 +34,40 @@ Run from `compiler/` directory:
 
 ---
 
+## Fixture Repository
+
+The [kb-yaml-to-lens-fixtures](https://github.com/strawgate/kb-yaml-to-lens-fixtures) repository contains "known-good" Kibana Lens JSON generated directly from Kibana's API.
+
+**Repository Structure:**
+
+| Directory | Purpose |
+| --------- | ------- |
+| `examples/` | TypeScript generator scripts for each visualization type |
+| `output/<kibana-version>/` | Generated JSON fixtures organized by Kibana version |
+
+**Dual-Variant System:** Each fixture has ES|QL and Data View versions (e.g., `metric-basic-esql.json` and `metric-basic-dataview.json`).
+
+**Fixture to Panel Type Mapping:**
+
+| Fixture | Compiler Panel Type |
+| ------- | ------------------- |
+| `metric-basic` | `panels/charts/metric/` |
+| `xy-chart` | `panels/charts/xy/` |
+| `pie-chart` | `panels/charts/pie/` |
+| `gauge` | `panels/charts/gauge/` |
+| `heatmap` | `panels/charts/heatmap/` |
+| `tagcloud` | `panels/charts/tagcloud/` |
+| `mosaic` | `panels/charts/mosaic/` |
+| `datatable` | `panels/charts/datatable/` |
+
+**Usage Guidelines:**
+
+- Reference fixture links in `view.py` files when documenting expected Kibana JSON output
+- Reference fixture links in test files when validating compiler output
+- Compare generated output against fixtures to validate correctness
+
+---
+
 ## Code Conventions
 
 ### Explicit Boolean Comparisons
