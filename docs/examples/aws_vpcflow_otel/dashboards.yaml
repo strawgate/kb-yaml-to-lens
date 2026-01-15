@@ -39,7 +39,6 @@ dashboards:
               dashboard: aws-vpcflow-otel-interface
               with_time: true
               with_filters: true
-
       # KPI Metrics (no section header - first section)
       - title: Total Flow Records
         hide_title: true
@@ -484,20 +483,20 @@ dashboards:
         esql:
           type: datatable
           query:
-            FROM logs-*
-            | WHERE data_stream.dataset == "aws.vpcflow.otel"
-            | EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
-            | EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
-            | EVAL is_first_half = distance_from_start < distance_from_end
-            | EVAL is_second_half = NOT is_first_half
-            | WHERE is_first_half OR is_second_half
-
-            | STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY source.address
-            | EVAL change_count = second_half_count - first_half_count
-            | EVAL change_pct = change_count / first_half_count
-            | EVAL abs_change = ABS(change_count)
-            | SORT abs_change DESC
-            | LIMIT 20
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
+            - EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
+            - EVAL is_first_half = distance_from_start < distance_from_end
+            - EVAL is_second_half = NOT is_first_half
+            - WHERE is_first_half OR is_second_half
+            - STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY source.address
+            - WHERE first_half_count > 0
+            - EVAL change_count = second_half_count - first_half_count
+            - EVAL change_pct = change_count / first_half_count
+            - EVAL abs_change = ABS(change_count)
+            - SORT abs_change DESC
+            - LIMIT 20
           dimensions:
             - field: source.address
           metrics:
@@ -522,20 +521,20 @@ dashboards:
         esql:
           type: datatable
           query:
-            FROM logs-*
-            | WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
-            | EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
-            | EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
-            | EVAL is_first_half = distance_from_start < distance_from_end
-            | EVAL is_second_half = NOT is_first_half
-            | WHERE is_first_half OR is_second_half
-
-            | STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY destination.port
-            | EVAL change_count = second_half_count - first_half_count
-            | EVAL change_pct = change_count / first_half_count
-            | EVAL abs_change = ABS(change_count)
-            | SORT abs_change DESC
-            | LIMIT 20
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
+            - EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
+            - EVAL is_first_half = distance_from_start < distance_from_end
+            - EVAL is_second_half = NOT is_first_half
+            - WHERE is_first_half OR is_second_half
+            - STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY destination.port
+            - WHERE first_half_count > 0
+            - EVAL change_count = second_half_count - first_half_count
+            - EVAL change_pct = change_count / first_half_count
+            - EVAL abs_change = ABS(change_count)
+            - SORT abs_change DESC
+            - LIMIT 20
           dimensions:
             - field: destination.port
           metrics:
@@ -925,20 +924,20 @@ dashboards:
         esql:
           type: datatable
           query:
-            FROM logs-*
-            | WHERE data_stream.dataset == "aws.vpcflow.otel"
-            | EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
-            | EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
-            | EVAL is_first_half = distance_from_start < distance_from_end
-            | EVAL is_second_half = NOT is_first_half
-            | WHERE is_first_half OR is_second_half
-
-            | STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY network.interface.name
-            | EVAL change_count = second_half_count - first_half_count
-            | EVAL change_pct = change_count / first_half_count
-            | EVAL abs_change = ABS(change_count)
-            | SORT abs_change DESC
-            | LIMIT 20
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
+            - EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
+            - EVAL is_first_half = distance_from_start < distance_from_end
+            - EVAL is_second_half = NOT is_first_half
+            - WHERE is_first_half OR is_second_half
+            - STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY network.interface.name
+            - WHERE first_half_count > 0
+            - EVAL change_count = second_half_count - first_half_count
+            - EVAL change_pct = change_count / first_half_count
+            - EVAL abs_change = ABS(change_count)
+            - SORT abs_change DESC
+            - LIMIT 20
           dimensions:
             - field: network.interface.name
           metrics:
