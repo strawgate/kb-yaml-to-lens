@@ -1,0 +1,234 @@
+---
+name: Checks
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  lint-python:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run Python linting checks
+        working-directory: compiler
+        run: make lint-python-check
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run markdownlint
+        run: make lint-markdown-check
+  lint-yaml:
+    name: Lint YAML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run yamllint
+        working-directory: compiler
+        run: make lint-yaml-check
+  typecheck-python:
+    name: Type-check Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run basedpyright
+        working-directory: compiler
+        run: make typecheck
+  test-python:
+    name: Test Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run pytest
+        working-directory: compiler
+        run: make test
+  test-python-coverage:
+    name: Test Python Code Coverage
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run tests with coverage
+        working-directory: compiler
+        run: make test-coverage
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            compiler/.coverage
+            compiler/htmlcov/
+            compiler/coverage.json
+          retention-days: 30
+      - name: Comment coverage on PR
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERAGE_PATH: compiler
+      - name: Print coverage comment outputs
+        run: |
+          echo "Coverage Vars: ${{ tojson(steps.coverage_comment.outputs) }}"
+      - name: Enforce minimum Overall coverage does not decrease
+        if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
+        run: |
+          echo "Overall coverage decreased from ${{ steps.coverage_comment.outputs.reference_percent_covered }}% to ${{ steps.coverage_comment.outputs.new_percent_covered }}%."
+          && exit 1
+      - name: Enforce minimum PR coverage of 90%
+        if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
+        run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
+  test-python-cli:
+    name: Test Python CLI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Run smoke tests
+        working-directory: compiler
+        run: make test-smoke
+  test-markdown-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Check documentation links
+        working-directory: compiler
+        run: make test-links
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Install documentation dependencies
+        run: uv sync --group docs
+      - name: Build documentation
+        run: NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict
+  test-vscode-extension-typescript:
+    name: Test VSCode Extension (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vscode-extension/package-lock.json
+      - name: Install dependencies
+        working-directory: vscode-extension
+        run: npm ci
+      - name: Run TypeScript tests for extension
+        working-directory: vscode-extension
+        run: make test-unit
+  test-vscode-extension-e2e:
+    name: Test VSCode Extension E2E
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vscode-extension/package-lock.json
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Setup Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb x11-utils
+          Xvfb :99 -screen 0 1024x768x24 > /tmp/xvfb.log 2>&1 &
+          XVFB_PID=$!
+
+          # Wait for Xvfb to be ready (up to 10 seconds)
+          for i in {1..10}; do
+            if xdpyinfo -display :99 >/dev/null 2>&1; then
+              echo "Xvfb is ready (display :99)"
+              break
+            fi
+            if [ $i -eq 10 ]; then
+              echo "Xvfb failed to start after 10 seconds"
+              cat /tmp/xvfb.log
+              exit 1
+            fi
+            sleep 1
+          done
+      - name: Install extension dependencies
+        working-directory: vscode-extension
+        run: npm ci
+      - name: Run E2E tests for extension
+        working-directory: vscode-extension
+        run: make test
+        env:
+          DISPLAY: :99.0
+  test-extension-platforms:
+    name: Test Extension Platforms
+    needs:
+      - lint-python
+      - typecheck-python
+    uses: ./.github/workflows/test-extension-platforms.yml
+  checks-passed:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - lint-python
+      - lint-markdown
+      - lint-yaml
+      - typecheck-python
+      - test-python
+      - test-python-coverage
+      - test-python-cli
+      - test-markdown-links
+      - build-docs
+      - test-vscode-extension-typescript
+      - test-vscode-extension-e2e
+      - test-extension-platforms
+    steps:
+      - name: All Checks Passed
+        run: |-
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "Some checks failed or were cancelled"
+            exit 1
+          fi
+          echo "All checks passed"

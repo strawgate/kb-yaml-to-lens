@@ -1,0 +1,65 @@
+---
+name: Test Extension Platforms (Reusable)
+on:
+  workflow_call:
+    inputs:
+      skip-windows:
+        description: Skip Windows tests (can be flaky)
+        required: false
+        type: boolean
+        default: false
+jobs:
+  test-extension-platform:
+    name: Test Extension - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+          - os: macos-14
+            platform: darwin-arm64
+          - os: macos-13
+            platform: darwin-x64
+          - os: windows-latest
+            platform: win32-x64
+        exclude:
+          - os: ${{ inputs.skip-windows && 'windows-latest' || 'none' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vscode-extension/package-lock.json
+      - name: Install extension dependencies
+        working-directory: vscode-extension
+        run: npm ci
+      - name: Download uv for current platform
+        working-directory: vscode-extension
+        run: bash scripts/download_uv.sh current
+      - name: Bundle compiler source
+        working-directory: vscode-extension
+        run: bash scripts/bundle_compiler.sh
+      - name: Test compiler via bundled uv (Unix)
+        if: runner.os != 'Windows'
+        working-directory: vscode-extension
+        run: |
+          UV_PATH="bin/${{ matrix.platform }}/uv"
+          chmod +x "$UV_PATH"
+          "$UV_PATH" run --directory compiler kb-dashboard --help
+      - name: Test compiler via bundled uv (Windows)
+        if: runner.os == 'Windows'
+        working-directory: vscode-extension
+        shell: pwsh
+        run: |
+          $UV_PATH = "bin\${{ matrix.platform }}\uv.exe"
+          & $UV_PATH run --directory compiler kb-dashboard --help
+      - name: Run TypeScript unit tests
+        working-directory: vscode-extension
+        run: npm run compile && npm run test:unit
