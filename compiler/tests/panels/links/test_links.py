@@ -291,3 +291,84 @@ def test_links_panel_dashboard_link_references_bubble_up() -> None:
     assert references == snapshot(
         [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'links-panel-1:link_link-1_dashboard', 'type': 'dashboard'}]
     )
+
+
+def test_compile_links_panel_dashboard_link_partial_options() -> None:
+    """Test dashboard link with partial options defaults to opening in same tab.
+
+    When with_time or with_filters is set but new_tab is not explicitly set,
+    the link should open in the same tab (matching Kibana's default behavior).
+    """
+    references, result = compile_links_panel_snapshot(
+        {
+            'id': '71a1e537-eb91-4b8a-bcbe-ffa0ff9c9abf',
+            'links': {
+                'layout': 'vertical',
+                'items': [
+                    {
+                        'dashboard': '71a1e537-15ed-4891-b102-4ef0f314a037',
+                        'label': 'Go to Dashboard',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'with_time': True,
+                    },
+                ],
+            },
+        }
+    )
+    assert references == snapshot(
+        [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard', 'type': 'dashboard'}]
+    )
+    assert result == snapshot(
+        {
+            'attributes': {
+                'layout': 'vertical',
+                'links': [
+                    {
+                        'label': 'Go to Dashboard',
+                        'type': 'dashboardLink',
+                        'id': 'f1057dc0-1132-4143-8a58-ccbc853aee46',
+                        'order': 0,
+                        'destinationRefName': 'link_f1057dc0-1132-4143-8a58-ccbc853aee46_dashboard',
+                        'options': {'openInNewTab': False, 'useCurrentDateRange': True, 'useCurrentFilters': True},
+                    }
+                ],
+            },
+            'enhancements': {},
+        }
+    )
+
+
+def test_compile_links_panel_url_link_encode_only() -> None:
+    """Test URL link with encode option but no new_tab defaults to same tab.
+
+    When encode is set but new_tab is not explicitly set,
+    the link should open in the same tab (matching Kibana's default behavior).
+    """
+    references, result = compile_links_panel_snapshot(
+        {
+            'links': {
+                'items': [
+                    {'url': 'https://elastic.co', 'label': 'Custom Label', 'encode': True},
+                ],
+            },
+        }
+    )
+    assert references == snapshot([])
+    assert result == snapshot(
+        {
+            'attributes': {
+                'layout': 'horizontal',
+                'links': [
+                    {
+                        'label': 'Custom Label',
+                        'type': 'externalLink',
+                        'id': IsUUID,
+                        'destination': 'https://elastic.co',
+                        'order': 0,
+                        'options': {'encodeUrl': True, 'openInNewTab': False},
+                    }
+                ],
+            },
+            'enhancements': {},
+        }
+    )
