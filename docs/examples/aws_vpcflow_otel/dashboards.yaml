@@ -43,7 +43,7 @@ dashboards:
       # KPI Metrics (no section header - first section)
       - title: Total Flow Records
         hide_title: true
-        size: {w: 10, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -55,7 +55,7 @@ dashboards:
             label: Flow Records
       - title: Rejection Rate
         hide_title: true
-        size: {w: 10, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -71,7 +71,7 @@ dashboards:
               decimals: 1
       - title: Total Bandwidth
         hide_title: true
-        size: {w: 10, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -85,7 +85,7 @@ dashboards:
               type: bytes
       - title: Active Interfaces
         hide_title: true
-        size: {w: 9, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -97,7 +97,7 @@ dashboards:
             label: Active Interfaces
       - title: Cloud Accounts
         hide_title: true
-        size: {w: 9, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -107,6 +107,18 @@ dashboards:
           primary:
             field: unique_accounts
             label: Cloud Accounts
+      - title: Unique Protocols
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - STATS unique_protocols = COUNT_DISTINCT(network.protocol.name)
+          primary:
+            field: unique_protocols
+            label: Unique Protocols
 
       # Quick Insights
       - markdown:
@@ -269,7 +281,100 @@ dashboards:
               with_time: true
               with_filters: true
 
-      # Traffic Distribution (no section header - first section)
+      # Traffic KPIs (no section header - first section)
+      - title: Total Flow Records
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - STATS total_flows = COUNT()
+          primary:
+            field: total_flows
+            label: Flow Records
+      - title: Unique Source IPs
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - STATS unique_sources = COUNT_DISTINCT(source.address)
+          primary:
+            field: unique_sources
+            label: Unique Sources
+      - title: Unique Destination IPs
+        hide_title: true
+        size: {w: 9, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
+            - STATS unique_destinations = COUNT_DISTINCT(destination.address)
+          primary:
+            field: unique_destinations
+            label: Unique Destinations
+      - title: Unique Protocols
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - STATS unique_protocols = COUNT_DISTINCT(network.protocol.name)
+          primary:
+            field: unique_protocols
+            label: Protocols
+      - title: Unique Destination Ports
+        hide_title: true
+        size: {w: 9, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - STATS unique_ports = COUNT_DISTINCT(destination.port)
+          primary:
+            field: unique_ports
+            label: Dest Ports
+
+      # Traffic Trend
+      - title: Traffic by Action Over Time
+        size: {w: 48, h: 10}
+        esql:
+          type: area
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
+            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
+          mode: stacked
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          breakdown:
+            field: aws.vpc.flow.action
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: REJECT
+                color: '#BD271E'
+              - value: ACCEPT
+                color: '#00BF6F'
+          appearance:
+            x_axis:
+              title: '@timestamp'
+            y_left_axis:
+              title: Flow Count
+
+      # Traffic Distribution
       - title: Top Protocols
         size: {w: 16, h: 12}
         esql:
@@ -373,33 +478,33 @@ dashboards:
           content: '### Volume Change Detection'
         size: {w: 48, h: 3}
       - title: Significant Volume Changes by Source IP
-        description: Compares flow counts from the first half of the time window to the second half. Shows source IPs with the largest absolute
+        description: Compares flow counts from the first period of the time window to the second half. Shows source IPs with the largest absolute
           change in traffic volume.
         size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - EVAL half_duration = DATE_DIFF("milliseconds", ?_tstart, ?_tend) / 2
-            - EVAL midpoint = DATE_ADD("milliseconds", half_duration, ?_tstart)
-            - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
-            - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
-            - WHERE is_first_half == 1 OR is_second_half == 1
-            - STATS first_half_count = SUM(is_first_half), second_half_count = SUM(is_second_half) BY source.address
-            - WHERE first_half_count > 0
-            - EVAL change_count = second_half_count - first_half_count
-            - EVAL change_pct = change_count / first_half_count
-            - EVAL abs_change = ABS(change_count)
-            - SORT abs_change DESC
-            - LIMIT 20
+            FROM logs-*
+            | WHERE data_stream.dataset == "aws.vpcflow.otel"
+            | EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
+            | EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
+            | EVAL is_first_half = distance_from_start < distance_from_end
+            | EVAL is_second_half = NOT is_first_half
+            | WHERE is_first_half OR is_second_half
+
+            | STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY source.address
+            | EVAL change_count = second_half_count - first_half_count
+            | EVAL change_pct = change_count / first_half_count
+            | EVAL abs_change = ABS(change_count)
+            | SORT abs_change DESC
+            | LIMIT 20
           dimensions:
             - field: source.address
           metrics:
             - field: first_half_count
-              label: First Half
+              label: First Period
             - field: second_half_count
-              label: Second Half
+              label: Second Period
             - field: change_count
               label: Change (Count)
             - field: change_pct
@@ -411,33 +516,33 @@ dashboards:
             enabled: true
             page_size: 10
       - title: Significant Volume Changes by Destination Port
-        description: Compares flow counts from the first half of the time window to the second half. Shows destination ports with the largest
+        description: Compares flow counts from the first period of the time window to the second half. Shows destination ports with the largest
           absolute change in traffic volume.
         size: {w: 24, h: 12}
         esql:
           type: datatable
           query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
-            - EVAL half_duration = DATE_DIFF("milliseconds", ?_tstart, ?_tend) / 2
-            - EVAL midpoint = DATE_ADD("milliseconds", half_duration, ?_tstart)
-            - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
-            - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
-            - WHERE is_first_half == 1 OR is_second_half == 1
-            - STATS first_half_count = SUM(is_first_half), second_half_count = SUM(is_second_half) BY destination.port
-            - WHERE first_half_count > 0
-            - EVAL change_count = second_half_count - first_half_count
-            - EVAL change_pct = change_count / first_half_count
-            - EVAL abs_change = ABS(change_count)
-            - SORT abs_change DESC
-            - LIMIT 20
+            FROM logs-*
+            | WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            | EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
+            | EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
+            | EVAL is_first_half = distance_from_start < distance_from_end
+            | EVAL is_second_half = NOT is_first_half
+            | WHERE is_first_half OR is_second_half
+
+            | STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY destination.port
+            | EVAL change_count = second_half_count - first_half_count
+            | EVAL change_pct = change_count / first_half_count
+            | EVAL abs_change = ABS(change_count)
+            | SORT abs_change DESC
+            | LIMIT 20
           dimensions:
             - field: destination.port
           metrics:
             - field: first_half_count
-              label: First Half
+              label: First Period
             - field: second_half_count
-              label: Second Half
+              label: Second Period
             - field: change_count
               label: Change (Count)
             - field: change_pct
@@ -578,7 +683,90 @@ dashboards:
             - label: Interface Analysis
               dashboard: aws-vpcflow-otel-interface
 
-      # Interface Traffic Analysis (no section header - first section)
+      # Interface KPIs (no section header - first section)
+      - title: Total Interfaces
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
+            - STATS total_interfaces = COUNT_DISTINCT(network.interface.name)
+          primary:
+            field: total_interfaces
+            label: Total Interfaces
+      - title: Total Flow Records
+        hide_title: true
+        size: {w: 9, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel"
+            - STATS total_flows = COUNT()
+          primary:
+            field: total_flows
+            label: Flow Records
+      - title: Unique Source IPs
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - STATS unique_sources = COUNT_DISTINCT(source.address)
+          primary:
+            field: unique_sources
+            label: Unique Sources
+      - title: Unique Destination IPs
+        hide_title: true
+        size: {w: 9, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
+            - STATS unique_destinations = COUNT_DISTINCT(destination.address)
+          primary:
+            field: unique_destinations
+            label: Unique Destinations
+      - title: Unique Protocols
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - STATS unique_protocols = COUNT_DISTINCT(network.protocol.name)
+          primary:
+            field: unique_protocols
+            label: Protocols
+
+      # Interface Traffic Trend
+      - title: Interface Traffic Over Time
+        size: {w: 48, h: 10}
+        esql:
+          type: area
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
+            - STATS flow_count = COUNT() BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          appearance:
+            x_axis:
+              title: '@timestamp'
+            y_left_axis:
+              title: Flow Count
+
+      # Interface Traffic Analysis
       - title: Interface Traffic Analysis
         size: {w: 48, h: 13}
         esql:
@@ -731,33 +919,33 @@ dashboards:
           content: '### Volume Change Detection'
         size: {w: 48, h: 3}
       - title: Significant Volume Changes by Interface
-        description: Compares flow counts from the first half of the time window to the second half. Shows network interfaces with the largest
+        description: Compares flow counts from the first period of the time window to the second half. Shows network interfaces with the largest
           absolute change in traffic volume.
         size: {w: 48, h: 12}
         esql:
           type: datatable
           query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel"
-            - EVAL half_duration = DATE_DIFF("milliseconds", ?_tstart, ?_tend) / 2
-            - EVAL midpoint = DATE_ADD("milliseconds", half_duration, ?_tstart)
-            - EVAL is_first_half = TO_INTEGER(@timestamp >= ?_tstart AND @timestamp < midpoint)
-            - EVAL is_second_half = TO_INTEGER(@timestamp >= midpoint AND @timestamp <= ?_tend)
-            - WHERE is_first_half == 1 OR is_second_half == 1
-            - STATS first_half_count = SUM(is_first_half), second_half_count = SUM(is_second_half) BY network.interface.name
-            - WHERE first_half_count > 0
-            - EVAL change_count = second_half_count - first_half_count
-            - EVAL change_pct = change_count / first_half_count
-            - EVAL abs_change = ABS(change_count)
-            - SORT abs_change DESC
-            - LIMIT 20
+            FROM logs-*
+            | WHERE data_stream.dataset == "aws.vpcflow.otel"
+            | EVAL distance_from_start = DATE_DIFF("milliseconds",?_tstart, @timestamp)
+            | EVAL distance_from_end = DATE_DIFF("milliseconds",@timestamp, ?_tend)
+            | EVAL is_first_half = distance_from_start < distance_from_end
+            | EVAL is_second_half = NOT is_first_half
+            | WHERE is_first_half OR is_second_half
+
+            | STATS first_half_count = SUM(case(is_first_half, 1, 0)), second_half_count = SUM(case(is_second_half, 1, 0)) BY network.interface.name
+            | EVAL change_count = second_half_count - first_half_count
+            | EVAL change_pct = change_count / first_half_count
+            | EVAL abs_change = ABS(change_count)
+            | SORT abs_change DESC
+            | LIMIT 20
           dimensions:
             - field: network.interface.name
           metrics:
             - field: first_half_count
-              label: First Half
+              label: First Period
             - field: second_half_count
-              label: Second Half
+              label: Second Period
             - field: change_count
               label: Change (Count)
             - field: change_pct
