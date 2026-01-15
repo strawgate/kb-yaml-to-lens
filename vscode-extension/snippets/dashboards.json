@@ -752,5 +752,97 @@
       "            ${22:fill: ${23|none,above,below|}}"
     ],
     "description": "Add an XY chart with reference line layer for thresholds or SLA markers"
+  },
+  "ESQL Query - Basic": {
+    "prefix": "esql-basic",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| WHERE ${2:@timestamp} > NOW() - ${3:1 hour}",
+      "| KEEP ${4:@timestamp, message, host.name}",
+      "| SORT ${5:@timestamp} ${6|DESC,ASC|}",
+      "| LIMIT ${7:100}"
+    ],
+    "description": "Basic ES|QL query with filtering, field selection, sorting, and limiting"
+  },
+  "ESQL Query - Count All": {
+    "prefix": "esql-count",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS ${2:total_count} = COUNT(*)"
+    ],
+    "description": "Simple ES|QL query to count all documents"
+  },
+  "ESQL Query - Stats by Field": {
+    "prefix": "esql-stats",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS ${2:event_count} = ${3|COUNT(*),SUM(field),AVG(field),MAX(field),MIN(field)|} BY ${4:category_field}",
+      "| SORT ${2:event_count} ${5|DESC,ASC|}",
+      "| LIMIT ${6:10}"
+    ],
+    "description": "ES|QL query with aggregation grouped by field"
+  },
+  "ESQL Query - Time Bucket": {
+    "prefix": "esql-bucket",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS ${2:event_count} = COUNT(*) BY ${3:time_bucket} = BUCKET(@timestamp, ${4|1 hour,1 day,1 week,5 minutes,15 minutes|})",
+      "| SORT ${3:time_bucket} ASC"
+    ],
+    "description": "ES|QL query with time bucketing for time series analysis"
+  },
+  "ESQL Query - Time Series (TS)": {
+    "prefix": "esql-ts",
+    "body": [
+      "TS ${1:metrics-*}",
+      "| WHERE @timestamp >= NOW() - ${2:1 hour}",
+      "| STATS ${3|SUM,AVG,MAX,MIN|}(RATE(${4:request_count})) BY TBUCKET(${5|1 hour,5 minutes,15 minutes,1 day|}), ${6:host.name}"
+    ],
+    "description": "ES|QL time series query using TS command with RATE aggregation (Elasticsearch 9.2+)"
+  },
+  "ESQL Query - Eval Transform": {
+    "prefix": "esql-eval",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| EVAL ${2:computed_field} = ${3:TO_STRING(field)}",
+      "| EVAL ${4:year} = DATE_FORMAT(\"YYYY\", @timestamp)",
+      "| KEEP ${5:@timestamp, computed_field, year}"
+    ],
+    "description": "ES|QL query with EVAL for computed fields and transformations"
+  },
+  "ESQL Query - Enrich": {
+    "prefix": "esql-enrich",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| ENRICH ${2:enrich_policy_name} ON ${3:match_field} WITH ${4:enriched_field} = ${5:source_field}",
+      "| KEEP ${6:@timestamp, match_field, enriched_field}"
+    ],
+    "description": "ES|QL query with ENRICH for data enrichment from lookup indices"
+  },
+  "ESQL Query - Multi-Stats": {
+    "prefix": "esql-multi-stats",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS",
+      "    ${2:total} = COUNT(*),",
+      "    ${3:avg_value} = AVG(${4:numeric_field}),",
+      "    ${5:max_value} = MAX(${4:numeric_field})",
+      "  BY ${6:category_field}",
+      "| SORT ${2:total} DESC",
+      "| LIMIT ${7:10}"
+    ],
+    "description": "ES|QL query with multiple aggregations in a single STATS command"
+  },
+  "ESQL Query - Where with Multiple Conditions": {
+    "prefix": "esql-where",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| WHERE ${2:host.os.type} == \"${3:linux}\"",
+      "  AND ${4:event.outcome} == \"${5:success}\"",
+      "  AND ${6:field} IS NOT NULL",
+      "| STATS ${7:count} = COUNT(*) BY ${8:user.name}",
+      "| SORT ${7:count} DESC"
+    ],
+    "description": "ES|QL query with multiple WHERE conditions for filtering"
   }
 }
