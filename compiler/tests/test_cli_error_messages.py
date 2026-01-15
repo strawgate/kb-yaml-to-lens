@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, ValidationError
 if TYPE_CHECKING:
     from pydantic_core import ErrorDetails
 
+from dashboard_compiler.cli_local import compile_yaml_to_json
 from dashboard_compiler.shared.error_formatter import (
     CUSTOM_MESSAGES,
     format_error_message,
@@ -249,8 +250,6 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_empty_file(self, tmp_path: Path) -> None:
         """Test that empty YAML files produce friendly error messages."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         empty_file = tmp_path / 'empty.yaml'
         empty_file.write_text('')
 
@@ -261,8 +260,6 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_invalid_yaml_syntax(self, tmp_path: Path) -> None:
         """Test that YAML syntax errors produce friendly error messages."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         invalid_file = tmp_path / 'invalid.yaml'
         invalid_file.write_text('dashboards:\n  - name: Test\n    panels:\n      - title: Bad\n      grid: {x: 0\n')
 
@@ -274,8 +271,6 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_missing_dashboards_key(self, tmp_path: Path) -> None:
         """Test that missing 'dashboards' key produces friendly error message."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         missing_key_file = tmp_path / 'missing-key.yaml'
         missing_key_file.write_text('panels:\n  - title: Test\n')
 
@@ -287,8 +282,6 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_missing_dashboard_name(self, tmp_path: Path) -> None:
         """Test that missing dashboard name produces friendly error message."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         missing_name_file = tmp_path / 'missing-name.yaml'
         missing_name_file.write_text('dashboards:\n  - description: Test\n    panels: []\n')
 
@@ -300,8 +293,6 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_file_not_found(self, tmp_path: Path) -> None:
         """Test that file not found produces friendly error message."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         nonexistent_file = tmp_path / 'nonexistent.yaml'
 
         json_lines, _dashboards, error = compile_yaml_to_json(nonexistent_file)
@@ -311,8 +302,6 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_valid_dashboard(self, tmp_path: Path) -> None:
         """Test that valid dashboards compile without errors."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         valid_file = tmp_path / 'valid.yaml'
         valid_file.write_text("""---
 dashboards:

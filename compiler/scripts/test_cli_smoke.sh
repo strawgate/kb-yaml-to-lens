@@ -71,16 +71,27 @@ echo "Test 11: Actual compilation test"
 TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
+# Note: compile command returns exit code = number of changed files (capped at 125).
+# This is intentional for CI sync detection. Since we're writing to a fresh temp dir,
+# all files will be "new" (changed), so we expect a non-zero exit code.
+# We use || true to prevent set -e from failing, then check for actual errors.
+compile_exit_code=0
 uv run kb-dashboard compile \
   --input-dir "$PROJECT_ROOT/docs/examples" \
-  --output-dir "$TEMP_OUTPUT" > /dev/null
+  --output-dir "$TEMP_OUTPUT" > /dev/null 2>&1 || compile_exit_code=$?
+
+# Exit codes 1-125 indicate changed files (success). Exit codes > 125 indicate actual errors.
+if [ $compile_exit_code -gt 125 ]; then
+  echo "✗ Compilation failed with error code $compile_exit_code"
+  exit 1
+fi
 
 # Verify output files exist
 if [ ! -f "$TEMP_OUTPUT/examples.ndjson" ]; then
   echo "✗ Expected output file not found"
   exit 1
 fi
-echo "✓ Compilation works and generates output"
+echo "✓ Compilation works and generates output (exit code $compile_exit_code indicates $compile_exit_code changed files)"
 
 # Test 12: Verify NDJSON format
 echo "Test 12: Verify NDJSON output format"
