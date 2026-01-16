@@ -135,13 +135,30 @@ export function extractEsqlQueryAtPosition(
                     range: new vscode.Range(queryStartLine, 0, queryEndLine, lines[queryEndLine].length)
                 };
             }
+            // Cursor not in multiline block, don't fall through to array handling
+            return undefined;
         }
+        // isMultiline is true but no content found - still don't try array handling
+        // since query: | syntax indicates multiline, not array format
+        return undefined;
     }
 
     // Handle array format queries: query: \n  - FROM logs-* \n  - WHERE ...
     const arrayQueryLines: string[] = [];
     let arrayEndLine = queryStartLine;
-    const arrayBaseIndent = queryIndent + 2;
+
+    // Detect actual array indentation from first array item line
+    let arrayBaseIndent = queryIndent + 2;
+    for (let j = queryStartLine + 1; j < lines.length; j++) {
+        const probe = lines[j].trim();
+        if (probe.length > 0 && probe.startsWith('-')) {
+            arrayBaseIndent = lines[j].match(/^(\s*)/)?.[1].length ?? queryIndent + 2;
+            break;
+        } else if (probe.length > 0 && !probe.startsWith('#')) {
+            // Non-empty, non-comment, non-array line - stop probing
+            break;
+        }
+    }
 
     for (let i = queryStartLine + 1; i < lines.length; i++) {
         const line = lines[i];
