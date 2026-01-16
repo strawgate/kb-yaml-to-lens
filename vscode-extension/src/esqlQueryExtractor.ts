@@ -148,20 +148,23 @@ export function extractEsqlQueryAtPosition(
     for (let i = queryStartLine + 1; i < lines.length; i++) {
         const line = lines[i];
         const trimmed = line.trim();
+        const lineIndent = line.match(/^(\s*)/)?.[1].length ?? 0;
 
-        // Empty lines might be separators
-        if (trimmed.length === 0) {
+        // Empty or comment lines within the block are part of it
+        // Update arrayEndLine so cursor on these lines is still considered "within the block"
+        if (trimmed.length === 0 || (trimmed.startsWith('#') && lineIndent >= arrayBaseIndent)) {
+            if (arrayQueryLines.length > 0) {
+                arrayEndLine = i;
+            }
             continue;
         }
-
-        const lineIndent = line.match(/^(\s*)/)?.[1].length ?? 0;
 
         // Check for array item (- prefix)
         if (lineIndent >= arrayBaseIndent && trimmed.startsWith('-')) {
             const content = trimmed.slice(1).trim().replace(/^["']|["']$/g, '');
             arrayQueryLines.push(content);
             arrayEndLine = i;
-        } else if (lineIndent < arrayBaseIndent && trimmed.length > 0) {
+        } else if (lineIndent < arrayBaseIndent) {
             // We've exited the array block
             break;
         }
