@@ -296,9 +296,9 @@ AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnect
 
 Includes 3 interconnected dashboards with navigation links:
 
-- **VPC Flow Logs Overview** (`aws-vpcflow-otel-overview`) - High-level KPIs, quick insights, and time-series trends
-- **Traffic Analysis** (`aws-vpcflow-otel-traffic`) - Traffic distribution, volume change detection, source analysis, and security deep dive
-- **Interface Analysis** (`aws-vpcflow-otel-interface`) - Per-interface analysis, volume changes, and per-account metrics
+- **VPC Flow Logs Overview** (`aws_vpcflow_otel-overview`) - High-level KPIs, quick insights, and time-series trends
+- **Traffic Analysis** (`aws_vpcflow_otel-traffic`) - Traffic distribution, source analysis, security deep dive, and top sources/destinations
+- **Interface Analysis** (`aws_vpcflow_otel-interface`) - Per-interface analysis, bandwidth by interface, and per-account metrics
 
 <!-- markdownlint-disable MD046 -->
 ??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"

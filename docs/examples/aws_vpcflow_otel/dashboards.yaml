@@ -1,7 +1,7 @@
 ---
 dashboards:
   # Dashboard 1: Overview - High-level KPIs and trends
-  - id: aws-vpcflow-otel-overview
+  - id: aws_vpcflow_otel-overview
     name: '[AWS VPC OTEL] VPC Flow Logs Overview'
     description: High-level status and trends for AWS VPC Flow Logs
     filters:
@@ -30,13 +30,13 @@ dashboards:
           layout: horizontal
           items:
             - label: Overview
-              dashboard: aws-vpcflow-otel-overview
+              dashboard: aws_vpcflow_otel-overview
             - label: Traffic Analysis
-              dashboard: aws-vpcflow-otel-traffic
+              dashboard: aws_vpcflow_otel-traffic
               with_time: true
               with_filters: true
             - label: Interface Analysis
-              dashboard: aws-vpcflow-otel-interface
+              dashboard: aws_vpcflow_otel-interface
               with_time: true
               with_filters: true
       # KPI Metrics (no section header - first section)
@@ -225,7 +225,7 @@ dashboards:
               title: Bandwidth
 
   # Dashboard 2: Traffic Analysis - Distribution, sources, and security
-  - id: aws-vpcflow-otel-traffic
+  - id: aws_vpcflow_otel-traffic
     name: '[AWS VPC OTEL] Traffic Analysis'
     description: Detailed traffic distribution, source analysis, and security deep dive
     filters:
@@ -271,13 +271,13 @@ dashboards:
           layout: horizontal
           items:
             - label: Overview
-              dashboard: aws-vpcflow-otel-overview
+              dashboard: aws_vpcflow_otel-overview
               with_time: true
               with_filters: true
             - label: Traffic Analysis
-              dashboard: aws-vpcflow-otel-traffic
+              dashboard: aws_vpcflow_otel-traffic
             - label: Interface Analysis
-              dashboard: aws-vpcflow-otel-interface
+              dashboard: aws_vpcflow_otel-interface
               with_time: true
               with_filters: true
 
@@ -376,7 +376,7 @@ dashboards:
 
       # Traffic Distribution
       - title: Top Protocols
-        size: {w: 16, h: 12}
+        size: {w: 24, h: 12}
         esql:
           type: pie
           query:
@@ -391,7 +391,7 @@ dashboards:
           dimensions:
             - field: network.protocol.name
       - title: Top Destination Ports
-        size: {w: 16, h: 12}
+        size: {w: 24, h: 12}
         esql:
           type: bar
           query:
@@ -410,29 +410,6 @@ dashboards:
           appearance:
             y_left_axis:
               title: Flow Count
-      - title: Top Interfaces by Bandwidth
-        size: {w: 16, h: 12}
-        esql:
-          type: bar
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
-            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY network.interface.name
-            - SORT total_bytes DESC
-            - LIMIT 10
-          dimension:
-            field: network.interface.name
-          metrics:
-            - field: total_bytes
-              label: Bytes
-              format:
-                type: bytes
-          legend:
-            visible: hide
-          appearance:
-            y_left_axis:
-              title: Bytes
-
       # Source Analysis
       - markdown:
           content: '### Source Analysis'
@@ -552,8 +529,73 @@ dashboards:
             enabled: true
             page_size: 15
 
+      # Top Sources and Destinations
+      - markdown:
+          content: '### Top Sources and Destinations'
+        size: {w: 48, h: 3}
+      - title: Top Destination Ports
+        size: {w: 16, h: 12}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - STATS flow_count = COUNT() BY destination.port
+            - SORT flow_count DESC
+            - LIMIT 10
+          dimension:
+            field: destination.port
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Flow Count
+      - title: Top Destination IPs
+        size: {w: 16, h: 12}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
+            - STATS flow_count = COUNT() BY destination.address
+            - SORT flow_count DESC
+            - LIMIT 10
+          dimension:
+            field: destination.address
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Flow Count
+      - title: Top Source IPs
+        size: {w: 16, h: 12}
+        esql:
+          type: bar
+          query:
+            - FROM logs-*
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - STATS flow_count = COUNT() BY source.address
+            - SORT flow_count DESC
+            - LIMIT 10
+          dimension:
+            field: source.address
+          metrics:
+            - field: flow_count
+              label: Flow Count
+          legend:
+            visible: hide
+          appearance:
+            y_left_axis:
+              title: Flow Count
+
   # Dashboard 3: Interface Analysis - Per-interface deep dive
-  - id: aws-vpcflow-otel-interface
+  - id: aws_vpcflow_otel-interface
     name: '[AWS VPC OTEL] Interface Analysis'
     description: Per-interface analysis for investigating specific network interfaces
     filters:
@@ -594,15 +636,15 @@ dashboards:
           layout: horizontal
           items:
             - label: Overview
-              dashboard: aws-vpcflow-otel-overview
+              dashboard: aws_vpcflow_otel-overview
               with_time: true
               with_filters: true
             - label: Traffic Analysis
-              dashboard: aws-vpcflow-otel-traffic
+              dashboard: aws_vpcflow_otel-traffic
               with_time: true
               with_filters: true
             - label: Interface Analysis
-              dashboard: aws-vpcflow-otel-interface
+              dashboard: aws_vpcflow_otel-interface
 
       # Interface KPIs (no section header - first section)
       - title: Total Interfaces
@@ -716,70 +758,29 @@ dashboards:
             y_left_axis:
               title: Flow Count
 
-      # Top Traffic by Interface
-      - markdown:
-          content: '### Top Traffic by Interface'
-        size: {w: 48, h: 3}
-      - title: Top Destination Ports
-        size: {w: 16, h: 12}
+      # Top Interfaces by Bandwidth
+      - title: Top Interfaces by Bandwidth
+        size: {w: 48, h: 13}
         esql:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
-            - STATS flow_count = COUNT() BY destination.port
-            - SORT flow_count DESC
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY network.interface.name
+            - SORT total_bytes DESC
             - LIMIT 10
           dimension:
-            field: destination.port
+            field: network.interface.name
           metrics:
-            - field: flow_count
-              label: Flow Count
+            - field: total_bytes
+              label: Bytes
+              format:
+                type: bytes
           legend:
             visible: hide
           appearance:
             y_left_axis:
-              title: Flow Count
-      - title: Top Destination IPs
-        size: {w: 16, h: 12}
-        esql:
-          type: bar
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
-            - STATS flow_count = COUNT() BY destination.address
-            - SORT flow_count DESC
-            - LIMIT 10
-          dimension:
-            field: destination.address
-          metrics:
-            - field: flow_count
-              label: Flow Count
-          legend:
-            visible: hide
-          appearance:
-            y_left_axis:
-              title: Flow Count
-      - title: Top Source IPs
-        size: {w: 16, h: 12}
-        esql:
-          type: bar
-          query:
-            - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
-            - STATS flow_count = COUNT() BY source.address
-            - SORT flow_count DESC
-            - LIMIT 10
-          dimension:
-            field: source.address
-          metrics:
-            - field: flow_count
-              label: Flow Count
-          legend:
-            visible: hide
-          appearance:
-            y_left_axis:
-              title: Flow Count
+              title: Bytes
 
       # Traffic Details
       - markdown:

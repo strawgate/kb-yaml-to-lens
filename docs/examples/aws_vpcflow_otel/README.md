@@ -29,17 +29,17 @@ This example includes 3 interconnected dashboards with navigation links:
 
 ### 1. VPC Flow Logs Overview
 
-**ID:** `aws-vpcflow-otel-overview`
+**ID:** `aws_vpcflow_otel-overview`
 
 High-level KPIs and time-series trends for quick status assessment.
 
 **Controls (3):** Cloud Account ID, Network Interface, Action
 
-**Panels (12):**
+**Panels (13):**
 
 - Navigation (1 links panel)
-- KPI Metrics (5 metrics)
-  - Total Flow Records, Rejection Rate, Total Bandwidth, Active Interfaces, Cloud Accounts
+- KPI Metrics (6 metrics)
+  - Total Flow Records, Rejection Rate, Total Bandwidth, Active Interfaces, Cloud Accounts, Unique Protocols
 - Quick Insights (2 charts + 1 header)
   - Top 5 Interfaces by Rejected Traffic, Top 5 Rejected Destination Ports
 - Time-Series Trends (2 charts + 1 header)
@@ -48,42 +48,45 @@ High-level KPIs and time-series trends for quick status assessment.
 
 ### 2. Traffic Analysis
 
-**ID:** `aws-vpcflow-otel-traffic`
+**ID:** `aws_vpcflow_otel-traffic`
 
 Detailed traffic distribution, source analysis, and security deep dive.
 
 **Controls (6):** Cloud Account ID, Network Interface, Action, Protocol, Destination Port, Source Port
 
-**Panels (13):**
+**Panels (19):**
 
 - Navigation (1 links panel)
-- Traffic Distribution (3 charts)
-  - Top Protocols (pie), Top Destination Ports (bar), Top Interfaces by Bandwidth (bar)
+- Traffic KPIs (5 metrics)
+  - Total Flow Records, Unique Source IPs, Unique Destination IPs, Unique Protocols, Unique Destination Ports
+- Traffic by Action Over Time (1 stacked area chart)
+- Traffic Distribution (2 charts)
+  - Top Protocols (pie), Top Destination Ports (bar)
 - Source Analysis (1 table + 1 header)
   - Top Source IPs - Detailed
-- Volume Change Detection (2 tables + 1 header)
-  - Significant Volume Changes by Source IP, Significant Volume Changes by Destination Port
 - Security Deep Dive (3 panels + 1 header)
   - Rejected Traffic by Protocol (bar), Top Rejected Ports (bar), Detailed Rejection Logs (table)
+- Top Sources and Destinations (3 charts + 1 header)
+  - Top Destination Ports (bar), Top Destination IPs (bar), Top Source IPs (bar)
 
 ### 3. Interface Analysis
 
-**ID:** `aws-vpcflow-otel-interface`
+**ID:** `aws_vpcflow_otel-interface`
 
 Per-interface analysis for investigating specific network interfaces.
 
 **Controls (5):** Cloud Account ID, Network Interface, Action, Destination Port, Protocol
 
-**Panels (13):**
+**Panels (14):**
 
 - Navigation (1 links panel)
+- Interface KPIs (5 metrics)
+  - Total Interfaces, Total Flow Records, Unique Source IPs, Unique Destination IPs, Unique Protocols
+- Interface Traffic Over Time (1 area chart)
 - Interface Traffic Analysis (1 stacked bar)
-- Top Traffic by Interface (3 charts + 1 header)
-  - Top Destination Ports, Top Destination IPs, Top Source IPs
+- Top Interfaces by Bandwidth (1 bar chart)
 - Traffic Details (2 charts + 1 header)
   - Accepted vs Rejected by Protocol, Bandwidth by Protocol
-- Volume Change Detection (1 table + 1 header)
-  - Significant Volume Changes by Interface
 - Account Analysis (1 table + 1 header)
   - Traffic by Cloud Account
 
