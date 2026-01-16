@@ -38,7 +38,6 @@ export function extractEsqlQueryAtPosition(
 
     for (let i = cursorLine; i >= 0; i--) {
         const line = lines[i];
-        const trimmed = line.trim();
 
         // Check for 'query:' or 'esql.query:' pattern (with optional | for multiline)
         const queryMatch = line.match(/^(\s*)(?:esql\.)?query:\s*(\|)?(.*)$/);
@@ -65,16 +64,6 @@ export function extractEsqlQueryAtPosition(
                 };
             }
             break;
-        }
-
-        // If we hit a line with less or equal indent that's not whitespace/continuation,
-        // and it's not a query line, we've gone too far
-        const currentIndent = line.match(/^(\s*)/)?.[1].length ?? 0;
-        if (trimmed.length > 0 && !trimmed.startsWith('-') && !trimmed.startsWith('#')) {
-            // Check if this is a YAML key at a higher level
-            if (currentIndent <= queryIndent && i < cursorLine && queryIndent !== -1) {
-                break;
-            }
         }
     }
 
@@ -160,6 +149,8 @@ export function extractEsqlQueryAtPosition(
         }
 
         // Check for array item (- prefix)
+        // Note: Multiline array item continuations are not supported (e.g., a single array
+        // item spanning multiple lines). Each array item should be on its own line.
         if (lineIndent >= arrayBaseIndent && trimmed.startsWith('-')) {
             const content = trimmed.slice(1).trim().replace(/^["']|["']$/g, '');
             arrayQueryLines.push(content);
