@@ -27,7 +27,7 @@ export function extractEsqlQueryAtPosition(
     position: vscode.Position
 ): ExtractedEsqlQuery | undefined {
     const text = document.getText();
-    const lines = text.split('\n');
+    const lines = text.split(/\r?\n/);
     const cursorLine = position.line;
 
     // First, try to find if we're inside a query: block
