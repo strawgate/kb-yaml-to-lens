@@ -2,14 +2,17 @@ import * as vscode from 'vscode';
 import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
 import { GridEditorPanel } from './gridEditorPanel';
+import { EsqlResultsPanel } from './esqlResultsPanel';
 import { setupFileWatcher } from './fileWatcher';
 import { ConfigService } from './configService';
+import { extractEsqlQueryAtPosition, promptForEsqlQuery } from './esqlQueryExtractor';
 import * as fs from 'fs';
 import { TextDecoder } from 'util';
 
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
 let gridEditorPanel: GridEditorPanel;
+let esqlResultsPanel: EsqlResultsPanel;
 let configService: ConfigService;
 let uploadResultsChannel: vscode.OutputChannel | undefined;
 
@@ -390,6 +393,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     previewPanel = new PreviewPanel(compiler);
     gridEditorPanel = new GridEditorPanel(context, configService);
+    esqlResultsPanel = new EsqlResultsPanel();
 
     // Setup file watching for auto-compile
     const fileWatcherDisposables = setupFileWatcher(compiler, previewPanel, configService);
@@ -564,6 +568,63 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('yamlDashboard.disableOpenOnSave', async () => {
             await vscode.workspace.getConfiguration('yamlDashboard').update('kibana.openOnSave', false, vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage('Open in Kibana on Save disabled');
+        })
+    );
+
+    // Register run ES|QL query command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.runEsqlQuery', async () => {
+            const editor = vscode.window.activeTextEditor;
+
+            // Try to extract query from cursor position in YAML file
+            let query: string | undefined;
+            if (editor && (editor.document.fileName.endsWith('.yaml') || editor.document.fileName.endsWith('.yml'))) {
+                const extracted = extractEsqlQueryAtPosition(editor.document, editor.selection.active);
+                if (extracted) {
+                    query = extracted.query;
+                }
+            }
+
+            // If no query found at cursor, prompt for manual entry
+            if (!query) {
+                query = await promptForEsqlQuery();
+            }
+
+            if (!query) {
+                return;
+            }
+
+            // Ensure Kibana is configured
+            const config = await ensureKibanaConfig(configService);
+            if (!config) {
+                return;
+            }
+
+            // Show loading state
+            esqlResultsPanel.showLoading(query);
+
+            try {
+                const result = await compiler.executeEsqlQuery(
+                    query,
+                    config.kibanaUrl,
+                    config.username,
+                    config.password,
+                    config.apiKey,
+                    config.sslVerify
+                );
+
+                esqlResultsPanel.showResults(result, query);
+
+                // Show brief notification
+                const rowCount = result.values.length;
+                const tookMs = result.took !== undefined ? ` in ${result.took}ms` : '';
+                vscode.window.setStatusBarMessage(`ES|QL: ${rowCount} row(s) returned${tookMs}`, 3000);
+            } catch (error) {
+                esqlResultsPanel.showError(error, query);
+                vscode.window.showErrorMessage(
+                    `ES|QL query failed: ${error instanceof Error ? error.message : String(error)}`
+                );
+            }
         })
     );
 
@@ -743,6 +804,9 @@ export async function deactivate(): Promise<void> {
     }
     if (gridEditorPanel) {
         gridEditorPanel.dispose();
+    }
+    if (esqlResultsPanel) {
+        esqlResultsPanel.dispose();
     }
     if (compiler) {
         await compiler.dispose();

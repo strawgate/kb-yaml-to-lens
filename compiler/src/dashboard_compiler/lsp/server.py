@@ -15,6 +15,7 @@ from pygls.lsp.server import LanguageServer
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient
+from dashboard_compiler.lsp.esql_executor import EsqlExecutor
 from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
 
 logger = logging.getLogger(__name__)
@@ -218,6 +219,55 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
     """
     file_path = params.text_document.uri
     ls.protocol.notify('dashboard/fileChanged', {'uri': file_path})
+
+
+@server.feature('esql/execute')
+async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Execute an ES|QL query via Kibana's console proxy API.
+
+    Args:
+        params: Object containing:
+            - query: ES|QL query string
+            - kibana_url: Kibana base URL
+            - username: Optional username
+            - password: Optional password
+            - api_key: Optional API key
+            - ssl_verify: Whether to verify SSL
+
+    Returns:
+        Dictionary with success status and query results or error
+    """
+    params_dict = _params_to_dict(params)
+
+    query = params_dict.get('query')
+    kibana_url = params_dict.get('kibana_url')
+    username = params_dict.get('username')
+    password = params_dict.get('password')
+    api_key = params_dict.get('api_key')
+    ssl_verify = params_dict.get('ssl_verify', True)
+
+    if query is None or len(query) == 0:
+        return {'success': False, 'error': 'Missing query parameter'}
+
+    if kibana_url is None or len(kibana_url) == 0:
+        return {'success': False, 'error': 'Missing kibana_url parameter'}
+
+    try:
+        logger.info(f'Executing ES|QL query via Kibana at {kibana_url}')
+        executor = EsqlExecutor(
+            kibana_url=kibana_url,
+            username=username if (username is not None and len(username) > 0) else None,
+            password=password if (password is not None and len(password) > 0) else None,
+            api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
+            ssl_verify=ssl_verify,
+        )
+        result = await executor.execute(query)
+        logger.debug(f'ES|QL query returned {len(result.get("values", []))} rows')
+    except Exception as e:
+        logger.exception('ES|QL execution error occurred')
+        return {'success': False, 'error': f'ES|QL execution error: {e!s}'}
+    else:
+        return {'success': True, 'data': result}
 
 
 @server.feature('dashboard/uploadToKibana')
