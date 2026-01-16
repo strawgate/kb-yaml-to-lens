@@ -94,7 +94,16 @@ export function extractEsqlQueryAtPosition(
     if (isMultiline) {
         const queryLines: string[] = [];
         let queryEndLine = queryStartLine;
-        const baseIndent = queryIndent + 2; // Multiline content is typically indented 2+ more
+
+        // Detect actual indentation from first content line
+        let baseIndent = queryIndent + 2;
+        for (let j = queryStartLine + 1; j < lines.length; j++) {
+            const probe = lines[j];
+            if (probe.trim().length > 0) {
+                baseIndent = probe.match(/^(\s*)/)?.[1].length ?? queryIndent + 2;
+                break;
+            }
+        }
 
         for (let i = queryStartLine + 1; i < lines.length; i++) {
             const line = lines[i];
