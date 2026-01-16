@@ -56,11 +56,11 @@ class EsqlExecutor:
             'kbn-xsrf': 'true',
             'Content-Type': 'application/json',
         }
-        if self.api_key:
+        if self.api_key is not None and len(self.api_key) > 0:
             headers['Authorization'] = f'ApiKey {self.api_key}'
 
         auth = None
-        if self.username and self.password:
+        if self.username is not None and len(self.username) > 0 and self.password is not None and len(self.password) > 0:
             auth = aiohttp.BasicAuth(self.username, self.password)
 
         return headers, auth
@@ -95,9 +95,10 @@ class EsqlExecutor:
             'format': 'json',
         }
 
+        timeout = aiohttp.ClientTimeout(total=30)
         connector = aiohttp.TCPConnector(ssl=self.ssl_verify)
         async with (
-            aiohttp.ClientSession(connector=connector) as session,
+            aiohttp.ClientSession(connector=connector, timeout=timeout) as session,
             session.post(url, headers=headers, auth=auth, json=request_body) as response,
         ):
             if response.status != HTTP_OK:

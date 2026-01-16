@@ -48,7 +48,14 @@ export function extractEsqlQueryAtPosition(
             isMultiline = queryMatch[2] === '|';
 
             // If it's an inline query (not multiline), extract from same line
+            // Only match if cursor is on this line to avoid executing unintended queries
             if (!isMultiline && queryMatch[3] && queryMatch[3].trim().length > 0) {
+                if (cursorLine !== i) {
+                    // Cursor is not on the inline query line, don't return it
+                    queryStartLine = -1;
+                    queryIndent = -1;
+                    break;
+                }
                 const inlineQuery = queryMatch[3].trim();
                 // Remove quotes if present
                 const cleanQuery = inlineQuery.replace(/^["']|["']$/g, '');

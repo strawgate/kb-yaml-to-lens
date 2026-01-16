@@ -13,9 +13,11 @@ export class EsqlResultsPanel {
         }
     }
 
-    showLoading(query: string): void {
-        this.currentQuery = query;
-
+    /**
+     * Gets or creates the webview panel, handling lifecycle properly.
+     * If panel exists, reveals it; otherwise creates a new one.
+     */
+    private ensurePanel(): vscode.WebviewPanel {
         if (!this.panel) {
             this.panel = vscode.window.createWebviewPanel(
                 'esqlResults',
@@ -30,51 +32,28 @@ export class EsqlResultsPanel {
             this.panel.onDidDispose(() => {
                 this.panel = undefined;
             });
+        } else {
+            this.panel.reveal(vscode.ViewColumn.Beside, true);
         }
+        return this.panel;
+    }
 
-        this.panel.webview.html = getLoadingContent('Executing ES|QL query...');
+    showLoading(query: string): void {
+        this.currentQuery = query;
+        const panel = this.ensurePanel();
+        panel.webview.html = getLoadingContent('Executing ES|QL query...');
     }
 
     showResults(result: EsqlQueryResult, query: string): void {
-        if (!this.panel) {
-            this.panel = vscode.window.createWebviewPanel(
-                'esqlResults',
-                'ES|QL Results',
-                vscode.ViewColumn.Beside,
-                {
-                    enableScripts: true,
-                    retainContextWhenHidden: true
-                }
-            );
-
-            this.panel.onDidDispose(() => {
-                this.panel = undefined;
-            });
-        }
-
         this.currentQuery = query;
-        this.panel.webview.html = this.getWebviewContent(result, query);
+        const panel = this.ensurePanel();
+        panel.webview.html = this.getWebviewContent(result, query);
     }
 
     showError(error: unknown, query: string): void {
-        if (!this.panel) {
-            this.panel = vscode.window.createWebviewPanel(
-                'esqlResults',
-                'ES|QL Results',
-                vscode.ViewColumn.Beside,
-                {
-                    enableScripts: true,
-                    retainContextWhenHidden: true
-                }
-            );
-
-            this.panel.onDidDispose(() => {
-                this.panel = undefined;
-            });
-        }
-
         this.currentQuery = query;
-        this.panel.webview.html = getErrorContent(error, 'ES|QL Query Error');
+        const panel = this.ensurePanel();
+        panel.webview.html = getErrorContent(error, 'ES|QL Query Error');
     }
 
     private getWebviewContent(result: EsqlQueryResult, query: string): string {
@@ -301,7 +280,13 @@ export class EsqlResultsPanel {
 
                 <script id="results-data" type="application/json">${escapeHtml(JSON.stringify({ columns: result.columns, values: result.values }))}</script>
                 <script>
-                    const resultsData = JSON.parse(document.getElementById('results-data').textContent);
+                    let resultsData;
+                    try {
+                        resultsData = JSON.parse(document.getElementById('results-data').textContent);
+                    } catch (e) {
+                        console.error('Failed to parse results data:', e);
+                        resultsData = { columns: [], values: [] };
+                    }
 
                     function toggleQuery() {
                         const content = document.getElementById('query-content');
@@ -365,7 +350,7 @@ export class EsqlResultsPanel {
     }
 
     private generateTableHtml(columns: EsqlColumn[], values: unknown[][]): string {
-        if (columns.length === 0 || values.length === 0) {
+        if (columns.length === 0) {
             return '<div class="no-results">No results returned</div>';
         }
 
@@ -377,14 +362,18 @@ export class EsqlResultsPanel {
         }
         html += '</tr></thead><tbody>';
 
-        // Data rows
-        for (const row of values) {
-            html += '<tr>';
-            for (let i = 0; i < columns.length; i++) {
-                const value = row[i];
-                html += `<td>${this.formatCellValue(value, columns[i].type)}</td>`;
+        // Data rows or empty indicator
+        if (values.length === 0) {
+            html += `<tr><td colspan="${columns.length}" class="no-results">No rows returned</td></tr>`;
+        } else {
+            for (const row of values) {
+                html += '<tr>';
+                for (let i = 0; i < columns.length; i++) {
+                    const value = row[i];
+                    html += `<td>${this.formatCellValue(value, columns[i].type)}</td>`;
+                }
+                html += '</tr>';
             }
-            html += '</tr>';
         }
 
         html += '</tbody></table>';
