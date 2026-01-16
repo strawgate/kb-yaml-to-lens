@@ -96,13 +96,21 @@ export function extractEsqlQueryAtPosition(
         let queryEndLine = queryStartLine;
 
         // Detect actual indentation from first content line
-        let baseIndent = queryIndent + 2;
+        // Only accept lines indented more than queryIndent; otherwise the block is empty
+        let baseIndent = -1;
         for (let j = queryStartLine + 1; j < lines.length; j++) {
             const probe = lines[j];
-            if (probe.trim().length > 0) {
-                baseIndent = probe.match(/^(\s*)/)?.[1].length ?? queryIndent + 2;
-                break;
+            if (probe.trim().length === 0) {
+                continue;
             }
+            const probeIndent = probe.match(/^(\s*)/)?.[1].length ?? 0;
+            if (probeIndent > queryIndent) {
+                baseIndent = probeIndent;
+            }
+            break;
+        }
+        if (baseIndent === -1) {
+            return undefined;
         }
 
         for (let i = queryStartLine + 1; i < lines.length; i++) {
