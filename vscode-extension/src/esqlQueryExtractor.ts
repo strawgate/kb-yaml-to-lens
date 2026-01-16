@@ -40,8 +40,8 @@ export function extractEsqlQueryAtPosition(
         const line = lines[i];
         const trimmed = line.trim();
 
-        // Check for 'query:' pattern (with optional | for multiline)
-        const queryMatch = line.match(/^(\s*)query:\s*(\|)?(.*)$/);
+        // Check for 'query:' or 'esql.query:' pattern (with optional | for multiline)
+        const queryMatch = line.match(/^(\s*)(?:esql\.)?query:\s*(\|)?(.*)$/);
         if (queryMatch) {
             queryStartLine = i;
             queryIndent = queryMatch[1].length;
@@ -79,9 +79,9 @@ export function extractEsqlQueryAtPosition(
     }
 
     if (queryStartLine === -1) {
-        // Also check if cursor is on a line with 'query:' prefix
+        // Also check if cursor is on a line with 'query:' or 'esql.query:' prefix
         const currentLine = lines[cursorLine];
-        const directMatch = currentLine.match(/^(\s*)query:\s*(\|)?(.*)$/);
+        const directMatch = currentLine.match(/^(\s*)(?:esql\.)?query:\s*(\|)?(.*)$/);
         if (directMatch) {
             queryStartLine = cursorLine;
             queryIndent = directMatch[1].length;
@@ -187,21 +187,26 @@ export function extractEsqlQueryAtPosition(
  * @returns The entered query or undefined if cancelled
  */
 export async function promptForEsqlQuery(): Promise<string | undefined> {
-    const query = await vscode.window.showInputBox({
-        prompt: 'Enter ES|QL query to execute',
-        placeHolder: 'FROM logs-* | STATS count = COUNT(*)',
-        ignoreFocusOut: true,
-        validateInput: (value) => {
-            if (!value || value.trim().length === 0) {
-                return 'Query is required';
+    try {
+        const query = await vscode.window.showInputBox({
+            prompt: 'Enter ES|QL query to execute',
+            placeHolder: 'FROM logs-* | STATS count = COUNT(*)',
+            ignoreFocusOut: true,
+            validateInput: (value) => {
+                if (!value || value.trim().length === 0) {
+                    return 'Query is required';
+                }
+                // Basic validation: should contain FROM
+                if (!value.toUpperCase().includes('FROM')) {
+                    return 'ES|QL query must contain FROM';
+                }
+                return undefined;
             }
-            // Basic validation: should contain FROM
-            if (!value.toUpperCase().includes('FROM')) {
-                return 'ES|QL query must contain FROM';
-            }
-            return undefined;
-        }
-    });
+        });
 
-    return query?.trim();
+        return query?.trim();
+    } catch (err) {
+        console.error('Failed to prompt for ES|QL query:', err);
+        return undefined;
+    }
 }
