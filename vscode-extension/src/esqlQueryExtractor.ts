@@ -197,7 +197,7 @@ export async function promptForEsqlQuery(): Promise<string | undefined> {
             }
             // Basic validation: should contain FROM
             if (!value.toUpperCase().includes('FROM')) {
-                return 'ES|QL query should start with FROM';
+                return 'ES|QL query must contain FROM';
             }
             return undefined;
         }
