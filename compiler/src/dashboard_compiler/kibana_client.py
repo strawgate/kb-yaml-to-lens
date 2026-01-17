@@ -68,7 +68,11 @@ class KibanaReportingJobResponse(BaseModel):
 
 
 class EsqlColumn(BaseModel):
-    """Represents a column definition in ES|QL query results."""
+    """Represents a column definition in ES|QL query results.
+
+    Note: Uses pydantic.BaseModel directly (not shared.model.BaseModel) because this is
+    a view model for API responses, requiring extra='allow' and mutable instances.
+    """
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
@@ -83,6 +87,9 @@ class EsqlResponse(BaseModel):
 
     This model represents the structured result of an ES|QL query,
     containing column definitions and row values.
+
+    Note: Uses pydantic.BaseModel directly (not shared.model.BaseModel) because this is
+    a view model for API responses, requiring extra='allow' and mutable instances.
     """
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
@@ -502,8 +509,11 @@ class KibanaClient:
             EsqlResponse with query results containing columns, values, and metadata
 
         Raises:
-            aiohttp.ClientError: If the request fails
-            ValueError: If the response contains an error
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response contains an error message
+            TypeError: If the response shape is unexpected
+            pydantic.ValidationError: If response validation fails
 
         """
         endpoint = '/api/console/proxy'

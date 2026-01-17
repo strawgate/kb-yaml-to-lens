@@ -77,9 +77,9 @@ def _normalize_optional_str(value: str | None) -> str | None:
     Returns:
         The string if non-empty, None otherwise
     """
-    if value is not None and len(value) > 0:
-        return value
-    return None
+    if value is None:
+        return None
+    return value if len(value) > 0 else None
 
 
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
