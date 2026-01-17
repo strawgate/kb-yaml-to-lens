@@ -125,6 +125,12 @@ export function extractEsqlQueryAtPosition(
     const lineCounter = new LineCounter();
     const doc = parseDocument(text, { lineCounter });
 
+    // Check for YAML parse errors
+    if (doc.errors.length > 0) {
+        console.error('YAML parse errors in ES|QL extraction:', doc.errors);
+        return undefined;
+    }
+
     // Convert cursor position to offset
     const cursorOffset = document.offsetAt(position);
 

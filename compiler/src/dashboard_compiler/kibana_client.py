@@ -473,7 +473,10 @@ class KibanaClient:
 
         logger.info('Executing ES|QL query via Kibana console proxy')
 
-        async with await self._post(endpoint, params=params, json=request_body, headers={'Content-Type': 'application/json'}) as response:
+        timeout = aiohttp.ClientTimeout(total=30)
+        async with await self._post(
+            endpoint, params=params, json=request_body, headers={'Content-Type': 'application/json'}, timeout=timeout
+        ) as response:
             if response.status != HTTP_OK:
                 error_text = await response.text()
                 logger.error(f'ES|QL query failed with status {response.status}: {error_text[:500]}')
@@ -482,21 +485,38 @@ class KibanaClient:
 
             result = await response.json()  # pyright: ignore[reportAny]
 
+            # Validate response type
+            if not isinstance(result, dict):
+                msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
+                raise TypeError(msg)
+
             # Handle ES|QL response format
             # ES|QL returns: {columns: [{name, type}], values: [[...]]}
             if 'error' in result:
-                error_info = result['error']  # pyright: ignore[reportAny]
-                error_msg: str = (
-                    str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
-                    if isinstance(error_info, dict)
-                    else str(error_info)  # pyright: ignore[reportAny]
-                )
+                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
+                if isinstance(error_info, dict):
+                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                elif isinstance(error_info, str):
+                    error_msg = error_info
+                else:
+                    msg = f'Unexpected ES|QL error type: {type(error_info).__name__}'  # pyright: ignore[reportUnknownArgumentType]
+                    raise TypeError(msg)
                 msg = f'ES|QL query error: {error_msg}'
                 raise ValueError(msg)
 
+            # Validate response fields
+            columns: object = result.get('columns', [])  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+            values: object = result.get('values', [])  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+            if not isinstance(columns, list):
+                msg = f"Expected 'columns' to be a list, got {type(columns).__name__}"  # pyright: ignore[reportUnknownArgumentType]
+                raise TypeError(msg)
+            if not isinstance(values, list):
+                msg = f"Expected 'values' to be a list, got {type(values).__name__}"  # pyright: ignore[reportUnknownArgumentType]
+                raise TypeError(msg)
+
             return {
-                'columns': result.get('columns', []),  # pyright: ignore[reportAny]
-                'values': result.get('values', []),  # pyright: ignore[reportAny]
-                'took': result.get('took'),  # pyright: ignore[reportAny]
-                'is_partial': result.get('is_partial', False),  # pyright: ignore[reportAny]
+                'columns': columns,
+                'values': values,
+                'took': result.get('took'),  # pyright: ignore[reportUnknownMemberType]
+                'is_partial': result.get('is_partial', False),  # pyright: ignore[reportUnknownMemberType]
             }

@@ -245,11 +245,11 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
     api_key = params_dict.get('api_key')
     ssl_verify = params_dict.get('ssl_verify', True)
 
-    if query is None or len(query) == 0:
-        return {'success': False, 'error': 'Missing query parameter'}
+    if query is None or not isinstance(query, str) or len(query) == 0:
+        return {'success': False, 'error': 'Missing or invalid query parameter'}
 
-    if kibana_url is None or len(kibana_url) == 0:
-        return {'success': False, 'error': 'Missing kibana_url parameter'}
+    if kibana_url is None or not isinstance(kibana_url, str) or len(kibana_url) == 0:
+        return {'success': False, 'error': 'Missing or invalid kibana_url parameter'}
 
     try:
         logger.info(f'Executing ES|QL query via Kibana at {kibana_url}')
