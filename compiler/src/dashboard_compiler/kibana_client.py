@@ -503,7 +503,6 @@ class KibanaClient:
 
         request_body = {
             'query': query,
-            'format': 'json',
         }
 
         logger.info('Executing ES|QL query via Kibana console proxy')

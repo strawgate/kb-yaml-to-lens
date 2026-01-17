@@ -98,6 +98,11 @@
         "command": "yamlDashboard.runEsqlQuery",
         "title": "Run ES|QL Query",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.runEsqlQuerySelection",
+        "title": "Run ES|QL Query (Selection)",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -173,6 +178,11 @@
         {
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.runEsqlQuery",
+          "group": "3_esql"
+        },
+        {
+          "when": "resourceLangId == yaml && editorHasSelection",
+          "command": "yamlDashboard.runEsqlQuerySelection",
           "group": "3_esql"
         }
       ],

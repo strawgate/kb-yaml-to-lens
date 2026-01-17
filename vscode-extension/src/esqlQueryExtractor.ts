@@ -152,6 +152,32 @@ export function extractEsqlQueryAtPosition(
 }
 
 /**
+ * Extracts selected text from the active editor as an ES|QL query.
+ *
+ * @param document The VS Code text document
+ * @param selection The current selection
+ * @returns The selected text if valid, undefined otherwise
+ */
+export function extractSelectedText(
+    document: vscode.TextDocument,
+    selection: vscode.Selection
+): ExtractedEsqlQuery | undefined {
+    if (selection.isEmpty) {
+        return undefined;
+    }
+
+    const selectedText = document.getText(selection).trim();
+    if (!selectedText) {
+        return undefined;
+    }
+
+    return {
+        query: selectedText,
+        range: new vscode.Range(selection.start, selection.end)
+    };
+}
+
+/**
  * Prompts the user to enter an ES|QL query manually.
  *
  * @returns The entered query or undefined if cancelled

@@ -5,7 +5,7 @@ import { GridEditorPanel } from './gridEditorPanel';
 import { EsqlResultsPanel } from './esqlResultsPanel';
 import { setupFileWatcher } from './fileWatcher';
 import { ConfigService } from './configService';
-import { extractEsqlQueryAtPosition, promptForEsqlQuery } from './esqlQueryExtractor';
+import { extractEsqlQueryAtPosition, extractSelectedText, promptForEsqlQuery } from './esqlQueryExtractor';
 import * as fs from 'fs';
 import { TextDecoder } from 'util';
 
@@ -593,6 +593,58 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!query) {
                 return;
             }
+
+            // Ensure Kibana is configured
+            const config = await ensureKibanaConfig(configService);
+            if (!config) {
+                return;
+            }
+
+            // Show loading state
+            esqlResultsPanel.showLoading(query);
+
+            try {
+                const result = await compiler.executeEsqlQuery(
+                    query,
+                    config.kibanaUrl,
+                    config.username,
+                    config.password,
+                    config.apiKey,
+                    config.sslVerify
+                );
+
+                esqlResultsPanel.showResults(result, query);
+
+                // Show brief notification
+                const rowCount = result.values.length;
+                const tookMs = result.took !== undefined ? ` in ${result.took}ms` : '';
+                vscode.window.setStatusBarMessage(`ES|QL: ${rowCount} row(s) returned${tookMs}`, 3000);
+            } catch (error) {
+                esqlResultsPanel.showError(error, query);
+                vscode.window.showErrorMessage(
+                    `ES|QL query failed: ${error instanceof Error ? error.message : String(error)}`
+                );
+            }
+        })
+    );
+
+    // Register run ES|QL query (selection) command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('yamlDashboard.runEsqlQuerySelection', async () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showErrorMessage('No active editor');
+                return;
+            }
+
+            // Extract selected text as query
+            const extracted = extractSelectedText(editor.document, editor.selection);
+            if (!extracted) {
+                vscode.window.showErrorMessage('No text selected. Select an ES|QL query to run.');
+                return;
+            }
+
+            const query = extracted.query;
 
             // Ensure Kibana is configured
             const config = await ensureKibanaConfig(configService);
