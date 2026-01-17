@@ -261,12 +261,12 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
             ssl_verify=ssl_verify,
         ) as client:
             result = await client.execute_esql(query)
-        logger.debug(f'ES|QL query returned {len(result.get("values", []))} rows')
+        logger.debug(f'ES|QL query returned {result.row_count} rows')
     except Exception as e:
         logger.exception('ES|QL execution error occurred')
         return {'success': False, 'error': f'ES|QL execution error: {e!s}'}
     else:
-        return {'success': True, 'data': result}
+        return {'success': True, 'data': result.model_dump(by_alias=True, mode='json')}
 
 
 @server.feature('dashboard/uploadToKibana')

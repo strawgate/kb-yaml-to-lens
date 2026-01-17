@@ -67,6 +67,47 @@ class KibanaReportingJobResponse(BaseModel):
     path: str = Field(..., description='Path to poll for job completion')
 
 
+class EsqlColumn(BaseModel):
+    """Represents a column definition in ES|QL query results."""
+
+    name: str = Field(..., description='Column name')
+    type: str = Field(..., description='Column data type (e.g., keyword, long, date)')
+
+
+class EsqlResponse(BaseModel):
+    """Response from ES|QL query execution via Kibana.
+
+    This model represents the structured result of an ES|QL query,
+    containing column definitions and row values.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    columns: list[EsqlColumn] = Field(default_factory=list, description='Column definitions with name and type')
+    values: list[list[Any]] = Field(default_factory=list, description='Row values as nested arrays')
+    took: int | None = Field(default=None, description='Query execution time in milliseconds')
+    is_partial: bool = Field(default=False, alias='is_partial', description='Whether results are partial')
+
+    @property
+    def row_count(self) -> int:
+        """Return the number of rows in the result."""
+        return len(self.values)
+
+    @property
+    def column_count(self) -> int:
+        """Return the number of columns in the result."""
+        return len(self.columns)
+
+    def to_dicts(self) -> list[dict[str, Any]]:
+        """Convert results to a list of dictionaries with column names as keys.
+
+        Returns:
+            List of dictionaries, each representing a row with column names as keys.
+        """
+        # Values are dynamic JSON types from Elasticsearch; col.name is typed, val is Any from ES
+        return [{col.name: val for col, val in zip(self.columns, row, strict=False)} for row in self.values]  # pyright: ignore[reportAny]
+
+
 class KibanaClient:
     """Client for interacting with Kibana's Saved Objects API."""
 
@@ -443,26 +484,20 @@ class KibanaClient:
             response.raise_for_status()
             return await response.text()
 
-    async def execute_esql(self, query: str) -> dict[str, Any]:
+    async def execute_esql(self, query: str) -> EsqlResponse:
         """Execute an ES|QL query via Kibana's console proxy API.
 
         Args:
             query: The ES|QL query string to execute
 
         Returns:
-            Dictionary with query results:
-                - columns: List of column definitions [{name, type}, ...]
-                - values: List of row values [[val1, val2, ...], ...]
-                - took: Query execution time in milliseconds (if available)
-                - is_partial: Whether results are partial
+            EsqlResponse with query results containing columns, values, and metadata
 
         Raises:
             aiohttp.ClientError: If the request fails
             ValueError: If the response contains an error
 
         """
-        # Build the proxy URL for ES|QL queries
-        # Kibana's console proxy forwards requests to Elasticsearch
         endpoint = '/api/console/proxy'
         params = {'path': '/_query', 'method': 'POST'}
 
@@ -490,8 +525,7 @@ class KibanaClient:
                 msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
                 raise TypeError(msg)
 
-            # Handle ES|QL response format
-            # ES|QL returns: {columns: [{name, type}], values: [[...]]}
+            # Handle ES|QL error response
             if 'error' in result:
                 error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
                 if isinstance(error_info, dict):
@@ -504,19 +538,5 @@ class KibanaClient:
                 msg = f'ES|QL query error: {error_msg}'
                 raise ValueError(msg)
 
-            # Validate response fields
-            columns: object = result.get('columns', [])  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
-            values: object = result.get('values', [])  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
-            if not isinstance(columns, list):
-                msg = f"Expected 'columns' to be a list, got {type(columns).__name__}"  # pyright: ignore[reportUnknownArgumentType]
-                raise TypeError(msg)
-            if not isinstance(values, list):
-                msg = f"Expected 'values' to be a list, got {type(values).__name__}"  # pyright: ignore[reportUnknownArgumentType]
-                raise TypeError(msg)
-
-            return {
-                'columns': columns,
-                'values': values,
-                'took': result.get('took'),  # pyright: ignore[reportUnknownMemberType]
-                'is_partial': result.get('is_partial', False),  # pyright: ignore[reportUnknownMemberType]
-            }
+            # Parse response into Pydantic model for type safety
+            return EsqlResponse.model_validate(result)
