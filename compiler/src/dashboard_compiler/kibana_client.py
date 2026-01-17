@@ -9,8 +9,6 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Field
 
-from dashboard_compiler.shared.config import BaseCfgModel
-
 logger = logging.getLogger(__name__)
 
 HTTP_OK = 200
@@ -69,8 +67,10 @@ class KibanaReportingJobResponse(BaseModel):
     path: str = Field(..., description='Path to poll for job completion')
 
 
-class EsqlColumn(BaseCfgModel):
+class EsqlColumn(BaseModel):
     """Represents a column definition in ES|QL query results."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     name: str = Field(..., description='Column name')
     """Column name."""
@@ -78,7 +78,7 @@ class EsqlColumn(BaseCfgModel):
     """Column data type (e.g., keyword, long, date)."""
 
 
-class EsqlResponse(BaseCfgModel):
+class EsqlResponse(BaseModel):
     """Response from ES|QL query execution via Kibana.
 
     This model represents the structured result of an ES|QL query,

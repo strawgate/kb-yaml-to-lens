@@ -52,6 +52,36 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
     raise TypeError(msg)
 
 
+def _get_required_str(params_dict: dict[str, Any], key: str) -> str | None:
+    """Extract a required string parameter from params dict.
+
+    Args:
+        params_dict: Dictionary of parameters
+        key: The key to extract
+
+    Returns:
+        The string value if valid, None if missing or invalid
+    """
+    value = params_dict.get(key)
+    if value is None or not isinstance(value, str) or len(value) == 0:
+        return None
+    return value
+
+
+def _normalize_optional_str(value: str | None) -> str | None:
+    """Normalize an optional string, converting empty strings to None.
+
+    Args:
+        value: The string value or None
+
+    Returns:
+        The string if non-empty, None otherwise
+    """
+    if value is not None and len(value) > 0:
+        return value
+    return None
+
+
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
     """Compile a dashboard at the given path and index.
 
@@ -238,17 +268,17 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
     """
     params_dict = _params_to_dict(params)
 
-    query = params_dict.get('query')
-    kibana_url = params_dict.get('kibana_url')
+    query = _get_required_str(params_dict, 'query')
+    kibana_url = _get_required_str(params_dict, 'kibana_url')
     username = params_dict.get('username')
     password = params_dict.get('password')
     api_key = params_dict.get('api_key')
     ssl_verify = params_dict.get('ssl_verify', True)
 
-    if query is None or not isinstance(query, str) or len(query) == 0:
+    if query is None:
         return {'success': False, 'error': 'Missing or invalid query parameter'}
 
-    if kibana_url is None or not isinstance(kibana_url, str) or len(kibana_url) == 0:
+    if kibana_url is None:
         return {'success': False, 'error': 'Missing or invalid kibana_url parameter'}
 
     # Validate optional credential parameters are strings or None, and ssl_verify is bool
@@ -261,9 +291,9 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
         return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
 
     # Normalize empty strings to None
-    validated_username = username if (username is not None and len(username) > 0) else None
-    validated_password = password if (password is not None and len(password) > 0) else None
-    validated_api_key = api_key if (api_key is not None and len(api_key) > 0) else None
+    validated_username = _normalize_optional_str(username)  # pyright: ignore[reportArgumentType]
+    validated_password = _normalize_optional_str(password)  # pyright: ignore[reportArgumentType]
+    validated_api_key = _normalize_optional_str(api_key)  # pyright: ignore[reportArgumentType]
 
     try:
         logger.info(f'Executing ES|QL query via Kibana at {kibana_url}')
