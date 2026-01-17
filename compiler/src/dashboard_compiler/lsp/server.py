@@ -251,13 +251,27 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
     if kibana_url is None or not isinstance(kibana_url, str) or len(kibana_url) == 0:
         return {'success': False, 'error': 'Missing or invalid kibana_url parameter'}
 
+    # Validate optional credential parameters are strings or None, and ssl_verify is bool
+    if (
+        (username is not None and not isinstance(username, str))
+        or (password is not None and not isinstance(password, str))
+        or (api_key is not None and not isinstance(api_key, str))
+        or not isinstance(ssl_verify, bool)
+    ):
+        return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
+
+    # Normalize empty strings to None
+    validated_username = username if (username is not None and len(username) > 0) else None
+    validated_password = password if (password is not None and len(password) > 0) else None
+    validated_api_key = api_key if (api_key is not None and len(api_key) > 0) else None
+
     try:
         logger.info(f'Executing ES|QL query via Kibana at {kibana_url}')
         async with KibanaClient(
             url=kibana_url,
-            username=username if (username is not None and len(username) > 0) else None,
-            password=password if (password is not None and len(password) > 0) else None,
-            api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
+            username=validated_username,
+            password=validated_password,
+            api_key=validated_api_key,
             ssl_verify=ssl_verify,
         ) as client:
             result = await client.execute_esql(query)

@@ -594,16 +594,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            // Ensure Kibana is configured
-            const config = await ensureKibanaConfig(configService);
-            if (!config) {
-                return;
-            }
-
-            // Show loading state
-            esqlResultsPanel.showLoading(query);
-
             try {
+                // Ensure Kibana is configured
+                const config = await ensureKibanaConfig(configService);
+                if (!config) {
+                    return;
+                }
+
+                // Show loading state
+                esqlResultsPanel.showLoading(query);
+
                 const result = await compiler.executeEsqlQuery(
                     query,
                     config.kibanaUrl,
@@ -646,16 +646,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
             const query = extracted.query;
 
-            // Ensure Kibana is configured
-            const config = await ensureKibanaConfig(configService);
-            if (!config) {
-                return;
-            }
-
-            // Show loading state
-            esqlResultsPanel.showLoading(query);
-
             try {
+                // Ensure Kibana is configured
+                const config = await ensureKibanaConfig(configService);
+                if (!config) {
+                    return;
+                }
+
+                // Show loading state
+                esqlResultsPanel.showLoading(query);
+
                 const result = await compiler.executeEsqlQuery(
                     query,
                     config.kibanaUrl,

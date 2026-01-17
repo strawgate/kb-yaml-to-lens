@@ -9,6 +9,8 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Field
 
+from dashboard_compiler.shared.config import BaseCfgModel
+
 logger = logging.getLogger(__name__)
 
 HTTP_OK = 200
@@ -67,14 +69,16 @@ class KibanaReportingJobResponse(BaseModel):
     path: str = Field(..., description='Path to poll for job completion')
 
 
-class EsqlColumn(BaseModel):
+class EsqlColumn(BaseCfgModel):
     """Represents a column definition in ES|QL query results."""
 
     name: str = Field(..., description='Column name')
+    """Column name."""
     type: str = Field(..., description='Column data type (e.g., keyword, long, date)')
+    """Column data type (e.g., keyword, long, date)."""
 
 
-class EsqlResponse(BaseModel):
+class EsqlResponse(BaseCfgModel):
     """Response from ES|QL query execution via Kibana.
 
     This model represents the structured result of an ES|QL query,
@@ -84,9 +88,13 @@ class EsqlResponse(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     columns: list[EsqlColumn] = Field(default_factory=list, description='Column definitions with name and type')
+    """Column definitions with name and type."""
     values: list[list[Any]] = Field(default_factory=list, description='Row values as nested arrays')
+    """Row values as nested arrays."""
     took: int | None = Field(default=None, description='Query execution time in milliseconds')
+    """Query execution time in milliseconds."""
     is_partial: bool = Field(default=False, alias='is_partial', description='Whether results are partial')
+    """Whether results are partial."""
 
     @property
     def row_count(self) -> int:
