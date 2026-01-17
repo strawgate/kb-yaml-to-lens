@@ -7,6 +7,7 @@ dashboard compilation services to the VS Code extension.
 import json
 import logging
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from lsprotocol import types
 from pydantic import BaseModel
@@ -91,6 +92,26 @@ def _normalize_optional_str(value: str | None) -> str | None:
     if value is None:
         return None
     return value if len(value) > 0 else None
+
+
+def _redact_url(url: str) -> str:
+    """Redact credentials from a URL for safe logging.
+
+    Removes any username:password@ portion from the URL to prevent
+    credential leakage in log files.
+
+    Args:
+        url: The URL to redact
+
+    Returns:
+        URL with credentials removed
+    """
+    parts = urlsplit(url)
+    # Reconstruct the netloc without userinfo
+    host = parts.hostname if parts.hostname is not None else ''
+    if parts.port is not None:
+        host = f'{host}:{parts.port}'
+    return urlunsplit((parts.scheme, host, parts.path, parts.query, parts.fragment))
 
 
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -307,7 +328,7 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
     validated_api_key = _normalize_optional_str(api_key)  # pyright: ignore[reportArgumentType]
 
     try:
-        logger.info(f'Executing ES|QL query via Kibana at {kibana_url}')
+        logger.info('Executing ES|QL query via Kibana at %s', _redact_url(kibana_url))
         async with KibanaClient(
             url=kibana_url,
             username=validated_username,
@@ -370,7 +391,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
         logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
 
         # Create Kibana client and upload
-        logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
+        logger.info('Uploading dashboard to Kibana at %s', _redact_url(kibana_url))
         async with KibanaClient(
             url=kibana_url,
             username=username if (username is not None and len(username) > 0) else None,

@@ -4,7 +4,6 @@ import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 
 export class EsqlResultsPanel {
     private panel: vscode.WebviewPanel | undefined;
-    private currentQuery: string | undefined;
 
     dispose(): void {
         if (this.panel) {
@@ -39,21 +38,33 @@ export class EsqlResultsPanel {
     }
 
     showLoading(query: string): void {
-        this.currentQuery = query;
         const panel = this.ensurePanel();
+        panel.title = `ES|QL: ${this.truncateQuery(query)}`;
         panel.webview.html = getLoadingContent('Executing ES|QL query...');
     }
 
     showResults(result: EsqlQueryResult, query: string): void {
-        this.currentQuery = query;
         const panel = this.ensurePanel();
+        panel.title = `ES|QL: ${this.truncateQuery(query)}`;
         panel.webview.html = this.getWebviewContent(result, query);
     }
 
     showError(error: unknown, query: string): void {
-        this.currentQuery = query;
         const panel = this.ensurePanel();
+        panel.title = `ES|QL Error: ${this.truncateQuery(query)}`;
         panel.webview.html = getErrorContent(error, 'ES|QL Query Error');
+    }
+
+    /**
+     * Truncate a query string for display in the panel title.
+     */
+    private truncateQuery(query: string): string {
+        const firstLine = query.split('\n')[0].trim();
+        const maxLength = 30;
+        if (firstLine.length <= maxLength) {
+            return firstLine;
+        }
+        return firstLine.substring(0, maxLength) + '...';
     }
 
     private getWebviewContent(result: EsqlQueryResult, query: string): string {
@@ -299,10 +310,12 @@ export class EsqlResultsPanel {
 
                     function showSuccess() {
                         const message = document.getElementById('successMessage');
-                        message.classList.add('show');
-                        setTimeout(() => {
-                            message.classList.remove('show');
-                        }, 2000);
+                        if (message) {
+                            message.classList.add('show');
+                            setTimeout(() => {
+                                message.classList.remove('show');
+                            }, 2000);
+                        }
                     }
 
                     function copyAsCsv() {
