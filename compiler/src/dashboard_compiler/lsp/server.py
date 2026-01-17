@@ -15,7 +15,6 @@ from pygls.lsp.server import LanguageServer
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient
-from dashboard_compiler.lsp.esql_executor import EsqlExecutor
 from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
 
 logger = logging.getLogger(__name__)
@@ -254,14 +253,14 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
 
     try:
         logger.info(f'Executing ES|QL query via Kibana at {kibana_url}')
-        executor = EsqlExecutor(
-            kibana_url=kibana_url,
+        async with KibanaClient(
+            url=kibana_url,
             username=username if (username is not None and len(username) > 0) else None,
             password=password if (password is not None and len(password) > 0) else None,
             api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
             ssl_verify=ssl_verify,
-        )
-        result = await executor.execute(query)
+        ) as client:
+            result = await client.execute_esql(query)
         logger.debug(f'ES|QL query returned {len(result.get("values", []))} rows')
     except Exception as e:
         logger.exception('ES|QL execution error occurred')

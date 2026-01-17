@@ -442,3 +442,61 @@ class KibanaClient:
         async with await self._post(endpoint, json=request_body, headers={'Content-Type': 'application/json'}) as response:
             response.raise_for_status()
             return await response.text()
+
+    async def execute_esql(self, query: str) -> dict[str, Any]:
+        """Execute an ES|QL query via Kibana's console proxy API.
+
+        Args:
+            query: The ES|QL query string to execute
+
+        Returns:
+            Dictionary with query results:
+                - columns: List of column definitions [{name, type}, ...]
+                - values: List of row values [[val1, val2, ...], ...]
+                - took: Query execution time in milliseconds (if available)
+                - is_partial: Whether results are partial
+
+        Raises:
+            aiohttp.ClientError: If the request fails
+            ValueError: If the response contains an error
+
+        """
+        # Build the proxy URL for ES|QL queries
+        # Kibana's console proxy forwards requests to Elasticsearch
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_query', 'method': 'POST'}
+
+        request_body = {
+            'query': query,
+            'format': 'json',
+        }
+
+        logger.info('Executing ES|QL query via Kibana console proxy')
+
+        async with await self._post(endpoint, params=params, json=request_body, headers={'Content-Type': 'application/json'}) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error(f'ES|QL query failed with status {response.status}: {error_text[:500]}')
+                msg = f'ES|QL query failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+
+            # Handle ES|QL response format
+            # ES|QL returns: {columns: [{name, type}], values: [[...]]}
+            if 'error' in result:
+                error_info = result['error']  # pyright: ignore[reportAny]
+                error_msg: str = (
+                    str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                    if isinstance(error_info, dict)
+                    else str(error_info)  # pyright: ignore[reportAny]
+                )
+                msg = f'ES|QL query error: {error_msg}'
+                raise ValueError(msg)
+
+            return {
+                'columns': result.get('columns', []),  # pyright: ignore[reportAny]
+                'values': result.get('values', []),  # pyright: ignore[reportAny]
+                'took': result.get('took'),  # pyright: ignore[reportAny]
+                'is_partial': result.get('is_partial', False),  # pyright: ignore[reportAny]
+            }
