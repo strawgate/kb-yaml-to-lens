@@ -182,6 +182,7 @@ root = "tests"
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
+reportUnknownMemberType = false
 reportAny = false
 reportArgumentType = false
 reportCallIssue = false

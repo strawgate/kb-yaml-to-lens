@@ -1,0 +1,3 @@
+[submodule "compiler/tests/fixtures/external"]
+	path = compiler/tests/fixtures/external
+	url = https://github.com/strawgate/kb-yaml-to-lens-fixtures.git

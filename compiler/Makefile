@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup setup-fixtures update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -13,6 +13,7 @@ GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKE
 YAMLFIX_EXCLUDE := \
 	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
 	--exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" \
+	--exclude "compiler/tests/fixtures/external/**/*.yaml" --exclude "compiler/tests/fixtures/external/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
 	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
@@ -21,9 +22,10 @@ help:
 	@echo "Dashboard Compiler Commands:"
 	@echo ""
 	@echo "Dependency Management:"
-	@echo "  install       - Install Python dependencies using uv"
-	@echo "  setup         - Set up environment from scratch"
-	@echo "  update-deps   - Update dependencies"
+	@echo "  install        - Install Python dependencies using uv"
+	@echo "  setup          - Set up environment from scratch"
+	@echo "  setup-fixtures - Initialize fixture submodules for testing"
+	@echo "  update-deps    - Update dependencies"
 	@echo ""
 	@echo "CI and Development Workflow:"
 	@echo "  all           - Default target (alias for ci)"
@@ -148,11 +150,16 @@ test-smoke:
 	@bash scripts/test_cli_smoke.sh
 
 # Dependency management
-setup:
+setup: setup-fixtures
 	@echo "Setting up environment..."
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 	uv sync --group dev
 	@echo "✓ Environment set up successfully!"
+
+setup-fixtures:
+	@echo "Initializing fixture submodules..."
+	@git submodule update --init --recursive
+	@echo "✓ Fixture submodules initialized"
 
 update-deps:
 	@echo "Updating dependencies..."
