@@ -300,8 +300,12 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
     """
     params_dict = _params_to_dict(params)
 
-    query = _get_required_str(params_dict, 'query')
-    kibana_url = _get_required_str(params_dict, 'kibana_url')
+    try:
+        query = _get_required_str(params_dict, 'query')
+        kibana_url = _get_required_str(params_dict, 'kibana_url')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
     username = params_dict.get('username')
     password = params_dict.get('password')
     api_key = params_dict.get('api_key')
