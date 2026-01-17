@@ -405,7 +405,7 @@ export class EsqlResultsPanel {
                     return escapeHtml(date.toISOString());
                 }
             } catch {
-                // Fall through to default
+                // Date parsing failed, fall through to string rendering
             }
         }
 

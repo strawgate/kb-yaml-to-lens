@@ -76,6 +76,11 @@ def _normalize_optional_str(value: str | None) -> str | None:
 
     Returns:
         The string if non-empty, None otherwise
+
+    Note:
+        Type safety is enforced at compile time via the type annotation.
+        Unlike _get_required_str which extracts from dict[str, Any], this function
+        has a typed parameter so runtime isinstance checks are unnecessary.
     """
     if value is None:
         return None

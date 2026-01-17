@@ -531,7 +531,7 @@ class KibanaClient:
         ) as response:
             if response.status != HTTP_OK:
                 error_text = await response.text()
-                logger.error(f'ES|QL query failed with status {response.status}: {error_text[:500]}')
+                logger.error('ES|QL query failed with status %s: %s', response.status, error_text[:500])
                 msg = f'ES|QL query failed (HTTP {response.status}): {error_text[:200]}'
                 raise ValueError(msg)
 
