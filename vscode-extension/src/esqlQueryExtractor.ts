@@ -20,8 +20,7 @@ export interface ExtractedEsqlQuery {
  */
 function findQueryAtOffset(
     node: unknown,
-    offset: number,
-    lineCounter: LineCounter
+    offset: number
 ): { value: string; range: [number, number, number] } | undefined {
     if (!node) {
         return undefined;
@@ -76,7 +75,7 @@ function findQueryAtOffset(
             }
 
             // Recursively search in the value
-            const result = findQueryAtOffset(value, offset, lineCounter);
+            const result = findQueryAtOffset(value, offset);
             if (result) {
                 return result;
             }
@@ -86,7 +85,7 @@ function findQueryAtOffset(
     // Handle Sequence nodes - search in items
     if (isSeq(node)) {
         for (const item of (node as YAMLSeq).items) {
-            const result = findQueryAtOffset(item, offset, lineCounter);
+            const result = findQueryAtOffset(item, offset);
             if (result) {
                 return result;
             }
@@ -135,7 +134,7 @@ export function extractEsqlQueryAtPosition(
     const cursorOffset = document.offsetAt(position);
 
     // Find query node at cursor position
-    const result = findQueryAtOffset(doc.contents, cursorOffset, lineCounter);
+    const result = findQueryAtOffset(doc.contents, cursorOffset);
 
     if (!result) {
         return undefined;

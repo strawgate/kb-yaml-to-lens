@@ -324,6 +324,42 @@ async function ensureKibanaConfig(configService: ConfigService): Promise<KibanaC
 }
 
 /**
+ * Execute an ES|QL query and display results in the panel.
+ * Handles configuration, loading state, result display, and error handling.
+ *
+ * @param query The ES|QL query string to execute
+ * @throws Error if query execution fails (caller should show error message)
+ */
+async function executeAndShowEsqlQuery(query: string): Promise<void> {
+    const config = await ensureKibanaConfig(configService);
+    if (!config) {
+        return;
+    }
+
+    esqlResultsPanel.showLoading(query);
+
+    try {
+        const result = await compiler.executeEsqlQuery(
+            query,
+            config.kibanaUrl,
+            config.username,
+            config.password,
+            config.apiKey,
+            config.sslVerify
+        );
+
+        esqlResultsPanel.showResults(result, query);
+
+        const rowCount = result.values.length;
+        const tookMs = result.took !== undefined ? ` in ${result.took}ms` : '';
+        vscode.window.setStatusBarMessage(`ES|QL: ${rowCount} row(s) returned${tookMs}`, 3000);
+    } catch (error) {
+        esqlResultsPanel.showError(error, query);
+        throw error;
+    }
+}
+
+/**
  * Register JSON schema with the YAML extension for auto-complete support.
  * This enables schema-based validation, hover documentation, and auto-complete
  * for dashboard YAML files.
@@ -595,32 +631,8 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             try {
-                // Ensure Kibana is configured
-                const config = await ensureKibanaConfig(configService);
-                if (!config) {
-                    return;
-                }
-
-                // Show loading state
-                esqlResultsPanel.showLoading(query);
-
-                const result = await compiler.executeEsqlQuery(
-                    query,
-                    config.kibanaUrl,
-                    config.username,
-                    config.password,
-                    config.apiKey,
-                    config.sslVerify
-                );
-
-                esqlResultsPanel.showResults(result, query);
-
-                // Show brief notification
-                const rowCount = result.values.length;
-                const tookMs = result.took !== undefined ? ` in ${result.took}ms` : '';
-                vscode.window.setStatusBarMessage(`ES|QL: ${rowCount} row(s) returned${tookMs}`, 3000);
+                await executeAndShowEsqlQuery(query);
             } catch (error) {
-                esqlResultsPanel.showError(error, query);
                 vscode.window.showErrorMessage(
                     `ES|QL query failed: ${error instanceof Error ? error.message : String(error)}`
                 );
@@ -647,32 +659,8 @@ export async function activate(context: vscode.ExtensionContext) {
             const query = extracted.query;
 
             try {
-                // Ensure Kibana is configured
-                const config = await ensureKibanaConfig(configService);
-                if (!config) {
-                    return;
-                }
-
-                // Show loading state
-                esqlResultsPanel.showLoading(query);
-
-                const result = await compiler.executeEsqlQuery(
-                    query,
-                    config.kibanaUrl,
-                    config.username,
-                    config.password,
-                    config.apiKey,
-                    config.sslVerify
-                );
-
-                esqlResultsPanel.showResults(result, query);
-
-                // Show brief notification
-                const rowCount = result.values.length;
-                const tookMs = result.took !== undefined ? ` in ${result.took}ms` : '';
-                vscode.window.setStatusBarMessage(`ES|QL: ${rowCount} row(s) returned${tookMs}`, 3000);
+                await executeAndShowEsqlQuery(query);
             } catch (error) {
-                esqlResultsPanel.showError(error, query);
                 vscode.window.showErrorMessage(
                     `ES|QL query failed: ${error instanceof Error ? error.message : String(error)}`
                 );

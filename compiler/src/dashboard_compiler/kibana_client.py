@@ -93,7 +93,7 @@ class EsqlResponse(BaseModel):
     """Row values as nested arrays."""
     took: int | None = Field(default=None, description='Query execution time in milliseconds')
     """Query execution time in milliseconds."""
-    is_partial: bool = Field(default=False, alias='is_partial', description='Whether results are partial')
+    is_partial: bool = Field(default=False, description='Whether results are partial')
     """Whether results are partial."""
 
     @property

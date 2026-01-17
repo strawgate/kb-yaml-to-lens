@@ -349,7 +349,7 @@ export class DashboardCompilerLSP {
             throw new Error(result.error || 'ES|QL query execution failed');
         }
 
-        if (!result.data) {
+        if (result.data === undefined) {
             throw new Error('ES|QL query returned no data');
         }
 

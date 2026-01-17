@@ -278,7 +278,7 @@ export class EsqlResultsPanel {
                     ${tableHtml}
                 </div>
 
-                <script id="results-data" type="application/json">${escapeHtml(JSON.stringify({ columns: result.columns, values: result.values }))}</script>
+                <script id="results-data" type="application/json">${JSON.stringify({ columns: result.columns, values: result.values }).replace(/</g, '\\u003c')}</script>
                 <script>
                     let resultsData;
                     try {
