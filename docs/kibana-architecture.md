@@ -38,7 +38,8 @@ that generates Kibana dashboards programmatically.
 | **8.10+** | Model versions replace legacy migrations | New version tracking system |
 | **8.19+** | Collapsible sections, custom grid layout | New panel grouping mechanism |
 | **9.0** | Disabled creation of legacy viz types, internal API restrictions | Must target Lens exclusively |
-| **9.0+** | ES\|QL variable controls, Content Management v3 API | New filter/query capabilities |
+| **9.0+** | ES\|QL variable controls, Content Management v3 schema | New filter/query capabilities |
+| **9.x** | Dashboard CRUD API (Technical Preview), destringified JSON | New API option (preview) |
 | **10.0** | Full removal of TSVB, aggregation-based, Timelion | Complete deprecation |
 
 ### Migration from 8.x to 9.x
@@ -55,10 +56,64 @@ The new API layer destringifies JSON for easier programmatic access:
 | `panelsJSON` (string) | `panels` (array) | Use stringified format |
 | `optionsJSON` (string) | `options` (object) | Use stringified format |
 | `searchSourceJSON` (string) | `searchSource` (object) | Use stringified format |
+| `controlGroupInput.panelsJSON` (dict) | `controlGroupInput.controls` (array) | Use stringified format |
 
 **Recommendation**: Compilers should output the stringified format for maximum
 compatibility with both direct saved object operations and older Kibana
 versions.
+
+##### New Dashboard CRUD API (Technical Preview)
+
+As of Kibana 9.x, a dedicated Dashboard API is available in Technical Preview
+([Issue #174497](https://github.com/elastic/kibana/issues/174497), implemented in
+[PR #193067](https://github.com/elastic/kibana/pull/193067)):
+
+```
+POST   /api/dashboards/dashboard           (create)
+POST   /api/dashboards/dashboard/{id}      (create with ID)
+GET    /api/dashboards/dashboard/{id}      (retrieve)
+GET    /api/dashboards/dashboard           (list/paginated)
+PUT    /api/dashboards/dashboard/{id}      (update)
+DELETE /api/dashboards/dashboard/{id}      (delete)
+```
+
+All endpoints require the header: `elastic-api-version: 2023-10-31`
+
+The new API accepts native JSON objects instead of stringified JSON, improving
+readability for version control and programmatic management:
+
+**v2 (Legacy Saved Objects format)**:
+```json
+{
+  "attributes": {
+    "panelsJSON": "[{\"type\":\"lens\",...}]",
+    "optionsJSON": "{\"useMargins\":true,...}",
+    "controlGroupInput": {
+      "panelsJSON": "{\"ctrl-id\":{\"type\":\"optionsListControl\",...}}"
+    }
+  }
+}
+```
+
+**v3 (New Dashboard API format)**:
+```json
+{
+  "attributes": {
+    "panels": [{"type": "lens", ...}],
+    "options": {"useMargins": true, ...},
+    "controlGroupInput": {
+      "controls": [{"id": "ctrl-id", "type": "optionsListControl", ...}]
+    }
+  }
+}
+```
+
+The Content Management layer handles bidirectional transformation:
+- **Read operations**: Parses stringified JSON from storage into native objects
+- **Write operations**: Serializes native objects to stringified JSON for storage
+
+This architecture maintains backward compatibility with existing saved objects
+while exposing a cleaner API surface.
 
 #### Model Versions System
 
@@ -88,6 +143,124 @@ Version field changes:
 **Critical for compilers**: Target Lens (`lns*` visualization types) as the
 primary output format since legacy visualization creation is disabled in 9.0
 and scheduled for full removal in 10.0.
+
+## kb-yaml-to-lens Config Schema vs Kibana v3 API Comparison
+
+This section compares the kb-yaml-to-lens YAML config schema to Kibana's new v3
+Dashboard API schema. Both schemas prioritize developer experience with native
+objects and semantic naming.
+
+### Top-Level Field Mapping
+
+| kb-yaml-to-lens Config | Kibana v3 API | Saved Object Storage | Notes |
+| ----------------------- | -------------- | --------------------- | ------ |
+| `name` | `title` | `attributes.title` | Direct semantic match |
+| `id` | `id` | `id` | Direct match |
+| `description` | `description` | `attributes.description` | Direct match |
+| `settings` | `options` | `attributes.optionsJSON` | Structural match (nested vs flat) |
+| `query` | `searchSource.query` | `kibanaSavedObjectMeta.searchSourceJSON.query` | Direct match |
+| `filters` | `searchSource.filter` | `kibanaSavedObjectMeta.searchSourceJSON.filter` | Direct match |
+| `controls` | `controlGroupInput.controls` | `attributes.controlGroupInput.panelsJSON` | Array structure aligned |
+| `panels` | `panels` | `attributes.panelsJSON` | Native array in both |
+| `sample_data` | — | — | kb-yaml-to-lens only |
+| — | `timeRestore` | `attributes.timeRestore` | Not in config schema |
+| — | `timeFrom`/`timeTo` | `attributes.timeFrom`/`timeTo` | Not in config schema |
+| — | `refreshInterval` | `attributes.refreshInterval` | Not in config schema |
+| — | `tags` | — | New v3 API feature |
+| — | `spaces` | — | Multi-space support |
+
+### Settings / Options Mapping
+
+| kb-yaml-to-lens Config | Kibana v3 API | Notes |
+| ----------------------- | -------------- | ------ |
+| `settings.margins` | `options.useMargins` | Boolean, same semantics |
+| `settings.sync.colors` | `options.syncColors` | Boolean, same semantics |
+| `settings.sync.cursor` | `options.syncCursor` | Boolean, same semantics |
+| `settings.sync.tooltips` | `options.syncTooltips` | Boolean, same semantics |
+| `settings.titles` | `options.hidePanelTitles` | Inverted boolean (show vs hide) |
+| `settings.layout_algorithm` | — | kb-yaml-to-lens only (auto-layout) |
+| `settings.controls.label_position` | `controlGroupInput.labelPosition` | `inline`/`above` vs `oneLine`/`twoLine` |
+| `settings.controls.chain_controls` | `controlGroupInput.chainingSystem` | Boolean vs enum (`HIERARCHICAL`/`NONE`) |
+| `settings.controls.click_to_apply` | `controlGroupInput.autoApplySelections` | Inverted boolean |
+| `settings.controls.apply_global_filters` | `controlGroupInput.ignoreParentSettings.ignoreFilters` | Inverted boolean |
+| `settings.controls.apply_global_timerange` | `controlGroupInput.ignoreParentSettings.ignoreTimerange` | Inverted boolean |
+
+### Control Types Mapping
+
+| kb-yaml-to-lens Config | Kibana v3 API Type | Notes |
+| ----------------------- | ------------------- | ------ |
+| `type: options` | `optionsListControl` | Options list control |
+| `type: range` | `rangeSliderControl` | Range slider control |
+| `type: time` | `timeSlider` | Time slider control |
+| `type: esql` | `esqlControl` | ES\|QL variable control |
+
+**Control Structure Comparison**:
+
+kb-yaml-to-lens config:
+```yaml
+controls:
+  - type: options
+    field: host.name
+    data_view: logs-*
+    width: medium
+    preselected: ["server-1"]
+```
+
+Kibana v3 API format:
+```json
+{
+  "controlGroupInput": {
+    "controls": [{
+      "id": "ctrl-uuid",
+      "type": "optionsListControl",
+      "order": 0,
+      "width": "medium",
+      "grow": false,
+      "controlConfig": {
+        "fieldName": "host.name",
+        "dataViewId": "logs-*",
+        "selectedOptions": ["server-1"]
+      }
+    }]
+  }
+}
+```
+
+### Panel Structure Mapping
+
+| kb-yaml-to-lens Config | Kibana v3 API | Notes |
+| ----------------------- | -------------- | ------ |
+| Panel type discriminator | `type` field | Direct match |
+| `position.x`, `position.y`, etc. | `gridData.x`, `gridData.y`, etc. | Direct match |
+| Lens config fields | `panelConfig.attributes.state` | Nested in panel config |
+| `title` | `panelConfig.title` | Direct match |
+| `data_view` | Reference in `panelConfig.attributes.references` | Extracted to references |
+
+### Alignment Assessment
+
+**High Alignment Areas**:
+- Native array/object structures (not stringified JSON in config layer)
+- Semantic field naming patterns
+- Panel positioning grid system (48-column)
+- Control types and configurations
+- By-value panel embedding approach
+
+**Gaps to Address for Full v3 API Support**:
+1. Time restoration settings (`timeRestore`, `timeFrom`, `timeTo`)
+2. Auto-refresh interval (`refreshInterval`)
+3. Tags support for dashboard organization
+4. Multi-space deployment (`spaces`)
+5. Control structure transformation (array with explicit `id` and `order` fields)
+
+**Effort Assessment**: LOW-MEDIUM
+
+Adding a new output target for the v3 Dashboard API would require:
+1. New serializer that outputs native objects (instead of stringified JSON)
+2. Transform controls from config format to v3 array format with explicit IDs
+3. Add optional time/refresh fields to config schema
+4. Minor field name mappings (e.g., `name` → `title`)
+
+The core architecture already aligns well with the v3 API's design philosophy.
 
 ## Saved Object Structure
 
@@ -591,9 +764,32 @@ Panel drilldowns enable interactive navigation:
 
 ## API Reference
 
+### Dashboard API Endpoints (Technical Preview, 9.x+)
+
+The new dedicated Dashboard API provides cleaner CRUD operations with native
+JSON objects (see [Issue #174497](https://github.com/elastic/kibana/issues/174497)):
+
+| Method | Endpoint | Purpose |
+| -------- | ---------- | --------- |
+| `POST` | `/api/dashboards/dashboard` | Create dashboard |
+| `POST` | `/api/dashboards/dashboard/{id}` | Create dashboard with specific ID |
+| `GET` | `/api/dashboards/dashboard/{id}` | Retrieve dashboard |
+| `GET` | `/api/dashboards/dashboard` | List dashboards (paginated) |
+| `PUT` | `/api/dashboards/dashboard/{id}` | Update dashboard |
+| `DELETE` | `/api/dashboards/dashboard/{id}` | Delete dashboard |
+
+**Required headers**:
+```text
+elastic-api-version: 2023-10-31
+kbn-xsrf: true
+Content-Type: application/json
+```
+
+**Status**: Technical Preview - schema may change before GA.
+
 ### Saved Objects API Endpoints
 
-The primary API for dashboard management:
+The primary API for dashboard management (stable, works with all Kibana versions):
 
 | Method | Endpoint | Purpose |
 | -------- | ---------- | --------- |
@@ -756,7 +952,7 @@ Official Kibana API schemas are available at:
 When working with Kibana dashboard compilation:
 
 1. **Understand the stringified JSON pattern** - Most complex data in
-   `attributes` is stringified JSON
+   `attributes` is stringified JSON (for Saved Objects API)
 2. **Use by-value panels** - Embed full Lens configurations inline for
    self-contained dashboards
 3. **Target Lens exclusively** - Legacy visualization types are deprecated and
@@ -766,14 +962,21 @@ When working with Kibana dashboard compilation:
 5. **Generate matching UUIDs** - `panelIndex` and `gridData.i` must match
 6. **Respect the 48-column grid** - Use standard layout patterns for consistent
    positioning
-7. **Use the Saved Objects API** - This is the primary interface for dashboard
-   management
+7. **Choose the right API**:
+   - **Saved Objects API** - Stable, works with all Kibana versions, uses
+     stringified JSON
+   - **Dashboard API** (9.x+, Technical Preview) - Cleaner native JSON, but
+     schema may change
 8. **Support version evolution** - Use `typeMigrationVersion` for compatibility
    tracking
 9. **Consider collapsible sections** - Modern dashboards benefit from
    organizational features (8.19+, 9.x)
 10. **Leverage ES|QL controls** - Variable controls enable dynamic filtering
     (9.x+)
+11. **Monitor v3 API evolution** - The new Dashboard API
+    ([#174497](https://github.com/elastic/kibana/issues/174497)) uses native
+    objects instead of stringified JSON, aligning well with kb-yaml-to-lens
+    architecture
 
 This architecture reference provides the foundation for building robust
 YAML-to-Kibana compilation tools that generate compatible, future-proof
