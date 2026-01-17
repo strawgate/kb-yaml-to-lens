@@ -341,7 +341,7 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
             ssl_verify=ssl_verify,
         ) as client:
             result = await client.execute_esql(query)
-        logger.debug(f'ES|QL query returned {result.row_count} rows')
+        logger.debug('ES|QL query returned %d rows', result.row_count)
     except Exception as e:
         logger.exception('ES|QL execution error occurred')
         return {'success': False, 'error': f'ES|QL execution error: {e!s}'}
