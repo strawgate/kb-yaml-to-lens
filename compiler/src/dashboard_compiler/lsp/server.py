@@ -60,12 +60,18 @@ def _get_required_str(params_dict: dict[str, Any], key: str) -> str | None:
         key: The key to extract
 
     Returns:
-        The string value if valid, None if missing or invalid
+        The string value if valid, None if missing or empty
+
+    Raises:
+        TypeError: If value is present but not a string
     """
     value = params_dict.get(key)
-    if value is None or not isinstance(value, str) or len(value) == 0:
+    if value is None:
         return None
-    return value
+    if isinstance(value, str):
+        return value if len(value) > 0 else None
+    msg = f'Expected {key} to be str | None, got {type(value).__name__}'
+    raise TypeError(msg)
 
 
 def _normalize_optional_str(value: str | None) -> str | None:
