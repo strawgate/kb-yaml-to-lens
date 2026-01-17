@@ -13,6 +13,31 @@ export interface ExtractedEsqlQuery {
 }
 
 /**
+ * Flattens a potentially nested YAML sequence into a list of scalar string values.
+ *
+ * This handles YAML anchors that create nested lists, e.g.:
+ *   .base: &base_query
+ *     - FROM logs-*
+ *   query:
+ *     - *base_query
+ *     - WHERE x > 0
+ *
+ * becomes: ["FROM logs-*", "WHERE x > 0"]
+ */
+function flattenSequenceItems(seq: YAMLSeq): string[] {
+    const result: string[] = [];
+    for (const item of seq.items) {
+        if (isScalar(item)) {
+            result.push(String(item.value));
+        } else if (isSeq(item)) {
+            // Recursively flatten nested sequences
+            result.push(...flattenSequenceItems(item as YAMLSeq));
+        }
+    }
+    return result;
+}
+
+/**
  * Finds a query node in the YAML AST that contains the given offset.
  *
  * Recursively searches for `query` or `esql.query` keys in the document
@@ -56,12 +81,8 @@ function findQueryAtOffset(
                                 };
                             } else if (isSeq(valueNode)) {
                                 // Handle array format: query: ["FROM logs", "WHERE x > 0"]
-                                const queryParts: string[] = [];
-                                for (const item of (valueNode as YAMLSeq).items) {
-                                    if (isScalar(item)) {
-                                        queryParts.push(String(item.value));
-                                    }
-                                }
+                                // Also handles nested sequences from YAML anchors
+                                const queryParts = flattenSequenceItems(valueNode as YAMLSeq);
                                 if (queryParts.length > 0) {
                                     return {
                                         value: queryParts.join('\n| '),
