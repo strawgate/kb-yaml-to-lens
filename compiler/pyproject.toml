@@ -15,6 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "pyyaml>=6.0.3",
+    "ruamel.yaml>=0.18.0",
     "pydantic>=2.12",
     "beartype>=0.22",
     "humanize>=4.15",
@@ -220,6 +221,12 @@ reportAny = false
 reportUnknownMemberType = false
 reportUnknownVariableType = false
 reportUnknownArgumentType = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/yaml_roundtrip.py"
+# ruamel.yaml lacks type stubs and returns dynamic types from load/dump operations.
+reportAny = false
+reportUnknownMemberType = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"
