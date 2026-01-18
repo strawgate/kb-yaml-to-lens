@@ -67,6 +67,62 @@ class KibanaReportingJobResponse(BaseModel):
     path: str = Field(..., description='Path to poll for job completion')
 
 
+class EsqlColumn(BaseModel):
+    """Represents a column definition in ES|QL query results.
+
+    Note: Uses pydantic.BaseModel directly (not shared.model.BaseModel) because this is
+    a view model for API responses, requiring extra='allow' and mutable instances.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    name: str = Field(..., description='Column name')
+    """Column name."""
+    type: str = Field(..., description='Column data type (e.g., keyword, long, date)')
+    """Column data type (e.g., keyword, long, date)."""
+
+
+class EsqlResponse(BaseModel):
+    """Response from ES|QL query execution via Kibana.
+
+    This model represents the structured result of an ES|QL query,
+    containing column definitions and row values.
+
+    Note: Uses pydantic.BaseModel directly (not shared.model.BaseModel) because this is
+    a view model for API responses, requiring extra='allow' and mutable instances.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    columns: list[EsqlColumn] = Field(default_factory=list, description='Column definitions with name and type')
+    """Column definitions with name and type."""
+    values: list[list[Any]] = Field(default_factory=list, description='Row values as nested arrays')
+    """Row values as nested arrays."""
+    took: int | None = Field(default=None, description='Query execution time in milliseconds')
+    """Query execution time in milliseconds."""
+    is_partial: bool = Field(default=False, description='Whether results are partial')
+    """Whether results are partial."""
+
+    @property
+    def row_count(self) -> int:
+        """Return the number of rows in the result."""
+        return len(self.values)
+
+    @property
+    def column_count(self) -> int:
+        """Return the number of columns in the result."""
+        return len(self.columns)
+
+    def to_dicts(self) -> list[dict[str, Any]]:
+        """Convert results to a list of dictionaries with column names as keys.
+
+        Returns:
+            List of dictionaries, each representing a row with column names as keys.
+        """
+        # Values are dynamic JSON types from Elasticsearch; col.name is typed, val is Any from ES
+        return [{col.name: val for col, val in zip(self.columns, row, strict=False)} for row in self.values]  # pyright: ignore[reportAny]
+
+
 class KibanaClient:
     """Client for interacting with Kibana's Saved Objects API."""
 
@@ -442,3 +498,62 @@ class KibanaClient:
         async with await self._post(endpoint, json=request_body, headers={'Content-Type': 'application/json'}) as response:
             response.raise_for_status()
             return await response.text()
+
+    async def execute_esql(self, query: str) -> EsqlResponse:
+        """Execute an ES|QL query via Kibana's console proxy API.
+
+        Args:
+            query: The ES|QL query string to execute
+
+        Returns:
+            EsqlResponse with query results containing columns, values, and metadata
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response contains an error message
+            TypeError: If the response shape is unexpected
+            pydantic.ValidationError: If response validation fails
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_query', 'method': 'POST'}
+
+        request_body = {
+            'query': query,
+        }
+
+        logger.info('Executing ES|QL query via Kibana console proxy')
+
+        timeout = aiohttp.ClientTimeout(total=30)
+        async with await self._post(
+            endpoint, params=params, json=request_body, headers={'Content-Type': 'application/json'}, timeout=timeout
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error('ES|QL query failed with status %s: %s', response.status, error_text[:500])
+                msg = f'ES|QL query failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+
+            # Validate response type
+            if not isinstance(result, dict):
+                msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
+                raise TypeError(msg)
+
+            # Handle ES|QL error response
+            if 'error' in result:
+                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
+                if isinstance(error_info, dict):
+                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                elif isinstance(error_info, str):
+                    error_msg = error_info
+                else:
+                    msg = f'Unexpected ES|QL error type: {type(error_info).__name__}'  # pyright: ignore[reportUnknownArgumentType]
+                    raise TypeError(msg)
+                msg = f'ES|QL query error: {error_msg}'
+                raise ValueError(msg)
+
+            # Parse response into Pydantic model for type safety
+            return EsqlResponse.model_validate(result)

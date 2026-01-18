@@ -7,6 +7,7 @@ dashboard compilation services to the VS Code extension.
 import json
 import logging
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from lsprotocol import types
 from pydantic import BaseModel
@@ -50,6 +51,67 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
     # If we get here, we received an unexpected type
     msg = f'Unable to convert params of type {type(params).__name__} to dict'
     raise TypeError(msg)
+
+
+def _get_required_str(params_dict: dict[str, Any], key: str) -> str | None:
+    """Extract a required string parameter from params dict.
+
+    Args:
+        params_dict: Dictionary of parameters
+        key: The key to extract
+
+    Returns:
+        The string value if valid, None if missing or empty
+
+    Raises:
+        TypeError: If value is present but not a string
+    """
+    value = params_dict.get(key)
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value if len(value) > 0 else None
+    msg = f'Expected {key} to be str | None, got {type(value).__name__}'
+    raise TypeError(msg)
+
+
+def _normalize_optional_str(value: str | None) -> str | None:
+    """Normalize an optional string, converting empty strings to None.
+
+    Args:
+        value: The string value or None
+
+    Returns:
+        The string if non-empty, None otherwise
+
+    Note:
+        Type safety is enforced at compile time via the type annotation.
+        Unlike _get_required_str which extracts from dict[str, Any], this function
+        has a typed parameter so runtime isinstance checks are unnecessary.
+    """
+    if value is None:
+        return None
+    return value if len(value) > 0 else None
+
+
+def _redact_url(url: str) -> str:
+    """Redact credentials from a URL for safe logging.
+
+    Removes any username:password@ portion from the URL to prevent
+    credential leakage in log files.
+
+    Args:
+        url: The URL to redact
+
+    Returns:
+        URL with credentials removed
+    """
+    parts = urlsplit(url)
+    # Reconstruct the netloc without userinfo
+    host = parts.hostname if parts.hostname is not None else ''
+    if parts.port is not None:
+        host = f'{host}:{parts.port}'
+    return urlunsplit((parts.scheme, host, parts.path, parts.query, parts.fragment))
 
 
 def _compile_dashboard(path: str, dashboard_index: int = 0) -> dict[str, Any]:
@@ -220,6 +282,73 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
     ls.protocol.notify('dashboard/fileChanged', {'uri': file_path})
 
 
+@server.feature('esql/execute')
+async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+    """Execute an ES|QL query via Kibana's console proxy API.
+
+    Args:
+        params: Object containing:
+            - query: ES|QL query string
+            - kibana_url: Kibana base URL
+            - username: Optional username
+            - password: Optional password
+            - api_key: Optional API key
+            - ssl_verify: Whether to verify SSL
+
+    Returns:
+        Dictionary with success status and query results or error
+    """
+    params_dict = _params_to_dict(params)
+
+    try:
+        query = _get_required_str(params_dict, 'query')
+        kibana_url = _get_required_str(params_dict, 'kibana_url')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
+    username = params_dict.get('username')
+    password = params_dict.get('password')
+    api_key = params_dict.get('api_key')
+    ssl_verify = params_dict.get('ssl_verify', True)
+
+    if query is None:
+        return {'success': False, 'error': 'Missing or invalid query parameter'}
+
+    if kibana_url is None:
+        return {'success': False, 'error': 'Missing or invalid kibana_url parameter'}
+
+    # Validate optional credential parameters are strings or None, and ssl_verify is bool
+    if (
+        (username is not None and not isinstance(username, str))
+        or (password is not None and not isinstance(password, str))
+        or (api_key is not None and not isinstance(api_key, str))
+        or not isinstance(ssl_verify, bool)
+    ):
+        return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
+
+    # Normalize empty strings to None
+    validated_username = _normalize_optional_str(username)  # pyright: ignore[reportArgumentType]
+    validated_password = _normalize_optional_str(password)  # pyright: ignore[reportArgumentType]
+    validated_api_key = _normalize_optional_str(api_key)  # pyright: ignore[reportArgumentType]
+
+    try:
+        logger.info('Executing ES|QL query via Kibana at %s', _redact_url(kibana_url))
+        async with KibanaClient(
+            url=kibana_url,
+            username=validated_username,
+            password=validated_password,
+            api_key=validated_api_key,
+            ssl_verify=ssl_verify,
+        ) as client:
+            result = await client.execute_esql(query)
+        logger.debug('ES|QL query returned %d rows', result.row_count)
+    except Exception as e:
+        logger.exception('ES|QL execution error occurred')
+        return {'success': False, 'error': f'ES|QL execution error: {e!s}'}
+    else:
+        return {'success': True, 'data': result.model_dump(by_alias=True, mode='json')}
+
+
 @server.feature('dashboard/uploadToKibana')
 async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911  # pyright: ignore[reportAny]
     """Upload a compiled dashboard to Kibana.
@@ -266,7 +395,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
         logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
 
         # Create Kibana client and upload
-        logger.info(f'Uploading dashboard to Kibana at {kibana_url}')
+        logger.info('Uploading dashboard to Kibana at %s', _redact_url(kibana_url))
         async with KibanaClient(
             url=kibana_url,
             username=username if (username is not None and len(username) > 0) else None,
