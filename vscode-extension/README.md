@@ -8,7 +8,7 @@ Build Kibana dashboards using simple YAML syntax with live preview and visual ed
 
 ## Features
 
-- **IntelliSense auto-complete** — Press `Ctrl+Space` anywhere in your YAML to see available options, with live validation and hover documentation
+- **IntelliSense auto-complete** — Press `Ctrl/Cmd+Space` anywhere in your YAML to see available options, with live validation and hover documentation
 - **40+ code snippets** — Quickly insert panels, controls, layouts, and common patterns. Type a prefix like `panel-`, `control-`, or `layout-` and press `Tab` to expand
 - **Live preview panel** — See your dashboard update in real-time as you edit, with auto-compile on save
 - **Visual grid editor** — Drag-and-drop panel positioning for intuitive layout design
@@ -16,7 +16,7 @@ Build Kibana dashboards using simple YAML syntax with live preview and visual ed
 
 ## Installation
 
-1. Open Extensions (Ctrl+Shift+X)
+1. Open Extensions (`Ctrl/Cmd+Shift+X`)
 2. Search "Kibana Dashboard Compiler"
 3. Click Install
 
@@ -24,13 +24,13 @@ Build Kibana dashboards using simple YAML syntax with live preview and visual ed
 
 1. Create a file: `my-dashboard.yaml`
 2. Type `dashboard` + Tab to insert a starter template
-3. Press `Ctrl+Space` to explore available options at any position
-4. Save (`Ctrl+S`) to compile and see your changes
+3. Press `Ctrl/Cmd+Space` to explore available options at any position
+4. Save (`Ctrl/Cmd+S`) to compile and see your changes
 5. Run command: **YAML Dashboard: Preview Dashboard**
 
 ## Commands
 
-Open Command Palette (Ctrl+Shift+P):
+Open Command Palette (`Ctrl/Cmd+Shift+P`):
 
 | Command | Description |
 | ------- | ----------- |
