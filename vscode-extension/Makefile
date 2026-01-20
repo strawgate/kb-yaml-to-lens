@@ -86,12 +86,8 @@ lint:
 
 lint-check: lint
 
-package:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	echo "Creating .vsix package..."; \
+package: install
+	@echo "Creating .vsix package..."
 	npm run package
 
 install-vscode:
