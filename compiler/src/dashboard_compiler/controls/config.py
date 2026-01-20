@@ -1,5 +1,6 @@
 """Configuration schema for controls used in a dashboard."""
 
+import warnings
 from enum import StrEnum
 from typing import Literal, Self
 
@@ -305,3 +306,24 @@ class ESQLQueryControl(BaseControl):
 
     default: str | list[str] | None = Field(default=None)
     """Default selected value(s). Can be a string for single-select or list for multi-select."""
+
+    @model_validator(mode='after')
+    def validate_default_multiple_consistency(self) -> Self:
+        """Warn if default shape doesn't match multiple setting."""
+        if self.default is None:
+            return self
+
+        is_list_default = isinstance(self.default, list)
+        if self.multiple is True and not is_list_default:
+            warnings.warn(
+                f'ESQLQueryControl {self.variable_name!r}: string default with multiple=True; consider using a list for consistency',
+                UserWarning,
+                stacklevel=2,
+            )
+        elif self.multiple is False and is_list_default:
+            warnings.warn(
+                f'ESQLQueryControl {self.variable_name!r}: list default with multiple=False; consider using a string for consistency',
+                UserWarning,
+                stacklevel=2,
+            )
+        return self

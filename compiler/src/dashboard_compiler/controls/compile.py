@@ -296,8 +296,11 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
         selected_options: list[str] = []
     elif isinstance(control.default, str):
         selected_options = [control.default]
-    else:
+    elif isinstance(control.default, list):  # pyright: ignore[reportUnnecessaryIsInstance]
         selected_options = control.default
+    else:
+        msg = f'Unexpected default type: {type(control.default).__name__}'
+        raise TypeError(msg)
 
     return KbnESQLControl(
         grow=False,
