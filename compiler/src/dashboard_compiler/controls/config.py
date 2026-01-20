@@ -302,3 +302,6 @@ class ESQLQueryControl(BaseControl):
 
     multiple: bool | None = Field(default=None)
     """If true, allow multiple selection from the options."""
+
+    default: str | list[str] | None = Field(default=None)
+    """Default selected value(s). Can be a string for single-select or list for multi-select."""

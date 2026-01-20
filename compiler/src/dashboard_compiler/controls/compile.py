@@ -292,6 +292,13 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
+    if control.default is None:
+        selected_options: list[str] = []
+    elif isinstance(control.default, str):
+        selected_options = [control.default]
+    else:
+        selected_options = control.default
+
     return KbnESQLControl(
         grow=False,
         order=order,
@@ -303,7 +310,7 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
             esqlQuery=control.query,
             controlType=EsqlControlType.VALUES_FROM_QUERY.value,
             title=control.label,
-            selectedOptions=[],
+            selectedOptions=selected_options,
             singleSelect=return_if(var=control.multiple, is_true=False, is_false=True, default=None),
             availableOptions=None,
         ),
