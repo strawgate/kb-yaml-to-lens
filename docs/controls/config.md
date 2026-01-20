@@ -219,9 +219,16 @@ controls:
       show_root_heading: false
       heading_level: 5
 
-#### ES|QL Query-Driven Control (DEPRECATED)
+#### ES|QL Query-Driven Single-Select Control (DEPRECATED)
 
-::: dashboard_compiler.controls.config.ESQLQueryControl
+::: dashboard_compiler.controls.config.ESQLQuerySingleSelectControl
+    options:
+      show_root_heading: false
+      heading_level: 5
+
+#### ES|QL Query-Driven Multi-Select Control (DEPRECATED)
+
+::: dashboard_compiler.controls.config.ESQLQueryMultiSelectControl
     options:
       show_root_heading: false
       heading_level: 5

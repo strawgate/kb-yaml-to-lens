@@ -7,7 +7,8 @@ from dashboard_compiler.controls.config import (
     ControlSettings,
     ESQLFieldControl,
     ESQLFunctionControl,
-    ESQLQueryControl,
+    ESQLQueryMultiSelectControl,
+    ESQLQuerySingleSelectControl,
     ESQLStaticMultiSelectControl,
     ESQLStaticSingleSelectControl,
     MatchTechnique,
@@ -281,26 +282,18 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
 
 
 @log_compile
-def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnESQLControl:
-    """Compile an ESQLQueryControl into its Kibana view model representation.
+def compile_esql_query_single_select_control(order: int, *, control: ESQLQuerySingleSelectControl) -> KbnESQLControl:
+    """Compile an ESQLQuerySingleSelectControl into its Kibana view model representation.
 
     Args:
         order (int): The order of the control in the dashboard.
-        control (ESQLQueryControl): The ESQLQueryControl object to compile.
+        control (ESQLQuerySingleSelectControl): The ESQLQuerySingleSelectControl object to compile.
 
     Returns:
         KbnESQLControl: The compiled Kibana ES|QL control view model.
 
     """
-    if control.default is None:
-        selected_options: list[str] = []
-    elif isinstance(control.default, str):
-        selected_options = [control.default]
-    elif isinstance(control.default, list):  # pyright: ignore[reportUnnecessaryIsInstance]
-        selected_options = control.default
-    else:  # pragma: no cover
-        msg = f'Unexpected default type: {type(control.default).__name__}'
-        raise TypeError(msg)
+    selected_options: list[str] = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
         grow=False,
@@ -314,7 +307,39 @@ def compile_esql_query_control(order: int, *, control: ESQLQueryControl) -> KbnE
             controlType=EsqlControlType.VALUES_FROM_QUERY.value,
             title=control.label,
             selectedOptions=selected_options,
-            singleSelect=return_if(var=control.multiple, is_true=False, is_false=True, default=None),
+            singleSelect=True,
+            availableOptions=None,
+        ),
+    )
+
+
+@log_compile
+def compile_esql_query_multi_select_control(order: int, *, control: ESQLQueryMultiSelectControl) -> KbnESQLControl:
+    """Compile an ESQLQueryMultiSelectControl into its Kibana view model representation.
+
+    Args:
+        order (int): The order of the control in the dashboard.
+        control (ESQLQueryMultiSelectControl): The ESQLQueryMultiSelectControl object to compile.
+
+    Returns:
+        KbnESQLControl: The compiled Kibana ES|QL control view model.
+
+    """
+    selected_options: list[str] = control.default if control.default is not None else []
+
+    return KbnESQLControl(
+        grow=False,
+        order=order,
+        width=default_if_none(control.width, 'medium'),
+        explicitInput=KbnESQLControlExplicitInput(
+            id=control.get_id(),
+            variableName=control.variable_name,
+            variableType=control.variable_type,
+            esqlQuery=control.query,
+            controlType=EsqlControlType.VALUES_FROM_QUERY.value,
+            title=control.label,
+            selectedOptions=selected_options,
+            singleSelect=False,
             availableOptions=None,
         ),
     )
@@ -355,8 +380,11 @@ def compile_control(order: int, *, control: ControlTypes) -> tuple[KbnControlTyp
     if isinstance(control, ESQLStaticMultiSelectControl):
         return compile_esql_static_multi_select_control(order, control=control), None
 
-    if isinstance(control, ESQLQueryControl):  # pyright: ignore[reportUnnecessaryIsInstance]
-        return compile_esql_query_control(order, control=control), None
+    if isinstance(control, ESQLQuerySingleSelectControl):
+        return compile_esql_query_single_select_control(order, control=control), None
+
+    if isinstance(control, ESQLQueryMultiSelectControl):  # pyright: ignore[reportUnnecessaryIsInstance]
+        return compile_esql_query_multi_select_control(order, control=control), None
 
     # Explicit check to satisfy exhaustive checking pattern
     msg = f'Unknown control type: {type(control).__name__}'

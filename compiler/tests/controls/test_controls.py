@@ -1,7 +1,6 @@
 """Test the compilation of controls from config models to view models."""
 
 import json
-import warnings
 from typing import Any
 
 import pytest
@@ -13,7 +12,6 @@ from dashboard_compiler.controls.compile import compile_control, compile_control
 from dashboard_compiler.controls.config import (
     ControlSettings,
     ControlTypes,
-    ESQLQueryControl,
     ESQLStaticMultiSelectControl,
     ESQLStaticSingleSelectControl,
     TimeSliderControl,
@@ -489,6 +487,7 @@ async def test_esql_query_control() -> None:
                 'controlType': 'VALUES_FROM_QUERY',
                 'title': 'Status Code',
                 'selectedOptions': [],
+                'singleSelect': True,
             },
         }
     )
@@ -1105,41 +1104,3 @@ async def test_esql_query_control_with_list_default() -> None:
             },
         }
     )
-
-
-async def test_esql_query_control_string_default_with_multiple_warns() -> None:
-    """Test that string default with multiple=True emits a warning."""
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
-        ESQLQueryControl.model_validate(
-            {
-                'type': 'esql',
-                'variable_name': 'status_codes',
-                'variable_type': 'values',
-                'query': 'FROM logs-* | STATS count BY status | KEEP status',
-                'multiple': True,
-                'default': '200',
-            }
-        )
-        assert len(w) == 1
-        assert 'string default with multiple=True' in str(w[0].message)
-        assert 'status_codes' in str(w[0].message)
-
-
-async def test_esql_query_control_list_default_with_single_select_warns() -> None:
-    """Test that list default with multiple=False emits a warning."""
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
-        ESQLQueryControl.model_validate(
-            {
-                'type': 'esql',
-                'variable_name': 'status_code',
-                'variable_type': 'values',
-                'query': 'FROM logs-* | STATS count BY status | KEEP status',
-                'multiple': False,
-                'default': ['200', '404'],
-            }
-        )
-        assert len(w) == 1
-        assert 'list default with multiple=False' in str(w[0].message)
-        assert 'status_code' in str(w[0].message)
