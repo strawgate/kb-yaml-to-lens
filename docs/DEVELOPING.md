@@ -39,7 +39,7 @@ make check-docs
 All YAML examples should compile:
 
 ```bash
-kb-dashboard-compiler compile docs/examples/your-file.yaml
+kb-dashboard compile docs/examples/your-file.yaml
 ```
 
 See existing files in `examples/` for patterns.

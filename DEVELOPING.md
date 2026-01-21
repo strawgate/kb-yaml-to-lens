@@ -62,18 +62,7 @@ See component-specific DEVELOPING.md files for detailed workflows:
 
 - **Compiler:** [compiler/DEVELOPING.md](compiler/DEVELOPING.md)
 - **VS Code Extension:** [vscode-extension/DEVELOPING.md](vscode-extension/DEVELOPING.md)
-
-## Documentation
-
-The documentation site uses MkDocs:
-
-```bash
-# Serve docs locally
-cd docs && mkdocs serve
-
-# Build docs
-cd docs && mkdocs build
-```
+- **Documentation:** [docs/DEVELOPING.md](docs/DEVELOPING.md)
 
 ## Additional Resources
 

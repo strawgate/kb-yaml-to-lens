@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
 
 all: check
 
@@ -33,6 +33,7 @@ help:
 	@echo "  docs-build-quiet   - Build documentation (errors only)"
 	@echo "  docs-build-strict  - Build documentation with strict mode (fails on warnings)"
 	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
+	@echo "  check-docs         - Check documentation (lint + link verification)"
 	@echo ""
 	@echo "VS Code Extension:"
 	@echo "  prepare-extension            - Download uv + bundle compiler (current platform, for dev)"
@@ -195,6 +196,14 @@ docs-build-strict:
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
 	NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
+
+check-docs:
+	@echo "Checking documentation (lint + links)..."
+	@echo ""
+	@$(MAKE) lint-markdown-check
+	@$(call run-in-component,compiler,test-links)
+	@echo ""
+	@echo "✓ Documentation checks passed"
 
 # VS Code Extension
 prepare-extension:

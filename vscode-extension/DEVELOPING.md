@@ -53,7 +53,7 @@ For all commands, see `make help`.
 | `src/compiler.ts` | Python subprocess management |
 | `src/previewPanel.ts` | Webview preview panel |
 | `src/gridEditorPanel.ts` | Visual grid editor |
-| `python/compile_server.py` | Stdio-based Python server |
+| `compiler/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in compiler component) |
 
 ### Extension Commands
 
@@ -89,14 +89,16 @@ npm test
 
 ### Python Tests
 
-Located in `python/test_*.py`:
+Python tests for LSP functionality are located in the compiler component:
 
-- `test_grid_extractor.py` — Grid layout extraction from YAML
-- `test_grid_updater.py` — Grid coordinate updates in YAML
+- `compiler/tests/lsp/test_grid_extractor.py` — Grid layout extraction from YAML
+- `compiler/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
+- `compiler/tests/lsp/test_server.py` — LSP server functionality
 
 ```bash
-# Run Python tests
-uv run python -m pytest vscode-extension/python/test_*.py -v
+# Run Python LSP tests (from compiler directory)
+cd compiler
+uv run pytest tests/lsp/ -v
 ```
 
 ### Test Coverage
