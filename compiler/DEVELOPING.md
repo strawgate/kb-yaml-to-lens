@@ -65,19 +65,6 @@ Each fixture has ES|QL and Data View versions:
 - `metric-basic-esql.json`
 - `metric-basic-dataview.json`
 
-### Fixture to Panel Type Mapping
-
-| Fixture | Compiler Panel Type |
-| ------- | ------------------- |
-| `metric-basic` | `panels/charts/metric/` |
-| `xy-chart` | `panels/charts/xy/` |
-| `pie-chart` | `panels/charts/pie/` |
-| `gauge` | `panels/charts/gauge/` |
-| `heatmap` | `panels/charts/heatmap/` |
-| `tagcloud` | `panels/charts/tagcloud/` |
-| `mosaic` | `panels/charts/mosaic/` |
-| `datatable` | `panels/charts/datatable/` |
-
 ### Usage Guidelines
 
 - Reference fixture links in `view.py` files when documenting expected Kibana JSON output

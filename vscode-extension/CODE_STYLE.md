@@ -52,28 +52,6 @@ async function compile(): Promise<Result | undefined> {
 }
 ```
 
-## Python Server Protocol
-
-When modifying `python/compile_server.py`, maintain the stdio JSON-RPC protocol:
-
-**Request format:**
-
-```json
-{"method": "compile", "params": {"file_path": "/path/to/dashboard.yaml"}}
-```
-
-**Response format:**
-
-```json
-{"success": true, "result": {...}}
-```
-
-or
-
-```json
-{"success": false, "error": "message"}
-```
-
 ## Configuration
 
 | Setting | Value | Enforced By |
