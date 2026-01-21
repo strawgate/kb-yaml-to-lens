@@ -91,7 +91,6 @@ npm test
 
 Python tests for LSP functionality are located in the compiler component:
 
-- `compiler/tests/lsp/test_grid_extractor.py` — Grid layout extraction from YAML
 - `compiler/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
 - `compiler/tests/lsp/test_server.py` — LSP server functionality
 

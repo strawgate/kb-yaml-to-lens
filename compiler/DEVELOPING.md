@@ -20,7 +20,7 @@ Run from the `compiler/` directory:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make ci` | Run all CI checks (lint + typecheck + test + docs) |
+| `make ci` | Run all CI checks (lint + typecheck + test) |
 | `make fix` | Auto-fix Python and YAML linting |
 | `make test` | Run Python unit tests |
 | `make typecheck` | Run type checking with basedpyright |

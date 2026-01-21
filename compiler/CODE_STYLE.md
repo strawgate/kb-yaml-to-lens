@@ -45,7 +45,7 @@ The `# pyright: ignore[reportUnnecessaryIsInstance]` pragma documents that the c
 
 ### Base Classes
 
-All models inherit from `BaseCfgModel` or `BaseModel` (defined in `src/dashboard_compiler/shared/model.py`).
+All models should inherit from `BaseCfgModel` (defined in `src/dashboard_compiler/shared/config.py`) or `BaseVwModel` (defined in `src/dashboard_compiler/shared/model.py`).
 
 Do **not** duplicate `model_config` settings—they're inherited from base classes:
 
