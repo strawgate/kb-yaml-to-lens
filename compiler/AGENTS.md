@@ -4,33 +4,15 @@
 
 ---
 
-## Commands
+## Development Guide
 
-@DEVELOPING.md#commands
-
----
-
-## Architecture
-
-@DEVELOPING.md#architecture
+@DEVELOPING.md
 
 ---
 
 ## Code Style
 
 @CODE_STYLE.md
-
----
-
-## Fixture Repository
-
-@DEVELOPING.md#fixture-repository
-
----
-
-## Verification
-
-@DEVELOPING.md#verification
 
 ---
 

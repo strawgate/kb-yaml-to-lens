@@ -4,30 +4,12 @@
 
 ---
 
-## Commands
+## Development Guide
 
-@DEVELOPING.md#commands
-
----
-
-## Architecture
-
-@DEVELOPING.md#architecture
+@DEVELOPING.md
 
 ---
 
 ## Code Style
 
 @CODE_STYLE.md
-
----
-
-## Testing
-
-@DEVELOPING.md#testing
-
----
-
-## Common Issues
-
-@DEVELOPING.md#troubleshooting

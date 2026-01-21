@@ -6,13 +6,13 @@
 
 ## Project Overview
 
-@DEVELOPING.md#project-structure
+@DEVELOPING.md
 
 ---
 
 ## Essential Commands
 
-@DEVELOPING.md#essential-commands
+See DEVELOPING.md above.
 
 ---
 
@@ -43,7 +43,7 @@
 
 ## Pull Requests
 
-@CONTRIBUTING.md#pull-request-process
+@CONTRIBUTING.md
 
 ---
 

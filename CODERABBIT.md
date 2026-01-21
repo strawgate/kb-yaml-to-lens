@@ -8,7 +8,7 @@ Instructions for CodeRabbit to improve code review accuracy across the kb-yaml-t
 
 ## Project Architecture
 
-@DEVELOPING.md#project-structure
+@DEVELOPING.md
 
 ---
 
