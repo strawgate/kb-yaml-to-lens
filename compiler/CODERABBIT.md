@@ -6,6 +6,12 @@ Instructions for CodeRabbit to improve code review accuracy for the kb-yaml-to-l
 
 ---
 
+## Code Style
+
+@CODE_STYLE.md
+
+---
+
 ## Project Architecture Context
 
 ### Pydantic Model Inheritance
@@ -42,16 +48,6 @@ raise TypeError(msg)  # Final error handler - KEEP THIS
 ```
 
 **Do NOT suggest** removing isinstance checks or final error handlers.
-
-### Python Code Style
-
-Key project styles:
-
-- Explicit boolean comparisons: `if x is not None:` not `if x:`
-- Exhaustive isinstance chains with final error handlers
-- Pydantic validators using `mode='after'`
-
-**Do NOT suggest style changes** contradicting these patterns.
 
 ### Testing Patterns
 
@@ -132,12 +128,12 @@ Check if file is in `tests/`. If yes, **do not flag**.
 
 When reviewing kb-yaml-to-lens compiler:
 
-✅ **DO** focus on logic errors, security, actual bugs
-✅ **DO** check patterns match codebase
-✅ **DO** verify changes don't break functionality
-❌ **DON'T** flag inherited Pydantic settings
-❌ **DON'T** suggest adding rules when parent enabled
-❌ **DON'T** suggest removing intentional isinstance patterns
-❌ **DON'T** contradict project style guidelines
+- **DO** focus on logic errors, security, actual bugs
+- **DO** check patterns match codebase
+- **DO** verify changes don't break functionality
+- **DON'T** flag inherited Pydantic settings
+- **DON'T** suggest adding rules when parent enabled
+- **DON'T** suggest removing intentional isinstance patterns
+- **DON'T** contradict project style guidelines
 
-When in doubt: `pyproject.toml`, `compiler/AGENTS.md`, `compiler/src/dashboard_compiler/shared/model.py`, root `AGENTS.md`
+When in doubt: `pyproject.toml`, `compiler/CODE_STYLE.md`, `compiler/src/dashboard_compiler/shared/model.py`
