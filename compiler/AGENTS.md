@@ -2,6 +2,10 @@
 
 > Python 3.12+ compiler converting YAML to Kibana dashboard JSON
 
+## Introduction
+
+@README.md
+
 ---
 
 ## Development Guide

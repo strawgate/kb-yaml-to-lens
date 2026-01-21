@@ -26,20 +26,13 @@ Run from the `compiler/` directory:
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |
 
+For all commands, see `make help`.
+
 ## Architecture
 
 **Data Flow:** `YAML → PyYAML → Config Models → Compile Functions → View Models → JSON`
 
-| Directory | Purpose |
-| --------- | ------- |
-| `src/dashboard_compiler/dashboard/` | Top-level dashboard config and compilation |
-| `src/dashboard_compiler/panels/` | Panel types (markdown, links, images, search, charts) |
-| `src/dashboard_compiler/panels/charts/` | Lens/ESQL chart types (metric, pie, xy) |
-| `src/dashboard_compiler/controls/` | Dashboard control groups |
-
-### Three-Layer Pattern
-
-Each component follows a three-layer pattern:
+Compilation follows a three-layer pattern:
 
 | File | Purpose |
 | ---- | ------- |
@@ -79,4 +72,4 @@ After making changes:
 2. Run `make check` — runs all quality checks
 3. Test compiled output validity
 
-**CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring coverage <80%
+**CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring, code coverage <80%

@@ -30,6 +30,8 @@ Run from the `vscode-extension/` directory:
 | `make test` | Run all tests |
 | `make package` | Create .vsix package |
 
+For all commands, see `make help`.
+
 ## Development Workflow
 
 1. Install dependencies: `make install`

@@ -79,4 +79,10 @@ field_name: str = Field(...)
 | Docstring coverage | 80% minimum | CI |
 | Lint exceptions | Inline `# noqa` or `# pyright: ignore` | Ruff/pyright |
 
+See pyproject.toml for the full list of rules.
+
 **Avoid** adding exceptions to `pyproject.toml`—use inline comments to keep exceptions localized.
+
+## When in doubt
+
+Search the codebase for similar patterns!
