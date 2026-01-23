@@ -178,24 +178,24 @@ inspector:
 # Documentation
 docs-serve:
 	@echo "Starting documentation server..."
-	NO_COLOR=1 uv run --group docs mkdocs serve
+	@cd docs && NO_COLOR=1 uv run --group docs mkdocs serve
 
 docs-build:
 	@echo "Building documentation..."
-	NO_COLOR=1 uv run --group docs mkdocs build
+	@cd docs && NO_COLOR=1 uv run --group docs mkdocs build
 
 docs-build-quiet:
 	@echo "Building documentation (errors only)..."
-	@NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
+	@cd docs && NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
 
 docs-build-strict:
 	@echo "Building documentation with strict mode..."
-	NO_COLOR=1 uv run --group docs mkdocs build --strict
+	@cd docs && NO_COLOR=1 uv run --group docs mkdocs build --strict
 	@echo "✓ Documentation builds successfully (strict mode)"
 
 docs-deploy:
 	@echo "Deploying documentation to GitHub Pages..."
-	NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
+	@cd docs && NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
 
 check-docs:
 	@echo "Checking documentation (lint + links)..."
