@@ -8,6 +8,7 @@ from inline_snapshot import snapshot
 
 from dashboard_compiler.panels.charts.compile import (
     chart_type_to_kbn_type_lens,
+    compile_charts_panel_config,
     compile_esql_chart_state,
     compile_lens_chart_state,
 )
@@ -699,6 +700,7 @@ class TestCompileLensChartState:
         )
 
         # Verify datasource layers
+        assert state.datasourceStates.formBased is not None
         form_based_layers = list(state.datasourceStates.formBased.layers.root.values())
         assert len(form_based_layers) == 2
 
@@ -768,7 +770,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS count()',
@@ -801,7 +804,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS count()',
@@ -831,7 +835,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
@@ -856,7 +861,8 @@ class TestCompileESQLChartState:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM metrics-* | STATS count() BY @timestamp',
@@ -932,7 +938,7 @@ class TestCompileESQLChartState:
         ]
 
         for chart_config in test_cases:
-            panel = ESQLPanel.model_validate({'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15}, 'esql': chart_config})
+            panel = ESQLPanel.model_validate({'position': {'x': 0, 'y': 0}, 'size': {'w': 24, 'h': 15}, 'esql': chart_config})
 
             state, layer_id = compile_esql_chart_state(panel)
             assert state.datasourceStates.textBased is not None
@@ -961,7 +967,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM logs-* | STATS count() BY time_bucket',
@@ -993,7 +1000,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
@@ -1023,7 +1031,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'bar',
                     'query': 'FROM logs-* | STATS count() BY category, time_bucket',
@@ -1056,7 +1065,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY date_bucket',
@@ -1085,7 +1095,8 @@ class TestESQLDataTypeDate:
 
         panel = ESQLPanel.model_validate(
             {
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'esql': {
                     'type': 'heatmap',
                     'query': 'FROM logs-* | STATS count() BY time_bucket, status',
@@ -1108,3 +1119,94 @@ class TestESQLDataTypeDate:
         assert hasattr(x_axis_column, 'meta')
         assert x_axis_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
         assert x_axis_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+
+
+class TestCompileChartsPanelConfig:
+    """Tests for compile_charts_panel_config function."""
+
+    def test_lens_panel_with_hide_title_true(self) -> None:
+        """Test that hide_title=True is correctly passed to embeddable config."""
+        from dashboard_compiler.panels.charts.config import LensPanel
+
+        panel = LensPanel.model_validate(
+            {
+                'title': 'My Metric Panel',
+                'hide_title': True,
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is True
+
+    def test_lens_panel_with_hide_title_false(self) -> None:
+        """Test that hide_title=False is correctly passed to embeddable config."""
+        from dashboard_compiler.panels.charts.config import LensPanel
+
+        panel = LensPanel.model_validate(
+            {
+                'title': 'My Metric Panel',
+                'hide_title': False,
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is False
+
+    def test_lens_panel_without_hide_title(self) -> None:
+        """Test that hide_title defaults to None when not specified."""
+        from dashboard_compiler.panels.charts.config import LensPanel
+
+        panel = LensPanel.model_validate(
+            {
+                'title': 'My Metric Panel',
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is None
+
+    def test_esql_panel_with_hide_title_true(self) -> None:
+        """Test that hide_title=True is correctly passed for ESQL panels."""
+        from dashboard_compiler.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'title': 'My ESQL Metric',
+                'hide_title': True,
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS count()',
+                    'primary': {'field': 'count(*)', 'id': 'metric1'},
+                },
+            }
+        )
+
+        _references, embeddable_config = compile_charts_panel_config(panel)
+
+        assert embeddable_config.hidePanelTitles is True

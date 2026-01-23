@@ -20,4 +20,5 @@ def test_compile_lens_columns_combines_metrics_and_dimensions() -> None:
     assert set(columns.keys()) == {'metric-1', 'dimension-1'}
     assert columns['metric-1'].label == 'Count of records'
     assert columns['dimension-1'].operationType == 'date_histogram'
-    assert columns['dimension-1'].sourceField == '@timestamp'
+    # Use getattr for type-safe access to sourceField across union types
+    assert getattr(columns['dimension-1'], 'sourceField', None) == '@timestamp'

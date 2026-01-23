@@ -87,6 +87,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     empty_size_ratio = 0.0 if len(metric_ids) > 1 else None
 
+    percent_decimals = None
+    if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
+        percent_decimals = chart.titles_and_text.value_decimal_places
+
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=slice_by_ids,
@@ -102,9 +106,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,
         legendSize=legend_size,
-        truncateLegend=False if truncate_legend == 0 else None,
+        truncateLegend=False if truncate_legend is False else None,
         legendMaxLines=legend_max_lines,
         showSingleSeries=show_single_series,
+        percentDecimals=percent_decimals,
     )
 
     return KbnPieVisualizationState(shape=shape, layers=[kbn_layer_visualization])
@@ -125,8 +130,11 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
     metric_ids: list[str] = []
     for metric_config in lens_pie_chart.metrics:
-        metric_id, metric = compile_lens_metric(metric=metric_config)
+        result = compile_lens_metric(metric=metric_config)
+        metric_id = result.primary_id
+        metric = result.primary_column
         kbn_metric_column_by_id[metric_id] = metric
+        kbn_metric_column_by_id.update(result.helper_columns)
         metric_ids.append(metric_id)
 
     slices_by_ids = compile_lens_dimensions(dimensions=lens_pie_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)

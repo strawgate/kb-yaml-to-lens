@@ -1,4 +1,10 @@
-"""View models for heatmap chart visualizations in Kibana Lens format."""
+"""View models for heatmap chart visualizations in Kibana Lens format.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/heatmap-esql.json
+    - Data View: output/<version>/heatmap-dataview.json
+"""
 
 from typing import Annotated, Literal
 

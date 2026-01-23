@@ -79,7 +79,7 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
 
     """
     documents: list[dict[str, Any]] = []
-    with file_path.open('r') as f:
+    with file_path.open('r', encoding='utf-8') as f:
         for raw_line in f:
             line = raw_line.strip()
             if len(line) > 0:
