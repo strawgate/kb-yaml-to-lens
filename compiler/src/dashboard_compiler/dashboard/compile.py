@@ -60,6 +60,11 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
     # Merge panel and control references
     all_references = panel_references + control_references
 
+    # Time range configuration
+    time_restore = dashboard.time_range is not None
+    time_from = dashboard.time_range.from_time if dashboard.time_range else None
+    time_to = dashboard.time_range.to_time if dashboard.time_range else None
+
     return all_references, KbnDashboardAttributes(
         title=dashboard.name,
         description=dashboard.description or '',
@@ -71,7 +76,9 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
             ),
         ),
         optionsJSON=compile_dashboard_options(settings=dashboard.settings),
-        timeRestore=False,
+        timeRestore=time_restore,
+        timeFrom=time_from,
+        timeTo=time_to,
         version=1,
         controlGroupInput=control_group_input,
     )

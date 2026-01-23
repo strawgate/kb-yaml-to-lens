@@ -1,10 +1,11 @@
 import json
+from typing import Annotated
 
 from pydantic import BaseModel, Field, field_serializer
 
 from dashboard_compiler.controls.view import KbnControlGroupInput
 from dashboard_compiler.panels.view import KbnBasePanel, KbnSavedObjectMeta
-from dashboard_compiler.shared.view import KbnReference
+from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 
 
 class KbnDashboardOptions(BaseModel):
@@ -22,13 +23,15 @@ class KbnDashboardOptions(BaseModel):
     'Displays the titles in the panel headers'
 
 
-class KbnDashboardAttributes(BaseModel):
+class KbnDashboardAttributes(BaseVwModel):
     title: str
     description: str
     panelsJSON: list[KbnBasePanel]
     optionsJSON: KbnDashboardOptions
     kibanaSavedObjectMeta: KbnSavedObjectMeta
     timeRestore: bool
+    timeFrom: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    timeTo: Annotated[str | None, OmitIfNone()] = Field(default=None)
     version: int
     controlGroupInput: KbnControlGroupInput | None = None
 
