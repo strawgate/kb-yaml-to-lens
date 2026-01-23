@@ -119,6 +119,7 @@ nav:
                   - Gauge Charts: panels/gauge.md
                   - Heatmap Charts: panels/heatmap.md
                   - Metric Charts: panels/metric.md
+                  - Mosaic Charts: panels/mosaic.md
                   - Pie Charts: panels/pie.md
                   - Tag Cloud Charts: panels/tagcloud.md
                   - XY Charts: panels/xy.md
