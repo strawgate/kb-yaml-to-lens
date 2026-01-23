@@ -1,4 +1,6 @@
-# pyright: reportAny=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnknownArgumentType=false, reportUnnecessaryComparison=false, reportUnusedCallResult=false
+# pyright: reportAny=false, reportUnknownMemberType=false, reportUnknownVariableType=false
+# pyright: reportUnknownArgumentType=false, reportUnnecessaryComparison=false
+# pyright: reportUnusedCallResult=false
 # LSP server code deals with dynamic pygls types that lack full type annotations
 """LSP-based compilation server using pygls for VS Code extension.
 
@@ -33,14 +35,15 @@ def _params_to_dict(params: Any) -> dict[str, Any]:
     Internal calls may pass plain dicts directly.
 
     Args:
-        params: The params object (dict or namedtuple)
+        params: The params object (dict, namedtuple, or None)
 
     Returns:
-        Dictionary representation of the params
-
-    Raises:
-        TypeError: If params cannot be converted to dict
+        Dictionary representation of the params (empty dict for None)
     """
+    # None is treated as empty dict so downstream validation returns structured errors
+    if params is None:
+        return {}
+
     # Already a dict - return as-is
     if isinstance(params, dict):
         return params
