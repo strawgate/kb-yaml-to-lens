@@ -17,6 +17,8 @@ Navigation is defined in `mkdocs.yml`.
 
 ## Commands
 
+Run from the `docs/` directory, or use pass-through from the repository root:
+
 ```bash
 # Serve locally
 cd docs && mkdocs serve
@@ -27,6 +29,8 @@ cd docs && mkdocs build
 # Full check (lint + link verification)
 make check-docs
 ```
+
+**From repository root:** Use `make docs <target>` (e.g., `make docs test-links`).
 
 ## Adding Pages
 
