@@ -44,7 +44,6 @@ output
 # Other components
 node_modules
 vscode-extension
-fixture-generator
 
 # Config files
 .yamllint

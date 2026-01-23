@@ -1,0 +1,229 @@
+---
+dashboards:
+  - id: dimensions-example-001
+    name: '[Example] Multi-Dimensional Charts'
+    description: Demonstrates complex dimension configurations and breakdowns
+    panels:
+      - title: Multi-Dimensional Visualizations
+        size:
+          w: 48
+          h: 5
+        position:
+          x: 0
+          y: 0
+        markdown:
+          content: "# Multi-Dimensional Chart Examples\nThis dashboard demonstrates advanced dimension and breakdown configurations:\n- **Single\
+            \ dimension** - Basic time series\n- **Multiple dimensions** - Cross-tabulation\n- **Breakdowns** - Additional grouping layer\n- **Top\
+            \ N with sorting** - Size limits and sort orders\n- **Other bucket** - Handling remaining values\n"
+          font_size: 12
+      - title: Simple Time Series
+        description: Single time dimension, no breakdown
+        size:
+          w: 24
+          h: 10
+        position:
+          x: 0
+          y: 5
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Multi-Dimensional Line Chart
+        description: Time dimension with log level breakdown
+        size:
+          w: 24
+          h: 10
+        position:
+          x: 24
+          y: 5
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: log.level
+            type: values
+            size: 5
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Event Count
+      - title: Top 10 Hosts by Traffic
+        description: Sorted by metric value, showing top N
+        size:
+          w: 24
+          h: 12
+        position:
+          x: 0
+          y: 15
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: host.name
+            type: values
+            label: Host
+            size: 10
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Event Count
+      - title: HTTP Response Analysis
+        description: Multiple metrics on same chart
+        size:
+          w: 24
+          h: 12
+        position:
+          x: 24
+          y: 15
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: count
+              label: Request Count
+            - aggregation: average
+              field: http.response.time
+              label: Avg Response Time (ms)
+            - aggregation: max
+              field: http.response.time
+              label: Max Response Time (ms)
+          filters:
+            - exists: http.response.time
+      - title: Stacked Area with Breakdown
+        description: Time dimension with service breakdown
+        size:
+          w: 24
+          h: 12
+        position:
+          x: 0
+          y: 27
+        lens:
+          type: area
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            field: service.name
+            type: values
+            size: 8
+            sort:
+              by: Events
+              direction: desc
+            other_bucket: true
+      - title: HTTP Methods by Status Code
+        description: 'Cross-tabulation: method × status_code'
+        size:
+          w: 24
+          h: 12
+        position:
+          x: 24
+          y: 27
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: http.request.method
+            type: values
+            label: HTTP Method
+            size: 10
+            sort:
+              by: Request Count
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Request Count
+          breakdown:
+            field: http.response.status_code
+            type: values
+            size: 10
+          filters:
+            - exists: http.request.method
+            - exists: http.response.status_code
+      - title: Response Time Percentiles
+        description: Multiple percentile metrics
+        size:
+          w: 24
+          h: 12
+        position:
+          x: 0
+          y: 39
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: median
+              field: http.response.time
+              label: P50 Response Time
+            - aggregation: percentile
+              field: http.response.time
+              percentile: 95
+              label: P95 Response Time
+            - aggregation: percentile
+              field: http.response.time
+              percentile: 99
+              label: P99 Response Time
+          filters:
+            - exists: http.response.time
+            - field: http.response.time
+              gte: '0'
+      - title: Unique Users per Service
+        description: Unique count aggregation with breakdown
+        size:
+          w: 24
+          h: 12
+        position:
+          x: 24
+          y: 39
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: service.name
+            type: values
+            label: Service
+            size: 8
+            sort:
+              by: Unique Users
+              direction: desc
+          metrics:
+            - aggregation: unique_count
+              field: user.id
+              label: Unique Users
+          filters:
+            - exists: user.id
+            - exists: service.name
