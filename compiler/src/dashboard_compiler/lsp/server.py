@@ -282,13 +282,13 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:
     except TypeError as e:
         return {'success': False, 'error': str(e)}
 
+    if path is None:
+        return {'success': False, 'error': 'Missing path parameter'}
+
     try:
         dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
-
-    if path is None:
-        return {'success': False, 'error': 'Missing path parameter'}
 
     try:
         result = extract_grid_layout(path, dashboard_index)
