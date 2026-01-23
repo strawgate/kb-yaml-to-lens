@@ -218,9 +218,15 @@ async def _upload_to_kibana(
 @click.command('compile')
 @click.option(
     '--input-dir',
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    type=click.Path(file_okay=False, path_type=Path),
     default=DEFAULT_INPUT_DIR,
     help='Directory containing YAML dashboard files to compile.',
+)
+@click.option(
+    '--input-file',
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help='Path to a single YAML dashboard file to compile. When provided, --input-dir is ignored.',
 )
 @click.option(
     '--output-dir',
@@ -265,6 +271,7 @@ async def _upload_to_kibana(
 def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
+    input_file: Path | None,
     output_dir: Path,
     output_file: str,
     output_format: str,
@@ -275,8 +282,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
-    This command finds all YAML files in the input directory, compiles them
-    to Kibana's JSON format, and outputs them as NDJSON files.
+    This command finds all YAML files in the input directory (or compiles a
+    single file provided via --input-file), compiles them to Kibana's JSON
+    format, and outputs them as NDJSON files.
 
     Optionally, you can upload the compiled dashboards directly to Kibana
     using the --upload flag.
@@ -293,6 +301,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     Examples:
         # Compile dashboards from default directory
         kb-dashboard compile
+
+        # Compile a single dashboard file
+        kb-dashboard compile --input-file ./dashboards/example.yaml
 
         # Compile with custom input and output directories
         kb-dashboard compile --input-dir ./dashboards --output-dir ./output
@@ -324,7 +335,13 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    yaml_files = get_yaml_files(input_dir)
+    if input_file is not None:
+        if input_file.suffix != '.yaml':
+            msg = f'Input file must have a .yaml extension: {input_file}'
+            raise click.ClickException(msg)
+        yaml_files = [input_file]
+    else:
+        yaml_files = get_yaml_files(input_dir)
     if len(yaml_files) == 0:
         print_plain('No YAML files to compile.', style='yellow')
         return

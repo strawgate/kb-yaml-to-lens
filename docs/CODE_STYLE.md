@@ -11,7 +11,7 @@ All links are verified in CI. Broken links fail the build. Test locally: `make c
 YAML examples must compile successfully:
 
 ```bash
-kb-dashboard compile docs/examples/your-file.yaml
+kb-dashboard compile --input-file docs/content/examples/your-file.yaml
 ```
 
 If example needs specific data, add a comment in the YAML.

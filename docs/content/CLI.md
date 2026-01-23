@@ -57,6 +57,16 @@ This will:
 - Create individual NDJSON files per scenario
 - Create a combined `compiled_dashboards.ndjson` file
 
+### Compile a Single File
+
+Compile a specific YAML file without scanning a directory:
+
+```bash
+kb-dashboard compile --input-file ./dashboards/example.yaml
+```
+
+When `--input-file` is provided, `--input-dir` is ignored.
+
 ### Export Individual JSON Files
 
 For workflows that require individual JSON files per dashboard (e.g., Fleet integration):

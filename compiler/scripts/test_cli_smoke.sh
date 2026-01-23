@@ -73,7 +73,7 @@ trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
 # Default behavior: compile returns exit code 0 on success
 uv run kb-dashboard compile \
-  --input-dir "$PROJECT_ROOT/docs/examples" \
+  --input-dir "$PROJECT_ROOT/docs/content/examples" \
   --output-dir "$TEMP_OUTPUT" > /dev/null 2>&1
 
 # Verify output files exist
@@ -92,7 +92,7 @@ trap 'rm -rf "$TEMP_OUTPUT" "$TEMP_OUTPUT_FLAG"' EXIT
 # Since we're writing to a fresh temp dir, all files will be "new" (changed), so we expect non-zero.
 compile_exit_code=0
 uv run kb-dashboard compile \
-  --input-dir "$PROJECT_ROOT/docs/examples" \
+  --input-dir "$PROJECT_ROOT/docs/content/examples" \
   --output-dir "$TEMP_OUTPUT_FLAG" \
   --exit-non-zero-on-change > /dev/null 2>&1 || compile_exit_code=$?
 

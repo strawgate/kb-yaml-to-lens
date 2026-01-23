@@ -596,7 +596,7 @@ kb-dashboard compile
 
 - **Complete Documentation**: [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt)
 - **Examples**: [Complete Examples](examples/index.md)
-- **Aerospike Examples**: [Complex real-world dashboards](https://github.com/strawgate/kb-yaml-to-lens/tree/main/docs/examples/aerospike)
+- **Aerospike Examples**: [Complex real-world dashboards](examples/aerospike/overview.yaml)
 - **Panel Type Docs**: [Panel Types Overview](panels/base.md)
 - **Controls**: [Dashboard Controls](controls/config.md)
 - **Filters**: [Filters & Queries](filters/config.md)

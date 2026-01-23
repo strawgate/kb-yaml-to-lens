@@ -310,11 +310,11 @@ Includes 3 interconnected dashboards with navigation links:
 
 ## Viewing Example Source Code
 
-All example files are located in the `docs/examples/` directory of the repository. You can:
+All example files are located in the `docs/content/examples/` directory of the repository. You can:
 
 1. **View inline:** Expand any "Dashboard Definition" section above to see the complete YAML code
 2. **Clone locally:** Download the repository to experiment with examples
-3. **Compile examples:** Run `kb-dashboard compile --input-dir docs/examples --output-dir output` to generate NDJSON files
+3. **Compile examples:** Run `kb-dashboard compile --input-dir docs/content/examples --output-dir output` to generate NDJSON files
 
 ## Using Examples as Templates
 

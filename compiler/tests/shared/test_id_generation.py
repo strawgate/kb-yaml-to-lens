@@ -90,7 +90,7 @@ def test_stable_id_generator_empty_list() -> None:
 
 # Find example files for deterministic compilation tests
 _project_root = Path(__file__).parent.parent.parent.parent
-_example_dir = _project_root / 'docs' / 'examples'
+_example_dir = _project_root / 'docs' / 'content' / 'examples'
 
 
 def test_deterministic_compilation_controls_example() -> None:

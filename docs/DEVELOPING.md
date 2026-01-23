@@ -13,7 +13,7 @@ docs/
 └── hooks/                   # MkDocs build hooks (Python)
 ```
 
-Navigation is defined in `../mkdocs.yml`.
+Navigation is defined in `mkdocs.yml`.
 
 ## Commands
 
@@ -31,7 +31,7 @@ make check-docs
 ## Adding Pages
 
 1. Create markdown file in appropriate folder
-2. Add to `nav:` in `../mkdocs.yml`
+2. Add to `nav:` in `mkdocs.yml`
 3. Use relative links: `[text](../path/file.md)`
 
 ## Examples
@@ -39,7 +39,7 @@ make check-docs
 All YAML examples should compile:
 
 ```bash
-kb-dashboard compile docs/examples/your-file.yaml
+kb-dashboard compile --input-file docs/content/examples/your-file.yaml
 ```
 
 See existing files in `examples/` for patterns.
@@ -50,4 +50,4 @@ CI verifies all internal and external links. Run `make check-docs` before commit
 
 ## Build Hooks
 
-Python hooks in `hooks/` run during build (e.g., generating llms.txt). Test with `mkdocs build`.
+Python hooks in `hooks/` run during build (e.g., generating llms.txt). Test with `mkdocs build` from the `docs/` directory.

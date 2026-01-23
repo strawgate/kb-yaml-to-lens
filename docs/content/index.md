@@ -126,7 +126,7 @@ dashboards:
     - title: Document Count
       type: lens
       size: {w: 24, h: 15}
-      index_pattern: your-index-pattern-*
+      data_view: your-index-pattern-*
       chart:
         type: metric
         metrics:
@@ -202,10 +202,10 @@ MIT
 
 ### Third-Party Content
 
-Some example dashboards in `docs/examples/` are derived from the [Elastic integrations repository](https://github.com/elastic/integrations) and are licensed under the [Elastic License 2.0](https://github.com/strawgate/kb-yaml-to-lens/blob/main/licenses/ELASTIC-LICENSE-2.0.txt). Specifically:
+Some example dashboards in `docs/content/examples/` are derived from the [Elastic integrations repository](https://github.com/elastic/integrations) and are licensed under the [Elastic License 2.0](https://github.com/strawgate/kb-yaml-to-lens/blob/main/licenses/ELASTIC-LICENSE-2.0.txt). Specifically:
 
-- `docs/examples/system_otel/` - System monitoring dashboards for OpenTelemetry
-- `docs/examples/docker_otel/` - Docker container monitoring dashboards for OpenTelemetry
+- `docs/content/examples/system_otel/` - System monitoring dashboards for OpenTelemetry
+- `docs/content/examples/docker_otel/` - Docker container monitoring dashboards for OpenTelemetry
 
 See [licenses/README.md](https://github.com/strawgate/kb-yaml-to-lens/blob/main/licenses/README.md) for the complete list of affected files.
 

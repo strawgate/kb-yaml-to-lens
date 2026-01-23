@@ -4,7 +4,9 @@ site_description: Convert human-friendly YAML dashboard definitions into Kibana 
 site_url: https://strawgate.github.io/kb-yaml-to-lens/
 repo_url: https://github.com/strawgate/kb-yaml-to-lens
 repo_name: strawgate/kb-yaml-to-lens
-edit_uri: edit/main/
+edit_uri: edit/main/docs/content/
+docs_dir: content
+site_dir: site
 theme:
   name: material
   logo: images/chameleon.png
@@ -49,7 +51,7 @@ plugins:
       handlers:
         python:
           paths:
-            - compiler/src
+            - ../compiler/src
           inventories:
             - url: https://docs.python.org/3/objects.inv
           options:
@@ -76,7 +78,7 @@ plugins:
                   remove_fields_from_members: true
                   strip_annotated: false
 hooks:
-  - docs/hooks/generate_llms_txt.py
+  - hooks/generate_llms_txt.py
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -90,7 +92,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets:
       base_path:
-        - docs
+        - content
       check_paths: true
   - pymdownx.tabbed:
       alternate_style: true
@@ -119,6 +121,7 @@ nav:
                   - Gauge Charts: panels/gauge.md
                   - Heatmap Charts: panels/heatmap.md
                   - Metric Charts: panels/metric.md
+                  - Mosaic Charts: panels/mosaic.md
                   - Pie Charts: panels/pie.md
                   - Tag Cloud Charts: panels/tagcloud.md
                   - XY Charts: panels/xy.md

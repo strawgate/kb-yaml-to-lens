@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler

@@ -125,7 +125,7 @@ color:
 
 ## Comprehensive Example
 
-For a complete example showcasing various color assignment techniques across different chart types, see the [color-palette-examples.yaml](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml) file in the repository.
+For a complete example showcasing various color assignment techniques across different chart types, see the [color-palette-examples.yaml](../examples/color-palette-examples.yaml) file in the repository.
 
 ## Best Practices
 
@@ -150,6 +150,6 @@ For a complete example showcasing various color assignment techniques across dif
 ## Related Documentation
 
 - [Color Mapping Configuration](../panels/base.md#color-mapping-configuration) - Base panel color configuration reference
-- [Color Palette Examples](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/examples/color-palette-examples.yaml) - Comprehensive color examples
+- [Color Palette Examples](../examples/color-palette-examples.yaml) - Comprehensive color examples
 - [Pie Charts](../panels/pie.md) - Pie chart color configuration
 - [XY Charts](../panels/xy.md) - XY chart color configuration
