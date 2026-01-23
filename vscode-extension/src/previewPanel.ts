@@ -1,11 +1,15 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { spawn } from 'child_process';
 import { DashboardCompilerLSP, CompiledDashboard, DashboardGridInfo } from './compiler';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
+import { ConfigService } from './configService';
+import { BinaryResolver } from './binaryResolver';
 
 export class PreviewPanel {
     private static readonly gridColumns = 48;
-    private static readonly scaleFactor = 10; // pixels per grid unit
+    private static readonly scaleFactor = 12; // pixels per grid unit (48 cols * 12px = 576px width)
+
     private static readonly chartTypeRegistry: Record<string, { icon: string; label: string }> = {
         'line': { icon: '\u{1F4C8}', label: 'Line Chart' },
         'bar': { icon: '\u{1F4CA}', label: 'Bar Chart' },
@@ -32,8 +36,21 @@ export class PreviewPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
     private currentDashboardIndex: number = 0;
+    private extensionPath: string;
+    private mediaPath: vscode.Uri;
 
-    constructor(private compiler: DashboardCompilerLSP) {
+    constructor(
+        private compiler: DashboardCompilerLSP,
+        private context: vscode.ExtensionContext,
+        private configService: ConfigService
+    ) {
+        this.extensionPath = context.extensionPath;
+        this.mediaPath = vscode.Uri.joinPath(context.extensionUri, 'media');
+    }
+
+    /** Get webview URI for a media file */
+    private getMediaUri(webview: vscode.Webview, filename: string): vscode.Uri {
+        return webview.asWebviewUri(vscode.Uri.joinPath(this.mediaPath, filename));
     }
 
     dispose(): void {
@@ -54,13 +71,30 @@ export class PreviewPanel {
                 vscode.ViewColumn.Beside,
                 {
                     enableScripts: true,
-                    retainContextWhenHidden: true
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [this.mediaPath]
                 }
             );
 
             this.panel.onDidDispose(() => {
                 this.panel = undefined;
             });
+
+            // Handle messages from the webview (for drag-and-drop updates)
+            this.panel.webview.onDidReceiveMessage(
+                async message => {
+                    switch (message.command) {
+                        case 'updateGrid':
+                            await this.updatePanelGrid(
+                                message.panelId,
+                                message.grid
+                            );
+                            break;
+                    }
+                },
+                undefined,
+                this.context.subscriptions
+            );
         }
 
         await this.updatePreview(dashboardPath, dashboardIndex);
@@ -82,24 +116,168 @@ export class PreviewPanel {
             const compiled = await this.compiler.compile(dashboardPath, dashboardIndex);
             let gridInfo: DashboardGridInfo = { title: '', description: '', panels: [] };
             try {
-                gridInfo = await this.compiler.getGridLayout(dashboardPath, dashboardIndex);
+                // Use direct Python script call (same as working GridEditorPanel)
+                gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
             } catch (gridError) {
                 console.warn('Grid extraction failed, showing preview without layout:', gridError);
             }
             this.panel.webview.html = this.getWebviewContent(compiled, dashboardPath, gridInfo);
+        } catch (compileError) {
+            // Compilation failed - try to show layout-only mode so user can fix layout issues
+            try {
+                const gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
+                const errorMessage = compileError instanceof Error ? compileError.message : String(compileError);
+                this.panel.webview.html = this.getLayoutOnlyContent(dashboardPath, gridInfo, errorMessage);
+            } catch (gridError) {
+                // Both compilation and grid extraction failed - show the original error
+                this.panel.webview.html = getErrorContent(compileError, 'Compilation Error');
+            }
+        }
+    }
+
+    private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
+        return this.runPythonScript(
+            ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()],
+            'Grid extraction',
+            (stdout) => {
+                const result = JSON.parse(stdout.trim());
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                if (!result || typeof result !== 'object' || !Array.isArray(result.panels)) {
+                    throw new Error('Invalid grid extractor output (expected { title, description, panels[] })');
+                }
+                return result;
+            }
+        );
+    }
+
+    private async runPythonScript<T = unknown>(
+        args: string[],
+        errorContext: string,
+        parseResult: (stdout: string) => T,
+        timeout: number = 30000
+    ): Promise<T> {
+        const resolver = new BinaryResolver(this.extensionPath, this.configService);
+        const resolved = resolver.resolveForScripts();
+
+        const fullArgs = [...resolved.args, ...args];
+
+        return new Promise((resolve, reject) => {
+            let settled = false;
+            const settleReject = (err: Error) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                reject(err);
+            };
+            const settleResolve = (val: T) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                resolve(val);
+            };
+
+            const child = spawn(resolved.executable, fullArgs, {
+                cwd: resolved.isBundled ? resolved.cwd : path.join(this.extensionPath, '..')
+            });
+
+            let stdout = '';
+            let stderr = '';
+
+            const timeoutHandle = setTimeout(() => {
+                try {
+                    child.kill();
+                } catch {
+                    // ignore
+                }
+                settleReject(new Error(`${errorContext} timed out after ${timeout / 1000} seconds. stderr: ${stderr || '(empty)'}`));
+            }, timeout);
+
+            child.on('error', (err) => {
+                clearTimeout(timeoutHandle);
+                settleReject(new Error(`Failed to start Python: ${err.message}`));
+            });
+
+            child.stdout.on('data', (data) => {
+                stdout += data.toString();
+            });
+
+            child.stderr.on('data', (data) => {
+                stderr += data.toString();
+            });
+
+            child.on('close', (code) => {
+                clearTimeout(timeoutHandle);
+                if (settled) {
+                    return;
+                }
+                if (code !== 0) {
+                    settleReject(new Error(`${errorContext} failed: ${stderr || stdout}`));
+                    return;
+                }
+
+                try {
+                    settleResolve(parseResult(stdout));
+                } catch (error) {
+                    settleReject(new Error(`Failed to parse result: ${error instanceof Error ? error.message : String(error)}`));
+                }
+            });
+        });
+    }
+
+    private async updatePanelGrid(panelId: string, grid: { x: number; y: number; w: number; h: number }): Promise<void> {
+        if (!this.currentDashboardPath) {
+            return;
+        }
+
+        try {
+            await this.runPythonScript(
+                ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
+                'Grid update',
+                (stdout) => stdout
+            );
+            // Don't refresh preview - the visual state is already correct from the drag,
+            // and refreshing causes an annoying "Compiling..." flash. The YAML is updated,
+            // and the file watcher will handle recompilation if compileOnSave is enabled.
         } catch (error) {
-            this.panel.webview.html = getErrorContent(error, 'Compilation Error');
+            vscode.window.showErrorMessage(`Failed to update grid: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
     private getWebviewContent(dashboard: CompiledDashboard, filePath: string, gridInfo: DashboardGridInfo): string {
+        if (!this.panel) {
+            throw new Error('Panel not initialized');
+        }
+        
+        const webview = this.panel.webview;
+        const cssUri = this.getMediaUri(webview, 'preview.css');
+        const layoutEditorUri = this.getMediaUri(webview, 'layoutEditor.js');
+        const previewJsUri = this.getMediaUri(webview, 'preview.js');
+        
         // Cast to any for property access since CompiledDashboard structure is dynamic
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dashboardData = dashboard as any;
         const fileName = path.basename(filePath);
-        const ndjson = JSON.stringify(dashboard);
+        const downloadFilename = fileName.replace('.yaml', '.ndjson');
+        // Escape < to prevent </script> injection in embedded JSON
+        const ndjson = JSON.stringify(dashboard).replace(/</g, '\\u003c');
         const layoutHtml = this.generateLayoutHtml(gridInfo);
         const jsonFieldsHtml = this.generateJsonFieldsHtml(dashboardData);
+        
+        // Configuration for external JS files
+        const layoutConfig = JSON.stringify({
+            cellSize: PreviewPanel.scaleFactor,
+            gridColumns: PreviewPanel.gridColumns,
+            panels: gridInfo.panels,
+            showStaleWarning: true
+        }).replace(/</g, '\\u003c');
+        
+        const previewConfig = JSON.stringify({
+            downloadFilename
+        }).replace(/</g, '\\u003c');
 
         return `
             <!DOCTYPE html>
@@ -107,187 +285,7 @@ export class PreviewPanel {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-editor-foreground);
-                        margin: 0;
-                    }
-                    .header {
-                        border-bottom: 1px solid var(--vscode-panel-border);
-                        padding-bottom: 20px;
-                        margin-bottom: 20px;
-                    }
-                    .title {
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-bottom: 10px;
-                    }
-                    .file-path {
-                        color: var(--vscode-descriptionForeground);
-                        font-size: 12px;
-                        margin-bottom: 15px;
-                    }
-                    .actions {
-                        margin-top: 15px;
-                    }
-                    .export-btn {
-                        background: var(--vscode-button-background);
-                        color: var(--vscode-button-foreground);
-                        border: none;
-                        padding: 8px 16px;
-                        cursor: pointer;
-                        border-radius: 2px;
-                        font-family: var(--vscode-font-family);
-                        font-size: 13px;
-                        margin-right: 8px;
-                    }
-                    .export-btn:hover {
-                        background: var(--vscode-button-hoverBackground);
-                    }
-                    .export-btn:active {
-                        background: var(--vscode-button-activeBackground);
-                    }
-                    .section {
-                        margin-bottom: 20px;
-                    }
-                    .section-title {
-                        font-size: 16px;
-                        font-weight: bold;
-                        margin-bottom: 10px;
-                        color: var(--vscode-settings-headerForeground);
-                    }
-                    .info-grid {
-                        display: grid;
-                        grid-template-columns: 150px 1fr;
-                        gap: 10px;
-                        margin-bottom: 20px;
-                    }
-                    .info-label {
-                        color: var(--vscode-descriptionForeground);
-                    }
-                    .info-value {
-                        color: var(--vscode-editor-foreground);
-                    }
-                    pre {
-                        background: var(--vscode-textCodeBlock-background);
-                        padding: 15px;
-                        border-radius: 3px;
-                        overflow-x: auto;
-                        border: 1px solid var(--vscode-panel-border);
-                    }
-                    code {
-                        font-family: var(--vscode-editor-font-family);
-                        font-size: var(--vscode-editor-font-size);
-                    }
-                    .success-message {
-                        background: var(--vscode-inputValidation-infoBackground);
-                        border: 1px solid var(--vscode-inputValidation-infoBorder);
-                        color: var(--vscode-inputValidation-infoForeground);
-                        padding: 10px;
-                        border-radius: 3px;
-                        margin-top: 10px;
-                        display: none;
-                    }
-                    .success-message.show {
-                        display: block;
-                    }
-
-                    /* Layout Preview Styles */
-                    .layout-container {
-                        position: relative;
-                        width: 100%;
-                        background: var(--vscode-textCodeBlock-background);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 4px;
-                        overflow: hidden;
-                    }
-                    .layout-panel {
-                        position: absolute;
-                        background: var(--vscode-editor-selectionBackground);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 3px;
-                        padding: 8px;
-                        box-sizing: border-box;
-                        overflow: hidden;
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .layout-panel:hover {
-                        background: var(--vscode-list-hoverBackground);
-                        border-color: var(--vscode-focusBorder);
-                    }
-                    .panel-header {
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        margin-bottom: 4px;
-                    }
-                    .panel-icon {
-                        font-size: 16px;
-                        flex-shrink: 0;
-                    }
-                    .panel-type-label {
-                        font-size: 9px;
-                        color: var(--vscode-descriptionForeground);
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
-                    .panel-title {
-                        font-weight: 600;
-                        font-size: 11px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        margin-bottom: 2px;
-                    }
-                    .panel-size {
-                        font-size: 9px;
-                        color: var(--vscode-descriptionForeground);
-                        font-family: monospace;
-                        margin-top: auto;
-                    }
-                    .collapsible-section {
-                        margin-bottom: 20px;
-                    }
-                    .collapsible-header {
-                        cursor: pointer;
-                        user-select: none;
-                        padding: 10px;
-                        background: var(--vscode-editor-selectionBackground);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 3px;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    }
-                    .collapsible-header:hover {
-                        background: var(--vscode-list-hoverBackground);
-                    }
-                    .collapsible-arrow {
-                        font-size: 12px;
-                        transition: transform 0.2s;
-                    }
-                    .collapsible-arrow.expanded {
-                        transform: rotate(90deg);
-                    }
-                    .collapsible-content {
-                        display: none;
-                        margin-top: 10px;
-                    }
-                    .collapsible-content.expanded {
-                        display: block;
-                    }
-                    .json-field-section pre {
-                        max-height: 400px;
-                        overflow-y: auto;
-                    }
-                </style>
+                <link rel="stylesheet" href="${cssUri}">
             </head>
             <body>
                 <div class="header">
@@ -303,6 +301,9 @@ export class PreviewPanel {
                     </div>
                     <div class="success-message" id="successMessage">
                         Copied to clipboard! Import in Kibana: Stack Management > Saved Objects > Import
+                    </div>
+                    <div class="stale-warning" id="staleWarning">
+                        Layout changed - NDJSON output may be stale. Save the file to recompile.
                     </div>
                 </div>
 
@@ -320,6 +321,12 @@ export class PreviewPanel {
 
                 <div class="section">
                     <div class="section-title">Dashboard Layout</div>
+                    <div class="layout-controls">
+                        <label class="control-label">
+                            <input type="checkbox" id="showGrid" checked> Show Grid Lines
+                        </label>
+                        <span class="edit-hint">Drag panels to move, drag corners to resize</span>
+                    </div>
                     ${layoutHtml}
                 </div>
 
@@ -330,44 +337,85 @@ export class PreviewPanel {
                     <pre><code>${escapeHtml(JSON.stringify(dashboard, null, 2))}</code></pre>
                 </div>
 
-                <script id="ndjson-data" type="application/json">${escapeHtml(ndjson)}</script>
-                <script>
-                    const ndjsonData = JSON.parse(document.getElementById('ndjson-data').textContent);
+                <!-- Configuration data for external scripts -->
+                <script id="layout-config" type="application/json">${layoutConfig}</script>
+                <script id="preview-config" type="application/json">${previewConfig}</script>
+                <script id="ndjson-data" type="application/json">${ndjson}</script>
+                
+                <!-- External scripts -->
+                <script src="${layoutEditorUri}"></script>
+                <script src="${previewJsUri}"></script>
+            </body>
+            </html>
+        `;
+    }
 
-                    function toggleCollapsible(id) {
-                        const content = document.getElementById(id);
-                        const arrow = document.getElementById(id + '-arrow');
-                        if (content && arrow) {
-                            content.classList.toggle('expanded');
-                            arrow.classList.toggle('expanded');
-                        }
-                    }
+    /**
+     * Returns a degraded view showing only the layout editor when compilation fails.
+     * This allows users to fix layout issues (like overlapping panels) even when
+     * the dashboard won't compile.
+     */
+    private getLayoutOnlyContent(filePath: string, gridInfo: DashboardGridInfo, errorMessage: string): string {
+        if (!this.panel) {
+            throw new Error('Panel not initialized');
+        }
+        
+        const webview = this.panel.webview;
+        const cssUri = this.getMediaUri(webview, 'preview.css');
+        const layoutEditorUri = this.getMediaUri(webview, 'layoutEditor.js');
+        
+        const fileName = path.basename(filePath);
+        const layoutHtml = this.generateLayoutHtml(gridInfo);
+        
+        // Configuration for external JS files (no stale warning in layout-only mode)
+        const layoutConfig = JSON.stringify({
+            cellSize: PreviewPanel.scaleFactor,
+            gridColumns: PreviewPanel.gridColumns,
+            panels: gridInfo.panels,
+            showStaleWarning: false
+        }).replace(/</g, '\\u003c');
 
-                    function copyToClipboard() {
-                        navigator.clipboard.writeText(ndjsonData).then(() => {
-                            const message = document.getElementById('successMessage');
-                            message.classList.add('show');
-                            setTimeout(() => {
-                                message.classList.remove('show');
-                            }, 3000);
-                        }).catch((err) => {
-                            console.error('Failed to copy:', err);
-                            alert('Failed to copy to clipboard: ' + err.message);
-                        });
-                    }
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link rel="stylesheet" href="${cssUri}">
+            </head>
+            <body>
+                <div class="header">
+                    <div class="title">${escapeHtml(gridInfo.title || 'Dashboard')}</div>
+                    <div class="file-path">${escapeHtml(fileName)}</div>
+                </div>
 
-                    function downloadNDJSON() {
-                        const blob = new Blob([ndjsonData], { type: 'application/x-ndjson' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = '${escapeHtml(fileName.replace('.yaml', '.ndjson'))}';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    }
-                </script>
+                <div class="error-banner">
+                    <div class="error-banner-title">
+                        \u26A0\uFE0F Compilation Error - Layout Edit Mode
+                    </div>
+                    <div class="error-banner-message">${escapeHtml(errorMessage)}</div>
+                    <div class="error-banner-hint">
+                        You can still edit the panel layout below. Fix overlapping panels or other layout issues, 
+                        then save the file to re-compile.
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Dashboard Layout</div>
+                    <div class="layout-controls">
+                        <label class="control-label">
+                            <input type="checkbox" id="showGrid" checked> Show Grid Lines
+                        </label>
+                        <span class="edit-hint">Drag panels to move, drag corners to resize</span>
+                    </div>
+                    ${layoutHtml}
+                </div>
+
+                <!-- Configuration data for external scripts -->
+                <script id="layout-config" type="application/json">${layoutConfig}</script>
+                
+                <!-- External scripts -->
+                <script src="${layoutEditorUri}"></script>
             </body>
             </html>
         `;
@@ -469,52 +517,48 @@ export class PreviewPanel {
             return '<div class="layout-container" style="padding: 20px; text-align: center; color: var(--vscode-descriptionForeground);">No panels in this dashboard</div>';
         }
 
-        // Calculate the height based on panel positions and generate HTML in a single pass
+        // Calculate the height based on panel positions and generate HTML
         let maxY = 0;
         let panelsHtml = '';
 
-        for (const panel of gridInfo.panels) {
-            // Validate grid properties to prevent invalid CSS
+        for (let i = 0; i < gridInfo.panels.length; i++) {
+            const panel = gridInfo.panels[i];
             if (!panel.grid ||
                 typeof panel.grid.x !== 'number' ||
                 typeof panel.grid.y !== 'number' ||
                 typeof panel.grid.w !== 'number' ||
                 typeof panel.grid.h !== 'number') {
-                console.warn('Skipping panel with invalid grid data:', panel);
                 continue;
             }
 
-            // Calculate maxY
             const panelBottom = panel.grid.y + panel.grid.h;
             if (panelBottom > maxY) {
                 maxY = panelBottom;
             }
 
-            // Generate panel HTML
-            const left = (panel.grid.x / PreviewPanel.gridColumns) * 100;
+            const left = panel.grid.x * PreviewPanel.scaleFactor;
             const top = panel.grid.y * PreviewPanel.scaleFactor;
-            const width = (panel.grid.w / PreviewPanel.gridColumns) * 100;
+            const width = panel.grid.w * PreviewPanel.scaleFactor;
             const height = panel.grid.h * PreviewPanel.scaleFactor;
 
-            const icon = this.getChartTypeIcon(panel.type);
-            const typeLabel = this.getChartTypeLabel(panel.type);
-
             panelsHtml += `
-                <div class="layout-panel" style="left: ${left}%; top: ${top}px; width: ${width}%; height: ${height}px;" title="${escapeHtml(panel.title)} (${escapeHtml(typeLabel)})">
-                    <div class="panel-header">
-                        <span class="panel-icon">${icon}</span>
-                        <span class="panel-type-label">${escapeHtml(typeLabel)}: ${escapeHtml(panel.title || 'Untitled')}</span>
-                    </div>
-                    <span class="panel-size">${panel.grid.w}x${panel.grid.h}</span>
+                <div class="layout-panel" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px;" onmousedown="handlePanelMouseDown(event)">
+                    <div class="panel-header">${escapeHtml(panel.title || 'Untitled')}</div>
+                    <div class="panel-type">Type: ${escapeHtml(panel.type)}</div>
+                    <div class="panel-coords">x:${panel.grid.x} y:${panel.grid.y} w:${panel.grid.w} h:${panel.grid.h}</div>
+                    <div class="resize-handle" onmousedown="handleResizeMouseDown(event)"></div>
                 </div>
             `;
         }
 
-        const containerHeight = maxY * PreviewPanel.scaleFactor;
+        const containerHeight = (maxY + 10) * PreviewPanel.scaleFactor;
+        const containerWidth = PreviewPanel.gridColumns * PreviewPanel.scaleFactor;
 
         return `
-            <div class="layout-container" style="height: ${containerHeight}px; width: 100%;">
-                ${panelsHtml}
+            <div class="layout-container" style="height: ${containerHeight}px; width: ${containerWidth}px;">
+                <div class="layout-grid" id="layoutGrid" style="height: ${containerHeight}px; width: ${containerWidth}px;">
+                    ${panelsHtml}
+                </div>
             </div>
         `;
     }

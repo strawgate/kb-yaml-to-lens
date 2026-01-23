@@ -54,9 +54,8 @@ def generate_llms_txt_content(config: dict[str, Any]) -> str:
 
     return f"""# Dashboard Compiler
 
-> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format. Python compiler,
-> TypeScript VS Code extension, and JavaScript fixture generator for creating and managing Kibana
-> dashboards.
+> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format. Python compiler
+> and TypeScript VS Code extension for creating and managing Kibana dashboards.
 
 ## Getting Started
 
@@ -89,7 +88,6 @@ def generate_llms_txt_content(config: dict[str, Any]) -> str:
 ## Optional
 
 - [Kibana Architecture Reference]({site_url}/kibana-architecture/): Understanding Kibana's internal structure
-- [Fixture Generator Guide]({site_url}/kibana-fixture-generator-guide/): Generating test fixtures from live Kibana
 - [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
 """
 

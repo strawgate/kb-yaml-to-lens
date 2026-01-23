@@ -120,7 +120,7 @@ class LensSumAggregatedMetric(BaseLensMetric):
     field: str = Field(...)
 
     exclude_zeros: bool | None = Field(default=None)
-    """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
+    """Whether to exclude zero values from the sum. Kibana defaults to true if not specified."""
 
 
 class LensOtherAggregatedMetric(BaseLensMetric):
