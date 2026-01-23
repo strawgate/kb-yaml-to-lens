@@ -18,8 +18,8 @@ class TimeRange(BaseCfgModel):
     from_time: str = Field(..., alias='from')
     """The start of the time range (e.g., 'now-30d/d', 'now-1h')."""
 
-    to_time: str = Field(default='now', alias='to')
-    """The end of the time range. Defaults to 'now'."""
+    to_time: str | None = Field(default=None, alias='to')
+    """The end of the time range."""
 
 
 class DashboardSyncSettings(BaseCfgModel):
