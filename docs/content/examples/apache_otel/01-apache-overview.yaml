@@ -1,4 +1,11 @@
 ---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+# See ../../licenses/ELASTIC-LICENSE-2.0.txt for the full license text.
+#
+# Dashboard for Apache HTTP Server metrics collected via OpenTelemetry apachereceiver.
+# Source: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/apachereceiver
 dashboards:
   - id: otel-apache-overview
     name: '[OTel] Apache HTTP Server - Overview'
@@ -17,7 +24,8 @@ dashboards:
         equals: apachereceiver.otel
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         description: Links to related Apache HTTP Server dashboards
         links:
           layout: horizontal
@@ -25,7 +33,8 @@ dashboards:
             - label: Apache Overview
               dashboard: otel-apache-overview
       - title: Total Requests
-        grid: {x: 0, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -35,7 +44,8 @@ dashboards:
             format:
               type: number
       - title: Total Traffic
-        grid: {x: 12, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -45,7 +55,8 @@ dashboards:
             format:
               type: bytes
       - title: Active Connections
-        grid: {x: 24, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -56,7 +67,8 @@ dashboards:
               type: number
               pattern: 0,0
       - title: Server Uptime
-        grid: {x: 36, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -66,7 +78,8 @@ dashboards:
             format:
               type: duration
       - title: CPU Load (Current)
-        grid: {x: 0, y: 9, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 9}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,7 +89,8 @@ dashboards:
             format:
               type: percent
       - title: Request Rate Over Time
-        grid: {x: 12, y: 9, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 12, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -93,7 +107,8 @@ dashboards:
               format:
                 type: number
       - title: Traffic Rate Over Time
-        grid: {x: 36, y: 9, w: 12, h: 10}
+        size: {w: 12, h: 10}
+        position: {x: 36, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -110,7 +125,8 @@ dashboards:
               format:
                 type: bytes
       - title: CPU Time Rate
-        grid: {x: 0, y: 19, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 19}
         lens:
           type: area
           mode: stacked
@@ -128,7 +144,8 @@ dashboards:
               format:
                 type: duration
       - title: Request Processing Time Rate
-        grid: {x: 24, y: 19, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 19}
         lens:
           type: area
           mode: stacked
@@ -146,7 +163,8 @@ dashboards:
               format:
                 type: duration
       - title: CPU Load
-        grid: {x: 0, y: 29, w: 16, h: 10}
+        size: {w: 16, h: 10}
+        position: {x: 0, y: 29}
         lens:
           type: line
           data_view: metrics-*
@@ -171,7 +189,8 @@ dashboards:
               format:
                 type: percent
       - title: Connection Metrics
-        grid: {x: 16, y: 29, w: 16, h: 10}
+        size: {w: 16, h: 10}
+        position: {x: 16, y: 29}
         lens:
           type: line
           data_view: metrics-*
@@ -189,7 +208,8 @@ dashboards:
                 type: number
                 pattern: 0,0
       - title: Async Connections by State
-        grid: {x: 0, y: 39, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 39}
         lens:
           type: area
           mode: stacked
@@ -208,7 +228,8 @@ dashboards:
                 type: number
                 pattern: 0,0
       - title: Uptime by Server
-        grid: {x: 32, y: 29, w: 16, h: 10}
+        size: {w: 16, h: 10}
+        position: {x: 32, y: 29}
         lens:
           type: line
           data_view: metrics-*
@@ -225,7 +246,8 @@ dashboards:
               format:
                 type: duration
       - title: Worker Distribution
-        grid: {x: 24, y: 39, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 39}
         lens:
           type: pie
           data_view: metrics-*
@@ -240,7 +262,8 @@ dashboards:
                 type: number
                 pattern: 0,0
       - title: Scoreboard Status
-        grid: {x: 0, y: 51, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 51}
         lens:
           type: bar
           mode: stacked
@@ -259,7 +282,8 @@ dashboards:
                 type: number
                 pattern: 0,0
       - title: Workers by State Over Time
-        grid: {x: 0, y: 63, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 63}
         lens:
           type: area
           mode: stacked
@@ -278,7 +302,8 @@ dashboards:
                 type: number
                 pattern: 0,0
       - title: Server Performance Summary
-        grid: {x: 0, y: 75, w: 48, h: 20}
+        size: {w: 48, h: 20}
+        position: {x: 0, y: 75}
         lens:
           type: datatable
           data_view: metrics-*

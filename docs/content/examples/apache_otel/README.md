@@ -51,6 +51,7 @@ service:
 Main overview dashboard displaying Apache HTTP Server performance and health metrics.
 
 **Sections:**
+
 - **Overview Metrics**: Request rate, traffic, connections, uptime, and current CPU load
 - **Time Series**: Request and traffic rates over time
 - **Performance**: CPU time and request processing time
@@ -104,12 +105,15 @@ Key attributes used for breakdowns and filtering:
 1. Configure the Apache receiver in your OpenTelemetry Collector
 2. Ensure metrics are being sent to Elasticsearch
 3. Compile the dashboard:
+
    ```bash
-   kb-dashboard compile --input-file docs/examples/apache_otel/01-apache-overview.yaml
+   kb-dashboard compile --input-file docs/content/examples/apache_otel/01-apache-overview.yaml
    ```
+
 4. Upload to Kibana:
+
    ```bash
-   kb-dashboard compile --input-file docs/examples/apache_otel/01-apache-overview.yaml --upload
+   kb-dashboard compile --input-file docs/content/examples/apache_otel/01-apache-overview.yaml --upload
    ```
 
 ## Dashboard Controls
