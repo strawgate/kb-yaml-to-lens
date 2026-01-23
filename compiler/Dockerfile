@@ -23,15 +23,14 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install uv for fast dependency management
-RUN pip install --no-cache-dir uv==0.9.18
+COPY --from=ghcr.io/astral-sh/uv:0.9.18 /uv /uvx /bin/
 
 # Copy project files
-COPY pyproject.toml /app/
-COPY README.md /app/
+COPY pyproject.toml uv.lock README.md /app/
 COPY src/ /app/src/
 
-# Install dependencies using uv and create directories
-RUN uv pip install --system --no-cache . && \
+# Sync dependencies using uv (uses lockfile for reproducible builds)
+RUN uv sync --frozen --no-dev && \
     mkdir -p /inputs /output && \
     addgroup --system --gid 1001 appuser && \
     adduser --system --uid 1001 --gid 1001 appuser && \
@@ -44,8 +43,8 @@ USER appuser
 ENV INPUT_DIR=/inputs
 ENV OUTPUT_DIR=/output
 
-# Use kb-dashboard as entrypoint
-ENTRYPOINT ["kb-dashboard"]
+# Use uv run kb-dashboard as entrypoint for reproducible execution
+ENTRYPOINT ["uv", "run", "kb-dashboard"]
 
 # Default command: show help
 CMD ["--help"]

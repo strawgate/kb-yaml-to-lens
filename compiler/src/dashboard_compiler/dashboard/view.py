@@ -1,10 +1,11 @@
 import json
+from typing import Annotated
 
 from pydantic import BaseModel, Field, field_serializer
 
 from dashboard_compiler.controls.view import KbnControlGroupInput
 from dashboard_compiler.panels.view import KbnBasePanel, KbnSavedObjectMeta
-from dashboard_compiler.shared.view import KbnReference
+from dashboard_compiler.shared.view import BaseVwModel, KbnReference, OmitIfNone
 
 
 class KbnDashboardOptions(BaseModel):
@@ -15,20 +16,22 @@ class KbnDashboardOptions(BaseModel):
     syncColors: bool
     """Applies the same color palette to all panels on the dashboard."""
     syncCursor: bool
-    'When you hover your cursor over a time series chart or a heatmap, the cursor on all other related dashboard charts appears.'
+    """When you hover your cursor over a time series chart or a heatmap, the cursor on all other related dashboard charts appears."""
     syncTooltips: bool
-    'When you hover your cursor over a Lens chart, the tooltips on all other related dashboard charts automatically appear.'
+    """When you hover your cursor over a Lens chart, the tooltips on all other related dashboard charts automatically appear."""
     hidePanelTitles: bool
-    'Displays the titles in the panel headers'
+    """Whether to hide the titles in the panel headers."""
 
 
-class KbnDashboardAttributes(BaseModel):
+class KbnDashboardAttributes(BaseVwModel):
     title: str
     description: str
     panelsJSON: list[KbnBasePanel]
     optionsJSON: KbnDashboardOptions
     kibanaSavedObjectMeta: KbnSavedObjectMeta
     timeRestore: bool
+    timeFrom: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    timeTo: Annotated[str | None, OmitIfNone()] = Field(default=None)
     version: int
     controlGroupInput: KbnControlGroupInput | None = None
 

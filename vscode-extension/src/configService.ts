@@ -158,11 +158,11 @@ export class ConfigService {
     }
 
     /**
-     * Gets the Kibana upload on save setting.
-     * @returns True if upload on save is enabled, false otherwise
+     * Gets the Kibana open on save setting.
+     * @returns True if open on save is enabled, false otherwise
      */
-    getKibanaUploadOnSave(): boolean {
-        return ConfigService.get<boolean>('kibana.uploadOnSave', false);
+    getKibanaOpenOnSave(): boolean {
+        return ConfigService.get<boolean>('kibana.openOnSave', false);
     }
 
     /**

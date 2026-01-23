@@ -495,9 +495,12 @@ def compile_lens_xy_chart(
     metric_ids: list[str] = []
     kbn_metric_columns: dict[str, KbnLensMetricColumnTypes] = {}
     for metric in lens_xy_chart.metrics:
-        metric_id, kbn_metric = compile_lens_metric(metric=metric)
+        result = compile_lens_metric(metric=metric)
+        metric_id = result.primary_id
+        kbn_metric = result.primary_column
         metric_ids.append(metric_id)
         kbn_metric_columns[metric_id] = kbn_metric
+        kbn_metric_columns.update(result.helper_columns)
 
     # Compile dimensions
     kbn_dimension_columns: dict[str, KbnLensDimensionColumnTypes] = {}

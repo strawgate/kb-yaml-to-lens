@@ -105,7 +105,7 @@ def extract_yaml_examples(file_path: str) -> list[tuple[str, int, bool]]:
         >>> examples = extract_yaml_examples("docs/quickstart.md")
         >>> yaml_content, line_num, skip = examples[0]
     """
-    content = Path(file_path).read_text()
+    content = Path(file_path).read_text(encoding='utf-8')
     examples: list[tuple[str, int, bool]] = []
 
     # Find all ```yaml code blocks, capturing optional info string after 'yaml'
@@ -176,7 +176,7 @@ def test_yaml_examples(file_path: str, yaml_content: str, line_num: int, skip: b
 
     try:
         temp_yaml = tmp_path / f'example_{line_num}.yaml'
-        _ = temp_yaml.write_text(yaml_content)
+        _ = temp_yaml.write_text(yaml_content, encoding='utf-8')
 
         dashboards = load(str(temp_yaml))
         assert len(dashboards) > 0, 'Should load at least one dashboard'
