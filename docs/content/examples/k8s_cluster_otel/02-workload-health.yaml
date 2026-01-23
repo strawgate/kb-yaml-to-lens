@@ -22,7 +22,8 @@ dashboards:
       # NAVIGATION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -41,12 +42,14 @@ dashboards:
       # CONTAINER HEALTH SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Health
-        grid: {x: 0, y: 3, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
         markdown:
           content: '## 🐳 Container Health'
           font_size: 14
       - title: Ready Containers
-        grid: {x: 0, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -57,7 +60,8 @@ dashboards:
             - field: k8s.container.ready
               equals: '1'
       - title: Not Ready Containers
-        grid: {x: 12, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -68,7 +72,8 @@ dashboards:
             - field: k8s.container.ready
               equals: '0'
       - title: Total Restarts
-        grid: {x: 24, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -78,7 +83,8 @@ dashboards:
           filters:
             - exists: k8s.container.restarts
       - title: Containers Restarting
-        grid: {x: 36, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -93,12 +99,14 @@ dashboards:
       # DEPLOYMENT HEALTH
       # ═══════════════════════════════════════════════════════════════════════
       - title: Deployment Health
-        grid: {x: 0, y: 13, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 13}
         markdown:
           content: '## 🚀 Deployment Health (Desired vs Available)'
           font_size: 14
       - title: Deployments
-        grid: {x: 0, y: 15, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -113,7 +121,8 @@ dashboards:
           filters:
             - exists: k8s.deployment.name
       - title: StatefulSets
-        grid: {x: 24, y: 15, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -128,7 +137,8 @@ dashboards:
           filters:
             - exists: k8s.statefulset.name
       - title: DaemonSets
-        grid: {x: 0, y: 27, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -143,7 +153,8 @@ dashboards:
           filters:
             - exists: k8s.daemonset.name
       - title: ReplicaSets
-        grid: {x: 24, y: 27, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -162,12 +173,14 @@ dashboards:
       # CONTAINER ANALYSIS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Analysis
-        grid: {x: 0, y: 39, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 39}
         markdown:
           content: '## 📊 Container Analysis'
           font_size: 14
       - title: Container Readiness Over Time
-        grid: {x: 0, y: 41, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 41}
         lens:
           type: area
           mode: stacked
@@ -191,7 +204,8 @@ dashboards:
               - value: '0'
                 color: '#D36086'
       - title: Top Restarting Containers
-        grid: {x: 24, y: 41, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 41}
         lens:
           type: bar
           data_view: metrics-*
@@ -214,12 +228,14 @@ dashboards:
       # DETAIL TABLES
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Details
-        grid: {x: 0, y: 53, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 53}
         markdown:
           content: '## 🔍 Workload Status Details'
           font_size: 14
       - title: Deployment Status
-        grid: {x: 0, y: 55, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 55}
         lens:
           type: datatable
           data_view: metrics-*
@@ -242,7 +258,8 @@ dashboards:
           filters:
             - exists: k8s.deployment.name
       - title: StatefulSet Status
-        grid: {x: 24, y: 55, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 55}
         lens:
           type: datatable
           data_view: metrics-*

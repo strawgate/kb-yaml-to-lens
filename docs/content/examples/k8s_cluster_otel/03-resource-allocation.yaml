@@ -22,7 +22,8 @@ dashboards:
       # NAVIGATION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -41,12 +42,14 @@ dashboards:
       # CLUSTER CAPACITY OVERVIEW
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Capacity
-        grid: {x: 0, y: 3, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
         markdown:
           content: '## 📊 Cluster Capacity (Requests vs Limits)'
           font_size: 14
       - title: CPU Requests vs Limits
-        grid: {x: 0, y: 5, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -61,7 +64,8 @@ dashboards:
           filters:
             - exists: k8s.container.name
       - title: Memory Requests vs Limits
-        grid: {x: 24, y: 5, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -80,7 +84,8 @@ dashboards:
           filters:
             - exists: k8s.container.name
       - title: Storage Requests vs Limits
-        grid: {x: 0, y: 17, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -99,7 +104,8 @@ dashboards:
           filters:
             - exists: k8s.container.storage_request
       - title: Resource Quota Usage
-        grid: {x: 24, y: 17, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 17}
         lens:
           type: bar
           mode: stacked
@@ -129,12 +135,14 @@ dashboards:
       # NAMESPACE ALLOCATION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Namespace Allocation
-        grid: {x: 0, y: 29, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 29}
         markdown:
           content: '## 🏷️ Resource Allocation by Namespace'
           font_size: 14
       - title: CPU by Namespace
-        grid: {x: 0, y: 31, w: 24, h: 14}
+        size: {w: 24, h: 14}
+        position: {x: 0, y: 31}
         lens:
           type: bar
           mode: stacked
@@ -154,7 +162,8 @@ dashboards:
           filters:
             - exists: k8s.container.name
       - title: Memory by Namespace
-        grid: {x: 24, y: 31, w: 24, h: 14}
+        size: {w: 24, h: 14}
+        position: {x: 24, y: 31}
         lens:
           type: bar
           mode: stacked
@@ -182,12 +191,14 @@ dashboards:
       # POD RESOURCE DETAILS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Pod Details
-        grid: {x: 0, y: 45, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 45}
         markdown:
           content: '## 🔍 Pod Resource Details'
           font_size: 14
       - title: Pod Resource Summary
-        grid: {x: 0, y: 47, w: 48, h: 14}
+        size: {w: 48, h: 14}
+        position: {x: 0, y: 47}
         lens:
           type: datatable
           data_view: metrics-*

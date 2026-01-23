@@ -286,6 +286,74 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### Kubernetes Cluster OpenTelemetry Dashboards
+
+Comprehensive Kubernetes cluster monitoring dashboards using the OpenTelemetry k8sclusterreceiver.
+
+**Use this when:** Monitoring Kubernetes clusters with OpenTelemetry Collector's k8sclusterreceiver.
+
+**Note:** See the [README](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/content/examples/k8s_cluster_otel/README.md) for RBAC configuration, OpenTelemetry Collector setup, and deployment instructions.
+
+#### Cluster Overview
+
+Entry point for cluster health triage - pods, workloads, and deployment health.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/01-cluster-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/01-cluster-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Workload Health
+
+Deployment, StatefulSet, DaemonSet, and container health monitoring.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/02-workload-health.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/02-workload-health.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Resource Allocation
+
+CPU, memory, and storage requests vs limits for capacity planning.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/03-resource-allocation.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/03-resource-allocation.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Batch Jobs
+
+Job and CronJob execution status and completion tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/04-batch-jobs.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/04-batch-jobs.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Autoscaling
+
+Horizontal Pod Autoscaler scaling behavior and capacity tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/05-autoscaling.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/05-autoscaling.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/content/examples/` directory of the repository. You can:

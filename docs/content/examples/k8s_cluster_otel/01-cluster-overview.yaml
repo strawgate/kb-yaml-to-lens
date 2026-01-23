@@ -18,7 +18,8 @@ dashboards:
       # NAVIGATION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -37,12 +38,14 @@ dashboards:
       # CLUSTER HEALTH SUMMARY (4 metric cards - at-a-glance health)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Health
-        grid: {x: 0, y: 3, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
         markdown:
           content: '## 🏥 Cluster Health'
           font_size: 14
       - title: Running Pods
-        grid: {x: 0, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -53,7 +56,8 @@ dashboards:
             - field: k8s.pod.phase
               equals: '2'
       - title: Pending Pods
-        grid: {x: 12, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -64,7 +68,8 @@ dashboards:
             - field: k8s.pod.phase
               equals: '1'
       - title: Failed Pods
-        grid: {x: 24, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -75,7 +80,8 @@ dashboards:
             - field: k8s.pod.phase
               equals: '4'
       - title: Container Restarts
-        grid: {x: 36, y: 5, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -89,7 +95,8 @@ dashboards:
       # ANALYSIS: Pod Health Distribution & Trends
       # ═══════════════════════════════════════════════════════════════════════
       - title: Pod Health Distribution
-        grid: {x: 0, y: 13, w: 20, h: 14}
+        size: {w: 20, h: 14}
+        position: {x: 0, y: 13}
         lens:
           type: pie
           data_view: metrics-*
@@ -116,7 +123,8 @@ dashboards:
               - value: '5'
                 color: '#9170B8'
       - title: Pod Health Over Time
-        grid: {x: 20, y: 13, w: 28, h: 14}
+        size: {w: 28, h: 14}
+        position: {x: 20, y: 13}
         lens:
           type: area
           mode: stacked
@@ -150,12 +158,14 @@ dashboards:
       # WORKLOAD HEALTH PREVIEW
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Health
-        grid: {x: 0, y: 27, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 27}
         markdown:
           content: '## 🚀 Workload Health Preview'
           font_size: 14
       - title: Deployments - Desired vs Available
-        grid: {x: 0, y: 29, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 29}
         lens:
           type: line
           data_view: metrics-*
@@ -170,7 +180,8 @@ dashboards:
           filters:
             - exists: k8s.deployment.name
       - title: Container Restarts by Namespace
-        grid: {x: 24, y: 29, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 29}
         lens:
           type: bar
           data_view: metrics-*
@@ -191,12 +202,14 @@ dashboards:
       # DETAIL: Unhealthy Deployments Table
       # ═══════════════════════════════════════════════════════════════════════
       - title: Unhealthy Deployments
-        grid: {x: 0, y: 41, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 41}
         markdown:
           content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
           font_size: 14
       - title: Deployments Missing Replicas
-        grid: {x: 0, y: 43, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 43}
         lens:
           type: datatable
           data_view: metrics-*
