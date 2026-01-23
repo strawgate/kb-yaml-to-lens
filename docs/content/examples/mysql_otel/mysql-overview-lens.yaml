@@ -1,4 +1,8 @@
 ---
+# MySQL OpenTelemetry Overview Dashboard (Lens Version)
+# Comprehensive MySQL metrics dashboard using OpenTelemetry MySQL receiver
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver
 dashboards:
   - id: mysql-otel-overview-lens
     name: '[Metrics MySQL] Overview (Lens)'
@@ -18,7 +22,8 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -29,7 +34,8 @@ dashboards:
 
       # Overview Metrics Row (y=2, h=6)
       - title: Active Connections
-        grid: {x: 0, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -41,7 +47,8 @@ dashboards:
             - field: threads
               equals: connected
       - title: Buffer Pool Efficiency
-        grid: {x: 12, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 2}
         description: Ratio of clean to total buffer pool pages
         lens:
           type: metric
@@ -53,7 +60,8 @@ dashboards:
             format:
               type: percent
       - title: InnoDB Operations Rate
-        grid: {x: 24, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -61,7 +69,8 @@ dashboards:
             formula: counter_rate(max(mysql.operations))
             label: InnoDB Ops/sec
       - title: Handler Operations Rate
-        grid: {x: 36, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +80,8 @@ dashboards:
 
       # Buffer Pool Performance Section (y=8)
       - title: Buffer Pool Usage Over Time
-        grid: {x: 0, y: 8, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -92,7 +102,8 @@ dashboards:
               format:
                 type: bytes
       - title: Buffer Pool Pages
-        grid: {x: 24, y: 8, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -111,7 +122,8 @@ dashboards:
               aggregation: max
               label: Buffer Pool Pages
       - title: Buffer Pool Operations
-        grid: {x: 0, y: 17, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -129,7 +141,8 @@ dashboards:
             - formula: counter_rate(max(mysql.buffer_pool.operations))
               label: Operations/sec
       - title: Buffer Pool Page Flushes
-        grid: {x: 24, y: 17, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -142,7 +155,8 @@ dashboards:
 
       # InnoDB Operations Section (y=26)
       - title: Row Operations
-        grid: {x: 0, y: 26, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 26}
         lens:
           type: line
           data_view: metrics-*
@@ -160,7 +174,8 @@ dashboards:
             - formula: counter_rate(max(mysql.row_operations))
               label: Row Ops/sec
       - title: Page Operations
-        grid: {x: 24, y: 26, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 26}
         lens:
           type: line
           data_view: metrics-*
@@ -178,7 +193,8 @@ dashboards:
             - formula: counter_rate(max(mysql.page_operations))
               label: Page Ops/sec
       - title: InnoDB Operations (fsyncs, reads, writes)
-        grid: {x: 0, y: 35, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 35}
         lens:
           type: line
           data_view: metrics-*
@@ -196,7 +212,8 @@ dashboards:
             - formula: counter_rate(max(mysql.operations))
               label: Operations/sec
       - title: Double Writes
-        grid: {x: 24, y: 35, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 35}
         lens:
           type: line
           data_view: metrics-*
@@ -216,7 +233,8 @@ dashboards:
 
       # Handler Operations Section (y=44)
       - title: Top Handler Operations
-        grid: {x: 0, y: 44, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 44}
         description: Top 10 handler operations by count
         lens:
           type: line
@@ -237,7 +255,8 @@ dashboards:
 
       # Locks & Waits Section (y=53)
       - title: Lock Waits
-        grid: {x: 0, y: 53, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -255,7 +274,8 @@ dashboards:
             - formula: counter_rate(max(mysql.locks))
               label: Locks/sec
       - title: Row Lock Waits
-        grid: {x: 24, y: 53, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -276,7 +296,8 @@ dashboards:
 
       # Log Operations Section (y=62)
       - title: Log Operations
-        grid: {x: 0, y: 62, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 62}
         lens:
           type: line
           data_view: metrics-*
@@ -296,7 +317,8 @@ dashboards:
 
       # Table I/O Waits Section (y=71)
       - title: Table I/O Wait Count (Top 10 Tables)
-        grid: {x: 0, y: 71, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 71}
         lens:
           type: line
           data_view: metrics-*
@@ -316,7 +338,8 @@ dashboards:
             - formula: counter_rate(max(mysql.table.io.wait.count))
               label: Table I/O Waits/sec
       - title: Index I/O Wait Count (Top 10 Indexes)
-        grid: {x: 24, y: 71, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 71}
         lens:
           type: line
           data_view: metrics-*
@@ -338,7 +361,8 @@ dashboards:
 
       # Resources Section (y=80)
       - title: Opened Resources
-        grid: {x: 0, y: 80, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 80}
         lens:
           type: line
           data_view: metrics-*
@@ -356,7 +380,8 @@ dashboards:
             - formula: counter_rate(max(mysql.opened_resources))
               label: Opened Resources/sec
       - title: Temporary Resources
-        grid: {x: 24, y: 80, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 80}
         lens:
           type: line
           data_view: metrics-*
@@ -376,7 +401,8 @@ dashboards:
 
       # Threads & Sorts Section (y=89)
       - title: Thread Metrics
-        grid: {x: 0, y: 89, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 89}
         lens:
           type: line
           data_view: metrics-*
@@ -395,7 +421,8 @@ dashboards:
               aggregation: max
               label: Threads
       - title: Sort Operations
-        grid: {x: 24, y: 89, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 89}
         lens:
           type: line
           data_view: metrics-*
@@ -415,7 +442,8 @@ dashboards:
 
       # Uptime & Connection Stats (y=98)
       - title: MySQL Uptime
-        grid: {x: 0, y: 98, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 98}
         lens:
           type: line
           data_view: metrics-*
@@ -427,7 +455,8 @@ dashboards:
               aggregation: max
               label: Uptime (seconds)
       - title: MySQLx Connections
-        grid: {x: 24, y: 98, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 98}
         lens:
           type: line
           data_view: metrics-*
@@ -446,7 +475,8 @@ dashboards:
               label: MySQLx Connections/sec
 
       # Info Panel about Disabled Metrics (y=107)
-      - grid: {x: 0, y: 107, w: 48, h: 6}
+      - size: {w: 48, h: 6}
+        position: {x: 0, y: 107}
         markdown:
           content: |
             ## Disabled Metrics (Not Available by Default)

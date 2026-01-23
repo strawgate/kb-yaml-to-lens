@@ -1,4 +1,9 @@
 ---
+# MySQL OpenTelemetry Overview Dashboard (ES|QL Version)
+# Comprehensive MySQL metrics dashboard using OpenTelemetry MySQL receiver
+# Uses ES|QL with TS command for time-series optimization
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver
 dashboards:
   - id: mysql-otel-overview-esql
     name: '[Metrics MySQL] Overview (ES|QL)'
@@ -15,7 +20,8 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -26,7 +32,8 @@ dashboards:
 
       # Overview Metrics Row (y=2, h=6)
       - title: Active Connections
-        grid: {x: 0, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 2}
         esql:
           type: metric
           query:
@@ -38,7 +45,8 @@ dashboards:
             field: active_connections
             label: Active Connections
       - title: Buffer Pool Efficiency
-        grid: {x: 12, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 2}
         description: Ratio of clean to total buffer pool pages
         esql:
           type: metric
@@ -55,7 +63,8 @@ dashboards:
             format:
               type: percent
       - title: InnoDB Operations Rate
-        grid: {x: 24, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 2}
         esql:
           type: metric
           query:
@@ -67,7 +76,8 @@ dashboards:
             field: ops_rate
             label: InnoDB Ops/sec
       - title: Handler Operations Rate
-        grid: {x: 36, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 2}
         esql:
           type: metric
           query:
@@ -81,7 +91,8 @@ dashboards:
 
       # Buffer Pool Performance Section (y=8)
       - title: Buffer Pool Usage Over Time
-        grid: {x: 0, y: 8, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 8}
         esql:
           type: line
           query:
@@ -101,7 +112,8 @@ dashboards:
           breakdown:
             field: buffer_pool_data
       - title: Buffer Pool Pages
-        grid: {x: 24, y: 8, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 8}
         esql:
           type: line
           query:
@@ -119,7 +131,8 @@ dashboards:
           breakdown:
             field: buffer_pool_pages
       - title: Buffer Pool Operations
-        grid: {x: 0, y: 17, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 17}
         esql:
           type: line
           query:
@@ -137,7 +150,8 @@ dashboards:
           breakdown:
             field: buffer_pool_operations
       - title: Buffer Pool Page Flushes
-        grid: {x: 24, y: 17, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 17}
         esql:
           type: line
           query:
@@ -155,7 +169,8 @@ dashboards:
 
       # InnoDB Operations Section (y=26)
       - title: Row Operations
-        grid: {x: 0, y: 26, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 26}
         esql:
           type: line
           query:
@@ -173,7 +188,8 @@ dashboards:
           breakdown:
             field: row_operations
       - title: Page Operations
-        grid: {x: 24, y: 26, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 26}
         esql:
           type: line
           query:
@@ -191,7 +207,8 @@ dashboards:
           breakdown:
             field: page_operations
       - title: InnoDB Operations (fsyncs, reads, writes)
-        grid: {x: 0, y: 35, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 35}
         esql:
           type: line
           query:
@@ -209,7 +226,8 @@ dashboards:
           breakdown:
             field: operations
       - title: Double Writes
-        grid: {x: 24, y: 35, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 35}
         esql:
           type: line
           query:
@@ -229,7 +247,8 @@ dashboards:
 
       # Handler Operations Section (y=44)
       - title: Top Handler Operations
-        grid: {x: 0, y: 44, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 44}
         description: Top 10 handler operations by count
         esql:
           type: line
@@ -250,7 +269,8 @@ dashboards:
 
       # Locks & Waits Section (y=53)
       - title: Lock Waits
-        grid: {x: 0, y: 53, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 53}
         esql:
           type: line
           query:
@@ -268,7 +288,8 @@ dashboards:
           breakdown:
             field: locks
       - title: Row Lock Waits
-        grid: {x: 24, y: 53, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 53}
         esql:
           type: line
           query:
@@ -288,7 +309,8 @@ dashboards:
 
       # Log Operations Section (y=62)
       - title: Log Operations
-        grid: {x: 0, y: 62, w: 48, h: 9}
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 62}
         esql:
           type: line
           query:
@@ -308,7 +330,8 @@ dashboards:
 
       # Table I/O Waits Section (y=71)
       - title: Table I/O Wait Count (Top 10 Tables)
-        grid: {x: 0, y: 71, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 71}
         esql:
           type: line
           query:
@@ -326,7 +349,8 @@ dashboards:
           breakdown:
             field: table_name
       - title: Index I/O Wait Count (Top 10 Indexes)
-        grid: {x: 24, y: 71, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 71}
         esql:
           type: line
           query:
@@ -346,7 +370,8 @@ dashboards:
 
       # Resources Section (y=80)
       - title: Opened Resources
-        grid: {x: 0, y: 80, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 80}
         esql:
           type: line
           query:
@@ -364,7 +389,8 @@ dashboards:
           breakdown:
             field: opened_resources
       - title: Temporary Resources
-        grid: {x: 24, y: 80, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 80}
         esql:
           type: line
           query:
@@ -384,7 +410,8 @@ dashboards:
 
       # Threads & Sorts Section (y=89)
       - title: Thread Metrics
-        grid: {x: 0, y: 89, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 89}
         esql:
           type: line
           query:
@@ -402,7 +429,8 @@ dashboards:
           breakdown:
             field: threads
       - title: Sort Operations
-        grid: {x: 24, y: 89, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 89}
         esql:
           type: line
           query:
@@ -422,7 +450,8 @@ dashboards:
 
       # Uptime & Connection Stats (y=98)
       - title: MySQL Uptime
-        grid: {x: 0, y: 98, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 98}
         esql:
           type: line
           query:
@@ -438,7 +467,8 @@ dashboards:
             - field: uptime_sec
               label: Uptime (seconds)
       - title: MySQLx Connections
-        grid: {x: 24, y: 98, w: 24, h: 9}
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 98}
         esql:
           type: line
           query:
@@ -457,7 +487,8 @@ dashboards:
             field: mysqlx_connections
 
       # Info Panel about Disabled Metrics (y=107)
-      - grid: {x: 0, y: 107, w: 48, h: 6}
+      - size: {w: 48, h: 6}
+        position: {x: 0, y: 107}
         markdown:
           content: |
             ## Disabled Metrics (Not Available by Default)
