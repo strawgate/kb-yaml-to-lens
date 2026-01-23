@@ -158,7 +158,10 @@ def compile_command(_ls: LanguageServer, args: list[Any]) -> dict[str, Any]:
         return {'success': False, 'error': 'Missing path argument'}
 
     path: str = args[0]
-    dashboard_index: int = int(args[1]) if len(args) > 1 else 0
+    try:
+        dashboard_index: int = int(args[1]) if len(args) > 1 else 0
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
     return _compile_dashboard(path, dashboard_index)
 
