@@ -116,29 +116,12 @@ ignore = [
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
 ]
-"vscode-extension/python/**/*.py" = [
-    "PT009", # Allow unittest-style assertions in test files
-    "S101", # Ignore use of assert
-    "INP001", # Extension scripts are standalone, not packages
-    "ANN201", # Ignore missing type annotations in python extension files
-    "E501", # Line too long
-    "PLR2004", # Ignore magic numbers in test files
-    "B017", # Allow broad exception assertions in test files
-    "PT011", # Allow broad pytest.raises in test files
-    "PT027", # Allow unittest-style assertRaises in test files
-    "PLR0911", # Ignore too many return statements
-    "D400", # Ignore docstring formatting in test files
-    "D415", # Ignore docstring formatting in test files
-]
 "src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
     "ANN202", # Ignore missing return type for private serializer methods
     "ERA001", # Allow commented JSON structure documentation
-]
-"src/dashboard_compiler/**/config.py" = [
-    "TC001", # Pydantic config models rely on runtime imports for type evaluation
 ]
 "src/dashboard_compiler/lsp/grid_*.py" = [
     "PLR2004", # Allow magic numbers (CLI arg counts)
