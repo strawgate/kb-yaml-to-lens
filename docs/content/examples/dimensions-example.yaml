@@ -3,8 +3,6 @@ dashboards:
   - id: dimensions-example-001
     name: '[Example] Multi-Dimensional Charts'
     description: Demonstrates complex dimension configurations and breakdowns
-    time_range:
-      from: "now-1d/d"
     panels:
       - title: Multi-Dimensional Visualizations
         size:
