@@ -9,6 +9,7 @@ import { BinaryResolver } from './binaryResolver';
 export class PreviewPanel {
     private static readonly gridColumns = 48;
     private static readonly scaleFactor = 12; // pixels per grid unit (48 cols * 12px = 576px width)
+
     private static readonly chartTypeRegistry: Record<string, { icon: string; label: string }> = {
         'line': { icon: '\u{1F4C8}', label: 'Line Chart' },
         'bar': { icon: '\u{1F4CA}', label: 'Bar Chart' },
@@ -36,6 +37,7 @@ export class PreviewPanel {
     private currentDashboardPath: string | undefined;
     private currentDashboardIndex: number = 0;
     private extensionPath: string;
+    private mediaPath: vscode.Uri;
 
     constructor(
         private compiler: DashboardCompilerLSP,
@@ -43,6 +45,12 @@ export class PreviewPanel {
         private configService: ConfigService
     ) {
         this.extensionPath = context.extensionPath;
+        this.mediaPath = vscode.Uri.joinPath(context.extensionUri, 'media');
+    }
+
+    /** Get webview URI for a media file */
+    private getMediaUri(webview: vscode.Webview, filename: string): vscode.Uri {
+        return webview.asWebviewUri(vscode.Uri.joinPath(this.mediaPath, filename));
     }
 
     dispose(): void {
@@ -63,7 +71,8 @@ export class PreviewPanel {
                 vscode.ViewColumn.Beside,
                 {
                     enableScripts: true,
-                    retainContextWhenHidden: true
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [this.mediaPath]
                 }
             );
 
@@ -239,15 +248,36 @@ export class PreviewPanel {
     }
 
     private getWebviewContent(dashboard: CompiledDashboard, filePath: string, gridInfo: DashboardGridInfo): string {
+        if (!this.panel) {
+            throw new Error('Panel not initialized');
+        }
+        
+        const webview = this.panel.webview;
+        const cssUri = this.getMediaUri(webview, 'preview.css');
+        const layoutEditorUri = this.getMediaUri(webview, 'layoutEditor.js');
+        const previewJsUri = this.getMediaUri(webview, 'preview.js');
+        
         // Cast to any for property access since CompiledDashboard structure is dynamic
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dashboardData = dashboard as any;
         const fileName = path.basename(filePath);
+        const downloadFilename = fileName.replace('.yaml', '.ndjson');
         // Escape < to prevent </script> injection in embedded JSON
         const ndjson = JSON.stringify(dashboard).replace(/</g, '\\u003c');
         const layoutHtml = this.generateLayoutHtml(gridInfo);
         const jsonFieldsHtml = this.generateJsonFieldsHtml(dashboardData);
-        const panelsJson = JSON.stringify(gridInfo.panels).replace(/<\//g, '<\\/');
+        
+        // Configuration for external JS files
+        const layoutConfig = JSON.stringify({
+            cellSize: PreviewPanel.scaleFactor,
+            gridColumns: PreviewPanel.gridColumns,
+            panels: gridInfo.panels,
+            showStaleWarning: true
+        }).replace(/</g, '\\u003c');
+        
+        const previewConfig = JSON.stringify({
+            downloadFilename
+        }).replace(/</g, '\\u003c');
 
         return `
             <!DOCTYPE html>
@@ -255,276 +285,7 @@ export class PreviewPanel {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    :root {
-                        --grid-columns: 48;
-                        --cell-size: ${PreviewPanel.scaleFactor}px;
-                        --panel-bg: var(--vscode-editor-selectionBackground);
-                        --panel-border: var(--vscode-panel-border);
-                        --panel-hover: var(--vscode-list-hoverBackground);
-                    }
-
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-editor-foreground);
-                        margin: 0;
-                    }
-                    .header {
-                        border-bottom: 1px solid var(--vscode-panel-border);
-                        padding-bottom: 20px;
-                        margin-bottom: 20px;
-                    }
-                    .title {
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-bottom: 10px;
-                    }
-                    .file-path {
-                        color: var(--vscode-descriptionForeground);
-                        font-size: 12px;
-                        margin-bottom: 15px;
-                    }
-                    .actions {
-                        margin-top: 15px;
-                    }
-                    .export-btn {
-                        background: var(--vscode-button-background);
-                        color: var(--vscode-button-foreground);
-                        border: none;
-                        padding: 8px 16px;
-                        cursor: pointer;
-                        border-radius: 2px;
-                        font-family: var(--vscode-font-family);
-                        font-size: 13px;
-                        margin-right: 8px;
-                    }
-                    .export-btn:hover {
-                        background: var(--vscode-button-hoverBackground);
-                    }
-                    .export-btn:active {
-                        background: var(--vscode-button-activeBackground);
-                    }
-                    .section {
-                        margin-bottom: 20px;
-                    }
-                    .section-title {
-                        font-size: 16px;
-                        font-weight: bold;
-                        margin-bottom: 10px;
-                        color: var(--vscode-settings-headerForeground);
-                    }
-                    .info-grid {
-                        display: grid;
-                        grid-template-columns: 150px 1fr;
-                        gap: 10px;
-                        margin-bottom: 20px;
-                    }
-                    .info-label {
-                        color: var(--vscode-descriptionForeground);
-                    }
-                    .info-value {
-                        color: var(--vscode-editor-foreground);
-                    }
-                    pre {
-                        background: var(--vscode-textCodeBlock-background);
-                        padding: 15px;
-                        border-radius: 3px;
-                        overflow-x: auto;
-                        border: 1px solid var(--vscode-panel-border);
-                    }
-                    code {
-                        font-family: var(--vscode-editor-font-family);
-                        font-size: var(--vscode-editor-font-size);
-                    }
-                    .success-message {
-                        background: var(--vscode-inputValidation-infoBackground);
-                        border: 1px solid var(--vscode-inputValidation-infoBorder);
-                        color: var(--vscode-inputValidation-infoForeground);
-                        padding: 10px;
-                        border-radius: 3px;
-                        margin-top: 10px;
-                        display: none;
-                    }
-                    .success-message.show {
-                        display: block;
-                    }
-                    .stale-warning {
-                        background: var(--vscode-inputValidation-warningBackground);
-                        border: 1px solid var(--vscode-inputValidation-warningBorder);
-                        color: var(--vscode-inputValidation-warningForeground);
-                        padding: 10px;
-                        border-radius: 3px;
-                        margin-top: 10px;
-                        display: none;
-                        font-size: 12px;
-                    }
-                    .stale-warning.show {
-                        display: block;
-                    }
-
-                    /* Layout Preview Styles - Now with drag-and-drop */
-                    .layout-controls {
-                        margin-bottom: 10px;
-                        display: flex;
-                        gap: 15px;
-                        align-items: center;
-                    }
-                    .control-label {
-                        font-size: 12px;
-                        color: var(--vscode-descriptionForeground);
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                    }
-                    .control-label input[type="checkbox"] {
-                        cursor: pointer;
-                    }
-                    .layout-container {
-                        position: relative;
-                        width: 100%;
-                        background: var(--vscode-textCodeBlock-background);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 4px;
-                        overflow: hidden;
-                    }
-                    .layout-grid {
-                        position: relative;
-                        background-image:
-                            repeating-linear-gradient(
-                                0deg,
-                                var(--panel-border) 0px,
-                                var(--panel-border) 1px,
-                                transparent 1px,
-                                transparent var(--cell-size)
-                            ),
-                            repeating-linear-gradient(
-                                90deg,
-                                var(--panel-border) 0px,
-                                var(--panel-border) 1px,
-                                transparent 1px,
-                                transparent var(--cell-size)
-                            );
-                    }
-                    .layout-grid.hide-grid {
-                        background-image: none;
-                    }
-                    .layout-panel {
-                        position: absolute;
-                        background: var(--panel-bg);
-                        border: 2px solid var(--panel-border);
-                        border-radius: 3px;
-                        padding: 8px;
-                        box-sizing: border-box;
-                        overflow: hidden;
-                        display: flex;
-                        flex-direction: column;
-                        cursor: move;
-                        transition: box-shadow 0.2s;
-                        user-select: none;
-                    }
-                    .layout-panel:hover {
-                        background: var(--panel-hover);
-                        border-color: var(--vscode-focusBorder);
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                    }
-                    .layout-panel.dragging {
-                        opacity: 0.7;
-                        z-index: 1000;
-                        cursor: grabbing;
-                    }
-                    .layout-panel.resizing {
-                        opacity: 0.7;
-                    }
-                    .panel-header {
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        margin-bottom: 4px;
-                    }
-                    .panel-icon {
-                        font-size: 16px;
-                        flex-shrink: 0;
-                    }
-                    .panel-type-label {
-                        font-size: 9px;
-                        color: var(--vscode-descriptionForeground);
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
-                    .panel-title {
-                        font-weight: 600;
-                        font-size: 11px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        margin-bottom: 2px;
-                    }
-                    .panel-size, .panel-coords {
-                        font-size: 9px;
-                        color: var(--vscode-descriptionForeground);
-                        font-family: monospace;
-                        margin-top: auto;
-                    }
-                    .panel-type {
-                        font-size: 10px;
-                        color: var(--vscode-descriptionForeground);
-                        margin-bottom: 4px;
-                    }
-                    .resize-handle {
-                        position: absolute;
-                        bottom: 0;
-                        right: 0;
-                        width: 12px;
-                        height: 12px;
-                        cursor: se-resize;
-                        background: linear-gradient(135deg, transparent 50%, var(--vscode-panel-border) 50%);
-                    }
-                    .collapsible-section {
-                        margin-bottom: 20px;
-                    }
-                    .collapsible-header {
-                        cursor: pointer;
-                        user-select: none;
-                        padding: 10px;
-                        background: var(--vscode-editor-selectionBackground);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 3px;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    }
-                    .collapsible-header:hover {
-                        background: var(--vscode-list-hoverBackground);
-                    }
-                    .collapsible-arrow {
-                        font-size: 12px;
-                        transition: transform 0.2s;
-                    }
-                    .collapsible-arrow.expanded {
-                        transform: rotate(90deg);
-                    }
-                    .collapsible-content {
-                        display: none;
-                        margin-top: 10px;
-                    }
-                    .collapsible-content.expanded {
-                        display: block;
-                    }
-                    .json-field-section pre {
-                        max-height: 400px;
-                        overflow-y: auto;
-                    }
-                    .edit-hint {
-                        font-size: 11px;
-                        color: var(--vscode-descriptionForeground);
-                        font-style: italic;
-                    }
-                </style>
+                <link rel="stylesheet" href="${cssUri}">
             </head>
             <body>
                 <div class="header">
@@ -576,239 +337,14 @@ export class PreviewPanel {
                     <pre><code>${escapeHtml(JSON.stringify(dashboard, null, 2))}</code></pre>
                 </div>
 
+                <!-- Configuration data for external scripts -->
+                <script id="layout-config" type="application/json">${layoutConfig}</script>
+                <script id="preview-config" type="application/json">${previewConfig}</script>
                 <script id="ndjson-data" type="application/json">${ndjson}</script>
-                <script>
-                    // FIRST: Define all globals and handlers before any code that could fail
-                    const vscode = acquireVsCodeApi();
-                    const GRID_COLUMNS = 48;
-                    const CELL_SIZE = ${PreviewPanel.scaleFactor};
-                    let panels = [];
-                    let ndjsonData = '';
-                    let draggedPanel = null;
-                    let dragStartX = 0;
-                    let dragStartY = 0;
-                    let dragStartGridX = 0;
-                    let dragStartGridY = 0;
-                    let isResizing = false;
-                    let resizeStartW = 0;
-                    let resizeStartH = 0;
-
-                    // Get DOM elements (may be null if not present)
-                    const gridElement = document.getElementById('layoutGrid');
-                    const showGridCheckbox = document.getElementById('showGrid');
-
-                    // Define handlers IMMEDIATELY so they're available for inline onmousedown
-                    function handlePanelMouseDown(e) {
-                        if (e.target.classList.contains('resize-handle')) {
-                            return;
-                        }
-                        e.preventDefault();
-                        draggedPanel = e.target.closest('.layout-panel');
-                        if (!draggedPanel) return;
-                        
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) return;
-                        
-                        dragStartX = e.clientX;
-                        dragStartY = e.clientY;
-                        dragStartGridX = panels[index].grid.x;
-                        dragStartGridY = panels[index].grid.y;
-                        isResizing = false;
-
-                        draggedPanel.classList.add('dragging');
-
-                        document.addEventListener('mousemove', handleMouseMove);
-                        document.addEventListener('mouseup', handleMouseUp);
-                    }
-
-                    function handleResizeMouseDown(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        isResizing = true;
-                        draggedPanel = e.target.closest('.layout-panel');
-                        if (!draggedPanel) return;
-                        
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) return;
-
-                        dragStartX = e.clientX;
-                        dragStartY = e.clientY;
-                        resizeStartW = panels[index].grid.w;
-                        resizeStartH = panels[index].grid.h;
-
-                        draggedPanel.classList.add('resizing');
-
-                        document.addEventListener('mousemove', handleMouseMove);
-                        document.addEventListener('mouseup', handleMouseUp);
-                    }
-
-                    function handleMouseMove(e) {
-                        if (!draggedPanel) return;
-
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) return;
-                        const panel = panels[index];
-
-                        if (isResizing) {
-                            const deltaX = e.clientX - dragStartX;
-                            const deltaY = e.clientY - dragStartY;
-
-                            let newW = resizeStartW + Math.round(deltaX / CELL_SIZE);
-                            let newH = resizeStartH + Math.round(deltaY / CELL_SIZE);
-
-                            newW = Math.max(4, newW);
-                            newH = Math.max(4, newH);
-                            newW = Math.min(newW, GRID_COLUMNS - panel.grid.x);
-
-                            panel.grid.w = newW;
-                            panel.grid.h = newH;
-
-                            draggedPanel.style.width = (newW * CELL_SIZE) + 'px';
-                            draggedPanel.style.height = (newH * CELL_SIZE) + 'px';
-
-                            const coordsElement = draggedPanel.querySelector('.panel-coords');
-                            if (coordsElement) coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
-                        } else {
-                            const deltaX = e.clientX - dragStartX;
-                            const deltaY = e.clientY - dragStartY;
-
-                            let newX = dragStartGridX + Math.round(deltaX / CELL_SIZE);
-                            let newY = dragStartGridY + Math.round(deltaY / CELL_SIZE);
-
-                            newX = Math.max(0, Math.min(newX, GRID_COLUMNS - panel.grid.w));
-                            newY = Math.max(0, newY);
-
-                            panel.grid.x = newX;
-                            panel.grid.y = newY;
-
-                            draggedPanel.style.left = (newX * CELL_SIZE) + 'px';
-                            draggedPanel.style.top = (newY * CELL_SIZE) + 'px';
-
-                            const coordsElement = draggedPanel.querySelector('.panel-coords');
-                            if (coordsElement) coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
-                        }
-                    }
-
-                    function handleMouseUp() {
-                        if (!draggedPanel) return;
-
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) {
-                            draggedPanel.classList.remove('dragging', 'resizing');
-                            draggedPanel = null;
-                            isResizing = false;
-                            document.removeEventListener('mousemove', handleMouseMove);
-                            document.removeEventListener('mouseup', handleMouseUp);
-                            return;
-                        }
-                        const panel = panels[index];
-
-                        vscode.postMessage({
-                            command: 'updateGrid',
-                            panelId: panel.id,
-                            grid: panel.grid
-                        });
-
-                        // Show stale warning since NDJSON output won't reflect the new layout
-                        const staleWarning = document.getElementById('staleWarning');
-                        if (staleWarning) {
-                            staleWarning.classList.add('show');
-                        }
-
-                        draggedPanel.classList.remove('dragging', 'resizing');
-                        draggedPanel = null;
-                        isResizing = false;
-
-                        document.removeEventListener('mousemove', handleMouseMove);
-                        document.removeEventListener('mouseup', handleMouseUp);
-                    }
-
-                    function escapeHtmlClient(text) {
-                        const div = document.createElement('div');
-                        div.textContent = text;
-                        return div.innerHTML;
-                    }
-
-                    function toggleCollapsible(id) {
-                        const content = document.getElementById(id);
-                        const arrow = document.getElementById(id + '-arrow');
-                        if (content && arrow) {
-                            content.classList.toggle('expanded');
-                            arrow.classList.toggle('expanded');
-                        }
-                    }
-
-                    function copyToClipboard() {
-                        navigator.clipboard.writeText(ndjsonData).then(() => {
-                            const message = document.getElementById('successMessage');
-                            if (message) {
-                                message.classList.add('show');
-                                setTimeout(() => { message.classList.remove('show'); }, 3000);
-                            }
-                        }).catch((err) => {
-                            console.error('Failed to copy:', err);
-                            alert('Failed to copy to clipboard: ' + err.message);
-                        });
-                    }
-
-                    function downloadNDJSON() {
-                        const blob = new Blob([ndjsonData], { type: 'application/x-ndjson' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = '${escapeHtml(fileName.replace('.yaml', '.ndjson'))}';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    }
-
-                    function calculateGridHeight() {
-                        let maxY = 20;
-                        panels.forEach(panel => {
-                            const panelBottom = panel.grid.y + panel.grid.h;
-                            if (panelBottom > maxY) {
-                                maxY = panelBottom;
-                            }
-                        });
-                        return maxY + 10;
-                    }
-
-                    // NOW initialize data (this can fail without breaking handlers)
-                    // Keep as string for clipboard/download - don't parse to object
-                    try {
-                        ndjsonData = document.getElementById('ndjson-data')?.textContent ?? '';
-                    } catch (e) {
-                        console.error('Failed to read ndjson data:', e);
-                        ndjsonData = '';
-                    }
-
-                    try {
-                        panels = ${panelsJson};
-                    } catch (e) {
-                        console.error('Failed to parse panels:', e);
-                        panels = [];
-                    }
-
-                    // Set up grid height and checkbox listeners
-                    if (gridElement && panels.length > 0) {
-                        const gridHeight = calculateGridHeight();
-                        gridElement.style.height = (gridHeight * CELL_SIZE) + 'px';
-                    }
-
-                    if (showGridCheckbox) {
-                        showGridCheckbox.addEventListener('change', (e) => {
-                            if (gridElement) {
-                                if (e.target.checked) {
-                                    gridElement.classList.remove('hide-grid');
-                                } else {
-                                    gridElement.classList.add('hide-grid');
-                                }
-                            }
-                        });
-                    }
-                </script>
+                
+                <!-- External scripts -->
+                <script src="${layoutEditorUri}"></script>
+                <script src="${previewJsUri}"></script>
             </body>
             </html>
         `;
@@ -820,9 +356,24 @@ export class PreviewPanel {
      * the dashboard won't compile.
      */
     private getLayoutOnlyContent(filePath: string, gridInfo: DashboardGridInfo, errorMessage: string): string {
+        if (!this.panel) {
+            throw new Error('Panel not initialized');
+        }
+        
+        const webview = this.panel.webview;
+        const cssUri = this.getMediaUri(webview, 'preview.css');
+        const layoutEditorUri = this.getMediaUri(webview, 'layoutEditor.js');
+        
         const fileName = path.basename(filePath);
         const layoutHtml = this.generateLayoutHtml(gridInfo);
-        const panelsJson = JSON.stringify(gridInfo.panels).replace(/<\//g, '<\\/');
+        
+        // Configuration for external JS files (no stale warning in layout-only mode)
+        const layoutConfig = JSON.stringify({
+            cellSize: PreviewPanel.scaleFactor,
+            gridColumns: PreviewPanel.gridColumns,
+            panels: gridInfo.panels,
+            showStaleWarning: false
+        }).replace(/</g, '\\u003c');
 
         return `
             <!DOCTYPE html>
@@ -830,175 +381,7 @@ export class PreviewPanel {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    :root {
-                        --grid-columns: 48;
-                        --cell-size: ${PreviewPanel.scaleFactor}px;
-                        --panel-bg: var(--vscode-editor-selectionBackground);
-                        --panel-border: var(--vscode-panel-border);
-                        --panel-hover: var(--vscode-list-hoverBackground);
-                    }
-
-                    body {
-                        font-family: var(--vscode-font-family);
-                        padding: 20px;
-                        background: var(--vscode-editor-background);
-                        color: var(--vscode-editor-foreground);
-                        margin: 0;
-                    }
-                    .header {
-                        border-bottom: 1px solid var(--vscode-panel-border);
-                        padding-bottom: 20px;
-                        margin-bottom: 20px;
-                    }
-                    .title {
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-bottom: 10px;
-                    }
-                    .file-path {
-                        color: var(--vscode-descriptionForeground);
-                        font-size: 12px;
-                        margin-bottom: 15px;
-                    }
-                    .error-banner {
-                        background: var(--vscode-inputValidation-errorBackground);
-                        border: 1px solid var(--vscode-inputValidation-errorBorder);
-                        color: var(--vscode-inputValidation-errorForeground);
-                        padding: 12px 16px;
-                        border-radius: 4px;
-                        margin-bottom: 20px;
-                    }
-                    .error-banner-title {
-                        font-weight: bold;
-                        margin-bottom: 8px;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    }
-                    .error-banner-message {
-                        font-size: 12px;
-                        white-space: pre-wrap;
-                        font-family: var(--vscode-editor-font-family);
-                        max-height: 150px;
-                        overflow-y: auto;
-                    }
-                    .error-banner-hint {
-                        margin-top: 10px;
-                        font-size: 12px;
-                        font-style: italic;
-                        opacity: 0.9;
-                    }
-                    .section {
-                        margin-bottom: 20px;
-                    }
-                    .section-title {
-                        font-size: 16px;
-                        font-weight: bold;
-                        margin-bottom: 10px;
-                        color: var(--vscode-settings-headerForeground);
-                    }
-                    .layout-container {
-                        position: relative;
-                        background: var(--vscode-editor-background);
-                        border: 1px solid var(--vscode-panel-border);
-                        border-radius: 4px;
-                        overflow: auto;
-                        max-height: 600px;
-                    }
-                    .layout-grid {
-                        position: relative;
-                        background-image: 
-                            linear-gradient(to right, var(--vscode-panel-border) 1px, transparent 1px),
-                            linear-gradient(to bottom, var(--vscode-panel-border) 1px, transparent 1px);
-                        background-size: calc(var(--cell-size) * 4) calc(var(--cell-size) * 4);
-                        width: calc(var(--cell-size) * var(--grid-columns));
-                        min-height: 400px;
-                    }
-                    .layout-grid.hide-grid {
-                        background-image: none;
-                    }
-                    .layout-panel {
-                        position: absolute;
-                        background: var(--panel-bg);
-                        border: 2px solid var(--panel-border);
-                        border-radius: 4px;
-                        padding: 8px;
-                        box-sizing: border-box;
-                        cursor: grab;
-                        overflow: hidden;
-                        transition: box-shadow 0.15s;
-                    }
-                    .layout-panel:hover {
-                        border-color: var(--vscode-focusBorder);
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                    }
-                    .layout-panel.dragging {
-                        cursor: grabbing;
-                        opacity: 0.8;
-                        border-color: var(--vscode-focusBorder);
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-                        z-index: 1000;
-                    }
-                    .layout-panel.resizing {
-                        cursor: se-resize;
-                        opacity: 0.9;
-                        border-color: var(--vscode-focusBorder);
-                    }
-                    .panel-header {
-                        font-weight: bold;
-                        font-size: 11px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        margin-bottom: 4px;
-                    }
-                    .panel-type {
-                        font-size: 10px;
-                        color: var(--vscode-descriptionForeground);
-                        margin-bottom: 2px;
-                    }
-                    .panel-coords {
-                        font-size: 9px;
-                        color: var(--vscode-descriptionForeground);
-                        font-family: var(--vscode-editor-font-family);
-                    }
-                    .resize-handle {
-                        position: absolute;
-                        bottom: 0;
-                        right: 0;
-                        width: 16px;
-                        height: 16px;
-                        cursor: se-resize;
-                        background: linear-gradient(135deg, transparent 50%, var(--vscode-focusBorder) 50%);
-                        opacity: 0.5;
-                        border-radius: 0 0 2px 0;
-                    }
-                    .resize-handle:hover {
-                        opacity: 1;
-                    }
-                    .layout-controls {
-                        display: flex;
-                        gap: 20px;
-                        margin-bottom: 10px;
-                        align-items: center;
-                    }
-                    .control-label {
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                        font-size: 12px;
-                        cursor: pointer;
-                    }
-                    .control-label input[type="checkbox"] {
-                        cursor: pointer;
-                    }
-                    .edit-hint {
-                        font-size: 11px;
-                        color: var(--vscode-descriptionForeground);
-                        font-style: italic;
-                    }
-                </style>
+                <link rel="stylesheet" href="${cssUri}">
             </head>
             <body>
                 <div class="header">
@@ -1028,181 +411,11 @@ export class PreviewPanel {
                     ${layoutHtml}
                 </div>
 
-                <script>
-                    // FIRST: Define all globals and handlers before any code that could fail
-                    const vscode = acquireVsCodeApi();
-                    const GRID_COLUMNS = 48;
-                    const CELL_SIZE = ${PreviewPanel.scaleFactor};
-                    let panels = [];
-                    let draggedPanel = null;
-                    let dragStartX = 0;
-                    let dragStartY = 0;
-                    let dragStartGridX = 0;
-                    let dragStartGridY = 0;
-                    let isResizing = false;
-                    let resizeStartW = 0;
-                    let resizeStartH = 0;
-
-                    const gridElement = document.getElementById('layoutGrid');
-                    const showGridCheckbox = document.getElementById('showGrid');
-
-                    function handlePanelMouseDown(e) {
-                        if (e.target.classList.contains('resize-handle')) {
-                            return;
-                        }
-                        e.preventDefault();
-                        draggedPanel = e.target.closest('.layout-panel');
-                        if (!draggedPanel) return;
-                        
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) return;
-                        
-                        dragStartX = e.clientX;
-                        dragStartY = e.clientY;
-                        dragStartGridX = panels[index].grid.x;
-                        dragStartGridY = panels[index].grid.y;
-                        isResizing = false;
-
-                        draggedPanel.classList.add('dragging');
-
-                        document.addEventListener('mousemove', handleMouseMove);
-                        document.addEventListener('mouseup', handleMouseUp);
-                    }
-
-                    function handleResizeMouseDown(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        isResizing = true;
-                        draggedPanel = e.target.closest('.layout-panel');
-                        if (!draggedPanel) return;
-                        
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) return;
-
-                        dragStartX = e.clientX;
-                        dragStartY = e.clientY;
-                        resizeStartW = panels[index].grid.w;
-                        resizeStartH = panels[index].grid.h;
-
-                        draggedPanel.classList.add('resizing');
-
-                        document.addEventListener('mousemove', handleMouseMove);
-                        document.addEventListener('mouseup', handleMouseUp);
-                    }
-
-                    function handleMouseMove(e) {
-                        if (!draggedPanel) return;
-
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) return;
-                        const panel = panels[index];
-
-                        if (isResizing) {
-                            const deltaX = e.clientX - dragStartX;
-                            const deltaY = e.clientY - dragStartY;
-
-                            let newW = resizeStartW + Math.round(deltaX / CELL_SIZE);
-                            let newH = resizeStartH + Math.round(deltaY / CELL_SIZE);
-
-                            newW = Math.max(4, newW);
-                            newH = Math.max(4, newH);
-                            newW = Math.min(newW, GRID_COLUMNS - panel.grid.x);
-
-                            panel.grid.w = newW;
-                            panel.grid.h = newH;
-
-                            draggedPanel.style.width = (newW * CELL_SIZE) + 'px';
-                            draggedPanel.style.height = (newH * CELL_SIZE) + 'px';
-
-                            const coordsElement = draggedPanel.querySelector('.panel-coords');
-                            if (coordsElement) coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
-                        } else {
-                            const deltaX = e.clientX - dragStartX;
-                            const deltaY = e.clientY - dragStartY;
-
-                            let newX = dragStartGridX + Math.round(deltaX / CELL_SIZE);
-                            let newY = dragStartGridY + Math.round(deltaY / CELL_SIZE);
-
-                            newX = Math.max(0, Math.min(newX, GRID_COLUMNS - panel.grid.w));
-                            newY = Math.max(0, newY);
-
-                            panel.grid.x = newX;
-                            panel.grid.y = newY;
-
-                            draggedPanel.style.left = (newX * CELL_SIZE) + 'px';
-                            draggedPanel.style.top = (newY * CELL_SIZE) + 'px';
-
-                            const coordsElement = draggedPanel.querySelector('.panel-coords');
-                            if (coordsElement) coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
-                        }
-                    }
-
-                    function handleMouseUp() {
-                        if (!draggedPanel) return;
-
-                        const index = parseInt(draggedPanel.dataset.index, 10);
-                        if (isNaN(index) || !panels[index]) {
-                            draggedPanel.classList.remove('dragging', 'resizing');
-                            draggedPanel = null;
-                            isResizing = false;
-                            document.removeEventListener('mousemove', handleMouseMove);
-                            document.removeEventListener('mouseup', handleMouseUp);
-                            return;
-                        }
-                        const panel = panels[index];
-
-                        vscode.postMessage({
-                            command: 'updateGrid',
-                            panelId: panel.id,
-                            grid: panel.grid
-                        });
-
-                        draggedPanel.classList.remove('dragging', 'resizing');
-                        draggedPanel = null;
-                        isResizing = false;
-
-                        document.removeEventListener('mousemove', handleMouseMove);
-                        document.removeEventListener('mouseup', handleMouseUp);
-                    }
-
-                    function calculateGridHeight() {
-                        let maxY = 20;
-                        panels.forEach(panel => {
-                            const panelBottom = panel.grid.y + panel.grid.h;
-                            if (panelBottom > maxY) {
-                                maxY = panelBottom;
-                            }
-                        });
-                        return maxY + 10;
-                    }
-
-                    // Initialize panels data
-                    try {
-                        panels = ${panelsJson};
-                    } catch (e) {
-                        console.error('Failed to parse panels:', e);
-                        panels = [];
-                    }
-
-                    // Set up grid height and checkbox listeners
-                    if (gridElement && panels.length > 0) {
-                        const gridHeight = calculateGridHeight();
-                        gridElement.style.height = (gridHeight * CELL_SIZE) + 'px';
-                    }
-
-                    if (showGridCheckbox) {
-                        showGridCheckbox.addEventListener('change', (e) => {
-                            if (gridElement) {
-                                if (e.target.checked) {
-                                    gridElement.classList.remove('hide-grid');
-                                } else {
-                                    gridElement.classList.add('hide-grid');
-                                }
-                            }
-                        });
-                    }
-                </script>
+                <!-- Configuration data for external scripts -->
+                <script id="layout-config" type="application/json">${layoutConfig}</script>
+                
+                <!-- External scripts -->
+                <script src="${layoutEditorUri}"></script>
             </body>
             </html>
         `;
