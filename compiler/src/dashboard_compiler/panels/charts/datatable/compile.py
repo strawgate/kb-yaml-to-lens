@@ -163,9 +163,14 @@ def compile_lens_datatable_chart(
 
     # Compile metrics first (for dimension compilation to reference)
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
+    primary_metric_ids: list[str] = []
     for metric in lens_datatable_chart.metrics:
-        metric_id, compiled_metric = compile_lens_metric(metric)
+        result = compile_lens_metric(metric)
+        metric_id = result.primary_id
+        compiled_metric = result.primary_column
         kbn_metric_columns_by_id[metric_id] = compiled_metric
+        kbn_metric_columns_by_id.update(result.helper_columns)
+        primary_metric_ids.append(metric_id)
 
     # Compile dimensions (these come FIRST in column order for datatables)
     for dimension in lens_datatable_chart.dimensions:
@@ -186,15 +191,15 @@ def compile_lens_datatable_chart(
             kbn_columns_by_id[dimensions_by_id] = compiled_dimensions_by
             column_order.append(dimensions_by_id)
 
-    # Add metrics to kbn_columns_by_id AFTER dimensions (preserves insertion order)
-    for metric_id, compiled_metric in kbn_metric_columns_by_id.items():
-        kbn_columns_by_id[metric_id] = compiled_metric
-        column_order.append(metric_id)
+    # Add all metric columns (including helper columns) to kbn_columns_by_id
+    # but only add primary metric IDs to column_order (helper columns are not visible)
+    kbn_columns_by_id.update(kbn_metric_columns_by_id)
+    column_order.extend(primary_metric_ids)
 
-    # Build column states
+    # Build column states (only primary metric IDs, not helper columns)
     column_states = _build_datatable_column_states(
         column_order=column_order,
-        metric_columns_ids=set(kbn_metric_columns_by_id.keys()),
+        metric_columns_ids=set(primary_metric_ids),
         metric_columns_config=lens_datatable_chart.metric_columns,
         row_columns_config=lens_datatable_chart.columns,
     )

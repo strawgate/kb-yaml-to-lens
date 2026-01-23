@@ -104,7 +104,7 @@ class LinksPanel(BasePanel):
           - name: "Main Overview"
             panels:
               - title: "Navigate to User Details"
-                grid: { x: 0, y: 0, w: 24, h: 2 }
+                size: { w: 24, h: 2 }
                 links:
                   items:
                     - label: "View User Activity Dashboard"
@@ -117,7 +117,7 @@ class LinksPanel(BasePanel):
           - name: "Main Overview"
             panels:
               - title: "External Resources"
-                grid: { x: 24, y: 0, w: 24, h: 2 }
+                size: { w: 24, h: 2 }
                 links:
                   items:
                     - label: "Project Documentation"
@@ -131,7 +131,7 @@ class LinksPanel(BasePanel):
           - name: "Operations Hub"
             panels:
               - title: "Quick Access"
-                grid: { x: 0, y: 0, w: 48, h: 3 }
+                size: { w: 48, h: 3 }
                 links:
                   layout: "vertical"
                   items:

@@ -47,6 +47,25 @@ interface CompileResult {
     error?: string;
 }
 
+export interface EsqlColumn {
+    name: string;
+    type: string;
+}
+
+export interface EsqlQueryResult {
+    columns: EsqlColumn[];
+    values: unknown[][];
+    took?: number;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    is_partial?: boolean;
+}
+
+interface EsqlExecuteResult {
+    success: boolean;
+    data?: EsqlQueryResult;
+    error?: string;
+}
+
 interface DashboardListResult {
     success: boolean;
     data?: DashboardInfo[];
@@ -286,6 +305,55 @@ export class DashboardCompilerLSP {
         } catch (error) {
             return { success: false, error: error instanceof Error ? error.message : String(error) };
         }
+    }
+
+    /**
+     * Execute an ES|QL query via Kibana's console proxy API.
+     *
+     * @param query The ES|QL query string to execute
+     * @param kibanaUrl Kibana base URL
+     * @param username Optional username for basic auth
+     * @param password Optional password for basic auth
+     * @param apiKey Optional API key for auth
+     * @param sslVerify Whether to verify SSL certificates
+     * @returns Object containing columns and values from query results
+     */
+    async executeEsqlQuery(
+        query: string,
+        kibanaUrl: string,
+        username: string,
+        password: string,
+        apiKey: string,
+        sslVerify: boolean
+    ): Promise<EsqlQueryResult> {
+        if (!this.client) {
+            throw new Error('LSP client not started');
+        }
+
+        const result = await this.client.sendRequest<EsqlExecuteResult>(
+            'esql/execute',
+            {
+                query: query,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                kibana_url: kibanaUrl,
+                username: username || undefined,
+                password: password || undefined,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                api_key: apiKey || undefined,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                ssl_verify: sslVerify
+            }
+        );
+
+        if (!result.success) {
+            throw new Error(result.error || 'ES|QL query execution failed');
+        }
+
+        if (result.data === undefined) {
+            throw new Error('ES|QL query returned no data');
+        }
+
+        return result.data;
     }
 
     async dispose(): Promise<void> {

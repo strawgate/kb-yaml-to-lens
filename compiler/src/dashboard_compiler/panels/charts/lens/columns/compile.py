@@ -25,9 +25,12 @@ def compile_lens_columns(dimensions: Sequence[LensDimensionTypes], metrics: Sequ
     metrics_by_label: dict[str, KbnLensMetricColumnTypes] = {}
 
     for metric in metrics:
-        metric_id, metric_column = compile_lens_metric(metric)
-        columns_by_id[metric_id] = metric_column
-        metrics_by_label[metric_column.label] = metric_column
+        result = compile_lens_metric(metric)
+        # Add the primary column
+        columns_by_id[result.primary_id] = result.primary_column
+        metrics_by_label[result.primary_column.label] = result.primary_column
+        # Add any helper columns (for formulas)
+        columns_by_id.update(result.helper_columns)
 
     for dimension in dimensions:
         dimension_id, dimension_column = compile_lens_dimension(dimension, kbn_metric_column_by_id=metrics_by_label)
