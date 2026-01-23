@@ -17,7 +17,8 @@ dashboards:
         field: elasticsearch.index.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -36,11 +37,13 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Index Overview Section
-        grid: {x: 0, y: 2, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
         markdown:
           content: '### Index Overview'
       - title: Total Indices
-        grid: {x: 0, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -49,7 +52,8 @@ dashboards:
             field: elasticsearch.index.name
             label: Indices
       - title: Total Index Size
-        grid: {x: 12, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,7 +62,8 @@ dashboards:
             field: elasticsearch.index.shards.size
             label: Total Size
       - title: Total Segment Count
-        grid: {x: 24, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -67,7 +72,8 @@ dashboards:
             field: elasticsearch.index.segments.count
             label: Segments
       - title: Index Size Distribution
-        grid: {x: 0, y: 10, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 10}
         lens:
           type: datatable
           data_view: metrics-*
@@ -98,7 +104,8 @@ dashboards:
             enabled: true
             page_size: 20
       - title: Index Shard Distribution
-        grid: {x: 24, y: 10, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 10}
         lens:
           type: datatable
           data_view: metrics-*
@@ -119,11 +126,13 @@ dashboards:
             enabled: true
             page_size: 20
       - title: Operations Section
-        grid: {x: 0, y: 22, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 22}
         markdown:
           content: '### Operations'
       - title: Index Operations Rate
-        grid: {x: 0, y: 24, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 24}
         lens:
           type: line
           data_view: metrics-*
@@ -141,7 +150,8 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.completed))
               label: Index Ops/sec
       - title: Index Operation Time
-        grid: {x: 24, y: 24, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 24}
         lens:
           type: line
           data_view: metrics-*
@@ -159,7 +169,8 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.time))
               label: Time (ms/sec)
       - title: Search Operations Rate
-        grid: {x: 0, y: 34, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 34}
         lens:
           type: line
           data_view: metrics-*
@@ -177,7 +188,8 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.completed))
               label: Search Ops/sec
       - title: Search Operation Time
-        grid: {x: 24, y: 34, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 34}
         lens:
           type: line
           data_view: metrics-*
@@ -195,7 +207,8 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.time))
               label: Time (ms/sec)
       - title: Merge Operations Rate
-        grid: {x: 0, y: 44, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 44}
         lens:
           type: line
           data_view: metrics-*
@@ -213,7 +226,8 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.completed))
               label: Merge Ops/sec
       - title: Merge Operation Time
-        grid: {x: 24, y: 44, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 44}
         lens:
           type: line
           data_view: metrics-*
@@ -231,11 +245,13 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.time))
               label: Time (ms/sec)
       - title: Segments Section
-        grid: {x: 0, y: 54, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 54}
         markdown:
           content: '### Segments'
       - title: Segment Count Over Time
-        grid: {x: 0, y: 56, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 56}
         lens:
           type: line
           data_view: metrics-*
@@ -251,7 +267,8 @@ dashboards:
               field: elasticsearch.index.segments.count
               label: Segment Count
       - title: Segment Memory Usage
-        grid: {x: 24, y: 56, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 56}
         lens:
           type: area
           mode: stacked

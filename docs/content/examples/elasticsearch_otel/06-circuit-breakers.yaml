@@ -17,7 +17,8 @@ dashboards:
         field: elasticsearch.node.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -36,11 +37,13 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Circuit Breaker Overview Section
-        grid: {x: 0, y: 2, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
         markdown:
           content: '### Circuit Breaker Overview'
       - title: Circuit Breaker Utilization %
-        grid: {x: 0, y: 4, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 4}
         lens:
           type: datatable
           data_view: metrics-*
@@ -77,11 +80,13 @@ dashboards:
             enabled: true
             page_size: 20
       - title: Circuit Breaker Memory Usage Section
-        grid: {x: 0, y: 16, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 16}
         markdown:
           content: '### Circuit Breaker Memory Usage'
       - title: Request Circuit Breaker
-        grid: {x: 0, y: 18, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -107,7 +112,8 @@ dashboards:
               format:
                 type: bytes
       - title: Request Breaker Utilization %
-        grid: {x: 24, y: 18, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -127,7 +133,8 @@ dashboards:
               format:
                 type: percent
       - title: Field Data Circuit Breaker
-        grid: {x: 0, y: 28, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 28}
         lens:
           type: line
           data_view: metrics-*
@@ -153,7 +160,8 @@ dashboards:
               format:
                 type: bytes
       - title: Field Data Breaker Utilization %
-        grid: {x: 24, y: 28, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 28}
         lens:
           type: line
           data_view: metrics-*
@@ -173,7 +181,8 @@ dashboards:
               format:
                 type: percent
       - title: Parent Circuit Breaker
-        grid: {x: 0, y: 38, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 38}
         lens:
           type: line
           data_view: metrics-*
@@ -199,7 +208,8 @@ dashboards:
               format:
                 type: bytes
       - title: Parent Breaker Utilization %
-        grid: {x: 24, y: 38, w: 24, h: 10}
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 38}
         lens:
           type: line
           data_view: metrics-*
@@ -219,11 +229,13 @@ dashboards:
               format:
                 type: percent
       - title: Circuit Breaker Trips Section
-        grid: {x: 0, y: 48, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 48}
         markdown:
           content: '### Circuit Breaker Trips'
       - title: Trip Events by Breaker
-        grid: {x: 0, y: 50, w: 48, h: 10}
+        size: {w: 48, h: 10}
+        position: {x: 0, y: 50}
         lens:
           type: line
           data_view: metrics-*
@@ -238,7 +250,8 @@ dashboards:
             - formula: counter_rate(sum(elasticsearch.breaker.tripped))
               label: Trips/sec
       - title: Trip Events by Node
-        grid: {x: 0, y: 60, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 60}
         lens:
           type: datatable
           data_view: metrics-*
@@ -261,11 +274,13 @@ dashboards:
             enabled: true
             page_size: 20
       - title: All Circuit Breakers Section
-        grid: {x: 0, y: 72, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 72}
         markdown:
           content: '### All Circuit Breakers'
       - title: All Breakers Memory Usage
-        grid: {x: 0, y: 74, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 74}
         lens:
           type: area
           mode: stacked

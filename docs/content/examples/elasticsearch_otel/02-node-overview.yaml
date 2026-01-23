@@ -17,7 +17,8 @@ dashboards:
         field: elasticsearch.node.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -36,11 +37,13 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Node Health Section
-        grid: {x: 0, y: 2, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
         markdown:
           content: '### Node Health'
       - title: Document Count
-        grid: {x: 0, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -49,7 +52,8 @@ dashboards:
             field: elasticsearch.node.documents
             label: Documents
       - title: Open Files
-        grid: {x: 12, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,7 +62,8 @@ dashboards:
             field: elasticsearch.node.open_files
             label: Open Files
       - title: HTTP Connections
-        grid: {x: 24, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -67,7 +72,8 @@ dashboards:
             field: elasticsearch.node.http.connections
             label: Connections
       - title: Active Nodes
-        grid: {x: 36, y: 4, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,11 +82,13 @@ dashboards:
             field: elasticsearch.node.name
             label: Nodes
       - title: CPU & Memory Section
-        grid: {x: 0, y: 10, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 10}
         markdown:
           content: '### CPU & Memory'
       - title: CPU Usage by Node
-        grid: {x: 0, y: 12, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -98,7 +106,8 @@ dashboards:
               format:
                 type: percent
       - title: Memory Usage by Node
-        grid: {x: 24, y: 12, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -116,11 +125,13 @@ dashboards:
               format:
                 type: percent
       - title: Disk Space Section
-        grid: {x: 0, y: 20, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 20}
         markdown:
           content: '### Disk Space'
       - title: Disk Space Available
-        grid: {x: 0, y: 22, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 22}
         lens:
           type: bar
           data_view: metrics-*
@@ -135,7 +146,8 @@ dashboards:
               format:
                 type: bytes
       - title: Disk Usage %
-        grid: {x: 24, y: 22, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 22}
         lens:
           type: bar
           data_view: metrics-*
@@ -149,11 +161,13 @@ dashboards:
               format:
                 type: percent
       - title: Cache Performance Section
-        grid: {x: 0, y: 30, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 30}
         markdown:
           content: '### Cache Performance'
       - title: Cache Evictions
-        grid: {x: 0, y: 32, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 32}
         lens:
           type: datatable
           data_view: metrics-*
@@ -171,7 +185,8 @@ dashboards:
               formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name: query')"
               label: Query Cache
       - title: Cache Memory Usage
-        grid: {x: 24, y: 32, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 32}
         lens:
           type: datatable
           data_view: metrics-*
@@ -193,11 +208,13 @@ dashboards:
               format:
                 type: bytes
       - title: Thread Pool Overview Section
-        grid: {x: 0, y: 40, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 40}
         markdown:
           content: '### Thread Pool Overview'
       - title: Thread Pool Queue Size
-        grid: {x: 0, y: 42, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 42}
         lens:
           type: datatable
           data_view: metrics-*

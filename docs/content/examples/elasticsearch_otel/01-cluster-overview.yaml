@@ -8,7 +8,8 @@ dashboards:
         equals: elasticsearchreceiver.otel
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -27,7 +28,8 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Cluster Health Status
-        grid: {x: 0, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -40,7 +42,8 @@ dashboards:
             field: elasticsearch.cluster.name
             label: Clusters
       - title: Active Clusters
-        grid: {x: 12, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -49,7 +52,8 @@ dashboards:
             field: elasticsearch.cluster.name
             label: Clusters
       - title: Total Nodes
-        grid: {x: 24, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,7 +62,8 @@ dashboards:
             field: elasticsearch.cluster.nodes
             label: Nodes
       - title: Data Nodes
-        grid: {x: 36, y: 2, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -67,7 +72,8 @@ dashboards:
             field: elasticsearch.cluster.data_nodes
             label: Data Nodes
       - title: Cluster Health Over Time
-        grid: {x: 0, y: 8, w: 48, h: 8}
+        size: {w: 48, h: 8}
+        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -86,7 +92,8 @@ dashboards:
               field: elasticsearch.cluster.data_nodes
               label: Data Nodes
       - title: Shard Distribution
-        grid: {x: 0, y: 16, w: 16, h: 8}
+        size: {w: 16, h: 8}
+        position: {x: 0, y: 16}
         lens:
           type: datatable
           data_view: metrics-*
@@ -113,7 +120,8 @@ dashboards:
               formula: "max(elasticsearch.cluster.shards, kql='shard_state: unassigned')"
               label: Unassigned
       - title: Pending Tasks
-        grid: {x: 16, y: 16, w: 16, h: 8}
+        size: {w: 16, h: 8}
+        position: {x: 16, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -129,7 +137,8 @@ dashboards:
               field: elasticsearch.cluster.pending_tasks
               label: Pending Tasks
       - title: In-Flight Fetches
-        grid: {x: 32, y: 16, w: 16, h: 8}
+        size: {w: 16, h: 8}
+        position: {x: 32, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -145,7 +154,8 @@ dashboards:
               field: elasticsearch.cluster.in_flight_fetch
               label: In-Flight Fetches
       - title: Index Statistics
-        grid: {x: 0, y: 24, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 24}
         lens:
           type: datatable
           data_view: metrics-*
@@ -165,7 +175,8 @@ dashboards:
               field: elasticsearch.cluster.state_queue
               label: State Queue
       - title: Shards Over Time
-        grid: {x: 24, y: 24, w: 24, h: 8}
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 24}
         lens:
           type: area
           mode: stacked

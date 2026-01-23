@@ -17,7 +17,8 @@ dashboards:
         field: elasticsearch.node.name
     panels:
       - title: Navigation Links
-        grid: {x: 0, y: 0, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -36,11 +37,13 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Cluster Configuration Section
-        grid: {x: 0, y: 2, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
         markdown:
           content: '### Cluster Configuration'
       - title: Cluster Summary
-        grid: {x: 0, y: 4, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 4}
         esql:
           type: datatable
           query:
@@ -57,7 +60,8 @@ dashboards:
             - field: Total Nodes
             - field: Data Nodes
       - title: Cluster Health Status
-        grid: {x: 24, y: 4, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 4}
         esql:
           type: datatable
           query:
@@ -78,11 +82,13 @@ dashboards:
             - field: In-Flight Fetches
             - field: State Queue
       - title: Node Configuration Section
-        grid: {x: 0, y: 16, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 16}
         markdown:
           content: '### Node Configuration'
       - title: Node Metadata
-        grid: {x: 0, y: 18, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 18}
         esql:
           type: datatable
           query:
@@ -95,11 +101,13 @@ dashboards:
             - field: node
             - field: cluster
       - title: Node Resource Usage Section
-        grid: {x: 0, y: 33, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 33}
         markdown:
           content: '### Node Resource Usage'
       - title: Node CPU and Memory
-        grid: {x: 0, y: 35, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 35}
         esql:
           type: datatable
           query:
@@ -116,7 +124,8 @@ dashboards:
             - field: CPU %
             - field: Memory Used (GB)
       - title: Node Disk Usage
-        grid: {x: 24, y: 35, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 35}
         esql:
           type: datatable
           query:
@@ -135,11 +144,13 @@ dashboards:
             - field: Disk Total (GB)
             - field: Disk Used %
       - title: Index Configuration Section
-        grid: {x: 0, y: 50, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 50}
         markdown:
           content: '### Index Configuration'
       - title: Index Statistics
-        grid: {x: 0, y: 52, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 52}
         esql:
           type: datatable
           query:
@@ -161,11 +172,13 @@ dashboards:
             - field: Segment Count
             - field: Segment Size (MB)
       - title: Thread Pool Configuration Section
-        grid: {x: 0, y: 67, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 67}
         markdown:
           content: '### Thread Pool Configuration'
       - title: Thread Pool Status by Node
-        grid: {x: 0, y: 69, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 69}
         esql:
           type: datatable
           query:
@@ -185,11 +198,13 @@ dashboards:
             - field: Threads
             - field: Queue Size
       - title: Cache Configuration Section
-        grid: {x: 0, y: 84, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 84}
         markdown:
           content: '### Cache Configuration'
       - title: Cache Memory Usage by Node
-        grid: {x: 0, y: 86, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 86}
         esql:
           type: datatable
           query:
@@ -206,11 +221,13 @@ dashboards:
             - field: cache
             - field: Memory Usage (MB)
       - title: JVM Configuration Section
-        grid: {x: 0, y: 101, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 101}
         markdown:
           content: '### JVM Configuration'
       - title: JVM Memory Configuration
-        grid: {x: 0, y: 103, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 103}
         esql:
           type: datatable
           query:
@@ -230,7 +247,8 @@ dashboards:
             - field: Heap Used (GB)
             - field: Non-Heap Used (MB)
       - title: JVM Thread and Class Information
-        grid: {x: 24, y: 103, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 103}
         esql:
           type: datatable
           query:
@@ -247,11 +265,13 @@ dashboards:
             - field: Thread Count
             - field: Classes Loaded
       - title: Circuit Breaker Configuration Section
-        grid: {x: 0, y: 118, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 118}
         markdown:
           content: '### Circuit Breaker Configuration'
       - title: Circuit Breaker Limits
-        grid: {x: 0, y: 120, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 120}
         esql:
           type: datatable
           query:
