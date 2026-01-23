@@ -373,19 +373,38 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
     """
     params_dict = _params_to_dict(params)
 
-    path = params_dict.get('path')
+    try:
+        path = _get_required_str(params_dict, 'path')
+        kibana_url = _get_required_str(params_dict, 'kibana_url')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
     try:
         dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
-    kibana_url = params_dict.get('kibana_url')
+
     username = params_dict.get('username')
     password = params_dict.get('password')
     api_key = params_dict.get('api_key')
     ssl_verify = params_dict.get('ssl_verify', True)
 
-    if path is None or len(path) == 0 or kibana_url is None or len(kibana_url) == 0:
+    if path is None or kibana_url is None:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
+
+    # Validate optional credential parameters are strings or None, and ssl_verify is bool
+    if (
+        (username is not None and not isinstance(username, str))
+        or (password is not None and not isinstance(password, str))
+        or (api_key is not None and not isinstance(api_key, str))
+        or not isinstance(ssl_verify, bool)
+    ):
+        return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
+
+    # Normalize empty strings to None
+    validated_username = _normalize_optional_str(username)
+    validated_password = _normalize_optional_str(password)
+    validated_api_key = _normalize_optional_str(api_key)
 
     try:
         # Compile the dashboard first
@@ -403,9 +422,9 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
         logger.info('Uploading dashboard to Kibana at %s', _redact_url(kibana_url))
         async with KibanaClient(
             url=kibana_url,
-            username=username if (username is not None and len(username) > 0) else None,
-            password=password if (password is not None and len(password) > 0) else None,
-            api_key=api_key if (api_key is not None and len(api_key) > 0) else None,
+            username=validated_username,
+            password=validated_password,
+            api_key=validated_api_key,
             ssl_verify=ssl_verify,
         ) as client:
             # Upload to Kibana
