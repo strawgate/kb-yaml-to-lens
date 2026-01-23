@@ -1,0 +1,180 @@
+---
+dashboards:
+  - id: system-windows-policy-object
+    name: '[System Windows Security] Policy & Object Monitoring'
+    description: Windows policy changes and object access monitoring events
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4103'
+          - '4104'
+          - '4615'
+          - '4618'
+          - '4657'
+          - '4663'
+          - '4670'
+          - '4698'
+          - '4699'
+          - '4700'
+          - '4701'
+          - '4702'
+          - '4719'
+          - '4817'
+          - '4902'
+          - '4904'
+          - '4905'
+          - '4906'
+          - '4907'
+          - '4912'
+          - '4950'
+          - '4954'
+          - '4956'
+          - '4957'
+          - '4958'
+    panels:
+      - title: Windows Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Windows Overview
+              dashboard: system-windows-overview
+            - label: User Logons
+              dashboard: system-windows-logons
+            - label: Failed Accounts
+              dashboard: system-windows-failed-blocked
+            - label: User Management
+              dashboard: system-windows-user-management
+            - label: Group Management
+              dashboard: system-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-windows-system-process
+      - title: Policy & Object Events Over Time
+        grid: {x: 0, y: 3, w: 48, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 25
+      - title: Audit Policy Changes (4719)
+        grid: {x: 0, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Changes
+          filters:
+            - field: winlog.event_id
+              equals: '4719'
+      - title: Registry Value Modified (4657)
+        grid: {x: 12, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Modified
+          filters:
+            - field: winlog.event_id
+              equals: '4657'
+      - title: Object Access (4663)
+        grid: {x: 24, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Accesses
+          filters:
+            - field: winlog.event_id
+              equals: '4663'
+      - title: Task Scheduled (4698)
+        grid: {x: 36, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Tasks
+          filters:
+            - field: winlog.event_id
+              equals: '4698'
+      - title: Event Distribution
+        grid: {x: 0, y: 26, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 15
+          metrics:
+            - aggregation: count
+      - title: Top Users
+        grid: {x: 24, y: 26, w: 24, h: 15}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            type: values
+            field: user.name
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Object Types Accessed
+        grid: {x: 0, y: 41, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_data.ObjectType
+              size: 10
+          metrics:
+            - aggregation: count
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4657'
+                - '4663'
+                - '4670'
+      - title: Recent Policy & Object Events
+        grid: {x: 24, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: user
+              type: values
+              field: user.name
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 20

@@ -1,0 +1,214 @@
+---
+# Modern System Metrics Overview Dashboard
+# Following Dashboard Style Guide best practices:
+# - 4-layer hierarchy: Context → Summary → Analysis → Detail
+# - Progressive disclosure from overview to detail
+# - Charts preferred over standalone metrics
+# - Cursor synchronization enabled
+# - Proper time configuration
+dashboards:
+  - id: system-modern-metrics-overview
+    name: '[Metrics System] Overview'
+    description: >-
+      Modern overview of system metrics across all monitored hosts.
+      Navigate to host details for deeper analysis.
+    filters:
+      - field: data_stream.dataset
+        in:
+          - system.cpu
+          - system.memory
+          - system.network
+          - system.filesystem
+          - system.process
+    controls:
+      - type: options
+        label: Host
+        data_view: metrics-*
+        field: host.name
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: System Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Metrics Overview
+              dashboard: system-modern-metrics-overview
+            - label: Host Details
+              dashboard: system-modern-host-details
+            - label: Syslog
+              dashboard: system-modern-syslog
+            - label: Sudo Commands
+              dashboard: system-modern-sudo-commands
+            - label: SSH Logins
+              dashboard: system-modern-ssh-logins
+            - label: Users & Groups
+              dashboard: system-modern-users-groups
+
+      # Summary Layer - Key Metrics (limited to 4)
+      - title: Total Hosts
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: host.name
+            label: Hosts
+      - title: Average CPU Utilization
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.cpu.total.norm.pct
+            label: CPU
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.cpu
+      - title: Average Memory Usage
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.memory.actual.used.pct
+            label: Memory
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.memory
+      - title: Average Disk Usage
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.filesystem.used.pct
+            label: Disk
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.filesystem
+
+      # Analysis Layer - Time Series Charts
+      - title: CPU Utilization Over Time
+        grid: {x: 0, y: 9, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.cpu.total.norm.pct
+              label: CPU %
+              format:
+                type: percent
+          breakdown:
+            type: values
+            field: host.name
+            size: 5
+          filters:
+            - field: data_stream.dataset
+              equals: system.cpu
+      - title: Memory Usage Over Time
+        grid: {x: 24, y: 9, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.memory.actual.used.pct
+              label: Memory %
+              format:
+                type: percent
+          breakdown:
+            type: values
+            field: host.name
+            size: 5
+          filters:
+            - field: data_stream.dataset
+              equals: system.memory
+      - title: Network Traffic Over Time
+        grid: {x: 0, y: 21, w: 48, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.network.in.bytes
+              label: Inbound
+              format:
+                type: bytes
+            - aggregation: average
+              field: system.network.out.bytes
+              label: Outbound
+              format:
+                type: bytes
+          filters:
+            - field: data_stream.dataset
+              equals: system.network
+
+      # Detail Layer - Host Summary Table
+      - title: Host Performance Summary
+        grid: {x: 0, y: 33, w: 48, h: 20}
+        description: Click a host name to view detailed metrics
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: hostname
+              type: values
+              field: host.name
+              size: 100
+          metrics:
+            - id: cpu-max
+              aggregation: max
+              field: system.cpu.total.norm.pct
+              label: Max CPU %
+              format:
+                type: percent
+            - id: cpu-avg
+              aggregation: average
+              field: system.cpu.total.norm.pct
+              label: Avg CPU %
+              format:
+                type: percent
+            - id: mem-avg
+              aggregation: average
+              field: system.memory.actual.used.pct
+              label: Avg Memory %
+              format:
+                type: percent
+            - id: net-in
+              aggregation: average
+              field: system.network.in.bytes
+              label: Avg Inbound
+              format:
+                type: bytes
+            - id: net-out
+              aggregation: average
+              field: system.network.out.bytes
+              label: Avg Outbound
+              format:
+                type: bytes
+          paging:
+            enabled: true
+            page_size: 10

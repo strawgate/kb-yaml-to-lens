@@ -1,0 +1,164 @@
+---
+dashboards:
+  - name: '[AWS CloudTrail OTEL] CloudTrail Logs Overview'
+    description: ''
+    filters:
+      - field: data_stream.dataset
+        equals: aws.cloudtrail.otel
+    panels:
+      - size: {w: 24, h: 15}
+        position: {x: 0, y: 0}
+        markdown:
+          content: |
+            ## AWS CloudTrail Logs Overview
+            Use this dashboard to visualize CloudTrail Logs.
+            You could use this data to:
+            - **Visualize CloudTrail activity logs** to quickly identify patterns in API calls and user actions.
+            - **Monitor account activity** across AWS services for auditing and compliance purposes.
+            - **Detect unusual or unauthorized behavior** by filtering and analyzing access patterns.
+            - **Track resource changes** to understand who made modifications and when.
+            - **Troubleshoot operational issues** by correlating CloudTrail events with other system metrics.
+            - **Generate reports and insights** for security reviews or compliance audits
+      - title: Event outcome over time
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 0}
+        esql:
+          type: area
+          query: |
+            FROM logs*
+            | EVAL outcome = CASE(aws.error.code IS NOT NULL, "Fail", "Success")
+            | KEEP outcome, @timestamp
+            | STATS total = COUNT() BY outcome, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: total
+          breakdown:
+            field: outcome
+          appearance:
+            y_left_axis:
+              title: Events
+      - title: Logs by service and action
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 15}
+        esql:
+          type: pie
+          query: |
+            FROM logs*
+            | WHERE rpc.service IS NOT NULL
+            | STATS total = COUNT() BY rpc.service, rpc.method
+            | KEEP total, rpc.service, rpc.method
+            | SORT total DESC
+          metrics:
+            - field: total
+          dimensions:
+            - field: rpc.service
+            - field: rpc.method
+          appearance:
+            donut: large
+          titles_and_text:
+            slice_values: percent
+      - title: Logs by user agent
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 15}
+        esql:
+          type: pie
+          query: |
+            FROM logs*
+            | WHERE user_agent.original IS NOT NULL
+            | EVAL agent = REPLACE(user_agent.original, "^\\[|\\/.*$|\\ -\\ .*$", "") // Remove leading square bracket, and everything that is after first slash or hyphen (with spaces) including it
+            | STATS total = COUNT() by agent
+            | KEEP total, agent
+            | SORT total DESC
+          metrics:
+            - field: total
+          dimensions:
+            - field: agent
+          appearance:
+            donut: large
+          titles_and_text:
+            slice_values: percent
+      - title: Logs by event type
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 30}
+        esql:
+          type: pie
+          query: |
+            FROM logs*
+            | KEEP rpc.system
+            | STATS total = COUNT() by rpc.system
+            | SORT total DESC
+          metrics:
+            - field: total
+          dimensions:
+            - field: rpc.system
+          appearance:
+            donut: large
+          titles_and_text:
+            slice_values: percent
+      - title: Failed operations by error code
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 30}
+        esql:
+          type: pie
+          query: |
+            FROM logs*
+            | WHERE aws.error.code IS NOT NULL
+            | KEEP aws.error.code
+            | STATS total = COUNT() BY aws.error.code
+            | SORT total DESC
+          metrics:
+            - field: total
+          dimensions:
+            - field: aws.error.code
+          appearance:
+            donut: large
+          titles_and_text:
+            slice_values: percent
+      - title: Recent Events
+        size: {w: 31, h: 15}
+        position: {x: 0, y: 45}
+        esql:
+          type: datatable
+          query: |
+            FROM logs*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+            - id: access-key
+              field: aws.access_key.id
+            - id: service
+              field: rpc.service
+            - id: event-type
+              field: rpc.system
+            - id: action
+              field: rpc.method
+            - id: error-code
+              field: aws.error.code
+            - id: source
+              field: source.address
+          paging:
+            enabled: true
+            page_size: 10
+      - title: Top User IDs
+        size: {w: 17, h: 15}
+        position: {x: 31, y: 45}
+        esql:
+          type: datatable
+          query: |
+            FROM logs*
+            | KEEP aws.access_key.id
+            | STATS total = COUNT() by aws.access_key.id
+            | SORT total DESC
+          dimensions:
+            - id: user-id
+              field: aws.access_key.id
+          metrics:
+            - id: events
+              field: total
+          sorting:
+            column_id: events
+            direction: desc
+          paging:
+            enabled: true
+            page_size: 10

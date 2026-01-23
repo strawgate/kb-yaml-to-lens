@@ -1,0 +1,231 @@
+---
+# Modern Windows Directory Monitoring Dashboard
+# Following Dashboard Style Guide best practices:
+# - Active Directory monitoring: object changes, access attempts
+# - Directory service event tracking
+# - Object and container analysis
+# - Detailed audit table at bottom
+dashboards:
+  - id: system-modern-windows-directory-monitoring
+    name: '[Logs System] Windows Directory Monitoring'
+    description: >-
+      Active Directory and directory service event monitoring.
+      Track object modifications and directory access events.
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4662'
+          - '4661'
+          - '5136'
+          - '5137'
+          - '5138'
+          - '5139'
+          - '5141'
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Object Type
+        data_view: logs-*
+        field: winlog.event_data.ObjectType
+        width: medium
+      - type: options
+        label: User
+        data_view: logs-*
+        field: winlog.event_data.SubjectUserName
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: Windows Security Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: system-modern-windows-overview
+            - label: Logons
+              dashboard: system-modern-windows-logons
+            - label: Failed & Blocked
+              dashboard: system-modern-windows-failed-blocked
+            - label: User Management
+              dashboard: system-modern-windows-user-management
+            - label: Group Management
+              dashboard: system-modern-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-modern-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-modern-windows-system-process
+            - label: Policy & Object
+              dashboard: system-modern-windows-policy-object
+
+      # Summary Layer - Key Metrics
+      - title: Total Events
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Directory Service Access (4662)
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Access
+          filters:
+            - field: winlog.event_id
+              equals: '4662'
+      - title: Object Modifications (5136)
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Modified
+          filters:
+            - field: winlog.event_id
+              equals: '5136'
+      - title: Unique Users
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: winlog.event_data.SubjectUserName
+            label: Users
+
+      # Analysis Layer - Time Series
+      - title: Directory Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 10
+
+      # Analysis Layer - Event Distribution
+      - title: Event Types
+        grid: {x: 0, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Object Types
+        grid: {x: 16, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_data.ObjectType
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Host
+        grid: {x: 32, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - User Analysis
+      - title: Top Users by Activity
+        grid: {x: 0, y: 33, w: 24, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.SubjectUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 5
+      - title: Object Type and Event Distribution
+        grid: {x: 24, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_data.ObjectType
+              size: 10
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Audit Log Table
+      - title: Directory Event Audit Log
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: subject-user
+              type: values
+              field: winlog.event_data.SubjectUserName
+            - id: object-type
+              type: values
+              field: winlog.event_data.ObjectType
+            - id: object-name
+              type: values
+              field: winlog.event_data.ObjectName
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10
