@@ -209,7 +209,15 @@ def compile_custom(params: Any) -> dict[str, Any]:
         Dictionary with compilation result
     """
     params_dict = _params_to_dict(params)
-    path: str = params_dict.get('path', '')
+
+    try:
+        path = _get_required_str(params_dict, 'path')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
+    if path is None:
+        return {'success': False, 'error': 'Missing path parameter'}
+
     try:
         dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
