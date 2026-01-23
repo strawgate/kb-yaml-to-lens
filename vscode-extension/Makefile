@@ -14,8 +14,9 @@ help:
 	@echo "  test-unit        - Run unit tests only"
 	@echo "  compile          - Compile TypeScript"
 	@echo "  watch            - Watch mode for development"
-	@echo "  lint             - Check linting"
+	@echo "  lint             - Check linting (compiles first)"
 	@echo "  lint-check       - Alias for lint"
+	@echo "  lint-only        - Check linting (no compile, for CI)"
 	@echo "  package          - Create .vsix package"
 	@echo "  install-vscode   - Install packaged extension into VS Code"
 	@echo "  install-cursor   - Install packaged extension into Cursor"
@@ -70,7 +71,9 @@ lint: install compile
 	@echo "Running ESLint..."
 	npm run lint
 
-lint-check: lint
+lint-check: install compile
+	@echo "Running ESLint..."
+	npm run lint
 
 # Non-compiling target for use in CI after compile has already run
 lint-only:

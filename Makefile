@@ -1,7 +1,14 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci
+# Enable parallel execution for check target (3 components)
+# Use `make check PARALLEL=0` to disable parallel execution for debugging
+PARALLEL ?= 1
+ifeq ($(PARALLEL),1)
+MAKEFLAGS += --jobs=3 --output-sync=target
+endif
+
+.PHONY: all help install ci check fix test-unit test-e2e test-smoke clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci
 
 all: check
 
@@ -13,20 +20,19 @@ help:
 	@echo ""
 	@echo "CI Workflow:"
 	@echo "  all           - Run fast checks (default target, alias for check)"
-	@echo "  check         - Run fast checks (lint + typecheck + unit tests)"
-	@echo "  check -j3     - Run fast checks in parallel (faster but interleaved output)"
+	@echo "  check         - Run fast checks in parallel (lint + typecheck + unit tests)"
+	@echo "  check PARALLEL=0 - Run checks sequentially (for debugging)"
 	@echo "  ci            - Run comprehensive CI (check + e2e tests, matches GitHub Actions)"
 	@echo "  fix           - Auto-fix linting issues across all components"
 	@echo ""
 	@echo "Linting:"
-	@echo "  lint-all-check    - Check all linting without fixing"
 	@echo "  lint-markdown     - Auto-fix markdown linting"
 	@echo "  lint-markdown-check - Check markdown without fixing"
 	@echo ""
 	@echo "Testing:"
 	@echo "  test-unit     - Run unit tests only (fast)"
 	@echo "  test-e2e      - Run end-to-end tests (requires setup)"
-	@echo "  test-all      - Run all tests (unit + e2e + smoke)"
+	@echo "  test-smoke    - Run CLI smoke tests"
 	@echo ""
 	@echo "Documentation:"
 	@echo "  docs-serve         - Start local documentation server"
@@ -127,16 +133,6 @@ fix:
 	@echo ""
 	@echo "✓ All fixes complete"
 
-lint-all-check:
-	@echo "Checking linting across all components..."
-	@echo ""
-	$(call run-in-component,compiler,lint-check)
-	$(call run-in-component,vscode-extension,lint-check)
-	@echo "→ Checking markdown..."
-	@$(MAKE) lint-markdown-check
-	@echo ""
-	@echo "✓ All linting checks passed"
-
 test-unit:
 	@echo "Running unit tests across all components..."
 	@echo ""
@@ -150,12 +146,11 @@ test-e2e:
 	$(call run-in-component,vscode-extension,test-e2e-only)
 	@echo "✓ E2E tests passed"
 
-test-all: test-unit test-e2e
-	@echo "Running additional tests..."
+test-smoke:
+	@echo "Running smoke tests..."
 	@echo ""
-	$(call run-in-component,docs,test-links)
 	$(call run-in-component,compiler,test-smoke)
-	@echo "✓ All tests passed"
+	@echo "✓ Smoke tests passed"
 
 # Markdown linting (global)
 lint-markdown:
