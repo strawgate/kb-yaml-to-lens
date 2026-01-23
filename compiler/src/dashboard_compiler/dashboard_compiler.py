@@ -24,7 +24,7 @@ def load(path: str) -> list[Dashboard]:
     """
     load_path = Path(path)
 
-    with load_path.open() as file:
+    with load_path.open(encoding='utf-8') as file:
         config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
     config = DashboardConfig.model_validate(config_data)

@@ -692,7 +692,7 @@ async def _extract_data(
         # Write to temp file first, then atomically replace
         output.parent.mkdir(parents=True, exist_ok=True)
         tmp_output = output.with_suffix(output.suffix + '.tmp')
-        with tmp_output.open('w') as f:
+        with tmp_output.open('w', encoding='utf-8') as f:
             for hit in hits:  # pyright: ignore[reportAny]
                 source = hit['_source']  # pyright: ignore[reportAny]
                 _ = f.write(json.dumps(source))

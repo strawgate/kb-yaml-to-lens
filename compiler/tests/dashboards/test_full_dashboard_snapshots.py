@@ -44,7 +44,7 @@ def _prepare_dashboard_for_snapshot(kbn_dashboard_dict: dict[str, Any]) -> dict[
 
 def _load_snapshot(filename: str) -> dict[str, Any]:
     """Load a snapshot file from the snapshots directory."""
-    with (_snapshot_dir / filename).open() as f:
+    with (_snapshot_dir / filename).open(encoding='utf-8') as f:
         return json.load(f)
 
 
