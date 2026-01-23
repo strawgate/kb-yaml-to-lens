@@ -1,10 +1,10 @@
 from collections.abc import Mapping, Sequence
 
 from dashboard_compiler.panels.charts.lens.columns.view import (
+    KbnLensCustomIntervalsDimensionColumn,
+    KbnLensCustomIntervalsDimensionColumnParams,
     KbnLensCustomIntervalsDimensionColumnParentFormat,
     KbnLensCustomIntervalsDimensionColumnParentFormatParams,
-    KbnLensCustomInvervalsDimensionColumn,
-    KbnLensCustomInvervalsDimensionColumnParams,
     KbnLensDateHistogramDimensionColumn,
     KbnLensDateHistogramDimensionColumnParams,
     KbnLensDimensionColumnTypes,
@@ -255,11 +255,11 @@ def compile_lens_dimension(
             )
             for interval in dimension.intervals
         ]
-        return dimension_id, KbnLensCustomInvervalsDimensionColumn(
+        return dimension_id, KbnLensCustomIntervalsDimensionColumn(
             label=dimension.label if dimension.label is not None else dimension.field,
             customLabel=custom_label,
             sourceField=dimension.field,
-            params=KbnLensCustomInvervalsDimensionColumnParams(
+            params=KbnLensCustomIntervalsDimensionColumnParams(
                 ranges=ranges,
                 maxBars=499.5,
                 parentFormat=KbnLensCustomIntervalsDimensionColumnParentFormat(

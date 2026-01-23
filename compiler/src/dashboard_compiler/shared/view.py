@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import TypeVar
 
-from pydantic import Field, RootModel, model_serializer
+from pydantic import Field, RootModel, SerializerFunctionWrapHandler, model_serializer
 
 from dashboard_compiler.shared.model import BaseModel
 
@@ -18,21 +18,20 @@ class OmitIfNone:
 class BaseVwModel(BaseModel):
     """Base view model for the dashboard compiler."""
 
-    @model_serializer
-    def _serialize(self):
+    @model_serializer(mode='wrap')
+    def _serialize(self, handler: SerializerFunctionWrapHandler) -> dict[str, object]:
+        # Handler returns dynamic dict from Pydantic core; handler type is typed but return is runtime
+        result: dict[str, object] = handler(self)  # pyright: ignore[reportAny]
+
         model_class = self.__class__
 
-        omit_if_none_fields: set[str] = {
-            k
-            for k, v in model_class.model_fields.items()
-            if any(isinstance(m, OmitIfNone) for m in v.metadata)  # pyright: ignore[reportAny]
-        }
+        omit_if_none_fields: set[str] = set()
+        for field_name, field_info in model_class.model_fields.items():
+            if any(isinstance(m, OmitIfNone) for m in field_info.metadata):  # pyright: ignore[reportAny]
+                key = field_info.serialization_alias or field_name
+                omit_if_none_fields.add(key)
 
-        serialization_aliases: dict[str, str] = {
-            k: v.serialization_alias for k, v in model_class.model_fields.items() if v.serialization_alias is not None
-        }
-
-        return {serialization_aliases.get(k, k): v for k, v in self if k not in omit_if_none_fields or v is not None}  # pyright: ignore[reportAny]
+        return {k: v for k, v in result.items() if k not in omit_if_none_fields or v is not None}
 
 
 class KbnReference(BaseVwModel):

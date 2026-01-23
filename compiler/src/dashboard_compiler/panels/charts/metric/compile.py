@@ -74,12 +74,18 @@ def compile_lens_metric_chart(
 
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
 
-    primary_metric_id, primary_metric = compile_lens_metric(lens_metric_chart.primary)
+    primary_result = compile_lens_metric(lens_metric_chart.primary)
+    primary_metric_id = primary_result.primary_id
+    primary_metric = primary_result.primary_column
     kbn_metric_columns_by_id[primary_metric_id] = primary_metric
+    kbn_metric_columns_by_id.update(primary_result.helper_columns)
 
     if lens_metric_chart.secondary is not None:
-        secondary_metric_id, secondary_metric = compile_lens_metric(lens_metric_chart.secondary)
+        secondary_result = compile_lens_metric(lens_metric_chart.secondary)
+        secondary_metric_id = secondary_result.primary_id
+        secondary_metric = secondary_result.primary_column
         kbn_metric_columns_by_id[secondary_metric_id] = secondary_metric
+        kbn_metric_columns_by_id.update(secondary_result.helper_columns)
 
     # Initialize kbn_columns_by_id as empty dict
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
