@@ -62,8 +62,8 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
 
     # Time range configuration
     time_restore = dashboard.time_range is not None
-    time_from = dashboard.time_range.from_time if dashboard.time_range else None
-    time_to = dashboard.time_range.to_time if dashboard.time_range else None
+    time_from = dashboard.time_range.from_time if dashboard.time_range is not None else None
+    time_to = dashboard.time_range.to_time if dashboard.time_range is not None else None
 
     return all_references, KbnDashboardAttributes(
         title=dashboard.name,
