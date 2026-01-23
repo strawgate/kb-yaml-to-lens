@@ -70,6 +70,22 @@
     }
 
     /**
+     * Update the grid container height based on current panel positions
+     */
+    function updateGridHeight() {
+        if (!gridElement) {
+            return;
+        }
+        const gridHeight = calculateGridHeight();
+        const heightPx = (gridHeight * CELL_SIZE) + 'px';
+        gridElement.style.height = heightPx;
+        const container = gridElement.parentElement;
+        if (container) {
+            container.style.height = heightPx;
+        }
+    }
+
+    /**
      * Handle mouse down on a panel (start dragging)
      */
     function handlePanelMouseDown(e) {
@@ -153,6 +169,7 @@
             if (coordsElement) {
                 coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
             }
+            updateGridHeight();
         } else {
             const deltaX = e.clientX - dragStartX;
             const deltaY = e.clientY - dragStartY;
@@ -174,6 +191,7 @@
             if (coordsElement) {
                 coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
             }
+            updateGridHeight();
         }
     }
 
@@ -225,8 +243,7 @@
 
     // Initialize grid height
     if (gridElement && panels.length > 0) {
-        const gridHeight = calculateGridHeight();
-        gridElement.style.height = (gridHeight * CELL_SIZE) + 'px';
+        updateGridHeight();
     }
 
     // Set up grid visibility toggle
