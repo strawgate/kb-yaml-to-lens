@@ -1,3 +1,5 @@
+# pyright: reportMissingTypeStubs=false
+# prison library lacks type stubs
 """Kibana client for uploading dashboards via the Saved Objects API."""
 
 import asyncio
