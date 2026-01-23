@@ -1,0 +1,189 @@
+---
+# Modern System Sudo Commands Dashboard
+# Following Dashboard Style Guide best practices:
+# - Security dashboard pattern: overview → trends → top users → audit log
+# - Stacked bar for command trends by user
+# - Horizontal bar for top users (better for names)
+# - Donut chart for command distribution
+# - Full audit table at bottom
+dashboards:
+  - id: system-modern-sudo-commands
+    name: '[Logs System] Sudo Commands'
+    description: >-
+      Sudo command execution analysis with user and command breakdowns.
+      Monitor privileged command usage across systems.
+    filters:
+      - exists: system.auth.sudo.command
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Sudo User
+        data_view: logs-*
+        field: system.auth.sudo.user
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: System Log Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Metrics Overview
+              dashboard: system-modern-metrics-overview
+            - label: Syslog
+              dashboard: system-modern-syslog
+            - label: Sudo Commands
+              dashboard: system-modern-sudo-commands
+            - label: SSH Logins
+              dashboard: system-modern-ssh-logins
+            - label: Users & Groups
+              dashboard: system-modern-users-groups
+
+      # Summary Layer - Key Security Metrics
+      - title: Total Commands
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Commands
+      - title: Unique Users
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: system.auth.sudo.user
+            label: Users
+      - title: Unique Hosts
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: host.hostname
+            label: Hosts
+      - title: Unique Commands
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: system.auth.sudo.command
+            label: Commands
+
+      # Analysis Layer - Time Series
+      - title: Sudo Commands Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Commands
+          breakdown:
+            type: values
+            field: system.auth.sudo.user
+            size: 10
+
+      # Analysis Layer - Categorical Breakdowns
+      - title: Top Sudo Users
+        grid: {x: 0, y: 21, w: 24, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: system.auth.sudo.user
+            size: 10
+            sort:
+              by: Commands
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Commands
+          breakdown:
+            type: values
+            field: host.hostname
+            size: 5
+      - title: Commands by User
+        grid: {x: 24, y: 21, w: 12, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: system.auth.sudo.user
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Commands
+      - title: Commands by Host
+        grid: {x: 36, y: 21, w: 12, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Commands
+
+      # Analysis Layer - Command Analysis
+      - title: User and Host Distribution
+        grid: {x: 0, y: 33, w: 48, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+            - type: values
+              field: system.auth.sudo.user
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Commands
+
+      # Detail Layer - Audit Log Table
+      - title: Sudo Command Audit Log
+        grid: {x: 0, y: 45, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: user
+              type: values
+              field: system.auth.sudo.user
+            - id: command
+              type: values
+              field: system.auth.sudo.command
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10
