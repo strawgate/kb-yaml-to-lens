@@ -142,7 +142,7 @@ test-e2e:
 test-all: test-unit test-e2e
 	@echo "Running additional tests..."
 	@echo ""
-	$(call run-in-component,compiler,test-links)
+	$(call run-in-component,docs,test-links)
 	$(call run-in-component,compiler,test-smoke)
 	@echo "✓ All tests passed"
 
@@ -201,7 +201,7 @@ check-docs:
 	@echo "Checking documentation (lint + links)..."
 	@echo ""
 	@$(MAKE) lint-markdown-check
-	@$(call run-in-component,compiler,test-links)
+	@$(call run-in-component,docs,test-links)
 	@echo ""
 	@echo "✓ Documentation checks passed"
 

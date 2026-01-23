@@ -141,7 +141,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Check documentation links
-        working-directory: compiler
+        working-directory: docs
         run: make test-links
   build-docs:
     name: Build Documentation
