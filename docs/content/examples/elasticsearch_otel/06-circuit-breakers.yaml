@@ -247,7 +247,7 @@ dashboards:
             type: values
             size: 50
           metrics:
-            - formula: counter_rate(sum(elasticsearch.breaker.tripped))
+            - formula: counter_rate(max(elasticsearch.breaker.tripped))
               label: Trips/sec
       - title: Trip Events by Node
         size: {w: 48, h: 12}
@@ -268,7 +268,7 @@ dashboards:
               size: 20
           metrics:
             - id: trips
-              formula: counter_rate(sum(elasticsearch.breaker.tripped))
+              formula: counter_rate(max(elasticsearch.breaker.tripped))
               label: Trips/sec
           paging:
             enabled: true

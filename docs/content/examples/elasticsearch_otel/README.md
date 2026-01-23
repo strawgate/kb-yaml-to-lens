@@ -163,8 +163,8 @@ kb-yaml-to-lens import \
 #### Option B: Batch Compilation
 
 ```bash
-# Compile all dashboards at once
-for file in *.yaml; do
+# Compile all dashboards at once (excluding collector config)
+for file in [0-9]*.yaml; do
   kb-yaml-to-lens compile --input-file "$file" --output-dir ./compiled
 done
 
