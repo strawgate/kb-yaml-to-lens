@@ -2,7 +2,7 @@
 
 These tests ensure that changes to the compilation pipeline are captured in snapshots.
 Each test loads an example dashboard YAML file, compiles it to Kibana JSON format,
-and verifies the structure matches expectations.
+and verifies the full output structure matches expectations.
 
 The tests use a selection of example dashboards that cover different features:
 - Panel types: markdown, links, lens charts
@@ -13,13 +13,17 @@ The tests use a selection of example dashboards that cover different features:
 Note: All IDs in the compiler are deterministic - the same YAML input will always
 produce the same output, including all UUIDs, panel indexes, and reference names.
 This is achieved via stable_id_generator() which hashes input data with SHA-1.
+
+These tests use inline-snapshot's outsource feature to store large dashboard
+outputs in external files, keeping the test file readable.
 """
 
+import json
 from pathlib import Path
 from typing import Any
 
 import pytest
-from inline_snapshot import snapshot
+from inline_snapshot import external, outsource, snapshot
 
 from dashboard_compiler.dashboard_compiler import load, render
 from tests.conftest import de_json_kbn_dashboard
@@ -29,13 +33,14 @@ _project_root = Path(__file__).parent.parent.parent.parent
 _example_dir = _project_root / 'docs' / 'examples'
 
 
-def _prepare_dashboard_for_snapshot(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
+def _prepare_dashboard_for_snapshot(kbn_dashboard_dict: dict[str, Any]) -> str:
     """Prepare a compiled dashboard for snapshot comparison.
 
-    Deserializes JSON fields for easier inspection. All IDs are deterministic
-    and do not need normalization.
+    Deserializes JSON fields and returns as formatted JSON string for external storage.
+    All IDs are deterministic and do not need normalization.
     """
-    return de_json_kbn_dashboard(kbn_dashboard_dict)
+    result = de_json_kbn_dashboard(kbn_dashboard_dict)
+    return json.dumps(result, indent=2, sort_keys=True)
 
 
 class TestMultiPanelShowcase:
@@ -52,86 +57,17 @@ class TestMultiPanelShowcase:
         """Path to multi-panel-showcase.yaml."""
         return _example_dir / 'multi-panel-showcase.yaml'
 
-    async def test_multi_panel_showcase_compiles_successfully(self, dashboard_path: Path) -> None:
-        """Test that multi-panel-showcase.yaml compiles without errors."""
+    async def test_full_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the entire compiled multi-panel-showcase dashboard."""
         dashboards = load(str(dashboard_path))
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
         result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
-        # Verify basic dashboard structure
-        assert result['attributes']['title'] == '[Example] Multi-Panel Showcase'
-        assert result['attributes']['description'] == 'Comprehensive example demonstrating all available panel types and chart variations'
-
-    async def test_multi_panel_showcase_has_correct_panel_count(self, dashboard_path: Path) -> None:
-        """Test that multi-panel-showcase has the expected number of panels."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        panels = result['attributes']['panelsJSON']
-        assert len(panels) == 8
-
-    async def test_multi_panel_showcase_panel_types(self, dashboard_path: Path) -> None:
-        """Test that multi-panel-showcase contains the expected panel types."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        panels = result['attributes']['panelsJSON']
-        panel_types = [p['type'] for p in panels]
-
-        # Expected: 1 markdown (visualization), 1 links, 6 lens charts
-        assert panel_types == snapshot(['visualization', 'links', 'lens', 'lens', 'lens', 'lens', 'lens', 'lens'])
-
-    async def test_multi_panel_showcase_visualization_types(self, dashboard_path: Path) -> None:
-        """Test that lens panels have the expected visualization types."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        panels = result['attributes']['panelsJSON']
-        lens_panels = [p for p in panels if p['type'] == 'lens']
-
-        vis_types = [p['embeddableConfig']['attributes']['visualizationType'] for p in lens_panels]
-
-        # metric, pie, line, bar, area, tagcloud
-        assert vis_types == snapshot(['lnsMetric', 'lnsPie', 'lnsXY', 'lnsXY', 'lnsXY', 'lnsTagcloud'])
-
-    async def test_multi_panel_showcase_markdown_panel_snapshot(self, dashboard_path: Path) -> None:
-        """Test the markdown panel structure."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        markdown_panel = result['attributes']['panelsJSON'][0]
-        saved_vis = markdown_panel['embeddableConfig']['savedVis']
-
-        assert saved_vis['type'] == 'markdown'
-        assert saved_vis['title'] == 'Multi-Panel Dashboard Showcase'
-        assert saved_vis['params']['fontSize'] == 12
-        assert saved_vis['params']['openLinksInNewTab'] is True
-        assert '# Welcome to the Multi-Panel Showcase' in saved_vis['params']['markdown']
-
-    async def test_multi_panel_showcase_links_panel_snapshot(self, dashboard_path: Path) -> None:
-        """Test the links panel structure."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        links_panel = result['attributes']['panelsJSON'][1]
-        attrs = links_panel['embeddableConfig']['attributes']
-
-        assert attrs['layout'] == 'horizontal'
-        assert len(attrs['links']) == 3
-
-        link_labels = [link['label'] for link in attrs['links']]
-        assert link_labels == snapshot(['Kibana Documentation', 'Elasticsearch Guide', 'Project Repository'])
-
-        # All should be external links
-        for link in attrs['links']:
-            assert link['type'] == 'externalLink'
+        assert outsource(result, suffix='.json') == snapshot(
+            external('55846b0ac98233450588ce41390c5ab99be4f8e6cb64ef1834102883c7fdabf3.json')
+        )
 
 
 class TestControlsExample:
@@ -142,40 +78,17 @@ class TestControlsExample:
         """Path to controls-example.yaml."""
         return _example_dir / 'controls-example.yaml'
 
-    async def test_controls_dashboard_compiles_with_control_group(self, dashboard_path: Path) -> None:
-        """Test full compilation of controls-example.yaml has control group.
-
-        This dashboard contains control group inputs with options controls.
-        """
+    async def test_full_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the entire compiled controls-example dashboard."""
         dashboards = load(str(dashboard_path))
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
         result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
-        # Verify control group is present and has expected structure
-        assert 'controlGroupInput' in result['attributes']
-        control_group = result['attributes']['controlGroupInput']
-        assert 'panelsJSON' in control_group
-        assert isinstance(control_group['panelsJSON'], dict)
-        assert len(control_group['panelsJSON']) == 2
-
-    async def test_controls_dashboard_control_panel_structure(self, dashboard_path: Path) -> None:
-        """Test the structure of control panels."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        control_group = result['attributes']['controlGroupInput']
-        panels = control_group['panelsJSON']
-
-        # Get control panel values
-        control_panels = list(panels.values())
-        assert len(control_panels) == 2
-
-        # Verify control type
-        for panel in control_panels:
-            assert panel['type'] == 'optionsListControl'
+        assert outsource(result, suffix='.json') == snapshot(
+            external('9d09f5869c9442f0d53257857f65ce49555a60fea29a6c83a02cd72f73d3ffd9.json')
+        )
 
 
 class TestFiltersExample:
@@ -186,44 +99,17 @@ class TestFiltersExample:
         """Path to filters-example.yaml."""
         return _example_dir / 'filters-example.yaml'
 
-    async def test_filters_dashboard_compiles_successfully(self, dashboard_path: Path) -> None:
-        """Test full compilation of filters-example.yaml matches expectations.
-
-        This dashboard demonstrates various filter types at the panel level.
-        """
+    async def test_full_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the entire compiled filters-example dashboard."""
         dashboards = load(str(dashboard_path))
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
         result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
-        # Verify we have the expected number of panels
-        panels = result['attributes']['panelsJSON']
-        assert len(panels) == 9
-
-        # Check dashboard title
-        assert result['attributes']['title'] == '[Example] Advanced Filtering Techniques'
-
-    async def test_filters_dashboard_panel_filters_present(self, dashboard_path: Path) -> None:
-        """Test that panels have filters embedded in their configurations."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        panels = result['attributes']['panelsJSON']
-        lens_panels = [p for p in panels if p['type'] == 'lens']
-
-        # At least some lens panels should have filters
-        panels_with_filters = [
-            p
-            for p in lens_panels
-            if 'embeddableConfig' in p
-            and 'attributes' in p['embeddableConfig']
-            and 'state' in p['embeddableConfig']['attributes']
-            and len(p['embeddableConfig']['attributes']['state'].get('filters', [])) > 0
-        ]
-
-        assert len(panels_with_filters) >= 1
+        assert outsource(result, suffix='.json') == snapshot(
+            external('db6a2b9344026a56d7ea597fdafb027efafa11ef2ea6462ac8382d73fabb2961.json')
+        )
 
 
 class TestNavigationExample:
@@ -234,51 +120,38 @@ class TestNavigationExample:
         """Path to navigation-example.yaml."""
         return _example_dir / 'navigation-example.yaml'
 
-    async def test_navigation_dashboard_file_has_multiple_dashboards(self, dashboard_path: Path) -> None:
-        """Test that navigation-example.yaml loads multiple dashboards."""
+    async def test_overview_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the Overview dashboard from navigation-example."""
         dashboards = load(str(dashboard_path))
         assert len(dashboards) == 3
 
-    async def test_navigation_overview_dashboard_compiles_correctly(self, dashboard_path: Path) -> None:
-        """Test compilation of the Overview dashboard from navigation-example.yaml.
-
-        This dashboard contains links panels that reference other dashboards by ID.
-        """
-        dashboards = load(str(dashboard_path))
-        overview_dashboard = dashboards[0]
-
-        kbn_dashboard = render(dashboard=overview_dashboard)
+        kbn_dashboard = render(dashboard=dashboards[0])
         result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
-        # Verify dashboard title
-        assert result['attributes']['title'] == '[Example] Navigation - Overview Dashboard'
+        assert outsource(result, suffix='.json') == snapshot(
+            external('3a39b1a4827f233e62bd5e81c64a319f786473df48eb08d7c48a93be67db6136.json')
+        )
 
-        # Verify links panel has dashboard links
-        links_panel = result['attributes']['panelsJSON'][0]
-        assert links_panel['type'] == 'links'
-        links = links_panel['embeddableConfig']['attributes']['links']
-        assert len(links) == 3
-
-        # All links should be dashboard links
-        for link in links:
-            assert link['type'] == 'dashboardLink'
-
-    async def test_navigation_dashboard_titles(self, dashboard_path: Path) -> None:
-        """Test all three dashboards have correct titles."""
+    async def test_details_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the Details dashboard from navigation-example."""
         dashboards = load(str(dashboard_path))
 
-        titles: list[str] = []
-        for dashboard in dashboards:
-            kbn_dashboard = render(dashboard=dashboard)
-            result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-            titles.append(str(result['attributes']['title']))
+        kbn_dashboard = render(dashboard=dashboards[1])
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
-        assert titles == snapshot(
-            [
-                '[Example] Navigation - Overview Dashboard',
-                '[Example] Navigation - Details Dashboard',
-                '[Example] Navigation - Analytics Dashboard',
-            ]
+        assert outsource(result, suffix='.json') == snapshot(
+            external('4b7c83caa392f99d6b229a13ef5fbfaa4ccd7b488b5daa89236292bba6f92599.json')
+        )
+
+    async def test_analytics_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the Analytics dashboard from navigation-example."""
+        dashboards = load(str(dashboard_path))
+
+        kbn_dashboard = render(dashboard=dashboards[2])
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+
+        assert outsource(result, suffix='.json') == snapshot(
+            external('108c07568edb60efe3888e3e42e1541404b2cb64bcf6d2927f09d7952fd78296.json')
         )
 
 
@@ -290,57 +163,14 @@ class TestAerospikeOverview:
         """Path to aerospike/overview.yaml."""
         return _example_dir / 'aerospike' / 'overview.yaml'
 
-    async def test_aerospike_overview_compiles_successfully(self, dashboard_path: Path) -> None:
-        """Test full compilation of aerospike/overview.yaml.
-
-        This is a real-world integration dashboard with metrics panels and filters.
-        """
+    async def test_full_dashboard_snapshot(self, dashboard_path: Path) -> None:
+        """Snapshot the entire compiled aerospike/overview dashboard."""
         dashboards = load(str(dashboard_path))
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
         result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
-        # Verify dashboard title
-        assert result['attributes']['title'] == '[Metrics Aerospike] Overview'
-
-        # Verify we have expected panel count (links + metric + line charts)
-        panels = result['attributes']['panelsJSON']
-        assert len(panels) == 5
-
-        # Verify first panel is links panel
-        assert panels[0]['type'] == 'links'
-
-        # Verify we have lens panels for metrics
-        lens_panels = [p for p in panels if p['type'] == 'lens']
-        assert len(lens_panels) == 4
-
-    async def test_aerospike_overview_visualization_types(self, dashboard_path: Path) -> None:
-        """Test the visualization types in the Aerospike overview dashboard."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        panels = result['attributes']['panelsJSON']
-        lens_panels = [p for p in panels if p['type'] == 'lens']
-
-        vis_types = [p['embeddableConfig']['attributes']['visualizationType'] for p in lens_panels]
-
-        # 2 metrics and 2 line charts
-        assert vis_types == snapshot(['lnsMetric', 'lnsXY', 'lnsMetric', 'lnsXY'])
-
-    async def test_aerospike_overview_links_panel(self, dashboard_path: Path) -> None:
-        """Test the navigation links panel in Aerospike overview."""
-        dashboards = load(str(dashboard_path))
-        kbn_dashboard = render(dashboard=dashboards[0])
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-        links_panel = result['attributes']['panelsJSON'][0]
-        links = links_panel['embeddableConfig']['attributes']['links']
-
-        link_labels = [link['label'] for link in links]
-        assert link_labels == snapshot(['Overview', 'Node Metrics', 'Namespace Metrics'])
-
-        # All links should be dashboard links
-        for link in links:
-            assert link['type'] == 'dashboardLink'
+        assert outsource(result, suffix='.json') == snapshot(
+            external('6786a73a6264f0e5067b237a6b85e0fc609b051bfac37be4e2cde7487d2c0b52.json')
+        )
