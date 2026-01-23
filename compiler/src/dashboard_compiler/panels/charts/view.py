@@ -149,16 +149,14 @@ class KbnIndexPatternBasedDataSourceState(BaseVwModel):
 class KbnDataSourceState(BaseVwModel):
     """Represents the overall datasource states for a Lens panel in the Kibana JSON structure."""
 
-    formBased: KbnFormBasedDataSourceState = Field(
-        default_factory=KbnFormBasedDataSourceState,
-    )  # Structure: formBased -> layers -> {layerId: KbnFormBasedDataSourceStateLayer}
-    indexpattern: KbnIndexPatternBasedDataSourceState = Field(
-        default_factory=KbnIndexPatternBasedDataSourceState,
-    )  # Structure: indexpattern -> layers -> {layerId: KbnIndexPatternBasedDataSourceStateLayer}
-    # not implemented
-    textBased: KbnTextBasedDataSourceState = Field(
-        default_factory=KbnTextBasedDataSourceState,
-    )  # Structure: textBased -> layers -> {layerId: KbnTextBasedDataSourceStateLayer}
+    formBased: Annotated[KbnFormBasedDataSourceState | None, OmitIfNone()] = None
+    """Form-based datasource state. Only included for Lens panels using data views."""
+
+    indexpattern: Annotated[KbnIndexPatternBasedDataSourceState | None, OmitIfNone()] = None
+    """Index pattern datasource state (not implemented, rarely used)."""
+
+    textBased: Annotated[KbnTextBasedDataSourceState | None, OmitIfNone()] = None
+    """Text-based (ES|QL) datasource state. Only included for ES|QL panels."""
 
 
 # endregion DataSourceState

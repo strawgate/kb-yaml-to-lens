@@ -1,4 +1,10 @@
-"""Test the compilation of gauge charts from config models to view models using inline snapshots."""
+"""Test the compilation of gauge charts from config models to view models using inline snapshots.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/gauge-esql.json
+    - Data View: output/<version>/gauge-dataview.json
+"""
 
 from typing import TYPE_CHECKING, Any
 
@@ -352,7 +358,8 @@ def test_gauge_chart_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Gauge',
                 'id': 'gauge-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 12, 'h': 10},
                 'lens': {
                     'type': 'gauge',
                     'data_view': 'metrics-*',

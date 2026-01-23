@@ -1,9 +1,11 @@
+# pyright: reportAny=false
+# LSP utilities handle dynamic panel types with Any parameters
 """Shared utilities for the LSP server and CLI tools."""
 
 from typing import Any
 
 
-def get_panel_type(panel: Any) -> str:  # pyright: ignore[reportAny]
+def get_panel_type(panel: Any) -> str:
     """Extract the panel type, including chart type for Lens/ESQL panels.
 
     Args:

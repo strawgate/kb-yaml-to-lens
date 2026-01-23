@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -46,7 +46,6 @@ help:
 	@echo "  test              - Run Python unit tests"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
-	@echo "  test-links        - Check documentation links"
 	@echo "  test-smoke        - Run smoke tests"
 	@echo ""
 	@echo "Dashboard Compilation:"
@@ -140,12 +139,8 @@ coverage-report:
 	fi
 	@python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
 
-test-links:
-	@echo "Checking documentation links..."
-	@uv run pytest --check-links ../docs/ README.md ../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$'
-
 test-smoke:
-	uv run kb-dashboard --help
+	@bash scripts/test_cli_smoke.sh
 
 # Dependency management
 setup:

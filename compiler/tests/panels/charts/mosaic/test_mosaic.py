@@ -308,3 +308,93 @@ async def test_esql_mosaic_chart_with_breakdown() -> None:
     assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
     assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
     assert layer.metrics == ['8f020607-379e-4b54-bc9e-e5550e84f5d5']
+
+
+async def test_mosaic_chart_with_value_decimal_places() -> None:
+    """Test mosaic chart with value_decimal_places specified at layer level."""
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+    esql_config = {
+        'type': 'mosaic',
+        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
+        'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+            'percentDecimals': 5,
+        }
+    )
+
+    esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_mosaic_chart(esql_mosaic_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+            'percentDecimals': 5,
+        }
+    )
+
+
+async def test_mosaic_chart_without_value_decimal_places() -> None:
+    """Test that mosaic chart omits percentDecimals when not specified."""
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    dumped = layer.model_dump()
+    assert 'percentDecimals' not in dumped

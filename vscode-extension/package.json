@@ -2,7 +2,7 @@
   "name": "kb-dashboard-compiler",
   "displayName": "Kibana Dashboard Compiler",
   "description": "Compile and preview Kibana YAML dashboards with live reload",
-  "version": "0.1.6",
+  "version": "0.1.10",
   "publisher": "strawgate",
   "icon": "images/icon.png",
   "engines": {
@@ -83,6 +83,26 @@
         "command": "yamlDashboard.compileFolderAndUpload",
         "title": "Compile Folder and Upload to Kibana",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.enableOpenOnSave",
+        "title": "Enable Open in Kibana on Save",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.disableOpenOnSave",
+        "title": "Disable Open in Kibana on Save",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.runEsqlQuery",
+        "title": "Run ES|QL Query",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.runEsqlQuerySelection",
+        "title": "Run ES|QL Query (Selection)",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -110,7 +130,10 @@
         },
         "yamlDashboard.kibana.browserType": {
           "type": "string",
-          "enum": ["external", "simple"],
+          "enum": [
+            "external",
+            "simple"
+          ],
           "default": "external",
           "enumDescriptions": [
             "Open in system default browser",
@@ -118,10 +141,10 @@
           ],
           "description": "Browser type to use when opening Kibana dashboards"
         },
-        "yamlDashboard.kibana.uploadOnSave": {
+        "yamlDashboard.kibana.openOnSave": {
           "type": "boolean",
           "default": false,
-          "description": "Automatically upload dashboard to Kibana when YAML file is saved (requires Kibana URL and credentials to be configured)"
+          "description": "Automatically upload and open dashboard in Kibana when YAML file is saved (requires Kibana URL and credentials to be configured)"
         }
       }
     },
@@ -141,6 +164,26 @@
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.openInKibana",
           "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.enableOpenOnSave",
+          "group": "2_kibana"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.disableOpenOnSave",
+          "group": "2_kibana"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.runEsqlQuery",
+          "group": "3_esql"
+        },
+        {
+          "when": "resourceLangId == yaml && editorHasSelection",
+          "command": "yamlDashboard.runEsqlQuerySelection",
+          "group": "3_esql"
         }
       ],
       "editor/title": [
@@ -180,7 +223,8 @@
     "package:windows": "npm run package-bundle && vsce package --target win32-x64"
   },
   "dependencies": {
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^9.0.1",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",

@@ -1,4 +1,10 @@
-"""Test the compilation of Lens metrics from config models to view models using inline snapshots."""
+"""Test the compilation of Lens metrics from config models to view models using inline snapshots.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/metric-basic-esql.json
+    - Data View: output/<version>/metric-basic-dataview.json
+"""
 
 from typing import TYPE_CHECKING, Any
 
@@ -370,7 +376,8 @@ def test_metric_chart_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Metric',
                 'id': 'metric-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 8},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 12, 'h': 8},
                 'lens': {
                     'type': 'metric',
                     'data_view': 'metrics-*',

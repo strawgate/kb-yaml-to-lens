@@ -10,7 +10,7 @@ This directory contains license files for third-party content included in this r
 
 The following example files are derivative works based on Elastic's official integration dashboards and are licensed under the Elastic License 2.0:
 
-### System OpenTelemetry Examples (`docs/examples/system_otel/`)
+### System OpenTelemetry Examples (`docs/content/examples/system_otel/`)
 
 - `01-hosts-overview.yaml` - Derived from [system_otel](https://github.com/elastic/integrations/tree/main/packages/system_otel)
 - `02-host-details-overview.yaml` - Derived from [system_otel](https://github.com/elastic/integrations/tree/main/packages/system_otel)
@@ -18,7 +18,7 @@ The following example files are derivative works based on Elastic's official int
 - `04-host-details-metadata.yaml` - Derived from [system_otel](https://github.com/elastic/integrations/tree/main/packages/system_otel)
 - `05-host-details-logs.yaml` - Derived from [system_otel](https://github.com/elastic/integrations/tree/main/packages/system_otel)
 
-### Docker OpenTelemetry Examples (`docs/examples/docker_otel/`)
+### Docker OpenTelemetry Examples (`docs/content/examples/docker_otel/`)
 
 - `01-containers-overview.yaml` - Derived from [docker_otel](https://github.com/elastic/integrations/tree/main/packages/docker_otel)
 - `02-container-stats.yaml` - Derived from [docker_otel](https://github.com/elastic/integrations/tree/main/packages/docker_otel)
@@ -27,7 +27,7 @@ These files have been converted from Kibana JSON format to YAML format for use a
 
 ## Other Examples
 
-All other example files in this repository (e.g., `docs/examples/aerospike/`, `docs/examples/controls-example.yaml`, etc.) are original works licensed under the project's MIT license.
+All other example files in this repository (e.g., `docs/content/examples/aerospike/`, `docs/content/examples/controls-example.yaml`, etc.) are original works licensed under the project's MIT license.
 
 ## Documentation Copy
 

@@ -1,4 +1,11 @@
-"""Configuration models for different types of queries used in Kibana dashboards."""
+"""Configuration models for different types of queries used in Kibana dashboards.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    Each chart fixture demonstrates both ES|QL and Data View query output formats.
+    - ES|QL fixtures: output/<version>/*-esql.json (textBased datasource)
+    - Data View fixtures: output/<version>/*-dataview.json (formBased datasource)
+"""
 
 from typing import Annotated
 

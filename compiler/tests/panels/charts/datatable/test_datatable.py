@@ -532,7 +532,8 @@ def test_datatable_chart_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Datatable',
                 'id': 'datatable-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'lens': {
                     'type': 'datatable',
                     'data_view': 'logs-*',

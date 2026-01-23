@@ -75,6 +75,10 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
 
     kbn_color_mapping = compile_color_mapping(chart.color)
 
+    percent_decimals = None
+    if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
+        percent_decimals = chart.titles_and_text.value_decimal_places
+
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=[dimension_id],
@@ -93,6 +97,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         truncateLegend=False if truncate_legend is False else None,
         legendMaxLines=legend_max_lines,
         showSingleSeries=show_single_series,
+        percentDecimals=percent_decimals,
     )
 
     return KbnMosaicVisualizationState(shape='mosaic', layers=[kbn_layer_visualization])
@@ -117,8 +122,11 @@ def compile_lens_mosaic_chart(
 
     # Compile the single metric
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
-    metric_id, metric = compile_lens_metric(metric=lens_mosaic_chart.metric)
+    result = compile_lens_metric(metric=lens_mosaic_chart.metric)
+    metric_id = result.primary_id
+    metric = result.primary_column
     kbn_metric_column_by_id[metric_id] = metric
+    kbn_metric_column_by_id.update(result.helper_columns)
 
     # Compile the dimension
     dimension_columns = compile_lens_dimensions(dimensions=[lens_mosaic_chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
