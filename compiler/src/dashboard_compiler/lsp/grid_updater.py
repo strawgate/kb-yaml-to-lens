@@ -46,22 +46,19 @@ def _find_panel_in_document(document: CommentedMap, panel_id: str, dashboard_ind
         return None, 'No panels found in dashboard'
 
     if panel_id.startswith('panel_'):
-        try:
-            panel_index = int(panel_id.split('_')[1])
-        except (ValueError, IndexError) as e:
-            return None, f'Invalid panel ID format: {e}'
-        else:
+        suffix = panel_id.removeprefix('panel_')
+        if suffix.isdigit():
+            panel_index = int(suffix)
             if panel_index < 0 or panel_index >= len(panels):
                 return None, f'Panel index {panel_index} out of range (0-{len(panels) - 1})'
             panel = panels[panel_index]  # pyright: ignore[reportUnknownVariableType]
             if not isinstance(panel, CommentedMap):
                 return None, 'Invalid panel structure'
             return panel, None
-    else:
-        for panel in panels:  # pyright: ignore[reportUnknownVariableType]
-            if isinstance(panel, CommentedMap) and panel.get('id') == panel_id:  # pyright: ignore[reportUnknownMemberType]
-                return panel, None
-        return None, f'Panel with ID {panel_id} not found'
+    for panel in panels:  # pyright: ignore[reportUnknownVariableType]
+        if isinstance(panel, CommentedMap) and panel.get('id') == panel_id:  # pyright: ignore[reportUnknownMemberType]
+            return panel, None
+    return None, f'Panel with ID {panel_id} not found'
 
 
 def _is_alias(value: CommentedMap) -> bool:
@@ -76,7 +73,8 @@ def _is_alias(value: CommentedMap) -> bool:
     Returns:
         True if the value appears to be an alias reference.
     """
-    return hasattr(value, 'anchor') and bool(value.anchor.value)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+    anchor = getattr(value, 'anchor', None)
+    return anchor is not None and anchor.value is not None
 
 
 def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None:

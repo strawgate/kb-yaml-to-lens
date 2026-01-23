@@ -87,7 +87,7 @@ install-vscode:
 		exit 1; \
 	fi; \
 	echo "✓ Extension installed in VS Code"
-	echo "NOTE: You must reload the extension host, command shift p: Developer: Restart Extension Host"
+	echo "NOTE: Reload the extension host via Command Palette (Ctrl/Cmd+Shift+P): Developer: Restart Extension Host"
 
 install-cursor:
 	@echo "Installing extension into Cursor..."
@@ -110,7 +110,7 @@ install-cursor:
 		exit 1; \
 	fi; \
 	echo "✓ Extension installed in Cursor"
-	echo "NOTE: You must reload the extension host, command shift p: Developer: Restart Extension Host"
+	echo "NOTE: Reload the extension host via Command Palette (Ctrl/Cmd+Shift+P): Developer: Restart Extension Host"
 
 prepare:
 	@echo "Preparing extension (downloading uv + bundling compiler)..."
