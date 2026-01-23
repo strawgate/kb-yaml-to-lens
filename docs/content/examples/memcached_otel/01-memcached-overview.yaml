@@ -13,7 +13,8 @@ dashboards:
         equals: memcachedreceiver.otel
     panels:
       - title: Overview
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        position: {x: 0, y: 0}
+        size: {w: 48, h: 3}
         markdown:
           content: |
             ## Memcached Monitoring Dashboard
@@ -21,7 +22,8 @@ dashboards:
             **Data Source:** Memcached `stats` command via OTel Collector
           font_size: 12
       - title: Current Items
-        grid: {x: 0, y: 3, w: 8, h: 6}
+        position: {x: 0, y: 3}
+        size: {w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -32,7 +34,8 @@ dashboards:
             format:
               type: number
       - title: Storage Used
-        grid: {x: 8, y: 3, w: 8, h: 6}
+        position: {x: 8, y: 3}
+        size: {w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -43,7 +46,8 @@ dashboards:
             format:
               type: bytes
       - title: Current Connections
-        grid: {x: 16, y: 3, w: 8, h: 6}
+        position: {x: 16, y: 3}
+        size: {w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -54,7 +58,8 @@ dashboards:
             format:
               type: number
       - title: Threads
-        grid: {x: 24, y: 3, w: 8, h: 6}
+        position: {x: 24, y: 3}
+        size: {w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -65,7 +70,8 @@ dashboards:
             format:
               type: number
       - title: Average Hit Ratio
-        grid: {x: 32, y: 3, w: 16, h: 6}
+        position: {x: 32, y: 3}
+        size: {w: 16, h: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -80,14 +86,16 @@ dashboards:
             format:
               type: percent
       - title: Performance
-        grid: {x: 0, y: 9, w: 48, h: 3}
+        position: {x: 0, y: 9}
+        size: {w: 48, h: 3}
         markdown:
           content: |
             ### Performance Metrics
             Hit ratios and operation counts for cache effectiveness monitoring.
           font_size: 12
       - title: Hit Ratio Over Time
-        grid: {x: 0, y: 12, w: 24, h: 10}
+        position: {x: 0, y: 12}
+        size: {w: 24, h: 10}
         lens:
           type: line
           data_view: metrics-*
@@ -108,7 +116,8 @@ dashboards:
               format:
                 type: percent
       - title: Operations Breakdown
-        grid: {x: 24, y: 12, w: 24, h: 10}
+        position: {x: 24, y: 12}
+        size: {w: 24, h: 10}
         lens:
           type: line
           data_view: metrics-*
@@ -128,7 +137,8 @@ dashboards:
             - formula: "counter_rate(max(metrics.memcached.operations, kql='attributes.type: miss'))"
               label: Misses/sec
       - title: Commands Executed
-        grid: {x: 0, y: 22, w: 24, h: 10}
+        position: {x: 0, y: 22}
+        size: {w: 24, h: 10}
         lens:
           type: area
           mode: stacked
@@ -147,7 +157,8 @@ dashboards:
             - formula: counter_rate(max(metrics.memcached.commands))
               label: Commands/sec
       - title: CPU Usage
-        grid: {x: 24, y: 22, w: 24, h: 10}
+        position: {x: 24, y: 22}
+        size: {w: 24, h: 10}
         lens:
           type: area
           mode: stacked
@@ -166,14 +177,16 @@ dashboards:
             - formula: counter_rate(max(metrics.memcached.cpu.usage))
               label: CPU Time (sec/sec)
       - title: Capacity & Health
-        grid: {x: 0, y: 32, w: 48, h: 3}
+        position: {x: 0, y: 32}
+        size: {w: 48, h: 3}
         markdown:
           content: |
             ### Capacity & Health Metrics
             Storage, items, evictions, and connection metrics for capacity planning.
           font_size: 12
       - title: Items Over Time
-        grid: {x: 0, y: 35, w: 24, h: 10}
+        position: {x: 0, y: 35}
+        size: {w: 24, h: 10}
         lens:
           type: line
           data_view: metrics-*
@@ -187,7 +200,8 @@ dashboards:
               field: metrics.memcached.current_items
               label: Current Items
       - title: Storage Over Time
-        grid: {x: 24, y: 35, w: 24, h: 10}
+        position: {x: 24, y: 35}
+        size: {w: 24, h: 10}
         lens:
           type: line
           data_view: metrics-*
@@ -203,7 +217,8 @@ dashboards:
               format:
                 type: bytes
       - title: Evictions Rate
-        grid: {x: 0, y: 45, w: 24, h: 10}
+        position: {x: 0, y: 45}
+        size: {w: 24, h: 10}
         lens:
           type: line
           data_view: metrics-*
@@ -216,7 +231,8 @@ dashboards:
             - formula: counter_rate(max(metrics.memcached.evictions))
               label: Evictions/sec
       - title: Connections
-        grid: {x: 24, y: 45, w: 24, h: 10}
+        position: {x: 24, y: 45}
+        size: {w: 24, h: 10}
         lens:
           type: line
           data_view: metrics-*
@@ -233,14 +249,16 @@ dashboards:
             - formula: counter_rate(max(metrics.memcached.connections.total))
               label: New Connections/sec
       - title: Network
-        grid: {x: 0, y: 55, w: 48, h: 3}
+        position: {x: 0, y: 55}
+        size: {w: 48, h: 3}
         markdown:
           content: |
             ### Network Metrics
             Network traffic monitoring for sent and received bytes.
           font_size: 12
       - title: Network Traffic - Received
-        grid: {x: 0, y: 58, w: 24, h: 10}
+        position: {x: 0, y: 58}
+        size: {w: 24, h: 10}
         lens:
           type: area
           mode: stacked
@@ -259,7 +277,8 @@ dashboards:
               format:
                 type: bytes
       - title: Network Traffic - Sent
-        grid: {x: 24, y: 58, w: 24, h: 10}
+        position: {x: 24, y: 58}
+        size: {w: 24, h: 10}
         lens:
           type: area
           mode: stacked
