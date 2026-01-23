@@ -1,0 +1,238 @@
+---
+# Modern Windows User Logons Dashboard
+# Following Dashboard Style Guide best practices:
+# - Security dashboard pattern: metrics → trends → breakdowns → audit log
+# - Success/failure tracking for security insight
+# - Logon type analysis (interactive, network, service, etc.)
+# - User and source IP analysis
+# - Detailed audit table at bottom
+dashboards:
+  - id: system-modern-windows-logons
+    name: '[Logs System] Windows Logons'
+    description: >-
+      Windows user logon event analysis including success/failure tracking.
+      Monitor authentication patterns and identify suspicious activity.
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4624'
+          - '4625'
+          - '4634'
+          - '4647'
+          - '4648'
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: User
+        data_view: logs-*
+        field: user.name
+        width: medium
+      - type: options
+        label: Logon Type
+        data_view: logs-*
+        field: winlog.logon.type
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: Windows Security Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: system-modern-windows-overview
+            - label: Logons
+              dashboard: system-modern-windows-logons
+            - label: Failed & Blocked
+              dashboard: system-modern-windows-failed-blocked
+            - label: User Management
+              dashboard: system-modern-windows-user-management
+            - label: Group Management
+              dashboard: system-modern-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-modern-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-modern-windows-system-process
+            - label: Policy & Object
+              dashboard: system-modern-windows-policy-object
+
+      # Summary Layer - Key Logon Metrics
+      - title: Total Logon Events
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Successful Logons
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Successful
+          filters:
+            - field: winlog.event_id
+              equals: '4624'
+      - title: Failed Logons
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Failed
+          filters:
+            - field: winlog.event_id
+              equals: '4625'
+      - title: Logoffs
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Logoffs
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4634'
+                - '4647'
+
+      # Analysis Layer - Time Series
+      - title: Logon Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 10
+
+      # Analysis Layer - Categorical Breakdowns
+      - title: Logon Types
+        grid: {x: 0, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.logon.type
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Event Distribution
+        grid: {x: 16, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Top Users
+        grid: {x: 32, y: 21, w: 16, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: user.name
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - Source Analysis
+      - title: Logons by Source IP
+        grid: {x: 0, y: 33, w: 24, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: source.ip
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 5
+      - title: User and Logon Type Distribution
+        grid: {x: 24, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.logon.type
+              size: 10
+            - type: values
+              field: user.name
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Audit Log Table
+      - title: Logon Event Audit Log
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: user
+              type: values
+              field: user.name
+            - id: logon-type
+              type: values
+              field: winlog.logon.type
+            - id: source-ip
+              type: values
+              field: source.ip
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10

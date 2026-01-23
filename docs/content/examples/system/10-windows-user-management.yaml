@@ -1,0 +1,164 @@
+---
+dashboards:
+  - id: system-windows-user-management
+    name: '[System Windows Security] User Management Events'
+    description: Windows user account management events
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4720'
+          - '4722'
+          - '4723'
+          - '4724'
+          - '4725'
+          - '4726'
+          - '4738'
+          - '4740'
+          - '4765'
+          - '4766'
+          - '4767'
+          - '4780'
+          - '4781'
+    panels:
+      - title: Windows Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Windows Overview
+              dashboard: system-windows-overview
+            - label: User Logons
+              dashboard: system-windows-logons
+            - label: Failed Accounts
+              dashboard: system-windows-failed-blocked
+            - label: User Management
+              dashboard: system-windows-user-management
+            - label: Group Management
+              dashboard: system-windows-group-management
+      - title: User Management Events Over Time
+        grid: {x: 0, y: 3, w: 48, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 15
+      - title: User Created (4720)
+        grid: {x: 0, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Created
+          filters:
+            - field: winlog.event_id
+              equals: '4720'
+      - title: User Enabled (4722)
+        grid: {x: 12, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Enabled
+          filters:
+            - field: winlog.event_id
+              equals: '4722'
+      - title: User Disabled (4725)
+        grid: {x: 24, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Disabled
+          filters:
+            - field: winlog.event_id
+              equals: '4725'
+      - title: User Deleted (4726)
+        grid: {x: 36, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Deleted
+          filters:
+            - field: winlog.event_id
+              equals: '4726'
+      - title: Event Distribution
+        grid: {x: 0, y: 26, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 15
+          metrics:
+            - aggregation: count
+      - title: Affected Users
+        grid: {x: 24, y: 26, w: 24, h: 15}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.TargetUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: User Management by Actor
+        grid: {x: 0, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: actor
+              type: values
+              field: winlog.event_data.SubjectUserName
+              size: 20
+          metrics:
+            - id: event-count
+              aggregation: count
+              label: Events
+          paging:
+            enabled: true
+            page_size: 10
+      - title: Recent User Management Events
+        grid: {x: 24, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: user
+              type: values
+              field: user.name
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 20
