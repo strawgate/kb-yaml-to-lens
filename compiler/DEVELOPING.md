@@ -16,7 +16,7 @@ make install
 
 ## Commands
 
-Run from the `compiler/` directory:
+Run from the `compiler/` directory, or use pass-through from the repository root:
 
 | Command | Purpose |
 | ------- | ------- |
@@ -27,6 +27,8 @@ Run from the `compiler/` directory:
 | `make compile` | Compile YAML dashboards to NDJSON |
 
 For all commands, see `make help`.
+
+**From repository root:** Use `make compiler <target>` (e.g., `make compiler test`).
 
 ## Architecture
 
