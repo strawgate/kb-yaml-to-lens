@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# pyright: reportUnknownMemberType=false, reportUnnecessaryComparison=false
+# Grid extractor handles panel types with dynamic attributes
 """Extract panel grid layout information from a YAML dashboard file.
 
 This script reads a YAML dashboard file and extracts the grid layout information

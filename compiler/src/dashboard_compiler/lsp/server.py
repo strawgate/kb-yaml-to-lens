@@ -1,3 +1,5 @@
+# pyright: reportAny=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnknownArgumentType=false, reportUnnecessaryComparison=false, reportUnusedCallResult=false
+# LSP server code deals with dynamic pygls types that lack full type annotations
 """LSP-based compilation server using pygls for VS Code extension.
 
 This implementation uses the Language Server Protocol with pygls v2 to provide
@@ -24,7 +26,7 @@ logger = logging.getLogger(__name__)
 server = LanguageServer('dashboard-compiler', 'v0.1')
 
 
-def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def _params_to_dict(params: Any) -> dict[str, Any]:
     """Convert pygls params object to dict.
 
     In pygls v2, custom LSP requests receive params as pygls.protocol.Object (a namedtuple).
@@ -41,11 +43,11 @@ def _params_to_dict(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny
     """
     # Already a dict - return as-is
     if isinstance(params, dict):
-        return params  # pyright: ignore[reportUnknownVariableType]
+        return params
 
     # pygls.protocol.Object is a namedtuple with _asdict() method
-    if hasattr(params, '_asdict') and callable(params._asdict):  # pyright: ignore[reportAny]
-        result: dict[str, Any] = params._asdict()  # pyright: ignore[reportAny,reportAssignmentType]
+    if hasattr(params, '_asdict') and callable(params._asdict):
+        result: dict[str, Any] = params._asdict()  # pyright: ignore[reportAssignmentType]
         return result
 
     # If we get here, we received an unexpected type
@@ -155,14 +157,14 @@ def compile_command(_ls: LanguageServer, args: list[Any]) -> dict[str, Any]:
     if args is None or len(args) < 1:
         return {'success': False, 'error': 'Missing path argument'}
 
-    path: str = args[0]  # pyright: ignore[reportAny]
-    dashboard_index: int = int(args[1]) if len(args) > 1 else 0  # pyright: ignore[reportAny]
+    path: str = args[0]
+    dashboard_index: int = int(args[1]) if len(args) > 1 else 0
 
     return _compile_dashboard(path, dashboard_index)
 
 
 @server.feature('dashboard/compile')
-def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def compile_custom(params: Any) -> dict[str, Any]:
     """Handle custom compilation request for a dashboard.
 
     Args:
@@ -172,9 +174,9 @@ def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
         Dictionary with compilation result
     """
     params_dict = _params_to_dict(params)
-    path: str = params_dict.get('path', '')  # pyright: ignore[reportAny]
+    path: str = params_dict.get('path', '')
     try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+        dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
@@ -182,7 +184,7 @@ def compile_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
 
 
 @server.feature('dashboard/getDashboards')
-def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def get_dashboards_custom(params: Any) -> dict[str, Any]:
     """Get list of dashboards from a YAML file.
 
     Args:
@@ -198,7 +200,7 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[rep
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
-        dashboards = load(path)  # pyright: ignore[reportAny]
+        dashboards = load(path)
         dashboard_list = [
             {
                 'index': i,
@@ -214,7 +216,7 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[rep
 
 
 @server.feature('dashboard/getGridLayout')
-def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def get_grid_layout_custom(params: Any) -> dict[str, Any]:
     """Get grid layout information from a YAML dashboard file.
 
     Args:
@@ -226,7 +228,7 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
     params_dict = _params_to_dict(params)
     path = params_dict.get('path')
     try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+        dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
@@ -242,7 +244,7 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:  # pyright: ignore[re
 
 
 @server.feature('dashboard/getSchema')
-def get_schema_custom(_params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+def get_schema_custom(_params: Any) -> dict[str, Any]:
     """Get the JSON schema for the Dashboard configuration model.
 
     This endpoint returns the JSON schema for the root YAML structure,
@@ -283,7 +285,7 @@ def did_save(ls: LanguageServer, params: types.DidSaveTextDocumentParams) -> Non
 
 
 @server.feature('esql/execute')
-async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[reportAny]
+async def execute_esql_query(params: Any) -> dict[str, Any]:
     """Execute an ES|QL query via Kibana's console proxy API.
 
     Args:
@@ -327,9 +329,9 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
         return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
 
     # Normalize empty strings to None
-    validated_username = _normalize_optional_str(username)  # pyright: ignore[reportArgumentType]
-    validated_password = _normalize_optional_str(password)  # pyright: ignore[reportArgumentType]
-    validated_api_key = _normalize_optional_str(api_key)  # pyright: ignore[reportArgumentType]
+    validated_username = _normalize_optional_str(username)
+    validated_password = _normalize_optional_str(password)
+    validated_api_key = _normalize_optional_str(api_key)
 
     try:
         logger.info('Executing ES|QL query via Kibana at %s', _redact_url(kibana_url))
@@ -350,7 +352,7 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:  # pyright: ignore[
 
 
 @server.feature('dashboard/uploadToKibana')
-async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911  # pyright: ignore[reportAny]
+async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911
     """Upload a compiled dashboard to Kibana.
 
     Args:
@@ -370,7 +372,7 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
 
     path = params_dict.get('path')
     try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))  # pyright: ignore[reportAny]
+        dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
     kibana_url = params_dict.get('kibana_url')
