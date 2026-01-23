@@ -6,7 +6,7 @@ from dashboard_compiler.panels.charts.base.config import BaseChart, ColorMapping
 from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimensionTypes
 from dashboard_compiler.panels.charts.lens.dimensions import LensDimensionTypes
 from dashboard_compiler.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
 class XYReferenceLineValue(BaseCfgModel):
@@ -19,11 +19,11 @@ class XYReferenceLineValue(BaseCfgModel):
     """The static value for the reference line."""
 
 
-class XYReferenceLine(BaseCfgModel):
-    """Configuration for a single reference line in an XY chart."""
+class XYReferenceLine(BaseIdentifiableModel):
+    """Configuration for a single reference line in an XY chart.
 
-    id: str | None = Field(default=None)
-    """Optional ID for the reference line."""
+    Inherits from BaseIdentifiableModel for automatic deterministic ID generation.
+    """
 
     label: str | None = Field(default=None)
     """Optional label for the reference line."""
@@ -447,15 +447,128 @@ class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
 
 
 class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
-    """Represents a Bar chart configuration within a ESQL panel."""
+    """Represents a Bar chart configuration within an ES|QL panel.
+
+    Bar charts display categorical or time-series data using vertical or horizontal bars,
+    where bar height/length represents metric values. Ideal for comparing values across
+    categories or showing distributions over time.
+
+    The `field` names used in dimension, metrics, and breakdown must correspond to
+    columns returned by your ES|QL query.
+
+    Examples:
+        ES|QL bar chart with time series:
+        ```yaml
+        esql:
+          type: bar
+          query: |
+            FROM logs-*
+            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 1 hour)
+          dimension:
+            field: "@timestamp"
+          metrics:
+            - field: "count"
+        ```
+
+        Stacked bar chart with breakdown:
+        ```yaml
+        esql:
+          type: bar
+          mode: stacked
+          query: |
+            FROM logs-*
+            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 1 hour), service.name
+          dimension:
+            field: "@timestamp"
+          breakdown:
+            field: "service.name"
+          metrics:
+            - field: "count"
+        ```
+    """
 
 
 class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
-    """Represents a Line chart configuration within a ESQL panel."""
+    """Represents a Line chart configuration within an ES|QL panel.
+
+    Line charts display data points connected by lines, ideal for visualizing trends
+    and changes over time. Supports multiple metrics and optional breakdown for
+    comparing series.
+
+    The `field` names used in dimension, metrics, and breakdown must correspond to
+    columns returned by your ES|QL query.
+
+    Examples:
+        ES|QL line chart for time series:
+        ```yaml
+        esql:
+          type: line
+          query: |
+            FROM metrics-*
+            | STATS avg_cpu = AVG(system.cpu.total.pct) BY @timestamp = BUCKET(@timestamp, 5 minutes)
+          dimension:
+            field: "@timestamp"
+          metrics:
+            - field: "avg_cpu"
+        ```
+
+        Line chart with breakdown by host:
+        ```yaml
+        esql:
+          type: line
+          query: |
+            FROM metrics-*
+            | STATS avg_cpu = AVG(system.cpu.total.pct) BY @timestamp = BUCKET(@timestamp, 5 minutes), host.name
+          dimension:
+            field: "@timestamp"
+          breakdown:
+            field: "host.name"
+          metrics:
+            - field: "avg_cpu"
+        ```
+    """
 
 
 class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
-    """Represents an Area chart configuration within a ESQL panel."""
+    """Represents an Area chart configuration within an ES|QL panel.
+
+    Area charts display data with filled areas beneath the lines, useful for
+    visualizing cumulative values or showing the magnitude of trends over time.
+    Supports stacked and percentage modes for comparing proportions.
+
+    The `field` names used in dimension, metrics, and breakdown must correspond to
+    columns returned by your ES|QL query.
+
+    Examples:
+        ES|QL area chart for resource usage:
+        ```yaml
+        esql:
+          type: area
+          query: |
+            FROM metrics-*
+            | STATS avg_mem = AVG(system.memory.used.pct) BY @timestamp = BUCKET(@timestamp, 5 minutes)
+          dimension:
+            field: "@timestamp"
+          metrics:
+            - field: "avg_mem"
+        ```
+
+        Stacked area chart with percentage mode:
+        ```yaml
+        esql:
+          type: area
+          mode: percentage
+          query: |
+            FROM logs-*
+            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 1 hour), service.name
+          dimension:
+            field: "@timestamp"
+          breakdown:
+            field: "service.name"
+          metrics:
+            - field: "count"
+        ```
+    """
 
 
 class LensReferenceLineLayer(BaseChart):

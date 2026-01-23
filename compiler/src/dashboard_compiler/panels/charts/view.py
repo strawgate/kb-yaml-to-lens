@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .gauge.view import KbnGaugeVisualizationState
     from .heatmap.view import KbnHeatmapVisualizationState
     from .metric.view import KbnESQLMetricVisualizationState, KbnMetricVisualizationState
+    from .mosaic.view import KbnMosaicVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
     from .xy.view import KbnXYVisualizationState
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
         | KbnXYVisualizationState
         | KbnDatatableVisualizationState
         | KbnTagcloudVisualizationState
+        | KbnMosaicVisualizationState
     )
 
 # region Form Data Source
@@ -114,6 +116,7 @@ class KbnTextBasedDataSourceStateLayer(BaseVwModel):
     query: KbnESQLQuery
     columns: list[KbnESQLColumnTypes]
     allColumns: list[KbnESQLColumnTypes]
+    timeField: str
 
 
 class KbnTextBasedDataSourceStateLayerById(RootModel[dict[str, KbnTextBasedDataSourceStateLayer]]):
@@ -146,16 +149,14 @@ class KbnIndexPatternBasedDataSourceState(BaseVwModel):
 class KbnDataSourceState(BaseVwModel):
     """Represents the overall datasource states for a Lens panel in the Kibana JSON structure."""
 
-    formBased: KbnFormBasedDataSourceState = Field(
-        default_factory=KbnFormBasedDataSourceState,
-    )  # Structure: formBased -> layers -> {layerId: KbnFormBasedDataSourceStateLayer}
-    indexpattern: KbnIndexPatternBasedDataSourceState = Field(
-        default_factory=KbnIndexPatternBasedDataSourceState,
-    )  # Structure: indexpattern -> layers -> {layerId: KbnIndexPatternBasedDataSourceStateLayer}
-    # not implemented
-    textBased: KbnTextBasedDataSourceState = Field(
-        default_factory=KbnTextBasedDataSourceState,
-    )  # Structure: textBased -> layers -> {layerId: KbnTextBasedDataSourceStateLayer}
+    formBased: Annotated[KbnFormBasedDataSourceState | None, OmitIfNone()] = None
+    """Form-based datasource state. Only included for Lens panels using data views."""
+
+    indexpattern: Annotated[KbnIndexPatternBasedDataSourceState | None, OmitIfNone()] = None
+    """Index pattern datasource state (not implemented, rarely used)."""
+
+    textBased: Annotated[KbnTextBasedDataSourceState | None, OmitIfNone()] = None
+    """Text-based (ES|QL) datasource state. Only included for ES|QL panels."""
 
 
 # endregion DataSourceState

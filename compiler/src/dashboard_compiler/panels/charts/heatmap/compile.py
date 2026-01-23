@@ -11,7 +11,6 @@ from dashboard_compiler.panels.charts.heatmap.view import (
 )
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
-from dashboard_compiler.shared.config import get_layer_id
 from dashboard_compiler.shared.defaults import default_false
 
 if TYPE_CHECKING:
@@ -101,8 +100,11 @@ def compile_lens_heatmap_chart(
     kbn_columns_by_id: 'dict[str, KbnLensColumnTypes]' = {}  # noqa: UP037
 
     # Compile value metric first (dimensions may reference it)
-    value_id, value_column = compile_lens_metric(lens_heatmap_chart.value)
+    result = compile_lens_metric(lens_heatmap_chart.value)
+    value_id = result.primary_id
+    value_column = result.primary_column
     kbn_metric_columns_by_id: 'dict[str, KbnLensMetricColumnTypes]' = {value_id: value_column}  # noqa: UP037
+    kbn_metric_columns_by_id.update(result.helper_columns)
 
     # Compile X-axis dimension (required)
     x_id, x_column = compile_lens_dimension(
@@ -123,7 +125,7 @@ def compile_lens_heatmap_chart(
     # Add value metric to columns
     kbn_columns_by_id[value_id] = value_column
 
-    layer_id = get_layer_id(lens_heatmap_chart)
+    layer_id = lens_heatmap_chart.get_id()
 
     return (
         layer_id,
@@ -153,7 +155,7 @@ def compile_esql_heatmap_chart(
             - kbn_state_visualization (KbnHeatmapVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(esql_heatmap_chart)
+    layer_id = esql_heatmap_chart.get_id()
 
     kbn_columns: 'list[KbnESQLColumnTypes]' = []  # noqa: UP037
 

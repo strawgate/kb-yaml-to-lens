@@ -6,7 +6,7 @@ from typing import Literal, Self
 from pydantic import Field, model_validator
 
 from dashboard_compiler.controls.types import ESQLVariableType
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
 def validate_default_in_choices(default: str | list[str] | None, choices: list[str] | None) -> None:
@@ -37,7 +37,8 @@ type ControlTypes = (
     | ESQLFunctionControl
     | ESQLStaticSingleSelectControl
     | ESQLStaticMultiSelectControl
-    | ESQLQueryControl
+    | ESQLQuerySingleSelectControl
+    | ESQLQueryMultiSelectControl
 )
 
 
@@ -63,15 +64,12 @@ class ControlSettings(BaseCfgModel):
     """Whether to require users to click the apply button before applying changes. Defaults to false if not set."""
 
 
-class BaseControl(BaseCfgModel):
+class BaseControl(BaseIdentifiableModel):
     """Base class for defining controls within the YAML schema.
 
     These controls are used to filter data or adjust visualization settings
     on a dashboard.
     """
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the control. If not provided, one may be generated."""
 
     width: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """The width of the control in the dashboard layout. If not set, defaults to 'medium'."""
@@ -285,8 +283,8 @@ class ESQLStaticMultiSelectControl(BaseControl):
         return self
 
 
-class ESQLQueryControl(BaseControl):
-    """Represents an ES|QL control with query-driven values.
+class ESQLQuerySingleSelectControl(BaseControl):
+    """Represents an ES|QL control with query-driven values for single selection.
 
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
@@ -303,5 +301,33 @@ class ESQLQueryControl(BaseControl):
     query: str = Field(..., min_length=1)
     """The ES|QL query that returns the available values for this control."""
 
-    multiple: bool | None = Field(default=None)
-    """If true, allow multiple selection from the options."""
+    multiple: Literal[False] | None = Field(default=None)
+    """Must be None or False for single-select."""
+
+    default: str | None = Field(default=None)
+    """Default selected value."""
+
+
+class ESQLQueryMultiSelectControl(BaseControl):
+    """Represents an ES|QL control with query-driven values for multiple selection.
+
+    This control dynamically fetches available values from an ES|QL query
+    to filter ES|QL visualizations via variables.
+    """
+
+    type: Literal['esql'] = 'esql'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    query: str = Field(..., min_length=1)
+    """The ES|QL query that returns the available values for this control."""
+
+    multiple: Literal[True] = Field(default=True)
+    """Must be True for multi-select."""
+
+    default: list[str] | None = Field(default=None)
+    """Default selected values."""

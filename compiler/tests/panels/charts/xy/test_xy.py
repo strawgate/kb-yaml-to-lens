@@ -1,10 +1,15 @@
 """Test the compilation of Lens metrics from config models to view models."""
 
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
+
 import pytest
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 from pydantic import ValidationError
 
+from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard_compiler import render
 from dashboard_compiler.panels.charts.xy.compile import (
     compile_esql_xy_chart,
     compile_lens_reference_line_layer,
@@ -23,6 +28,9 @@ from dashboard_compiler.panels.charts.xy.config import (
     XYReferenceLineValue,
 )
 from dashboard_compiler.panels.charts.xy.view import XYDataLayerConfig, XYLegendConfig
+
+if TYPE_CHECKING:
+    from dashboard_compiler.dashboard.view import KbnDashboard
 
 
 async def test_bar_stacked_chart() -> None:
@@ -1251,113 +1259,113 @@ async def test_bar_chart_with_min_bar_height_and_axis_config() -> None:
     assert kbn_state_visualization.yLeftScale == 'linear'
 
 
-async def test_lens_bar_chart_validation_requires_metrics() -> None:
-    """Test that Lens bar chart validation fails when metrics list is empty."""
-    config = {
-        'type': 'bar',
-        'data_view': 'metrics-*',
-        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
-        'metrics': [],
-    }
-
+@pytest.mark.parametrize(
+    ('chart_cls', 'config'),
+    [
+        (
+            LensBarChart,
+            {
+                'type': 'bar',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [],
+            },
+        ),
+        (
+            LensLineChart,
+            {
+                'type': 'line',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [],
+            },
+        ),
+        (
+            LensAreaChart,
+            {
+                'type': 'area',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [],
+            },
+        ),
+        (
+            ESQLBarChart,
+            {
+                'type': 'bar',
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [],
+            },
+        ),
+        (
+            ESQLLineChart,
+            {
+                'type': 'line',
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [],
+            },
+        ),
+        (
+            ESQLAreaChart,
+            {
+                'type': 'area',
+                'dimension': {'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [],
+            },
+        ),
+    ],
+    ids=[
+        'lens-bar',
+        'lens-line',
+        'lens-area',
+        'esql-bar',
+        'esql-line',
+        'esql-area',
+    ],
+)
+async def test_chart_validation_requires_metrics(chart_cls: type[Any], config: dict[str, Any]) -> None:
+    """Test that chart validation fails when metrics list is empty."""
     with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
-        LensBarChart.model_validate(config)
+        chart_cls.model_validate(config)
 
 
-async def test_lens_line_chart_validation_requires_metrics() -> None:
-    """Test that Lens line chart validation fails when metrics list is empty."""
-    config = {
-        'type': 'line',
-        'data_view': 'metrics-*',
-        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
-        'metrics': [],
-    }
-
-    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
-        LensLineChart.model_validate(config)
-
-
-async def test_lens_area_chart_validation_requires_metrics() -> None:
-    """Test that Lens area chart validation fails when metrics list is empty."""
-    config = {
-        'type': 'area',
-        'data_view': 'metrics-*',
-        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
-        'metrics': [],
-    }
-
-    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
-        LensAreaChart.model_validate(config)
-
-
-async def test_esql_bar_chart_validation_requires_metrics() -> None:
-    """Test that ESQL bar chart validation fails when metrics list is empty."""
-    config = {
-        'type': 'bar',
-        'dimension': {'field': '@timestamp', 'id': 'dim1'},
-        'metrics': [],
-    }
-
-    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
-        ESQLBarChart.model_validate(config)
-
-
-async def test_esql_line_chart_validation_requires_metrics() -> None:
-    """Test that ESQL line chart validation fails when metrics list is empty."""
-    config = {
-        'type': 'line',
-        'dimension': {'field': '@timestamp', 'id': 'dim1'},
-        'metrics': [],
-    }
-
-    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
-        ESQLLineChart.model_validate(config)
-
-
-async def test_esql_area_chart_validation_requires_metrics() -> None:
-    """Test that ESQL area chart validation fails when metrics list is empty."""
-    config = {
-        'type': 'area',
-        'dimension': {'field': '@timestamp', 'id': 'dim1'},
-        'metrics': [],
-    }
-
-    with pytest.raises(ValidationError, match=r'List should have at least 1 item'):
-        ESQLAreaChart.model_validate(config)
-
-
-async def test_lens_bar_chart_without_dimension() -> None:
-    """Test bar chart with no dimension (dimension=None)."""
-    lens_config = {
-        'type': 'bar',
-        'data_view': 'metrics-*',
-        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-    }
-
-    lens_chart = LensBarChart(**lens_config)
-    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+@pytest.mark.parametrize(
+    ('chart_cls', 'compile_fn', 'compile_kwarg', 'config'),
+    [
+        (
+            LensBarChart,
+            compile_lens_xy_chart,
+            'lens_xy_chart',
+            {
+                'type': 'bar',
+                'data_view': 'metrics-*',
+                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            },
+        ),
+        (
+            ESQLLineChart,
+            compile_esql_xy_chart,
+            'esql_xy_chart',
+            {
+                'type': 'line',
+                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+            },
+        ),
+    ],
+    ids=['lens-bar', 'esql-line'],
+)
+async def test_chart_without_dimension(
+    chart_cls: type[Any],
+    compile_fn: Callable[..., tuple[Any, Any, Any]],
+    compile_kwarg: str,
+    config: dict[str, Any],
+) -> None:
+    """Test charts with no dimension (dimension=None)."""
+    chart = chart_cls(**config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_fn(**{compile_kwarg: chart})
     assert kbn_state_visualization is not None
     layer_dict = kbn_state_visualization.layers[0].model_dump()
-    # When dimension is None, xAccessor should also be None
     assert layer_dict['xAccessor'] is None
-    # Should still have the metric accessor
-    assert len(layer_dict['accessors']) == 1
-
-
-async def test_esql_line_chart_without_dimension() -> None:
-    """Test ESQL line chart with no dimension (dimension=None)."""
-    esql_config = {
-        'type': 'line',
-        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-    }
-
-    esql_chart = ESQLLineChart(**esql_config)
-    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
-    assert kbn_state_visualization is not None
-    layer_dict = kbn_state_visualization.layers[0].model_dump()
-    # When dimension is None, xAccessor should also be None
-    assert layer_dict['xAccessor'] is None
-    # Should still have the metric accessor
     assert len(layer_dict['accessors']) == 1
 
 
@@ -1457,3 +1465,41 @@ async def test_mixed_metrics_some_with_appearance() -> None:
     assert len(layer.yConfig) == 2  # Only metric1 and metric3
     assert layer.yConfig[0].model_dump() == snapshot({'forAccessor': 'metric1', 'color': '#FF0000'})
     assert layer.yConfig[1].model_dump() == snapshot({'forAccessor': 'metric3', 'axisMode': 'right', 'color': '#0000FF'})
+
+
+def test_xy_chart_dashboard_references_bubble_up() -> None:
+    """Test that XY chart data view references bubble up to dashboard level correctly.
+
+    XY charts (line, bar, area) reference a data view (index-pattern), so this reference
+    should appear at the dashboard's top-level references array with proper panel namespacing.
+    """
+    dashboard = Dashboard(
+        name='Test XY Chart Dashboard',
+        panels=[
+            {
+                'title': 'Line Chart',
+                'id': 'xy-panel-1',
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'lens': {
+                    'type': 'line',
+                    'data_view': 'logs-*',
+                    'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                    'metrics': [{'aggregation': 'count', 'id': 'count-metric'}],
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+    assert references == snapshot(
+        [
+            {
+                'id': 'logs-*',
+                'name': IsStr(regex=r'xy-panel-1:indexpattern-datasource-layer-[a-f0-9-]+'),
+                'type': 'index-pattern',
+            }
+        ]
+    )

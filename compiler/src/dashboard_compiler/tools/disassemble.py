@@ -1,3 +1,5 @@
+# pyright: reportAny=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnknownArgumentType=false
+# Disassemble deals with unstructured JSON data from Kibana dashboards
 """Disassemble a Kibana dashboard JSON into components.
 
 This module provides functionality to break down Kibana dashboard JSON files

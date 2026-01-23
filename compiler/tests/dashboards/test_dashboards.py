@@ -1,6 +1,12 @@
-from collections.abc import Generator
+"""End-to-end tests for dashboard compilation to Kibana JSON format.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    Contains complete Kibana dashboard JSON structures including panel configurations.
+    Useful for understanding expected output format when debugging test failures.
+"""
+
 from typing import TYPE_CHECKING, Any
-from unittest.mock import patch
 
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
@@ -11,14 +17,6 @@ from tests.conftest import de_json_kbn_dashboard
 
 if TYPE_CHECKING:
     from dashboard_compiler.dashboard.view import KbnDashboard
-
-
-def deterministic_id_generator() -> Generator[str, None, None]:
-    """Generate deterministic UUIDs for testing."""
-    i = 0
-    while True:
-        yield f'00000000-0000-0000-0000-{i:012d}'
-        i += 1
 
 
 def _replace_panel_indexes(result: dict[str, Any]) -> None:
@@ -84,7 +82,8 @@ async def test_dashboard_with_one_pie_chart() -> None:
                     {
                         'title': 'Pie Chart of Aerospike Namespace',
                         'id': 'c7a35c4f-e82d-4f16-b1a6-12229363244e',
-                        'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                        'position': {'x': 0, 'y': 0},
+                        'size': {'w': 24, 'h': 15},
                         'lens': {
                             'type': 'pie',
                             'id': '21cb2847-7b10-404e-9672-4ee2f2beca6e',
@@ -113,11 +112,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -280,11 +275,7 @@ async def test_dashboard_with_one_query() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -348,11 +339,7 @@ async def test_dashboard_with_one_filter() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -440,7 +427,8 @@ async def test_dashboard_with_custom_options() -> None:
                 'panels': [
                     {
                         'title': 'Test Panel',
-                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'position': {'x': 0, 'y': 0},
+                        'size': {'w': 12, 'h': 10},
                         'markdown': {
                             'content': '# Testing dashboard options\n',
                         },
@@ -452,11 +440,7 @@ async def test_dashboard_with_custom_options() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -470,7 +454,7 @@ async def test_dashboard_with_custom_options() -> None:
                 'panelsJSON': [
                     {
                         'panelIndex': 'panel_0',
-                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': 'b1d1f239-34cc-36fb-f124-39cbf7e3f756'},
+                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': '1edb8caf-94ce-4f06-1c09-a9439973884c'},
                         'type': 'visualization',
                         'embeddableConfig': {
                             'enhancements': {'dynamicActions': {'events': []}},
@@ -534,7 +518,8 @@ async def test_dashboard_with_default_options() -> None:
                 'panels': [
                     {
                         'title': 'Test Panel',
-                        'grid': {'x': 0, 'y': 0, 'w': 12, 'h': 10},
+                        'position': {'x': 0, 'y': 0},
+                        'size': {'w': 12, 'h': 10},
                         'markdown': {
                             'content': '# Testing default dashboard options\n',
                         },
@@ -546,11 +531,7 @@ async def test_dashboard_with_default_options() -> None:
     dashboard_data = db_input_dict['dashboards'][0]
     dashboard = Dashboard(**dashboard_data)
 
-    gen = deterministic_id_generator()
-    with (
-        patch('dashboard_compiler.shared.config.random_id_generator', side_effect=lambda: next(gen)),
-    ):
-        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
 
     compiled_kbn_dashboard_dict = kbn_dashboard.model_dump(by_alias=True)
     kbn_dashboard_compiled = de_json_kbn_dashboard(compiled_kbn_dashboard_dict)
@@ -564,7 +545,7 @@ async def test_dashboard_with_default_options() -> None:
                 'panelsJSON': [
                     {
                         'panelIndex': 'panel_0',
-                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': 'b1d1f239-34cc-36fb-f124-39cbf7e3f756'},
+                        'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 10, 'i': '1edb8caf-94ce-4f06-1c09-a9439973884c'},
                         'type': 'visualization',
                         'embeddableConfig': {
                             'enhancements': {'dynamicActions': {'events': []}},

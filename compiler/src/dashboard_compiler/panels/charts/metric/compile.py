@@ -22,7 +22,6 @@ from dashboard_compiler.panels.charts.metric.view import (
     KbnMetricVisualizationState,
     KbnSecondaryTrendNone,
 )
-from dashboard_compiler.shared.config import get_layer_id
 
 
 def compile_metric_chart_visualization_state(
@@ -75,18 +74,24 @@ def compile_lens_metric_chart(
 
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
 
-    primary_metric_id, primary_metric = compile_lens_metric(lens_metric_chart.primary)
+    primary_result = compile_lens_metric(lens_metric_chart.primary)
+    primary_metric_id = primary_result.primary_id
+    primary_metric = primary_result.primary_column
     kbn_metric_columns_by_id[primary_metric_id] = primary_metric
+    kbn_metric_columns_by_id.update(primary_result.helper_columns)
 
-    if lens_metric_chart.secondary:
-        secondary_metric_id, secondary_metric = compile_lens_metric(lens_metric_chart.secondary)
+    if lens_metric_chart.secondary is not None:
+        secondary_result = compile_lens_metric(lens_metric_chart.secondary)
+        secondary_metric_id = secondary_result.primary_id
+        secondary_metric = secondary_result.primary_column
         kbn_metric_columns_by_id[secondary_metric_id] = secondary_metric
+        kbn_metric_columns_by_id.update(secondary_result.helper_columns)
 
     # Initialize kbn_columns_by_id as empty dict
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
 
     # Add breakdown dimension FIRST (if present) - Kibana requires dimensions before metrics in columnOrder
-    if lens_metric_chart.breakdown:
+    if lens_metric_chart.breakdown is not None:
         breakdown_dimension_id, breakdown_dimension = compile_lens_dimension(
             dimension=lens_metric_chart.breakdown, kbn_metric_column_by_id=kbn_metric_columns_by_id
         )
@@ -95,7 +100,7 @@ def compile_lens_metric_chart(
     # Add metrics AFTER breakdown dimension
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
-    layer_id = get_layer_id(lens_metric_chart)
+    layer_id = lens_metric_chart.get_id()
 
     return (
         layer_id,
@@ -124,8 +129,6 @@ def compile_esql_metric_chart(
             - kbn_state_visualization (KbnESQLMetricVisualizationState): The compiled visualization state.
 
     """
-    layer_id = get_layer_id(esql_metric_chart)
-
     kbn_columns: list[KbnESQLColumnTypes]
 
     primary_metric: KbnESQLMetricColumnTypes = compile_esql_metric(esql_metric_chart.primary)
@@ -135,7 +138,7 @@ def compile_esql_metric_chart(
     secondary_metric: KbnESQLMetricColumnTypes | None = None
     secondary_metric_id: str | None = None
 
-    if esql_metric_chart.secondary:
+    if esql_metric_chart.secondary is not None:
         secondary_metric = compile_esql_metric(esql_metric_chart.secondary)
         secondary_metric_id = secondary_metric.columnId
         kbn_columns.append(secondary_metric)
@@ -143,10 +146,12 @@ def compile_esql_metric_chart(
     breakdown_dimension: KbnESQLFieldDimensionColumn | None = None
     breakdown_dimension_id: str | None = None
 
-    if esql_metric_chart.breakdown:
+    if esql_metric_chart.breakdown is not None:
         breakdown_dimension = compile_esql_dimension(esql_metric_chart.breakdown)
         breakdown_dimension_id = breakdown_dimension.columnId
         kbn_columns.append(breakdown_dimension)
+
+    layer_id = esql_metric_chart.get_id()
 
     return (
         layer_id,

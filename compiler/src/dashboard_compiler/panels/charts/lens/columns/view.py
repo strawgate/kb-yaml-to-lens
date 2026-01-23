@@ -1,4 +1,4 @@
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
@@ -13,10 +13,17 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensTermsDimensionColumn
     | KbnLensFiltersDimensionColumn
     | KbnLensIntervalsDimensionColumn
-    | KbnLensCustomInvervalsDimensionColumn
+    | KbnLensCustomIntervalsDimensionColumn
 )
 
-type KbnLensMetricColumnTypes = KbnLensFieldMetricColumn | KbnLensStaticValueColumn | KbnLensFormulaColumn
+type KbnLensMetricColumnTypes = (
+    KbnLensFieldMetricColumn
+    | KbnLensStaticValueColumn
+    | KbnLensFormulaColumn
+    | KbnLensMathColumn
+    | KbnLensFormulaAggColumn
+    | KbnLensFullReferenceColumn
+)
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat
 
@@ -170,7 +177,113 @@ class KbnLensFormulaColumn(KbnLensBaseColumn):
     """Parameters containing the formula string."""
 
     references: list[str] = Field(default_factory=list)
-    """List of referenced column IDs (typically empty for raw formulas)."""
+    """List of referenced column IDs. Points to the math column for complete formulas."""
+
+
+class KbnLensMathColumnParams(BaseVwModel):
+    """Parameters for math columns used in formula helper structures."""
+
+    tinymathAst: dict[str, Any]
+    """The TinyMath AST structure representing the mathematical expression."""
+
+
+class KbnLensMathColumn(KbnLensBaseColumn):
+    """Represents a math column used in formula helper structures.
+
+    Math columns contain the tinymathAST that combines aggregation columns
+    into the final formula result. They reference the aggregation helper columns.
+    """
+
+    operationType: Literal['math']
+    """Always 'math' for math columns."""
+
+    dataType: Literal['number']
+    """Data type is always 'number' for math operations."""
+
+    isBucketed: Literal[False] = False
+    """Math columns are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for math results."""
+
+    params: KbnLensMathColumnParams
+    """Parameters containing the tinymathAst."""
+
+    references: list[str] = Field(default_factory=list)
+    """List of referenced aggregation column IDs."""
+
+
+class KbnLensFormulaAggColumnParams(BaseVwModel):
+    """Parameters for formula aggregation helper columns."""
+
+    emptyAsNull: bool = False
+    """Whether to treat empty results as null."""
+
+    shift: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Time shift for the aggregation (e.g., '1d', '1w')."""
+
+    reducedTimeRange: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Reduced time range for the aggregation (e.g., '1h', '1d')."""
+
+
+class KbnLensFormulaAggColumn(KbnLensBaseColumn):
+    """Represents an aggregation helper column used in formula structures.
+
+    These columns are generated for each aggregation function (average, sum, count, etc.)
+    found in a formula. They serve as intermediate columns that the math column references.
+    """
+
+    sourceField: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """The field being aggregated (None for count without field)."""
+
+    dataType: Literal['number']
+    """Data type is always 'number' for aggregations."""
+
+    isBucketed: Literal[False] = False
+    """Aggregation columns are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for aggregation results."""
+
+    params: KbnLensFormulaAggColumnParams
+    """Parameters for the aggregation column."""
+
+
+class KbnLensFullReferenceColumnParams(BaseVwModel):
+    """Parameters for fullReference operation columns."""
+
+    emptyAsNull: bool = False
+    """Whether to treat empty results as null."""
+
+    window: Annotated[int | None, OmitIfNone()] = Field(default=None)
+    """Window size for moving_average operations."""
+
+
+class KbnLensFullReferenceColumn(KbnLensBaseColumn):
+    """Represents a fullReference operation column used in formula structures.
+
+    FullReference operations (counter_rate, cumulative_sum, differences, moving_average,
+    normalize, time_scale) wrap other columns rather than operating on fields directly.
+    They reference aggregation columns and apply time-series transformations.
+    """
+
+    dataType: Literal['number']
+    """Data type is always 'number' for fullReference operations."""
+
+    isBucketed: Literal[False] = False
+    """FullReference columns are never bucketed."""
+
+    scale: Literal['ratio']
+    """Scale is always 'ratio' for fullReference results."""
+
+    params: KbnLensFullReferenceColumnParams
+    """Parameters for the fullReference column."""
+
+    references: list[str] = Field(default_factory=list)
+    """List of referenced column IDs that this operation wraps."""
+
+    timeScale: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Time scale for rate calculations (e.g., 's' for per-second rates)."""
 
 
 class KbnLensDimensionColumnParams(BaseVwModel):
@@ -218,7 +331,7 @@ class KbnLensTermsParentFormatParams(BaseVwModel):
 class KbnLensTermsParentFormat(BaseVwModel):
     """The parent format for terms dimension columns."""
 
-    id: Literal['terms'] = Field(default='terms')
+    id: Literal['terms', 'multi_terms'] = Field(default='terms')
     # params: KbnLensTermsParentFormatParams | None = Field(default
 
 
@@ -235,6 +348,8 @@ class KbnLensTermsDimensionColumnParams(KbnLensDimensionColumnParams):
     exclude: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
     includeIsRegex: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     excludeIsRegex: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    secondaryFields: Annotated[list[str] | None, OmitIfNone()] = Field(default=None)
+    """Additional fields for multi-term aggregations (2nd, 3rd, etc.)."""
 
 
 class KbnLensTermsDimensionColumn(KbnLensBaseDimensionColumn):
@@ -314,7 +429,7 @@ class KbnLensIntervalsDimensionColumn(KbnLensBaseDimensionColumn):
     params: KbnLensIntervalsDimensionColumnParams
 
 
-class KbnLensCustomInvervalsDimensionColumnParams(KbnLensDimensionColumnParams):
+class KbnLensCustomIntervalsDimensionColumnParams(KbnLensDimensionColumnParams):
     """Parameters for custom intervals dimension columns."""
 
     type: Literal['range'] = Field(default='range')
@@ -323,7 +438,7 @@ class KbnLensCustomInvervalsDimensionColumnParams(KbnLensDimensionColumnParams):
     parentFormat: Annotated[KbnLensCustomIntervalsDimensionColumnParentFormat | None, OmitIfNone()] = Field(default=None)
 
 
-class KbnLensCustomInvervalsDimensionColumn(KbnLensBaseDimensionColumn):
+class KbnLensCustomIntervalsDimensionColumn(KbnLensBaseDimensionColumn):
     """Represents a custom intervals dimension column."""
 
     sourceField: str
@@ -331,4 +446,4 @@ class KbnLensCustomInvervalsDimensionColumn(KbnLensBaseDimensionColumn):
     dataType: Literal['string'] = Field(default='string')
     scale: Literal['ordinal'] = Field(default='ordinal')
     isBucketed: Literal[True] = Field(default=True)
-    params: KbnLensCustomInvervalsDimensionColumnParams
+    params: KbnLensCustomIntervalsDimensionColumnParams

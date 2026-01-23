@@ -31,7 +31,7 @@ class MarkdownPanel(BasePanel):
           - name: "Dashboard with Markdown"
             panels:
               - title: "Welcome Note"
-                grid: { x: 0, y: 0, w: 48, h: 3 }
+                size: { w: 48, h: 3 }
                 markdown:
                   content: |
                     ## Welcome to the Dashboard!
@@ -47,12 +47,12 @@ class MarkdownPanel(BasePanel):
           - name: "Informational Dashboard"
             panels:
               - title: "Important Instructions"
-                grid: { x: 0, y: 0, w: 32, h: 5 }
+                size: { w: 32, h: 5 }
                 markdown:
                   content: |
                     # Setup Guide
 
-                    Please follow the [official documentation](https://example.com/docs) for setup instructions.
+                    Please follow the [official documentation](https://strawgate.github.io/kb-yaml-to-lens/) for setup instructions.
 
                     Key steps:
                     1. **Download** the installer.

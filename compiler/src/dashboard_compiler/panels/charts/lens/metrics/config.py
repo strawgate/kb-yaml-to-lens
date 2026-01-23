@@ -5,14 +5,11 @@ from typing import Literal
 from pydantic import Field
 
 from dashboard_compiler.queries.types import LegacyQueryTypes
-from dashboard_compiler.shared.config import BaseCfgModel
+from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
-class BaseMetric(BaseCfgModel):
+class BaseMetric(BaseIdentifiableModel):
     """Base class for metric configurations in Lens charts."""
-
-    id: str | None = Field(default=None)
-    """A unique identifier for the metric. If not provided, one may be generated during compilation."""
 
 
 class LensStaticValue(BaseMetric):
@@ -123,7 +120,7 @@ class LensSumAggregatedMetric(BaseLensMetric):
     field: str = Field(...)
 
     exclude_zeros: bool | None = Field(default=None)
-    """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
+    """Whether to exclude zero values from the sum. Kibana defaults to true if not specified."""
 
 
 class LensOtherAggregatedMetric(BaseLensMetric):

@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, ValidationError
 if TYPE_CHECKING:
     from pydantic_core import ErrorDetails
 
+from dashboard_compiler.cli_local import compile_yaml_to_json
 from dashboard_compiler.shared.error_formatter import (
     CUSTOM_MESSAGES,
     format_error_message,
@@ -44,6 +45,14 @@ class TestLocToPath:
     def test_multiple_indices(self) -> None:
         """Test path with multiple consecutive indices."""
         assert loc_to_path(('items', 0, 1, 2)) == 'items[0][1][2]'
+
+    def test_duplicate_consecutive_strings(self) -> None:
+        """Test that consecutive duplicate string segments are collapsed."""
+        assert loc_to_path(('dashboards', 0, 'panels', 0, 'markdown', 'markdown', 'content')) == 'dashboards[0].panels[0].markdown.content'
+
+    def test_non_consecutive_duplicates_preserved(self) -> None:
+        """Test that non-consecutive duplicate strings are preserved."""
+        assert loc_to_path(('name', 'value', 'name')) == 'name.value.name'
 
 
 class TestFormatErrorMessage:
@@ -226,14 +235,14 @@ class TestFormatYamlError:
         assert 'YAML syntax error' in result
         assert 'YAML' in result  # Uses 'YAML' as default context
 
-    def test_yaml_duplicate_key_error(self) -> None:
-        """Test formatting of YAML duplicate key warning."""
+    def test_yaml_syntax_error_missing_brace(self) -> None:
+        """Test formatting of YAML syntax error (missing brace)."""
         invalid_yaml = 'items:\n  - title: "Test"\n    grid: {x: 0\n'
         try:
             yaml.safe_load(invalid_yaml)
         except yaml.YAMLError as e:
-            result = format_yaml_error(e, Path('duplicate.yaml'))
-            assert 'YAML syntax error in duplicate.yaml' in result
+            result = format_yaml_error(e, Path('syntax_error.yaml'))
+            assert 'YAML syntax error in syntax_error.yaml' in result
 
 
 class TestCompileYamlToJsonErrorHandling:
@@ -241,24 +250,20 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_empty_file(self, tmp_path: Path) -> None:
         """Test that empty YAML files produce friendly error messages."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         empty_file = tmp_path / 'empty.yaml'
         empty_file.write_text('')
 
-        json_lines, error = compile_yaml_to_json(empty_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(empty_file)
         assert json_lines == []
         assert error is not None
         assert 'empty.yaml' in error
 
     def test_compile_invalid_yaml_syntax(self, tmp_path: Path) -> None:
         """Test that YAML syntax errors produce friendly error messages."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         invalid_file = tmp_path / 'invalid.yaml'
         invalid_file.write_text('dashboards:\n  - name: Test\n    panels:\n      - title: Bad\n      grid: {x: 0\n')
 
-        json_lines, error = compile_yaml_to_json(invalid_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(invalid_file)
         assert json_lines == []
         assert error is not None
         assert 'YAML syntax error in invalid.yaml' in error
@@ -266,12 +271,10 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_missing_dashboards_key(self, tmp_path: Path) -> None:
         """Test that missing 'dashboards' key produces friendly error message."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         missing_key_file = tmp_path / 'missing-key.yaml'
         missing_key_file.write_text('panels:\n  - title: Test\n')
 
-        json_lines, error = compile_yaml_to_json(missing_key_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(missing_key_file)
         assert json_lines == []
         assert error is not None
         assert 'missing-key.yaml' in error
@@ -279,12 +282,10 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_missing_dashboard_name(self, tmp_path: Path) -> None:
         """Test that missing dashboard name produces friendly error message."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         missing_name_file = tmp_path / 'missing-name.yaml'
         missing_name_file.write_text('dashboards:\n  - description: Test\n    panels: []\n')
 
-        json_lines, error = compile_yaml_to_json(missing_name_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(missing_name_file)
         assert json_lines == []
         assert error is not None
         assert 'missing-name.yaml' in error
@@ -292,30 +293,28 @@ class TestCompileYamlToJsonErrorHandling:
 
     def test_compile_file_not_found(self, tmp_path: Path) -> None:
         """Test that file not found produces friendly error message."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         nonexistent_file = tmp_path / 'nonexistent.yaml'
 
-        json_lines, error = compile_yaml_to_json(nonexistent_file)
+        json_lines, _dashboards, error = compile_yaml_to_json(nonexistent_file)
         assert json_lines == []
         assert error is not None
         assert 'not found' in error
 
     def test_compile_valid_dashboard(self, tmp_path: Path) -> None:
         """Test that valid dashboards compile without errors."""
-        from dashboard_compiler.cli import compile_yaml_to_json
-
         valid_file = tmp_path / 'valid.yaml'
         valid_file.write_text("""---
 dashboards:
   - name: Test Dashboard
     panels:
       - title: Test Panel
-        grid: {x: 0, y: 0, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 0}
         markdown:
           content: Hello World
 """)
 
-        json_lines, error = compile_yaml_to_json(valid_file)
+        json_lines, dashboards, error = compile_yaml_to_json(valid_file)
         assert error is None
         assert len(json_lines) == 1
+        assert len(dashboards) == 1

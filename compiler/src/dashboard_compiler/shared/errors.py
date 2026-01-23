@@ -2,11 +2,11 @@
 
 
 class ConfigValidationError(Exception):
-    """Exception raised for errors in the YAML to Lens conversion process."""
+    """Exception raised when YAML configuration fails schema validation."""
 
 
 class YamlToLensError(Exception):
-    """Exception raised for errors in the YAML to Lens conversion process."""
+    """Exception raised for general errors during YAML to Lens conversion."""
 
     message: str
 

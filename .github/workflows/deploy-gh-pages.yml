@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - docs/**
-      - mkdocs.yml
       - compiler/src/**
       - .github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
@@ -28,16 +27,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Install documentation dependencies
-        run: uv sync --group docs
       - name: Build documentation
-        run: uv run --group docs mkdocs build --strict
+        run: make docs-build-strict
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: docs/site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
