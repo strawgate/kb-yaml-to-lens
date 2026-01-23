@@ -1,28 +1,54 @@
 # Contributing Guide
 
-## Development Guidelines
+Thank you for contributing to kb-yaml-to-lens!
 
-See [CLAUDE.md](CLAUDE.md) for AI agent guidelines and [component-specific AGENTS.md files](CLAUDE.md#project-overview) for detailed development guidelines.
+## Getting Started
+
+See [DEVELOPING.md](DEVELOPING.md) for development setup and workflows.
 
 ## Code Style
 
-See component-specific AGENTS.md files for code style conventions:
+See [CODE_STYLE.md](CODE_STYLE.md) for project-wide conventions, and component-specific guides:
 
-- Python/Compiler: [compiler/AGENTS.md](compiler/AGENTS.md#code-conventions)
-- TypeScript/VS Code Extension: [vscode-extension/AGENTS.md](vscode-extension/AGENTS.md#development-guidelines)
+- **Python:** [compiler/CODE_STYLE.md](compiler/CODE_STYLE.md)
+- **TypeScript:** [vscode-extension/CODE_STYLE.md](vscode-extension/CODE_STYLE.md)
 
-## Pull Request Requirements
+## Pull Request Process
 
-@CLAUDE.md#pull-request-standards
+### Before Submitting
 
-**Additional PR Requirements:**
+1. **Run all checks:** `make ci`
+2. **Self-review your changes:**
+   - Does it solve the stated problem?
+   - Does the code follow existing patterns?
+   - Are tests added/updated as needed?
 
-When creating a pull request:
+### PR Requirements
 
-1. **Use the PR template** - GitHub will automatically populate it when you create a PR
-2. **For config/compilation changes** - Include:
-   - Sample YAML that demonstrates the change
-   - Expected compilation outcome
-   - How to verify the changes work
-3. **For chart type modifications** - Complete the fixture generation checklist
-4. **Run all checks** before submitting: `make ci`
+- No merge conflicts with `main`
+- All CI checks pass
+- Use the [PR template](.github/pull_request_template.md)
+
+### For Config/Compilation Changes
+
+When modifying how YAML is parsed or compiled:
+
+1. Include sample YAML that demonstrates the change
+2. Describe the expected compilation outcome
+3. Explain how to verify the changes work
+
+### For Chart Type Modifications
+
+Complete the fixture generation checklist in the PR template.
+
+## Reporting Issues
+
+Use GitHub Issues for:
+
+- Bug reports (include reproduction steps)
+- Feature requests (explain the use case)
+- Documentation improvements
+
+## Questions?
+
+Open a GitHub Discussion for questions about usage or development.

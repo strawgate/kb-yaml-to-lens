@@ -83,11 +83,35 @@ The main object defining the dashboard.
 | `name` | `string` | The title of the dashboard displayed in Kibana. | N/A | Yes |
 | `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
 | `description` | `string` | A brief description of the dashboard's purpose or content. | `""` (empty string) | No |
+| `time_range` | `TimeRange` object | A default time range to apply when opening the dashboard. See [Time Range](#time-range-time_range). | `None` | No |
 | `settings` | `DashboardSettings` object | Global settings for the dashboard. See [Dashboard Settings](#dashboard-settings-settings). | See defaults below | No |
 | `query` | `Query` object | A global query (KQL or Lucene) applied to the dashboard. See [Queries Documentation](../queries/config.md). | `None` | No |
 | `filters` | `list of Filter objects` | A list of global filters applied to the dashboard. See [Filters Documentation](../filters/config.md). | `[]` (empty list) | No |
 | `controls` | `list of Control objects` | A list of control panels for the dashboard. See [Controls Documentation](../controls/config.md). | `[]` (empty list) | No |
 | `panels` | `list of Panel objects` | A list of Panel objects defining the content and layout. See [Panels Documentation](../panels/base.md). | `[]` (empty list) | Yes |
+
+### Time Range (`time_range`)
+
+Configure a default time range that will be restored when opening the dashboard. When `time_range` is set, Kibana will automatically apply the specified time range instead of using the global time picker value.
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `from` | `string` | The start of the time range. Supports relative time expressions like `now-30d/d`, `now-1h`, etc. | N/A | Yes |
+| `to` | `string` | The end of the time range. Supports relative time expressions. | `now` | No |
+
+**Example:**
+
+```yaml
+dashboards:
+  - name: "Last 30 Days Overview"
+    time_range:
+      from: "now-30d/d"
+      to: "now"
+    panels:
+      - markdown:
+          content: "This dashboard defaults to the last 30 days."
+        size: {w: 12, h: 3}
+```
 
 ### Dashboard Settings (`settings`)
 

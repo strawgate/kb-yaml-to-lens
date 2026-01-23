@@ -15,6 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "pyyaml>=6.0.3",
+    "ruamel.yaml>=0.18.0",
     "pydantic>=2.12",
     "beartype>=0.22",
     "humanize>=4.15",
@@ -116,29 +117,12 @@ ignore = [
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
 ]
-"vscode-extension/python/**/*.py" = [
-    "PT009", # Allow unittest-style assertions in test files
-    "S101", # Ignore use of assert
-    "INP001", # Extension scripts are standalone, not packages
-    "ANN201", # Ignore missing type annotations in python extension files
-    "E501", # Line too long
-    "PLR2004", # Ignore magic numbers in test files
-    "B017", # Allow broad exception assertions in test files
-    "PT011", # Allow broad pytest.raises in test files
-    "PT027", # Allow unittest-style assertRaises in test files
-    "PLR0911", # Ignore too many return statements
-    "D400", # Ignore docstring formatting in test files
-    "D415", # Ignore docstring formatting in test files
-]
 "src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
     "ANN202", # Ignore missing return type for private serializer methods
     "ERA001", # Allow commented JSON structure documentation
-]
-"src/dashboard_compiler/**/config.py" = [
-    "TC001", # Pydantic config models rely on runtime imports for type evaluation
 ]
 "src/dashboard_compiler/lsp/grid_*.py" = [
     "PLR2004", # Allow magic numbers (CLI arg counts)
@@ -168,7 +152,6 @@ classmethod-decorators = ["classmethod", "pydantic.validator"]
 pythonVersion = "3.12"
 typeCheckingMode = "recommended"
 reportImportCycles = "error"
-reportMissingTypeStubs = false
 reportExplicitAny = false
 reportIncompatibleVariableOverride = false
 include = ["src/dashboard_compiler", "tests"]
@@ -179,6 +162,9 @@ exclude = [
 ]
 [[tool.basedpyright.executionEnvironments]]
 root = "tests"
+# Tests use many libraries and test patterns that trigger type warnings.
+# The volume of warnings makes inline ignores impractical for test code.
+reportMissingTypeStubs = false
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
@@ -194,32 +180,20 @@ reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
 
 [[tool.basedpyright.executionEnvironments]]
-root = "src/dashboard_compiler/lsp"
-# LSP server code deals with dynamic pygls types
-reportAny = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
-reportUnknownArgumentType = false
-reportUnnecessaryComparison = false
-reportUnnecessaryTypeIgnoreComment = false
-reportUnusedCallResult = false
-
-[[tool.basedpyright.executionEnvironments]]
-root = "src/dashboard_compiler/tools"
-# Tools code deals with unstructured JSON data from Kibana
-reportAny = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
-reportUnknownArgumentType = false
-
-[[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler/panels/charts/lens/metrics/formula_parser.py"
 # Formula parser uses TatSu which lacks type stubs and returns untyped AST structures.
 # With 100+ type unknowns, per-line ignores would severely harm readability.
+reportMissingTypeStubs = false
 reportAny = false
 reportUnknownMemberType = false
 reportUnknownVariableType = false
 reportUnknownArgumentType = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/dashboard_compiler/yaml_roundtrip.py"
+# ruamel.yaml lacks type stubs and returns dynamic types from load/dump operations.
+reportAny = false
+reportUnknownMemberType = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/dashboard_compiler"

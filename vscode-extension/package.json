@@ -93,6 +93,16 @@
         "command": "yamlDashboard.disableOpenOnSave",
         "title": "Disable Open in Kibana on Save",
         "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.runEsqlQuery",
+        "title": "Run ES|QL Query",
+        "category": "YAML Dashboard"
+      },
+      {
+        "command": "yamlDashboard.runEsqlQuerySelection",
+        "title": "Run ES|QL Query (Selection)",
+        "category": "YAML Dashboard"
       }
     ],
     "configuration": {
@@ -120,7 +130,10 @@
         },
         "yamlDashboard.kibana.browserType": {
           "type": "string",
-          "enum": ["external", "simple"],
+          "enum": [
+            "external",
+            "simple"
+          ],
           "default": "external",
           "enumDescriptions": [
             "Open in system default browser",
@@ -161,6 +174,16 @@
           "when": "resourceLangId == yaml",
           "command": "yamlDashboard.disableOpenOnSave",
           "group": "2_kibana"
+        },
+        {
+          "when": "resourceLangId == yaml",
+          "command": "yamlDashboard.runEsqlQuery",
+          "group": "3_esql"
+        },
+        {
+          "when": "resourceLangId == yaml && editorHasSelection",
+          "command": "yamlDashboard.runEsqlQuerySelection",
+          "group": "3_esql"
         }
       ],
       "editor/title": [
@@ -200,7 +223,8 @@
     "package:windows": "npm run package-bundle && vsce package --target win32-x64"
   },
   "dependencies": {
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^9.0.1",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",

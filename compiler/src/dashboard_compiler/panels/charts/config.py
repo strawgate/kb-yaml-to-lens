@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Discriminator, Field, Tag
 
-from dashboard_compiler.filters.config import FilterTypes
+from dashboard_compiler.filters.config import FilterTypes  # noqa: TC001 (Pydantic needs runtime type)
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.charts.datatable import ESQLDatatableChart, LensDatatableChart
 from dashboard_compiler.panels.charts.gauge import ESQLGaugeChart, LensGaugeChart
@@ -20,7 +20,7 @@ from dashboard_compiler.panels.charts.xy.config import (
     LensLineChart,
     LensReferenceLineLayer,
 )
-from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes
+from dashboard_compiler.queries.types import ESQLQueryTypes, LegacyQueryTypes  # noqa: TC001 (Pydantic needs runtime types)
 from dashboard_compiler.shared.config import BaseCfgModel
 
 type AllChartTypes = LensChartTypes | ESQLChartTypes

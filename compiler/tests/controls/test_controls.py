@@ -487,6 +487,7 @@ async def test_esql_query_control() -> None:
                 'controlType': 'VALUES_FROM_QUERY',
                 'title': 'Status Code',
                 'selectedOptions': [],
+                'singleSelect': True,
             },
         }
     )
@@ -1039,3 +1040,67 @@ async def test_control_group_returns_references() -> None:
     assert all(ref.type == 'index-pattern' for ref in references)
     data_view_ids = {ref.id for ref in references}
     assert data_view_ids == {'metrics-*', 'logs-*'}
+
+
+async def test_esql_query_control_with_string_default() -> None:
+    """Test ES|QL query control with string default value (single-select)."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'status_code',
+        'variable_type': 'values',
+        'query': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
+        'label': 'Status Code',
+        'multiple': False,
+        'default': '200',
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'status_code',
+                'variableType': 'values',
+                'esqlQuery': 'FROM logs-* | STATS count BY http.response.status_code | KEEP http.response.status_code',
+                'controlType': 'VALUES_FROM_QUERY',
+                'title': 'Status Code',
+                'selectedOptions': ['200'],
+                'singleSelect': True,
+            },
+        }
+    )
+
+
+async def test_esql_query_control_with_list_default() -> None:
+    """Test ES|QL query control with list default value (multi-select)."""
+    config = {
+        'type': 'esql',
+        'variable_name': 'host_names',
+        'variable_type': 'values',
+        'query': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+        'label': 'Host Names',
+        'multiple': True,
+        'default': ['host1', 'host2'],
+    }
+    result = compile_control_snapshot(config)
+    assert result == snapshot(
+        {
+            'grow': False,
+            'order': 0,
+            'width': 'medium',
+            'type': 'esqlControl',
+            'explicitInput': {
+                'id': IsUUID,
+                'variableName': 'host_names',
+                'variableType': 'values',
+                'esqlQuery': 'FROM logs-* | STATS count BY host.name | KEEP host.name',
+                'controlType': 'VALUES_FROM_QUERY',
+                'title': 'Host Names',
+                'selectedOptions': ['host1', 'host2'],
+                'singleSelect': False,
+            },
+        }
+    )

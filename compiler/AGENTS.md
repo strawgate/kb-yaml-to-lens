@@ -1,137 +1,19 @@
 # Agent Guidelines: Dashboard Compiler (Python)
 
 > Python 3.12+ compiler converting YAML to Kibana dashboard JSON
-> Pydantic · PyYAML · uv package manager
+
+## Introduction
+
+@README.md
 
 ---
 
-## Commands
+## Development Guide
 
-Run from `compiler/` directory:
-
-| Command | Purpose |
-| ------- | ------- |
-| `make ci` | Run all CI checks (lint + typecheck + test + docs) |
-| `make fix` | Auto-fix Python and YAML linting |
-| `make test` | Run Python unit tests |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
+@DEVELOPING.md
 
 ---
 
-## Architecture
+## Code Style
 
-**Data Flow:** `YAML → PyYAML → Config Models → Compile Functions → View Models → JSON`
-
-| Directory | Purpose |
-| --------- | ------- |
-| `src/dashboard_compiler/dashboard/` | Top-level dashboard config and compilation |
-| `src/dashboard_compiler/panels/` | Panel types (markdown, links, images, search, charts) |
-| `src/dashboard_compiler/panels/charts/` | Lens/ESQL chart types (metric, pie, xy) |
-| `src/dashboard_compiler/controls/` | Dashboard control groups |
-
-**Three-Layer Pattern:** Each component has `config.py` (YAML schema), `view.py` (JSON output), `compile.py` (config → view).
-
----
-
-## Fixture Repository
-
-The [kb-yaml-to-lens-fixtures](https://github.com/strawgate/kb-yaml-to-lens-fixtures) repository contains "known-good" Kibana Lens JSON generated directly from Kibana's API.
-
-**Repository Structure:**
-
-| Directory | Purpose |
-| --------- | ------- |
-| `examples/` | TypeScript generator scripts for each visualization type |
-| `output/<kibana-version>/` | Generated JSON fixtures organized by Kibana version |
-
-**Dual-Variant System:** Each fixture has ES|QL and Data View versions (e.g., `metric-basic-esql.json` and `metric-basic-dataview.json`).
-
-**Fixture to Panel Type Mapping:**
-
-| Fixture | Compiler Panel Type |
-| ------- | ------------------- |
-| `metric-basic` | `panels/charts/metric/` |
-| `xy-chart` | `panels/charts/xy/` |
-| `pie-chart` | `panels/charts/pie/` |
-| `gauge` | `panels/charts/gauge/` |
-| `heatmap` | `panels/charts/heatmap/` |
-| `tagcloud` | `panels/charts/tagcloud/` |
-| `mosaic` | `panels/charts/mosaic/` |
-| `datatable` | `panels/charts/datatable/` |
-
-**Usage Guidelines:**
-
-- Reference fixture links in `view.py` files when documenting expected Kibana JSON output
-- Reference fixture links in test files when validating compiler output
-- Compare generated output against fixtures to validate correctness
-
----
-
-## Code Conventions
-
-### Explicit Boolean Comparisons
-
-```python
-# ✅ Correct
-if my_var is not None:
-if len(my_list) > 0:
-
-# ❌ Incorrect
-if my_var:  # Ambiguous
-```
-
-### Exhaustive Type Checking
-
-Always use explicit type checks with a final error handler:
-
-```python
-def handle_panel(panel: PanelTypes) -> str:
-    if isinstance(panel, MarkdownPanel):
-        return handle_markdown(panel)
-    if isinstance(panel, LinksPanel):
-        return handle_links(panel)
-    if isinstance(panel, (LensPanel, ESQLPanel)):  # pyright: ignore[reportUnnecessaryIsInstance]
-        return handle_charts(panel)
-
-    msg = f'Unknown panel type: {type(panel).__name__}'
-    raise TypeError(msg)
-```
-
-**Key principle:** Make adding new types to unions a runtime error, not a silent fallthrough.
-
-### Pydantic Models
-
-- All models inherit from `BaseCfgModel` or `BaseModel` (in `shared/model.py` and `config.py`)
-- Don't duplicate `model_config` settings—they're inherited
-- Use `mode='after'` validators (preferred) for validated attributes, `mode='before'` only for raw input transformation
-- Document fields with docstrings after the field definition
-
-### Configuration
-
-- **Line length:** 140 characters (Ruff enforced)
-- **Docstring coverage:** 80% enforced in CI
-- **Lint exceptions:** Use inline `# noqa` or `# pyright: ignore`, not pyproject.toml
-
----
-
-## Verification
-
-- Run `make typecheck` and `make check` after changes
-- Schema changes: cross-reference official docs
-- Boolean checks: explicit comparisons only
-- Test compiled output validity
-
-**CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring coverage <80%
-
----
-
-## Context7 MCP Integration
-
-Query library docs via `resolve-library-id` → `query-docs` (max 3 calls/question).
-
-| Library | Context7 ID |
-| ------- | ----------- |
-| Pydantic | `/websites/pydantic_dev` |
-| Elasticsearch | `/elastic/elasticsearch-py` |
-| PyYAML | `/yaml/pyyaml` |
+@CODE_STYLE.md
