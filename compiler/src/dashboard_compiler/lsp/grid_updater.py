@@ -27,7 +27,7 @@ def _find_panel_in_document(document: CommentedMap, panel_id: str, dashboard_ind
     Returns:
         Tuple of (panel_dict, error_message). If found, error_message is None.
     """
-    dashboards = document.get('dashboards')
+    dashboards = document.get('dashboards')  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
     if dashboards is None or not isinstance(dashboards, CommentedSeq):
         return None, 'No dashboards found in YAML file'
 
@@ -37,11 +37,11 @@ def _find_panel_in_document(document: CommentedMap, panel_id: str, dashboard_ind
     if dashboard_index < 0 or dashboard_index >= len(dashboards):
         return None, f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})'
 
-    dashboard = dashboards[dashboard_index]
+    dashboard = dashboards[dashboard_index]  # pyright: ignore[reportUnknownVariableType]
     if not isinstance(dashboard, CommentedMap):
         return None, 'Invalid dashboard structure'
 
-    panels = dashboard.get('panels')
+    panels = dashboard.get('panels')  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
     if panels is None or not isinstance(panels, CommentedSeq):
         return None, 'No panels found in dashboard'
 
@@ -53,13 +53,13 @@ def _find_panel_in_document(document: CommentedMap, panel_id: str, dashboard_ind
         else:
             if panel_index < 0 or panel_index >= len(panels):
                 return None, f'Panel index {panel_index} out of range (0-{len(panels) - 1})'
-            panel = panels[panel_index]
+            panel = panels[panel_index]  # pyright: ignore[reportUnknownVariableType]
             if not isinstance(panel, CommentedMap):
                 return None, 'Invalid panel structure'
             return panel, None
     else:
-        for panel in panels:
-            if isinstance(panel, CommentedMap) and panel.get('id') == panel_id:
+        for panel in panels:  # pyright: ignore[reportUnknownVariableType]
+            if isinstance(panel, CommentedMap) and panel.get('id') == panel_id:  # pyright: ignore[reportUnknownMemberType]
                 return panel, None
         return None, f'Panel with ID {panel_id} not found'
 
@@ -76,7 +76,7 @@ def _is_alias(value: CommentedMap) -> bool:
     Returns:
         True if the value appears to be an alias reference.
     """
-    return hasattr(value, 'anchor') and bool(value.anchor.value)
+    return hasattr(value, 'anchor') and bool(value.anchor.value)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
 
 
 def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None:
@@ -89,7 +89,7 @@ def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None
         panel: The panel's CommentedMap to modify.
         new_grid: New grid coordinates with keys: x, y, w, h.
     """
-    position = panel.get('position')
+    position = panel.get('position')  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
     if isinstance(position, CommentedMap) and not _is_alias(position):
         position['x'] = new_grid['x']
         position['y'] = new_grid['y']
@@ -98,10 +98,10 @@ def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None
         new_position['x'] = new_grid['x']
         new_position['y'] = new_grid['y']
         if isinstance(position, CommentedMap):
-            new_position.fa.set_flow_style()
+            new_position.fa.set_flow_style()  # pyright: ignore[reportUnknownMemberType]
         panel['position'] = new_position
 
-    size = panel.get('size')
+    size = panel.get('size')  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
     if isinstance(size, CommentedMap) and not _is_alias(size):
         size['w'] = new_grid['w']
         size['h'] = new_grid['h']
@@ -110,7 +110,7 @@ def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None
         new_size['w'] = new_grid['w']
         new_size['h'] = new_grid['h']
         if isinstance(size, CommentedMap):
-            new_size.fa.set_flow_style()
+            new_size.fa.set_flow_style()  # pyright: ignore[reportUnknownMemberType]
         panel['size'] = new_size
 
 
