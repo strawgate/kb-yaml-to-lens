@@ -853,6 +853,7 @@ dashboards:
               unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources = COUNT_DISTINCT(source.address) BY cloud.account.id
             - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
+            - LIMIT 100
           dimensions:
             - field: cloud.account.id
           metrics:

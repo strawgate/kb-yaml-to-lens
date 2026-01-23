@@ -12,94 +12,19 @@ kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir out
 kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output --upload
 ```
 
-**Note:** The `--upload` option requires `KIBANA_URL` and either `KIBANA_USERNAME`/`KIBANA_PASSWORD` or `KIBANA_API_KEY`. See [CLI Configuration](../../CLI.md#configuration).
-
 ## Data Requirements
 
 - **Data View:** `logs-*`
 - **Dataset:** `data_stream.dataset == "aws.vpcflow.otel"`
-- **Required Fields:**
-  - `@timestamp`, `aws.vpc.flow.action`, `aws.vpc.flow.bytes`, `aws.vpc.flow.packets`
-  - `source.address`, `source.port`, `destination.address`, `destination.port`
-  - `network.protocol.name`, `network.interface.name`, `cloud.account.id`
+- **Required Fields:** `@timestamp`, `aws.vpc.flow.action`, `aws.vpc.flow.bytes`, `aws.vpc.flow.packets`, `source.address`, `source.port`, `destination.address`, `destination.port`, `network.protocol.name`, `network.interface.name`, `cloud.account.id`
 
 ## Dashboards
 
-This example includes 3 interconnected dashboards with navigation links:
-
-### 1. VPC Flow Logs Overview
-
-**ID:** `aws_vpcflow_otel-overview`
-
-High-level KPIs and time-series trends for quick status assessment.
-
-**Controls (3):** Cloud Account ID, Network Interface, Action
-
-**Panels (13):**
-
-- Navigation (1 links panel)
-- KPI Metrics (6 metrics)
-  - Total Flow Records, Rejection Rate, Total Bandwidth, Active Interfaces, Cloud Accounts, Unique Protocols
-- Quick Insights (2 charts + 1 header)
-  - Top 5 Interfaces by Rejected Traffic, Top 5 Rejected Destination Ports
-- Time-Series Trends (2 charts + 1 header)
-  - Traffic Volume Over Time (stacked area - ACCEPT/REJECT)
-  - Bandwidth Usage Over Time (line chart)
-
-### 2. Traffic Analysis
-
-**ID:** `aws_vpcflow_otel-traffic`
-
-Detailed traffic distribution, source analysis, and security deep dive.
-
-**Controls (6):** Cloud Account ID, Network Interface, Action, Protocol, Destination Port, Source Port
-
-**Panels (19):**
-
-- Navigation (1 links panel)
-- Traffic KPIs (5 metrics)
-  - Total Flow Records, Unique Source IPs, Unique Destination IPs, Unique Protocols, Unique Destination Ports
-- Traffic by Action Over Time (1 stacked area chart)
-- Traffic Distribution (2 charts)
-  - Top Protocols (pie), Top Destination Ports (bar)
-- Source Analysis (1 table + 1 header)
-  - Top Source IPs - Detailed
-- Security Deep Dive (3 panels + 1 header)
-  - Rejected Traffic by Protocol (bar), Top Rejected Ports (bar), Detailed Rejection Logs (table)
-- Top Sources and Destinations (3 charts + 1 header)
-  - Top Destination Ports (bar), Top Destination IPs (bar), Top Source IPs (bar)
-
-### 3. Interface Analysis
-
-**ID:** `aws_vpcflow_otel-interface`
-
-Per-interface analysis for investigating specific network interfaces.
-
-**Controls (5):** Cloud Account ID, Network Interface, Action, Destination Port, Protocol
-
-**Panels (14):**
-
-- Navigation (1 links panel)
-- Interface KPIs (5 metrics)
-  - Total Interfaces, Total Flow Records, Unique Source IPs, Unique Destination IPs, Unique Protocols
-- Interface Traffic Over Time (1 area chart)
-- Interface Traffic Analysis (1 stacked bar)
-- Top Interfaces by Bandwidth (1 bar chart)
-- Traffic Details (2 charts + 1 header)
-  - Accepted vs Rejected by Protocol, Bandwidth by Protocol
-- Account Analysis (1 table + 1 header)
-  - Traffic by Cloud Account
-
-## Features
-
-- **Dashboard Navigation**: Links panel at the top of each dashboard for easy navigation between Overview, Traffic Analysis, and Interface Analysis
-- **Color coding**: REJECT traffic is shown in red (#BD271E), ACCEPT in green (#00BF6F)
-- **Section headers**: Markdown panels organize each dashboard into logical sections (except the first section)
-- **Compact metrics**: KPI metrics use `hide_title: true` for a cleaner look
-- **Auto-layout**: Panels use only `size` - positions are calculated automatically
-- **Volume change detection**: Splits the dashboard time window in half and compares flow counts between the first and second halves, sorted by absolute change - works with any time range
-- **Filter preservation**: Navigation links use `with_time` and `with_filters` to preserve context when navigating
-- **Division by zero protection**: Rejection rate calculations use CASE() to avoid NaN values
+| Dashboard | ID | Description |
+| --------- | -- | ----------- |
+| VPC Flow Logs Overview | `aws_vpcflow_otel-overview` | High-level KPIs and time-series trends |
+| Traffic Analysis | `aws_vpcflow_otel-traffic` | Traffic distribution, source analysis, and security deep dive |
+| Interface Analysis | `aws_vpcflow_otel-interface` | Per-interface analysis and account metrics |
 
 ## Source
 
