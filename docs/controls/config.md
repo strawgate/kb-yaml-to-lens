@@ -219,9 +219,16 @@ controls:
       show_root_heading: false
       heading_level: 5
 
-#### ES|QL Query-Driven Control (DEPRECATED)
+#### ES|QL Query-Driven Single-Select Control (DEPRECATED)
 
-::: dashboard_compiler.controls.config.ESQLQueryControl
+::: dashboard_compiler.controls.config.ESQLQuerySingleSelectControl
+    options:
+      show_root_heading: false
+      heading_level: 5
+
+#### ES|QL Query-Driven Multi-Select Control (DEPRECATED)
+
+::: dashboard_compiler.controls.config.ESQLQueryMultiSelectControl
     options:
       show_root_heading: false
       heading_level: 5
@@ -245,7 +252,27 @@ controls:
     query: FROM logs-* | STATS count BY host.name | KEEP host.name
     label: Host Names
     multiple: true
+
+  # Query-driven single-select with default value
+  - type: esql
+    variable_name: region
+    variable_type: values
+    query: FROM logs-* | STATS count BY cloud.region | KEEP cloud.region
+    label: Cloud Region
+    multiple: false
+    default: us-east-1
+
+  # Query-driven multi-select with default values
+  - type: esql
+    variable_name: services
+    variable_type: values
+    query: FROM logs-* | STATS count BY service.name | KEEP service.name
+    label: Services
+    multiple: true
+    default: ["api-gateway", "auth-service"]
 ```
+
+**Note**: Default values for query-driven controls are not validated against query results since the values are fetched dynamically at runtime.
 
 **Important**: ES|QL control queries **must return exactly one column** containing the values to display in the control. Use `KEEP` to select only the field column after aggregation.
 
