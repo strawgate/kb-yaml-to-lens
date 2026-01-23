@@ -8,81 +8,53 @@ ifeq ($(PARALLEL),1)
 MAKEFLAGS += --jobs=3 --output-sync=target
 endif
 
-.PHONY: all help install ci check fix test-unit test-e2e test-smoke clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci compiler vscode docs
+.PHONY: all help install ci check fix test-unit test-e2e clean clean-full lint-markdown lint-markdown-check check-docs gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci compiler vscode docs
 
 all: check
 
 help:
-	@echo "=== Root-Level Commands (Orchestration) ==="
+	@echo "=== Root Orchestration Commands ==="
 	@echo ""
-	@echo "Setup:"
-	@echo "  install       - Install all component dependencies"
-	@echo ""
-	@echo "CI Workflow:"
-	@echo "  all           - Run fast checks (default target, alias for check)"
+	@echo "  install       - Install all dependencies (compiler + vscode + markdownlint)"
 	@echo "  check         - Run fast checks in parallel (lint + typecheck + unit tests)"
-	@echo "  check PARALLEL=0 - Run checks sequentially (for debugging)"
-	@echo "  ci            - Run comprehensive CI (check + e2e tests, matches GitHub Actions)"
+	@echo "  ci            - Run comprehensive CI (check + e2e tests)"
 	@echo "  fix           - Auto-fix linting issues across all components"
-	@echo ""
-	@echo "Linting:"
-	@echo "  lint-markdown     - Auto-fix markdown linting"
-	@echo "  lint-markdown-check - Check markdown without fixing"
-	@echo ""
-	@echo "Testing:"
-	@echo "  test-unit     - Run unit tests only (fast)"
-	@echo "  test-e2e      - Run end-to-end tests (requires setup)"
-	@echo "  test-smoke    - Run CLI smoke tests"
-	@echo ""
-	@echo "Documentation:"
-	@echo "  docs-serve         - Start local documentation server"
-	@echo "  docs-build         - Build documentation static site"
-	@echo "  docs-build-quiet   - Build documentation (errors only)"
-	@echo "  docs-build-strict  - Build documentation with strict mode (fails on warnings)"
-	@echo "  docs-deploy        - Deploy documentation to GitHub Pages"
-	@echo "  check-docs         - Check documentation (lint + link verification)"
-	@echo ""
-	@echo "VS Code Extension:"
-	@echo "  prepare-extension            - Download uv + bundle compiler (current platform, for dev)"
-	@echo "  prepare-extension-all        - Download uv for all platforms + bundle compiler (for release)"
-	@echo "  package-extension            - Prepare and package extension (current platform)"
-	@echo "  package-extension-all        - Prepare and package extension (all platforms, for release)"
-	@echo "  install-extension-vscode     - Package and install into VS Code"
-	@echo "  install-extension-cursor     - Package and install into Cursor"
-	@echo ""
-	@echo "Cleaning:"
-	@echo "  clean         - Clean cache and temporary files"
+	@echo "  test-unit     - Run unit tests across components"
+	@echo "  test-e2e      - Run end-to-end tests"
+	@echo "  clean         - Clean all component caches"
 	@echo "  clean-full    - Clean all including virtual environments"
+	@echo "  check-docs    - Check documentation (markdown lint + link verification)"
 	@echo ""
-	@echo "Helpers:"
-	@echo "  inspector     - Run MCP Inspector"
-	@echo ""
-	@echo "GitHub Workflow Helpers:"
-	@echo "  gh-get-review-threads        - Get PR review threads (OWNER REPO PR [AUTHOR])"
-	@echo "  gh-resolve-review-thread     - Resolve review thread (OWNER REPO PR THREAD_ID [COMMENT])"
-	@echo "  gh-get-latest-review         - Get latest review from author (OWNER REPO PR AUTHOR)"
-	@echo "  gh-check-latest-review       - Check if review is latest (OWNER REPO PR AUTHOR REVIEW_ID)"
-	@echo "  gh-get-comments-since        - Get comments since timestamp (OWNER REPO ISSUE SINCE [AUTHOR])"
-	@echo "  gh-minimize-outdated-comments - Minimize outdated PR comments (OWNER REPO PR)"
-	@echo "  gh-check-repo-activity       - Check repo activity (OWNER REPO SINCE [THRESHOLD])"
-	@echo ""
-	@echo "Release:"
-	@echo "  bump-patch        - Bump patch version across all components"
-	@echo "  bump-minor        - Bump minor version across all components"
-	@echo "  bump-major        - Bump major version across all components"
-	@echo "  bump-version-show - Show current versions across all components"
+	@echo "Markdown Linting (global):"
+	@echo "  lint-markdown       - Auto-fix markdown issues"
+	@echo "  lint-markdown-check - Check markdown without fixing"
 	@echo ""
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
-	@echo "Run any target in a component's Makefile directly:"
-	@echo "  make compiler <target>  - Run target in compiler/ (e.g., make compiler test)"
-	@echo "  make vscode <target>    - Run target in vscode-extension/ (e.g., make vscode lint)"
-	@echo "  make docs <target>      - Run target in docs/ (e.g., make docs test-links)"
+	@echo "Run any component target directly from root:"
+	@echo "  make compiler <target>  - Run in compiler/"
+	@echo "  make vscode <target>    - Run in vscode-extension/"
+	@echo "  make docs <target>      - Run in docs/"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make compiler help      - Show compiler-specific targets"
-	@echo "  make vscode test-e2e    - Run VS Code extension E2E tests"
+	@echo "  make compiler help         - Show all compiler targets"
+	@echo "  make compiler test-smoke   - Run compiler smoke tests"
 	@echo "  make compiler docker-build - Build compiler Docker image"
+	@echo "  make vscode help           - Show all vscode targets"
+	@echo "  make vscode prepare        - Prepare extension for dev"
+	@echo "  make vscode package        - Package extension"
+	@echo "  make docs serve            - Start docs server"
+	@echo "  make docs build            - Build documentation"
+	@echo ""
+	@echo "=== Release & GitHub Helpers ==="
+	@echo ""
+	@echo "Version bumping:"
+	@echo "  bump-patch / bump-minor / bump-major / bump-version-show"
+	@echo ""
+	@echo "GitHub workflow helpers (for Claude Code Action):"
+	@echo "  gh-get-review-threads / gh-resolve-review-thread / gh-get-latest-review"
+	@echo "  gh-check-latest-review / gh-get-comments-since / gh-minimize-outdated-comments"
+	@echo "  gh-check-repo-activity"
 
 # Component iteration helper
 # Run target in component
@@ -152,12 +124,6 @@ test-e2e:
 	$(call run-in-component,vscode-extension,test-e2e)
 	@echo "✓ E2E tests passed"
 
-test-smoke:
-	@echo "Running smoke tests..."
-	@echo ""
-	$(call run-in-component,compiler,test-smoke)
-	@echo "✓ Smoke tests passed"
-
 # Markdown linting (global)
 lint-markdown:
 	@echo "Running markdownlint --fix..."
@@ -182,33 +148,6 @@ clean-full:
 	$(call run-in-component,vscode-extension,clean)
 	@echo "✓ Deep cleaning complete"
 
-# Helpers
-inspector:
-	@echo "Running MCP Inspector..."
-	npx @modelcontextprotocol/inspector
-
-# Documentation
-docs-serve:
-	@echo "Starting documentation server..."
-	@cd docs && NO_COLOR=1 uv run --group docs mkdocs serve
-
-docs-build:
-	@echo "Building documentation..."
-	@cd docs && NO_COLOR=1 uv run --group docs mkdocs build
-
-docs-build-quiet:
-	@echo "Building documentation (errors only)..."
-	@cd docs && NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict && echo "✓ Documentation builds successfully"
-
-docs-build-strict:
-	@echo "Building documentation with strict mode..."
-	@cd docs && NO_COLOR=1 uv run --group docs mkdocs build --strict
-	@echo "✓ Documentation builds successfully (strict mode)"
-
-docs-deploy:
-	@echo "Deploying documentation to GitHub Pages..."
-	@cd docs && NO_COLOR=1 uv run --group docs mkdocs gh-deploy --force
-
 check-docs:
 	@echo "Checking documentation (lint + links)..."
 	@echo ""
@@ -216,42 +155,6 @@ check-docs:
 	@$(call run-in-component,docs,test-links)
 	@echo ""
 	@echo "✓ Documentation checks passed"
-
-# VS Code Extension
-prepare-extension:
-	@echo "Preparing VS Code extension (download uv + bundle compiler)..."
-	@echo ""
-	$(call run-in-component,vscode-extension,prepare)
-	@echo "✓ Extension prepared"
-
-prepare-extension-all:
-	@echo "Preparing VS Code extension for all platforms..."
-	@echo ""
-	$(call run-in-component,vscode-extension,prepare-all)
-	@echo "✓ Extension prepared for all platforms"
-
-package-extension: prepare-extension
-	@echo "Packaging VS Code extension..."
-	@echo ""
-	$(call run-in-component,vscode-extension,package)
-	@echo "✓ Extension packaged"
-
-package-extension-all: prepare-extension-all
-	@echo "Packaging VS Code extension (all platforms)..."
-	@echo ""
-	$(call run-in-component,vscode-extension,ci)
-	$(call run-in-component,vscode-extension,package)
-	@echo "✓ Extension packaged for all platforms"
-
-install-extension-vscode: package-extension
-	@echo "Installing extension into VS Code..."
-	@echo ""
-	$(call run-in-component,vscode-extension,install-vscode)
-
-install-extension-cursor: package-extension
-	@echo "Installing extension into Cursor..."
-	@echo ""
-	$(call run-in-component,vscode-extension,install-cursor)
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:
