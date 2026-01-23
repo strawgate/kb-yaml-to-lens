@@ -38,11 +38,16 @@ def load_roundtrip(path: str) -> CommentedMap:
     Raises:
         FileNotFoundError: If the file does not exist.
         ruamel.yaml.YAMLError: If the file contains invalid YAML.
+        TypeError: If the YAML root is not a mapping.
     """
     yaml = _create_yaml()
     file_path = Path(path)
     with file_path.open(encoding='utf-8') as f:
         document: Any = yaml.load(f)
+    if not isinstance(document, CommentedMap):
+        actual_type = type(document).__name__ if document is not None else 'None'
+        msg = f'Expected YAML document root to be a mapping, got {actual_type}'
+        raise TypeError(msg)
     return document
 
 

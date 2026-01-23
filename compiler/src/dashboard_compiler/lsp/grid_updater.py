@@ -62,26 +62,54 @@ def _find_panel_in_document(document: CommentedMap, panel_id: str, dashboard_ind
         return None, f'Panel with ID {panel_id} not found'
 
 
+def _is_alias(value: CommentedMap) -> bool:
+    """Check if a CommentedMap is an alias reference.
+
+    A value is considered an alias if it has an anchor attribute with a value,
+    indicating it was defined elsewhere and referenced via alias.
+
+    Args:
+        value: The CommentedMap to check.
+
+    Returns:
+        True if the value appears to be an alias reference.
+    """
+    return hasattr(value, 'anchor') and bool(value.anchor.value)
+
+
 def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None:
     """Update the grid coordinates in a panel dictionary.
+
+    When the existing position/size is an alias, replaces with a new CommentedMap
+    to avoid mutating the shared anchor value.
 
     Args:
         panel: The panel's CommentedMap to modify.
         new_grid: New grid coordinates with keys: x, y, w, h.
     """
     position = panel.get('position')
-    if isinstance(position, CommentedMap):
+    if isinstance(position, CommentedMap) and not _is_alias(position):
         position['x'] = new_grid['x']
         position['y'] = new_grid['y']
     else:
-        panel['position'] = {'x': new_grid['x'], 'y': new_grid['y']}
+        new_position = CommentedMap()
+        new_position['x'] = new_grid['x']
+        new_position['y'] = new_grid['y']
+        if isinstance(position, CommentedMap):
+            new_position.fa.set_flow_style()
+        panel['position'] = new_position
 
     size = panel.get('size')
-    if isinstance(size, CommentedMap):
+    if isinstance(size, CommentedMap) and not _is_alias(size):
         size['w'] = new_grid['w']
         size['h'] = new_grid['h']
     else:
-        panel['size'] = {'w': new_grid['w'], 'h': new_grid['h']}
+        new_size = CommentedMap()
+        new_size['w'] = new_grid['w']
+        new_size['h'] = new_grid['h']
+        if isinstance(size, CommentedMap):
+            new_size.fa.set_flow_style()
+        panel['size'] = new_size
 
 
 def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], dashboard_index: int = 0) -> dict[str, Any]:

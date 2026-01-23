@@ -85,10 +85,8 @@ def test_roundtrip_preserves_inline_flow_style(tmp_path: Path) -> None:
     assert result['success'] is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
-    assert 'w: 8' in updated_content
-    assert 'h: 4' in updated_content
-    assert 'x: 1' in updated_content
-    assert 'y: 2' in updated_content
+    assert 'size: {w: 8, h: 4}' in updated_content
+    assert 'position: {x: 1, y: 2}' in updated_content
 
 
 def test_roundtrip_preserves_blank_lines(tmp_path: Path) -> None:
@@ -184,6 +182,43 @@ def test_roundtrip_with_anchors_and_aliases(tmp_path: Path) -> None:
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert '&default_size' in updated_content
     assert '*default_size' in updated_content
+
+
+def test_updating_aliased_panel_does_not_modify_anchor(tmp_path: Path) -> None:
+    """Verify updating a panel with aliased size does not modify the anchor."""
+    content = textwrap.dedent("""\
+        defaults: &default_size
+          w: 10
+          h: 5
+
+        dashboards:
+          - name: "Test Dashboard"
+            panels:
+              - id: "panel-a"
+                title: "Markdown A"
+                size: *default_size
+                position: {x: 0, y: 0}
+                markdown:
+                  content: "Hello"
+              - id: "panel-b"
+                title: "Markdown B"
+                size: *default_size
+                position: {x: 10, y: 0}
+                markdown:
+                  content: "World"
+        """)
+    yaml_path = tmp_path / 'dashboard.yaml'
+    yaml_path.write_text(content, encoding='utf-8')
+
+    result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 5, 'y': 5, 'w': 20, 'h': 15})
+    assert result['success'] is True
+
+    updated_content = yaml_path.read_text(encoding='utf-8')
+    assert '&default_size' in updated_content
+    assert 'w: 10' in updated_content
+    assert 'h: 5' in updated_content
+    assert 'w: 20' in updated_content
+    assert 'h: 15' in updated_content
 
 
 def test_roundtrip_multi_dashboard_file(tmp_path: Path) -> None:
