@@ -306,6 +306,265 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### System Integration Dashboards
+
+Comprehensive monitoring dashboards for the Elastic System integration.
+
+**Use this when:** Monitoring Linux/Unix systems, Windows systems, and Windows security events.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system) dashboards. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
+
+#### Classic Dashboards
+
+These dashboards are direct conversions from the Elastic System integration.
+
+**Metrics Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/01-metrics-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/01-metrics-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/02-host-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/02-host-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Log Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/03-syslog.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/03-syslog.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/04-sudo-commands.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/04-sudo-commands.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/05-ssh-logins.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/05-ssh-logins.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/06-users-groups.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/06-users-groups.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Windows Security Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/07-windows-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/07-windows-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/08-windows-logons.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/08-windows-logons.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/09-windows-failed-blocked.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/09-windows-failed-blocked.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/10-windows-user-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/10-windows-user-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/11-windows-group-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/11-windows-group-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/12-windows-directory-monitoring.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/12-windows-directory-monitoring.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/13-windows-system-process.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/13-windows-system-process.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/14-windows-policy-object.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/14-windows-policy-object.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Modern Dashboards
+
+These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md) best practices with:
+
+- 4-layer hierarchy (Context → Summary → Analysis → Detail)
+- Navigation links at top
+- Limited metric cards (0-4)
+- Appropriate chart types
+- Tables at bottom with 10-row pagination
+- Controls for filtering
+
+**Metrics Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/01-metrics-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/01-metrics-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/02-host-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/02-host-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Log Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/03-syslog.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/03-syslog.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/04-sudo-commands.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/04-sudo-commands.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/05-ssh-logins.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/05-ssh-logins.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/06-users-groups.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/06-users-groups.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Windows Security Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/07-windows-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/07-windows-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/08-windows-logons.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/08-windows-logons.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/09-windows-failed-blocked.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/09-windows-failed-blocked.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/10-windows-user-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/10-windows-user-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/11-windows-group-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/11-windows-group-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/12-windows-directory-monitoring.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/12-windows-directory-monitoring.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/13-windows-system-process.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/13-windows-system-process.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/14-windows-policy-object.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/14-windows-policy-object.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/content/examples/` directory of the repository. You can:
