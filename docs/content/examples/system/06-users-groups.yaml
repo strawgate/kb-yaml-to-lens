@@ -1,0 +1,100 @@
+---
+dashboards:
+  - id: system-users-groups
+    name: '[Logs System] User and Group Management'
+    description: User and group management events from the System integration
+    filters:
+      - field: event.module
+        equals: system
+      - field: event.category
+        equals: iam
+    panels:
+      - title: Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Syslog
+              dashboard: system-syslog-dashboard
+            - label: Sudo commands
+              dashboard: system-sudo-commands
+            - label: SSH logins
+              dashboard: system-ssh-logins
+      - title: User and group events over time
+        grid: {x: 0, y: 3, w: 48, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: event.action
+            size: 10
+      - title: Event actions
+        grid: {x: 0, y: 18, w: 16, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: event.action
+              size: 10
+          metrics:
+            - aggregation: count
+      - title: Hosts
+        grid: {x: 16, y: 18, w: 16, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+      - title: Users
+        grid: {x: 32, y: 18, w: 16, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: user.name
+              size: 10
+          metrics:
+            - aggregation: count
+      - title: Recent User and Group Events
+        grid: {x: 0, y: 33, w: 48, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+              label: Timestamp
+            - id: hostname
+              type: values
+              field: host.hostname
+              label: Host
+            - id: action
+              type: values
+              field: event.action
+              label: Action
+            - id: user
+              type: values
+              field: user.name
+              label: User
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 20

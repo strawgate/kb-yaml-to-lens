@@ -1,0 +1,204 @@
+---
+dashboards:
+  - id: system-windows-group-management
+    name: '[System Windows Security] Group Management Events'
+    description: Windows security group management events
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4727'
+          - '4728'
+          - '4729'
+          - '4730'
+          - '4731'
+          - '4732'
+          - '4733'
+          - '4734'
+          - '4735'
+          - '4737'
+          - '4754'
+          - '4755'
+          - '4756'
+          - '4757'
+          - '4758'
+          - '4759'
+          - '4760'
+          - '4761'
+          - '4762'
+          - '4763'
+          - '4764'
+    panels:
+      - title: Windows Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Windows Overview
+              dashboard: system-windows-overview
+            - label: User Logons
+              dashboard: system-windows-logons
+            - label: User Management
+              dashboard: system-windows-user-management
+            - label: Group Management
+              dashboard: system-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-windows-directory-monitoring
+      - title: Group Management Events Over Time
+        grid: {x: 0, y: 3, w: 48, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 20
+      - title: Group Created
+        grid: {x: 0, y: 18, w: 10, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Created
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4727'
+                - '4731'
+                - '4754'
+                - '4759'
+      - title: Member Added
+        grid: {x: 10, y: 18, w: 10, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Added
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4728'
+                - '4732'
+                - '4756'
+                - '4761'
+      - title: Group Modified
+        grid: {x: 20, y: 18, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Modified
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4735'
+                - '4737'
+                - '4755'
+                - '4760'
+                - '4764'
+      - title: Member Removed
+        grid: {x: 28, y: 18, w: 10, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Removed
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4729'
+                - '4733'
+                - '4757'
+                - '4762'
+      - title: Group Deleted
+        grid: {x: 38, y: 18, w: 10, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Deleted
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4730'
+                - '4734'
+                - '4758'
+                - '4763'
+      - title: Event Distribution
+        grid: {x: 0, y: 26, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 20
+          metrics:
+            - aggregation: count
+      - title: Affected Groups
+        grid: {x: 24, y: 26, w: 24, h: 15}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.TargetUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Group Management by Actor
+        grid: {x: 0, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: actor
+              type: values
+              field: winlog.event_data.SubjectUserName
+              size: 20
+          metrics:
+            - id: event-count
+              aggregation: count
+              label: Events
+          paging:
+            enabled: true
+            page_size: 10
+      - title: Recent Group Management Events
+        grid: {x: 24, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: user
+              type: values
+              field: user.name
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 20

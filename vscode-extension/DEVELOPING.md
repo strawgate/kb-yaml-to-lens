@@ -18,7 +18,7 @@ npm run compile
 
 ## Commands
 
-Run from the `vscode-extension/` directory:
+Run from the `vscode-extension/` directory, or use pass-through from the repository root:
 
 | Command | Purpose |
 | ------- | ------- |
@@ -31,6 +31,8 @@ Run from the `vscode-extension/` directory:
 | `make package` | Create .vsix package |
 
 For all commands, see `make help`.
+
+**From repository root:** Use `make vscode <target>` (e.g., `make vscode test`).
 
 ## Development Workflow
 

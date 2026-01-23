@@ -1,0 +1,249 @@
+---
+# Modern Windows Group Management Dashboard
+# Following Dashboard Style Guide best practices:
+# - Group management event analysis: creation, modification, membership
+# - Privileged group tracking (Domain Admins, Administrators, etc.)
+# - Administrator activity monitoring
+# - Detailed audit table at bottom
+dashboards:
+  - id: system-modern-windows-group-management
+    name: '[Logs System] Windows Group Management'
+    description: >-
+      Windows group management events including membership changes.
+      Monitor privileged group modifications and administrator activities.
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4727'
+          - '4728'
+          - '4729'
+          - '4730'
+          - '4731'
+          - '4732'
+          - '4733'
+          - '4734'
+          - '4735'
+          - '4737'
+          - '4754'
+          - '4755'
+          - '4756'
+          - '4757'
+          - '4758'
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Group Name
+        data_view: logs-*
+        field: winlog.event_data.TargetUserName
+        width: medium
+      - type: options
+        label: Administrator
+        data_view: logs-*
+        field: winlog.event_data.SubjectUserName
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: Windows Security Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: system-modern-windows-overview
+            - label: Logons
+              dashboard: system-modern-windows-logons
+            - label: Failed & Blocked
+              dashboard: system-modern-windows-failed-blocked
+            - label: User Management
+              dashboard: system-modern-windows-user-management
+            - label: Group Management
+              dashboard: system-modern-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-modern-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-modern-windows-system-process
+            - label: Policy & Object
+              dashboard: system-modern-windows-policy-object
+
+      # Summary Layer - Key Metrics
+      - title: Total Events
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Unique Groups
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: winlog.event_data.TargetUserName
+            label: Groups
+      - title: Members Added
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Added
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4728'
+                - '4732'
+                - '4756'
+      - title: Members Removed
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Removed
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4729'
+                - '4733'
+                - '4757'
+
+      # Analysis Layer - Time Series
+      - title: Group Management Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 10
+
+      # Analysis Layer - Event Distribution
+      - title: Event Types
+        grid: {x: 0, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Host
+        grid: {x: 16, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Top Administrators
+        grid: {x: 32, y: 21, w: 16, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.SubjectUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - Group Analysis
+      - title: Top Modified Groups
+        grid: {x: 0, y: 33, w: 24, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.TargetUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 5
+      - title: Group and Administrator Distribution
+        grid: {x: 24, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_data.TargetUserName
+              size: 10
+            - type: values
+              field: winlog.event_data.SubjectUserName
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Audit Log Table
+      - title: Group Management Audit Log
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: subject-user
+              type: values
+              field: winlog.event_data.SubjectUserName
+            - id: target-group
+              type: values
+              field: winlog.event_data.TargetUserName
+            - id: member
+              type: values
+              field: winlog.event_data.MemberName
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10
