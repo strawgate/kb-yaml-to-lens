@@ -529,7 +529,11 @@ class KibanaClient:
 
         timeout = aiohttp.ClientTimeout(total=30)
         async with await self._post(
-            endpoint, params=params, json=request_body, headers={'Content-Type': 'application/json'}, timeout=timeout
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+            timeout=timeout,
         ) as response:
             if response.status != HTTP_OK:
                 error_text = await response.text()
