@@ -9,9 +9,12 @@ The tests use a selection of example dashboards that cover different features:
 - Filter compilation
 - Control group compilation
 - Multi-dashboard files with navigation
+
+Note: All IDs in the compiler are deterministic - the same YAML input will always
+produce the same output, including all UUIDs, panel indexes, and reference names.
+This is achieved via stable_id_generator() which hashes input data with SHA-1.
 """
 
-import re
 from pathlib import Path
 from typing import Any
 
@@ -25,111 +28,14 @@ from tests.conftest import de_json_kbn_dashboard
 _project_root = Path(__file__).parent.parent.parent.parent
 _example_dir = _project_root / 'docs' / 'examples'
 
-# UUID pattern for normalization
-_UUID_PATTERN = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', re.IGNORECASE)
 
+def _prepare_dashboard_for_snapshot(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
+    """Prepare a compiled dashboard for snapshot comparison.
 
-def _replace_panel_indexes(result: dict[str, Any]) -> None:
-    """Replace panelIndex values with consistent placeholders."""
-    if 'attributes' in result and 'panelsJSON' in result['attributes']:
-        panels = result['attributes']['panelsJSON']
-        if isinstance(panels, list):
-            for i, panel in enumerate(panels):
-                panel['panelIndex'] = f'panel_{i}'
-
-
-def _replace_references(result: dict[str, Any]) -> None:
-    """Replace reference names with consistent placeholders."""
-    if 'references' in result and isinstance(result['references'], list):
-        for i, ref in enumerate(result['references']):
-            if 'name' in ref:
-                ref['name'] = f'ref_{i}'
-
-
-def _replace_nested_references(attrs: dict[str, Any]) -> None:
-    """Replace nested reference names in attributes."""
-    if 'references' in attrs and isinstance(attrs['references'], list):
-        for i, ref in enumerate(attrs['references']):
-            if 'name' in ref:
-                ref['name'] = f'nested_ref_{i}'
-
-
-def _replace_nested_ids(result: dict[str, Any]) -> None:
-    """Replace nested reference names in panel embeddable config."""
-    if 'attributes' in result and 'panelsJSON' in result['attributes']:
-        panels = result['attributes']['panelsJSON']
-        if isinstance(panels, list):
-            for panel in panels:
-                if 'embeddableConfig' in panel and 'attributes' in panel['embeddableConfig']:
-                    attrs = panel['embeddableConfig']['attributes']
-                    _replace_nested_references(attrs)
-
-
-def _replace_dynamic_ids(result: dict[str, Any]) -> dict[str, Any]:
-    """Replace dynamic IDs with placeholders for consistent snapshots."""
-    result['id'] = 'DYNAMIC_ID'
-    result['created_at'] = 'DYNAMIC_TIMESTAMP'
-    result['created_by'] = 'DYNAMIC_USER'
-    result['updated_at'] = 'DYNAMIC_TIMESTAMP'
-    result['updated_by'] = 'DYNAMIC_USER'
-    result['version'] = 'DYNAMIC_VERSION'
-
-    _replace_panel_indexes(result)
-    _replace_references(result)
-    _replace_nested_ids(result)
-
-    return result
-
-
-def _replace_grid_data_ids(result: dict[str, Any]) -> None:
-    """Replace gridData 'i' values with sequential placeholders."""
-    if 'attributes' in result and 'panelsJSON' in result['attributes']:
-        panels = result['attributes']['panelsJSON']
-        if isinstance(panels, list):
-            for i, panel in enumerate(panels):
-                if 'gridData' in panel and 'i' in panel['gridData']:
-                    panel['gridData']['i'] = f'grid_id_{i}'
-
-
-def _normalize_uuids_in_dict(obj: Any, uuid_map: dict[str, str] | None = None) -> Any:
-    """Recursively replace UUIDs with consistent placeholders in a nested structure.
-
-    This handles UUIDs as both values and dictionary keys.
+    Deserializes JSON fields for easier inspection. All IDs are deterministic
+    and do not need normalization.
     """
-    if uuid_map is None:
-        uuid_map = {}
-
-    def get_placeholder(uuid_str: str) -> str:
-        if uuid_str not in uuid_map:
-            uuid_map[uuid_str] = f'UUID_{len(uuid_map)}'
-        return uuid_map[uuid_str]
-
-    if isinstance(obj, dict):
-        new_dict = {}
-        for key, value in obj.items():
-            # Check if key is a UUID
-            new_key = key
-            if isinstance(key, str) and _UUID_PATTERN.fullmatch(key):
-                new_key = get_placeholder(key)
-            new_dict[new_key] = _normalize_uuids_in_dict(value, uuid_map)
-        return new_dict
-    if isinstance(obj, list):
-        return [_normalize_uuids_in_dict(item, uuid_map) for item in obj]
-    if isinstance(obj, str) and _UUID_PATTERN.fullmatch(obj):
-        return get_placeholder(obj)
-    return obj
-
-
-def _normalize_dashboard_for_snapshot(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
-    """Normalize a compiled dashboard for snapshot comparison.
-
-    Applies all dynamic ID replacements to ensure snapshots are deterministic.
-    """
-    result = de_json_kbn_dashboard(kbn_dashboard_dict)
-    result = _replace_dynamic_ids(result)
-    _replace_grid_data_ids(result)
-    # Normalize all UUIDs to placeholders
-    return _normalize_uuids_in_dict(result)
+    return de_json_kbn_dashboard(kbn_dashboard_dict)
 
 
 class TestMultiPanelShowcase:
@@ -152,7 +58,7 @@ class TestMultiPanelShowcase:
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         # Verify basic dashboard structure
         assert result['attributes']['title'] == '[Example] Multi-Panel Showcase'
@@ -162,7 +68,7 @@ class TestMultiPanelShowcase:
         """Test that multi-panel-showcase has the expected number of panels."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         panels = result['attributes']['panelsJSON']
         assert len(panels) == 8
@@ -171,7 +77,7 @@ class TestMultiPanelShowcase:
         """Test that multi-panel-showcase contains the expected panel types."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         panels = result['attributes']['panelsJSON']
         panel_types = [p['type'] for p in panels]
@@ -183,7 +89,7 @@ class TestMultiPanelShowcase:
         """Test that lens panels have the expected visualization types."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         panels = result['attributes']['panelsJSON']
         lens_panels = [p for p in panels if p['type'] == 'lens']
@@ -197,7 +103,7 @@ class TestMultiPanelShowcase:
         """Test the markdown panel structure."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         markdown_panel = result['attributes']['panelsJSON'][0]
         saved_vis = markdown_panel['embeddableConfig']['savedVis']
@@ -212,7 +118,7 @@ class TestMultiPanelShowcase:
         """Test the links panel structure."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         links_panel = result['attributes']['panelsJSON'][1]
         attrs = links_panel['embeddableConfig']['attributes']
@@ -245,7 +151,7 @@ class TestControlsExample:
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         # Verify control group is present and has expected structure
         assert 'controlGroupInput' in result['attributes']
@@ -258,7 +164,7 @@ class TestControlsExample:
         """Test the structure of control panels."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         control_group = result['attributes']['controlGroupInput']
         panels = control_group['panelsJSON']
@@ -289,7 +195,7 @@ class TestFiltersExample:
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         # Verify we have the expected number of panels
         panels = result['attributes']['panelsJSON']
@@ -302,7 +208,7 @@ class TestFiltersExample:
         """Test that panels have filters embedded in their configurations."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         panels = result['attributes']['panelsJSON']
         lens_panels = [p for p in panels if p['type'] == 'lens']
@@ -342,7 +248,7 @@ class TestNavigationExample:
         overview_dashboard = dashboards[0]
 
         kbn_dashboard = render(dashboard=overview_dashboard)
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         # Verify dashboard title
         assert result['attributes']['title'] == '[Example] Navigation - Overview Dashboard'
@@ -364,7 +270,7 @@ class TestNavigationExample:
         titles: list[str] = []
         for dashboard in dashboards:
             kbn_dashboard = render(dashboard=dashboard)
-            result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+            result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
             titles.append(str(result['attributes']['title']))
 
         assert titles == snapshot(
@@ -393,7 +299,7 @@ class TestAerospikeOverview:
         assert len(dashboards) == 1
 
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         # Verify dashboard title
         assert result['attributes']['title'] == '[Metrics Aerospike] Overview'
@@ -413,7 +319,7 @@ class TestAerospikeOverview:
         """Test the visualization types in the Aerospike overview dashboard."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         panels = result['attributes']['panelsJSON']
         lens_panels = [p for p in panels if p['type'] == 'lens']
@@ -427,7 +333,7 @@ class TestAerospikeOverview:
         """Test the navigation links panel in Aerospike overview."""
         dashboards = load(str(dashboard_path))
         kbn_dashboard = render(dashboard=dashboards[0])
-        result = _normalize_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
 
         links_panel = result['attributes']['panelsJSON'][0]
         links = links_panel['embeddableConfig']['attributes']['links']
