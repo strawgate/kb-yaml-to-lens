@@ -1,7 +1,7 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show
+.PHONY: all help install ci check fix lint-all-check test-all test-unit test-e2e clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci
 
 all: check
 
@@ -14,6 +14,7 @@ help:
 	@echo "CI Workflow:"
 	@echo "  all           - Run fast checks (default target, alias for check)"
 	@echo "  check         - Run fast checks (lint + typecheck + unit tests)"
+	@echo "  check -j3     - Run fast checks in parallel (faster but interleaved output)"
 	@echo "  ci            - Run comprehensive CI (check + e2e tests, matches GitHub Actions)"
 	@echo "  fix           - Auto-fix linting issues across all components"
 	@echo ""
@@ -93,14 +94,24 @@ install:
 	@echo ""
 	@echo "✓ All dependencies installed"
 
-check:
-	@echo "Running fast checks (lint + typecheck + unit tests)..."
+# Component CI targets for parallel execution
+# Use `make check -j3` for parallel execution, `make check` for sequential
+compiler-ci:
+	@echo "→ Running compiler CI..."
+	@cd compiler && $(MAKE) ci
 	@echo ""
-	$(call run-in-component,compiler,ci)
-	$(call run-in-component,vscode-extension,ci)
+
+vscode-ci:
+	@echo "→ Running vscode-extension CI..."
+	@cd vscode-extension && $(MAKE) ci
+	@echo ""
+
+markdown-ci:
 	@echo "→ Checking markdown..."
 	@$(MAKE) lint-markdown-check
 	@echo ""
+
+check: compiler-ci vscode-ci markdown-ci
 	@echo "✓ All fast checks passed!"
 
 ci: check test-e2e
@@ -136,7 +147,7 @@ test-unit:
 test-e2e:
 	@echo "Running end-to-end tests..."
 	@echo ""
-	$(call run-in-component,vscode-extension,test)
+	$(call run-in-component,vscode-extension,test-e2e-only)
 	@echo "✓ E2E tests passed"
 
 test-all: test-unit test-e2e
