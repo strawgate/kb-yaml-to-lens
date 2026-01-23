@@ -243,7 +243,8 @@ export class PreviewPanel {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dashboardData = dashboard as any;
         const fileName = path.basename(filePath);
-        const ndjson = JSON.stringify(dashboard);
+        // Escape < to prevent </script> injection in embedded JSON
+        const ndjson = JSON.stringify(dashboard).replace(/</g, '\\u003c');
         const layoutHtml = this.generateLayoutHtml(gridInfo);
         const jsonFieldsHtml = this.generateJsonFieldsHtml(dashboardData);
         const panelsJson = JSON.stringify(gridInfo.panels).replace(/<\//g, '<\\/');
@@ -347,6 +348,19 @@ export class PreviewPanel {
                         display: none;
                     }
                     .success-message.show {
+                        display: block;
+                    }
+                    .stale-warning {
+                        background: var(--vscode-inputValidation-warningBackground);
+                        border: 1px solid var(--vscode-inputValidation-warningBorder);
+                        color: var(--vscode-inputValidation-warningForeground);
+                        padding: 10px;
+                        border-radius: 3px;
+                        margin-top: 10px;
+                        display: none;
+                        font-size: 12px;
+                    }
+                    .stale-warning.show {
                         display: block;
                     }
 
@@ -527,6 +541,9 @@ export class PreviewPanel {
                     <div class="success-message" id="successMessage">
                         Copied to clipboard! Import in Kibana: Stack Management > Saved Objects > Import
                     </div>
+                    <div class="stale-warning" id="staleWarning">
+                        Layout changed - NDJSON output may be stale. Save the file to recompile.
+                    </div>
                 </div>
 
                 <div class="section">
@@ -693,6 +710,12 @@ export class PreviewPanel {
                             grid: panel.grid
                         });
 
+                        // Show stale warning since NDJSON output won't reflect the new layout
+                        const staleWarning = document.getElementById('staleWarning');
+                        if (staleWarning) {
+                            staleWarning.classList.add('show');
+                        }
+
                         draggedPanel.classList.remove('dragging', 'resizing');
                         draggedPanel = null;
                         isResizing = false;
@@ -753,10 +776,12 @@ export class PreviewPanel {
                     }
 
                     // NOW initialize data (this can fail without breaking handlers)
+                    // Keep as string for clipboard/download - don't parse to object
                     try {
-                        ndjsonData = JSON.parse(document.getElementById('ndjson-data').textContent);
+                        ndjsonData = document.getElementById('ndjson-data')?.textContent ?? '';
                     } catch (e) {
-                        console.error('Failed to parse ndjson data:', e);
+                        console.error('Failed to read ndjson data:', e);
+                        ndjsonData = '';
                     }
 
                     try {
