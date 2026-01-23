@@ -126,7 +126,7 @@ Configure in VS Code settings (File → Preferences → Settings, search for "Ki
 
 **`yamlDashboard.kibana.browserType`** - Browser for opening dashboards - `external` or `simple` (default: `external`)
 
-**`yamlDashboard.kibana.uploadOnSave`** - Auto-upload on save (default: `false`)
+**`yamlDashboard.kibana.openOnSave`** - Auto-upload and open in Kibana on save (default: `false`)
 
 **`yamlDashboard.pythonPath`** - Python interpreter path (optional - only needed for development; bundled binary is used by default)
 
