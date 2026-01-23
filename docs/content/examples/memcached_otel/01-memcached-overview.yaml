@@ -28,7 +28,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            aggregation: average
+            aggregation: last_value
             field: metrics.memcached.current_items
             label: Items in Cache
             format:
@@ -40,7 +40,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            aggregation: average
+            aggregation: last_value
             field: metrics.memcached.bytes
             label: Bytes Used
             format:
@@ -52,7 +52,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            aggregation: average
+            aggregation: last_value
             field: metrics.memcached.connections.current
             label: Active Connections
             format:
@@ -64,7 +64,7 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            aggregation: average
+            aggregation: last_value
             field: metrics.memcached.threads
             label: Threads
             format:
@@ -230,15 +230,14 @@ dashboards:
           metrics:
             - formula: counter_rate(max(metrics.memcached.evictions))
               label: Evictions/sec
-      - title: Connections
+      - title: Current Connections
         position: {x: 24, y: 45}
-        size: {w: 24, h: 10}
+        size: {w: 12, h: 10}
         lens:
           type: line
           data_view: metrics-*
           legend:
-            visible: show
-            position: right
+            visible: hide
           dimension:
             field: '@timestamp'
             type: date_histogram
@@ -246,6 +245,18 @@ dashboards:
             - aggregation: average
               field: metrics.memcached.connections.current
               label: Current Connections
+      - title: New Connections Rate
+        position: {x: 36, y: 45}
+        size: {w: 12, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: hide
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
             - formula: counter_rate(max(metrics.memcached.connections.total))
               label: New Connections/sec
       - title: Network
