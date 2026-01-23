@@ -21,25 +21,36 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from tests.conftest import de_json_kbn_dashboard
 
-# Path to example dashboards
+# Paths
 _project_root = Path(__file__).parent.parent.parent.parent
 _example_dir = _project_root / 'docs' / 'examples'
 _snapshot_dir = Path(__file__).parent / 'snapshots'
 
 
-def _prepare_dashboard_for_snapshot(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
-    """Prepare a compiled dashboard for snapshot comparison.
+# Helpers
 
-    Deserializes JSON fields and returns as a dict for comparison.
-    All IDs are deterministic and do not need normalization.
-    """
-    return de_json_kbn_dashboard(kbn_dashboard_dict)
+
+def _compile_dashboard(yaml_path: Path) -> dict[str, Any]:
+    """Load a single-dashboard YAML file and compile to JSON dict."""
+    dashboards = load(str(yaml_path))
+    assert len(dashboards) == 1
+    kbn_dashboard = render(dashboard=dashboards[0])
+    return de_json_kbn_dashboard(kbn_dashboard.model_dump(by_alias=True))
+
+
+def _compile_dashboards(yaml_path: Path) -> list[tuple[Dashboard, dict[str, Any]]]:
+    """Load a multi-dashboard YAML file and compile all to JSON dicts."""
+    dashboards = load(str(yaml_path))
+    results: list[tuple[Dashboard, dict[str, Any]]] = []
+    for dashboard in dashboards:
+        kbn_dashboard = render(dashboard=dashboard)
+        compiled = de_json_kbn_dashboard(kbn_dashboard.model_dump(by_alias=True))
+        results.append((dashboard, compiled))
+    return results
 
 
 def _load_snapshot(filename: str) -> dict[str, Any]:
@@ -48,148 +59,73 @@ def _load_snapshot(filename: str) -> dict[str, Any]:
         return json.load(f)
 
 
-def _find_dashboard_by_id(dashboards: list[Dashboard], dashboard_id: str) -> Dashboard:
-    """Find a dashboard in a list by its id."""
-    for d in dashboards:
-        if d.id == dashboard_id:
-            return d
-    msg = f"Dashboard with id '{dashboard_id}' not found"
-    raise ValueError(msg)
+# Tests for multi-panel-showcase.yaml
+# Demonstrates all supported panel types: markdown, links, lens charts
 
 
-class TestMultiPanelShowcase:
-    """Snapshot tests for the multi-panel showcase dashboard.
-
-    This dashboard demonstrates all supported panel types:
-    - Markdown panels
-    - Links panels
-    - Lens charts (metric, pie, line, bar, area, tagcloud)
-    """
-
-    @pytest.fixture
-    def dashboard_path(self) -> Path:
-        """Path to multi-panel-showcase.yaml."""
-        return _example_dir / 'multi-panel-showcase.yaml'
-
-    @pytest.fixture
-    def compiled_dashboard(self, dashboard_path: Path) -> dict[str, Any]:
-        """Load and compile the dashboard to JSON."""
-        dashboards = load(str(dashboard_path))
-        assert len(dashboards) == 1
-        kbn_dashboard = render(dashboard=dashboards[0])
-        return _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-    def test_full_dashboard_snapshot(self, compiled_dashboard: dict[str, Any]) -> None:
-        """Snapshot the entire compiled multi-panel-showcase dashboard."""
-        expected = _load_snapshot('multi_panel_showcase.json')
-        assert compiled_dashboard == expected
+def test_multi_panel_showcase_snapshot() -> None:
+    """Snapshot the entire compiled multi-panel-showcase dashboard."""
+    result = _compile_dashboard(_example_dir / 'multi-panel-showcase.yaml')
+    expected = _load_snapshot('multi_panel_showcase.json')
+    assert result == expected
 
 
-class TestControlsExample:
-    """Snapshot tests for dashboards with controls."""
-
-    @pytest.fixture
-    def dashboard_path(self) -> Path:
-        """Path to controls-example.yaml."""
-        return _example_dir / 'controls-example.yaml'
-
-    @pytest.fixture
-    def compiled_dashboard(self, dashboard_path: Path) -> dict[str, Any]:
-        """Load and compile the dashboard to JSON."""
-        dashboards = load(str(dashboard_path))
-        assert len(dashboards) == 1
-        kbn_dashboard = render(dashboard=dashboards[0])
-        return _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-    def test_full_dashboard_snapshot(self, compiled_dashboard: dict[str, Any]) -> None:
-        """Snapshot the entire compiled controls-example dashboard."""
-        expected = _load_snapshot('controls_example.json')
-        assert compiled_dashboard == expected
+# Tests for controls-example.yaml
+# Demonstrates control group compilation
 
 
-class TestFiltersExample:
-    """Snapshot tests for dashboards with panel-level filters."""
-
-    @pytest.fixture
-    def dashboard_path(self) -> Path:
-        """Path to filters-example.yaml."""
-        return _example_dir / 'filters-example.yaml'
-
-    @pytest.fixture
-    def compiled_dashboard(self, dashboard_path: Path) -> dict[str, Any]:
-        """Load and compile the dashboard to JSON."""
-        dashboards = load(str(dashboard_path))
-        assert len(dashboards) == 1
-        kbn_dashboard = render(dashboard=dashboards[0])
-        return _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-
-    def test_full_dashboard_snapshot(self, compiled_dashboard: dict[str, Any]) -> None:
-        """Snapshot the entire compiled filters-example dashboard."""
-        expected = _load_snapshot('filters_example.json')
-        assert compiled_dashboard == expected
+def test_controls_example_snapshot() -> None:
+    """Snapshot the entire compiled controls-example dashboard."""
+    result = _compile_dashboard(_example_dir / 'controls-example.yaml')
+    expected = _load_snapshot('controls_example.json')
+    assert result == expected
 
 
-class TestNavigationExample:
-    """Snapshot tests for multi-dashboard files with navigation.
-
-    Uses dashboard id lookup instead of index-based access to avoid
-    test failures if YAML ordering changes.
-    """
-
-    @pytest.fixture
-    def dashboard_path(self) -> Path:
-        """Path to navigation-example.yaml."""
-        return _example_dir / 'navigation-example.yaml'
-
-    @pytest.fixture
-    def dashboards(self, dashboard_path: Path) -> list[Dashboard]:
-        """Load all dashboards from the navigation example."""
-        dashboards = load(str(dashboard_path))
-        assert len(dashboards) == 3
-        return dashboards
-
-    def test_overview_dashboard_snapshot(self, dashboards: list[Dashboard]) -> None:
-        """Snapshot the Overview dashboard from navigation-example."""
-        dashboard = _find_dashboard_by_id(dashboards, 'nav-overview-001')
-        kbn_dashboard = render(dashboard=dashboard)
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-        expected = _load_snapshot('navigation_overview.json')
-        assert result == expected
-
-    def test_details_dashboard_snapshot(self, dashboards: list[Dashboard]) -> None:
-        """Snapshot the Details dashboard from navigation-example."""
-        dashboard = _find_dashboard_by_id(dashboards, 'nav-details-001')
-        kbn_dashboard = render(dashboard=dashboard)
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-        expected = _load_snapshot('navigation_details.json')
-        assert result == expected
-
-    def test_analytics_dashboard_snapshot(self, dashboards: list[Dashboard]) -> None:
-        """Snapshot the Analytics dashboard from navigation-example."""
-        dashboard = _find_dashboard_by_id(dashboards, 'nav-analytics-001')
-        kbn_dashboard = render(dashboard=dashboard)
-        result = _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
-        expected = _load_snapshot('navigation_analytics.json')
-        assert result == expected
+# Tests for filters-example.yaml
+# Demonstrates panel-level filter compilation
 
 
-class TestAerospikeOverview:
-    """Snapshot tests for real-world integration dashboards."""
+def test_filters_example_snapshot() -> None:
+    """Snapshot the entire compiled filters-example dashboard."""
+    result = _compile_dashboard(_example_dir / 'filters-example.yaml')
+    expected = _load_snapshot('filters_example.json')
+    assert result == expected
 
-    @pytest.fixture
-    def dashboard_path(self) -> Path:
-        """Path to aerospike/overview.yaml."""
-        return _example_dir / 'aerospike' / 'overview.yaml'
 
-    @pytest.fixture
-    def compiled_dashboard(self, dashboard_path: Path) -> dict[str, Any]:
-        """Load and compile the dashboard to JSON."""
-        dashboards = load(str(dashboard_path))
-        assert len(dashboards) == 1
-        kbn_dashboard = render(dashboard=dashboards[0])
-        return _prepare_dashboard_for_snapshot(kbn_dashboard.model_dump(by_alias=True))
+# Tests for navigation-example.yaml
+# Demonstrates multi-dashboard files with navigation links
 
-    def test_full_dashboard_snapshot(self, compiled_dashboard: dict[str, Any]) -> None:
-        """Snapshot the entire compiled aerospike/overview dashboard."""
-        expected = _load_snapshot('aerospike_overview.json')
-        assert compiled_dashboard == expected
+
+def test_navigation_overview_snapshot() -> None:
+    """Snapshot the Overview dashboard from navigation-example."""
+    compiled = _compile_dashboards(_example_dir / 'navigation-example.yaml')
+    result = next(c for d, c in compiled if d.id == 'nav-overview-001')
+    expected = _load_snapshot('navigation_overview.json')
+    assert result == expected
+
+
+def test_navigation_details_snapshot() -> None:
+    """Snapshot the Details dashboard from navigation-example."""
+    compiled = _compile_dashboards(_example_dir / 'navigation-example.yaml')
+    result = next(c for d, c in compiled if d.id == 'nav-details-001')
+    expected = _load_snapshot('navigation_details.json')
+    assert result == expected
+
+
+def test_navigation_analytics_snapshot() -> None:
+    """Snapshot the Analytics dashboard from navigation-example."""
+    compiled = _compile_dashboards(_example_dir / 'navigation-example.yaml')
+    result = next(c for d, c in compiled if d.id == 'nav-analytics-001')
+    expected = _load_snapshot('navigation_analytics.json')
+    assert result == expected
+
+
+# Tests for aerospike/overview.yaml
+# Real-world integration dashboard
+
+
+def test_aerospike_overview_snapshot() -> None:
+    """Snapshot the entire compiled aerospike/overview dashboard."""
+    result = _compile_dashboard(_example_dir / 'aerospike' / 'overview.yaml')
+    expected = _load_snapshot('aerospike_overview.json')
+    assert result == expected
