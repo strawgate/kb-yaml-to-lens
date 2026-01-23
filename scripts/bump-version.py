@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -89,6 +90,8 @@ def update_versions(new_version: str, dry_run: bool) -> None:
     action = 'Would update' if dry_run else 'Updating'
     click.echo(f'{action} version: {current_version} -> {new_version}')
 
+    package_json_updated = False
+    pyproject_updated = False
     for file_path, file_format in VERSION_FILES.items():
         full_path = root / file_path
         if not full_path.exists():
@@ -99,9 +102,71 @@ def update_versions(new_version: str, dry_run: bool) -> None:
             write_version(full_path, file_format, old_ver, new_version)
         status = '(dry-run)' if dry_run else 'OK'
         click.echo(f'  {file_path}: {old_ver} -> {new_version} {status}')
+        
+        if file_path == 'vscode-extension/package.json':
+            package_json_updated = True
+        if file_path.endswith('pyproject.toml'):
+            pyproject_updated = True
+
+    # Update package-lock.json by running npm install
+    if package_json_updated and not dry_run:
+        click.echo('\nUpdating package-lock.json...')
+        vscode_ext_dir = root / 'vscode-extension'
+        try:
+            subprocess.run(
+                ['npm', 'install', '--package-lock-only'],
+                cwd=vscode_ext_dir,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            click.echo('  vscode-extension/package-lock.json: updated')
+        except subprocess.CalledProcessError as e:
+            click.echo(f'  Warning: Failed to update package-lock.json: {e.stderr}', err=True)
+        except FileNotFoundError:
+            click.echo('  Warning: npm not found. Skipping package-lock.json update.', err=True)
+
+    # Update uv.lock files by running uv lock
+    if pyproject_updated and not dry_run:
+        click.echo('\nUpdating uv.lock files...')
+        
+        # Update root uv.lock
+        try:
+            subprocess.run(
+                ['uv', 'lock'],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            click.echo('  uv.lock: updated')
+        except subprocess.CalledProcessError as e:
+            click.echo(f'  Warning: Failed to update root uv.lock: {e.stderr}', err=True)
+        except FileNotFoundError:
+            click.echo('  Warning: uv not found. Skipping uv.lock update.', err=True)
+        
+        # Update compiler uv.lock
+        compiler_dir = root / 'compiler'
+        try:
+            subprocess.run(
+                ['uv', 'lock'],
+                cwd=compiler_dir,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            click.echo('  compiler/uv.lock: updated')
+        except subprocess.CalledProcessError as e:
+            click.echo(f'  Warning: Failed to update compiler/uv.lock: {e.stderr}', err=True)
+        except FileNotFoundError:
+            click.echo('  Warning: uv not found. Skipping compiler/uv.lock update.', err=True)
 
     if dry_run:
         click.echo('\nDry run complete. No files were modified.')
+        if package_json_updated:
+            click.echo('  (package-lock.json would also be updated)')
+        if pyproject_updated:
+            click.echo('  (uv.lock files would also be updated)')
     else:
         click.echo('\nVersion bump complete!')
 

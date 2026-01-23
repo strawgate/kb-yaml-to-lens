@@ -9,7 +9,7 @@ from dashboard_compiler.panels.view import KbnSavedObjectMeta, KbnSearchSourceJS
 from dashboard_compiler.queries.compile import compile_nonesql_query
 from dashboard_compiler.queries.view import KbnQuery
 from dashboard_compiler.shared.config import stable_id_generator
-from dashboard_compiler.shared.defaults import default_false, default_true
+from dashboard_compiler.shared.defaults import default_false, default_if_none, default_true
 from dashboard_compiler.shared.logging import log_compile
 from dashboard_compiler.shared.view import KbnReference
 
@@ -60,6 +60,11 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
     # Merge panel and control references
     all_references = panel_references + control_references
 
+    # Time range configuration
+    time_restore = dashboard.time_range is not None
+    time_from = dashboard.time_range.from_time if dashboard.time_range is not None else None
+    time_to = default_if_none(dashboard.time_range.to_time, 'now') if dashboard.time_range is not None else None
+
     return all_references, KbnDashboardAttributes(
         title=dashboard.name,
         description=dashboard.description or '',
@@ -71,7 +76,9 @@ def compile_dashboard_attributes(dashboard: Dashboard) -> tuple[list[KbnReferenc
             ),
         ),
         optionsJSON=compile_dashboard_options(settings=dashboard.settings),
-        timeRestore=False,
+        timeRestore=time_restore,
+        timeFrom=time_from,
+        timeTo=time_to,
         version=1,
         controlGroupInput=control_group_input,
     )

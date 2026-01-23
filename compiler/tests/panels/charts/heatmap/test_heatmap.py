@@ -1,4 +1,10 @@
-"""Test the compilation of heatmap charts from config models to view models using inline snapshots."""
+"""Test the compilation of heatmap charts from config models to view models using inline snapshots.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/heatmap-esql.json
+    - Data View: output/<version>/heatmap-dataview.json
+"""
 
 from typing import TYPE_CHECKING, Any
 
@@ -595,7 +601,8 @@ def test_heatmap_chart_dashboard_references_bubble_up() -> None:
             {
                 'title': 'Heatmap',
                 'id': 'heatmap-panel-1',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
                 'lens': {
                     'type': 'heatmap',
                     'data_view': 'logs-*',

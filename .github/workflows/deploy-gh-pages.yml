@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - docs/**
-      - mkdocs.yml
       - compiler/src/**
       - .github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
@@ -35,7 +34,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: docs/site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

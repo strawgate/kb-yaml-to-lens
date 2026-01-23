@@ -1,3 +1,11 @@
+"""View models for XY chart visualizations (bar, line, area) in Kibana Lens format.
+
+Fixture Examples:
+    https://github.com/strawgate/kb-yaml-to-lens-fixtures
+    - ES|QL: output/<version>/xy-chart-esql.json
+    - Data View: output/<version>/xy-chart-dataview.json
+"""
+
 from typing import Annotated, Any, Literal
 
 from pydantic import Field

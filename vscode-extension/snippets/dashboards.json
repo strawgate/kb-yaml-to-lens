@@ -254,9 +254,46 @@
       "    metric:",
       "      aggregation: ${10|count,sum,avg,min,max|}",
       "      ${11:field: ${12:numeric_field}}",
-      "    ${13:max: ${14:100}}"
+      "    ${13:minimum: ${14:0}}",
+      "    ${15:maximum: ${16:100}}",
+      "    ${17:goal: ${18:80}}",
+      "    ${19:appearance:",
+      "      shape: ${20|arc,circle,horizontalBullet,verticalBullet|}",
+      "      color_mode: ${21|none,palette|}}"
     ],
-    "description": "Add a Lens gauge showing a metric with optional max value"
+    "description": "Add a Lens gauge showing a metric with optional min/max/goal values"
+  },
+  "Lens Mosaic Chart": {
+    "prefix": "panel-lens-mosaic",
+    "body": [
+      "- title: ${1:Mosaic Chart}",
+      "  ${2:description: ${3:Shows proportional data as nested rectangles}}",
+      "  size:",
+      "    w: ${4|whole,half,third,quarter,sixth,eighth,12,24,48|}",
+      "    h: ${5:16}",
+      "  ${6:position:",
+      "    x: ${7:0}",
+      "    y: ${8:0}}",
+      "  lens:",
+      "    type: mosaic",
+      "    data_view: ${9:logs-*}",
+      "    dimension:",
+      "      type: values",
+      "      field: ${10:category_field}",
+      "    ${11:breakdown:",
+      "      type: values",
+      "      field: ${12:breakdown_field}}",
+      "    metric:",
+      "      aggregation: ${13|count,sum,avg,min,max|}",
+      "      ${14:field: ${15:numeric_field}}",
+      "    ${16:titles_and_text:",
+      "      value_format: ${17|percent,value,hidden|}",
+      "      value_decimal_places: ${18:2}}",
+      "    ${19:legend:",
+      "      visible: ${20|show,hide,auto|}",
+      "      position: ${21|right,bottom,left,top|}}"
+    ],
+    "description": "Add a Lens mosaic chart showing proportional categorical data"
   },
   "ESQL Metric Panel": {
     "prefix": "panel-esql-metric",
@@ -346,6 +383,116 @@
       "      | LIMIT ${13:100}"
     ],
     "description": "Add an ESQL datatable using ES|QL query language"
+  },
+  "ESQL Area Chart": {
+    "prefix": "panel-esql-area",
+    "body": [
+      "- title: ${1:ESQL Area Chart}",
+      "  ${2:description: ${3:Cumulative time series data from ESQL query}}",
+      "  size:",
+      "    w: ${4|whole,half,third,quarter,sixth,eighth,12,24,48|}",
+      "    h: ${5:16}",
+      "  ${6:position:",
+      "    x: ${7:0}",
+      "    y: ${8:0}}",
+      "  esql:",
+      "    type: area",
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:time_bucket} = BUCKET(@timestamp, 1 hour)",
+      "      ${13:| SORT ${12:time_bucket} ASC}",
+      "    metrics:",
+      "      - field: ${10:metric_value}"
+    ],
+    "description": "Add an ESQL area chart showing cumulative metrics over time"
+  },
+  "ESQL Gauge": {
+    "prefix": "panel-esql-gauge",
+    "body": [
+      "- title: ${1:ESQL Gauge}",
+      "  ${2:description: ${3:Gauge visualization from ESQL query}}",
+      "  size:",
+      "    w: ${4|whole,half,third,quarter,sixth,eighth,12,24,48|}",
+      "    h: ${5:8}",
+      "  ${6:position:",
+      "    x: ${7:0}",
+      "    y: ${8:0}}",
+      "  esql:",
+      "    type: gauge",
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:metric_value} = ${11|AVG(field),COUNT(*),SUM(field),MAX(field),MIN(field)|}",
+      "    metric:",
+      "      field: ${10:metric_value}",
+      "    ${12:minimum: ${13:0}}",
+      "    ${14:maximum: ${15:100}}",
+      "    ${16:goal: ${17:80}}",
+      "    ${18:appearance:",
+      "      shape: ${19|arc,circle,horizontalBullet,verticalBullet|}",
+      "      color_mode: ${20|none,palette|}}"
+    ],
+    "description": "Add an ESQL gauge using ES|QL query language"
+  },
+  "ESQL Pie Chart": {
+    "prefix": "panel-esql-pie",
+    "body": [
+      "- title: ${1:ESQL Pie Chart}",
+      "  ${2:description: ${3:Pie chart from ESQL query}}",
+      "  size:",
+      "    w: ${4|whole,half,third,quarter,sixth,eighth,12,24,48|}",
+      "    h: ${5:16}",
+      "  ${6:position:",
+      "    x: ${7:0}",
+      "    y: ${8:0}}",
+      "  esql:",
+      "    type: pie",
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:slice_count} = COUNT(*) BY ${11:category_field}",
+      "      ${12:| SORT ${10:slice_count} DESC}",
+      "      ${13:| LIMIT 10}",
+      "    metrics:",
+      "      - field: ${10:slice_count}",
+      "    dimensions:",
+      "      - field: ${11:category_field}",
+      "    ${14:appearance:",
+      "      donut: ${15|small,medium,large|}}",
+      "    ${16:legend:",
+      "      visible: ${17|show,hide,auto|}",
+      "      position: ${18|right,bottom,left,top|}}"
+    ],
+    "description": "Add an ESQL pie chart using ES|QL query language"
+  },
+  "ESQL Mosaic Chart": {
+    "prefix": "panel-esql-mosaic",
+    "body": [
+      "- title: ${1:ESQL Mosaic Chart}",
+      "  ${2:description: ${3:Mosaic chart from ESQL query}}",
+      "  size:",
+      "    w: ${4|whole,half,third,quarter,sixth,eighth,12,24,48|}",
+      "    h: ${5:16}",
+      "  ${6:position:",
+      "    x: ${7:0}",
+      "    y: ${8:0}}",
+      "  esql:",
+      "    type: mosaic",
+      "    query: |",
+      "      FROM ${9:logs-*}",
+      "      | STATS ${10:value_count} = COUNT(*) BY ${11:category_field}${12:, ${13:breakdown_field}}",
+      "    metric:",
+      "      field: ${10:value_count}",
+      "    dimension:",
+      "      field: ${11:category_field}",
+      "    ${14:breakdown:",
+      "      field: ${13:breakdown_field}}",
+      "    ${15:titles_and_text:",
+      "      value_format: ${16|percent,value,hidden|}",
+      "      value_decimal_places: ${17:2}}",
+      "    ${18:legend:",
+      "      visible: ${19|show,hide,auto|}",
+      "      position: ${20|right,bottom,left,top|}}"
+    ],
+    "description": "Add an ESQL mosaic chart using ES|QL query language"
   },
   "Control - Options List": {
     "prefix": "control-options",
@@ -466,6 +613,44 @@
     ],
     "description": "Add an ESQL tag cloud panel using ES|QL query language"
   },
+  "Lens Heatmap Panel": {
+    "prefix": "panel-lens-heatmap",
+    "body": [
+      "- title: ${1:Heatmap}",
+      "  ${2:description: ${3:Heatmap showing data distribution}}",
+      "  size:",
+      "    w: ${4|whole,half,third,quarter,sixth,eighth,12,24,48|}",
+      "    h: ${5:16}",
+      "  ${6:position:",
+      "    x: ${7:0}",
+      "    y: ${8:0}}",
+      "  lens:",
+      "    type: heatmap",
+      "    data_view: ${9:logs-*}",
+      "    x_axis:",
+      "      type: ${10|values,date_histogram|}",
+      "      field: ${11:field_name}",
+      "    ${12:y_axis:",
+      "      type: ${13|values,date_histogram|}",
+      "      field: ${14:another_field}}",
+      "    value:",
+      "      aggregation: ${15|count,sum,avg,min,max|}",
+      "      ${16:field: ${17:numeric_field}}",
+      "    ${18:legend:",
+      "      visible: ${19|show,hide|}",
+      "      position: ${20|right,bottom,left,top|}}",
+      "    ${21:grid_config:",
+      "      cells:",
+      "        show_labels: ${22|false,true|}",
+      "      x_axis:",
+      "        show_labels: ${23|true,false|}",
+      "        show_title: ${24|true,false|}",
+      "      y_axis:",
+      "        show_labels: ${25|true,false|}",
+      "        show_title: ${26|true,false|}}"
+    ],
+    "description": "Add a Lens heatmap panel showing data distribution across two dimensions"
+  },
   "ESQL Heatmap Panel": {
     "prefix": "panel-esql-heatmap",
     "body": [
@@ -567,5 +752,97 @@
       "            ${22:fill: ${23|none,above,below|}}"
     ],
     "description": "Add an XY chart with reference line layer for thresholds or SLA markers"
+  },
+  "ESQL Query - Basic": {
+    "prefix": "esql-basic",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| WHERE ${2:@timestamp} > NOW() - ${3:1 hour}",
+      "| KEEP ${4:@timestamp, message, host.name}",
+      "| SORT ${5:@timestamp} ${6|DESC,ASC|}",
+      "| LIMIT ${7:100}"
+    ],
+    "description": "Basic ES|QL query with filtering, field selection, sorting, and limiting"
+  },
+  "ESQL Query - Count All": {
+    "prefix": "esql-count",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS ${2:total_count} = COUNT(*)"
+    ],
+    "description": "Simple ES|QL query to count all documents"
+  },
+  "ESQL Query - Stats by Field": {
+    "prefix": "esql-stats",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS ${2:event_count} = ${3|COUNT(*),SUM(field),AVG(field),MAX(field),MIN(field)|} BY ${4:category_field}",
+      "| SORT ${2:event_count} ${5|DESC,ASC|}",
+      "| LIMIT ${6:10}"
+    ],
+    "description": "ES|QL query with aggregation grouped by field"
+  },
+  "ESQL Query - Time Bucket": {
+    "prefix": "esql-bucket",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS ${2:event_count} = COUNT(*) BY ${3:time_bucket} = BUCKET(@timestamp, ${4|1 hour,1 day,1 week,5 minutes,15 minutes|})",
+      "| SORT ${3:time_bucket} ASC"
+    ],
+    "description": "ES|QL query with time bucketing for time series analysis"
+  },
+  "ESQL Query - Time Series (TS)": {
+    "prefix": "esql-ts",
+    "body": [
+      "TS ${1:metrics-*}",
+      "| WHERE @timestamp >= NOW() - ${2:1 hour}",
+      "| STATS ${3|SUM,AVG,MAX,MIN|}(RATE(${4:request_count})) BY TBUCKET(${5|1 hour,5 minutes,15 minutes,1 day|}), ${6:host.name}"
+    ],
+    "description": "ES|QL time series query using TS command with RATE aggregation (Elasticsearch 9.2+)"
+  },
+  "ESQL Query - Eval Transform": {
+    "prefix": "esql-eval",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| EVAL ${2:computed_field} = ${3:TO_STRING(field)}",
+      "| EVAL ${4:year} = DATE_FORMAT(\"YYYY\", @timestamp)",
+      "| KEEP ${5:@timestamp, computed_field, year}"
+    ],
+    "description": "ES|QL query with EVAL for computed fields and transformations"
+  },
+  "ESQL Query - Enrich": {
+    "prefix": "esql-enrich",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| ENRICH ${2:enrich_policy_name} ON ${3:match_field} WITH ${4:enriched_field} = ${5:source_field}",
+      "| KEEP ${6:@timestamp, match_field, enriched_field}"
+    ],
+    "description": "ES|QL query with ENRICH for data enrichment from lookup indices"
+  },
+  "ESQL Query - Multi-Stats": {
+    "prefix": "esql-multi-stats",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| STATS",
+      "    ${2:total} = COUNT(*),",
+      "    ${3:avg_value} = AVG(${4:numeric_field}),",
+      "    ${5:max_value} = MAX(${4:numeric_field})",
+      "  BY ${6:category_field}",
+      "| SORT ${2:total} DESC",
+      "| LIMIT ${7:10}"
+    ],
+    "description": "ES|QL query with multiple aggregations in a single STATS command"
+  },
+  "ESQL Query - Where with Multiple Conditions": {
+    "prefix": "esql-where",
+    "body": [
+      "FROM ${1:logs-*}",
+      "| WHERE ${2:host.os.type} == \"${3:linux}\"",
+      "  AND ${4:event.outcome} == \"${5:success}\"",
+      "  AND ${6:field} IS NOT NULL",
+      "| STATS ${7:count} = COUNT(*) BY ${8:user.name}",
+      "| SORT ${7:count} DESC"
+    ],
+    "description": "ES|QL query with multiple WHERE conditions for filtering"
   }
 }

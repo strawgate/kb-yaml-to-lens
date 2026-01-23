@@ -12,6 +12,16 @@ from dashboard_compiler.sample_data.config import SampleData
 from dashboard_compiler.shared.config import BaseCfgModel
 
 
+class TimeRange(BaseCfgModel):
+    """Configure a default time range for the dashboard."""
+
+    from_time: str = Field(..., alias='from')
+    """The start of the time range (e.g., 'now-30d/d', 'now-1h')."""
+
+    to_time: str | None = Field(default=None, alias='to')
+    """The end of the time range."""
+
+
 class DashboardSyncSettings(BaseCfgModel):
     """Configure whether cursor, tooltips, and colors should sync across panels."""
 
@@ -51,6 +61,9 @@ class Dashboard(BaseCfgModel):
 
     description: str | None = Field(default=None)
     """A brief description of the dashboard's purpose or content."""
+
+    time_range: TimeRange | None = Field(default=None)
+    """A default time range to apply when opening the dashboard."""
 
     settings: DashboardSettings = Field(default_factory=DashboardSettings)
 

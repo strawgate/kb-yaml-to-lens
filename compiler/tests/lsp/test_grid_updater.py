@@ -100,12 +100,13 @@ def test_update_panel_grid_dashboard_index_out_of_range(tmp_path: Path) -> None:
 
 
 def test_update_panel_grid_invalid_panel_index(tmp_path: Path) -> None:
-    """Return an error when index-based panel id is invalid."""
+    """Return an error when index-based panel id is invalid (non-digit suffix falls back to ID lookup)."""
     yaml_path = _write_dashboard(tmp_path)
 
+    # 'panel_x' has non-digit suffix, so it falls back to ID lookup and is not found
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel_x', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
     assert result['success'] is False
-    assert 'Invalid panel ID format' in result['error']
+    assert 'not found' in result['error']
 
 
 def test_update_panel_grid_panel_not_found(tmp_path: Path) -> None:
@@ -121,10 +122,10 @@ def test_update_panel_grid_load_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     """Return an error when dashboards fail to load."""
     yaml_path = _write_dashboard(tmp_path)
 
-    def raise_load_error(_: str) -> list[object]:
+    def raise_load_error(_: str) -> None:
         raise ValueError
 
-    monkeypatch.setattr(grid_updater, 'load', raise_load_error)
+    monkeypatch.setattr(grid_updater, 'load_roundtrip', raise_load_error)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
     assert result['success'] is False
@@ -135,10 +136,10 @@ def test_update_panel_grid_dump_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     """Return an error when dashboards fail to save."""
     yaml_path = _write_dashboard(tmp_path)
 
-    def raise_dump_error(_: list[object], _path: str) -> None:
+    def raise_dump_error(_: object, _path: str) -> None:
         raise RuntimeError
 
-    monkeypatch.setattr(grid_updater, 'dump', raise_dump_error)
+    monkeypatch.setattr(grid_updater, 'dump_roundtrip', raise_dump_error)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
     assert result['success'] is False

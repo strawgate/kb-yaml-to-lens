@@ -3,8 +3,8 @@
 from inline_snapshot import snapshot
 
 from dashboard_compiler.controls.config import OptionsListControl
-from dashboard_compiler.dashboard.compile import compile_dashboard_options
-from dashboard_compiler.dashboard.config import Dashboard, DashboardSettings, DashboardSyncSettings
+from dashboard_compiler.dashboard.compile import compile_dashboard_attributes, compile_dashboard_options
+from dashboard_compiler.dashboard.config import Dashboard, DashboardSettings, DashboardSyncSettings, TimeRange
 from dashboard_compiler.filters.config import PhraseFilter
 from dashboard_compiler.panels.markdown.config import MarkdownPanel
 
@@ -83,3 +83,66 @@ def test_dashboard_add_panel() -> None:
     assert len(dashboard.panels) == 2
     assert dashboard.panels[0] == panel1
     assert dashboard.panels[1] == panel2
+
+
+def test_dashboard_without_time_range() -> None:
+    """Test that dashboard without time_range has timeRestore=False and omits timeFrom/timeTo."""
+    dashboard = Dashboard(name='Test Dashboard')
+    _, attributes = compile_dashboard_attributes(dashboard)
+
+    assert attributes.timeRestore is False
+    assert attributes.timeFrom is None
+    assert attributes.timeTo is None
+
+
+def test_dashboard_with_time_range_from_and_to() -> None:
+    """Test that dashboard with time_range sets timeRestore=True and includes timeFrom/timeTo."""
+    dashboard = Dashboard(
+        name='Test Dashboard',
+        time_range=TimeRange(**{'from': 'now-30d/d', 'to': 'now/d'}),
+    )
+    _, attributes = compile_dashboard_attributes(dashboard)
+
+    assert attributes.timeRestore is True
+    assert attributes.timeFrom == 'now-30d/d'
+    assert attributes.timeTo == 'now/d'
+
+
+def test_dashboard_with_time_range_from_only() -> None:
+    """Test that dashboard with time_range.from defaults to_time to 'now'."""
+    dashboard = Dashboard(
+        name='Test Dashboard',
+        time_range=TimeRange(**{'from': 'now-1h'}),
+    )
+    _, attributes = compile_dashboard_attributes(dashboard)
+
+    assert attributes.timeRestore is True
+    assert attributes.timeFrom == 'now-1h'
+    assert attributes.timeTo == 'now'
+
+
+def test_time_range_serialization_omits_none_values() -> None:
+    """Test that timeFrom and timeTo are omitted from serialization when None."""
+    dashboard = Dashboard(name='Test Dashboard')
+    _, attributes = compile_dashboard_attributes(dashboard)
+
+    # Serialize to dict - timeFrom and timeTo should be omitted
+    serialized = attributes.model_dump()
+    assert 'timeFrom' not in serialized
+    assert 'timeTo' not in serialized
+    assert serialized['timeRestore'] is False
+
+
+def test_time_range_serialization_includes_values() -> None:
+    """Test that timeFrom and timeTo are included in serialization when set."""
+    dashboard = Dashboard(
+        name='Test Dashboard',
+        time_range=TimeRange(**{'from': 'now-7d', 'to': 'now'}),
+    )
+    _, attributes = compile_dashboard_attributes(dashboard)
+
+    # Serialize to dict - timeFrom and timeTo should be included
+    serialized = attributes.model_dump()
+    assert serialized['timeFrom'] == 'now-7d'
+    assert serialized['timeTo'] == 'now'
+    assert serialized['timeRestore'] is True

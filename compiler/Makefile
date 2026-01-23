@@ -1,7 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-links test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke build-binary test-binary-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -46,7 +46,6 @@ help:
 	@echo "  test              - Run Python unit tests"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
-	@echo "  test-links        - Check documentation links"
 	@echo "  test-smoke        - Run smoke tests"
 	@echo ""
 	@echo "Dashboard Compilation:"
@@ -59,10 +58,6 @@ help:
 	@echo "  docker-test        - Test Docker image"
 	@echo "  docker-publish     - Publish Docker image to GHCR"
 	@echo "  test-docker-smoke  - Run Docker smoke tests"
-	@echo ""
-	@echo "Binary Distribution:"
-	@echo "  build-binary       - Build standalone unified binary (CLI + LSP)"
-	@echo "  test-binary-smoke  - Run binary smoke tests (CLI + LSP)"
 	@echo ""
 	@echo "PyPI Publishing:"
 	@echo "  build         - Build package for PyPI"
@@ -144,12 +139,8 @@ coverage-report:
 	fi
 	@python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
 
-test-links:
-	@echo "Checking documentation links..."
-	@uv run pytest --check-links ../docs/ README.md ../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$'
-
 test-smoke:
-	uv run kb-dashboard --help
+	@bash scripts/test_cli_smoke.sh
 
 # Dependency management
 setup:
@@ -204,16 +195,6 @@ docker-publish:
 test-docker-smoke:
 	@echo "Running Docker smoke tests..."
 	@bash scripts/test_docker_smoke.sh
-
-# Binary building
-build-binary:
-	@echo "Building standalone unified binary..."
-	@uv sync --group build
-	@uv run python scripts/build_binaries.py
-
-test-binary-smoke:
-	@echo "Running unified binary smoke tests..."
-	@bash scripts/test_binary_smoke.sh
 
 # Cleaning
 clean:
