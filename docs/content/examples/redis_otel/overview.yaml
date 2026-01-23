@@ -6,7 +6,8 @@ dashboards:
       - field: data_stream.dataset
         equals: redisreceiver.otel
     panels:
-      - grid: {x: 0, y: 0, w: 48, h: 2}
+      - position: {x: 0, y: 0}
+        size: {w: 48, h: 2}
         links:
           layout: horizontal
           items:
@@ -14,14 +15,18 @@ dashboards:
               dashboard: redis-overview
             - label: Instance Details
               dashboard: redis-instance-details
+            - label: Database Metrics
+              dashboard: redis-database-metrics
             - label: Redis Documentation
               url: https://redis.io/docs/
-      - grid: {x: 0, y: 2, w: 48, h: 2}
+      - position: {x: 0, y: 2}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Redis Instance Overview'
           font_size: 14
       - title: Total Redis Instances
-        grid: {x: 0, y: 4, w: 8, h: 4}
+        position: {x: 0, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -30,7 +35,8 @@ dashboards:
             field: resource.attributes.service.instance.id
             label: Instances
       - title: Total Client Connections
-        grid: {x: 8, y: 4, w: 8, h: 4}
+        position: {x: 8, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -39,7 +45,8 @@ dashboards:
             field: redis.clients.connected
             label: Clients
       - title: Total Commands/sec
-        grid: {x: 16, y: 4, w: 8, h: 4}
+        position: {x: 16, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -50,7 +57,8 @@ dashboards:
             format:
               type: number
       - title: Cache Hit Rate
-        grid: {x: 24, y: 4, w: 8, h: 4}
+        position: {x: 24, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -60,7 +68,8 @@ dashboards:
             format:
               type: percent
       - title: Total Memory Usage
-        grid: {x: 32, y: 4, w: 8, h: 4}
+        position: {x: 32, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +80,8 @@ dashboards:
             format:
               type: bytes
       - title: Avg Memory Fragmentation
-        grid: {x: 40, y: 4, w: 8, h: 4}
+        position: {x: 40, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -81,12 +91,14 @@ dashboards:
             label: Fragmentation
             format:
               type: number
-      - grid: {x: 0, y: 8, w: 48, h: 2}
+      - position: {x: 0, y: 8}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Memory & Performance Trends'
           font_size: 14
       - title: Memory Usage by Instance
-        grid: {x: 0, y: 10, w: 24, h: 12}
+        position: {x: 0, y: 10}
+        size: {w: 24, h: 12}
         lens:
           type: area
           mode: stacked
@@ -114,7 +126,8 @@ dashboards:
               format:
                 type: bytes
       - title: Commands Per Second
-        grid: {x: 24, y: 10, w: 24, h: 12}
+        position: {x: 24, y: 10}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -141,7 +154,8 @@ dashboards:
               format:
                 type: number
       - title: Client Connections Over Time
-        grid: {x: 0, y: 22, w: 24, h: 12}
+        position: {x: 0, y: 22}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -168,7 +182,8 @@ dashboards:
               format:
                 type: number
       - title: Keyspace Hit/Miss Rate
-        grid: {x: 24, y: 22, w: 24, h: 12}
+        position: {x: 24, y: 22}
+        size: {w: 24, h: 12}
         lens:
           type: area
           mode: stacked
@@ -189,12 +204,14 @@ dashboards:
               label: Miss Rate
               format:
                 type: number
-      - grid: {x: 0, y: 34, w: 48, h: 2}
+      - position: {x: 0, y: 34}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Key Eviction & Expiration'
           font_size: 14
       - title: Keys Evicted Rate
-        grid: {x: 0, y: 36, w: 24, h: 12}
+        position: {x: 0, y: 36}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -220,7 +237,8 @@ dashboards:
               format:
                 type: number
       - title: Keys Expired Rate
-        grid: {x: 24, y: 36, w: 24, h: 12}
+        position: {x: 24, y: 36}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -245,12 +263,14 @@ dashboards:
               label: Expired
               format:
                 type: number
-      - grid: {x: 0, y: 48, w: 48, h: 2}
+      - position: {x: 0, y: 48}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Network I/O'
           font_size: 14
       - title: Network Input (Bytes Received)
-        grid: {x: 0, y: 50, w: 24, h: 12}
+        position: {x: 0, y: 50}
+        size: {w: 24, h: 12}
         lens:
           type: area
           mode: stacked
@@ -277,7 +297,8 @@ dashboards:
               format:
                 type: bytes
       - title: Network Output (Bytes Sent)
-        grid: {x: 24, y: 50, w: 24, h: 12}
+        position: {x: 24, y: 50}
+        size: {w: 24, h: 12}
         lens:
           type: area
           mode: stacked
@@ -303,12 +324,14 @@ dashboards:
               label: Output
               format:
                 type: bytes
-      - grid: {x: 0, y: 62, w: 48, h: 2}
+      - position: {x: 0, y: 62}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Instance Summary Table'
           font_size: 14
       - title: Redis Instance Metrics Summary
-        grid: {x: 0, y: 64, w: 48, h: 25}
+        position: {x: 0, y: 64}
+        size: {w: 48, h: 25}
         lens:
           type: datatable
           data_view: metrics-*

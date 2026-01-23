@@ -13,7 +13,8 @@ dashboards:
         width: medium
         match_technique: contains
     panels:
-      - grid: {x: 0, y: 0, w: 48, h: 2}
+      - position: {x: 0, y: 0}
+        size: {w: 48, h: 2}
         links:
           layout: horizontal
           items:
@@ -25,12 +26,14 @@ dashboards:
               dashboard: redis-database-metrics
             - label: Redis Documentation
               url: https://redis.io/docs/
-      - grid: {x: 0, y: 2, w: 48, h: 2}
+      - position: {x: 0, y: 2}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Redis Instance Health'
           font_size: 14
       - title: Uptime
-        grid: {x: 0, y: 4, w: 8, h: 4}
+        position: {x: 0, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -41,7 +44,8 @@ dashboards:
             format:
               type: number
       - title: Connected Clients
-        grid: {x: 8, y: 4, w: 8, h: 4}
+        position: {x: 8, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -52,7 +56,8 @@ dashboards:
             format:
               type: number
       - title: Blocked Clients
-        grid: {x: 16, y: 4, w: 8, h: 4}
+        position: {x: 16, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -63,7 +68,8 @@ dashboards:
             format:
               type: number
       - title: Commands/sec
-        grid: {x: 24, y: 4, w: 8, h: 4}
+        position: {x: 24, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -74,7 +80,8 @@ dashboards:
             format:
               type: number
       - title: Connected Replicas
-        grid: {x: 32, y: 4, w: 8, h: 4}
+        position: {x: 32, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -85,7 +92,8 @@ dashboards:
             format:
               type: number
       - title: Cache Hit Rate
-        grid: {x: 40, y: 4, w: 8, h: 4}
+        position: {x: 40, y: 4}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -94,12 +102,14 @@ dashboards:
             label: Hit Rate
             format:
               type: percent
-      - grid: {x: 0, y: 8, w: 48, h: 2}
+      - position: {x: 0, y: 8}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Memory Analysis'
           font_size: 14
       - title: Memory Used
-        grid: {x: 0, y: 10, w: 8, h: 4}
+        position: {x: 0, y: 10}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -110,7 +120,8 @@ dashboards:
             format:
               type: bytes
       - title: Memory Peak
-        grid: {x: 8, y: 10, w: 8, h: 4}
+        position: {x: 8, y: 10}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -121,7 +132,8 @@ dashboards:
             format:
               type: bytes
       - title: Memory RSS
-        grid: {x: 16, y: 10, w: 8, h: 4}
+        position: {x: 16, y: 10}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -132,7 +144,8 @@ dashboards:
             format:
               type: bytes
       - title: Fragmentation Ratio
-        grid: {x: 24, y: 10, w: 8, h: 4}
+        position: {x: 24, y: 10}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -143,7 +156,8 @@ dashboards:
             format:
               type: number
       - title: Lua Memory
-        grid: {x: 32, y: 10, w: 8, h: 4}
+        position: {x: 32, y: 10}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -154,7 +168,8 @@ dashboards:
             format:
               type: bytes
       - title: Memory Usage Trend
-        grid: {x: 0, y: 14, w: 48, h: 12}
+        position: {x: 0, y: 14}
+        size: {w: 48, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -182,7 +197,8 @@ dashboards:
               format:
                 type: bytes
       - title: Memory Fragmentation Over Time
-        grid: {x: 0, y: 26, w: 24, h: 12}
+        position: {x: 0, y: 26}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -197,7 +213,8 @@ dashboards:
               format:
                 type: number
       - title: Lua Script Memory Usage
-        grid: {x: 24, y: 26, w: 24, h: 12}
+        position: {x: 24, y: 26}
+        size: {w: 24, h: 12}
         lens:
           type: area
           data_view: metrics-*
@@ -211,12 +228,14 @@ dashboards:
               label: Lua Memory
               format:
                 type: bytes
-      - grid: {x: 0, y: 38, w: 48, h: 2}
+      - position: {x: 0, y: 38}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Client Connections & Performance'
           font_size: 14
       - title: Client Connections Over Time
-        grid: {x: 0, y: 40, w: 24, h: 12}
+        position: {x: 0, y: 40}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -239,7 +258,8 @@ dashboards:
               format:
                 type: number
       - title: Connection Activity
-        grid: {x: 24, y: 40, w: 24, h: 12}
+        position: {x: 24, y: 40}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -260,7 +280,8 @@ dashboards:
               format:
                 type: number
       - title: Client Buffer Sizes
-        grid: {x: 0, y: 52, w: 24, h: 12}
+        position: {x: 0, y: 52}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -283,7 +304,8 @@ dashboards:
               format:
                 type: bytes
       - title: Commands Processed Rate
-        grid: {x: 24, y: 52, w: 24, h: 12}
+        position: {x: 24, y: 52}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -296,12 +318,14 @@ dashboards:
               label: Commands/sec
               format:
                 type: number
-      - grid: {x: 0, y: 64, w: 48, h: 2}
+      - position: {x: 0, y: 64}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Keyspace Operations'
           font_size: 14
       - title: Keyspace Hit/Miss Ratio
-        grid: {x: 0, y: 66, w: 24, h: 12}
+        position: {x: 0, y: 66}
+        size: {w: 24, h: 12}
         lens:
           type: area
           mode: stacked
@@ -323,7 +347,8 @@ dashboards:
               format:
                 type: number
       - title: Cache Hit Rate Over Time
-        grid: {x: 24, y: 66, w: 24, h: 12}
+        position: {x: 24, y: 66}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -337,7 +362,8 @@ dashboards:
               format:
                 type: percent
       - title: Key Eviction & Expiration
-        grid: {x: 0, y: 78, w: 24, h: 12}
+        position: {x: 0, y: 78}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -358,7 +384,8 @@ dashboards:
               format:
                 type: number
       - title: RDB Changes Since Last Save
-        grid: {x: 24, y: 78, w: 24, h: 12}
+        position: {x: 24, y: 78}
+        size: {w: 24, h: 12}
         lens:
           type: area
           data_view: metrics-*
@@ -372,12 +399,14 @@ dashboards:
               label: Unsaved Changes
               format:
                 type: number
-      - grid: {x: 0, y: 90, w: 48, h: 2}
+      - position: {x: 0, y: 90}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Network I/O'
           font_size: 14
       - title: Network Traffic
-        grid: {x: 0, y: 92, w: 48, h: 12}
+        position: {x: 0, y: 92}
+        size: {w: 48, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -397,12 +426,14 @@ dashboards:
               label: Output (bytes/sec)
               format:
                 type: bytes
-      - grid: {x: 0, y: 104, w: 48, h: 2}
+      - position: {x: 0, y: 104}
+        size: {w: 48, h: 2}
         markdown:
           content: '## CPU Usage'
           font_size: 14
       - title: CPU Time by Type
-        grid: {x: 0, y: 106, w: 48, h: 12}
+        position: {x: 0, y: 106}
+        size: {w: 48, h: 12}
         lens:
           type: area
           mode: stacked
@@ -428,12 +459,14 @@ dashboards:
               label: CPU Time
               format:
                 type: number
-      - grid: {x: 0, y: 118, w: 48, h: 2}
+      - position: {x: 0, y: 118}
+        size: {w: 48, h: 2}
         markdown:
           content: '## Replication'
           font_size: 14
       - title: Replication Offset
-        grid: {x: 0, y: 120, w: 24, h: 12}
+        position: {x: 0, y: 120}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -448,7 +481,8 @@ dashboards:
               format:
                 type: bytes
       - title: Replication Backlog
-        grid: {x: 24, y: 120, w: 24, h: 12}
+        position: {x: 24, y: 120}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -463,7 +497,8 @@ dashboards:
               format:
                 type: bytes
       - title: Connected Replicas Over Time
-        grid: {x: 0, y: 132, w: 24, h: 12}
+        position: {x: 0, y: 132}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -478,7 +513,8 @@ dashboards:
               format:
                 type: number
       - title: Fork Duration
-        grid: {x: 24, y: 132, w: 24, h: 12}
+        position: {x: 24, y: 132}
+        size: {w: 24, h: 12}
         lens:
           type: line
           data_view: metrics-*

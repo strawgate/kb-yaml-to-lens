@@ -286,6 +286,48 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### Redis OpenTelemetry Dashboards
+
+Redis database monitoring dashboards for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Redis instances with OpenTelemetry Redis Receiver.
+
+#### Overview
+
+Multi-instance monitoring with key metrics across all Redis instances.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Instance Details
+
+Detailed single-instance analysis including memory, connections, keyspace, and replication metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/instance-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/instance-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Database Metrics
+
+Per-database keyspace metrics including keys, TTL, and expiration statistics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/database-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/database-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Viewing Example Source Code
 
 All example files are located in the `docs/content/examples/` directory of the repository. You can:
