@@ -96,6 +96,36 @@ def _normalize_optional_str(value: str | None) -> str | None:
     return value if len(value) > 0 else None
 
 
+def _validate_credentials(
+    username: Any, password: Any, api_key: Any, ssl_verify: Any
+) -> tuple[str | None, str | None, str | None, bool] | str:
+    """Validate and normalize credential parameters.
+
+    Args:
+        username: Optional username value
+        password: Optional password value
+        api_key: Optional API key value
+        ssl_verify: SSL verification flag
+
+    Returns:
+        Tuple of (username, password, api_key, ssl_verify) if valid,
+        or error message string if invalid.
+    """
+    if (
+        (username is not None and not isinstance(username, str))
+        or (password is not None and not isinstance(password, str))
+        or (api_key is not None and not isinstance(api_key, str))
+        or not isinstance(ssl_verify, bool)
+    ):
+        return 'Invalid credential or ssl_verify parameter type'
+    return (
+        _normalize_optional_str(username),
+        _normalize_optional_str(password),
+        _normalize_optional_str(api_key),
+        ssl_verify,
+    )
+
+
 def _redact_url(url: str) -> str:
     """Redact credentials from a URL for safe logging.
 
@@ -157,7 +187,9 @@ def compile_command(_ls: LanguageServer, args: list[Any]) -> dict[str, Any]:
     if args is None or len(args) < 1:
         return {'success': False, 'error': 'Missing path argument'}
 
-    path: str = args[0]
+    path = args[0]
+    if not isinstance(path, str) or len(path) == 0:
+        return {'success': False, 'error': 'Invalid path argument: expected non-empty string'}
     try:
         dashboard_index: int = int(args[1]) if len(args) > 1 else 0
     except (TypeError, ValueError) as e:
@@ -197,9 +229,13 @@ def get_dashboards_custom(params: Any) -> dict[str, Any]:
         Dictionary with list of dashboards or error
     """
     params_dict = _params_to_dict(params)
-    path = params_dict.get('path')
 
-    if path is None or len(path) == 0:
+    try:
+        path = _get_required_str(params_dict, 'path')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
+    if path is None:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
@@ -229,13 +265,18 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:
         Dictionary with grid layout information or error
     """
     params_dict = _params_to_dict(params)
-    path = params_dict.get('path')
+
+    try:
+        path = _get_required_str(params_dict, 'path')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
     try:
         dashboard_index = int(params_dict.get('dashboard_index', 0))
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
-    if path is None or len(path) == 0:
+    if path is None:
         return {'success': False, 'error': 'Missing path parameter'}
 
     try:
@@ -311,30 +352,21 @@ async def execute_esql_query(params: Any) -> dict[str, Any]:
     except TypeError as e:
         return {'success': False, 'error': str(e)}
 
-    username = params_dict.get('username')
-    password = params_dict.get('password')
-    api_key = params_dict.get('api_key')
-    ssl_verify = params_dict.get('ssl_verify', True)
-
     if query is None:
         return {'success': False, 'error': 'Missing or invalid query parameter'}
 
     if kibana_url is None:
         return {'success': False, 'error': 'Missing or invalid kibana_url parameter'}
 
-    # Validate optional credential parameters are strings or None, and ssl_verify is bool
-    if (
-        (username is not None and not isinstance(username, str))
-        or (password is not None and not isinstance(password, str))
-        or (api_key is not None and not isinstance(api_key, str))
-        or not isinstance(ssl_verify, bool)
-    ):
-        return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
-
-    # Normalize empty strings to None
-    validated_username = _normalize_optional_str(username)
-    validated_password = _normalize_optional_str(password)
-    validated_api_key = _normalize_optional_str(api_key)
+    credentials = _validate_credentials(
+        params_dict.get('username'),
+        params_dict.get('password'),
+        params_dict.get('api_key'),
+        params_dict.get('ssl_verify', True),
+    )
+    if isinstance(credentials, str):
+        return {'success': False, 'error': credentials}
+    validated_username, validated_password, validated_api_key, ssl_verify = credentials
 
     try:
         logger.info('Executing ES|QL query via Kibana at %s', _redact_url(kibana_url))
@@ -384,39 +416,30 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
 
-    username = params_dict.get('username')
-    password = params_dict.get('password')
-    api_key = params_dict.get('api_key')
-    ssl_verify = params_dict.get('ssl_verify', True)
-
     if path is None or kibana_url is None:
         return {'success': False, 'error': 'Missing required parameters (path and kibana_url)'}
 
-    # Validate optional credential parameters are strings or None, and ssl_verify is bool
-    if (
-        (username is not None and not isinstance(username, str))
-        or (password is not None and not isinstance(password, str))
-        or (api_key is not None and not isinstance(api_key, str))
-        or not isinstance(ssl_verify, bool)
-    ):
-        return {'success': False, 'error': 'Invalid credential or ssl_verify parameter type'}
-
-    # Normalize empty strings to None
-    validated_username = _normalize_optional_str(username)
-    validated_password = _normalize_optional_str(password)
-    validated_api_key = _normalize_optional_str(api_key)
+    credentials = _validate_credentials(
+        params_dict.get('username'),
+        params_dict.get('password'),
+        params_dict.get('api_key'),
+        params_dict.get('ssl_verify', True),
+    )
+    if isinstance(credentials, str):
+        return {'success': False, 'error': credentials}
+    validated_username, validated_password, validated_api_key, ssl_verify = credentials
 
     try:
         # Compile the dashboard first
-        logger.info(f'Compiling dashboard from {path} (index {dashboard_index})')
+        logger.info('Compiling dashboard from %s (index %d)', path, dashboard_index)
         compile_result = _compile_dashboard(path, dashboard_index)
         if compile_result['success'] is not True:
-            logger.error(f'Compilation failed: {compile_result.get("error")}')
+            logger.error('Compilation failed: %s', compile_result.get('error'))
             return compile_result
 
         # Create NDJSON content
         ndjson_content = json.dumps(compile_result['data'])
-        logger.debug(f'Generated NDJSON content: {len(ndjson_content)} bytes')
+        logger.debug('Generated NDJSON content: %d bytes', len(ndjson_content))
 
         # Create Kibana client and upload
         logger.info('Uploading dashboard to Kibana at %s', _redact_url(kibana_url))
@@ -430,7 +453,10 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
             # Upload to Kibana
             result = await client.upload_ndjson(ndjson_content, overwrite=True)
             logger.debug(
-                f'Upload result: success={result.success}, success_count={len(result.success_results)}, error_count={len(result.errors)}'
+                'Upload result: success=%s, success_count=%d, error_count=%d',
+                result.success,
+                len(result.success_results),
+                len(result.errors),
             )
 
             if result.success is True:
@@ -443,14 +469,14 @@ async def upload_to_kibana_custom(params: Any) -> dict[str, Any]:  # noqa: PLR09
 
                 if len(dashboard_ids) > 0:
                     dashboard_url = client.get_dashboard_url(dashboard_ids[0])
-                    logger.info(f'Dashboard uploaded successfully: {dashboard_ids[0]}')
+                    logger.info('Dashboard uploaded successfully: %s', dashboard_ids[0])
                     return {'success': True, 'dashboard_url': dashboard_url, 'dashboard_id': dashboard_ids[0]}
 
                 logger.error('No dashboard found in upload results')
                 return {'success': False, 'error': 'No dashboard found in upload results'}
 
             error_messages = [str(err) for err in result.errors]
-            logger.error(f'Upload failed with errors: {"; ".join(error_messages)}')
+            logger.error('Upload failed with errors: %s', '; '.join(error_messages))
             return {'success': False, 'error': f'Upload failed: {"; ".join(error_messages)}'}
 
     except Exception as e:
