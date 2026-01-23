@@ -6,10 +6,10 @@ DevOps/SRE monitoring dashboards for AWS VPC Flow Logs collected via OpenTelemet
 
 ```bash
 # Compile to NDJSON
-kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output
+kb-dashboard compile --input-dir docs/content/examples/aws_vpcflow_otel --output-dir output
 
 # Compile and upload to Kibana (requires credentials)
-kb-dashboard compile --input-dir docs/examples/aws_vpcflow_otel --output-dir output --upload
+kb-dashboard compile --input-dir docs/content/examples/aws_vpcflow_otel --output-dir output --upload
 ```
 
 ## Data Requirements
