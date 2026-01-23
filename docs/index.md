@@ -126,7 +126,7 @@ dashboards:
     - title: Document Count
       type: lens
       size: {w: 24, h: 15}
-      index_pattern: your-index-pattern-*
+      data_view: your-index-pattern-*
       chart:
         type: metric
         metrics:

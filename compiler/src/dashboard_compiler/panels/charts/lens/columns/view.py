@@ -13,7 +13,7 @@ type KbnLensDimensionColumnTypes = (
     | KbnLensTermsDimensionColumn
     | KbnLensFiltersDimensionColumn
     | KbnLensIntervalsDimensionColumn
-    | KbnLensCustomInvervalsDimensionColumn
+    | KbnLensCustomIntervalsDimensionColumn
 )
 
 type KbnLensMetricColumnTypes = (
@@ -429,7 +429,7 @@ class KbnLensIntervalsDimensionColumn(KbnLensBaseDimensionColumn):
     params: KbnLensIntervalsDimensionColumnParams
 
 
-class KbnLensCustomInvervalsDimensionColumnParams(KbnLensDimensionColumnParams):
+class KbnLensCustomIntervalsDimensionColumnParams(KbnLensDimensionColumnParams):
     """Parameters for custom intervals dimension columns."""
 
     type: Literal['range'] = Field(default='range')
@@ -438,7 +438,7 @@ class KbnLensCustomInvervalsDimensionColumnParams(KbnLensDimensionColumnParams):
     parentFormat: Annotated[KbnLensCustomIntervalsDimensionColumnParentFormat | None, OmitIfNone()] = Field(default=None)
 
 
-class KbnLensCustomInvervalsDimensionColumn(KbnLensBaseDimensionColumn):
+class KbnLensCustomIntervalsDimensionColumn(KbnLensBaseDimensionColumn):
     """Represents a custom intervals dimension column."""
 
     sourceField: str
@@ -446,4 +446,4 @@ class KbnLensCustomInvervalsDimensionColumn(KbnLensBaseDimensionColumn):
     dataType: Literal['string'] = Field(default='string')
     scale: Literal['ordinal'] = Field(default='ordinal')
     isBucketed: Literal[True] = Field(default=True)
-    params: KbnLensCustomInvervalsDimensionColumnParams
+    params: KbnLensCustomIntervalsDimensionColumnParams

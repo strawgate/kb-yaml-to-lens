@@ -16,11 +16,11 @@ class KbnDashboardOptions(BaseModel):
     syncColors: bool
     """Applies the same color palette to all panels on the dashboard."""
     syncCursor: bool
-    'When you hover your cursor over a time series chart or a heatmap, the cursor on all other related dashboard charts appears.'
+    """When you hover your cursor over a time series chart or a heatmap, the cursor on all other related dashboard charts appears."""
     syncTooltips: bool
-    'When you hover your cursor over a Lens chart, the tooltips on all other related dashboard charts automatically appear.'
+    """When you hover your cursor over a Lens chart, the tooltips on all other related dashboard charts automatically appear."""
     hidePanelTitles: bool
-    'Displays the titles in the panel headers'
+    """Whether to hide the titles in the panel headers."""
 
 
 class KbnDashboardAttributes(BaseVwModel):
