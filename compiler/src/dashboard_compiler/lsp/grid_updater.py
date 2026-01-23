@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# pyright: reportAny=false
+# Grid updater receives untyped JSON data from CLI arguments
 """Update panel grid coordinates in a YAML dashboard file.
 
 This script updates the grid coordinates for a specific panel in a YAML dashboard file

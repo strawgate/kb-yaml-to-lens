@@ -30,63 +30,39 @@ install:
 
 all: ci
 
-ci:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	$(MAKE) compile lint test-unit; \
-	echo "✓ VSCode extension CI checks passed"
+ci: install
+	$(MAKE) compile lint test-unit
+	@echo "✓ VSCode extension CI checks passed"
 
 check: ci
 
-fix:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	echo "Auto-fixing ESLint issues..."; \
+fix: install
+	@echo "Auto-fixing ESLint issues..."
 	npm run lint -- --fix
 
-test:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	echo "Running VSCode extension tests..."; \
+test: install
+	@echo "Running VSCode extension tests..."
 	npm test
 
-test-unit:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	echo "Running TypeScript tests for VSCode extension..."; \
+test-unit: install
+	@echo "Running TypeScript tests for VSCode extension..."
 	npm run compile && npm run test:unit
 
-compile:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	echo "Compiling TypeScript..."; \
+compile: install
+	@echo "Compiling TypeScript..."
 	npm run compile
 
-watch:
+watch: install
 	@echo "Starting watch mode..."
 	npm run watch
 
-lint:
-	@if [ ! -d "node_modules" ]; then \
-		echo "⚠ Dependencies not installed, installing..."; \
-		$(MAKE) install; \
-	fi; \
-	echo "Running ESLint..."; \
+lint: install
+	@echo "Running ESLint..."
 	npm run compile && npm run lint
 
 lint-check: lint
 
-package:
+package: install
 	@echo "Creating .vsix package..."
 	npm run package
 

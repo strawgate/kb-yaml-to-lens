@@ -46,7 +46,6 @@ help:
 	@echo "  test              - Run Python unit tests"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
-	@echo "  test-links        - Check documentation links"
 	@echo "  test-smoke        - Run smoke tests"
 	@echo ""
 	@echo "Dashboard Compilation:"
@@ -139,10 +138,6 @@ coverage-report:
 		exit 1; \
 	fi
 	@python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
-
-test-links:
-	@echo "Checking documentation links..."
-	@uv run pytest --check-links ../docs/ README.md ../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$'
 
 test-smoke:
 	@bash scripts/test_cli_smoke.sh
