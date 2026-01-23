@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e-only compile watch lint lint-check lint-only package install-vscode install-cursor clean prepare prepare-all clean-binaries
+.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only package install-vscode install-cursor clean prepare prepare-all clean-binaries
 
 help:
 	@echo "VSCode Extension Commands:"
@@ -12,6 +12,7 @@ help:
 	@echo "  fix              - Auto-fix linting issues"
 	@echo "  test             - Run all tests"
 	@echo "  test-unit        - Run unit tests only"
+	@echo "  test-e2e         - Run E2E tests (compiles first)"
 	@echo "  compile          - Compile TypeScript"
 	@echo "  watch            - Watch mode for development"
 	@echo "  lint             - Check linting (compiles first)"
@@ -55,6 +56,11 @@ test-unit-only:
 	@echo "Running TypeScript tests for VSCode extension..."
 	./node_modules/.bin/mocha out/test/unit/**/*.test.js --ui tdd 2>/dev/null || echo 'No unit tests found - skipping'
 
+test-e2e: install compile
+	@echo "Running VSCode extension E2E tests..."
+	node ./out/test/runTest.js
+
+# Non-compiling target for use in CI after compile has already run
 test-e2e-only:
 	@echo "Running VSCode extension E2E tests..."
 	node ./out/test/runTest.js

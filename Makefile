@@ -143,7 +143,7 @@ test-unit:
 test-e2e:
 	@echo "Running end-to-end tests..."
 	@echo ""
-	$(call run-in-component,vscode-extension,test-e2e-only)
+	$(call run-in-component,vscode-extension,test-e2e)
 	@echo "✓ E2E tests passed"
 
 test-smoke:
