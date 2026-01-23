@@ -226,13 +226,11 @@ install-extension-vscode: package-extension
 	@echo "Installing extension into VS Code..."
 	@echo ""
 	$(call run-in-component,vscode-extension,install-vscode)
-	@echo "✓ Extension installed in VS Code"
 
 install-extension-cursor: package-extension
 	@echo "Installing extension into Cursor..."
 	@echo ""
 	$(call run-in-component,vscode-extension,install-cursor)
-	@echo "✓ Extension installed in Cursor"
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:

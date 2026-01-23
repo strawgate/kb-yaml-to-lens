@@ -427,7 +427,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // Register JSON schema with YAML extension for auto-complete
     await registerYamlSchema();
 
-    previewPanel = new PreviewPanel(compiler);
+    previewPanel = new PreviewPanel(compiler, context, configService);
     gridEditorPanel = new GridEditorPanel(context, configService);
     esqlResultsPanel = new EsqlResultsPanel();
 
@@ -473,10 +473,10 @@ export async function activate(context: vscode.ExtensionContext) {
         }))
     );
 
-    // Register grid editor command
+    // Register grid editor command (now redirects to preview panel which has editing built-in)
     context.subscriptions.push(
         vscode.commands.registerCommand('yamlDashboard.editLayout', createDashboardCommand(async (filePath, dashboardIndex) => {
-            await gridEditorPanel.show(filePath, dashboardIndex);
+            await previewPanel.show(filePath, dashboardIndex);
         }))
     );
 

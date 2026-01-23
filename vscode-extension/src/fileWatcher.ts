@@ -89,17 +89,9 @@ export function setupFileWatcher(
         }
     });
 
-    // Also watch for general file system changes - support both .yaml and .yml
-    const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.{yaml,yml}');
+    // Note: We only use the save watcher, not a general file system watcher.
+    // A file system watcher would trigger on programmatic changes (like grid updates)
+    // causing unwanted "Compiling..." flashes during drag-and-drop editing.
 
-    fileWatcher.onDidChange(async (uri) => {
-        const compileOnSave = configService.getCompileOnSave();
-
-        if (compileOnSave) {
-            // Update preview if it's open
-            await previewPanel.updatePreview(uri.fsPath);
-        }
-    });
-
-    return [saveWatcher, fileWatcher];
+    return [saveWatcher];
 }

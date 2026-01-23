@@ -23,6 +23,11 @@ interface DashboardGridInfo {
     panels: PanelGridInfo[];
 }
 
+/**
+ * @deprecated Grid editing is now integrated into PreviewPanel.
+ * This class is kept for backwards compatibility but the editLayout command
+ * now redirects to PreviewPanel which has drag-and-drop built-in.
+ */
 export class GridEditorPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
