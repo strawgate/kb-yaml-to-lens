@@ -17,6 +17,9 @@ dashboards:
         label: MySQL Instance
         data_view: metrics-*
         field: resource.attributes.service.instance.id
+    filters:
+      - field: data_stream.dataset
+        equals: mysqlreceiver.otel
     panels:
       # Navigation Links
       - title: Navigation Links
