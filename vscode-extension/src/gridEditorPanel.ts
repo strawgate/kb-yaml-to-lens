@@ -23,6 +23,11 @@ interface DashboardGridInfo {
     panels: PanelGridInfo[];
 }
 
+/**
+ * @deprecated Grid editing is now integrated into PreviewPanel.
+ * This class is kept for backwards compatibility but the editLayout command
+ * now redirects to PreviewPanel which has drag-and-drop built-in.
+ */
 export class GridEditorPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
@@ -108,7 +113,10 @@ export class GridEditorPanel {
         timeout: number = 30000
     ): Promise<T> {
         const resolver = new BinaryResolver(this.extensionPath, this.configService);
-        const pythonPath = resolver.resolvePythonForScripts();
+        const resolved = resolver.resolveForScripts();
+
+        // Combine base args with script args
+        const fullArgs = [...resolved.args, ...args];
 
         return new Promise((resolve, reject) => {
             let settled = false;
@@ -127,8 +135,8 @@ export class GridEditorPanel {
                 resolve(val);
             };
 
-            const child = spawn(pythonPath, args, {
-                cwd: path.join(this.extensionPath, '..')
+            const child = spawn(resolved.executable, fullArgs, {
+                cwd: resolved.isBundled ? resolved.cwd : path.join(this.extensionPath, '..')
             });
 
             let stdout = '';

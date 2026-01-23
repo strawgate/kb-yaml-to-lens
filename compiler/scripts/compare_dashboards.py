@@ -9,8 +9,17 @@ Usage:
 """
 
 import json
+import os
 import sys
 from pathlib import Path
+
+# Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
+_USE_ASCII = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
+
+_ICON_CHECK = '[OK]' if _USE_ASCII else '✓'
+_ICON_CROSS = '[X]' if _USE_ASCII else '✗'
+_ICON_WARNING = '[!]' if _USE_ASCII else '⚠'
+_ICON_SUCCESS = '[OK]' if _USE_ASCII else '✅'
 
 
 def get_panel_info(dir_path: Path) -> list[tuple[str, str, str]]:
@@ -73,7 +82,7 @@ def main() -> None:
     print()
 
     if len(orig) != len(comp):
-        print(f'⚠️  Panel count mismatch: {len(orig)} original vs {len(comp)} compiled')
+        print(f'{_ICON_WARNING}  Panel count mismatch: {len(orig)} original vs {len(comp)} compiled')
         print()
 
     print('Panel comparison:')
@@ -83,24 +92,24 @@ def main() -> None:
         if i < len(orig) and i < len(comp):
             _of, ot, otitle = orig[i]
             _cf, ct, ctitle = comp[i]
-            match = '✓' if ot == ct else '✗'
+            match = _ICON_CHECK if ot == ct else _ICON_CROSS
             print(f'  {match} Panel {i}: {ot:15s} | {otitle}')
             if ot != ct:
                 print(f'      Original: {ot}, Compiled: {ct}')
         elif i < len(orig):
             _of, ot, otitle = orig[i]
-            print(f'  ✗ Panel {i}: {ot:15s} | {otitle} (MISSING in compiled)')
+            print(f'  {_ICON_CROSS} Panel {i}: {ot:15s} | {otitle} (MISSING in compiled)')
         else:
             _cf, ct, ctitle = comp[i]
-            print(f'  ✗ Panel {i}: {ct:15s} | {ctitle} (EXTRA in compiled)')
+            print(f'  {_ICON_CROSS} Panel {i}: {ct:15s} | {ctitle} (EXTRA in compiled)')
 
     # Summary
     print()
     matches = sum(1 for i in range(min(len(orig), len(comp))) if orig[i][1] == comp[i][1])
     if len(orig) == len(comp) and matches == len(orig):
-        print('✅ All panels match!')
+        print(f'{_ICON_SUCCESS} All panels match!')
     else:
-        print(f'⚠️  {matches}/{max_panels} panels match')
+        print(f'{_ICON_WARNING}  {matches}/{max_panels} panels match')
 
 
 if __name__ == '__main__':

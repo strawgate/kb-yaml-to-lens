@@ -37,7 +37,8 @@ type ControlTypes = (
     | ESQLFunctionControl
     | ESQLStaticSingleSelectControl
     | ESQLStaticMultiSelectControl
-    | ESQLQueryControl
+    | ESQLQuerySingleSelectControl
+    | ESQLQueryMultiSelectControl
 )
 
 
@@ -282,8 +283,8 @@ class ESQLStaticMultiSelectControl(BaseControl):
         return self
 
 
-class ESQLQueryControl(BaseControl):
-    """Represents an ES|QL control with query-driven values.
+class ESQLQuerySingleSelectControl(BaseControl):
+    """Represents an ES|QL control with query-driven values for single selection.
 
     This control dynamically fetches available values from an ES|QL query
     to filter ES|QL visualizations via variables.
@@ -300,5 +301,33 @@ class ESQLQueryControl(BaseControl):
     query: str = Field(..., min_length=1)
     """The ES|QL query that returns the available values for this control."""
 
-    multiple: bool | None = Field(default=None)
-    """If true, allow multiple selection from the options."""
+    multiple: Literal[False] | None = Field(default=None)
+    """Must be None or False for single-select."""
+
+    default: str | None = Field(default=None)
+    """Default selected value."""
+
+
+class ESQLQueryMultiSelectControl(BaseControl):
+    """Represents an ES|QL control with query-driven values for multiple selection.
+
+    This control dynamically fetches available values from an ES|QL query
+    to filter ES|QL visualizations via variables.
+    """
+
+    type: Literal['esql'] = 'esql'
+
+    variable_name: str = Field(...)
+    """The name of the ES|QL variable (e.g., 'status_code')."""
+
+    variable_type: ESQLVariableType = Field(default=ESQLVariableType.VALUES, strict=False)
+    """The type of variable ('time_literal', 'fields', 'values', 'multi_values', 'functions')."""
+
+    query: str = Field(..., min_length=1)
+    """The ES|QL query that returns the available values for this control."""
+
+    multiple: Literal[True] = Field(default=True)
+    """Must be True for multi-select."""
+
+    default: list[str] | None = Field(default=None)
+    """Default selected values."""

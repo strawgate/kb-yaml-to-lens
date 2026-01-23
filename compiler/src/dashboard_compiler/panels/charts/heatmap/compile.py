@@ -100,8 +100,11 @@ def compile_lens_heatmap_chart(
     kbn_columns_by_id: 'dict[str, KbnLensColumnTypes]' = {}  # noqa: UP037
 
     # Compile value metric first (dimensions may reference it)
-    value_id, value_column = compile_lens_metric(lens_heatmap_chart.value)
+    result = compile_lens_metric(lens_heatmap_chart.value)
+    value_id = result.primary_id
+    value_column = result.primary_column
     kbn_metric_columns_by_id: 'dict[str, KbnLensMetricColumnTypes]' = {value_id: value_column}  # noqa: UP037
+    kbn_metric_columns_by_id.update(result.helper_columns)
 
     # Compile X-axis dimension (required)
     x_id, x_column = compile_lens_dimension(

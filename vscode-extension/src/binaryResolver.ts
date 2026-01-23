@@ -2,8 +2,8 @@
  * Binary resolution for LSP server and Python scripts.
  *
  * Provides intelligent resolution of executables:
- * - LSP Server: Bundled binary (production) or Python script (development)
- * - Grid Scripts: Always require Python
+ * - LSP Server: Bundled uv + compiler source (production) or Python script (development)
+ * - Grid Scripts: Bundled uv or fallback to Python
  */
 
 import * as fs from 'fs';
@@ -12,13 +12,13 @@ import * as vscode from 'vscode';
 import { ConfigService } from './configService';
 
 export interface BinaryResolverResult {
-    /** Path to the executable (binary or Python) */
+    /** Path to the executable (uv or Python) */
     executable: string;
-    /** Arguments to pass (empty for binary, [script_path] for Python) */
+    /** Arguments to pass */
     args: string[];
     /** Working directory to use */
     cwd: string;
-    /** Whether using bundled binary (true) or local development (false) */
+    /** Whether using bundled uv (true) or local development (false) */
     isBundled: boolean;
 }
 
@@ -59,19 +59,26 @@ export class BinaryResolver {
     }
 
     /**
-     * Get the platform-specific binary name.
+     * Get the platform-specific uv binary name.
      */
-    private getBinaryName(): string {
-        return process.platform === 'win32' ? 'kb-dashboard.exe' : 'kb-dashboard';
+    private getUvBinaryName(): string {
+        return process.platform === 'win32' ? 'uv.exe' : 'uv';
     }
 
     /**
-     * Get the expected path to the bundled binary.
+     * Get the expected path to the bundled uv binary.
      */
-    private getBundledBinaryPath(): string {
+    private getBundledUvPath(): string {
         const platformDir = this.getPlatformDir();
-        const binaryName = this.getBinaryName();
+        const binaryName = this.getUvBinaryName();
         return path.join(this.extensionPath, 'bin', platformDir, binaryName);
+    }
+
+    /**
+     * Get the path to the bundled compiler source.
+     */
+    private getBundledCompilerPath(): string {
+        return path.join(this.extensionPath, 'compiler');
     }
 
     /**
@@ -97,6 +104,15 @@ export class BinaryResolver {
             console.debug(`File not executable: ${filePath}`, error);
             return false;
         }
+    }
+
+    /**
+     * Check if the bundled compiler source exists.
+     */
+    private hasBundledCompiler(): boolean {
+        const compilerPath = this.getBundledCompilerPath();
+        const pyprojectPath = path.join(compilerPath, 'pyproject.toml');
+        return fs.existsSync(pyprojectPath);
     }
 
     /**
@@ -154,25 +170,32 @@ export class BinaryResolver {
      * Resolve LSP server configuration.
      *
      * Resolution order:
-     * 1. Bundled binary in bin/{platform}-{arch}/kb-dashboard
+     * 1. Bundled uv + compiler source (production mode)
      * 2. Python script (development fallback)
      */
     resolveLSPServer(outputChannel?: vscode.OutputChannel): BinaryResolverResult {
-        // Check for bundled binary
-        const binaryPath = this.getBundledBinaryPath();
+        const uvPath = this.getBundledUvPath();
+        const compilerPath = this.getBundledCompilerPath();
 
-        if (this.isExecutable(binaryPath)) {
-            outputChannel?.appendLine(`Using bundled LSP binary: ${binaryPath}`);
+        // Check for bundled uv and compiler source
+        if (this.isExecutable(uvPath) && this.hasBundledCompiler()) {
+            outputChannel?.appendLine(`Using bundled uv: ${uvPath}`);
+            outputChannel?.appendLine(`Using bundled compiler: ${compilerPath}`);
             return {
-                executable: binaryPath,
-                args: ['lsp'],
-                cwd: this.extensionPath,
+                executable: uvPath,
+                args: ['run', '--directory', compilerPath, 'kb-dashboard', 'lsp'],
+                cwd: compilerPath,
                 isBundled: true
             };
         }
 
         // Fallback to Python module
-        outputChannel?.appendLine(`Bundled binary not found at ${binaryPath}`);
+        if (!this.isExecutable(uvPath)) {
+            outputChannel?.appendLine(`Bundled uv not found at ${uvPath}`);
+        }
+        if (!this.hasBundledCompiler()) {
+            outputChannel?.appendLine(`Bundled compiler not found at ${compilerPath}`);
+        }
         outputChannel?.appendLine('Falling back to Python LSP server module');
 
         const pythonPath = this.resolvePythonPath(outputChannel);
@@ -193,11 +216,37 @@ export class BinaryResolver {
     }
 
     /**
-     * Resolve Python executable for standalone scripts (grid extractor/updater).
+     * Resolve executable for standalone scripts (grid extractor/updater).
      *
-     * These scripts are NOT bundled as binaries - they always use Python.
+     * Resolution order:
+     * 1. Bundled uv + compiler source (production mode)
+     * 2. Python (development fallback)
      */
-    resolvePythonForScripts(outputChannel?: vscode.OutputChannel): string {
-        return this.resolvePythonPath(outputChannel);
+    resolveForScripts(outputChannel?: vscode.OutputChannel): BinaryResolverResult {
+        const uvPath = this.getBundledUvPath();
+        const compilerPath = this.getBundledCompilerPath();
+
+        // Check for bundled uv and compiler source
+        if (this.isExecutable(uvPath) && this.hasBundledCompiler()) {
+            outputChannel?.appendLine(`Using bundled uv for scripts: ${uvPath}`);
+            return {
+                executable: uvPath,
+                args: ['run', '--directory', compilerPath, 'python'],
+                cwd: compilerPath,
+                isBundled: true
+            };
+        }
+
+        // Fallback to Python
+        const pythonPath = this.resolvePythonPath(outputChannel);
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        const cwd = workspaceRoot ?? path.dirname(this.extensionPath);
+
+        return {
+            executable: pythonPath,
+            args: [],
+            cwd,
+            isBundled: false
+        };
     }
 }

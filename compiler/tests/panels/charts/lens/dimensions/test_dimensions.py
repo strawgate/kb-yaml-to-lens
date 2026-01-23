@@ -24,7 +24,9 @@ async def test_date_histogram_dimension() -> None:
     dimension_config = {'type': 'date_histogram', 'field': '@timestamp'}
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
     metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
@@ -69,7 +71,9 @@ async def test_terms_dimension_with_sorting() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
     metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
@@ -127,7 +131,9 @@ async def test_filters_dimension() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
     metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
@@ -175,7 +181,9 @@ async def test_intervals_dimension() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
     metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
@@ -220,7 +228,9 @@ async def test_intervals_dimension_with_custom_granularity() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
     metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
@@ -270,7 +280,9 @@ async def test_intervals_dimension_with_custom_intervals() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
     metric_result = kbn_metric_column.model_dump()
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
@@ -353,7 +365,9 @@ async def test_terms_dimension_with_formula_metric_uses_alphabetical_ordering() 
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -382,7 +396,9 @@ async def test_terms_dimension_with_non_formula_metric_orders_by_metric() -> Non
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -429,7 +445,9 @@ async def test_multi_field_top_values_two_fields() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -474,7 +492,9 @@ async def test_multi_field_top_values_three_fields() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -520,7 +540,9 @@ async def test_multi_field_top_values_with_custom_label() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -572,7 +594,9 @@ async def test_multi_field_top_values_with_sort_and_filters() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
@@ -617,7 +641,9 @@ async def test_single_field_backward_compatibility() -> None:
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
-    metric_id, kbn_metric_column = compile_lens_metric(metric)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
 
     kbn_metric_column_by_id = {metric_id: kbn_metric_column}
     dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)

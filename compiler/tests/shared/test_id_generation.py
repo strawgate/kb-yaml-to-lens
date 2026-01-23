@@ -90,7 +90,7 @@ def test_stable_id_generator_empty_list() -> None:
 
 # Find example files for deterministic compilation tests
 _project_root = Path(__file__).parent.parent.parent.parent
-_example_dir = _project_root / 'docs' / 'examples'
+_example_dir = _project_root / 'docs' / 'content' / 'examples'
 
 
 def test_deterministic_compilation_controls_example() -> None:
@@ -137,7 +137,8 @@ def test_deterministic_compilation_from_dict() -> None:
         'panels': [
             {
                 'title': 'Test Pie Chart',
-                'grid': {'x': 0, 'y': 0, 'w': 24, 'h': 12},
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 12},
                 'lens': {
                     'type': 'pie',
                     'data_view': 'metrics-*',
@@ -147,7 +148,8 @@ def test_deterministic_compilation_from_dict() -> None:
             },
             {
                 'title': 'Test Line Chart',
-                'grid': {'x': 24, 'y': 0, 'w': 24, 'h': 12},
+                'position': {'x': 24, 'y': 0},
+                'size': {'w': 24, 'h': 12},
                 'lens': {
                     'type': 'line',
                     'data_view': 'metrics-*',

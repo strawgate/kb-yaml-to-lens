@@ -1,0 +1,93 @@
+---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+# See ../../licenses/ELASTIC-LICENSE-2.0.txt for the full license text.
+#
+# This file is derived from the Elastic integrations repository:
+# https://github.com/elastic/integrations/tree/main/packages/system_otel
+#
+# Modified by kb-yaml-to-lens contributors to convert from Kibana JSON format
+# to YAML format for use as documentation examples.
+dashboards:
+  - id: otel-hosts-overview
+    name: '[OTel] Hosts Overview'
+    description: Overview of all OpenTelemetry-monitored hosts with key performance metrics
+    filters:
+      - exists: resource.attributes.host.name
+      - field: data_stream.dataset
+        equals: hostmetricsreceiver.otel
+    panels:
+      - title: Navigation Links
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
+        description: Links to related dashboards
+        links:
+          layout: horizontal
+          items:
+            - label: Hosts Overview
+              dashboard: otel-hosts-overview
+            - label: Host Overview
+              dashboard: otel-host-details-overview
+            - label: Host Metrics
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
+      - title: Number of Hosts
+        size: {w: 48, h: 4}
+        position: {x: 0, y: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: resource.attributes.host.name
+            label: Total Hosts
+      - title: Hosts by OS
+        size: {w: 48, h: 4}
+        position: {x: 0, y: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          breakdown:
+            field: resource.attributes.os.type
+            label: OS Type
+            size: 5
+          primary:
+            aggregation: unique_count
+            field: resource.attributes.host.name
+            label: Hosts
+      - title: Host Performance Summary
+        size: {w: 48, h: 25}
+        position: {x: 0, y: 11}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: hostname
+              type: values
+              field: resource.attributes.host.name
+              size: 100
+          metrics:
+            - id: cpu-util
+              formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
+              label: CPU %
+              format:
+                type: percent
+            - id: mem-util
+              formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              label: Memory %
+              format:
+                type: percent
+            - id: norm-load
+              formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              label: Normalized Load
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 20
