@@ -201,7 +201,7 @@ check-docs:
 	@echo "Checking documentation (lint + links)..."
 	@echo ""
 	@$(MAKE) lint-markdown-check
-	@$(call run-in-component,compiler,test-links)
+	@$(call run-in-component,docs,test-links)
 	@echo ""
 	@echo "✓ Documentation checks passed"
 
