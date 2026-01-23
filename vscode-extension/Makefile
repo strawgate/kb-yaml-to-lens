@@ -47,23 +47,19 @@ test: install
 	@echo "Running VSCode extension tests..."
 	npm test
 
-test-unit: install compile
-	@echo "Running TypeScript tests for VSCode extension..."
-	./node_modules/.bin/mocha out/test/unit/**/*.test.js --ui tdd 2>/dev/null || echo 'No unit tests found - skipping'
-
-# Non-compiling targets for use in CI after compile has already run
+# Non-compiling target for use in CI after compile has already run
 test-unit-only:
 	@echo "Running TypeScript tests for VSCode extension..."
 	./node_modules/.bin/mocha out/test/unit/**/*.test.js --ui tdd 2>/dev/null || echo 'No unit tests found - skipping'
 
-test-e2e: install compile
-	@echo "Running VSCode extension E2E tests..."
-	node ./out/test/runTest.js
+test-unit: install compile test-unit-only
 
 # Non-compiling target for use in CI after compile has already run
 test-e2e-only:
 	@echo "Running VSCode extension E2E tests..."
 	node ./out/test/runTest.js
+
+test-e2e: install compile test-e2e-only
 
 compile: install
 	@echo "Compiling TypeScript..."
@@ -73,18 +69,14 @@ watch: install
 	@echo "Starting watch mode..."
 	npm run watch
 
-lint: install compile
-	@echo "Running ESLint..."
-	npm run lint
-
-lint-check: install compile
-	@echo "Running ESLint..."
-	npm run lint
-
 # Non-compiling target for use in CI after compile has already run
 lint-only:
 	@echo "Running ESLint..."
 	npm run lint
+
+lint: install compile lint-only
+
+lint-check: lint
 
 package: install
 	@echo "Creating .vsix package..."
