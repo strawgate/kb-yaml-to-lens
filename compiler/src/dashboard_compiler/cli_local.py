@@ -218,7 +218,7 @@ async def _upload_to_kibana(
 @click.command('compile')
 @click.option(
     '--input-dir',
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    type=click.Path(file_okay=False, path_type=Path),
     default=DEFAULT_INPUT_DIR,
     help='Directory containing YAML dashboard files to compile.',
 )
