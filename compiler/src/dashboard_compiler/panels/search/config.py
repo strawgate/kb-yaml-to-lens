@@ -25,7 +25,7 @@ class SearchPanel(BasePanel):
           - name: "Log Monitoring Dashboard"
             panels:
               - title: "All System Logs"
-                grid: { x: 0, y: 0, w: 48, h: 10 }
+                size: { w: 48, h: 10 }
                 search:
                   saved_search_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         ```
@@ -37,7 +37,7 @@ class SearchPanel(BasePanel):
             panels:
               - hide_title: true
                 description: "Critical security alerts from the last 24 hours"
-                grid: { x: 0, y: 0, w: 48, h: 8 }
+                size: { w: 48, h: 8 }
                 search:
                   saved_search_id: "critical-security-alerts-saved-search"
         ```

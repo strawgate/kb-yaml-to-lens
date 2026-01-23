@@ -4,15 +4,13 @@ from typing import Any
 
 from inline_snapshot import snapshot
 
-from dashboard_compiler.panels.config import Grid
 from dashboard_compiler.panels.images.compile import compile_image_panel_config
 from dashboard_compiler.panels.images.config import ImagePanel
 
 
 def compile_image_panel_snapshot(config: dict[str, Any]) -> dict[str, Any]:
     """Compile image panel config and return dict for snapshot testing."""
-    panel_grid = Grid(x=0, y=0, w=24, h=10)
-    image_panel = ImagePanel(grid=panel_grid, **config)
+    image_panel = ImagePanel(size={'w': 24, 'h': 10}, position={'x': 0, 'y': 0}, **config)
     _, kbn_panel_config = compile_image_panel_config(image_panel=image_panel)
     return kbn_panel_config.model_dump(by_alias=True)
 

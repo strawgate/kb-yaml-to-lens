@@ -62,6 +62,32 @@ jobs:
           fetch-depth: 0
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: vscode-extension/package-lock.json
+      - name: Setup Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb x11-utils
+          Xvfb :99 -screen 0 1024x768x24 > /tmp/xvfb.log 2>&1 &
+          XVFB_PID=$!
+
+          # Wait for Xvfb to be ready (up to 10 seconds)
+          for i in {1..10}; do
+            if xdpyinfo -display :99 >/dev/null 2>&1; then
+              echo "Xvfb is ready (display :99)"
+              break
+            fi
+            if [ $i -eq 10 ]; then
+              echo "Xvfb failed to start after 10 seconds"
+              cat /tmp/xvfb.log
+              exit 1
+            fi
+            sleep 1
+          done
       - name: Setup MCP Server
         env:
           CONTEXT7_API_KEY: ${{ secrets.context7-api-key }}
@@ -91,6 +117,8 @@ jobs:
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1.0.23
+        env:
+          DISPLAY: :99.0
         with:
           claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
           prompt: |-
@@ -132,7 +160,7 @@ jobs:
 
             ### Stage 3: Acceptance & Verification
             1. Delegate to a General Purpose Agent who will review the specific instructions from the user,
-              the plan, the Agents.md, code_style, pr requirements, etc and determine if the changes are complete 
+              the plan, the Agents.md, code_style, pr requirements, etc and determine if the changes are complete
               and meet the requirements.
 
             ### Stage 4: Final Verification
