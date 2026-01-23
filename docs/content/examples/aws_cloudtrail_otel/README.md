@@ -37,7 +37,7 @@ This dashboard expects data from AWS CloudTrail via OpenTelemetry with the follo
 4. **Logs by user agent** (ES|QL donut chart) - Distribution of client types
 5. **Logs by event type** (ES|QL donut chart) - Event type distribution
 6. **Failed operations by error code** (ES|QL donut chart) - Error code breakdown
-7. **Recent events table** (ES|QL datatable) - Latest CloudTrail events with key fields
+7. **Recent Events** (ES|QL datatable) - Latest CloudTrail events with key fields
 8. **Top User IDs** (ES|QL datatable) - Most active access keys by event count
 
 ### ES|QL Features
@@ -61,5 +61,5 @@ This dashboard demonstrates several advanced ES|QL features:
 
 ## Known Limitations
 
-- **Column labels in ES|QL datatables**: The first datatable panel does not have custom column labels because ES|QL dimensions don't support the `label` field (only metrics support labels in ES|QL panels)
+- **Column labels in ES|QL datatables**: The Recent Events datatable panel does not have custom column labels because ES|QL dimensions don't support the `label` field (only metrics support labels in ES|QL panels)
 - **User agent parsing**: The regex-based parsing may not handle all user agent formats perfectly
