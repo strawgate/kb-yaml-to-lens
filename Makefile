@@ -8,7 +8,7 @@ ifeq ($(PARALLEL),1)
 MAKEFLAGS += --jobs=3 --output-sync=target
 endif
 
-.PHONY: all help install ci check fix test-unit test-e2e test-smoke clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci
+.PHONY: all help install ci check fix test-unit test-e2e test-smoke clean clean-full lint-markdown lint-markdown-check docs-serve docs-build docs-build-quiet docs-build-strict docs-deploy check-docs inspector prepare-extension prepare-extension-all package-extension package-extension-all install-extension-vscode install-extension-cursor gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci compiler vscode docs
 
 all: check
 
@@ -72,11 +72,17 @@ help:
 	@echo "  bump-major        - Bump major version across all components"
 	@echo "  bump-version-show - Show current versions across all components"
 	@echo ""
-	@echo "=== Component-Specific Commands ==="
+	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
-	@echo "For component-specific commands, use:"
-	@echo "  cd compiler/ && make help        - Compiler commands"
-	@echo "  cd vscode-extension/ && make help - VS Code extension commands"
+	@echo "Run any target in a component's Makefile directly:"
+	@echo "  make compiler <target>  - Run target in compiler/ (e.g., make compiler test)"
+	@echo "  make vscode <target>    - Run target in vscode-extension/ (e.g., make vscode lint)"
+	@echo "  make docs <target>      - Run target in docs/ (e.g., make docs test-links)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make compiler help      - Show compiler-specific targets"
+	@echo "  make vscode test-e2e    - Run VS Code extension E2E tests"
+	@echo "  make compiler docker-build - Build compiler Docker image"
 
 # Component iteration helper
 # Run target in component
@@ -281,6 +287,18 @@ bump-major:
 
 bump-version-show:
 	@uv run scripts/bump-version.py show
+
+# Component pass-through targets
+# These allow running any target in a component's Makefile directly from the root
+# Example: `make compiler test` runs `make test` in compiler/
+compiler:
+	@cd compiler && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+
+vscode:
+	@cd vscode-extension && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+
+docs:
+	@cd docs && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
 
 # Prevent make from trying to build targets passed as arguments to scripts
 %:
