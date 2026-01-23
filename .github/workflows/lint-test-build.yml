@@ -154,6 +154,7 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --group docs
       - name: Build documentation
+        working-directory: docs
         run: NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict
   test-vscode-extension-typescript:
     name: Test VSCode Extension (TypeScript)
