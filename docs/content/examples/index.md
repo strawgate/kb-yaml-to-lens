@@ -5,17 +5,16 @@ This section provides real-world YAML dashboard examples demonstrating various f
 ## How to Use These Examples
 
 1. **Browse:** Click on any example bundle below to view its README with complete documentation
-2. **Copy:** Each bundle contains YAML files you can copy to your `inputs/` directory
-3. **Compile:** Run the compiler:
+2. **Compile:** Run the compiler with the example directory:
 
    ```bash
-   kb-dashboard compile
+   kb-dashboard compile --input-dir docs/content/examples/elastic_agent
    ```
 
-4. **Upload (Optional):** To upload directly to Kibana:
+3. **Upload (Optional):** To upload directly to Kibana:
 
    ```bash
-   kb-dashboard compile --upload
+   kb-dashboard compile --input-dir docs/content/examples/elastic_agent --upload
    ```
 
 ## Standalone Examples
@@ -147,6 +146,7 @@ Complete dashboard bundles for monitoring various technologies. Each bundle incl
 | ------ | ----------- |
 | [CrowdStrike](crowdstrike/README.md) | CrowdStrike EDR security dashboards (6 dashboards) |
 | [CrowdStrike Modern](crowdstrike-modern/README.md) | Workflow-centric SOC dashboards (4 dashboards) |
+| [Elastic Agent](elastic_agent/README.md) | Elastic Agent monitoring and input metrics (24 dashboards) |
 | [System (Classic)](system/README.md) | Elastic System integration dashboards (14 dashboards) |
 | [System (Modern)](system_modern/README.md) | Modern System dashboards with style guide patterns (14 dashboards) |
 
@@ -162,10 +162,14 @@ All example files are located in the `docs/content/examples/` directory of the r
 
 To use an example as a starting point for your own dashboard:
 
-1. Copy the example YAML file to your `inputs/` directory
+1. Copy the example YAML file to your project directory
 2. Modify the dashboard name, description, and ID
 3. Adjust panels, filters, and controls to match your data views
-4. Compile and upload to Kibana
+4. Compile and upload to Kibana:
+
+   ```bash
+   kb-dashboard compile --input-dir ./your-dashboards --upload
+   ```
 
 ## Related Documentation
 

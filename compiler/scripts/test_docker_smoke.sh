@@ -5,7 +5,8 @@ set -e
 
 IMAGE_NAME="${IMAGE_NAME:-kb-dashboard-compiler:latest}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+EXAMPLES_DIR="$REPO_ROOT/docs/content/examples"
 
 echo "Testing Docker image: $IMAGE_NAME"
 
@@ -19,27 +20,28 @@ echo "Test 2: Version check"
 docker run --rm "$IMAGE_NAME" --version > /dev/null
 echo "✓ Version command works"
 
-# Test 3: Compile sample YAML
+# Test 3: Compile sample YAML from elastic_agent examples
 echo "Test 3: Compile sample YAML"
 TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
 docker run --rm \
-  -v "$COMPILER_ROOT/inputs:/inputs:ro" \
+  -v "$EXAMPLES_DIR/elastic_agent:/inputs:ro" \
   -v "$TEMP_OUTPUT:/output" \
   "$IMAGE_NAME" \
   compile --input-dir /inputs --output-dir /output
 
-# Verify output files exist
-if [ ! -f "$TEMP_OUTPUT/esql-controls-example.ndjson" ]; then
+# Verify output files exist (elastic_agent dashboards compile to elastic_agent.ndjson)
+if [ ! -f "$TEMP_OUTPUT/elastic_agent.ndjson" ]; then
   echo "✗ Expected output file not found"
+  ls -la "$TEMP_OUTPUT"
   exit 1
 fi
 echo "✓ Compilation works and generates output"
 
 # Test 4: Verify NDJSON format
 echo "Test 4: Verify NDJSON output format"
-if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/esql-controls-example.ndjson"; then
+if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/elastic_agent.ndjson"; then
   echo "✗ Output doesn't contain expected dashboard JSON"
   exit 1
 fi

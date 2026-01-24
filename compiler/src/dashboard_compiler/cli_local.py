@@ -34,7 +34,6 @@ from dashboard_compiler.tools.disassemble import disassemble_dashboard, parse_nd
 
 # Constants
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 MAX_EXIT_CODE = 125
 
@@ -218,9 +217,9 @@ async def _upload_to_kibana(
 @click.command('compile')
 @click.option(
     '--input-dir',
-    type=click.Path(file_okay=False, path_type=Path),
-    default=DEFAULT_INPUT_DIR,
-    help='Directory containing YAML dashboard files to compile.',
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+    help='Directory containing YAML dashboard files to compile. Required unless --input-file is provided.',
 )
 @click.option(
     '--input-file',
@@ -270,7 +269,7 @@ async def _upload_to_kibana(
 )
 def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
-    input_dir: Path,
+    input_dir: Path | None,
     input_file: Path | None,
     output_dir: Path,
     output_file: str,
@@ -299,30 +298,29 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     \b
     Examples:
-        # Compile dashboards from default directory
-        kb-dashboard compile
-
         # Compile a single dashboard file
         kb-dashboard compile --input-file ./dashboards/example.yaml
 
-        # Compile with custom input and output directories
+        # Compile all dashboards in a directory
         kb-dashboard compile --input-dir ./dashboards --output-dir ./output
 
         # Compile to individual JSON files per dashboard
-        kb-dashboard compile --format json --output-dir ./output
+        kb-dashboard compile --input-dir ./dashboards --format json --output-dir ./output
 
         # Compile and upload to Kibana using basic auth
-        kb-dashboard compile --upload --kibana-url https://kibana.example.com \
+        kb-dashboard compile --input-dir ./dashboards --upload \
+            --kibana-url https://kibana.example.com \
             --kibana-username admin --kibana-password secret
 
         # Compile and upload using API key (recommended)
-        kb-dashboard compile --upload --kibana-url https://kibana.example.com \
+        kb-dashboard compile --input-dir ./dashboards --upload \
+            --kibana-url https://kibana.example.com \
             --kibana-api-key "your-api-key-here"
 
         # Use environment variables for credentials
         export KIBANA_URL=https://kibana.example.com
         export KIBANA_API_KEY=your-api-key
-        kb-dashboard compile --upload
+        kb-dashboard compile --input-dir ./dashboards --upload
     """
     # Context is already populated by @kibana_options decorator
     if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
@@ -340,8 +338,11 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             msg = f'Input file must have a .yaml extension: {input_file}'
             raise click.ClickException(msg)
         yaml_files = [input_file]
-    else:
+    elif input_dir is not None:
         yaml_files = get_yaml_files(input_dir)
+    else:
+        msg = 'Either --input-dir or --input-file is required. Example dashboards are available in docs/content/examples/.'
+        raise click.ClickException(msg)
     if len(yaml_files) == 0:
         print_plain('No YAML files to compile.', style='yellow')
         return

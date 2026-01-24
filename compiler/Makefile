@@ -156,11 +156,15 @@ update-deps:
 # Compilation
 compile:
 	@echo "Compiling dashboards..."
-	uv run kb-dashboard compile
+	@echo "Note: Use --input-dir to specify the directory containing YAML files"
+	@echo "Example: uv run kb-dashboard compile --input-dir ../docs/content/examples/elastic_agent"
+	@echo ""
+	@echo "For a list of available example bundles, see docs/content/examples/"
 
 upload:
 	@echo "Compiling and uploading dashboards to Kibana..."
-	uv run kb-dashboard compile --upload
+	@echo "Note: Use --input-dir to specify the directory containing YAML files"
+	@echo "Example: uv run kb-dashboard compile --input-dir ../docs/content/examples/elastic_agent --upload"
 
 # Docker commands
 docker-build:
@@ -169,10 +173,16 @@ docker-build:
 
 docker-run:
 	@echo "Running Docker container..."
-	@mkdir -p $(PWD)/inputs $(PWD)/../output
-	@echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
-	docker run --rm -v $(PWD)/inputs:/inputs -v $(PWD)/../output:/output \
-		$(DOCKER_IMAGE) compile --input-dir /inputs --output-dir /output
+	@echo ""
+	@echo "Usage: Mount your input directory with -v /path/to/inputs:/inputs"
+	@echo ""
+	@echo "Example with local directory:"
+	@echo "  docker run --rm -v \$$(pwd)/my-dashboards:/inputs -v \$$(pwd)/output:/output \\"
+	@echo "    $(DOCKER_IMAGE) compile --input-dir /inputs --output-dir /output"
+	@echo ""
+	@echo "Example with examples from repository:"
+	@echo "  docker run --rm -v \$$(pwd)/../docs/content/examples/elastic_agent:/inputs -v \$$(pwd)/output:/output \\"
+	@echo "    $(DOCKER_IMAGE) compile --input-dir /inputs --output-dir /output"
 
 docker-test:
 	@echo "Testing Docker image..."

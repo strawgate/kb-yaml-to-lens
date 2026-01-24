@@ -117,7 +117,7 @@ No Python installation required!
 
 #### Compile Your First Dashboard (CLI)
 
-1. Create a YAML dashboard file in `inputs/` directory:
+1. Create a YAML dashboard file (e.g., `my-dashboard.yaml`):
 
 ```yaml
 dashboards:
@@ -135,16 +135,18 @@ dashboards:
 
 2. Compile to NDJSON:
 
-If using uv: `uv run kb-dashboard compile --input-dir inputs --output-dir output`
+If using uv: `uv run kb-dashboard compile --input-dir ./my-dashboards --output-dir ./output`
 
 If using Docker:
 ```bash
-docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
+docker run --rm -v $(pwd)/my-dashboards:/inputs -v $(pwd)/output:/output \
   ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
-  compile --input-dir inputs --output-dir output
+  compile --input-dir /inputs --output-dir /output
 ```
 
-If using standalone binary: `./kb-dashboard-<platform> compile --input-dir inputs --output-dir output`
+If using standalone binary: `./kb-dashboard-<platform> compile --input-dir ./my-dashboards --output-dir ./output`
+
+**Example dashboards:** See the [docs/content/examples/](../docs/content/examples/) directory for complete example dashboard bundles.
 
 3. (Optional) Upload directly to Kibana:
 

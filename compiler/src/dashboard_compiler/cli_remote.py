@@ -476,18 +476,17 @@ def load_sample_data_command(
 
     \b
     Examples:
-        # Load sample data from default directory
-        kb-dashboard load-sample-data
-
-        # Load with custom input directory
+        # Load sample data from a directory
         kb-dashboard load-sample-data --input-dir ./dashboards
 
         # Load with Elasticsearch authentication
-        kb-dashboard load-sample-data --es-url https://es.example.com \
+        kb-dashboard load-sample-data --input-dir ./dashboards \
+            --es-url https://es.example.com \
             --es-username admin --es-password secret
 
         # Use API key (recommended)
-        kb-dashboard load-sample-data --es-url https://es.example.com \
+        kb-dashboard load-sample-data --input-dir ./dashboards \
+            --es-url https://es.example.com \
             --es-api-key "your-api-key-here"
     """
     # Context is already populated by @elasticsearch_options decorator
@@ -500,10 +499,12 @@ def load_sample_data_command(
         msg = 'Elasticsearch client not configured'
         raise click.ClickException(msg)
 
-    # Use default input directory if not specified
-    effective_input_dir = input_dir if input_dir is not None else PROJECT_ROOT / 'inputs'
+    # Require input directory to be specified
+    if input_dir is None:
+        msg = '--input-dir is required. Example dashboards with sample data are available in docs/content/examples/.'
+        raise click.ClickException(msg)
 
-    yaml_files = get_yaml_files(effective_input_dir)
+    yaml_files = get_yaml_files(input_dir)
     if len(yaml_files) == 0:
         print_plain('No YAML files found.', style='yellow')
         return
