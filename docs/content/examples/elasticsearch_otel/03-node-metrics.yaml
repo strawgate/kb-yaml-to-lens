@@ -17,7 +17,7 @@ dashboards:
         field: elasticsearch.node.name
     panels:
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -37,7 +37,7 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: CPU & Memory Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 2}
         markdown:
           content: '### CPU & Memory'
@@ -80,7 +80,7 @@ dashboards:
               format:
                 type: bytes
       - title: Disk I/O Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 14}
         markdown:
           content: '### Disk I/O'
@@ -117,7 +117,7 @@ dashboards:
             - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: write')"
               label: Write Ops/sec
       - title: Operations Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 26}
         markdown:
           content: '### Operations'
@@ -155,7 +155,7 @@ dashboards:
             - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: index')"
               label: Index Ops/sec
       - title: Cache Performance Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 38}
         markdown:
           content: '### Cache Performance'
@@ -244,7 +244,7 @@ dashboards:
               format:
                 type: bytes
       - title: Thread Pool Metrics Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 60}
         markdown:
           content: '### Thread Pool Metrics'

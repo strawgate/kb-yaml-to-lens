@@ -22,6 +22,7 @@ dashboards:
             - {label: Integrations, dashboard: elastic_agent-1a4e7280-6b5e-11ed-98de-67bdecd21824}
             - {label: Input Metrics, dashboard: elastic_agent-a8192f90-cd3f-11ed-869d-e7dc1b551cd2}
       - title: Current Active Agents
+        hide_title: true
         grid: {x: 8, y: 0, w: 15, h: 4}
         lens:
           type: metric

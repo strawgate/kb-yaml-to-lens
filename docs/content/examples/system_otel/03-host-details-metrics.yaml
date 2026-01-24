@@ -41,7 +41,7 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: CPU Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 3}
         markdown:
           content: '### CPU'
@@ -111,7 +111,7 @@ dashboards:
               format:
                 type: percent
       - title: Memory Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 29}
         markdown:
           content: '### Memory'
@@ -146,7 +146,7 @@ dashboards:
               field: metrics.system.memory.utilization
               label: Memory %
       - title: Disk Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 43}
         markdown:
           content: '### Disk'

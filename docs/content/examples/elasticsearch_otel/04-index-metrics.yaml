@@ -17,7 +17,7 @@ dashboards:
         field: elasticsearch.index.name
     panels:
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -37,11 +37,12 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Index Overview Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 2}
         markdown:
           content: '### Index Overview'
       - title: Total Indices
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 4}
         lens:
@@ -52,6 +53,7 @@ dashboards:
             field: elasticsearch.index.name
             label: Indices
       - title: Total Index Size
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 4}
         lens:
@@ -126,7 +128,7 @@ dashboards:
             enabled: true
             page_size: 20
       - title: Operations Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 22}
         markdown:
           content: '### Operations'
@@ -245,7 +247,7 @@ dashboards:
             - formula: counter_rate(max(elasticsearch.index.operations.time))
               label: Time (ms/sec)
       - title: Segments Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 54}
         markdown:
           content: '### Segments'

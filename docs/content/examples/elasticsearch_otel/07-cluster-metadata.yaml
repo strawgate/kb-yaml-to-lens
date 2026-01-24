@@ -17,7 +17,7 @@ dashboards:
         field: elasticsearch.node.name
     panels:
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -37,7 +37,7 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Cluster Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 2}
         markdown:
           content: '### Cluster Configuration'
@@ -82,7 +82,7 @@ dashboards:
             - field: In-Flight Fetches
             - field: State Queue
       - title: Node Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 16}
         markdown:
           content: '### Node Configuration'
@@ -101,7 +101,7 @@ dashboards:
             - field: node
             - field: cluster
       - title: Node Resource Usage Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 33}
         markdown:
           content: '### Node Resource Usage'
@@ -144,7 +144,7 @@ dashboards:
             - field: Disk Total (GB)
             - field: Disk Used %
       - title: Index Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 50}
         markdown:
           content: '### Index Configuration'
@@ -172,7 +172,7 @@ dashboards:
             - field: Segment Count
             - field: Segment Size (MB)
       - title: Thread Pool Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 67}
         markdown:
           content: '### Thread Pool Configuration'
@@ -198,7 +198,7 @@ dashboards:
             - field: Threads
             - field: Queue Size
       - title: Cache Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 84}
         markdown:
           content: '### Cache Configuration'
@@ -221,7 +221,7 @@ dashboards:
             - field: cache
             - field: Memory Usage (MB)
       - title: JVM Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 101}
         markdown:
           content: '### JVM Configuration'
@@ -265,7 +265,7 @@ dashboards:
             - field: Thread Count
             - field: Classes Loaded
       - title: Circuit Breaker Configuration Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 118}
         markdown:
           content: '### Circuit Breaker Configuration'

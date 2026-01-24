@@ -8,7 +8,7 @@ dashboards:
         equals: elasticsearchreceiver.otel
     panels:
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -42,6 +42,7 @@ dashboards:
             field: elasticsearch.cluster.name
             label: Clusters
       - title: Active Clusters
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 2}
         lens:
@@ -52,6 +53,7 @@ dashboards:
             field: elasticsearch.cluster.name
             label: Clusters
       - title: Total Nodes
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 2}
         lens:
@@ -62,6 +64,7 @@ dashboards:
             field: elasticsearch.cluster.nodes
             label: Nodes
       - title: Data Nodes
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 2}
         lens:

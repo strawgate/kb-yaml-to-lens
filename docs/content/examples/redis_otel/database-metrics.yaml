@@ -14,7 +14,7 @@ dashboards:
         match_technique: contains
     panels:
       - position: {x: 0, y: 0}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         links:
           layout: horizontal
           items:
@@ -27,11 +27,12 @@ dashboards:
             - label: Redis Documentation
               url: https://redis.io/docs/
       - position: {x: 0, y: 2}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Database Overview'
           font_size: 14
       - title: Total Databases
+        hide_title: true
         position: {x: 0, y: 4}
         size: {w: 12, h: 4}
         lens:
@@ -44,6 +45,7 @@ dashboards:
             format:
               type: number
       - title: Total Keys
+        hide_title: true
         position: {x: 12, y: 4}
         size: {w: 12, h: 4}
         lens:
@@ -80,7 +82,7 @@ dashboards:
             format:
               type: number
       - position: {x: 0, y: 8}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keys by Database'
           font_size: 14
@@ -152,7 +154,7 @@ dashboards:
               format:
                 type: number
       - position: {x: 0, y: 34}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keys with Expiration'
           font_size: 14
@@ -210,7 +212,7 @@ dashboards:
               format:
                 type: number
       - position: {x: 0, y: 48}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Average Time-To-Live (TTL)'
           font_size: 14
@@ -268,7 +270,7 @@ dashboards:
               format:
                 type: number
       - position: {x: 0, y: 62}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Database Summary Table'
           font_size: 14

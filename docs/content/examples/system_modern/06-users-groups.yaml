@@ -54,6 +54,7 @@ dashboards:
 
       # Summary Layer - Key IAM Metrics
       - title: Total Events
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -63,6 +64,7 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Actions
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -73,6 +75,7 @@ dashboards:
             field: event.action
             label: Actions
       - title: Unique Users
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 3}
         lens:
@@ -83,6 +86,7 @@ dashboards:
             field: user.name
             label: Users
       - title: Unique Hosts
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 3}
         lens:

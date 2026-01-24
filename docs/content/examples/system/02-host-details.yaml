@@ -67,6 +67,7 @@ dashboards:
             format:
               type: bytes
       - title: Inbound Traffic
+        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 24, y: 3}
         lens:
@@ -79,6 +80,7 @@ dashboards:
             format:
               type: bytes
       - title: Outbound Traffic
+        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 32, y: 3}
         lens:
@@ -91,6 +93,7 @@ dashboards:
             format:
               type: bytes
       - title: Load Average
+        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 40, y: 3}
         lens:
@@ -101,6 +104,7 @@ dashboards:
             field: system.load.1
             label: Load 1m
       - title: Disk Write I/O
+        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 0, y: 11}
         lens:

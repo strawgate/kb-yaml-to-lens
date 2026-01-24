@@ -53,6 +53,7 @@ dashboards:
 
       # Summary Layer - Key Host Metrics (4 metrics max)
       - title: CPU
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -68,6 +69,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Memory
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -114,7 +116,7 @@ dashboards:
       # CPU Section
       - title: CPU Performance
         hide_title: true
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 9}
         markdown:
           content: '## CPU Performance'
@@ -173,7 +175,7 @@ dashboards:
       # Memory Section
       - title: Memory Performance
         hide_title: true
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 23}
         markdown:
           content: '## Memory'
@@ -224,7 +226,7 @@ dashboards:
       # Network Section
       - title: Network Performance
         hide_title: true
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 37}
         markdown:
           content: '## Network'
@@ -277,7 +279,7 @@ dashboards:
       # Disk I/O Section
       - title: Disk I/O
         hide_title: true
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 51}
         markdown:
           content: '## Disk I/O'
@@ -322,7 +324,7 @@ dashboards:
       # Filesystem Section
       - title: Filesystem
         hide_title: true
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 65}
         markdown:
           content: '## Filesystem'
@@ -373,7 +375,7 @@ dashboards:
       # Processes Section - Detail Layer
       - title: Processes
         hide_title: true
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 79}
         markdown:
           content: '## Top Processes'

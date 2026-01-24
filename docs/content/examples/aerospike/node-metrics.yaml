@@ -38,6 +38,7 @@ dashboards:
 
       # KPI Metrics Row
       - title: Selected Nodes
+        hide_title: true
         size: {w: 8, h: 5}
         position: {x: 0, y: 4}
         esql:
@@ -51,6 +52,7 @@ dashboards:
             field: node_count
             label: Nodes
       - title: Aerospike Namespaces
+        hide_title: true
         size: {w: 8, h: 5}
         position: {x: 8, y: 4}
         esql:
@@ -64,6 +66,7 @@ dashboards:
             field: namespace_count
             label: Namespaces
       - title: Memory Free
+        hide_title: true
         size: {w: 16, h: 5}
         position: {x: 16, y: 4}
         esql:
@@ -80,6 +83,7 @@ dashboards:
               type: number
               suffix: '%'
       - title: Open Connections
+        hide_title: true
         size: {w: 16, h: 5}
         position: {x: 32, y: 4}
         esql:

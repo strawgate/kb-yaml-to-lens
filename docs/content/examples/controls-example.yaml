@@ -44,6 +44,7 @@ dashboards:
             aggregation: count
             label: Filtered Events
       - title: Unique Hosts in Selection
+        hide_title: true
         description: Number of unique hosts in filtered data
         size:
           w: 16

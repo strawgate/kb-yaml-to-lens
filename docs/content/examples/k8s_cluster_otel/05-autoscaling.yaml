@@ -42,12 +42,13 @@ dashboards:
       # HPA STATUS SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
       - title: HPA Status Summary
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 3}
         markdown:
           content: '## 📈 HPA Status Summary'
           font_size: 14
       - title: Total HPAs
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 5}
         lens:
@@ -59,6 +60,7 @@ dashboards:
           filters:
             - exists: k8s.hpa.name
       - title: Current Replicas
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 5}
         lens:
@@ -70,6 +72,7 @@ dashboards:
           filters:
             - exists: k8s.hpa.name
       - title: Desired Replicas
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 5}
         lens:
@@ -81,6 +84,7 @@ dashboards:
           filters:
             - exists: k8s.hpa.name
       - title: Max Replicas Limit
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 36, y: 5}
         lens:
@@ -96,7 +100,7 @@ dashboards:
       # SCALING BEHAVIOR
       # ═══════════════════════════════════════════════════════════════════════
       - title: Scaling Behavior
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 13}
         markdown:
           content: '## 🔄 Scaling Behavior'
@@ -140,7 +144,7 @@ dashboards:
       # HPA DETAILS
       # ═══════════════════════════════════════════════════════════════════════
       - title: HPA Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 29}
         markdown:
           content: '## 🔍 HPA Configuration & Status'

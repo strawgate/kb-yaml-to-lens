@@ -38,12 +38,13 @@ dashboards:
       # CLUSTER HEALTH SUMMARY (4 metric cards - at-a-glance health)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 3}
         markdown:
           content: '## 🏥 Cluster Health'
           font_size: 14
       - title: Running Pods
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 5}
         lens:
@@ -56,6 +57,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '2'
       - title: Pending Pods
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 5}
         lens:
@@ -68,6 +70,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '1'
       - title: Failed Pods
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 5}
         lens:
@@ -80,6 +83,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '4'
       - title: Container Restarts
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 36, y: 5}
         lens:
@@ -158,7 +162,7 @@ dashboards:
       # WORKLOAD HEALTH PREVIEW
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 27}
         markdown:
           content: '## 🚀 Workload Health Preview'
@@ -202,7 +206,7 @@ dashboards:
       # DETAIL: Unhealthy Deployments Table
       # ═══════════════════════════════════════════════════════════════════════
       - title: Unhealthy Deployments
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 41}
         markdown:
           content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'

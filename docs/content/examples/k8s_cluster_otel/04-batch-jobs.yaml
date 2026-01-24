@@ -42,12 +42,13 @@ dashboards:
       # JOB STATUS SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Status Summary
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 3}
         markdown:
           content: '## 📋 Job Status Summary'
           font_size: 14
       - title: Successful Jobs
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 5}
         lens:
@@ -59,6 +60,7 @@ dashboards:
           filters:
             - exists: k8s.job.name
       - title: Failed Jobs
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 5}
         lens:
@@ -70,6 +72,7 @@ dashboards:
           filters:
             - exists: k8s.job.name
       - title: Active Jobs
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 5}
         lens:
@@ -81,6 +84,7 @@ dashboards:
           filters:
             - exists: k8s.job.name
       - title: Active CronJobs
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 36, y: 5}
         lens:
@@ -96,7 +100,7 @@ dashboards:
       # JOB EXECUTION TRENDS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Execution Trends
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 13}
         markdown:
           content: '## 📈 Job Execution Trends'
@@ -134,7 +138,7 @@ dashboards:
       # JOB DETAILS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 29}
         markdown:
           content: '## 🔍 Job Details'

@@ -17,7 +17,7 @@ dashboards:
         field: elasticsearch.node.name
     panels:
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -37,7 +37,7 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: JVM Memory Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 2}
         markdown:
           content: '### JVM Memory'
@@ -119,7 +119,7 @@ dashboards:
               format:
                 type: bytes
       - title: Garbage Collection Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 24}
         markdown:
           content: '### Garbage Collection'
@@ -180,7 +180,7 @@ dashboards:
               formula: counter_rate(max(jvm.gc.collections.elapsed))
               label: Time (ms/sec)
       - title: Thread Management Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 48}
         markdown:
           content: '### Thread Management'
@@ -219,7 +219,7 @@ dashboards:
               field: jvm.classes.loaded
               label: Classes Loaded
       - title: Memory Pool Usage Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 60}
         markdown:
           content: '### Memory Pool Usage'

@@ -51,6 +51,7 @@ dashboards:
           filters:
             - exists: http.response.status_code
       - title: Slow Requests (≥500ms)
+        hide_title: true
         description: 'Using gte filter: http.response.time >= 500'
         size:
           w: 12

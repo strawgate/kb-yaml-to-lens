@@ -42,7 +42,7 @@ dashboards:
       # CLUSTER CAPACITY OVERVIEW
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Capacity
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 3}
         markdown:
           content: '## 📊 Cluster Capacity (Requests vs Limits)'
@@ -135,7 +135,7 @@ dashboards:
       # NAMESPACE ALLOCATION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Namespace Allocation
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 29}
         markdown:
           content: '## 🏷️ Resource Allocation by Namespace'
@@ -191,7 +191,7 @@ dashboards:
       # POD RESOURCE DETAILS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Pod Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 45}
         markdown:
           content: '## 🔍 Pod Resource Details'

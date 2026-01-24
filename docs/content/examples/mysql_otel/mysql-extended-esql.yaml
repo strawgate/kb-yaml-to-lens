@@ -26,7 +26,7 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal

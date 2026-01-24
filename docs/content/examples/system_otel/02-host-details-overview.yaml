@@ -54,6 +54,7 @@ dashboards:
             format:
               type: percent
       - title: Normalized Load
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 12, y: 3}
         lens:

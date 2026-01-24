@@ -42,12 +42,13 @@ dashboards:
       # CONTAINER HEALTH SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 3}
         markdown:
           content: '## 🐳 Container Health'
           font_size: 14
       - title: Ready Containers
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 5}
         lens:
@@ -60,6 +61,7 @@ dashboards:
             - field: k8s.container.ready
               equals: '1'
       - title: Not Ready Containers
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 5}
         lens:
@@ -72,6 +74,7 @@ dashboards:
             - field: k8s.container.ready
               equals: '0'
       - title: Total Restarts
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 5}
         lens:
@@ -99,7 +102,7 @@ dashboards:
       # DEPLOYMENT HEALTH
       # ═══════════════════════════════════════════════════════════════════════
       - title: Deployment Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 13}
         markdown:
           content: '## 🚀 Deployment Health (Desired vs Available)'
@@ -173,7 +176,7 @@ dashboards:
       # CONTAINER ANALYSIS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Analysis
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 39}
         markdown:
           content: '## 📊 Container Analysis'
@@ -228,7 +231,7 @@ dashboards:
       # DETAIL TABLES
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 53}
         markdown:
           content: '## 🔍 Workload Status Details'

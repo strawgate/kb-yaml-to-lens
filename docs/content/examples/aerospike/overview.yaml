@@ -23,7 +23,7 @@ dashboards:
         field: aerospike.namespace
     panels:
       # Navigation Links
-      - size: {w: 48, h: 2}
+      - size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -37,8 +37,9 @@ dashboards:
 
       # KPI Metrics Row
       - title: Aerospike Nodes
+        hide_title: true
         size: {w: 12, h: 5}
-        position: {x: 0, y: 2}
+        position: {x: 0, y: 3}
         esql:
           type: metric
           query: |
@@ -50,8 +51,9 @@ dashboards:
             field: node_count
             label: Nodes
       - title: Unique Namespaces
+        hide_title: true
         size: {w: 12, h: 5}
-        position: {x: 12, y: 2}
+        position: {x: 12, y: 3}
         esql:
           type: metric
           query: |
@@ -63,8 +65,9 @@ dashboards:
             field: namespace_count
             label: Namespaces
       - title: Avg Connections
+        hide_title: true
         size: {w: 12, h: 5}
-        position: {x: 24, y: 2}
+        position: {x: 24, y: 3}
         esql:
           type: metric
           query: |
@@ -76,8 +79,9 @@ dashboards:
             field: avg_connections
             label: Connections
       - title: Avg Memory Free
+        hide_title: true
         size: {w: 12, h: 5}
-        position: {x: 36, y: 2}
+        position: {x: 36, y: 3}
         esql:
           type: metric
           query: |
@@ -95,7 +99,7 @@ dashboards:
       # Cluster Summary DataTable
       - title: Cluster Node Summary
         size: {w: 48, h: 15}
-        position: {x: 0, y: 7}
+        position: {x: 0, y: 8}
         description: Summary of node-level metrics across the cluster
         esql:
           type: datatable
@@ -117,7 +121,7 @@ dashboards:
       # Memory Free Over Time
       - title: Memory Free Over Time
         size: {w: 48, h: 10}
-        position: {x: 0, y: 22}
+        position: {x: 0, y: 23}
         esql:
           type: line
           query: |
@@ -143,7 +147,7 @@ dashboards:
       # Connections Over Time
       - title: Open Connections Over Time
         size: {w: 48, h: 10}
-        position: {x: 0, y: 32}
+        position: {x: 0, y: 33}
         esql:
           type: line
           query: |
@@ -166,7 +170,7 @@ dashboards:
       # Distribution Charts
       - title: Memory Free by Node
         size: {w: 24, h: 10}
-        position: {x: 0, y: 42}
+        position: {x: 0, y: 43}
         esql:
           type: pie
           query: |
@@ -188,7 +192,7 @@ dashboards:
             donut: medium
       - title: Connections by Node
         size: {w: 24, h: 10}
-        position: {x: 24, y: 42}
+        position: {x: 24, y: 43}
         esql:
           type: pie
           query: |

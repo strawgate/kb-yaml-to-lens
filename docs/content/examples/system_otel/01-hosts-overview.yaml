@@ -36,6 +36,7 @@ dashboards:
             - label: Host Logs
               dashboard: otel-host-details-logs
       - title: Number of Hosts
+        hide_title: true
         size: {w: 48, h: 4}
         position: {x: 0, y: 3}
         lens:
@@ -46,6 +47,7 @@ dashboards:
             field: resource.attributes.host.name
             label: Total Hosts
       - title: Hosts by OS
+        hide_title: true
         size: {w: 48, h: 4}
         position: {x: 0, y: 7}
         lens:

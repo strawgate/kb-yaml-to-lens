@@ -41,6 +41,7 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: '[Elastic Agent] S3 Total Documents Created'
+        hide_title: true
         grid: {x: 7, y: 0, w: 9, h: 5}
         lens:
           type: metric

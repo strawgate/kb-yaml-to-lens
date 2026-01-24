@@ -72,6 +72,7 @@ dashboards:
             field: winlog.event_id
             size: 25
       - title: Audit Policy Changes (4719)
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 18}
         lens:
@@ -84,6 +85,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4719'
       - title: Registry Value Modified (4657)
+        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 18}
         lens:

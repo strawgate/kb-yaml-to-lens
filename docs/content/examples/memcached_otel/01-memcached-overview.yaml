@@ -58,6 +58,7 @@ dashboards:
             format:
               type: number
       - title: Threads
+        hide_title: true
         position: {x: 24, y: 3}
         size: {w: 8, h: 6}
         lens:
@@ -70,6 +71,7 @@ dashboards:
             format:
               type: number
       - title: Average Hit Ratio
+        hide_title: true
         position: {x: 32, y: 3}
         size: {w: 16, h: 6}
         lens:

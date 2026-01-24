@@ -21,7 +21,7 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         description: Links to related PostgreSQL dashboards
         links:
@@ -43,6 +43,7 @@ dashboards:
 
       # KPI Metrics Row using ES|QL
       - title: Total Databases
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 0, y: 4}
         esql:
@@ -69,6 +70,7 @@ dashboards:
             field: active_backends
             label: Active Backends
       - title: Max Connections
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 24, y: 4}
         esql:

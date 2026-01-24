@@ -24,7 +24,7 @@ dashboards:
         field: resource.attributes.host.name
     panels:
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         description: Links to related dashboards
         links:

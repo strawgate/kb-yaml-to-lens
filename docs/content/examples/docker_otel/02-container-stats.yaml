@@ -36,7 +36,7 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
         links:
           layout: horizontal
@@ -48,7 +48,7 @@ dashboards:
 
       # Warning markdown panel
       - size: {w: 48, h: 2}
-        position: {x: 0, y: 2}
+        position: {x: 0, y: 3}
         markdown:
           content: This dashboard is only intended to be used when filtered to one container at a time.
           font_size: 12
@@ -56,7 +56,7 @@ dashboards:
       # Container count metric
       - title: Containers count
         size: {w: 7, h: 4}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         hide_title: true
         lens:
           type: metric
@@ -69,7 +69,7 @@ dashboards:
       # Container info table
       - title: Container info
         size: {w: 41, h: 4}
-        position: {x: 7, y: 4}
+        position: {x: 7, y: 5}
         lens:
           type: datatable
           data_view: metrics-*
@@ -117,10 +117,10 @@ dashboards:
               format:
                 type: bytes
 
-      # CPU Usage (line chart) - y=8
+      # CPU Usage (line chart) - y=9
       - title: CPU Usage
         size: {w: 48, h: 9}
-        position: {x: 0, y: 8}
+        position: {x: 0, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -136,10 +136,10 @@ dashboards:
               format:
                 type: percent
 
-      # Memory Usage (line chart) - y=17
+      # Memory Usage (line chart) - y=18
       - title: Memory Usage
         size: {w: 48, h: 9}
-        position: {x: 0, y: 17}
+        position: {x: 0, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -155,10 +155,10 @@ dashboards:
               format:
                 type: bytes
 
-      # Disk I/O (line chart by device) - y=26
+      # Disk I/O (line chart by device) - y=27
       - title: Disk I/O
         size: {w: 48, h: 9}
-        position: {x: 0, y: 26}
+        position: {x: 0, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -178,10 +178,10 @@ dashboards:
               format:
                 type: bytes
 
-      # Network I/O (line chart with rx and tx) - y=35
+      # Network I/O (line chart with rx and tx) - y=36
       - title: Network I/O
         size: {w: 48, h: 9}
-        position: {x: 0, y: 35}
+        position: {x: 0, y: 36}
         lens:
           type: line
           data_view: metrics-*
@@ -205,17 +205,17 @@ dashboards:
               format:
                 type: bytes
 
-      # "Detailed information" markdown panel - y=44
+      # "Detailed information" markdown panel - y=45
       - size: {w: 48, h: 3}
-        position: {x: 0, y: 44}
+        position: {x: 0, y: 45}
         markdown:
           content: '## Detailed information'
           font_size: 12
 
-      # CPU Usage (area stacked chart) - y=47
+      # CPU Usage (area stacked chart) - y=48
       - title: CPU Usage
         size: {w: 48, h: 9}
-        position: {x: 0, y: 47}
+        position: {x: 0, y: 48}
         lens:
           type: area
           mode: stacked
@@ -232,10 +232,10 @@ dashboards:
               format:
                 type: percent
 
-      # Memory Usage with limit (line chart) - y=56 left
+      # Memory Usage with limit (line chart) - y=57 left
       - title: Memory Usage with limit
         size: {w: 24, h: 9}
-        position: {x: 0, y: 56}
+        position: {x: 0, y: 57}
         lens:
           type: line
           data_view: metrics-*
@@ -256,10 +256,10 @@ dashboards:
               format:
                 type: bytes
 
-      # Memory Usage (line chart percentage) - y=56 right
+      # Memory Usage (line chart percentage) - y=57 right
       - title: Memory Usage
         size: {w: 24, h: 9}
-        position: {x: 24, y: 56}
+        position: {x: 24, y: 57}
         lens:
           type: line
           data_view: metrics-*
@@ -274,11 +274,11 @@ dashboards:
               format:
                 type: percent
 
-      # Disk I/O (line chart by device) - y=65
+      # Disk I/O (line chart by device) - y=66
       # Note: This is NOT a duplicate - it's a second visualization of disk I/O
       - title: Disk I/O
         size: {w: 48, h: 9}
-        position: {x: 0, y: 65}
+        position: {x: 0, y: 66}
         lens:
           type: line
           data_view: metrics-*
@@ -298,10 +298,10 @@ dashboards:
               format:
                 type: bytes
 
-      # Network - Received Bytes (line chart) - y=74 left
+      # Network - Received Bytes (line chart) - y=75 left
       - title: Network - Received Bytes
         size: {w: 24, h: 9}
-        position: {x: 0, y: 74}
+        position: {x: 0, y: 75}
         lens:
           type: line
           data_view: metrics-*
@@ -321,10 +321,10 @@ dashboards:
               format:
                 type: bytes
 
-      # Network - Transmitted Bytes (line chart) - y=74 right
+      # Network - Transmitted Bytes (line chart) - y=75 right
       - title: Network - Transmitted Bytes
         size: {w: 24, h: 9}
-        position: {x: 24, y: 74}
+        position: {x: 24, y: 75}
         lens:
           type: line
           data_view: metrics-*
