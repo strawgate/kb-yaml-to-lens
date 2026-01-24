@@ -399,23 +399,23 @@ dashboards:
       - title: Server Performance Summary
         size: {w: 48, h: 20}
         position: {x: 0, y: 74}
-        description: Shows performance metrics per server. Uses TS command to aggregate counter metrics via RATE().
+        description: Shows cumulative counter values and current state metrics per server. The requests_total and traffic_total columns are cumulative
+          totals (not per-second rates). For rate calculations, see the time-series charts above which use the TS command with RATE().
         esql:
           type: datatable
           query:
-            - TS metrics-*
+            - FROM metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE resource.attributes.apache.server.name IS NOT NULL
-            - STATS requests_rate = ROUND(SUM(RATE(apache.requests)), 2), traffic_rate = ROUND(SUM(RATE(apache.traffic)), 2), connections = ROUND(MAX(LAST_OVER_TIME(apache.current_connections)),
-              0), cpu_load = ROUND(AVG(AVG_OVER_TIME(apache.cpu.load)) * 100, 1) BY server_name = resource.attributes.apache.server.name, server_port
-              = resource.attributes.apache.server.port
-            - KEEP server_name, server_port, requests_rate, traffic_rate, connections, cpu_load
+            - STATS requests_total = ROUND(MAX(apache.requests), 0), traffic_total = MAX(apache.traffic), connections = ROUND(MAX(apache.current_connections),
+              0), cpu_load = ROUND(AVG(apache.cpu.load) * 100, 1) BY server_name = resource.attributes.apache.server.name, server_port = resource.attributes.apache.server.port
+            - KEEP server_name, server_port, requests_total, traffic_total, connections, cpu_load
             - SORT server_name ASC
             - LIMIT 100
           dimensions:
             - field: server_name
             - field: server_port
-            - field: requests_rate
-            - field: traffic_rate
+            - field: requests_total
+            - field: traffic_total
             - field: connections
             - field: cpu_load
