@@ -26,7 +26,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "dashboard_compiler.cli",
-            "args": ["compile", "--input-dir", "../docs/examples", "--upload"],
+            "args": ["compile", "--input-dir", "../docs/content/examples", "--upload"],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/compiler"
         }
