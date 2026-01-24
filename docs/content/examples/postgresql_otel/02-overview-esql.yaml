@@ -112,7 +112,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.backends IS NOT NULL
-            - STATS connections = MAX(AVG_OVER_TIME(postgresql.backends)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            - STATS connections = MAX(AVG_OVER_TIME(postgresql.backends)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database
+              = resource.attributes.postgresql.database.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -136,7 +137,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.commits IS NOT NULL
-            - STATS commits_rate = SUM(RATE(postgresql.commits)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            - STATS commits_rate = SUM(RATE(postgresql.commits)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -161,7 +162,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.rollbacks IS NOT NULL
-            - STATS rollbacks_rate = SUM(RATE(postgresql.rollbacks)) BY time_bucket = TBUCKET(1 minute), database = resource.attributes.postgresql.database.name
+            - STATS rollbacks_rate = SUM(RATE(postgresql.rollbacks)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -187,7 +188,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.blocks_read IS NOT NULL
-            - STATS blocks_rate = SUM(RATE(postgresql.blocks_read)) BY time_bucket = TBUCKET(1 minute), source = attributes.source
+            - STATS blocks_rate = SUM(RATE(postgresql.blocks_read)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), source = attributes.source
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -211,7 +212,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.operations IS NOT NULL
-            - STATS operations_rate = SUM(RATE(postgresql.operations)) BY time_bucket = TBUCKET(1 minute), operation = attributes.operation
+            - STATS operations_rate = SUM(RATE(postgresql.operations)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation =
+              attributes.operation
             - SORT time_bucket ASC
           legend:
             visible: show
