@@ -8,9 +8,6 @@ dashboards:
         equals: crowdstrike.alert
     panels:
       - title: Table of Contents
-        position:
-          x: 0
-          y: 0
         size:
           w: 16
           h: 16
@@ -31,9 +28,6 @@ dashboards:
           font_size: 12
           links_in_new_tab: false
       - title: Alert by Status [Logs CrowdStrike]
-        position:
-          x: 16
-          y: 0
         size:
           w: 17
           h: 16
@@ -53,9 +47,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert by OS Platform [Logs CrowdStrike]
-        position:
-          x: 33
-          y: 0
         size:
           w: 15
           h: 16
@@ -75,9 +66,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: User with Highest Alert [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 16
         size:
           w: 24
           h: 15
@@ -98,9 +86,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert over Device [Logs CrowdStrike]
-        position:
-          x: 24
-          y: 16
         size:
           w: 24
           h: 15
@@ -121,9 +106,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert by Severity [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 31
         size:
           w: 24
           h: 15
@@ -143,9 +125,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert over Host IP [Logs CrowdStrike]
-        position:
-          x: 24
-          y: 31
         size:
           w: 24
           h: 15
@@ -166,9 +145,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert over Hostname [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 46
         size:
           w: 24
           h: 15
@@ -189,9 +165,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert over Timestamp [Logs CrowdStrike]
-        position:
-          x: 24
-          y: 46
         size:
           w: 24
           h: 15
@@ -206,9 +179,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert over Confidence [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 61
         size:
           w: 48
           h: 17
@@ -233,9 +203,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert by IOC Source [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 78
         size:
           w: 24
           h: 15
@@ -255,9 +222,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert by IOC Type [Logs CrowdStrike]
-        position:
-          x: 24
-          y: 78
         size:
           w: 24
           h: 15
@@ -277,9 +241,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Alert by OS Full Name [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 93
         size:
           w: 24
           h: 16
@@ -299,9 +260,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Top 10 Source IP [Logs CrowdStrike]
-        position:
-          x: 24
-          y: 93
         size:
           w: 24
           h: 16
@@ -322,9 +280,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Top 10 Source Domain [Logs CrowdStrike]
-        position:
-          x: 0
-          y: 109
         size:
           w: 24
           h: 17
@@ -345,9 +300,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Top 10 Destination Domain [Logs CrowdStrike]
-        position:
-          x: 24
-          y: 109
         size:
           w: 24
           h: 17

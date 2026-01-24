@@ -8,9 +8,6 @@ dashboards:
         equals: crowdstrike.fdr
     panels:
       - title: Table of Contents
-        position:
-          x: 0
-          y: 0
         size:
           w: 7
           h: 57
@@ -31,9 +28,6 @@ dashboards:
           font_size: 12
           links_in_new_tab: false
       - title: Top Users
-        position:
-          x: 7
-          y: 0
         size:
           w: 21
           h: 14
@@ -54,9 +48,6 @@ dashboards:
             - aggregation: count
               label: Count of records
       - title: Top Related Files
-        position:
-          x: 28
-          y: 0
         size:
           w: 20
           h: 14
@@ -77,9 +68,6 @@ dashboards:
             - aggregation: count
               label: Count of records
       - title: Events over time, By Event Kind
-        position:
-          x: 7
-          y: 14
         size:
           w: 20
           h: 19
@@ -103,9 +91,6 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Top Event Types
-        position:
-          x: 27
-          y: 14
         size:
           w: 10
           h: 19
@@ -131,9 +116,6 @@ dashboards:
                 field: event.kind
                 equals: alert
       - title: Top Alert Types
-        position:
-          x: 37
-          y: 14
         size:
           w: 11
           h: 19

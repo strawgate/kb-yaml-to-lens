@@ -12,7 +12,6 @@ dashboards:
     name: '[Elastic Agent] HTTP Endpoint Input Metrics'
     panels:
       - title: Table of Contents
-        grid: {x: 0, y: 0, w: 7, h: 39}
         links:
           layout: horizontal
           items:
@@ -40,51 +39,51 @@ dashboards:
             - {label: Unified Logs, dashboard: elastic_agent-9eab2fa0-5e7c-11f0-89d2-bb7ceae5af7f}
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
+        size: {w: 7, h: 39}
       - title: '[Elastic Agent] Average Processing Time'
-        grid: {x: 7, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batch_processing_time.histogram.mean, label: Part of Average Processing Time
               (Milliseconds)}
+        size: {w: 6, h: 7}
       - title: '[Elastic Agent] Average Batch Size'
-        grid: {x: 13, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batch_size.histogram.mean, label: Part of Average Batch Size}
+        size: {w: 6, h: 7}
       - title: '[Elastic Agent] Batches Received'
-        grid: {x: 19, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batches_received_total, label: Part of Batches Received}
+        size: {w: 6, h: 7}
       - title: '[Elastic Agent] Batches Published'
-        grid: {x: 25, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batches_published_total, label: Part of Batches Published}
+        size: {w: 6, h: 7}
       - title: '[Elastic Agent] Events Published'
-        grid: {x: 31, y: 0, w: 5, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.events_published_total, label: Part of Events Published}
+        size: {w: 5, h: 7}
       - title: '[Elastic Agent] Average Request Size'
-        grid: {x: 36, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.size.histogram.mean, label: Part of Average Request Size}
+        size: {w: 6, h: 7}
       - title: '[Elastic Agent] API Errors'
-        grid: {x: 42, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.api_errors_total, label: Part of Errors}
+        size: {w: 6, h: 7}
       - title: '[Elastic Agent] Batch Processing Time (Milliseconds)'
-        grid: {x: 7, y: 7, w: 41, h: 32}
         lens:
           type: area
           data_view: metrics-*
@@ -96,3 +95,4 @@ dashboards:
             - {aggregation: last_value, field: filebeat_input.batch_processing_time.histogram.mean, label: Part of Batch Average}
             - {formula: 'divide(last_value(filebeat_input.batch_processing_time.histogram.p99), 1000000)', label: 99th Percentile}
             - {aggregation: last_value, field: filebeat_input.batch_processing_time.histogram.p99, label: Part of Batch 99th Percentile}
+        size: {w: 41, h: 32}

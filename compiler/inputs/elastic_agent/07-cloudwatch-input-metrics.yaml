@@ -12,7 +12,6 @@ dashboards:
     name: '[Elastic Agent] CloudWatch Input Metrics'
     panels:
       - title: Table of Contents
-        grid: {x: 0, y: 0, w: 7, h: 39}
         links:
           layout: horizontal
           items:
@@ -40,32 +39,32 @@ dashboards:
             - {label: Unified Logs, dashboard: elastic_agent-9eab2fa0-5e7c-11f0-89d2-bb7ceae5af7f}
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
+        size: {w: 7, h: 39}
       - title: '[Elastic Agent] Cloudwatch API Calls Total'
-        grid: {x: 7, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.api_calls_total, label: Total API Calls}
+        size: {w: 10, h: 6}
       - title: '[Elastic Agent] Cloudwatch Events Received Total'
-        grid: {x: 17, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.log_events_received_total, label: Cloudwatch Events Collected}
+        size: {w: 10, h: 6}
       - title: '[Elastic Agent] Elasticsearch Events Created'
-        grid: {x: 27, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.cloudwatch_events_created_total, label: Events Created}
+        size: {w: 10, h: 6}
       - title: '[Elastic Agent] Cloudwatch Unique Log Groups Total'
-        grid: {x: 37, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.log_groups_total, label: Unique Log Groups}
+        size: {w: 10, h: 6}
       - title: '[Elastic Agent] API Calls'
-        grid: {x: 7, y: 6, w: 40, h: 16}
         lens:
           type: area
           data_view: metrics-*
@@ -75,8 +74,8 @@ dashboards:
           metrics:
             - {formula: 'pick_max(differences(max(filebeat_input.api_calls_total)), 0)', label: API Calls}
             - {aggregation: max, field: filebeat_input.api_calls_total, label: Part of API Calls}
+        size: {w: 40, h: 16}
       - title: '[Elastic Agent] Event Collection/Creation'
-        grid: {x: 7, y: 22, w: 40, h: 17}
         lens:
           type: area
           data_view: metrics-*
@@ -88,3 +87,4 @@ dashboards:
             - {aggregation: max, field: filebeat_input.cloudwatch_events_created_total, label: Part of Events Created}
             - {formula: 'pick_max(differences(max(filebeat_input.log_events_received_total)), 0)', label: Events Collected}
             - {aggregation: max, field: filebeat_input.log_events_received_total, label: Part of Events Collected}
+        size: {w: 40, h: 17}

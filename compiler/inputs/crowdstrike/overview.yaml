@@ -5,9 +5,6 @@ dashboards:
     description: High-level overview of CrowdStrike data with navigation to specific dashboards.
     panels:
       - title: Table of Contents
-        position:
-          x: 0
-          y: 0
         size:
           w: 7
           h: 41
@@ -28,9 +25,6 @@ dashboards:
           font_size: 12
           links_in_new_tab: false
       - title: FDR Alerts
-        position:
-          x: 7
-          y: 0
         size:
           w: 7
           h: 7
@@ -46,9 +40,6 @@ dashboards:
             - field: event.kind
               equals: alert
       - title: Falcon Incidents
-        position:
-          x: 14
-          y: 0
         size:
           w: 7
           h: 7
@@ -64,9 +55,6 @@ dashboards:
             - field: crowdstrike.event.Category
               equals: Incidents
       - title: Events over Time by Data Stream
-        position:
-          x: 21
-          y: 0
         size:
           w: 27
           h: 21
@@ -90,9 +78,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: FDR Alert Types
-        position:
-          x: 7
-          y: 7
         size:
           w: 7
           h: 14
@@ -119,9 +104,6 @@ dashboards:
             - field: event.kind
               equals: alert
       - title: Falcon Incident Types
-        position:
-          x: 14
-          y: 7
         size:
           w: 7
           h: 14

@@ -34,9 +34,6 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: Dashboard Navigation
-        position:
-          x: 0
-          y: 0
         size:
           w: 48
           h: 4
@@ -55,9 +52,6 @@ dashboards:
       # Summary Layer - Key Metrics
       - title: Total Security Events
         description: Total security events across all data streams in selected time range
-        position:
-          x: 0
-          y: 4
         size:
           w: 12
           h: 8
@@ -69,9 +63,6 @@ dashboards:
             label: Total Events
       - title: Critical Alerts
         description: Number of critical severity alerts requiring immediate attention
-        position:
-          x: 12
-          y: 4
         size:
           w: 12
           h: 8
@@ -86,9 +77,6 @@ dashboards:
               equals: critical
       - title: Active Threats
         description: Unique threat detections requiring investigation
-        position:
-          x: 24
-          y: 4
         size:
           w: 12
           h: 8
@@ -103,9 +91,6 @@ dashboards:
             - exists: threat.technique.name
       - title: Affected Hosts
         description: Number of unique hosts with security events
-        position:
-          x: 36
-          y: 4
         size:
           w: 12
           h: 8
@@ -120,9 +105,6 @@ dashboards:
       # Analysis Layer - Security Events Over Time
       - title: Security Events Over Time
         description: Time series view of security events showing volume trends and patterns
-        position:
-          x: 0
-          y: 12
         size:
           w: 48
           h: 15
@@ -149,9 +131,6 @@ dashboards:
       # Analysis Layer - Alert Status Breakdown
       - title: Alert Status
         description: Distribution of alerts by current status for triage prioritization
-        position:
-          x: 0
-          y: 27
         size:
           w: 12
           h: 15
@@ -179,9 +158,6 @@ dashboards:
       # Analysis Layer - Severity Distribution
       - title: Alert Severity Distribution
         description: Breakdown of alerts by severity level for risk assessment
-        position:
-          x: 12
-          y: 27
         size:
           w: 12
           h: 15
@@ -209,9 +185,6 @@ dashboards:
       # Analysis Layer - Event Categories
       - title: Event Category Distribution
         description: Security event types from Falcon detections
-        position:
-          x: 24
-          y: 27
         size:
           w: 12
           h: 15
@@ -239,9 +212,6 @@ dashboards:
       # Analysis Layer - Platform Distribution
       - title: Affected Platforms
         description: Operating system platforms with security events
-        position:
-          x: 36
-          y: 27
         size:
           w: 12
           h: 15
@@ -266,9 +236,6 @@ dashboards:
       # Detail Layer - Top Affected Hosts
       - title: Top 10 Affected Hosts
         description: Hosts with highest security event volume requiring attention
-        position:
-          x: 0
-          y: 42
         size:
           w: 24
           h: 15
@@ -291,9 +258,6 @@ dashboards:
       # Detail Layer - Top Users
       - title: Top 10 Users with Security Events
         description: Users associated with highest security event volume
-        position:
-          x: 24
-          y: 42
         size:
           w: 24
           h: 15

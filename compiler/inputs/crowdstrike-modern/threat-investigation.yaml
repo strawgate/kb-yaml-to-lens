@@ -32,9 +32,6 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: Dashboard Navigation
-        position:
-          x: 0
-          y: 0
         size:
           w: 48
           h: 4
@@ -53,9 +50,6 @@ dashboards:
       # Analysis Layer - Threat Activity Over Time
       - title: Threat Detections Over Time
         description: Time series of threat detections showing attack campaign patterns
-        position:
-          x: 0
-          y: 4
         size:
           w: 48
           h: 15
@@ -82,9 +76,6 @@ dashboards:
       # Analysis Layer - MITRE ATT&CK Techniques
       - title: MITRE ATT&CK Techniques
         description: Threat techniques observed mapped to MITRE framework
-        position:
-          x: 0
-          y: 19
         size:
           w: 16
           h: 15
@@ -111,9 +102,6 @@ dashboards:
       # Analysis Layer - MITRE ATT&CK Tactics
       - title: MITRE ATT&CK Tactics
         description: Threat tactics showing attacker objectives and kill chain stages
-        position:
-          x: 16
-          y: 19
         size:
           w: 16
           h: 15
@@ -140,9 +128,6 @@ dashboards:
       # Analysis Layer - Severity Distribution
       - title: Threat Severity Levels
         description: Distribution of threat detections by severity for prioritization
-        position:
-          x: 32
-          y: 19
         size:
           w: 16
           h: 15
@@ -170,9 +155,6 @@ dashboards:
       # Analysis Layer - IOC Sources
       - title: IOC Sources
         description: Indicator of Compromise sources providing threat intelligence
-        position:
-          x: 0
-          y: 34
         size:
           w: 16
           h: 15
@@ -200,9 +182,6 @@ dashboards:
       # Analysis Layer - IOC Types
       - title: IOC Types
         description: Types of indicators detected in threat activity
-        position:
-          x: 16
-          y: 34
         size:
           w: 16
           h: 15
@@ -230,9 +209,6 @@ dashboards:
       # Analysis Layer - Event Actions
       - title: Threat Event Actions
         description: Specific actions taken by threats during attacks
-        position:
-          x: 32
-          y: 34
         size:
           w: 16
           h: 15
@@ -257,9 +233,6 @@ dashboards:
       # Detail Layer - Top Source IPs
       - title: Top 10 Source IP Addresses
         description: External IP addresses with highest threat activity
-        position:
-          x: 0
-          y: 49
         size:
           w: 24
           h: 15
@@ -284,9 +257,6 @@ dashboards:
       # Detail Layer - Top Source Domains
       - title: Top 10 Source Domains
         description: Malicious domains involved in threat activity
-        position:
-          x: 24
-          y: 49
         size:
           w: 24
           h: 15
@@ -311,9 +281,6 @@ dashboards:
       # Detail Layer - Affected Hosts
       - title: Top 10 Compromised Hosts
         description: Hosts with highest threat detection volume requiring remediation
-        position:
-          x: 0
-          y: 64
         size:
           w: 24
           h: 15
@@ -336,9 +303,6 @@ dashboards:
       # Detail Layer - Target Files
       - title: Top 10 Targeted Files
         description: Files most frequently targeted or modified by threats
-        position:
-          x: 24
-          y: 64
         size:
           w: 24
           h: 15

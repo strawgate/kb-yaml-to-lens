@@ -12,7 +12,6 @@ dashboards:
     name: '[Elastic Agent] Integrations'
     panels:
       - title: Navigation
-        grid: {x: 0, y: 0, w: 7, h: 39}
         links:
           layout: horizontal
           items:
@@ -21,8 +20,8 @@ dashboards:
             - {label: Agent Metrics, dashboard: elastic_agent-f47f18cc-9c7d-4278-b2ea-a6dee816d395}
             - {label: Integrations, dashboard: elastic_agent-1a4e7280-6b5e-11ed-98de-67bdecd21824}
             - {label: Input Metrics, dashboard: elastic_agent-a8192f90-cd3f-11ed-869d-e7dc1b551cd2}
+        size: {w: 7, h: 39}
       - title: '[Elastic Agent] Integration Errors Table'
-        grid: {x: 7, y: 0, w: 12, h: 15}
         lens:
           type: datatable
           data_view: logs-*
@@ -33,8 +32,8 @@ dashboards:
               aggregation: count
               label: Errors
               format: {type: number, decimals: 0}
+        size: {w: 12, h: 15}
       - title: '[Elastic Agent] Events per Integration'
-        grid: {x: 19, y: 0, w: 29, h: 15}
         lens:
           type: area
           data_view: logs-*
@@ -46,7 +45,8 @@ dashboards:
             - aggregation: count
               label: Events
               format: {type: number, decimals: 0}
+        size: {w: 29, h: 15}
       - title: '[Elastic Agent] Integration Errors'
-        grid: {x: 7, y: 15, w: 41, h: 24}
         markdown:
           content: '*Search panel: [Elastic Agent] Integration Errors*'
+        size: {w: 41, h: 24}
