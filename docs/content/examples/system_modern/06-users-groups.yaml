@@ -37,7 +37,6 @@ dashboards:
       # Context Layer - Navigation
       - title: System Log Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -55,7 +54,6 @@ dashboards:
       # Summary Layer - Key IAM Metrics
       - title: Total Events
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -64,7 +62,6 @@ dashboards:
             label: Events
       - title: Unique Actions
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -74,7 +71,6 @@ dashboards:
             label: Actions
       - title: Unique Users
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -84,7 +80,6 @@ dashboards:
             label: Users
       - title: Unique Hosts
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -96,7 +91,6 @@ dashboards:
       # Analysis Layer - Time Series
       - title: User and Group Events Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -115,7 +109,6 @@ dashboards:
       # Analysis Layer - Categorical Breakdowns
       - title: Event Actions
         size: {w: 16, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -128,7 +121,6 @@ dashboards:
               label: Events
       - title: Events by Host
         size: {w: 16, h: 12}
-        position: {x: 16, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -141,7 +133,6 @@ dashboards:
               label: Events
       - title: Events by User
         size: {w: 16, h: 12}
-        position: {x: 32, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -156,7 +147,6 @@ dashboards:
       # Analysis Layer - Hierarchical View
       - title: Action and User Distribution
         size: {w: 24, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -172,7 +162,6 @@ dashboards:
               label: Events
       - title: Host and Action Distribution
         size: {w: 24, h: 15}
-        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -190,7 +179,6 @@ dashboards:
       # Detail Layer - Audit Log Table
       - title: User and Group Event Audit Log
         size: {w: 48, h: 18}
-        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

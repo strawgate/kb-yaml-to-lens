@@ -28,7 +28,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -48,12 +47,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: CPU Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## CPU'
       - title: CPU Utilization
         size: {w: 24, h: 12}
-        position: {x: 0, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -69,7 +66,6 @@ dashboards:
                 type: percent
       - title: CPU Utilization by State
         size: {w: 24, h: 12}
-        position: {x: 24, y: 5}
         lens:
           type: area
           mode: stacked
@@ -89,7 +85,6 @@ dashboards:
                 type: percent
       - title: Load Average
         size: {w: 24, h: 12}
-        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -108,7 +103,6 @@ dashboards:
               label: 15m
       - title: Normalized Load
         size: {w: 24, h: 12}
-        position: {x: 24, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -126,12 +120,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Memory Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 29}
         markdown:
           content: '## Memory'
       - title: Memory Utilization
         size: {w: 24, h: 12}
-        position: {x: 0, y: 31}
         lens:
           type: area
           data_view: metrics-*
@@ -145,7 +137,6 @@ dashboards:
                 type: percent
       - title: Memory Utilization by State
         size: {w: 24, h: 12}
-        position: {x: 24, y: 31}
         lens:
           type: area
           mode: stacked
@@ -169,12 +160,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Disk Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 43}
         markdown:
           content: '## Disk'
       - title: Disk Usage by Mount Point
         size: {w: 24, h: 12}
-        position: {x: 0, y: 45}
         lens:
           type: line
           data_view: metrics-*
@@ -193,7 +182,6 @@ dashboards:
                 type: percent
       - title: Disk Operations by Device
         size: {w: 24, h: 12}
-        position: {x: 24, y: 45}
         lens:
           type: area
           mode: stacked
@@ -210,7 +198,6 @@ dashboards:
               label: Operations/sec
       - title: Disk I/O by Device
         size: {w: 24, h: 12}
-        position: {x: 0, y: 57}
         lens:
           type: area
           mode: stacked
@@ -229,7 +216,6 @@ dashboards:
                 type: bytes
       - title: Disk I/O Time by Device
         size: {w: 24, h: 12}
-        position: {x: 24, y: 57}
         lens:
           type: line
           data_view: metrics-*
@@ -250,12 +236,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Network Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 69}
         markdown:
           content: '## Network'
       - title: Network I/O by Interface
         size: {w: 24, h: 12}
-        position: {x: 0, y: 71}
         lens:
           type: area
           mode: stacked
@@ -275,7 +259,6 @@ dashboards:
                 type: bytes
       - title: Network Packets by Interface
         size: {w: 24, h: 12}
-        position: {x: 24, y: 71}
         lens:
           type: area
           mode: stacked
@@ -293,7 +276,6 @@ dashboards:
               label: Packets
       - title: Network Errors by Interface
         size: {w: 24, h: 12}
-        position: {x: 0, y: 83}
         lens:
           type: line
           data_view: metrics-*
@@ -310,7 +292,6 @@ dashboards:
               label: Errors
       - title: Network Dropped Packets by Interface
         size: {w: 24, h: 12}
-        position: {x: 24, y: 83}
         lens:
           type: line
           data_view: metrics-*
@@ -331,12 +312,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Paging Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 95}
         markdown:
           content: '## Paging / Swap'
       - title: Paging Utilization
         size: {w: 24, h: 12}
-        position: {x: 0, y: 97}
         lens:
           type: area
           data_view: metrics-*
@@ -351,7 +330,6 @@ dashboards:
                 type: percent
       - title: Paging Operations
         size: {w: 24, h: 12}
-        position: {x: 24, y: 97}
         lens:
           type: area
           mode: stacked

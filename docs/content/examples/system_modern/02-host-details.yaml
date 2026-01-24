@@ -34,7 +34,6 @@ dashboards:
       # Context Layer - Navigation
       - title: System Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -54,7 +53,6 @@ dashboards:
       # Summary Layer - Key Host Metrics (4 metrics max)
       - title: CPU
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -69,7 +67,6 @@ dashboards:
               equals: system.cpu
       - title: Memory
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -84,7 +81,6 @@ dashboards:
               equals: system.memory
       - title: Disk Usage
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -99,7 +95,6 @@ dashboards:
               equals: system.filesystem
       - title: Load Average
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -115,13 +110,11 @@ dashboards:
       - title: CPU Performance
         hide_title: true
         size: {w: 48, h: 2}
-        position: {x: 0, y: 9}
         markdown:
           content: '## CPU Performance'
           font_size: 14
       - title: CPU Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 11}
         lens:
           type: line
           data_view: metrics-*
@@ -149,7 +142,6 @@ dashboards:
               equals: system.cpu
       - title: System Load Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 11}
         lens:
           type: line
           data_view: metrics-*
@@ -174,13 +166,11 @@ dashboards:
       - title: Memory Performance
         hide_title: true
         size: {w: 48, h: 2}
-        position: {x: 0, y: 23}
         markdown:
           content: '## Memory'
           font_size: 14
       - title: Memory Usage Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 25}
         lens:
           type: area
           mode: stacked
@@ -204,7 +194,6 @@ dashboards:
               equals: system.memory
       - title: Memory Utilization Percentage
         size: {w: 24, h: 12}
-        position: {x: 24, y: 25}
         lens:
           type: line
           data_view: metrics-*
@@ -225,13 +214,11 @@ dashboards:
       - title: Network Performance
         hide_title: true
         size: {w: 48, h: 2}
-        position: {x: 0, y: 37}
         markdown:
           content: '## Network'
           font_size: 14
       - title: Network Traffic - Inbound
         size: {w: 24, h: 12}
-        position: {x: 0, y: 39}
         lens:
           type: line
           data_view: metrics-*
@@ -253,7 +240,6 @@ dashboards:
               equals: system.network
       - title: Network Traffic - Outbound
         size: {w: 24, h: 12}
-        position: {x: 24, y: 39}
         lens:
           type: line
           data_view: metrics-*
@@ -278,13 +264,11 @@ dashboards:
       - title: Disk I/O
         hide_title: true
         size: {w: 48, h: 2}
-        position: {x: 0, y: 51}
         markdown:
           content: '## Disk I/O'
           font_size: 14
       - title: Disk Read Throughput
         size: {w: 24, h: 12}
-        position: {x: 0, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -302,7 +286,6 @@ dashboards:
               equals: system.diskio
       - title: Disk Write Throughput
         size: {w: 24, h: 12}
-        position: {x: 24, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -323,13 +306,11 @@ dashboards:
       - title: Filesystem
         hide_title: true
         size: {w: 48, h: 2}
-        position: {x: 0, y: 65}
         markdown:
           content: '## Filesystem'
           font_size: 14
       - title: Filesystem Usage by Mount Point
         size: {w: 24, h: 12}
-        position: {x: 0, y: 67}
         lens:
           type: bar
           mode: stacked
@@ -349,7 +330,6 @@ dashboards:
               equals: system.filesystem
       - title: Filesystem Usage Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 67}
         lens:
           type: line
           data_view: metrics-*
@@ -374,13 +354,11 @@ dashboards:
       - title: Processes
         hide_title: true
         size: {w: 48, h: 2}
-        position: {x: 0, y: 79}
         markdown:
           content: '## Top Processes'
           font_size: 14
       - title: Top Processes by CPU
         size: {w: 24, h: 15}
-        position: {x: 0, y: 81}
         lens:
           type: datatable
           data_view: metrics-*
@@ -410,7 +388,6 @@ dashboards:
               equals: system.process
       - title: Top Processes by Memory
         size: {w: 24, h: 15}
-        position: {x: 24, y: 81}
         lens:
           type: datatable
           data_view: metrics-*

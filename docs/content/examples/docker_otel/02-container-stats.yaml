@@ -37,7 +37,6 @@ dashboards:
       # Navigation Links
       - title: Navigation Links
         size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -48,7 +47,6 @@ dashboards:
 
       # Warning markdown panel
       - size: {w: 48, h: 2}
-        position: {x: 0, y: 2}
         markdown:
           content: This dashboard is only intended to be used when filtered to one container at a time.
           font_size: 12
@@ -56,7 +54,6 @@ dashboards:
       # Container count metric
       - title: Containers count
         size: {w: 7, h: 4}
-        position: {x: 0, y: 4}
         hide_title: true
         lens:
           type: metric
@@ -69,7 +66,6 @@ dashboards:
       # Container info table
       - title: Container info
         size: {w: 41, h: 4}
-        position: {x: 7, y: 4}
         lens:
           type: datatable
           data_view: metrics-*
@@ -120,7 +116,6 @@ dashboards:
       # CPU Usage (line chart) - y=8
       - title: CPU Usage
         size: {w: 48, h: 9}
-        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -139,7 +134,6 @@ dashboards:
       # Memory Usage (line chart) - y=17
       - title: Memory Usage
         size: {w: 48, h: 9}
-        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -158,7 +152,6 @@ dashboards:
       # Disk I/O (line chart by device) - y=26
       - title: Disk I/O
         size: {w: 48, h: 9}
-        position: {x: 0, y: 26}
         lens:
           type: line
           data_view: metrics-*
@@ -181,7 +174,6 @@ dashboards:
       # Network I/O (line chart with rx and tx) - y=35
       - title: Network I/O
         size: {w: 48, h: 9}
-        position: {x: 0, y: 35}
         lens:
           type: line
           data_view: metrics-*
@@ -207,7 +199,6 @@ dashboards:
 
       # "Detailed information" markdown panel - y=44
       - size: {w: 48, h: 3}
-        position: {x: 0, y: 44}
         markdown:
           content: '## Detailed information'
           font_size: 12
@@ -215,7 +206,6 @@ dashboards:
       # CPU Usage (area stacked chart) - y=47
       - title: CPU Usage
         size: {w: 48, h: 9}
-        position: {x: 0, y: 47}
         lens:
           type: area
           mode: stacked
@@ -235,7 +225,6 @@ dashboards:
       # Memory Usage with limit (line chart) - y=56 left
       - title: Memory Usage with limit
         size: {w: 24, h: 9}
-        position: {x: 0, y: 56}
         lens:
           type: line
           data_view: metrics-*
@@ -259,7 +248,6 @@ dashboards:
       # Memory Usage (line chart percentage) - y=56 right
       - title: Memory Usage
         size: {w: 24, h: 9}
-        position: {x: 24, y: 56}
         lens:
           type: line
           data_view: metrics-*
@@ -278,7 +266,6 @@ dashboards:
       # Note: This is NOT a duplicate - it's a second visualization of disk I/O
       - title: Disk I/O
         size: {w: 48, h: 9}
-        position: {x: 0, y: 65}
         lens:
           type: line
           data_view: metrics-*
@@ -301,7 +288,6 @@ dashboards:
       # Network - Received Bytes (line chart) - y=74 left
       - title: Network - Received Bytes
         size: {w: 24, h: 9}
-        position: {x: 0, y: 74}
         lens:
           type: line
           data_view: metrics-*
@@ -324,7 +310,6 @@ dashboards:
       # Network - Transmitted Bytes (line chart) - y=74 right
       - title: Network - Transmitted Bytes
         size: {w: 24, h: 9}
-        position: {x: 24, y: 74}
         lens:
           type: line
           data_view: metrics-*

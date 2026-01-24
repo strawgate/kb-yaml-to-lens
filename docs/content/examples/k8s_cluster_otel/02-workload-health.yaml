@@ -23,7 +23,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -43,13 +42,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Health
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## 🐳 Container Health'
           font_size: 14
       - title: Ready Containers
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -61,7 +58,6 @@ dashboards:
               equals: '1'
       - title: Not Ready Containers
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -73,7 +69,6 @@ dashboards:
               equals: '0'
       - title: Total Restarts
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -84,7 +79,6 @@ dashboards:
             - exists: k8s.container.restarts
       - title: Containers Restarting
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -100,13 +94,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Deployment Health
         size: {w: 48, h: 2}
-        position: {x: 0, y: 13}
         markdown:
           content: '## 🚀 Deployment Health (Desired vs Available)'
           font_size: 14
       - title: Deployments
         size: {w: 24, h: 12}
-        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -122,7 +114,6 @@ dashboards:
             - exists: k8s.deployment.name
       - title: StatefulSets
         size: {w: 24, h: 12}
-        position: {x: 24, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -138,7 +129,6 @@ dashboards:
             - exists: k8s.statefulset.name
       - title: DaemonSets
         size: {w: 24, h: 12}
-        position: {x: 0, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -154,7 +144,6 @@ dashboards:
             - exists: k8s.daemonset.name
       - title: ReplicaSets
         size: {w: 24, h: 12}
-        position: {x: 24, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -174,13 +163,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Analysis
         size: {w: 48, h: 2}
-        position: {x: 0, y: 39}
         markdown:
           content: '## 📊 Container Analysis'
           font_size: 14
       - title: Container Readiness Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 41}
         lens:
           type: area
           mode: stacked
@@ -205,7 +192,6 @@ dashboards:
                 color: '#D36086'
       - title: Top Restarting Containers
         size: {w: 24, h: 12}
-        position: {x: 24, y: 41}
         lens:
           type: bar
           data_view: metrics-*
@@ -229,13 +215,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Details
         size: {w: 48, h: 2}
-        position: {x: 0, y: 53}
         markdown:
           content: '## 🔍 Workload Status Details'
           font_size: 14
       - title: Deployment Status
         size: {w: 24, h: 12}
-        position: {x: 0, y: 55}
         lens:
           type: datatable
           data_view: metrics-*
@@ -259,7 +243,6 @@ dashboards:
             - exists: k8s.deployment.name
       - title: StatefulSet Status
         size: {w: 24, h: 12}
-        position: {x: 24, y: 55}
         lens:
           type: datatable
           data_view: metrics-*

@@ -27,7 +27,6 @@ dashboards:
     panels:
       # Navigation Links
       - size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -41,15 +40,13 @@ dashboards:
               url: https://redis.io/docs/
 
       # Section Header
-      - position: {x: 0, y: 2}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Database Overview'
 
       # KPI Row
       - title: Total Databases
         hide_title: true
-        position: {x: 0, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -63,7 +60,6 @@ dashboards:
             label: Databases
       - title: Total Keys
         hide_title: true
-        position: {x: 12, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -78,7 +74,6 @@ dashboards:
             label: Keys
       - title: Total Keys with Expiry
         hide_title: true
-        position: {x: 24, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -93,7 +88,6 @@ dashboards:
             label: Keys w/ TTL
       - title: Avg TTL (All DBs)
         hide_title: true
-        position: {x: 36, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -107,14 +101,12 @@ dashboards:
             label: Avg TTL (ms)
 
       # Section Header
-      - position: {x: 0, y: 10}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Keys by Database'
 
       # Key Count by Database (Bar Chart)
       - title: Key Count by Database
-        position: {x: 0, y: 13}
         size: {w: 24, h: 12}
         esql:
           type: bar
@@ -136,7 +128,6 @@ dashboards:
 
       # Keys Distribution (Pie Chart)
       - title: Keys Distribution (Pie)
-        position: {x: 24, y: 13}
         size: {w: 24, h: 12}
         esql:
           type: pie
@@ -157,7 +148,6 @@ dashboards:
 
       # Key Count Trend by Database (Gauge - use LAST_OVER_TIME for current state)
       - title: Key Count Trend by Database
-        position: {x: 0, y: 25}
         size: {w: 48, h: 12}
         esql:
           type: line
@@ -180,14 +170,12 @@ dashboards:
             field: db
 
       # Section Header
-      - position: {x: 0, y: 37}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Keys with Expiration'
 
       # Keys with TTL by Database (Bar Chart)
       - title: Keys with TTL by Database
-        position: {x: 0, y: 40}
         size: {w: 24, h: 12}
         esql:
           type: bar
@@ -209,7 +197,6 @@ dashboards:
 
       # Keys with TTL Trend (Gauge - use LAST_OVER_TIME for current state)
       - title: Keys with TTL Trend
-        position: {x: 24, y: 40}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -232,14 +219,12 @@ dashboards:
             field: db
 
       # Section Header
-      - position: {x: 0, y: 52}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Average Time-To-Live (TTL)'
 
       # Average TTL by Database (Bar Chart)
       - title: Average TTL by Database
-        position: {x: 0, y: 55}
         size: {w: 24, h: 12}
         esql:
           type: bar
@@ -261,7 +246,6 @@ dashboards:
 
       # Average TTL Trend by Database (Gauge - use LAST_OVER_TIME for current state)
       - title: Average TTL Trend by Database
-        position: {x: 24, y: 55}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -284,14 +268,12 @@ dashboards:
             field: db
 
       # Section Header
-      - position: {x: 0, y: 67}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Database Summary Table'
 
       # Database Metrics Summary Table
       - title: Database Metrics Summary
-        position: {x: 0, y: 70}
         size: {w: 48, h: 20}
         esql:
           type: datatable

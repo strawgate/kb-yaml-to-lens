@@ -7,7 +7,6 @@ dashboards:
         equals: aws.cloudtrail.otel
     panels:
       - size: {w: 24, h: 15}
-        position: {x: 0, y: 0}
         markdown:
           content: |
             ## AWS CloudTrail Logs Overview
@@ -21,7 +20,6 @@ dashboards:
             - **Generate reports and insights** for security reviews or compliance audits
       - title: Event outcome over time
         size: {w: 24, h: 15}
-        position: {x: 24, y: 0}
         esql:
           type: area
           query: |
@@ -40,7 +38,6 @@ dashboards:
               title: Events
       - title: Logs by service and action
         size: {w: 24, h: 15}
-        position: {x: 0, y: 15}
         esql:
           type: pie
           query: |
@@ -60,7 +57,6 @@ dashboards:
             slice_values: percent
       - title: Logs by user agent
         size: {w: 24, h: 15}
-        position: {x: 24, y: 15}
         esql:
           type: pie
           query: |
@@ -80,7 +76,6 @@ dashboards:
             slice_values: percent
       - title: Logs by event type
         size: {w: 24, h: 15}
-        position: {x: 0, y: 30}
         esql:
           type: pie
           query: |
@@ -98,7 +93,6 @@ dashboards:
             slice_values: percent
       - title: Failed operations by error code
         size: {w: 24, h: 15}
-        position: {x: 24, y: 30}
         esql:
           type: pie
           query: |
@@ -117,7 +111,6 @@ dashboards:
             slice_values: percent
       - title: Recent Events
         size: {w: 31, h: 15}
-        position: {x: 0, y: 45}
         esql:
           type: datatable
           query: |
@@ -142,7 +135,6 @@ dashboards:
             page_size: 10
       - title: Top User IDs
         size: {w: 17, h: 15}
-        position: {x: 31, y: 45}
         esql:
           type: datatable
           query: |

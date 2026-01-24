@@ -16,7 +16,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -38,7 +37,6 @@ dashboards:
               dashboard: system-windows-policy-object
       - title: Logon Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -55,7 +53,6 @@ dashboards:
             size: 10
       - title: Total Logon Attempts
         size: {w: 12, h: 8}
-        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -69,7 +66,6 @@ dashboards:
                 - '4625'
       - title: Successful Logons
         size: {w: 12, h: 8}
-        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -83,7 +79,6 @@ dashboards:
               equals: success
       - title: Failed Logons
         size: {w: 12, h: 8}
-        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -95,7 +90,6 @@ dashboards:
               equals: '4625'
       - title: Logoffs
         size: {w: 12, h: 8}
-        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -109,7 +103,6 @@ dashboards:
                 - '4647'
       - title: Logon Types
         size: {w: 24, h: 15}
-        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -121,7 +114,6 @@ dashboards:
             - aggregation: count
       - title: Top Users
         size: {w: 24, h: 15}
-        position: {x: 24, y: 26}
         lens:
           type: bar
           mode: stacked
@@ -138,7 +130,6 @@ dashboards:
               label: Events
       - title: Logon by Source IP
         size: {w: 24, h: 15}
-        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -156,7 +147,6 @@ dashboards:
             page_size: 10
       - title: Recent Logon Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

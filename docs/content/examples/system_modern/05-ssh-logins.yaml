@@ -34,7 +34,6 @@ dashboards:
       # Context Layer - Navigation
       - title: System Log Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -52,7 +51,6 @@ dashboards:
       # Summary Layer - Key Security Metrics
       - title: Total Attempts
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -61,7 +59,6 @@ dashboards:
             label: Attempts
       - title: Accepted Logins
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -73,7 +70,6 @@ dashboards:
               equals: Accepted
       - title: Failed Logins
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -85,7 +81,6 @@ dashboards:
               equals: Failed
       - title: Unique Users
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -97,7 +92,6 @@ dashboards:
       # Analysis Layer - Time Series
       - title: SSH Login Attempts Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -116,7 +110,6 @@ dashboards:
       # Analysis Layer - Categorical Breakdowns
       - title: SSH Event Types
         size: {w: 12, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -129,7 +122,6 @@ dashboards:
               label: Events
       - title: Authentication Methods
         size: {w: 12, h: 12}
-        position: {x: 12, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -142,7 +134,6 @@ dashboards:
               label: Attempts
       - title: Top Users
         size: {w: 24, h: 12}
-        position: {x: 24, y: 21}
         lens:
           type: bar
           mode: stacked
@@ -165,7 +156,6 @@ dashboards:
       # Analysis Layer - Source Analysis
       - title: Login Attempts by Source IP
         size: {w: 24, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -186,7 +176,6 @@ dashboards:
             size: 5
       - title: User and Event Distribution
         size: {w: 24, h: 15}
-        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -204,7 +193,6 @@ dashboards:
       # Detail Layer - Audit Log Table
       - title: SSH Login Audit Log
         size: {w: 48, h: 18}
-        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

@@ -18,7 +18,6 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -38,12 +37,10 @@ dashboards:
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Cluster Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 2}
         markdown:
           content: '### Cluster Configuration'
       - title: Cluster Summary
         size: {w: 24, h: 12}
-        position: {x: 0, y: 4}
         esql:
           type: datatable
           query:
@@ -61,7 +58,6 @@ dashboards:
             - field: Data Nodes
       - title: Cluster Health Status
         size: {w: 24, h: 12}
-        position: {x: 24, y: 4}
         esql:
           type: datatable
           query:
@@ -83,12 +79,10 @@ dashboards:
             - field: State Queue
       - title: Node Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 16}
         markdown:
           content: '### Node Configuration'
       - title: Node Metadata
         size: {w: 48, h: 15}
-        position: {x: 0, y: 18}
         esql:
           type: datatable
           query:
@@ -102,12 +96,10 @@ dashboards:
             - field: cluster
       - title: Node Resource Usage Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 33}
         markdown:
           content: '### Node Resource Usage'
       - title: Node CPU and Memory
         size: {w: 24, h: 15}
-        position: {x: 0, y: 35}
         esql:
           type: datatable
           query:
@@ -125,7 +117,6 @@ dashboards:
             - field: Memory Used (GB)
       - title: Node Disk Usage
         size: {w: 24, h: 15}
-        position: {x: 24, y: 35}
         esql:
           type: datatable
           query:
@@ -145,12 +136,10 @@ dashboards:
             - field: Disk Used %
       - title: Index Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 50}
         markdown:
           content: '### Index Configuration'
       - title: Index Statistics
         size: {w: 48, h: 15}
-        position: {x: 0, y: 52}
         esql:
           type: datatable
           query:
@@ -173,12 +162,10 @@ dashboards:
             - field: Segment Size (MB)
       - title: Thread Pool Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 67}
         markdown:
           content: '### Thread Pool Configuration'
       - title: Thread Pool Status by Node
         size: {w: 48, h: 15}
-        position: {x: 0, y: 69}
         esql:
           type: datatable
           query:
@@ -199,12 +186,10 @@ dashboards:
             - field: Queue Size
       - title: Cache Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 84}
         markdown:
           content: '### Cache Configuration'
       - title: Cache Memory Usage by Node
         size: {w: 48, h: 15}
-        position: {x: 0, y: 86}
         esql:
           type: datatable
           query:
@@ -222,12 +207,10 @@ dashboards:
             - field: Memory Usage (MB)
       - title: JVM Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 101}
         markdown:
           content: '### JVM Configuration'
       - title: JVM Memory Configuration
         size: {w: 24, h: 15}
-        position: {x: 0, y: 103}
         esql:
           type: datatable
           query:
@@ -248,7 +231,6 @@ dashboards:
             - field: Non-Heap Used (MB)
       - title: JVM Thread and Class Information
         size: {w: 24, h: 15}
-        position: {x: 24, y: 103}
         esql:
           type: datatable
           query:
@@ -266,12 +248,10 @@ dashboards:
             - field: Classes Loaded
       - title: Circuit Breaker Configuration Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 118}
         markdown:
           content: '### Circuit Breaker Configuration'
       - title: Circuit Breaker Limits
         size: {w: 48, h: 15}
-        position: {x: 0, y: 120}
         esql:
           type: datatable
           query:

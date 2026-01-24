@@ -21,7 +21,6 @@ dashboards:
     panels:
       # Navigation Links
       - size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -35,15 +34,13 @@ dashboards:
               url: https://redis.io/docs/
 
       # Section Header
-      - position: {x: 0, y: 2}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Redis Instance Health'
 
       # Health KPI Row
       - title: Uptime
         hide_title: true
-        position: {x: 0, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -57,7 +54,6 @@ dashboards:
             label: Uptime (s)
       - title: Connected Clients
         hide_title: true
-        position: {x: 8, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -71,7 +67,6 @@ dashboards:
             label: Clients
       - title: Blocked Clients
         hide_title: true
-        position: {x: 16, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -85,7 +80,6 @@ dashboards:
             label: Blocked
       - title: Commands/sec
         hide_title: true
-        position: {x: 24, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -99,7 +93,6 @@ dashboards:
             label: Cmd/sec
       - title: Connected Replicas
         hide_title: true
-        position: {x: 32, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -113,7 +106,6 @@ dashboards:
             label: Replicas
       - title: Cache Hit Rate
         hide_title: true
-        position: {x: 40, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -131,15 +123,13 @@ dashboards:
               type: percent
 
       # Section Header
-      - position: {x: 0, y: 10}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Memory Analysis'
 
       # Memory KPI Row
       - title: Memory Used
         hide_title: true
-        position: {x: 0, y: 13}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -155,7 +145,6 @@ dashboards:
               type: bytes
       - title: Memory Peak
         hide_title: true
-        position: {x: 8, y: 13}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -171,7 +160,6 @@ dashboards:
               type: bytes
       - title: Memory RSS
         hide_title: true
-        position: {x: 16, y: 13}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -187,7 +175,6 @@ dashboards:
               type: bytes
       - title: Fragmentation Ratio
         hide_title: true
-        position: {x: 24, y: 13}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -201,7 +188,6 @@ dashboards:
             label: Fragmentation
       - title: Lua Memory
         hide_title: true
-        position: {x: 32, y: 13}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -218,7 +204,6 @@ dashboards:
 
       # Memory Usage Trend (Gauge metrics - use LAST_OVER_TIME for current state)
       - title: Memory Usage Trend
-        position: {x: 0, y: 18}
         size: {w: 48, h: 12}
         esql:
           type: line
@@ -252,7 +237,6 @@ dashboards:
 
       # Memory Fragmentation Over Time
       - title: Memory Fragmentation Over Time
-        position: {x: 0, y: 30}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -271,7 +255,6 @@ dashboards:
 
       # Lua Script Memory Usage
       - title: Lua Script Memory Usage
-        position: {x: 24, y: 30}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -291,14 +274,12 @@ dashboards:
                 type: bytes
 
       # Section Header
-      - position: {x: 0, y: 42}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Client Connections & Performance'
 
       # Client Connections Over Time
       - title: Client Connections Over Time
-        position: {x: 0, y: 45}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -323,7 +304,6 @@ dashboards:
 
       # Connection Activity (Counters - use RATE)
       - title: Connection Activity
-        position: {x: 24, y: 45}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -348,7 +328,6 @@ dashboards:
 
       # Client Buffer Sizes (Gauge metrics)
       - title: Client Buffer Sizes
-        position: {x: 0, y: 57}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -377,7 +356,6 @@ dashboards:
 
       # Commands Processed Rate (Counter - use RATE)
       - title: Commands Processed Rate
-        position: {x: 24, y: 57}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -395,14 +373,12 @@ dashboards:
               label: Commands/sec
 
       # Section Header
-      - position: {x: 0, y: 69}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Keyspace Operations'
 
       # Keyspace Hit/Miss Ratio (Counter - use RATE)
       - title: Keyspace Hit/Miss Ratio
-        position: {x: 0, y: 72}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -428,7 +404,6 @@ dashboards:
 
       # Cache Hit Rate Over Time
       - title: Cache Hit Rate Over Time
-        position: {x: 24, y: 72}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -452,7 +427,6 @@ dashboards:
 
       # Key Eviction & Expiration (Counters - use RATE)
       - title: Key Eviction & Expiration
-        position: {x: 0, y: 84}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -477,7 +451,6 @@ dashboards:
 
       # RDB Changes Since Last Save
       - title: RDB Changes Since Last Save
-        position: {x: 24, y: 84}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -495,14 +468,12 @@ dashboards:
               label: Unsaved Changes
 
       # Section Header
-      - position: {x: 0, y: 96}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Network I/O'
 
       # Network Traffic (Counters - use RATE)
       - title: Network Traffic
-        position: {x: 0, y: 99}
         size: {w: 48, h: 12}
         esql:
           type: line
@@ -530,14 +501,12 @@ dashboards:
                 type: bytes
 
       # Section Header
-      - position: {x: 0, y: 111}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## CPU Usage'
 
       # CPU Time by Type (Counter with attribute - use RATE)
       - title: CPU Time by Type
-        position: {x: 0, y: 114}
         size: {w: 48, h: 12}
         esql:
           type: area
@@ -561,14 +530,12 @@ dashboards:
             field: state
 
       # Section Header
-      - position: {x: 0, y: 126}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Replication'
 
       # Replication Offset (Gauge)
       - title: Replication Offset
-        position: {x: 0, y: 129}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -589,7 +556,6 @@ dashboards:
 
       # Replication Backlog (Gauge)
       - title: Replication Backlog
-        position: {x: 24, y: 129}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -610,7 +576,6 @@ dashboards:
 
       # Connected Replicas Over Time
       - title: Connected Replicas Over Time
-        position: {x: 0, y: 141}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -629,7 +594,6 @@ dashboards:
 
       # Fork Duration (Gauge)
       - title: Fork Duration
-        position: {x: 24, y: 141}
         size: {w: 24, h: 12}
         esql:
           type: line

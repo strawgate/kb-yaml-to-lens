@@ -30,7 +30,6 @@ dashboards:
       # Context Layer - Navigation
       - title: System Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -50,7 +49,6 @@ dashboards:
       # Summary Layer - Key Metrics (limited to 4)
       - title: Total Hosts
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -60,7 +58,6 @@ dashboards:
             label: Hosts
       - title: Average CPU Utilization
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -75,7 +72,6 @@ dashboards:
               equals: system.cpu
       - title: Average Memory Usage
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -90,7 +86,6 @@ dashboards:
               equals: system.memory
       - title: Average Disk Usage
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -107,7 +102,6 @@ dashboards:
       # Analysis Layer - Time Series Charts
       - title: CPU Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -129,7 +123,6 @@ dashboards:
               equals: system.cpu
       - title: Memory Usage Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -151,7 +144,6 @@ dashboards:
               equals: system.memory
       - title: Network Traffic Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: area
           mode: stacked
@@ -177,7 +169,6 @@ dashboards:
       # Detail Layer - Host Summary Table
       - title: Host Performance Summary
         size: {w: 48, h: 20}
-        position: {x: 0, y: 33}
         description: Click a host name to view detailed metrics
         lens:
           type: datatable

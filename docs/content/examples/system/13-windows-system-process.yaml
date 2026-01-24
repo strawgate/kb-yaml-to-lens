@@ -26,7 +26,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -46,7 +45,6 @@ dashboards:
               dashboard: system-windows-policy-object
       - title: System & Process Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -63,7 +61,6 @@ dashboards:
             size: 15
       - title: Audit Log Cleared (1102)
         size: {w: 12, h: 8}
-        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -75,7 +72,6 @@ dashboards:
               equals: '1102'
       - title: Process Created (4688)
         size: {w: 12, h: 8}
-        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -87,7 +83,6 @@ dashboards:
               equals: '4688'
       - title: Process Terminated (4689)
         size: {w: 12, h: 8}
-        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -99,7 +94,6 @@ dashboards:
               equals: '4689'
       - title: Service Installed (4697)
         size: {w: 12, h: 8}
-        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -111,7 +105,6 @@ dashboards:
               equals: '4697'
       - title: Event Distribution
         size: {w: 24, h: 15}
-        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -123,7 +116,6 @@ dashboards:
             - aggregation: count
       - title: Top Processes
         size: {w: 24, h: 15}
-        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -144,7 +136,6 @@ dashboards:
                 - '4689'
       - title: Process Activity by User
         size: {w: 24, h: 15}
-        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -168,7 +159,6 @@ dashboards:
               equals: '4688'
       - title: Recent System & Process Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

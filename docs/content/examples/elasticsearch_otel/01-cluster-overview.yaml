@@ -9,7 +9,6 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -29,7 +28,6 @@ dashboards:
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Cluster Health Status
         size: {w: 12, h: 6}
-        position: {x: 0, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -43,7 +41,6 @@ dashboards:
             label: Clusters
       - title: Active Clusters
         size: {w: 12, h: 6}
-        position: {x: 12, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -53,7 +50,6 @@ dashboards:
             label: Clusters
       - title: Total Nodes
         size: {w: 12, h: 6}
-        position: {x: 24, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -63,7 +59,6 @@ dashboards:
             label: Nodes
       - title: Data Nodes
         size: {w: 12, h: 6}
-        position: {x: 36, y: 2}
         lens:
           type: metric
           data_view: metrics-*
@@ -73,7 +68,6 @@ dashboards:
             label: Data Nodes
       - title: Cluster Health Over Time
         size: {w: 48, h: 8}
-        position: {x: 0, y: 8}
         lens:
           type: line
           data_view: metrics-*
@@ -93,7 +87,6 @@ dashboards:
               label: Data Nodes
       - title: Shard Distribution
         size: {w: 16, h: 8}
-        position: {x: 0, y: 16}
         lens:
           type: datatable
           data_view: metrics-*
@@ -121,7 +114,6 @@ dashboards:
               label: Unassigned
       - title: Pending Tasks
         size: {w: 16, h: 8}
-        position: {x: 16, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -138,7 +130,6 @@ dashboards:
               label: Pending Tasks
       - title: In-Flight Fetches
         size: {w: 16, h: 8}
-        position: {x: 32, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -155,7 +146,6 @@ dashboards:
               label: In-Flight Fetches
       - title: Index Statistics
         size: {w: 24, h: 8}
-        position: {x: 0, y: 24}
         lens:
           type: datatable
           data_view: metrics-*
@@ -176,7 +166,6 @@ dashboards:
               label: State Queue
       - title: Shards Over Time
         size: {w: 24, h: 8}
-        position: {x: 24, y: 24}
         lens:
           type: area
           mode: stacked

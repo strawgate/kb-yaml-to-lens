@@ -23,7 +23,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -43,13 +42,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Status Summary
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## 📋 Job Status Summary'
           font_size: 14
       - title: Successful Jobs
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -60,7 +57,6 @@ dashboards:
             - exists: k8s.job.name
       - title: Failed Jobs
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +67,6 @@ dashboards:
             - exists: k8s.job.name
       - title: Active Jobs
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -82,7 +77,6 @@ dashboards:
             - exists: k8s.job.name
       - title: Active CronJobs
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -97,13 +91,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Execution Trends
         size: {w: 48, h: 2}
-        position: {x: 0, y: 13}
         markdown:
           content: '## 📈 Job Execution Trends'
           font_size: 14
       - title: Job Success vs Failure Trend
         size: {w: 48, h: 14}
-        position: {x: 0, y: 15}
         lens:
           type: area
           mode: stacked
@@ -135,13 +127,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Details
         size: {w: 48, h: 2}
-        position: {x: 0, y: 29}
         markdown:
           content: '## 🔍 Job Details'
           font_size: 14
       - title: Jobs by Status
         size: {w: 48, h: 14}
-        position: {x: 0, y: 31}
         lens:
           type: datatable
           data_view: metrics-*

@@ -23,7 +23,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -43,13 +42,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: HPA Status Summary
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## 📈 HPA Status Summary'
           font_size: 14
       - title: Total HPAs
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -60,7 +57,6 @@ dashboards:
             - exists: k8s.hpa.name
       - title: Current Replicas
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +67,6 @@ dashboards:
             - exists: k8s.hpa.name
       - title: Desired Replicas
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -82,7 +77,6 @@ dashboards:
             - exists: k8s.hpa.name
       - title: Max Replicas Limit
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -97,13 +91,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Scaling Behavior
         size: {w: 48, h: 2}
-        position: {x: 0, y: 13}
         markdown:
           content: '## 🔄 Scaling Behavior'
           font_size: 14
       - title: Scaling Activity (Current vs Desired)
         size: {w: 24, h: 14}
-        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -119,7 +111,6 @@ dashboards:
             - exists: k8s.hpa.name
       - title: Capacity Headroom (Min / Current / Max)
         size: {w: 24, h: 14}
-        position: {x: 24, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -141,13 +132,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: HPA Details
         size: {w: 48, h: 2}
-        position: {x: 0, y: 29}
         markdown:
           content: '## 🔍 HPA Configuration & Status'
           font_size: 14
       - title: HPA Status by Name
         size: {w: 48, h: 14}
-        position: {x: 0, y: 31}
         lens:
           type: datatable
           data_view: metrics-*

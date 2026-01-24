@@ -19,7 +19,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -39,13 +38,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Health
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## 🏥 Cluster Health'
           font_size: 14
       - title: Running Pods
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -57,7 +54,6 @@ dashboards:
               equals: '2'
       - title: Pending Pods
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -69,7 +65,6 @@ dashboards:
               equals: '1'
       - title: Failed Pods
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -81,7 +76,6 @@ dashboards:
               equals: '4'
       - title: Container Restarts
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -96,7 +90,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Pod Health Distribution
         size: {w: 20, h: 14}
-        position: {x: 0, y: 13}
         lens:
           type: pie
           data_view: metrics-*
@@ -124,7 +117,6 @@ dashboards:
                 color: '#9170B8'
       - title: Pod Health Over Time
         size: {w: 28, h: 14}
-        position: {x: 20, y: 13}
         lens:
           type: area
           mode: stacked
@@ -159,13 +151,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Health
         size: {w: 48, h: 2}
-        position: {x: 0, y: 27}
         markdown:
           content: '## 🚀 Workload Health Preview'
           font_size: 14
       - title: Deployments - Desired vs Available
         size: {w: 24, h: 12}
-        position: {x: 0, y: 29}
         lens:
           type: line
           data_view: metrics-*
@@ -181,7 +171,6 @@ dashboards:
             - exists: k8s.deployment.name
       - title: Container Restarts by Namespace
         size: {w: 24, h: 12}
-        position: {x: 24, y: 29}
         lens:
           type: bar
           data_view: metrics-*
@@ -203,13 +192,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Unhealthy Deployments
         size: {w: 48, h: 2}
-        position: {x: 0, y: 41}
         markdown:
           content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
           font_size: 14
       - title: Deployments Missing Replicas
         size: {w: 48, h: 12}
-        position: {x: 0, y: 43}
         lens:
           type: datatable
           data_view: metrics-*

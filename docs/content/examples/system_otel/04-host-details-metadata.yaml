@@ -28,7 +28,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -48,12 +47,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Host & OS Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## Host & Operating System'
       - title: Host Metadata
         size: {w: 24, h: 12}
-        position: {x: 0, y: 5}
         esql:
           type: datatable
           query:
@@ -75,7 +72,6 @@ dashboards:
             - field: Value
       - title: Operating System Metadata
         size: {w: 24, h: 12}
-        position: {x: 24, y: 5}
         esql:
           type: datatable
           query:
@@ -99,12 +95,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: CPU Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 17}
         markdown:
           content: '## CPU'
       - title: Host CPU Metadata
         size: {w: 48, h: 12}
-        position: {x: 0, y: 19}
         esql:
           type: datatable
           query:
@@ -131,12 +125,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cloud Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 31}
         markdown:
           content: '## Cloud'
       - title: Cloud Metadata
         size: {w: 48, h: 12}
-        position: {x: 0, y: 33}
         esql:
           type: datatable
           query:
@@ -162,12 +154,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Kubernetes Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 45}
         markdown:
           content: '## Kubernetes'
       - title: Kubernetes Metadata
         size: {w: 48, h: 8}
-        position: {x: 0, y: 47}
         esql:
           type: datatable
           query:
