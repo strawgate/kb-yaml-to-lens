@@ -56,6 +56,25 @@ Run these from the **repository root**:
 
 **Troubleshooting CI failures:** Run `make ci` locally to reproduce exact CI checks.
 
+### Component Pass-Through Commands
+
+Run any component-specific target from the repository root:
+
+| Command | Purpose |
+| ------- | ------- |
+| `make compiler <target>` | Run target in `compiler/` |
+| `make vscode <target>` | Run target in `vscode-extension/` |
+| `make docs <target>` | Run target in `docs/` |
+
+**Examples:**
+
+```bash
+make compiler test      # Run compiler tests
+make vscode lint        # Lint VS Code extension
+make docs test-links    # Check documentation links
+make compiler help      # Show all compiler targets
+```
+
 ## Component Development
 
 See component-specific DEVELOPING.md files for detailed workflows:

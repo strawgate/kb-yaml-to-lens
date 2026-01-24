@@ -1,0 +1,169 @@
+---
+dashboards:
+  - id: system-metrics-overview
+    name: '[Metrics System] Overview'
+    description: Overview of system metrics
+    filters:
+      - field: data_stream.dataset
+        in:
+          - system.process
+          - system.fsstat
+          - system.cpu
+          - system.memory
+          - system.network
+          - system.load
+    controls:
+      - type: options
+        label: Host name
+        data_view: metrics-*
+        field: host.name
+    panels:
+      - title: System Overview
+        hide_title: true
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        markdown:
+          content: |
+            # System overview
+            View metrics for all monitored hosts. Use the Host name control to filter by specific hosts.
+          font_size: 12
+      - title: Total Hosts
+        grid: {x: 0, y: 3, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: host.name
+            label: Total Hosts
+      - title: Inbound Traffic
+        grid: {x: 12, y: 3, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.network.in.bytes
+            label: Inbound
+            format:
+              type: bytes
+          filters:
+            - field: data_stream.dataset
+              equals: system.network
+      - title: System Overview Table
+        grid: {x: 0, y: 10, w: 48, h: 20}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: host
+              type: values
+              field: host.name
+              size: 100
+          metrics:
+            - id: max-cpu
+              aggregation: max
+              field: system.cpu.total.norm.pct
+              label: Max CPU
+              format:
+                type: percent
+            - id: avg-memory
+              aggregation: average
+              field: system.memory.actual.used.pct
+              label: Avg Memory
+              format:
+                type: percent
+            - id: avg-inbound
+              aggregation: average
+              field: system.network.in.bytes
+              label: Avg Inbound
+              format:
+                type: bytes
+            - id: avg-outbound
+              aggregation: average
+              field: system.network.out.bytes
+              label: Avg Outbound
+              format:
+                type: bytes
+          paging:
+            enabled: true
+            page_size: 10
+      - title: CPU Usage (%)
+        grid: {x: 24, y: 3, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.cpu.total.norm.pct
+            label: CPU %
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.cpu
+      - title: Memory Usage (%)
+        grid: {x: 36, y: 3, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.memory.actual.used.pct
+            label: Memory %
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.memory
+      - title: Outbound Traffic
+        grid: {x: 0, y: 30, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.network.out.bytes
+            label: Outbound
+            format:
+              type: bytes
+          filters:
+            - field: data_stream.dataset
+              equals: system.network
+      - title: Disk Usage (%)
+        grid: {x: 12, y: 30, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.filesystem.used.pct
+            label: Disk %
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.fsstat
+      - title: Load Average (5m)
+        grid: {x: 24, y: 30, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.load.5
+            label: Load 5m
+          filters:
+            - field: data_stream.dataset
+              equals: system.load
+      - title: Number of CPUs
+        grid: {x: 36, y: 30, w: 12, h: 7}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: system.cpu.cores
+            label: CPUs
+          filters:
+            - field: data_stream.dataset
+              equals: system.cpu

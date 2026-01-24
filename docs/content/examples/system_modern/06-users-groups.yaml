@@ -1,0 +1,210 @@
+---
+# Modern System Users and Groups Dashboard
+# Following Dashboard Style Guide best practices:
+# - IAM event analysis pattern: overview → trends → action types → audit log
+# - Action-focused metrics for quick status
+# - Treemap for hierarchical action/user relationships
+# - Stacked bar for event trends by action
+# - Detailed audit table at bottom
+dashboards:
+  - id: system-modern-users-groups
+    name: '[Logs System] Users & Groups'
+    description: >-
+      Identity and access management events including user and group changes.
+      Monitor account creation, modification, and group membership changes.
+    filters:
+      - field: event.module
+        equals: system
+      - field: event.category
+        equals: iam
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Action
+        data_view: logs-*
+        field: event.action
+        width: medium
+      - type: options
+        label: User
+        data_view: logs-*
+        field: user.name
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: System Log Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Metrics Overview
+              dashboard: system-modern-metrics-overview
+            - label: Syslog
+              dashboard: system-modern-syslog
+            - label: Sudo Commands
+              dashboard: system-modern-sudo-commands
+            - label: SSH Logins
+              dashboard: system-modern-ssh-logins
+            - label: Users & Groups
+              dashboard: system-modern-users-groups
+
+      # Summary Layer - Key IAM Metrics
+      - title: Total Events
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Unique Actions
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: event.action
+            label: Actions
+      - title: Unique Users
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: user.name
+            label: Users
+      - title: Unique Hosts
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: host.hostname
+            label: Hosts
+
+      # Analysis Layer - Time Series
+      - title: User and Group Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: event.action
+            size: 10
+
+      # Analysis Layer - Categorical Breakdowns
+      - title: Event Actions
+        grid: {x: 0, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: event.action
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Host
+        grid: {x: 16, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by User
+        grid: {x: 32, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: user.name
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - Hierarchical View
+      - title: Action and User Distribution
+        grid: {x: 0, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: event.action
+              size: 10
+            - type: values
+              field: user.name
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Host and Action Distribution
+        grid: {x: 24, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+            - type: values
+              field: event.action
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Audit Log Table
+      - title: User and Group Event Audit Log
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: action
+              type: values
+              field: event.action
+            - id: user
+              type: values
+              field: user.name
+            - id: target-user
+              type: values
+              field: user.target.name
+            - id: group
+              type: values
+              field: group.name
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10
