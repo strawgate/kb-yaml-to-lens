@@ -97,9 +97,10 @@ Python tests for LSP functionality are located in the compiler component:
 - `packages/kb-dashboard-compiler/tests/lsp/test_server.py` — LSP server functionality
 
 ```bash
-# Run Python LSP tests (from packages/kb-dashboard-compiler directory)
-cd packages/kb-dashboard-compiler
-uv run pytest tests/lsp/ -v
+# Run Python LSP tests (from repository root)
+make compiler test
+# Or run specific LSP tests:
+cd packages/kb-dashboard-compiler && uv run pytest tests/lsp/ -v
 ```
 
 ### Test Coverage

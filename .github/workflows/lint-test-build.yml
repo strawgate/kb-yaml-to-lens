@@ -20,8 +20,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run Python linting checks
-        working-directory: packages/kb-dashboard-compiler
-        run: make lint-python-check
+        run: make compiler lint-check
   lint-markdown:
     name: Lint Markdown
     runs-on: ubuntu-latest
@@ -51,8 +50,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run basedpyright
-        working-directory: packages/kb-dashboard-compiler
-        run: make typecheck
+        run: make compiler typecheck
   test-python:
     name: Test Python (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -69,8 +67,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run pytest
-        working-directory: packages/kb-dashboard-compiler
-        run: make test
+        run: make compiler test
   test-python-coverage:
     name: Test Python Code Coverage
     runs-on: ubuntu-latest
@@ -84,8 +81,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run tests with coverage
-        working-directory: packages/kb-dashboard-compiler
-        run: make test-coverage
+        run: make compiler test-coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
@@ -129,8 +125,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run smoke tests
-        working-directory: packages/kb-dashboard-compiler
-        run: make test-smoke
+        run: make compiler test-smoke
   test-markdown-links:
     name: Validate Documentation Links
     runs-on: ubuntu-latest
@@ -140,8 +135,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Check documentation links
-        working-directory: docs
-        run: make test-links
+        run: make docs test-links
   build-docs:
     name: Build Documentation
     runs-on: ubuntu-latest
@@ -153,8 +147,7 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --group docs
       - name: Build documentation
-        working-directory: docs
-        run: NO_COLOR=1 uv run --group docs mkdocs build --quiet --strict
+        run: make docs build-strict
   test-vscode-extension-typescript:
     name: Test VSCode Extension (TypeScript)
     runs-on: ubuntu-latest
@@ -168,11 +161,9 @@ jobs:
           cache: npm
           cache-dependency-path: vscode-extension/package-lock.json
       - name: Install dependencies
-        working-directory: vscode-extension
-        run: npm ci
+        run: make vscode install
       - name: Run TypeScript tests for extension
-        working-directory: vscode-extension
-        run: make test-unit
+        run: make vscode test-unit
   test-vscode-extension-e2e:
     name: Test VSCode Extension E2E
     runs-on: ubuntu-latest
@@ -208,11 +199,9 @@ jobs:
             sleep 1
           done
       - name: Install extension dependencies
-        working-directory: vscode-extension
-        run: npm ci
+        run: make vscode install
       - name: Run E2E tests for extension
-        working-directory: vscode-extension
-        run: make test
+        run: make vscode test
         env:
           DISPLAY: :99.0
   checks-passed:

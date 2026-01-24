@@ -75,14 +75,14 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 
 ```bash
 # PyPI (uses Makefile targets)
-cd packages/kb-dashboard-compiler && make build && make publish
+make compiler build && make compiler publish
 
 # Docker (multi-arch - prefer re-running workflow)
 # Manual single-arch build for testing only:
 cd packages/kb-dashboard-compiler && docker build -t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 .
 
 # VS Code (publishes to both VS Code Marketplace and Open VSX)
-cd vscode-extension && make package && npx vsce publish && npx ovsx publish *.vsix
+make vscode package && cd vscode-extension && npx vsce publish && npx ovsx publish *.vsix
 ```
 
 **Do not delete tags/releases** - breaks user installations. Instead: mark as pre-release or publish patch.

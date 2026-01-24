@@ -64,8 +64,8 @@ hand-crafting complex JSON.
 **Installation** using [uv](https://github.com/astral-sh/uv):
 
 ```bash
-cd compiler
-uv sync
+# From repository root
+make compiler install
 ```
 
 **Your First Dashboard:**
@@ -87,8 +87,8 @@ uv sync
 2. Compile:
 
    ```bash
-   cd compiler
-   uv run kb-dashboard compile
+   # From repository root
+   make compiler compile
    ```
 
 3. Upload to Kibana:

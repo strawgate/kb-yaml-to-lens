@@ -20,8 +20,6 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Build package
-        working-directory: packages/kb-dashboard
-        run: make build
+        run: make compiler build
       - name: Publish to PyPI
-        working-directory: packages/kb-dashboard
-        run: make publish
+        run: make compiler publish

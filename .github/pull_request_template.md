@@ -28,9 +28,9 @@
 <!-- Provide step-by-step instructions for reviewers to test your changes -->
 
 ```bash
-# Example verification commands
-make install
-make compile  # or other relevant commands
+# Example verification commands (run from repository root)
+make all install
+make compiler compile  # or other relevant commands
 ```
 
 ## Related Issues
@@ -40,7 +40,7 @@ Relates to #
 
 ## Checklist
 
-- [ ] All static checks pass (`make ci`)
+- [ ] All static checks pass (`make all ci`)
 - [ ] Tests added/updated as needed
 - [ ] Documentation updated (if API changed)
 - [ ] Breaking changes documented with migration path

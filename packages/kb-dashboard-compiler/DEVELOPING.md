@@ -10,8 +10,8 @@ This guide covers development workflows for the Python dashboard compiler.
 ## Setup
 
 ```bash
-cd compiler
-make install
+# From repository root
+make compiler install
 ```
 
 ## Commands

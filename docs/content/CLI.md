@@ -202,14 +202,14 @@ The following commands are available in the `kb-dashboard` CLI. For detailed inf
 
 ## Makefile Shortcuts
 
-The project includes convenient Makefile targets (run from `packages/kb-dashboard-compiler/` directory):
+The project includes convenient Makefile targets (run from repository root):
 
 ```bash
 # Compile only
-cd packages/kb-dashboard-compiler && make compile
+make compiler compile
 
 # Compile and upload (uses environment variables for Kibana config)
-cd packages/kb-dashboard-compiler && make upload
+make compiler upload
 ```
 
 Or use the CLI directly from anywhere with uv:
