@@ -6,7 +6,7 @@ This guide covers development workflows for the kb-yaml-to-lens project.
 
 ```text
 kb-yaml-to-lens/
-├── compiler/              # Python YAML → JSON compiler
+├── packages/kb-dashboard/ # Python YAML → JSON compiler
 │   └── src/dashboard_compiler/
 ├── vscode-extension/      # VS Code extension
 │   └── src/
@@ -15,7 +15,7 @@ kb-yaml-to-lens/
 
 | Directory | Technology | Purpose |
 | --------- | ---------- | ------- |
-| `compiler/` | Python 3.12+, Pydantic, uv | Dashboard compilation engine |
+| `packages/kb-dashboard/` | Python 3.12+, Pydantic, uv | Dashboard compilation engine |
 | `vscode-extension/` | TypeScript, Node.js | VS Code extension with live preview |
 | `docs/` | MkDocs | User-facing documentation site |
 
@@ -62,14 +62,14 @@ Run any component-specific target from the repository root:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make compiler <target>` | Run target in `compiler/` |
+| `make compiler <target>` | Run target in `packages/kb-dashboard/` |
 | `make vscode <target>` | Run target in `vscode-extension/` |
 | `make docs <target>` | Run target in `docs/` |
 
 **Examples:**
 
 ```bash
-make compiler test      # Run compiler tests
+make compiler test      # Run compiler tests (in packages/kb-dashboard/)
 make vscode lint        # Lint VS Code extension
 make docs test-links    # Check documentation links
 make compiler help      # Show all compiler targets
@@ -79,7 +79,7 @@ make compiler help      # Show all compiler targets
 
 See component-specific DEVELOPING.md files for detailed workflows:
 
-- **Compiler:** [compiler/DEVELOPING.md](compiler/DEVELOPING.md)
+- **Compiler:** [packages/kb-dashboard/DEVELOPING.md](packages/kb-dashboard/DEVELOPING.md)
 - **VS Code Extension:** [vscode-extension/DEVELOPING.md](vscode-extension/DEVELOPING.md)
 - **Documentation:** [docs/DEVELOPING.md](docs/DEVELOPING.md)
 

@@ -67,7 +67,7 @@ endef
 install:
 	@echo "Installing all component dependencies..."
 	@echo ""
-	$(call run-in-component,compiler,install)
+	$(call run-in-component,packages/kb-dashboard,install)
 	$(call run-in-component,vscode-extension,install)
 	@echo "→ Installing global tools..."
 	@if command -v npm > /dev/null 2>&1; then \
@@ -82,7 +82,7 @@ install:
 # Use `make check -j3` for parallel execution, `make check` for sequential
 compiler-ci:
 	@echo "→ Running compiler CI..."
-	@cd compiler && $(MAKE) ci
+	@cd packages/kb-dashboard && $(MAKE) ci
 	@echo ""
 
 vscode-ci:
@@ -104,7 +104,7 @@ ci: check test-e2e
 fix:
 	@echo "Auto-fixing linting issues across all components..."
 	@echo ""
-	$(call run-in-component,compiler,fix)
+	$(call run-in-component,packages/kb-dashboard,fix)
 	$(call run-in-component,vscode-extension,fix)
 	@echo "→ Fixing markdown issues..."
 	@$(MAKE) lint-markdown
@@ -114,7 +114,7 @@ fix:
 test-unit:
 	@echo "Running unit tests across all components..."
 	@echo ""
-	$(call run-in-component,compiler,test)
+	$(call run-in-component,packages/kb-dashboard,test)
 	$(call run-in-component,vscode-extension,test-unit)
 	@echo "✓ All unit tests passed"
 
@@ -137,14 +137,14 @@ lint-markdown-check:
 clean:
 	@echo "Cleaning all components..."
 	@echo ""
-	$(call run-in-component,compiler,clean)
+	$(call run-in-component,packages/kb-dashboard,clean)
 	$(call run-in-component,vscode-extension,clean)
 	@echo "✓ Cleaning complete"
 
 clean-full:
 	@echo "Deep cleaning all components..."
 	@echo ""
-	$(call run-in-component,compiler,clean-full)
+	$(call run-in-component,packages/kb-dashboard,clean-full)
 	$(call run-in-component,vscode-extension,clean)
 	@echo "✓ Deep cleaning complete"
 
@@ -195,7 +195,7 @@ bump-version-show:
 # These allow running any target in a component's Makefile directly from the root
 # Example: `make compiler test` runs `make test` in compiler/
 compiler:
-	@cd compiler && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+	@cd packages/kb-dashboard && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
 
 vscode:
 	@cd vscode-extension && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))

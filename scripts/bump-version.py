@@ -24,7 +24,7 @@ import click
 
 # Version file locations relative to project root
 VERSION_FILES = {
-    'compiler/pyproject.toml': 'toml',
+    'packages/kb-dashboard/pyproject.toml': 'toml',
     'vscode-extension/package.json': 'json',
     'pyproject.toml': 'toml',
 }
@@ -84,7 +84,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
     root = get_project_root()
 
     # Determine current version from canonical source
-    canonical_path = root / 'compiler/pyproject.toml'
+    canonical_path = root / 'packages/kb-dashboard/pyproject.toml'
     current_version = read_version(canonical_path, 'toml')
 
     action = 'Would update' if dry_run else 'Updating'
@@ -146,7 +146,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
             click.echo('  Warning: uv not found. Skipping uv.lock update.', err=True)
         
         # Update compiler uv.lock
-        compiler_dir = root / 'compiler'
+        compiler_dir = root / 'packages/kb-dashboard'
         try:
             subprocess.run(
                 ['uv', 'lock'],
@@ -155,11 +155,11 @@ def update_versions(new_version: str, dry_run: bool) -> None:
                 capture_output=True,
                 text=True,
             )
-            click.echo('  compiler/uv.lock: updated')
+            click.echo('  packages/kb-dashboard/uv.lock: updated')
         except subprocess.CalledProcessError as e:
-            click.echo(f'  Warning: Failed to update compiler/uv.lock: {e.stderr}', err=True)
+            click.echo(f'  Warning: Failed to update packages/kb-dashboard/uv.lock: {e.stderr}', err=True)
         except FileNotFoundError:
-            click.echo('  Warning: uv not found. Skipping compiler/uv.lock update.', err=True)
+            click.echo('  Warning: uv not found. Skipping packages/kb-dashboard/uv.lock update.', err=True)
 
     if dry_run:
         click.echo('\nDry run complete. No files were modified.')
@@ -193,7 +193,7 @@ def show() -> None:
 def patch(dry_run: bool) -> None:
     """Bump patch version (0.1.1 -> 0.1.2)."""
     root = get_project_root()
-    current = read_version(root / 'compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard/pyproject.toml', 'toml')
     new_version = bump_version(current, 'patch')
     update_versions(new_version, dry_run)
 
@@ -203,7 +203,7 @@ def patch(dry_run: bool) -> None:
 def minor(dry_run: bool) -> None:
     """Bump minor version (0.1.1 -> 0.2.0)."""
     root = get_project_root()
-    current = read_version(root / 'compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard/pyproject.toml', 'toml')
     new_version = bump_version(current, 'minor')
     update_versions(new_version, dry_run)
 
@@ -213,7 +213,7 @@ def minor(dry_run: bool) -> None:
 def major(dry_run: bool) -> None:
     """Bump major version (0.1.1 -> 1.0.0)."""
     root = get_project_root()
-    current = read_version(root / 'compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard/pyproject.toml', 'toml')
     new_version = bump_version(current, 'major')
     update_versions(new_version, dry_run)
 

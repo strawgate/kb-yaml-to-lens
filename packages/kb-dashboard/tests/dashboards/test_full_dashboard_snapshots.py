@@ -26,7 +26,7 @@ from dashboard_compiler.dashboard_compiler import load, render
 from tests.conftest import de_json_kbn_dashboard
 
 # Paths
-_project_root = Path(__file__).parent.parent.parent.parent
+_project_root = Path(__file__).parent.parent.parent.parent.parent
 _example_dir = _project_root / 'docs' / 'content' / 'examples'
 _snapshot_dir = Path(__file__).parent / 'snapshots'
 

@@ -7,7 +7,7 @@ import pytest
 import yaml
 
 # Automatically discover markdown files that contain YAML dashboard examples
-_project_root = Path(__file__).parent.parent.parent
+_project_root = Path(__file__).parent.parent.parent.parent
 _docs_dir = _project_root / 'docs'
 
 # Find all markdown files in the repository (use absolute paths since tests run from compiler/)
