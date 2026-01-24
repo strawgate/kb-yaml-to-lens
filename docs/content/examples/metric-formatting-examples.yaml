@@ -20,6 +20,7 @@ dashboards:
 
       # Suffix Formatting Examples
       - title: Request Rate
+        hide_title: true
         description: Using suffix to add units
         size:
           w: 12
@@ -37,6 +38,7 @@ dashboards:
               type: number
               suffix: ' req/sec'
       - title: Active Users
+        hide_title: true
         description: Suffix for context
         size:
           w: 12
@@ -55,6 +57,7 @@ dashboards:
               type: number
               suffix: ' users'
       - title: Temperature
+        hide_title: true
         description: Suffix with units
         size:
           w: 12
@@ -74,6 +77,7 @@ dashboards:
               pattern: '0.0'
               suffix: °C
       - title: API Calls
+        hide_title: true
         description: Suffix with period
         size:
           w: 12
@@ -93,6 +97,7 @@ dashboards:
 
       # Compact Notation Examples
       - title: Total Events (Compact)
+        hide_title: true
         description: Compact notation for large numbers
         size:
           w: 12
@@ -110,6 +115,7 @@ dashboards:
               type: number
               compact: true
       - title: Unique IPs (Compact)
+        hide_title: true
         description: Compact with custom suffix
         size:
           w: 12
@@ -129,6 +135,7 @@ dashboards:
               compact: true
               suffix: ' IPs'
       - title: Data Processed
+        hide_title: true
         description: Bytes format with compact notation
         size:
           w: 12
@@ -147,6 +154,7 @@ dashboards:
               type: bytes
               compact: true
       - title: Response Time
+        hide_title: true
         description: Duration format
         size:
           w: 12
@@ -166,6 +174,7 @@ dashboards:
 
       # Custom Pattern Examples
       - title: Revenue
+        hide_title: true
         description: Currency pattern with 2 decimals
         size:
           w: 12
@@ -185,6 +194,7 @@ dashboards:
               pattern: 0,0.00
               suffix: ' USD'
       - title: Success Rate
+        hide_title: true
         description: Pattern with abbreviation
         size:
           w: 12
@@ -203,6 +213,7 @@ dashboards:
               pattern: 0.0a
               suffix: '%'
       - title: Cache Hit Ratio
+        hide_title: true
         description: Percentage with 3 decimals
         size:
           w: 12
@@ -219,6 +230,7 @@ dashboards:
             format:
               type: percent
       - title: Error Count
+        hide_title: true
         description: No decimals with thousands separator
         size:
           w: 12
@@ -240,6 +252,7 @@ dashboards:
 
       # Built-in Format Examples
       - title: Network Throughput
+        hide_title: true
         description: Bytes format
         size:
           w: 12
@@ -257,6 +270,7 @@ dashboards:
             format:
               type: bytes
       - title: Network Bits
+        hide_title: true
         description: Bits format
         size:
           w: 12
@@ -274,6 +288,7 @@ dashboards:
             format:
               type: bits
       - title: CPU Usage
+        hide_title: true
         description: Percent format
         size:
           w: 12
@@ -291,6 +306,7 @@ dashboards:
             format:
               type: percent
       - title: Uptime
+        hide_title: true
         description: Duration format
         size:
           w: 12
@@ -310,6 +326,7 @@ dashboards:
 
       # Combined Format Options
       - title: Bandwidth Usage
+        hide_title: true
         description: Combining multiple format options
         size:
           w: 12
@@ -329,6 +346,7 @@ dashboards:
               compact: true
               suffix: /day
       - title: Transaction Volume
+        hide_title: true
         description: Compact with custom pattern
         size:
           w: 12
@@ -348,6 +366,7 @@ dashboards:
               pattern: 0.0a
               suffix: ' txn'
       - title: Average Latency
+        hide_title: true
         description: Duration with custom suffix
         size:
           w: 12
@@ -366,6 +385,7 @@ dashboards:
               type: duration
               suffix: ' (avg)'
       - title: Data Transfer Rate
+        hide_title: true
         description: Bits with rate suffix
         size:
           w: 12
@@ -387,6 +407,7 @@ dashboards:
 
       # Custom Format Type
       - title: Custom Format Example
+        hide_title: true
         description: Using custom format type
         size:
           w: 12
@@ -404,6 +425,7 @@ dashboards:
               type: custom
               pattern: 0,0.0a
       - title: Precise Decimal Control
+        hide_title: true
         description: Custom pattern for precise control
         size:
           w: 12
@@ -422,6 +444,7 @@ dashboards:
               type: custom
               pattern: '0.000'
       - title: No Formatting
+        hide_title: true
         description: Plain number without formatting
         size:
           w: 12
@@ -436,6 +459,7 @@ dashboards:
             aggregation: count
             label: Raw Count
       - title: Formula with Formatting
+        hide_title: true
         description: Formula metric with custom format
         size:
           w: 12

@@ -42,6 +42,7 @@ dashboards:
         markdown:
           content: '### Node Health'
       - title: Document Count
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 4}
         lens:
@@ -52,6 +53,7 @@ dashboards:
             field: elasticsearch.node.documents
             label: Documents
       - title: Open Files
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 4}
         lens:
@@ -62,6 +64,7 @@ dashboards:
             field: elasticsearch.node.open_files
             label: Open Files
       - title: HTTP Connections
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 4}
         lens:
@@ -72,6 +75,7 @@ dashboards:
             field: elasticsearch.node.http.connections
             label: Connections
       - title: Active Nodes
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 4}
         lens:

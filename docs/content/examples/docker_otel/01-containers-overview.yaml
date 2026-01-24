@@ -45,6 +45,7 @@ dashboards:
             - label: Container Stats
               dashboard: docker-otel-container-stats
       - size: {w: 6, h: 6}
+        hide_title: true
         position: {x: 0, y: 2}
         lens:
           type: metric
@@ -53,6 +54,7 @@ dashboards:
             formula: unique_count(container.id, reducedTimeRange='1h')
             label: Active Containers
       - size: {w: 6, h: 6}
+        hide_title: true
         position: {x: 6, y: 2}
         lens:
           type: metric
