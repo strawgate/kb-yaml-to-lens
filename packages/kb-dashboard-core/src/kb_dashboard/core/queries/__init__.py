@@ -1,4 +1,4 @@
-"""Query models for dashboard_compiler."""
+"""Query models for kb_dashboard.core."""
 
 from .config import ESQLQuery, KqlQuery, LuceneQuery
 

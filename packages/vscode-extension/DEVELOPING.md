@@ -47,7 +47,7 @@ For all commands, see `make help`.
 **Hybrid TypeScript + Python:**
 
 - **TypeScript Extension** manages UI, commands, Python subprocess
-- **Python Server** handles compilation using `dashboard_compiler`
+- **Python Server** handles compilation using `kb_dashboard` packages
 
 | File | Purpose |
 | ---- | ------- |
@@ -55,7 +55,7 @@ For all commands, see `make help`.
 | `src/compiler.ts` | Python subprocess management |
 | `src/previewPanel.ts` | Webview preview panel |
 | `src/gridEditorPanel.ts` | Visual grid editor |
-| `compiler/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in compiler component) |
+| `../kb-dashboard-lsp/src/kb_dashboard/lsp/server.py` | Stdio-based LSP server |
 
 ### Extension Commands
 
@@ -91,15 +91,15 @@ npm test
 
 ### Python Tests
 
-Python tests for LSP functionality are located in the compiler component:
+Python tests for LSP functionality are located in the kb-dashboard-lsp package:
 
-- `compiler/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
-- `compiler/tests/lsp/test_server.py` — LSP server functionality
+- `../kb-dashboard-lsp/tests/test_grid_updater.py` — Grid coordinate updates in YAML
+- `../kb-dashboard-lsp/tests/test_server.py` — LSP server functionality
 
 ```bash
-# Run Python LSP tests (from compiler directory)
-cd compiler
-uv run pytest tests/lsp/ -v
+# Run Python LSP tests (from packages directory)
+cd ..
+uv run pytest kb-dashboard-lsp/tests/ -v
 ```
 
 ### Test Coverage
@@ -152,7 +152,7 @@ Python virtualenv is created at first run by uv.
 
 ### Python Server Not Starting
 
-1. Verify `dashboard_compiler` is installed: `uv sync`
+1. Verify packages are installed: `uv sync`
 2. Check Python path in settings
 3. Check Output panel: View → Output → "Kibana Dashboard Compiler"
 
@@ -166,8 +166,8 @@ Python virtualenv is created at first run by uv.
 In production, if extension falls back to Python:
 
 1. Verify uv exists: `ls bin/{platform}/uv`
-2. Verify compiler bundled: `ls compiler/pyproject.toml`
-3. Check `.vscodeignore` doesn't exclude `bin/` or `compiler/`
+2. Verify packages bundled: `ls packages/pyproject.toml`
+3. Check `.vscodeignore` doesn't exclude `bin/` or `packages/`
 
 ### Package Too Small
 
@@ -175,4 +175,4 @@ Expected VSIX size: ~22MB. If much smaller:
 
 1. Run `make prepare` before packaging
 2. Verify `bin/{platform}/uv` exists
-3. Verify `compiler/src/` exists
+3. Verify `packages/kb-dashboard-*/src/` exists

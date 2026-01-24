@@ -1,7 +1,7 @@
 # Packages Makefile - Build and test for all Python packages
 # This orchestrates all kb-dashboard-* packages in the workspace
 
-.PHONY: help all install ci check fix test test-coverage lint lint-check typecheck clean clean-full build publish publish-test
+.PHONY: help all install ci check fix test test-coverage test-smoke lint lint-check typecheck clean clean-full build publish publish-test
 
 # YAML linting exclusions (operates on parent directory)
 YAMLFIX_EXCLUDE := \
@@ -96,6 +96,9 @@ test-coverage:
 	@echo "Running pytest with coverage..."
 	@cd .. && uv run pytest packages/kb-dashboard-core/tests packages/kb-dashboard-cli/tests packages/kb-dashboard-lsp/tests packages/kb-dashboard-tools/tests --cov=packages --cov-report=term-missing --cov-report=html --cov-report=json
 
+test-smoke:
+	@bash scripts/test_cli_smoke.sh
+
 # Cleaning
 clean:
 	@echo "Cleaning up..."
@@ -112,7 +115,7 @@ clean-full: clean
 # PyPI Publishing
 build:
 	@echo "Building all packages..."
-	@for pkg in kb-dashboard-core kb-dashboard-cli kb-dashboard-lsp kb-dashboard-tools kb-dashboard-compiler; do \
+	@for pkg in kb-dashboard-core kb-dashboard-cli kb-dashboard-lsp kb-dashboard-tools; do \
 		echo "Building $$pkg..."; \
 		cd $$pkg && uv build && cd ..; \
 	done
@@ -120,7 +123,7 @@ build:
 
 publish: build
 	@echo "Publishing all packages to PyPI..."
-	@for pkg in kb-dashboard-core kb-dashboard-tools kb-dashboard-cli kb-dashboard-lsp kb-dashboard-compiler; do \
+	@for pkg in kb-dashboard-core kb-dashboard-tools kb-dashboard-cli kb-dashboard-lsp; do \
 		echo "Publishing $$pkg..."; \
 		cd $$pkg && uv publish && cd ..; \
 	done
@@ -128,7 +131,7 @@ publish: build
 
 publish-test: build
 	@echo "Publishing all packages to TestPyPI..."
-	@for pkg in kb-dashboard-core kb-dashboard-tools kb-dashboard-cli kb-dashboard-lsp kb-dashboard-compiler; do \
+	@for pkg in kb-dashboard-core kb-dashboard-tools kb-dashboard-cli kb-dashboard-lsp; do \
 		echo "Publishing $$pkg to TestPyPI..."; \
 		cd $$pkg && uv publish --publish-url https://test.pypi.org/legacy/ && cd ..; \
 	done

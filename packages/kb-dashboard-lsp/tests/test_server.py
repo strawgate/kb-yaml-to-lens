@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for dashboard_compiler.lsp.server LSP handlers."""
+"""Unit tests for kb_dashboard.lsp.server LSP handlers."""
 # ruff: noqa: PT009
 
 import tempfile

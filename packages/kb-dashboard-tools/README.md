@@ -32,4 +32,3 @@ yaml_content = disassemble_dashboard('dashboard.ndjson')
 - **kb-dashboard-core**: Core compiler library (automatically installed)
 - **kb-dashboard-cli**: Command-line interface
 - **kb-dashboard-lsp**: Language Server Protocol for IDE integration
-- **kb-dashboard-compiler**: Meta-package installing all components

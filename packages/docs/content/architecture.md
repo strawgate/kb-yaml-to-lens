@@ -37,9 +37,9 @@ The compiler is designed using a layered approach with distinct components respo
 
 ## Components
 
-The codebase is organized into a hierarchical structure under `src/dashboard_compiler/`:
+The codebase is organized into a hierarchical structure under `src/kb_dashboard.core/`:
 
-- **`dashboard_compiler.py`:** Main entry point containing the core compilation orchestration functions (`load`, `render`, `dump`).
+- **`kb_dashboard.core.py`:** Main entry point containing the core compilation orchestration functions (`load`, `render`, `dump`).
 - **`cli.py`:** Command-line interface for compiling dashboards and uploading to Kibana.
 - **`dashboard/`:** Top-level dashboard compilation with `config.py`, `view.py`, and `compile.py`.
 - **`panels/`:** Panel compilation with subdirectories for each panel type (markdown, links, images, search, charts).

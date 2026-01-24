@@ -5,7 +5,7 @@ import logging
 from collections.abc import Callable
 from typing import Any, cast
 
-logger = logging.getLogger('dashboard_compiler')
+logger = logging.getLogger('kb_dashboard')
 logger.addHandler(logging.NullHandler())
 
 

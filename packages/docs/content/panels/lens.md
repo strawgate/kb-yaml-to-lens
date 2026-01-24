@@ -419,7 +419,7 @@ Defines how metric values are displayed in visualizations.
 
 ### Standard Format
 
-::: dashboard_compiler.panels.charts.lens.metrics.config.LensMetricFormat
+::: kb_dashboard.core.panels.charts.lens.metrics.config.LensMetricFormat
     options:
       show_root_heading: false
       heading_level: 4
@@ -436,7 +436,7 @@ When no `pattern` is specified, Kibana applies these defaults:
 
 ### Custom Format
 
-::: dashboard_compiler.panels.charts.lens.metrics.config.LensCustomMetricFormat
+::: kb_dashboard.core.panels.charts.lens.metrics.config.LensCustomMetricFormat
     options:
       show_root_heading: false
       heading_level: 4

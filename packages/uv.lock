@@ -5,7 +5,6 @@ requires-python = ">=3.12"
 [manifest]
 members = [
     "kb-dashboard-cli",
-    "kb-dashboard-compiler",
     "kb-dashboard-core",
     "kb-dashboard-lsp",
     "kb-dashboard-packages",
@@ -825,23 +824,6 @@ requires-dist = [
     { name = "kb-dashboard-tools", editable = "kb-dashboard-tools" },
     { name = "prison", specifier = ">=0.2.1" },
     { name = "rich-click", specifier = ">=1.9.0" },
-]
-
-[[package]]
-name = "kb-dashboard-compiler"
-version = "0.1.10"
-source = { editable = "kb-dashboard-compiler" }
-dependencies = [
-    { name = "kb-dashboard-cli" },
-    { name = "kb-dashboard-core" },
-    { name = "kb-dashboard-tools" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "kb-dashboard-cli", editable = "kb-dashboard-cli" },
-    { name = "kb-dashboard-core", editable = "kb-dashboard-core" },
-    { name = "kb-dashboard-tools", editable = "kb-dashboard-tools" },
 ]
 
 [[package]]

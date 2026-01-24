@@ -14,7 +14,7 @@ from kb_dashboard.core.loader import DashboardConfig
 
 def find_docstring_yaml_examples() -> list[dict[str, str]]:
     """Find all YAML examples in Python docstrings in config files."""
-    config_dir = Path(__file__).parent.parent / 'src' / 'dashboard_compiler'
+    config_dir = Path(__file__).parent.parent / 'src' / 'kb_dashboard' / 'core'
 
     examples: list[dict[str, str]] = []
 

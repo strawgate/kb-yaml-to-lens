@@ -74,7 +74,7 @@ def cli(ctx: click.Context, loglevel: str) -> None:
     log_level: int = getattr(logging, loglevel.upper())  # pyright: ignore[reportAny]
     logging.basicConfig(level=log_level, format='%(message)s')
     # Also set level for our specific logger
-    logging.getLogger('dashboard_compiler').setLevel(log_level)
+    logging.getLogger('kb_dashboard').setLevel(log_level)
 
     _ = ctx.ensure_object(CliContext)
 

@@ -20,7 +20,7 @@ mkdir -p "$BUNDLE_DIR"
 cp "$PACKAGES_ROOT/pyproject.toml" "$BUNDLE_DIR/"
 
 # Copy each package
-for pkg in kb-dashboard-core kb-dashboard-cli kb-dashboard-lsp kb-dashboard-tools kb-dashboard-compiler; do
+for pkg in kb-dashboard-core kb-dashboard-cli kb-dashboard-lsp kb-dashboard-tools; do
     if [ -d "$PACKAGES_ROOT/$pkg" ]; then
         echo "  Bundling $pkg..."
         cp -r "$PACKAGES_ROOT/$pkg" "$BUNDLE_DIR/"

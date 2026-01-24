@@ -46,4 +46,3 @@ python -m kb_dashboard.lsp.grid_updater <yaml-file> <panel-id> <x> <y> <w> <h>
 - **kb-dashboard-core**: Core compiler library (automatically installed)
 - **kb-dashboard-cli**: Command-line interface (automatically installed)
 - **kb-dashboard-tools**: Development tools
-- **kb-dashboard-compiler**: Meta-package installing all components

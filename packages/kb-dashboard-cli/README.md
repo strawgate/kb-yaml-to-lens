@@ -39,4 +39,3 @@ kb-dashboard disassemble --input dashboard.ndjson --output dashboard.yaml
 - **kb-dashboard-core**: Core compiler library (automatically installed)
 - **kb-dashboard-lsp**: Language Server Protocol for IDE integration
 - **kb-dashboard-tools**: Development tools (automatically installed)
-- **kb-dashboard-compiler**: Meta-package installing all components

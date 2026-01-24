@@ -194,7 +194,7 @@ kb-dashboard compile --upload
 The following commands are available in the `kb-dashboard` CLI. For detailed information about each command and its options, see the auto-generated reference below.
 
 ::: mkdocs-click
-    :module: dashboard_compiler.cli
+    :module: kb_dashboard.core.cli
     :command: cli
     :prog_name: kb-dashboard
     :depth: 2

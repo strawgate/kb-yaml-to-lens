@@ -36,4 +36,3 @@ dump(dashboard, 'output.ndjson')
 - **kb-dashboard-cli**: Command-line interface for compilation and Kibana uploads
 - **kb-dashboard-lsp**: Language Server Protocol for IDE integration
 - **kb-dashboard-tools**: Development tools (disassemble, compare)
-- **kb-dashboard-compiler**: Meta-package installing all components

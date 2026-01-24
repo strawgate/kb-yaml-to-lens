@@ -15,8 +15,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "kb-dashboard-compiler",
+    "kb-dashboard-core",
+    "kb-dashboard-cli",
     "kb-dashboard-lsp",
+    "kb-dashboard-tools",
 ]
 
 [tool.uv.sources]
@@ -24,7 +26,6 @@ kb-dashboard-core = { workspace = true }
 kb-dashboard-cli = { workspace = true }
 kb-dashboard-lsp = { workspace = true }
 kb-dashboard-tools = { workspace = true }
-kb-dashboard-compiler = { workspace = true }
 
 [tool.uv.workspace]
 members = [
@@ -32,7 +33,6 @@ members = [
     "packages/kb-dashboard-cli",
     "packages/kb-dashboard-lsp",
     "packages/kb-dashboard-tools",
-    "packages/kb-dashboard-compiler",
 ]
 
 [dependency-groups]
