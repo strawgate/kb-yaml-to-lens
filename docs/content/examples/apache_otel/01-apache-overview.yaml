@@ -30,8 +30,10 @@ dashboards:
         links:
           layout: horizontal
           items:
-            - label: Apache Overview
+            - label: Apache Overview (Lens)
               dashboard: otel-apache-overview
+            - label: Apache Overview (ES|QL)
+              dashboard: otel-apache-overview-esql
       - title: Total Requests
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
