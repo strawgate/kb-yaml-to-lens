@@ -71,6 +71,7 @@ dashboards:
       - title: Max Connections
         size: {w: 12, h: 5}
         position: {x: 24, y: 4}
+        description: Requires postgresql.connection.max metric to be enabled in the OTel collector configuration
         esql:
           type: metric
           query: |
@@ -84,13 +85,14 @@ dashboards:
       - title: Database Count
         size: {w: 12, h: 5}
         position: {x: 36, y: 4}
+        description: Requires postgresql.database.count metric to be enabled in the OTel collector configuration
         esql:
           type: metric
           query: |
             FROM metrics-*
             | WHERE data_stream.dataset == "postgresqlreceiver.otel"
             | WHERE postgresql.database.count IS NOT NULL
-            | STATS db_count = MAX(postgresql.database.count)
+            | STATS db_count = MAX(TO_LONG(postgresql.database.count))
           primary:
             field: db_count
             label: Total DB Count
@@ -99,17 +101,18 @@ dashboards:
       - title: Database Performance Summary
         size: {w: 48, h: 18}
         position: {x: 0, y: 9}
-        description: Shows cumulative counter values and current state metrics per database. The commit_total, rollback_total, and blocks_read_total
-          columns are cumulative totals (not per-second rates). For rate calculations, see the time-series charts below which use the TS command
-          with RATE().
+        description: Shows cumulative counter values and current state metrics per database. Counter metrics (commits, rollbacks, blocks_read)
+          are converted using TO_LONG() since ES|QL MAX() does not support counter_long types. For rate calculations, see the time-series charts
+          below which use the TS command with RATE().
         esql:
           type: datatable
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - STATS backends_count = ROUND(MAX(postgresql.backends), 0), size_bytes = MAX(postgresql.db_size), commit_total = MAX(postgresql.commits),
-              rollback_total = MAX(postgresql.rollbacks), blocks_read_total = ROUND(MAX(postgresql.blocks_read), 0) BY database = resource.attributes.postgresql.database.name
+            - STATS backends_count = ROUND(MAX(postgresql.backends), 0), size_bytes = MAX(postgresql.db_size), commit_total = MAX(TO_LONG(postgresql.commits)),
+              rollback_total = MAX(TO_LONG(postgresql.rollbacks)), blocks_read_total = ROUND(MAX(TO_LONG(postgresql.blocks_read)), 0) BY database
+              = resource.attributes.postgresql.database.name
             - KEEP database, backends_count, size_bytes, commit_total, rollback_total, blocks_read_total
             - SORT database ASC
             - LIMIT 100
@@ -302,11 +305,10 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - STATS BY database = resource.attributes.postgresql.database.name, host = resource.attributes.host.name, version = resource.attributes.postgresql.version
-            - KEEP database, host, version
+            - STATS BY database = resource.attributes.postgresql.database.name, host = resource.attributes.host.name
+            - KEEP database, host
             - SORT database ASC
             - LIMIT 100
           dimensions:
             - field: database
             - field: host
-            - field: version
