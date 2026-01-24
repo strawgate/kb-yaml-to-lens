@@ -260,19 +260,9 @@ AWS CloudTrail activity monitoring dashboard using ES|QL for data processing.
 
 **Use this when:** Monitoring AWS API calls and user actions via CloudTrail with OpenTelemetry.
 
-**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_cloudtrail_otel) dashboard. This example demonstrates advanced ES|QL features including calculated fields, nested dimensions, and string manipulation.
+**Note:** Demonstrates advanced ES|QL features including calculated fields, nested dimensions, and string manipulation.
 
-#### CloudTrail Logs Overview
-
-Comprehensive CloudTrail activity visualization with success/failure tracking, service breakdowns, and user analysis.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (aws_cloudtrail_otel/cloudtrail-logs-overview.yaml)"
-
-    ```yaml
-    --8<-- "examples/aws_cloudtrail_otel/cloudtrail-logs-overview.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
+See [aws_cloudtrail_otel/README.md](aws_cloudtrail_otel/README.md) for data requirements, ES|QL features demonstrated, and panel details.
 
 ### Docker OpenTelemetry Dashboards
 
@@ -308,158 +298,24 @@ Detailed single-container performance analysis and resource utilization.
 
 ### Elasticsearch OpenTelemetry Dashboards
 
-Comprehensive Elasticsearch cluster monitoring dashboards using OpenTelemetry's Elasticsearch receiver. Includes a complete OpenTelemetry Collector configuration and detailed setup guide.
+Comprehensive Elasticsearch cluster monitoring dashboards using OpenTelemetry's Elasticsearch receiver.
 
 **Use this when:** Monitoring Elasticsearch clusters with OpenTelemetry Elasticsearch Receiver.
 
-**Includes:** 7 dashboards covering cluster health, node metrics, JVM monitoring, index statistics, and circuit breakers. See [elasticsearch_otel/README.md](elasticsearch_otel/README.md) for complete setup instructions and OpenTelemetry Collector configuration.
+**Includes:** 7 dashboards covering cluster health, node metrics, JVM monitoring, index statistics, and circuit breakers.
 
-#### Cluster Overview
+See [elasticsearch_otel/README.md](elasticsearch_otel/README.md) for complete setup instructions, OpenTelemetry Collector configuration, dashboard descriptions, and metrics reference.
 
-High-level cluster health, node counts, shard distribution, and pending tasks.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/01-cluster-overview.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/01-cluster-overview.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Node Overview
-
-Node-level summary with CPU, memory, disk, and operations.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/02-node-overview.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/02-node-overview.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Node Metrics
-
-Detailed node performance metrics including cache and thread pools.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/03-node-metrics.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/03-node-metrics.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Index Metrics
-
-Index-level statistics, shard sizes, segments, and operations.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/04-index-metrics.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/04-index-metrics.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### JVM Health
-
-JVM memory (heap/non-heap), garbage collection, threads, and memory pools.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/05-jvm-health.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/05-jvm-health.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Circuit Breakers
-
-Circuit breaker memory usage, limits, and trip events.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/06-circuit-breakers.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/06-circuit-breakers.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Cluster Metadata
-
-Cluster configuration and metadata exploration using ES|QL.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (elasticsearch_otel/07-cluster-metadata.yaml)"
-
-    ```yaml
-    --8<-- "examples/elasticsearch_otel/07-cluster-metadata.yaml"
 ### Kubernetes Cluster OpenTelemetry Dashboards
 
 Comprehensive Kubernetes cluster monitoring dashboards using the OpenTelemetry k8sclusterreceiver.
 
 **Use this when:** Monitoring Kubernetes clusters with OpenTelemetry Collector's k8sclusterreceiver.
 
-**Note:** See the [README](k8s_cluster_otel/README.md) for RBAC configuration, OpenTelemetry Collector setup, and deployment instructions.
+**Includes:** 5 dashboards covering cluster health, workload status, resource allocation, batch jobs, and autoscaling.
 
-#### Cluster Overview
+See [k8s_cluster_otel/README.md](k8s_cluster_otel/README.md) for RBAC configuration, OpenTelemetry Collector setup, deployment instructions, and metrics reference.
 
-Entry point for cluster health triage - pods, workloads, and deployment health.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (k8s_cluster_otel/01-cluster-overview.yaml)"
-
-    ```yaml
-    --8<-- "examples/k8s_cluster_otel/01-cluster-overview.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Workload Health
-
-Deployment, StatefulSet, DaemonSet, and container health monitoring.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (k8s_cluster_otel/02-workload-health.yaml)"
-
-    ```yaml
-    --8<-- "examples/k8s_cluster_otel/02-workload-health.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Resource Allocation
-
-CPU, memory, and storage requests vs limits for capacity planning.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (k8s_cluster_otel/03-resource-allocation.yaml)"
-
-    ```yaml
-    --8<-- "examples/k8s_cluster_otel/03-resource-allocation.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Batch Jobs
-
-Job and CronJob execution status and completion tracking.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (k8s_cluster_otel/04-batch-jobs.yaml)"
-
-    ```yaml
-    --8<-- "examples/k8s_cluster_otel/04-batch-jobs.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
-
-#### Autoscaling
-
-Horizontal Pod Autoscaler scaling behavior and capacity tracking.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (k8s_cluster_otel/05-autoscaling.yaml)"
-
-    ```yaml
-    --8<-- "examples/k8s_cluster_otel/05-autoscaling.yaml"
 ### Apache HTTP Server OpenTelemetry Dashboard
 
 Apache HTTP Server monitoring dashboard using OpenTelemetry metrics.
@@ -486,21 +342,9 @@ AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnect
 
 **Use this when:** Monitoring AWS VPC network traffic with OpenTelemetry AWS VPC Flow Logs receiver.
 
-**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboards. Demonstrates ES|QL queries with area charts, bar charts, datatables, and dashboard links. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
+**Includes:** 3 interconnected dashboards covering VPC flow overview, traffic analysis, and interface analysis.
 
-Includes 3 interconnected dashboards with navigation links:
-
-- **VPC Flow Logs Overview** (`aws_vpcflow_otel-overview`) - High-level KPIs, quick insights, and time-series trends
-- **Traffic Analysis** (`aws_vpcflow_otel-traffic`) - Traffic distribution, source analysis, security deep dive, and top sources/destinations
-- **Interface Analysis** (`aws_vpcflow_otel-interface`) - Per-interface analysis, bandwidth by interface, and per-account metrics
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"
-
-    ```yaml
-    --8<-- "examples/aws_vpcflow_otel/dashboards.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
+See [aws_vpcflow_otel/README.md](aws_vpcflow_otel/README.md) for data requirements, usage instructions, and dashboard details.
 
 ### Redis OpenTelemetry Dashboards
 
@@ -937,31 +781,22 @@ These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md)
     ```
 <!-- markdownlint-enable MD046 -->
 
-### Apache HTTP Server OpenTelemetry Dashboard
+### Apache HTTP Server Metrics Dashboard
 
-Apache HTTP Server monitoring dashboard for OpenTelemetry metrics.
+Apache HTTP Server monitoring dashboard for OpenTelemetry metrics (server status, scoreboard, performance).
 
 **Use this when:** Monitoring Apache HTTP Server with OpenTelemetry Apache Receiver.
 
-#### Overview
-
-Server status, scoreboard, and performance metrics.
-
-<!-- markdownlint-disable MD046 -->
-??? example "Dashboard Definition (apache_otel/01-overview.yaml)"
-
-    ```yaml
-    --8<-- "examples/apache_otel/01-overview.yaml"
-    ```
-<!-- markdownlint-enable MD046 -->
+See [apache_otel/README.md](apache_otel/README.md) for configuration examples, metrics covered, and setup instructions.
 
 ## Viewing Example Source Code
 
 All example files are located in the `docs/content/examples/` directory of the repository. You can:
 
-1. **View inline:** Expand any "Dashboard Definition" section above to see the complete YAML code
-2. **Clone locally:** Download the repository to experiment with examples
-3. **Compile examples:** Run `kb-dashboard compile --input-dir docs/content/examples --output-dir output` to generate NDJSON files
+1. **View inline:** For simple examples, expand the "Dashboard Definition" section to see the complete YAML code
+2. **View README:** For full examples with their own README, click the link to see complete setup instructions and YAML files
+3. **Clone locally:** Download the repository to experiment with examples
+4. **Compile examples:** Run `kb-dashboard compile --input-dir docs/content/examples --output-dir output` to generate NDJSON files
 
 ## Using Examples as Templates
 
