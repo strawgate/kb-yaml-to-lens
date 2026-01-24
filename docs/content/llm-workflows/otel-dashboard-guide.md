@@ -197,8 +197,8 @@ formula: average(used) / average(total)
 # CORRECT - Add small value to prevent division by zero
 formula: average(used) / (average(total) + 0.000001)
 
-# ALTERNATIVE - Use max() guard
-formula: average(used) / max(total, 1)
+# ALTERNATIVE - Use clamp() to ensure minimum denominator
+formula: average(used) / clamp(average(total), 1, Infinity)
 ```
 
 ### Dimensional Filtering in Lens
