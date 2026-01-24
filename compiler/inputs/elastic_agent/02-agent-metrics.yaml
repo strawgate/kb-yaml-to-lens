@@ -22,20 +22,25 @@ dashboards:
             - {label: Integrations, dashboard: elastic_agent-1a4e7280-6b5e-11ed-98de-67bdecd21824}
             - {label: Input Metrics, dashboard: elastic_agent-a8192f90-cd3f-11ed-869d-e7dc1b551cd2}
       - grid: {x: 8, y: 0, w: 40, h: 2}
-        markdown: {content: This dashboard is designed to be viewed only after filtering to a specific Agent.}
+        markdown: {content: This dashboard is designed to be viewed only after filtering
+            to a specific Agent.}
       - grid: {x: 8, y: 2, w: 40, h: 4}
         lens:
           type: datatable
           data_view: metrics-*
           dimensions:
-            - {id: dim0, type: values, field: agent.name, size: 5, label: Selected Agent}
+            - {id: dim0, type: values, field: agent.name, size: 5, label: Selected
+                Agent}
           metrics:
-            - {id: metric1, aggregation: last_value, field: elastic_agent.version, label: Version}
+            - {id: metric1, aggregation: last_value, field: elastic_agent.version,
+              label: Version}
             - {id: metric2, aggregation: last_value, field: host.architecture, label: Architecture}
             - {id: metric3, aggregation: last_value, field: host.os.name, label: OS}
-            - {id: metric4, aggregation: last_value, field: host.os.version, label: OS Version}
+            - {id: metric4, aggregation: last_value, field: host.os.version, label: OS
+                Version}
             - {id: metric5, aggregation: last_value, field: host.os.kernel, label: Kernel}
-            - {id: metric6, aggregation: last_value, field: '@timestamp', label: Last Seen}
+            - {id: metric6, aggregation: last_value, field: '@timestamp', label: Last
+                Seen}
       - grid: {x: 8, y: 6, w: 40, h: 3}
         markdown:
           content: '## Agent-level Metrics'
@@ -125,11 +130,15 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 100}
           metrics:
-            - formula: "pick_max(\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.time.ms),0)\n      )/interval(),\n\
-                \    0\n  ),\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.pct),0)),\n    0\n  )\n)"
+            - formula: "pick_max(\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.time.ms),0)\n\
+                \      )/interval(),\n    0\n  ),\n  pick_max(\n    differences(\n\
+                \      defaults(max(system.process.cpu.total.pct),0)),\n    0\n  )\n\
+                )"
               label: ' CPU Usage'
-            - {aggregation: max, field: system.process.cpu.total.time.ms, label: Part of  CPU Usage}
-            - {aggregation: max, field: system.process.cpu.total.pct, label: Part of  CPU Usage}
+            - {aggregation: max, field: system.process.cpu.total.time.ms, label: Part
+                of  CPU Usage}
+            - {aggregation: max, field: system.process.cpu.total.pct, label: Part
+                of  CPU Usage}
       - grid: {x: 30, y: 12, w: 18, h: 10}
         lens:
           type: line
@@ -140,8 +149,10 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 15}
           metrics:
-            - {formula: 'pick_max(counter_rate(max(beat.stats.cgroup.cpu.stats.throttled.ns))/1000000000,0)', label: Throttle %}
-            - {aggregation: max, field: beat.stats.cgroup.cpu.stats.throttled.ns, label: Part of Throttle %}
+            - {formula: 'pick_max(counter_rate(max(beat.stats.cgroup.cpu.stats.throttled.ns))/1000000000,0)',
+              label: Throttle %}
+            - {aggregation: max, field: beat.stats.cgroup.cpu.stats.throttled.ns,
+              label: Part of Throttle %}
       - grid: {x: 8, y: 22, w: 22, h: 10}
         lens:
           type: area
@@ -151,7 +162,8 @@ dashboards:
             type: date_histogram
             minimum_interval: m
           metrics:
-            - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes, label: cgroup limit}
+            - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes,
+              label: cgroup limit}
       - grid: {x: 30, y: 22, w: 18, h: 10}
         lens:
           type: line
@@ -162,7 +174,8 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 15}
           metrics:
-            - {aggregation: max, field: system.process.cgroup.memory.mem.usage.bytes, label: cgroup memory usage}
+            - {aggregation: max, field: system.process.cgroup.memory.mem.usage.bytes,
+              label: cgroup memory usage}
       - grid: {x: 8, y: 32, w: 21, h: 10}
         title: '[Elastic Agent] Acknowledged Events /s'
         lens:
@@ -174,13 +187,18 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 15}
           metrics:
-            - {formula: "counter_rate(max(beat.stats.libbeat.output.events.acked), kql='')", label: Success}
+            - {formula: "counter_rate(max(beat.stats.libbeat.output.events.acked),\
+                \ kql='')", label: Success}
             - {formula: abs(counter_rate(max(beat.stats.libbeat.output.events.total))-counter_rate(max(beat.stats.libbeat.output.events.acked))-counter_rate(max(beat.stats.libbeat.output.events.active))),
               label: Failed}
-            - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part of Success}
-            - {aggregation: max, field: beat.stats.libbeat.output.events.total, label: Part of Failed}
-            - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part of Failed}
-            - {aggregation: max, field: beat.stats.libbeat.output.events.active, label: Part of Failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part
+                of Success}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.total, label: Part
+                of Failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part
+                of Failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.active, label: Part
+                of Failed}
       - grid: {x: 29, y: 32, w: 19, h: 10}
         title: '[Elastic Agent] Dropped Events Rate /s'
         lens:
@@ -192,11 +210,13 @@ dashboards:
             minimum_interval: m
           breakdown: {field: beat.stats.libbeat.output.type, type: values, size: 5}
           metrics:
-            - {formula: counter_rate(max(beat.stats.libbeat.output.events.dropped)), label: Dropped}
+            - {formula: counter_rate(max(beat.stats.libbeat.output.events.dropped)),
+              label: Dropped}
             - {aggregation: max, field: beat.stats.libbeat.output.events.duplicates}
             - {aggregation: max, field: beat.stats.libbeat.output.events.failed}
             - {aggregation: max, field: beat.stats.libbeat.output.events.toomany}
-            - {aggregation: max, field: beat.stats.libbeat.output.events.dropped, label: Part of Dropped}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.dropped,
+              label: Part of Dropped}
       - grid: {x: 0, y: 42, w: 48, h: 4}
         markdown:
           content: '## Component-Level Metrics'
@@ -210,11 +230,15 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 10}
           metrics:
-            - formula: "pick_max(\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.time.ms),0)\n      )/interval(),\n\
-                \    0\n  ),\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.pct),0)),\n    0\n  )\n)"
+            - formula: "pick_max(\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.time.ms),0)\n\
+                \      )/interval(),\n    0\n  ),\n  pick_max(\n    differences(\n\
+                \      defaults(max(system.process.cpu.total.pct),0)),\n    0\n  )\n\
+                )"
               label: CPU Usage
-            - {aggregation: max, field: system.process.cpu.total.time.ms, label: Part of CPU Usage}
-            - {aggregation: max, field: system.process.cpu.total.pct, label: Part of CPU Usage}
+            - {aggregation: max, field: system.process.cpu.total.time.ms, label: Part
+                of CPU Usage}
+            - {aggregation: max, field: system.process.cpu.total.pct, label: Part
+                of CPU Usage}
       - grid: {x: 24, y: 46, w: 24, h: 12}
         lens:
           type: area
@@ -225,7 +249,8 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 10}
           metrics:
-            - formula: "defaults(\n   max(system.process.memory.rss.bytes),\n   max(system.process.memory.size)\n)"
+            - formula: "defaults(\n   max(system.process.memory.rss.bytes),\n   max(system.process.memory.size)\n\
+                )"
               label: ' '
             - aggregation: max
               field: system.process.memory.rss.bytes
@@ -262,8 +287,10 @@ dashboards:
               field: system.process.fd.open
               label: Open Handles (Max)
               format: {type: number, decimals: 0}
-            - {id: metric3, aggregation: last_value, field: system.process.fd.limit.soft, label: Handle Limit (Soft)}
-            - {id: metric4, aggregation: last_value, field: system.process.fd.limit.hard, label: Handle Limit (Hard)}
+            - {id: metric3, aggregation: last_value, field: system.process.fd.limit.soft,
+              label: Handle Limit (Soft)}
+            - {id: metric4, aggregation: last_value, field: system.process.fd.limit.hard,
+              label: Handle Limit (Hard)}
       - grid: {x: 0, y: 67, w: 24, h: 9}
         lens:
           type: line
@@ -418,7 +445,8 @@ dashboards:
           type: area
           data_view: metrics-*
           metrics:
-            - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes, label: Container Limit}
+            - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes,
+              label: Container Limit}
       - grid: {x: 0, y: 132, w: 24, h: 9}
         lens:
           type: line
@@ -429,5 +457,7 @@ dashboards:
             minimum_interval: m
           breakdown: {field: component.id, type: values, size: 15}
           metrics:
-            - {formula: counter_rate(max(beat.stats.cgroup.cpu.stats.throttled.ns))/1000000000, label: Throttle %}
-            - {aggregation: max, field: beat.stats.cgroup.cpu.stats.throttled.ns, label: Part of Throttle %}
+            - {formula: counter_rate(max(beat.stats.cgroup.cpu.stats.throttled.ns))/1000000000,
+              label: Throttle %}
+            - {aggregation: max, field: beat.stats.cgroup.cpu.stats.throttled.ns,
+              label: Part of Throttle %}

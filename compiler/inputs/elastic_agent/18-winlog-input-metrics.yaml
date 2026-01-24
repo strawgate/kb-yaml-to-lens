@@ -65,13 +65,15 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.source_lag_time.histogram.max, label: Part of Current Time Lag}
+          primary: {aggregation: last_value, field: filebeat_input.source_lag_time.histogram.max,
+            label: Part of Current Time Lag}
       - title: '[Elastic Agent] Winlog Unique Channels'
         grid: {x: 40, y: 0, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: unique_count, field: filebeat_input.provider, label: Unique Windows Channels}
+          primary: {aggregation: unique_count, field: filebeat_input.provider, label: Unique
+              Windows Channels}
       - title: '[Elastic Agent] Winlog Events Total'
         grid: {x: 32, y: 0, w: 8, h: 5}
         lens:
@@ -91,10 +93,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: max(filebeat_input.received_events_count.histogram.mean), label: Average Batch Size}
-            - {aggregation: max, field: filebeat_input.received_events_count.histogram.mean, label: Part of Average}
-            - {formula: max(filebeat_input.received_events_count.histogram.p99), label: 99th Percentile Batch Size}
-            - {aggregation: max, field: filebeat_input.received_events_count.histogram.p99, label: Part of 99th Percentile}
+            - {formula: max(filebeat_input.received_events_count.histogram.mean),
+              label: Average Batch Size}
+            - {aggregation: max, field: filebeat_input.received_events_count.histogram.mean,
+              label: Part of Average}
+            - {formula: max(filebeat_input.received_events_count.histogram.p99), label: 99th
+                Percentile Batch Size}
+            - {aggregation: max, field: filebeat_input.received_events_count.histogram.p99,
+              label: Part of 99th Percentile}
             - {aggregation: max, field: filebeat_input.received_events_total}
       - title: '[Elastic Agent] Source Time Difference (In Seconds)'
         grid: {x: 7, y: 20, w: 41, h: 15}
@@ -105,10 +111,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'divide(max(filebeat_input.source_lag_time.histogram.mean), 1000000000)', label: Time Lag Seconds}
-            - {aggregation: max, field: filebeat_input.source_lag_time.histogram.mean, label: Part of Time Lag Seconds}
-            - {formula: 'divide(max(filebeat_input.source_lag_time.histogram.p99), 1000000000)', label: 99th Percentile Time Lag Seconds}
-            - {aggregation: max, field: filebeat_input.source_lag_time.histogram.p99, label: Part of 99th Percentile Time Lag Seconds}
+            - {formula: 'divide(max(filebeat_input.source_lag_time.histogram.mean),
+                1000000000)', label: Time Lag Seconds}
+            - {aggregation: max, field: filebeat_input.source_lag_time.histogram.mean,
+              label: Part of Time Lag Seconds}
+            - {formula: 'divide(max(filebeat_input.source_lag_time.histogram.p99),
+                1000000000)', label: 99th Percentile Time Lag Seconds}
+            - {aggregation: max, field: filebeat_input.source_lag_time.histogram.p99,
+              label: Part of 99th Percentile Time Lag Seconds}
       - title: '[Elastic Agent] Time Between Event Log Collections in Seconds'
         grid: {x: 7, y: 35, w: 41, h: 15}
         lens:
@@ -118,10 +128,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'divide(max(filebeat_input.batch_read_period.histogram.mean), 1000000000)', label: Average}
-            - {formula: 'divide(max(filebeat_input.batch_read_period.histogram.p999), 1000000000)', label: 99th Percentile}
-            - {aggregation: max, field: filebeat_input.batch_read_period.histogram.mean, label: Part of Average}
-            - {aggregation: max, field: filebeat_input.batch_read_period.histogram.p999, label: Part of 99th Percentile}
+            - {formula: 'divide(max(filebeat_input.batch_read_period.histogram.mean),
+                1000000000)', label: Average}
+            - {formula: 'divide(max(filebeat_input.batch_read_period.histogram.p999),
+                1000000000)', label: 99th Percentile}
+            - {aggregation: max, field: filebeat_input.batch_read_period.histogram.mean,
+              label: Part of Average}
+            - {aggregation: max, field: filebeat_input.batch_read_period.histogram.p999,
+              label: Part of 99th Percentile}
       - title: '[Elastic Agent] Log Collection Errors'
         grid: {x: 7, y: 50, w: 41, h: 15}
         lens:
@@ -132,5 +146,6 @@ dashboards:
             type: date_histogram
           metrics:
             - {formula: differences(max(filebeat_input.errors_total)), label: Errors}
-            - {aggregation: max, field: filebeat_input.errors_total, label: Part of Errors}
+            - {aggregation: max, field: filebeat_input.errors_total, label: Part of
+                Errors}
             - {aggregation: max, field: filebeat_input.discarded_events_total}

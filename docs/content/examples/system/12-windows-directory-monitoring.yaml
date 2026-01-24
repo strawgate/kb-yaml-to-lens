@@ -129,15 +129,7 @@ dashboards:
               label: Events
           filters:
             - field: winlog.event_id
-              in:
-                - '4742'
-                - '4743'
-                - '4768'
-                - '4769'
-                - '4770'
-                - '4771'
-                - '4772'
-                - '4776'
+              in: ['4742', '4743', '4768', '4769', '4770', '4771', '4772', '4776']
       - title: Events by Source
         size: {w: 24, h: 15}
         lens:

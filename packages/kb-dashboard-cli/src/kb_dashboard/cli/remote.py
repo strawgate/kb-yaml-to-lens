@@ -12,6 +12,7 @@ from elastic_transport import TransportError
 from elasticsearch import AsyncElasticsearch
 
 from kb_dashboard.cli.context import CliContext
+from kb_dashboard.cli.kibana_client import KibanaClient
 
 # Import helper from cli_local for shared functionality
 from kb_dashboard.cli.local import PROJECT_ROOT, get_yaml_files
@@ -27,10 +28,9 @@ from kb_dashboard.cli.output import (
     print_success,
     print_warning,
 )
-from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.compiler import load
-from kb_dashboard.cli.kibana_client import KibanaClient
 from kb_dashboard.cli.sample_data.loader import load_sample_data
+from kb_dashboard.core.compiler import load
+from kb_dashboard.core.dashboard.config import Dashboard
 from kb_dashboard.core.utils import extract_dashboard_id_from_url
 
 # Constants

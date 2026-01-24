@@ -2,8 +2,9 @@
 dashboards:
   - id: crowdstrike-modern-soc-7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
     name: '[CrowdStrike Modern] Security Operations Center'
-    description: Workflow-centric SOC dashboard providing real-time security event monitoring, alert triage, and incident response coordination
-      across all CrowdStrike data streams.
+    description: Workflow-centric SOC dashboard providing real-time security event
+      monitoring, alert triage, and incident response coordination across all CrowdStrike
+      data streams.
     filters:
       - or:
           - field: data_stream.dataset
@@ -51,7 +52,8 @@ dashboards:
 
       # Summary Layer - Key Metrics
       - title: Total Security Events
-        description: Total security events across all data streams in selected time range
+        description: Total security events across all data streams in selected time
+          range
         size:
           w: 12
           h: 8
@@ -104,7 +106,8 @@ dashboards:
 
       # Analysis Layer - Security Events Over Time
       - title: Security Events Over Time
-        description: Time series view of security events showing volume trends and patterns
+        description: Time series view of security events showing volume trends and
+          patterns
         size:
           w: 48
           h: 15

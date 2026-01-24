@@ -2,7 +2,8 @@
 dashboards:
   - id: crowdstrike-ad80a080-821b-11ee-bae0-937af575b750
     name: '[CrowdStrike] Falcon Overview'
-    description: Statistics about the different Incidents and events collected from CrowdStrike Falcon.
+    description: Statistics about the different Incidents and events collected from
+      CrowdStrike Falcon.
     filters:
       - field: data_stream.dataset
         equals: crowdstrike.falcon

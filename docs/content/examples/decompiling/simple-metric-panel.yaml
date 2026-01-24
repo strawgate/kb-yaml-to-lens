@@ -11,6 +11,4 @@ dashboards:
           primary:
             field: doc_count
             id: metric_doc_count
-          query:
-            - FROM logs-*
-            - STATS doc_count = COUNT(*)
+          query: [FROM logs-*, STATS doc_count = COUNT(*)]

@@ -281,8 +281,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "redisreceiver.otel"
             - WHERE attributes.db IS NOT NULL
-            - STATS keys = MAX(LAST_OVER_TIME(redis.db.keys)), expires = MAX(LAST_OVER_TIME(redis.db.expires)), avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
-              BY db = attributes.db
+            - STATS keys = MAX(LAST_OVER_TIME(redis.db.keys)), expires = MAX(LAST_OVER_TIME(redis.db.expires)),
+              avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl)) BY db = attributes.db
             - EVAL expire_pct = expires / (keys + 0.000001)
             - KEEP db, keys, expires, expire_pct, avg_ttl
             - SORT keys DESC

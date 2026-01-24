@@ -24,10 +24,7 @@ dashboards:
                 color: '#00BF6F'  # Green for idle
               - value: user
                 color: '#0077CC'  # Blue for user
-              - values:
-                  - system
-                  - nice
-                  - iowait
+              - values: [system, nice, iowait]
                 color: '#FFA500'  # Orange for system processes
 
       # Example 2: Line chart with OS-specific colors
@@ -139,17 +136,11 @@ dashboards:
           color:
             palette: eui_amsterdam_color_blind
             assignments:
-              - values:
-                  - linux
-                  - darwin
+              - values: [linux, darwin]
                 color: '#00BF6F'  # Green for Unix-like
-              - values:
-                  - windows
+              - values: [windows]
                 color: '#0077CC'  # Blue for Windows
-              - values:
-                  - solaris
-                  - aix
-                  - hpux
+              - values: [solaris, aix, hpux]
                 color: '#FFA500'  # Orange for other Unix
 
       # Example 7: Legacy Kibana palette

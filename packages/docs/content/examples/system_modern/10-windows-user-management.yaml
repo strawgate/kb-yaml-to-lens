@@ -9,21 +9,14 @@ dashboards:
   - id: system-modern-windows-user-management
     name: '[Logs System] Windows User Management'
     description: >-
-      Windows user account management events including creation, modification, and deletion.
+      Windows user account management events including creation, modification, and
+      deletion.
       Monitor privileged user management activities.
     filters:
       - field: event.module
         equals: system
       - field: winlog.event_id
-        in:
-          - '4720'
-          - '4722'
-          - '4723'
-          - '4724'
-          - '4725'
-          - '4726'
-          - '4738'
-          - '4781'
+        in: ['4720', '4722', '4723', '4724', '4725', '4726', '4738', '4781']
     controls:
       - type: options
         label: Hostname

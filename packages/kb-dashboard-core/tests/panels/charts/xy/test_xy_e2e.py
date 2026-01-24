@@ -8,11 +8,11 @@ Fixture Examples:
 
 from pathlib import Path
 
+from conftest import de_json_kbn_dashboard
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
-from kb_dashboard.core.dashboard_compiler import load, render
-from tests.conftest import de_json_kbn_dashboard
+from kb_dashboard.core.compiler import load, render
 
 
 def test_esql_line_chart_e2e(tmp_path: Path) -> None:

@@ -7,12 +7,7 @@ dashboards:
       - field: event.module
         equals: system
       - field: winlog.event_id
-        in:
-          - '4624'
-          - '4625'
-          - '4634'
-          - '4647'
-          - '4648'
+        in: ['4624', '4625', '4634', '4647', '4648']
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
@@ -61,9 +56,7 @@ dashboards:
             label: Attempts
           filters:
             - field: winlog.event_id
-              in:
-                - '4624'
-                - '4625'
+              in: ['4624', '4625']
       - title: Successful Logons
         size: {w: 12, h: 8}
         lens:
@@ -98,9 +91,7 @@ dashboards:
             label: Logoffs
           filters:
             - field: winlog.event_id
-              in:
-                - '4634'
-                - '4647'
+              in: ['4634', '4647']
       - title: Logon Types
         size: {w: 24, h: 15}
         lens:

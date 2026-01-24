@@ -10,7 +10,8 @@
 dashboards:
   - id: mysql-otel-extended-esql
     name: '[Metrics MySQL] Extended'
-    description: Extended MySQL metrics dashboard for optional metrics (connection, query, replication, table metrics)
+    description: Extended MySQL metrics dashboard for optional metrics (connection,
+      query, replication, table metrics)
     controls:
       - type: options
         label: MySQL Host

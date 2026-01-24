@@ -152,10 +152,7 @@ dashboards:
             - aggregation: count
           filters:
             - field: winlog.event_id
-              in:
-                - '4657'
-                - '4663'
-                - '4670'
+              in: ['4657', '4663', '4670']
       - title: Recent Policy & Object Events
         size: {w: 24, h: 15}
         lens:

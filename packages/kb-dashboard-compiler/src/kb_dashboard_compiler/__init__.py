@@ -14,7 +14,7 @@ For new code, prefer importing directly from the specific packages:
 from kb_dashboard.core import dump, load, render
 
 __all__ = [
-    'dump',
-    'load',
-    'render',
+    "dump",
+    "load",
+    "render",
 ]

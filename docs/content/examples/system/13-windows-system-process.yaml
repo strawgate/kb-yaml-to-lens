@@ -131,9 +131,7 @@ dashboards:
               label: Events
           filters:
             - field: winlog.event_id
-              in:
-                - '4688'
-                - '4689'
+              in: ['4688', '4689']
       - title: Process Activity by User
         size: {w: 24, h: 15}
         lens:

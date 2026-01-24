@@ -7,7 +7,8 @@
 dashboards:
   - id: memcached-otel-overview
     name: '[Metrics Memcached] Overview'
-    description: Memcached monitoring dashboard for OpenTelemetry memcachedreceiver using ES|QL
+    description: Memcached monitoring dashboard for OpenTelemetry memcachedreceiver
+      using ES|QL
     controls:
       - type: options
         label: Host Name

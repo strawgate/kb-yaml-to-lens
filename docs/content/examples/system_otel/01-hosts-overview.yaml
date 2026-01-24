@@ -12,7 +12,8 @@
 dashboards:
   - id: otel-hosts-overview
     name: '[OTel System] Hosts Overview'
-    description: Overview of all OpenTelemetry-monitored hosts with key performance metrics
+    description: Overview of all OpenTelemetry-monitored hosts with key performance
+      metrics
     filters:
       - exists: resource.attributes.host.name
       - field: data_stream.dataset
@@ -76,7 +77,8 @@ dashboards:
           data_view: metrics-*
           primary:
             formula: >-
-              1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+              1 - (average(metrics.system.cpu.utilization, kql='attributes.state:
+              idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
               wait'))
             label: Avg CPU
             format:
@@ -88,7 +90,8 @@ dashboards:
           type: metric
           data_view: metrics-*
           primary:
-            formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+            formula: "average(metrics.system.memory.utilization, kql='attributes.state\
+              \ : \"used\"')"
             label: Avg Memory
             format:
               type: percent
@@ -114,7 +117,8 @@ dashboards:
             size: 10
           metrics:
             - formula: >-
-                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state:
+                idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
                 wait'))
               label: CPU Utilization
               format:
@@ -132,7 +136,8 @@ dashboards:
             field: resource.attributes.host.name
             size: 10
           metrics:
-            - formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+            - formula: "average(metrics.system.memory.utilization, kql='attributes.state\
+                \ : \"used\"')"
               label: Memory Utilization
               format:
                 type: percent
@@ -163,13 +168,15 @@ dashboards:
           metrics:
             - id: cpu-util
               formula: >-
-                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state:
+                idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
                 wait'))
               label: CPU %
               format:
                 type: percent
             - id: mem-util
-              formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              formula: "average(metrics.system.memory.utilization, kql='attributes.state\
+                \ : \"used\"')"
               label: Memory %
               format:
                 type: percent

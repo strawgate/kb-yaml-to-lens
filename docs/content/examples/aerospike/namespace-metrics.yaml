@@ -4,7 +4,8 @@
 dashboards:
   - id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
     name: '[Metrics Aerospike] Namespace Metrics'
-    description: Namespace-level storage and query statistics for Aerospike using ES|QL
+    description: Namespace-level storage and query statistics for Aerospike using
+      ES|QL
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -308,8 +309,9 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.namespace IS NOT NULL
-            - STATS memory_usage = AVG(aerospike.namespace.memory.usage), memory_free = AVG(aerospike.namespace.memory.free), disk_available =
-              AVG(aerospike.namespace.disk.available) BY namespace = aerospike.namespace, node = aerospike.node.name
+            - STATS memory_usage = AVG(aerospike.namespace.memory.usage), memory_free
+              = AVG(aerospike.namespace.memory.free), disk_available = AVG(aerospike.namespace.disk.available)
+              BY namespace = aerospike.namespace, node = aerospike.node.name
             - KEEP namespace, node, memory_usage, memory_free, disk_available
             - SORT namespace ASC, node ASC
             - LIMIT 100

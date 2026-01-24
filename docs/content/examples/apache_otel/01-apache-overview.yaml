@@ -117,7 +117,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.requests IS NOT NULL
-            - STATS requests_rate = SUM(RATE(apache.requests)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS requests_rate = SUM(RATE(apache.requests)) BY time_bucket = BUCKET(@timestamp,
+              20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -139,7 +140,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.traffic IS NOT NULL
-            - STATS traffic_rate = SUM(RATE(apache.traffic)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS traffic_rate = SUM(RATE(apache.traffic)) BY time_bucket = BUCKET(@timestamp,
+              20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -162,7 +164,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.cpu.time IS NOT NULL
-            - STATS cpu_time_rate = SUM(RATE(apache.cpu.time)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS cpu_time_rate = SUM(RATE(apache.cpu.time)) BY time_bucket = BUCKET(@timestamp,
+              20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -185,7 +188,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.request.time IS NOT NULL
-            - STATS request_time_rate = SUM(RATE(apache.request.time)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS request_time_rate = SUM(RATE(apache.request.time)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -210,8 +214,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE `apache.load.1` IS NOT NULL
-            - STATS load_1m = AVG(AVG_OVER_TIME(`apache.load.1`)), load_5m = AVG(AVG_OVER_TIME(`apache.load.5`)), load_15m = AVG(AVG_OVER_TIME(`apache.load.15`))
-              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS load_1m = AVG(AVG_OVER_TIME(`apache.load.1`)), load_5m = AVG(AVG_OVER_TIME(`apache.load.5`)),
+              load_15m = AVG(AVG_OVER_TIME(`apache.load.15`)) BY time_bucket = BUCKET(@timestamp,
+              20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -241,7 +246,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.current_connections IS NOT NULL
-            - STATS connections = AVG(AVG_OVER_TIME(apache.current_connections)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS connections = AVG(AVG_OVER_TIME(apache.current_connections)) BY
+              time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -264,7 +270,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.cpu.load IS NOT NULL
-            - STATS cpu_load = AVG(AVG_OVER_TIME(apache.cpu.load)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
+            - STATS cpu_load = AVG(AVG_OVER_TIME(apache.cpu.load)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), resource.attributes.apache.server.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -289,7 +296,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.connections.async IS NOT NULL
-            - STATS connections = AVG(AVG_OVER_TIME(apache.connections.async)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), attributes.connection_state
+            - STATS connections = AVG(AVG_OVER_TIME(apache.connections.async)) BY
+              time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), attributes.connection_state
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -336,7 +344,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.scoreboard IS NOT NULL
-            - STATS scoreboard = AVG(AVG_OVER_TIME(apache.scoreboard)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), attributes.state
+            - STATS scoreboard = AVG(AVG_OVER_TIME(apache.scoreboard)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), attributes.state
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -360,7 +369,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE apache.workers IS NOT NULL
-            - STATS workers = AVG(AVG_OVER_TIME(apache.workers)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), attributes.state
+            - STATS workers = AVG(AVG_OVER_TIME(apache.workers)) BY time_bucket =
+              BUCKET(@timestamp, 20, ?_tstart, ?_tend), attributes.state
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -379,15 +389,18 @@ dashboards:
       # Server Performance Summary
       - title: Server Performance Summary
         size: {w: 48, h: 20}
-        description: Shows current state metrics per server. For request and traffic rates, see the time-series charts above.
+        description: Shows current state metrics per server. For request and traffic
+          rates, see the time-series charts above.
         esql:
           type: datatable
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE resource.attributes.apache.server.name IS NOT NULL
-            - STATS connections = ROUND(MAX(apache.current_connections), 0), cpu_load_pct = ROUND(AVG(apache.cpu.load) * 100, 1), load_1m = ROUND(AVG(`apache.load.1`),
-              2), busy_workers = ROUND(MAX(apache.workers), 0) BY server_name = resource.attributes.apache.server.name, server_port = resource.attributes.apache.server.port
+            - STATS connections = ROUND(MAX(apache.current_connections), 0), cpu_load_pct
+              = ROUND(AVG(apache.cpu.load) * 100, 1), load_1m = ROUND(AVG(`apache.load.1`),
+              2), busy_workers = ROUND(MAX(apache.workers), 0) BY server_name = resource.attributes.apache.server.name,
+              server_port = resource.attributes.apache.server.port
             - KEEP server_name, server_port, connections, cpu_load_pct, load_1m, busy_workers
             - SORT server_name ASC
             - LIMIT 100

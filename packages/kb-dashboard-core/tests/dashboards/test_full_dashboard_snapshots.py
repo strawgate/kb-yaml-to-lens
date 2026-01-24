@@ -21,9 +21,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+from conftest import de_json_kbn_dashboard
+
+from kb_dashboard.core.compiler import load, render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import load, render
-from tests.conftest import de_json_kbn_dashboard
 
 # Paths
 _project_root = Path(__file__).parent.parent.parent.parent

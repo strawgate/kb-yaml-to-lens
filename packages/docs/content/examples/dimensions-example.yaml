@@ -12,9 +12,12 @@ dashboards:
           x: 0
           y: 0
         markdown:
-          content: "# Multi-Dimensional Chart Examples\nThis dashboard demonstrates advanced dimension and breakdown configurations:\n- **Single\
-            \ dimension** - Basic time series\n- **Multiple dimensions** - Cross-tabulation\n- **Breakdowns** - Additional grouping layer\n- **Top\
-            \ N with sorting** - Size limits and sort orders\n- **Other bucket** - Handling remaining values\n"
+          content: "# Multi-Dimensional Chart Examples\nThis dashboard demonstrates\
+            \ advanced dimension and breakdown configurations:\n- **Single dimension**\
+            \ - Basic time series\n- **Multiple dimensions** - Cross-tabulation\n\
+            - **Breakdowns** - Additional grouping layer\n- **Top N with sorting**\
+            \ - Size limits and sort orders\n- **Other bucket** - Handling remaining\
+            \ values\n"
           font_size: 12
       - title: Simple Time Series
         description: Single time dimension, no breakdown

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
     import pytest
 
-from kb_dashboard.dashboard_compiler import load
+from kb_dashboard.core.compiler import load
 from kb_dashboard.lsp import grid_updater
 
 

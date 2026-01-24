@@ -44,25 +44,29 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.api_calls_total, label: Total API Calls}
+          primary: {aggregation: last_value, field: filebeat_input.api_calls_total,
+            label: Total API Calls}
         size: {w: 10, h: 6}
       - title: '[Elastic Agent] Cloudwatch Events Received Total'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.log_events_received_total, label: Cloudwatch Events Collected}
+          primary: {aggregation: last_value, field: filebeat_input.log_events_received_total,
+            label: Cloudwatch Events Collected}
         size: {w: 10, h: 6}
       - title: '[Elastic Agent] Elasticsearch Events Created'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.cloudwatch_events_created_total, label: Events Created}
+          primary: {aggregation: last_value, field: filebeat_input.cloudwatch_events_created_total,
+            label: Events Created}
         size: {w: 10, h: 6}
       - title: '[Elastic Agent] Cloudwatch Unique Log Groups Total'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.log_groups_total, label: Unique Log Groups}
+          primary: {aggregation: last_value, field: filebeat_input.log_groups_total,
+            label: Unique Log Groups}
         size: {w: 10, h: 6}
       - title: '[Elastic Agent] API Calls'
         lens:
@@ -72,8 +76,10 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'pick_max(differences(max(filebeat_input.api_calls_total)), 0)', label: API Calls}
-            - {aggregation: max, field: filebeat_input.api_calls_total, label: Part of API Calls}
+            - {formula: 'pick_max(differences(max(filebeat_input.api_calls_total)),
+                0)', label: API Calls}
+            - {aggregation: max, field: filebeat_input.api_calls_total, label: Part
+                of API Calls}
         size: {w: 40, h: 16}
       - title: '[Elastic Agent] Event Collection/Creation'
         lens:
@@ -83,8 +89,12 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'pick_max(differences(max(filebeat_input.cloudwatch_events_created_total)), 0)', label: Events Created}
-            - {aggregation: max, field: filebeat_input.cloudwatch_events_created_total, label: Part of Events Created}
-            - {formula: 'pick_max(differences(max(filebeat_input.log_events_received_total)), 0)', label: Events Collected}
-            - {aggregation: max, field: filebeat_input.log_events_received_total, label: Part of Events Collected}
+            - {formula: 'pick_max(differences(max(filebeat_input.cloudwatch_events_created_total)),
+                0)', label: Events Created}
+            - {aggregation: max, field: filebeat_input.cloudwatch_events_created_total,
+              label: Part of Events Created}
+            - {formula: 'pick_max(differences(max(filebeat_input.log_events_received_total)),
+                0)', label: Events Collected}
+            - {aggregation: max, field: filebeat_input.log_events_received_total,
+              label: Part of Events Collected}
         size: {w: 40, h: 17}

@@ -9,7 +9,8 @@ dashboards:
   - id: system-modern-windows-system-process
     name: '[Logs System] Windows System & Process'
     description: >-
-      Windows system events including process creation, service changes, and scheduled tasks.
+      Windows system events including process creation, service changes, and scheduled
+      tasks.
       Monitor system activity and process execution.
     filters:
       - field: event.module

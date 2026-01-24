@@ -9,8 +9,8 @@ from pydantic import BaseModel, Field, ValidationError
 if TYPE_CHECKING:
     from pydantic_core import ErrorDetails
 
-from kb_dashboard.cli_local import compile_yaml_to_json
-from kb_dashboard.shared.error_formatter import (
+from kb_dashboard.cli.local import compile_yaml_to_json
+from kb_dashboard.core.shared.error_formatter import (
     CUSTOM_MESSAGES,
     format_error_message,
     format_validation_error,

@@ -29,3 +29,13 @@ dev = [
     "pytest-examples>=0.0.18",
     "yamlfix>=1.17.0",
 ]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+testpaths = [
+    "kb-dashboard-core/tests",
+    "kb-dashboard-cli/tests",
+    "kb-dashboard-lsp/tests",
+    "kb-dashboard-tools/tests",
+]

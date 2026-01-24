@@ -12,7 +12,8 @@
 dashboards:
   - id: postgresql-otel-overview-esql
     name: '[Metrics PostgreSQL] Overview'
-    description: Comprehensive PostgreSQL metrics dashboard using OpenTelemetry PostgreSQL receiver
+    description: Comprehensive PostgreSQL metrics dashboard using OpenTelemetry PostgreSQL
+      receiver
     controls:
       - type: options
         label: Database Name
@@ -86,16 +87,20 @@ dashboards:
       # Performance Summary DataTable (y=6)
       - title: Database Performance Summary
         size: {w: 48, h: 18}
-        description: Peak metrics per database over the selected time range. Counter metrics show maximum cumulative values.
+        description: Peak metrics per database over the selected time range. Counter
+          metrics show maximum cumulative values.
         esql:
           type: datatable
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - STATS backends_count = ROUND(MAX(postgresql.backends), 0), size_bytes = MAX(postgresql.db_size), commit_total = MAX(TO_LONG(postgresql.commits)),
-              rollback_total = MAX(TO_LONG(postgresql.rollbacks)), blocks_read_total = MAX(TO_LONG(postgresql.blocks_read)) BY database = resource.attributes.postgresql.database.name
-            - KEEP database, backends_count, size_bytes, commit_total, rollback_total, blocks_read_total
+            - STATS backends_count = ROUND(MAX(postgresql.backends), 0), size_bytes
+              = MAX(postgresql.db_size), commit_total = MAX(TO_LONG(postgresql.commits)),
+              rollback_total = MAX(TO_LONG(postgresql.rollbacks)), blocks_read_total
+              = MAX(TO_LONG(postgresql.blocks_read)) BY database = resource.attributes.postgresql.database.name
+            - KEEP database, backends_count, size_bytes, commit_total, rollback_total,
+              blocks_read_total
             - SORT database ASC
             - LIMIT 100
           dimensions:
@@ -115,8 +120,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.backends IS NOT NULL
-            - STATS connections = MAX(AVG_OVER_TIME(postgresql.backends)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database
-              = resource.attributes.postgresql.database.name
+            - STATS connections = MAX(AVG_OVER_TIME(postgresql.backends)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -139,7 +144,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.commits IS NOT NULL
-            - STATS commits_rate = SUM(RATE(postgresql.commits)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
+            - STATS commits_rate = SUM(RATE(postgresql.commits)) BY time_bucket =
+              BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -163,7 +169,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.rollbacks IS NOT NULL
-            - STATS rollbacks_rate = SUM(RATE(postgresql.rollbacks)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
+            - STATS rollbacks_rate = SUM(RATE(postgresql.rollbacks)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), database = resource.attributes.postgresql.database.name
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -188,7 +195,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.blocks_read IS NOT NULL
-            - STATS blocks_rate = SUM(RATE(postgresql.blocks_read)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), source = attributes.source
+            - STATS blocks_rate = SUM(RATE(postgresql.blocks_read)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), source = attributes.source
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -211,8 +219,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.operations IS NOT NULL
-            - STATS operations_rate = SUM(RATE(postgresql.operations)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation =
-              attributes.operation
+            - STATS operations_rate = SUM(RATE(postgresql.operations)) BY time_bucket
+              = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation = attributes.operation
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -280,7 +288,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - STATS BY database = resource.attributes.postgresql.database.name, instance = resource.attributes.service.instance.id
+            - STATS BY database = resource.attributes.postgresql.database.name, instance
+              = resource.attributes.service.instance.id
             - KEEP database, instance
             - SORT database ASC
             - LIMIT 100

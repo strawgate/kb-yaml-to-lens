@@ -52,7 +52,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: average(jvm.memory.heap.used) / (average(jvm.memory.heap.max) + 0.000001)
+            - formula: average(jvm.memory.heap.used) / (average(jvm.memory.heap.max)
+                + 0.000001)
               label: Heap Usage %
               format:
                 type: percent

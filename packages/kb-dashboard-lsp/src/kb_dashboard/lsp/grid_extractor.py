@@ -12,8 +12,8 @@ import sys
 from typing import Any
 
 from kb_dashboard.core.compiler import load
-from kb_dashboard.lsp.utils import get_panel_type
 from kb_dashboard.core.panels.compile import compute_panel_positions
+from kb_dashboard.lsp.utils import get_panel_type
 
 
 def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, Any]:

@@ -1,7 +1,8 @@
 ---
 dashboards:
   - name: '[Example] Multi-Panel Showcase'
-    description: Comprehensive example demonstrating all available panel types and chart variations
+    description: Comprehensive example demonstrating all available panel types and
+      chart variations
     panels:
       - title: Multi-Panel Dashboard Showcase
         hide_title: false
@@ -13,10 +14,13 @@ dashboards:
           x: 0
           y: 0
         markdown:
-          content: "# Welcome to the Multi-Panel Showcase\nThis dashboard demonstrates all supported panel types in the kb-yaml-to-lens compiler:\n\
-            - **Markdown panels** - Rich text content with formatting\n- **Links panels** - Navigation to dashboards and external URLs\n- **Chart\
-            \ panels** - Multiple visualization types (Metric, Pie, Line, Bar, Area, Tagcloud)\n_Note: Image panels are defined in the schema\
-            \ but compilation is not yet implemented._\nUse this as a reference for building your own dashboards!\n"
+          content: "# Welcome to the Multi-Panel Showcase\nThis dashboard demonstrates\
+            \ all supported panel types in the kb-yaml-to-lens compiler:\n- **Markdown\
+            \ panels** - Rich text content with formatting\n- **Links panels** - Navigation\
+            \ to dashboards and external URLs\n- **Chart panels** - Multiple visualization\
+            \ types (Metric, Pie, Line, Bar, Area, Tagcloud)\n_Note: Image panels\
+            \ are defined in the schema but compilation is not yet implemented._\n\
+            Use this as a reference for building your own dashboards!\n"
           font_size: 12
           links_in_new_tab: true
       - title: Quick Links

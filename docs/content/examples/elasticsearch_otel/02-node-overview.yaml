@@ -114,8 +114,9 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "average(elasticsearch.os.memory, kql='memory_state: used') / (average(elasticsearch.os.memory, kql='memory_state: used')\
-                \ + average(elasticsearch.os.memory, kql='memory_state: free') + 0.000001)"
+            - formula: "average(elasticsearch.os.memory, kql='memory_state: used')\
+                \ / (average(elasticsearch.os.memory, kql='memory_state: used') +\
+                \ average(elasticsearch.os.memory, kql='memory_state: free') + 0.000001)"
               label: Memory %
               format:
                 type: percent
@@ -148,7 +149,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: 1 - (average(elasticsearch.node.fs.disk.available) / (average(elasticsearch.node.fs.disk.total) + 0.000001))
+            - formula: 1 - (average(elasticsearch.node.fs.disk.available) / (average(elasticsearch.node.fs.disk.total)
+                + 0.000001))
               label: Disk Usage %
               format:
                 type: percent
@@ -169,10 +171,12 @@ dashboards:
               size: 50
           metrics:
             - id: field_data_evictions
-              formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name: fielddata')"
+              formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name:\
+                \ fielddata')"
               label: Field Data
             - id: query_cache_evictions
-              formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name: query')"
+              formula: "counter_rate(max(elasticsearch.node.cache.evictions), kql='cache_name:\
+                \ query')"
               label: Query Cache
       - title: Cache Memory Usage
         size: {w: 24, h: 8}
@@ -187,12 +191,14 @@ dashboards:
               size: 50
           metrics:
             - id: field_data_size
-              formula: "average(elasticsearch.node.cache.memory.usage, kql='cache_name: fielddata')"
+              formula: "average(elasticsearch.node.cache.memory.usage, kql='cache_name:\
+                \ fielddata')"
               label: Field Data
               format:
                 type: bytes
             - id: query_cache_size
-              formula: "average(elasticsearch.node.cache.memory.usage, kql='cache_name: query')"
+              formula: "average(elasticsearch.node.cache.memory.usage, kql='cache_name:\
+                \ query')"
               label: Query Cache
               format:
                 type: bytes

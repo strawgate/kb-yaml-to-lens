@@ -15,14 +15,7 @@ dashboards:
       - field: event.module
         equals: system
       - field: winlog.event_id
-        in:
-          - '4662'
-          - '4661'
-          - '5136'
-          - '5137'
-          - '5138'
-          - '5139'
-          - '5141'
+        in: ['4662', '4661', '5136', '5137', '5138', '5139', '5141']
     controls:
       - type: options
         label: Hostname

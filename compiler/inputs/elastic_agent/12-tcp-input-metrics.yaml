@@ -45,25 +45,29 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average Processing Time}
+          primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean,
+            label: Part of Average Processing Time}
       - title: '[Elastic Agent] TCP Queue Length'
         grid: {x: 17, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.receive_queue_length, label: Part of Queue Length}
+          primary: {aggregation: last_value, field: filebeat_input.receive_queue_length,
+            label: Part of Queue Length}
       - title: '[Elastic Agent] TCP Events Created'
         grid: {x: 37, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_events_total, label: Part of Events Created}
+          primary: {aggregation: last_value, field: filebeat_input.received_events_total,
+            label: Part of Events Created}
       - title: '[Elastic Agent] TCP Total Bytes Processed'
         grid: {x: 27, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Total Bytes Processed}
+          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total,
+            label: Part of Total Bytes Processed}
       - title: '[Elastic Agent] TCP Time Between Packets (Milliseconds)'
         grid: {x: 7, y: 6, w: 40, h: 15}
         lens:
@@ -73,10 +77,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.mean), 1000000)', label: Average}
-            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.mean, label: Part of Average}
-            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.p99), 1000000)', label: 99th Percentile}
-            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.p99, label: Part of 99th Percentile}
+            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.mean),
+                1000000)', label: Average}
+            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.mean,
+              label: Part of Average}
+            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.p99),
+                1000000)', label: 99th Percentile}
+            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.p99,
+              label: Part of 99th Percentile}
       - title: '[Elastic Agent] TCP Processing Time (Milliseconds)'
         grid: {x: 7, y: 21, w: 40, h: 15}
         lens:
@@ -86,10 +94,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.mean), 1000000)', label: Average}
-            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average}
-            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.p99), 1000000)', label: 99th Percentile}
-            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.p99, label: Part of 99th Percentile}
+            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.mean),
+                1000000)', label: Average}
+            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean,
+              label: Part of Average}
+            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.p99),
+                1000000)', label: 99th Percentile}
+            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.p99,
+              label: Part of 99th Percentile}
       - title: '[Elastic Agent] TCP Bytes Processed'
         grid: {x: 7, y: 36, w: 40, h: 15}
         lens:
@@ -99,8 +111,10 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'pick_max(differences(max(filebeat_input.received_bytes_total)), 0)', label: Bytes Processed}
-            - {aggregation: max, field: filebeat_input.received_bytes_total, label: Part of Bytes Processed}
+            - {formula: 'pick_max(differences(max(filebeat_input.received_bytes_total)),
+                0)', label: Bytes Processed}
+            - {aggregation: max, field: filebeat_input.received_bytes_total, label: Part
+                of Bytes Processed}
       - title: '[Elastic Agent] TCP Events Created'
         grid: {x: 7, y: 51, w: 40, h: 15}
         lens:
@@ -110,5 +124,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'pick_max(differences(max(filebeat_input.received_events_total)), 0)', label: Events Created}
-            - {aggregation: max, field: filebeat_input.received_events_total, label: Part of Events Created}
+            - {formula: 'pick_max(differences(max(filebeat_input.received_events_total)),
+                0)', label: Events Created}
+            - {aggregation: max, field: filebeat_input.received_events_total, label: Part
+                of Events Created}

@@ -69,7 +69,8 @@ dashboards:
               format:
                 type: bytes
             - id: utilization
-              formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit) + 0.000001)
+              formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit)
+                + 0.000001)
               label: Utilization %
               format:
                 type: percent
@@ -122,7 +123,8 @@ dashboards:
             type: values
             size: 50
           metrics:
-            - formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit) + 0.000001)
+            - formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit)
+                + 0.000001)
               label: Utilization %
               format:
                 type: percent
@@ -168,7 +170,8 @@ dashboards:
             type: values
             size: 50
           metrics:
-            - formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit) + 0.000001)
+            - formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit)
+                + 0.000001)
               label: Utilization %
               format:
                 type: percent
@@ -214,7 +217,8 @@ dashboards:
             type: values
             size: 50
           metrics:
-            - formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit) + 0.000001)
+            - formula: average(elasticsearch.breaker.memory.estimated) / (average(elasticsearch.breaker.memory.limit)
+                + 0.000001)
               label: Utilization %
               format:
                 type: percent

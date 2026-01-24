@@ -5,12 +5,12 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from kb_dashboard.core.sample_data.config import SampleData, TimestampTransform
-from kb_dashboard.core.sample_data.loader import (
+from kb_dashboard.cli.sample_data.loader import (
     SampleDataLoadResult,
     load_sample_data,
     read_documents,
 )
+from kb_dashboard.core.sample_data.config import SampleData, TimestampTransform
 
 
 def test_read_documents_inline() -> None:
@@ -106,7 +106,7 @@ async def test_load_sample_data_success() -> None:
     """Test loading sample data successfully."""
     mock_es_client = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         mock_bulk.return_value = (2, 0)
 
         sample_data = SampleData(
@@ -138,7 +138,7 @@ async def test_load_sample_data_with_errors() -> None:
     """Test loading sample data with errors."""
     mock_es_client = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         mock_bulk.return_value = (1, 1)
 
         sample_data = SampleData(
@@ -161,7 +161,7 @@ async def test_load_sample_data_with_timestamp_transform() -> None:
     """Test loading sample data with timestamp transformation."""
     mock_es_client = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         mock_bulk.return_value = (1, 0)
 
         sample_data = SampleData(
@@ -188,7 +188,7 @@ async def test_load_sample_data_with_index_template() -> None:
     mock_es_client.indices = AsyncMock()
     mock_es_client.indices.put_index_template = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         mock_bulk.return_value = (1, 0)
 
         template_config = {
@@ -248,7 +248,7 @@ async def test_load_sample_data_with_bulk_error_details() -> None:
     """Test loading sample data with detailed bulk operation errors."""
     mock_es_client = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         # Return list of failed items with error details
         failed_items = [
             {'index': {'error': {'type': 'mapper_parsing_exception', 'reason': 'failed to parse field [@timestamp]'}}},
@@ -278,7 +278,7 @@ async def test_load_sample_data_with_bulk_error_count() -> None:
     """Test loading sample data when bulk returns error count instead of list."""
     mock_es_client = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         # Return error count as integer
         mock_bulk.return_value = (5, 3)
 
@@ -303,7 +303,7 @@ async def test_load_sample_data_with_non_dict_error() -> None:
     """Test loading sample data when error item is not a dict."""
     mock_es_client = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
+    with patch('kb_dashboard.cli.sample_data.loader.async_bulk') as mock_bulk:
         # Return list with non-dict items
         failed_items = ['error1', 'error2']
         mock_bulk.return_value = (1, failed_items)

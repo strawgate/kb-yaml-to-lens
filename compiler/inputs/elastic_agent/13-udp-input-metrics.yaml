@@ -44,31 +44,36 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average Processing Time}
+          primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean,
+            label: Part of Average Processing Time}
         size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Queue Length'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.receive_queue_length, label: Part of Queue Length}
+          primary: {aggregation: last_value, field: filebeat_input.receive_queue_length,
+            label: Part of Queue Length}
         size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Total Bytes Processed'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Total Bytes Processed}
+          primary: {aggregation: last_value, field: filebeat_input.received_bytes_total,
+            label: Part of Total Bytes Processed}
         size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Events Created'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.received_events_total, label: Part of Events Created}
+          primary: {aggregation: last_value, field: filebeat_input.received_events_total,
+            label: Part of Events Created}
         size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Packet Drops'
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.system_packet_drops, label: Part of Packets Dropped}
+          primary: {aggregation: last_value, field: filebeat_input.system_packet_drops,
+            label: Part of Packets Dropped}
         size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Time Between Packets (Milliseconds)'
         lens:
@@ -78,10 +83,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.mean), 1000000)', label: Average}
-            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.mean, label: Part of Average}
-            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.p99), 1000000)', label: 99th Percentile}
-            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.p99, label: Part of 99th Percentile}
+            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.mean),
+                1000000)', label: Average}
+            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.mean,
+              label: Part of Average}
+            - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.p99),
+                1000000)', label: 99th Percentile}
+            - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.p99,
+              label: Part of 99th Percentile}
         size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Processing Time (Milliseconds)'
         lens:
@@ -91,10 +100,14 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.mean), 1000000)', label: Average}
-            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average}
-            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.p99), 1000000)', label: 99th Percentile}
-            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.p99, label: Part of 99th Percentile}
+            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.mean),
+                1000000)', label: Average}
+            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean,
+              label: Part of Average}
+            - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.p99),
+                1000000)', label: 99th Percentile}
+            - {aggregation: last_value, field: filebeat_input.processing_time.histogram.p99,
+              label: Part of 99th Percentile}
         size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Packets Dropped'
         lens:
@@ -114,8 +127,10 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'pick_max(differences(max(filebeat_input.received_bytes_total)), 0)', label: Bytes Processed}
-            - {aggregation: max, field: filebeat_input.received_bytes_total, label: Part of Bytes Processed}
+            - {formula: 'pick_max(differences(max(filebeat_input.received_bytes_total)),
+                0)', label: Bytes Processed}
+            - {aggregation: max, field: filebeat_input.received_bytes_total, label: Part
+                of Bytes Processed}
         size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Events Created'
         lens:
@@ -125,6 +140,8 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - {formula: 'pick_max(differences(max(filebeat_input.received_events_total)), 0)', label: Events Created}
-            - {aggregation: max, field: filebeat_input.received_events_total, label: Part of Events Created}
+            - {formula: 'pick_max(differences(max(filebeat_input.received_events_total)),
+                0)', label: Events Created}
+            - {aggregation: max, field: filebeat_input.received_events_total, label: Part
+                of Events Created}
         size: {w: 40, h: 14}

@@ -90,11 +90,11 @@ typecheck:
 # Testing
 test:
 	@echo "Running pytest..."
-	@cd .. && uv run pytest packages/ -o addopts="" --tb=line --no-header -q
+	@cd .. && uv run pytest packages/kb-dashboard-core/tests packages/kb-dashboard-cli/tests packages/kb-dashboard-lsp/tests packages/kb-dashboard-tools/tests -o addopts="" --tb=line --no-header -q
 
 test-coverage:
 	@echo "Running pytest with coverage..."
-	@cd .. && uv run pytest packages/ --cov=packages --cov-report=term-missing --cov-report=html --cov-report=json
+	@cd .. && uv run pytest packages/kb-dashboard-core/tests packages/kb-dashboard-cli/tests packages/kb-dashboard-lsp/tests packages/kb-dashboard-tools/tests --cov=packages --cov-report=term-missing --cov-report=html --cov-report=json
 
 # Cleaning
 clean:

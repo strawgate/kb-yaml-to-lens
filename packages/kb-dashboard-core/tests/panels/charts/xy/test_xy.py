@@ -8,8 +8,8 @@ from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 from pydantic import ValidationError
 
+from kb_dashboard.core.compiler import render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import render
 from kb_dashboard.core.panels.charts.xy.compile import (
     compile_esql_xy_chart,
     compile_lens_reference_line_layer,

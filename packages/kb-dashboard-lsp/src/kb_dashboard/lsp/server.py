@@ -17,9 +17,9 @@ from lsprotocol import types
 from pydantic import BaseModel
 from pygls.lsp.server import LanguageServer
 
-from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.compiler import load, render
 from kb_dashboard.cli.kibana_client import KibanaClient
+from kb_dashboard.core.compiler import load, render
+from kb_dashboard.core.dashboard.config import Dashboard
 from kb_dashboard.lsp.grid_extractor import extract_grid_layout
 
 logger = logging.getLogger(__name__)

@@ -44,7 +44,8 @@ dashboards:
         lens:
           type: metric
           data_view: metrics-*
-          primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average Processing Time (Milliseconds)}
+          primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean,
+            label: Part of Average Processing Time (Milliseconds)}
       - grid: {x: 15, y: 0, w: 8, h: 6}
         lens:
           type: metric

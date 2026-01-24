@@ -62,7 +62,8 @@ dashboards:
             - WHERE data_stream.dataset == "aws.vpcflow.otel"
             - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
             - STATS total_flows = COUNT(), rejected_flows = SUM(is_rejected)
-            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
+            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double /
+              total_flows::double, 0)
           primary:
             field: rejection_rate
             label: Rejection Rate
@@ -76,7 +77,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes
+              IS NOT NULL
             - STATS total_bytes = SUM(aws.vpc.flow.bytes)
           primary:
             field: total_bytes
@@ -90,7 +92,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name
+              IS NOT NULL
             - STATS unique_interfaces = COUNT_DISTINCT(network.interface.name)
           primary:
             field: unique_interfaces
@@ -102,7 +105,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id
+              IS NOT NULL
             - STATS unique_accounts = COUNT_DISTINCT(cloud.account.id)
           primary:
             field: unique_accounts
@@ -114,7 +118,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name
+              IS NOT NULL
             - STATS unique_protocols = COUNT_DISTINCT(network.protocol.name)
           primary:
             field: unique_protocols
@@ -130,7 +135,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND network.interface.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              == "REJECT" AND network.interface.name IS NOT NULL
             - STATS rejected_count = COUNT() BY network.interface.name
             - SORT rejected_count DESC
             - LIMIT 5
@@ -152,7 +158,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND destination.port IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              == "REJECT" AND destination.port IS NOT NULL
             - STATS rejected_count = COUNT() BY destination.port
             - SORT rejected_count DESC
             - LIMIT 5
@@ -179,8 +186,10 @@ dashboards:
           type: area
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
-            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              IS NOT NULL
+            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp,
+              50, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           mode: stacked
           dimension:
@@ -208,8 +217,10 @@ dashboards:
           type: line
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes IS NOT NULL
-            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.bytes
+              IS NOT NULL
+            - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY time_bucket = BUCKET(@timestamp,
+              50, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -227,7 +238,8 @@ dashboards:
   # Dashboard 2: Traffic Analysis - Distribution, sources, and security
   - id: aws_vpcflow_otel-traffic
     name: '[AWS VPC OTEL] Traffic Analysis'
-    description: Detailed traffic distribution, source analysis, and security deep dive
+    description: Detailed traffic distribution, source analysis, and security deep
+      dive
     filters:
       - field: data_stream.dataset
         equals: aws.vpcflow.otel
@@ -301,7 +313,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS
+              NOT NULL
             - STATS unique_sources = COUNT_DISTINCT(source.address)
           primary:
             field: unique_sources
@@ -313,7 +326,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address
+              IS NOT NULL
             - STATS unique_destinations = COUNT_DISTINCT(destination.address)
           primary:
             field: unique_destinations
@@ -325,7 +339,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name
+              IS NOT NULL
             - STATS unique_protocols = COUNT_DISTINCT(network.protocol.name)
           primary:
             field: unique_protocols
@@ -337,7 +352,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port
+              IS NOT NULL
             - STATS unique_ports = COUNT_DISTINCT(destination.port)
           primary:
             field: unique_ports
@@ -350,8 +366,10 @@ dashboards:
           type: area
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action IS NOT NULL
-            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              IS NOT NULL
+            - STATS flow_count = COUNT() BY aws.vpc.flow.action, time_bucket = BUCKET(@timestamp,
+              50, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           mode: stacked
           dimension:
@@ -381,7 +399,8 @@ dashboards:
           type: pie
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name
+              IS NOT NULL
             - STATS flow_count = COUNT() BY network.protocol.name
             - SORT flow_count DESC
             - LIMIT 10
@@ -396,7 +415,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port
+              IS NOT NULL
             - STATS flow_count = COUNT() BY destination.port
             - SORT flow_count DESC
             - LIMIT 10
@@ -420,12 +440,15 @@ dashboards:
           type: datatable
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS
+              NOT NULL
             - EVAL is_accepted = CASE(aws.vpc.flow.action == "ACCEPT", 1, 0)
             - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
-            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes),
-              total_packets = SUM(aws.vpc.flow.packets) BY source.address
-            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
+            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows
+              = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes), total_packets
+              = SUM(aws.vpc.flow.packets) BY source.address
+            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double /
+              total_flows::double, 0)
             - SORT total_flows DESC
             - LIMIT 20
           dimensions:
@@ -462,7 +485,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND network.protocol.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              == "REJECT" AND network.protocol.name IS NOT NULL
             - STATS rejected_count = COUNT() BY network.protocol.name
             - SORT rejected_count DESC
             - LIMIT 10
@@ -484,7 +508,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT" AND destination.port IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              == "REJECT" AND destination.port IS NOT NULL
             - STATS rejected_count = COUNT() BY destination.port
             - SORT rejected_count DESC
             - LIMIT 10
@@ -506,9 +531,10 @@ dashboards:
           type: datatable
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action == "REJECT"
-            - KEEP @timestamp, source.address, destination.address, destination.port, network.protocol.name, network.interface.name, aws.vpc.flow.bytes,
-              aws.vpc.flow.packets
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND aws.vpc.flow.action
+              == "REJECT"
+            - KEEP @timestamp, source.address, destination.address, destination.port,
+              network.protocol.name, network.interface.name, aws.vpc.flow.bytes, aws.vpc.flow.packets
             - SORT @timestamp DESC
             - LIMIT 1000
           dimensions:
@@ -539,7 +565,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.port
+              IS NOT NULL
             - STATS flow_count = COUNT() BY destination.port
             - SORT flow_count DESC
             - LIMIT 10
@@ -559,7 +586,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address
+              IS NOT NULL
             - STATS flow_count = COUNT() BY destination.address
             - SORT flow_count DESC
             - LIMIT 10
@@ -579,7 +607,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS
+              NOT NULL
             - STATS flow_count = COUNT() BY source.address
             - SORT flow_count DESC
             - LIMIT 10
@@ -654,7 +683,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name
+              IS NOT NULL
             - STATS total_interfaces = COUNT_DISTINCT(network.interface.name)
           primary:
             field: total_interfaces
@@ -678,7 +708,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND source.address IS
+              NOT NULL
             - STATS unique_sources = COUNT_DISTINCT(source.address)
           primary:
             field: unique_sources
@@ -690,7 +721,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND destination.address
+              IS NOT NULL
             - STATS unique_destinations = COUNT_DISTINCT(destination.address)
           primary:
             field: unique_destinations
@@ -702,7 +734,8 @@ dashboards:
           type: metric
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name
+              IS NOT NULL
             - STATS unique_protocols = COUNT_DISTINCT(network.protocol.name)
           primary:
             field: unique_protocols
@@ -715,8 +748,10 @@ dashboards:
           type: area
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL
-            - STATS flow_count = COUNT() BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name
+              IS NOT NULL
+            - STATS flow_count = COUNT() BY time_bucket = BUCKET(@timestamp, 50, ?_tstart,
+              ?_tend)
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -736,7 +771,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL AND aws.vpc.flow.action IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name
+              IS NOT NULL AND aws.vpc.flow.action IS NOT NULL
             - STATS flow_count = COUNT() BY network.interface.name, aws.vpc.flow.action
             - SORT flow_count DESC
           mode: stacked
@@ -765,7 +801,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.interface.name
+              IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
             - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY network.interface.name
             - SORT total_bytes DESC
             - LIMIT 10
@@ -792,7 +829,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL AND aws.vpc.flow.action IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name
+              IS NOT NULL AND aws.vpc.flow.action IS NOT NULL
             - STATS flow_count = COUNT() BY network.protocol.name, aws.vpc.flow.action
             - SORT flow_count DESC
           mode: stacked
@@ -819,7 +857,8 @@ dashboards:
           type: bar
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND network.protocol.name
+              IS NOT NULL AND aws.vpc.flow.bytes IS NOT NULL
             - STATS total_bytes = SUM(aws.vpc.flow.bytes) BY network.protocol.name
             - SORT total_bytes DESC
             - LIMIT 10
@@ -846,12 +885,16 @@ dashboards:
           type: datatable
           query:
             - FROM logs-*
-            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id IS NOT NULL
+            - WHERE data_stream.dataset == "aws.vpcflow.otel" AND cloud.account.id
+              IS NOT NULL
             - EVAL is_accepted = CASE(aws.vpc.flow.action == "ACCEPT", 1, 0)
             - EVAL is_rejected = CASE(aws.vpc.flow.action == "REJECT", 1, 0)
-            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes),
-              unique_interfaces = COUNT_DISTINCT(network.interface.name), unique_sources = COUNT_DISTINCT(source.address) BY cloud.account.id
-            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
+            - STATS total_flows = COUNT(), accepted_flows = SUM(is_accepted), rejected_flows
+              = SUM(is_rejected), total_bytes = SUM(aws.vpc.flow.bytes), unique_interfaces
+              = COUNT_DISTINCT(network.interface.name), unique_sources = COUNT_DISTINCT(source.address)
+              BY cloud.account.id
+            - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double /
+              total_flows::double, 0)
             - SORT total_flows DESC
             - LIMIT 100
           dimensions:

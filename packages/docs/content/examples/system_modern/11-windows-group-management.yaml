@@ -99,10 +99,7 @@ dashboards:
             label: Added
           filters:
             - field: winlog.event_id
-              in:
-                - '4728'
-                - '4732'
-                - '4756'
+              in: ['4728', '4732', '4756']
       - title: Members Removed
         size: {w: 12, h: 6}
         lens:

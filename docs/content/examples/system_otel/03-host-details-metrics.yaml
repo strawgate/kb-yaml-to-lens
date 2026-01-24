@@ -59,7 +59,8 @@ dashboards:
             type: date_histogram
           metrics:
             - formula: >-
-                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state:
+                idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
                 wait'))
               label: CPU Utilization
               format:
@@ -131,7 +132,8 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+            - formula: "average(metrics.system.memory.utilization, kql='attributes.state\
+                \ : \"used\"')"
               label: Memory Utilization
               format:
                 type: percent

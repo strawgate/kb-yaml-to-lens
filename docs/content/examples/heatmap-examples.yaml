@@ -12,10 +12,13 @@ dashboards:
           x: 0
           y: 0
         markdown:
-          content: "# Heatmap Chart Examples\nThis dashboard demonstrates various heatmap configurations:\n- **Basic 2D heatmap** - Time series\
-            \ cross-referenced with categories\n- **1D heatmap** - Single dimension intensity visualization\n- **Custom grid and legend** - Appearance\
-            \ customization\n- **ES|QL heatmap** - Using ES|QL queries for data\n\nHeatmaps are perfect for:\n- Visualizing server load patterns\
-            \ by time and host\n- Analyzing user activity by hour and day of week\n- Identifying patterns in multi-dimensional data\n"
+          content: "# Heatmap Chart Examples\nThis dashboard demonstrates various\
+            \ heatmap configurations:\n- **Basic 2D heatmap** - Time series cross-referenced\
+            \ with categories\n- **1D heatmap** - Single dimension intensity visualization\n\
+            - **Custom grid and legend** - Appearance customization\n- **ES|QL heatmap**\
+            \ - Using ES|QL queries for data\n\nHeatmaps are perfect for:\n- Visualizing\
+            \ server load patterns by time and host\n- Analyzing user activity by\
+            \ hour and day of week\n- Identifying patterns in multi-dimensional data\n"
           font_size: 12
 
       # Basic 2D Heatmap

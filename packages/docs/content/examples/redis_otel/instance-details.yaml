@@ -7,7 +7,8 @@
 dashboards:
   - id: redis-instance-details
     name: '[Metrics Redis] Instance Details'
-    description: OpenTelemetry Redis Receiver - Detailed metrics for a specific Redis instance (ES|QL)
+    description: OpenTelemetry Redis Receiver - Detailed metrics for a specific Redis
+      instance (ES|QL)
     filters:
       - field: data_stream.dataset
         equals: redisreceiver.otel

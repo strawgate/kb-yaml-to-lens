@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from kb_dashboard.core.dashboard_compiler import load
+from kb_dashboard.core.compiler import load
 
 # Find all YAML files in docs/content/examples (recursively)
 # Use absolute path since tests run from compiler/ directory

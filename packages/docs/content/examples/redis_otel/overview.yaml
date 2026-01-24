@@ -7,7 +7,8 @@
 dashboards:
   - id: redis-overview
     name: '[Metrics Redis] Overview'
-    description: OpenTelemetry Redis Receiver - Overview dashboard showing key metrics across all Redis instances (ES|QL)
+    description: OpenTelemetry Redis Receiver - Overview dashboard showing key metrics
+      across all Redis instances (ES|QL)
     filters:
       - field: data_stream.dataset
         equals: redisreceiver.otel
@@ -354,8 +355,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "redisreceiver.otel"
             - WHERE resource.attributes.service.instance.id IS NOT NULL
-            - STATS memory = MAX(LAST_OVER_TIME(redis.memory.used)), clients = MAX(LAST_OVER_TIME(redis.clients.connected)), commands = MAX(LAST_OVER_TIME(redis.commands)),
-              fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio)) BY instance = resource.attributes.service.instance.id
+            - STATS memory = MAX(LAST_OVER_TIME(redis.memory.used)), clients = MAX(LAST_OVER_TIME(redis.clients.connected)),
+              commands = MAX(LAST_OVER_TIME(redis.commands)), fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
+              BY instance = resource.attributes.service.instance.id
             - KEEP instance, memory, clients, commands, fragmentation
             - SORT memory DESC
             - LIMIT 100

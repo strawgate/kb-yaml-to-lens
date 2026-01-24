@@ -8,12 +8,12 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING, Any
 
+from conftest import de_json_kbn_dashboard
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
+from kb_dashboard.core.compiler import render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import render
-from tests.conftest import de_json_kbn_dashboard
 
 if TYPE_CHECKING:
     from kb_dashboard.core.dashboard.view import KbnDashboard

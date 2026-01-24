@@ -7,10 +7,7 @@ dashboards:
       - field: event.module
         equals: system
       - field: winlog.event_id
-        in:
-          - '4625'
-          - '4740'
-          - '4767'
+        in: ['4625', '4740', '4767']
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}

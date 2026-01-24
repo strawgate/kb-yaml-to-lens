@@ -159,7 +159,7 @@ def test_yaml_examples(file_path: str, yaml_content: str, line_num: int, skip: b
 
     Skips examples with explicit skip markers or placeholder content.
     """
-    from kb_dashboard.core.dashboard_compiler import load
+    from kb_dashboard.core.compiler import load
 
     if skip is True or _is_placeholder_example(yaml_content) is True:
         pytest.skip('Example marked with skip or contains placeholders')

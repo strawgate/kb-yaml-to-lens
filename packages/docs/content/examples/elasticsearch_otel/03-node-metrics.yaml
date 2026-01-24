@@ -92,7 +92,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: read')"
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed),\
+                \ kql='operation: read')"
               label: Read Ops/sec
       - title: Disk Write Operations
         size: {w: 24, h: 10}
@@ -107,7 +108,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: write')"
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed),\
+                \ kql='operation: write')"
               label: Write Ops/sec
       - title: Operations Section
         size: {w: 48, h: 3}
@@ -142,7 +144,8 @@ dashboards:
             type: values
             size: 20
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: index')"
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed),\
+                \ kql='operation: index')"
               label: Index Ops/sec
       - title: Cache Performance Section
         size: {w: 48, h: 3}
@@ -321,5 +324,6 @@ dashboards:
             type: values
             size: 10
           metrics:
-            - formula: "counter_rate(max(elasticsearch.node.thread_pool.tasks.finished), kql='state: rejected')"
+            - formula: "counter_rate(max(elasticsearch.node.thread_pool.tasks.finished),\
+                \ kql='state: rejected')"
               label: Rejections/sec

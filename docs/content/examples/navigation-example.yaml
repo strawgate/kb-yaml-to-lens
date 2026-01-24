@@ -2,7 +2,8 @@
 dashboards:
   - id: nav-overview-001
     name: '[Example] Navigation - Overview Dashboard'
-    description: Demonstrates navigation patterns with links panel and basic metric charts
+    description: Demonstrates navigation patterns with links panel and basic metric
+      charts
     panels:
       - title: Dashboard Navigation
         description: Navigate between related dashboards
@@ -30,8 +31,10 @@ dashboards:
           x: 0
           y: 2
         markdown:
-          content: "# Overview Dashboard\nThis dashboard provides high-level metrics across your log data. Use the navigation links above to\n\
-            drill into more detailed views.\n**Key Metrics:**\n- Total log volume\n- Unique hosts reporting\n- Log level distribution\n"
+          content: "# Overview Dashboard\nThis dashboard provides high-level metrics\
+            \ across your log data. Use the navigation links above to\ndrill into\
+            \ more detailed views.\n**Key Metrics:**\n- Total log volume\n- Unique\
+            \ hosts reporting\n- Log level distribution\n"
           font_size: 12
       - title: Total Events
         description: Total log events in the selected time range

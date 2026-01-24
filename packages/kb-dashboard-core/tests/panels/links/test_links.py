@@ -6,8 +6,8 @@ import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
+from kb_dashboard.core.compiler import render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import render
 from kb_dashboard.core.panels.links.compile import compile_links_panel_config
 from kb_dashboard.core.panels.links.config import LinksPanel, get_link_type
 

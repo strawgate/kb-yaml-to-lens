@@ -3,8 +3,8 @@
 import uuid
 from pathlib import Path
 
+from kb_dashboard.core.compiler import load, render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import load, render
 from kb_dashboard.core.shared.config import stable_id_generator
 
 

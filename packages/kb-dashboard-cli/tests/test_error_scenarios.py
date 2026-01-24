@@ -8,7 +8,7 @@ from pathlib import Path
 
 from inline_snapshot import snapshot
 
-from kb_dashboard.core.cli_local import compile_yaml_to_json
+from kb_dashboard.cli.local import compile_yaml_to_json
 
 
 class TestYamlSyntaxErrors:

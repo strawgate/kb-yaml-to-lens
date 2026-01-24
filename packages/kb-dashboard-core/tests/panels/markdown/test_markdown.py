@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 from inline_snapshot import snapshot
 
+from kb_dashboard.core.compiler import render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import render
 from kb_dashboard.core.panels.markdown.compile import compile_markdown_panel_config
 from kb_dashboard.core.panels.markdown.config import MarkdownPanel
 

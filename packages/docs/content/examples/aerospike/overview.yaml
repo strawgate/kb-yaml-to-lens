@@ -4,7 +4,8 @@
 dashboards:
   - id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
     name: '[Metrics Aerospike] Overview'
-    description: Aerospike cluster overview with node health and performance metrics using ES|QL
+    description: Aerospike cluster overview with node health and performance metrics
+      using ES|QL
     filters:
       - field: data_stream.dataset
         equals: aerospikereceiver.otel
@@ -97,8 +98,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.node.name IS NOT NULL
-            - STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace)
-              BY node = aerospike.node.name
+            - STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open),
+              namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name
             - KEEP node, namespaces, memory_free, connections
             - SORT node ASC
             - LIMIT 100

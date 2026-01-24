@@ -7,50 +7,50 @@ from typing import Any
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.structure.files import File, Files
 
-log = logging.getLogger('mkdocs.plugins.llms_txt')
+log = logging.getLogger("mkdocs.plugins.llms_txt")
 
 
 def on_files(files: Files, config: MkDocsConfig, **_kwargs: Any) -> Files:
     """Generate llms.txt files and add them to the build before link validation."""
-    docs_dir = Path(config['docs_dir'])
+    docs_dir = Path(config["docs_dir"])
 
     # Generate llms.txt content
     llms_txt_content = generate_llms_txt_content(config)
-    llms_txt_path = docs_dir / 'llms.txt'
-    llms_txt_path.write_text(llms_txt_content, encoding='utf-8')
-    log.info(f'Generated {llms_txt_path} ({len(llms_txt_content)} characters)')
+    llms_txt_path = docs_dir / "llms.txt"
+    llms_txt_path.write_text(llms_txt_content, encoding="utf-8")
+    log.info(f"Generated {llms_txt_path} ({len(llms_txt_content)} characters)")
 
     # Generate llms-full.txt content
     llms_full_content = generate_llms_full_txt_content(config)
-    llms_full_path = docs_dir / 'llms-full.txt'
-    llms_full_path.write_text(llms_full_content, encoding='utf-8')
-    log.info(f'Generated {llms_full_path} ({len(llms_full_content)} characters)')
+    llms_full_path = docs_dir / "llms-full.txt"
+    llms_full_path.write_text(llms_full_content, encoding="utf-8")
+    log.info(f"Generated {llms_full_path} ({len(llms_full_content)} characters)")
 
     # Add files to MkDocs file collection so they're included in the build
     files.append(
         File(
-            path='llms.txt',
+            path="llms.txt",
             src_dir=str(docs_dir),
-            dest_dir=config['site_dir'],
-            use_directory_urls=config['use_directory_urls'],
+            dest_dir=config["site_dir"],
+            use_directory_urls=config["use_directory_urls"],
         )
     )
     files.append(
         File(
-            path='llms-full.txt',
+            path="llms-full.txt",
             src_dir=str(docs_dir),
-            dest_dir=config['site_dir'],
-            use_directory_urls=config['use_directory_urls'],
+            dest_dir=config["site_dir"],
+            use_directory_urls=config["use_directory_urls"],
         )
     )
 
-    log.info('Added llms.txt and llms-full.txt to build files')
+    log.info("Added llms.txt and llms-full.txt to build files")
     return files
 
 
 def generate_llms_txt_content(config: dict[str, Any]) -> str:
     """Generate the llms.txt navigation file content."""
-    site_url = config.get('site_url', '').rstrip('/')
+    site_url = config.get("site_url", "").rstrip("/")
 
     return f"""# Dashboard Compiler
 
@@ -92,7 +92,9 @@ def generate_llms_txt_content(config: dict[str, Any]) -> str:
 """
 
 
-def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
+def extract_files_from_nav(
+    nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None
+) -> list[str]:
     """Recursively extract file paths from MkDocs navigation structure."""
     if files is None:
         files = []
@@ -111,39 +113,41 @@ def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: li
 
 def generate_llms_full_txt_content(config: dict[str, Any]) -> str:
     """Generate the llms-full.txt file content with complete documentation."""
-    docs_dir = Path(config.get('docs_dir', 'docs'))
+    docs_dir = Path(config.get("docs_dir", "docs"))
 
     # Extract files from navigation structure
-    nav = config.get('nav', [])
+    nav = config.get("nav", [])
 
     # Extract all files from navigation (all sections)
     all_files = extract_files_from_nav(nav)
     # Deduplicate while preserving order
     all_files = list(dict.fromkeys(all_files))
 
-    log.info(f'Extracted {len(all_files)} files from navigation')
+    log.info(f"Extracted {len(all_files)} files from navigation")
 
     output = []
 
     # Add header
-    output.append('# Dashboard Compiler - Complete Documentation\n\n')
-    output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
-    output.append('---\n\n')
+    output.append("# Dashboard Compiler - Complete Documentation\n\n")
+    output.append(
+        "> This file contains all documentation for the Dashboard Compiler project.\n\n"
+    )
+    output.append("---\n\n")
 
     # Concatenate all files
     for file_path in all_files:
         path = docs_dir / file_path
         try:
-            content = path.read_text(encoding='utf-8')
+            content = path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            log.warning(f'{file_path} not found, skipping...')
+            log.warning(f"{file_path} not found, skipping...")
             continue
         except OSError as e:
-            log.warning(f'Failed to read {file_path}: {e}, skipping...')
+            log.warning(f"Failed to read {file_path}: {e}, skipping...")
             continue
 
         # Add file separator
-        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
+        output.append(f"\n\n---\n# Source: {file_path}\n---\n\n")
         output.append(content)
 
-    return ''.join(output)
+    return "".join(output)

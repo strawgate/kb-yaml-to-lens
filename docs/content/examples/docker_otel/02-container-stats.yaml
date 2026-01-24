@@ -48,7 +48,8 @@ dashboards:
       # Warning markdown panel
       - size: {w: 48, h: 2}
         markdown:
-          content: This dashboard is only intended to be used when filtered to one container at a time.
+          content: This dashboard is only intended to be used when filtered to one
+            container at a time.
           font_size: 12
 
       # Container count metric

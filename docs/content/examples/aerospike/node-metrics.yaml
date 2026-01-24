@@ -189,7 +189,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.node.name IS NOT NULL
-            - STATS memory_free = AVG(aerospike.node.memory.free), connections_open = AVG(aerospike.node.connection.open) BY node = aerospike.node.name
+            - STATS memory_free = AVG(aerospike.node.memory.free), connections_open
+              = AVG(aerospike.node.connection.open) BY node = aerospike.node.name
             - KEEP node, memory_free, connections_open
             - SORT node ASC
             - LIMIT 100

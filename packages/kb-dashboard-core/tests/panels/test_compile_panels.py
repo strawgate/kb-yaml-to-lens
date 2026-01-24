@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
+from kb_dashboard.core.compiler import render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import render
 from kb_dashboard.core.panels.compile import compile_dashboard_panel, get_panel_type_name
 from kb_dashboard.core.panels.config import Grid
 from kb_dashboard.core.panels.images.config import ImagePanel, ImagePanelConfig

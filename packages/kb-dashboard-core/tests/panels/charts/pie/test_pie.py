@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
+from kb_dashboard.core.compiler import render
 from kb_dashboard.core.dashboard.config import Dashboard
-from kb_dashboard.core.dashboard_compiler import render
 from kb_dashboard.core.panels.charts.config import ESQLPiePanelConfig
 from kb_dashboard.core.panels.charts.pie.compile import compile_esql_pie_chart, compile_lens_pie_chart
 from kb_dashboard.core.panels.charts.pie.config import LensPieChart

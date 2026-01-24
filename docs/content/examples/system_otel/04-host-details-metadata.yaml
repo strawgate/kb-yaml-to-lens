@@ -58,9 +58,11 @@ dashboards:
             - WHERE resource.attributes.host.name IS NOT NULL
             - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
             - LIMIT 1
-            - STATS BY arch = resource.attributes.host.arch, ip = resource.attributes.host.ip, mac = resource.attributes.host.mac, name = resource.attributes.host.name
+            - STATS BY arch = resource.attributes.host.arch, ip = resource.attributes.host.ip,
+              mac = resource.attributes.host.mac, name = resource.attributes.host.name
             - EVAL ip_str = TO_STRING(ip)
-            - EVAL str = CONCAT("host.arch$",arch, "|", "host.ip$", ip_str, "|", "host.mac$",mac, "|", "host.name$", name)
+            - EVAL str = CONCAT("host.arch$",arch, "|", "host.ip$", ip_str, "|", "host.mac$",mac,
+              "|", "host.name$", name)
             - EVAL arr = SPLIT(str, "|")
             - MV_EXPAND arr
             - EVAL pairs = SPLIT(arr, "$")
@@ -106,11 +108,13 @@ dashboards:
             - WHERE resource.attributes.host.name IS NOT NULL
             - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
             - LIMIT 1
-            - STATS BY cache_size = TO_STRING(resource.attributes.host.cpu.cache.l2.size), family = resource.attributes.host.cpu.family, model_id
-              = resource.attributes.host.cpu.model.id, model_name = resource.attributes.host.cpu.model.name, stepping = resource.attributes.host.cpu.stepping,
+            - STATS BY cache_size = TO_STRING(resource.attributes.host.cpu.cache.l2.size),
+              family = resource.attributes.host.cpu.family, model_id = resource.attributes.host.cpu.model.id,
+              model_name = resource.attributes.host.cpu.model.name, stepping = resource.attributes.host.cpu.stepping,
               vendor_id = resource.attributes.host.cpu.vendor.id
-            - EVAL str = CONCAT("host.cpu.cache.l2.size$", cache_size, "|", "host.cpu.family$",family, "|", "host.cpu.model.id$",model_id, "|",
-              "host.cpu.model.name$",model_name, "|", "host.cpu.stepping$",stepping, "|", "host.cpu.vendor.id$",vendor_id)
+            - EVAL str = CONCAT("host.cpu.cache.l2.size$", cache_size, "|", "host.cpu.family$",family,
+              "|", "host.cpu.model.id$",model_id, "|", "host.cpu.model.name$",model_name,
+              "|", "host.cpu.stepping$",stepping, "|", "host.cpu.vendor.id$",vendor_id)
             - EVAL arr = SPLIT(str, "|")
             - MV_EXPAND arr
             - EVAL pairs = SPLIT(arr, "$")
@@ -136,9 +140,12 @@ dashboards:
             - WHERE resource.attributes.host.name IS NOT NULL
             - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
             - LIMIT 1
-            - STATS BY resource.attributes.cloud.account.id, resource.attributes.cloud.instance.id, resource.attributes.cloud.platform, resource.attributes.cloud.provider
-            - EVAL str = CONCAT("cloud.account.id$",COALESCE(resource.attributes.cloud.account.id, ""), "|", "cloud.instance.id$",COALESCE(resource.attributes.cloud.instance.id,
-              ""), "|", "cloud.platform$",COALESCE(resource.attributes.cloud.platform, ""), "|", "cloud.provider$",COALESCE(resource.attributes.cloud.provider,
+            - STATS BY resource.attributes.cloud.account.id, resource.attributes.cloud.instance.id,
+              resource.attributes.cloud.platform, resource.attributes.cloud.provider
+            - EVAL str = CONCAT("cloud.account.id$",COALESCE(resource.attributes.cloud.account.id,
+              ""), "|", "cloud.instance.id$",COALESCE(resource.attributes.cloud.instance.id,
+              ""), "|", "cloud.platform$",COALESCE(resource.attributes.cloud.platform,
+              ""), "|", "cloud.provider$",COALESCE(resource.attributes.cloud.provider,
               ""))
             - EVAL arr = SPLIT(str, "|")
             - MV_EXPAND arr

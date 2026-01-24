@@ -12,10 +12,13 @@ dashboards:
           x: 0
           y: 0
         markdown:
-          content: "# Metric Formatting Examples\nThis dashboard demonstrates various number formatting options for metric charts:\n- **Suffix\
-            \ formatting** - Add custom text after numbers (\" requests/sec\", \" users\")\n- **Compact notation** - Display large numbers as\
-            \ 1.2K, 500M, etc.\n- **Custom patterns** - Use numeral.js patterns for precise formatting\n- **Built-in formats** - Bytes, duration,\
-            \ percent, etc.\n- **Combined options** - Mix multiple formatting features\n"
+          content: "# Metric Formatting Examples\nThis dashboard demonstrates various\
+            \ number formatting options for metric charts:\n- **Suffix formatting**\
+            \ - Add custom text after numbers (\" requests/sec\", \" users\")\n- **Compact\
+            \ notation** - Display large numbers as 1.2K, 500M, etc.\n- **Custom patterns**\
+            \ - Use numeral.js patterns for precise formatting\n- **Built-in formats**\
+            \ - Bytes, duration, percent, etc.\n- **Combined options** - Mix multiple\
+            \ formatting features\n"
           font_size: 12
 
       # Suffix Formatting Examples

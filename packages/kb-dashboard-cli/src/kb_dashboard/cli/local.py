@@ -12,6 +12,7 @@ import yaml
 from pydantic import ValidationError
 
 from kb_dashboard.cli.context import CliContext
+from kb_dashboard.cli.kibana_client import KibanaClient  # noqa: TC001
 from kb_dashboard.cli.options import kibana_options
 from kb_dashboard.cli.output import (
     console,
@@ -26,9 +27,8 @@ from kb_dashboard.cli.output import (
     print_upload,
     print_warning,
 )
-from kb_dashboard.core.dashboard.view import KbnDashboard
 from kb_dashboard.core.compiler import load, render
-from kb_dashboard.cli.kibana_client import KibanaClient  # noqa: TC001
+from kb_dashboard.core.dashboard.view import KbnDashboard
 from kb_dashboard.core.shared.error_formatter import format_validation_error, format_yaml_error
 from kb_dashboard.tools.disassemble import disassemble_dashboard, parse_ndjson
 

@@ -50,8 +50,10 @@ dashboards:
               format: {type: number, decimals: 0}
         size: {w: 40, h: 11}
       - markdown:
-          content: "### Output and Queue\n\nHigh values for queue utilization and output latency help identify when the Agent (requires 8.17.2\
-            \ and newer) is getting back-pressure from the system it's sending events to, which limits event throughput."
+          content: "### Output and Queue\n\nHigh values for queue utilization and\
+            \ output latency help identify when the Agent (requires 8.17.2 and newer)\
+            \ is getting back-pressure from the system it's sending events to, which\
+            \ limits event throughput."
         size: {w: 40, h: 5}
       - title: '[Elastic Agent] Agent Queue and Output Latency'
         lens:
