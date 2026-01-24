@@ -21,4 +21,6 @@ dev = [
     "griffe-pydantic>=1.1.8",
     "griffe-fieldz>=0.4.0",
     "mkdocs-click>=0.8.0",
+    "pytest>=9.0",
+    "pytest-check-links>=0.9.0",
 ]

@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROJECT_ROOT="$(cd "$COMPILER_ROOT/.." && pwd)"
+PROJECT_ROOT="$(cd "$COMPILER_ROOT/../.." && pwd)"
 
 # Force UTF-8 encoding to avoid Windows cp1252 issues with Rich library
 # This prevents UnicodeEncodeError when Rich's progress spinner uses Braille characters

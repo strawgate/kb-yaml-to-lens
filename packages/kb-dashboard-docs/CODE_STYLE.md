@@ -34,7 +34,7 @@ Use `code formatting` for option names, types, and values.
 - ATX headers (`#`) with space after
 - Fenced code blocks with language tags
 - Use `-` for lists (not `*` or `+`)
-- Relative links from current file
+- Relative links from current file (absolute links are allowed for resources not in this repository)
 
 ## Examples
 
@@ -43,3 +43,7 @@ See existing documentation files for patterns:
 - API docs: `api/panels.md`, `api/controls.md`
 - Panel docs: `panels/xy.md`, `panels/metric.md`
 - Examples: `examples/system_otel/`, `examples/docker_otel/`
+
+## Documentation
+
+Files in this component have strict markdown linting and undergo a link verification step during CI which will fail if any links in this component are broken.

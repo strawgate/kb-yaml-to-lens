@@ -15,7 +15,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
 	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -32,10 +32,13 @@ help:
 	@echo "  make gh <target>        - Run in .github/scripts/"
 	@echo ""
 	@echo "Common Examples:"
-	@echo "  make all install          - Install all component dependencies"
-	@echo "  make all ci               - Run CI checks in all components"
-	@echo "  make all fix              - Auto-fix linting in all components"
+	@echo "  make all install          - Install root + all component dependencies"
+	@echo "  make all ci               - Run CI checks (root linting + all components)"
+	@echo "  make all fix              - Auto-fix linting (root + all components)"
 	@echo "  make all clean            - Clean all components"
+	@echo "  make root ci              - Run root-level CI checks (markdown + YAML lint)"
+	@echo "  make root fix             - Auto-fix root-level linting"
+	@echo "  make root install         - Install root-level dependencies"
 	@echo "  make compiler test-smoke  - Run compiler smoke tests"
 	@echo "  make vscode test-e2e      - Run VS Code E2E tests"
 	@echo "  make docs ci              - Check docs (markdown lint + links)"
@@ -56,7 +59,51 @@ help:
 	@echo "  bump-major         - Bump major version (X.0.0)"
 	@echo "  bump-version-show  - Show current version"
 
-# Run target across all components
+# Root-level targets (run linting checks)
+root-ci:
+	$(call print_start, "Running root-level CI checks")
+	@echo ""
+	@$(MAKE) lint-markdown-check
+	@echo ""
+	@$(MAKE) lint-yaml-check
+	@echo ""
+	$(call print_end, "Root-level CI checks passed")
+
+root-fix:
+	$(call print_start, "Running root-level lint fixes")
+	@echo ""
+	@$(MAKE) lint-markdown
+	@echo ""
+	@$(MAKE) lint-yaml
+	@echo ""
+	$(call print_end, "Root-level lint fixes complete")
+
+root-install:
+	$(call print_start, "Installing root-level dependencies")
+	@if command -v npm > /dev/null 2>&1; then \
+		if ! command -v markdownlint > /dev/null 2>&1; then \
+			npm install -g markdownlint-cli $(INDENT); \
+			printf "✓ markdownlint-cli installed\n"; \
+		else \
+			printf "✓ markdownlint-cli already installed\n"; \
+		fi; \
+	else \
+		echo "⚠ npm not found - markdownlint-cli will not be installed"; \
+		echo "  Install Node.js to enable markdown linting"; \
+	fi
+	$(call print_end, "Root-level dependencies installed")
+
+# Root passthrough (allows "make root <target>")
+root:
+	@target="$(_ARGS)"; \
+	if [ -z "$$target" ]; then \
+		echo "Usage: make root <target>"; \
+		echo "Available targets: ci, fix, install"; \
+		exit 1; \
+	fi; \
+	$(MAKE) root-$$target
+
+# Run target across root + all components
 # Usage: make all <target>
 all:
 	@target="$(filter-out $@,$(MAKECMDGOALS))"; \
@@ -65,8 +112,13 @@ all:
 		echo "Example: make all clean"; \
 		exit 1; \
 	fi; \
+	if [ "$$target" = "ci" ] || [ "$$target" = "fix" ] || [ "$$target" = "install" ]; then \
+		printf "Root\n"; \
+		$(MAKE) root-$$target || exit 1; \
+		echo ""; \
+	fi; \
 	for component in $(COMPONENTS); do \
-		printf "▸ Component: %s\n" "$$component"; \
+		printf "Component: %s\n" "$$component"; \
 		$(MAKE) -C $$component $$target || exit 1; \
 	done; \
 	printf "✓ All components: %s complete\n" "$$target"
@@ -131,6 +183,11 @@ ifeq ($(_FIRST_GOAL),docs)
 endif
 
 ifeq ($(_FIRST_GOAL),gh)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),root)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
 endif

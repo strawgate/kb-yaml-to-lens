@@ -10,7 +10,7 @@ help:
 	@echo "Documentation Commands:"
 	@echo ""
 	@echo "Setup:"
-	@echo "  install       - Install markdownlint-cli (requires npm)"
+	@echo "  install       - Install Python dependencies and markdownlint-cli (requires npm)"
 	@echo ""
 	@echo "CI and Verification:"
 	@echo "  ci            - Run all doc checks (markdown lint + link verification)"
@@ -34,6 +34,7 @@ install:
 		echo "⚠ npm not found - please install Node.js to use markdownlint"; \
 		exit 1; \
 	fi
+	$(call run_cmd, "Installing documentation dependencies", uv sync --package kb-dashboard-docs --group dev, "Documentation dependencies installed")
 
 ci:
 	$(call print_start, "Checking documentation (lint + links)")
@@ -49,13 +50,13 @@ check: ci
 serve:
 	$(call print_start, "Starting documentation server")
 	@printf "  (Press Ctrl+C to stop)\n"
-	@NO_COLOR=1 uv run --group docs mkdocs serve
+	@NO_COLOR=1 uv run --group dev mkdocs serve
 
 build:
-	$(call run_cmd, "Building documentation", NO_COLOR=1 uv run --group docs mkdocs build --strict, "Documentation built")
+	$(call run_cmd, "Building documentation", NO_COLOR=1 uv run --group dev mkdocs build --strict, "Documentation built")
 
 test-links:
-	$(call run_cmd, "Checking documentation links", cd ../kb-dashboard-compiler && uv run pytest --check-links ../kb-dashboard-docs/content/ ../../README.md ../../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$', "Documentation links checked")
+	$(call run_cmd, "Checking documentation links", uv run --group dev pytest --check-links content/ -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$', "Documentation links checked")
 
 clean:
 	$(call print_start, "Cleaning documentation build artifacts")

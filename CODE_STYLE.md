@@ -13,4 +13,4 @@ Files outside of these projects are subject to markdown linting and yaml linting
 
 The files in `packages/kb-dashboard-docs/` are built using MkDocs. See `packages/kb-dashboard-docs/mkdocs.yml` for the build configuration and requirements.
 
-Files in docs have strict markdown linting and undergo a link verification step during CI which will fail if any links in the docs are broken.
+Files in `packages/kb-dashboard-docs/` have strict markdown linting and undergo a link verification step during CI which will fail if any links in `packages/kb-dashboard-docs/` are broken.

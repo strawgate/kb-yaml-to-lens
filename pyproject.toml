@@ -19,6 +19,13 @@ dependencies = [
     "click>=8.0",
 ]
 
+[dependency-groups]
+dev = [
+    "basedpyright>=1.37",
+    "yamlfix>=1.19.0",
+    "ruff>=0.14",
+]
+
 [tool.uv.sources]
 kb-dashboard-compiler = { workspace = true }
 

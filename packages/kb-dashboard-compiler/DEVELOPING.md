@@ -71,7 +71,7 @@ Each fixture has ES|QL and Data View versions:
 After making changes:
 
 1. Run `make compiler typecheck` — catches type errors
-2. Run `make compiler check` — runs all quality checks
+2. Run `make compiler ci` — runs all quality checks
 3. Test compiled output validity
 
 **CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring, code coverage <80%
