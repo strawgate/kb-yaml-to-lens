@@ -1,0 +1,369 @@
+---
+dashboards:
+  - id: crowdstrike-d8070b00-99b3-11ee-bf4d-afbc95e0486c
+    name: '[Logs CrowdStrike] Alert'
+    description: Overview of the CrowdStrike Alert Logs.
+    filters:
+      - field: data_stream.dataset
+        equals: crowdstrike.alert
+    panels:
+      - title: Table of Contents
+        position:
+          x: 0
+          y: 0
+        size:
+          w: 16
+          h: 16
+        markdown:
+          content: |
+            ## **CrowdStrike**
+
+            ### Navigation
+            [Overview](/app/dashboards#/view/crowdstrike-e64e8fe0-8210-11ee-bae0-937af575b750)
+            [FDR](/app/dashboards#/view/crowdstrike-a4972bc0-fb53-11eb-abed-07307b3f2b0f)
+            [Falcon](/app/dashboards#/view/crowdstrike-ad80a080-821b-11ee-bae0-937af575b750)
+            **Alert**
+            [Host](/app/dashboards#/view/crowdstrike-2921b7f0-99b5-11ee-bf4d-afbc95e0486c)
+            [Vulnerability](/app/dashboards#/view/crowdstrike-63da2573-4e68-4e7d-a06b-6858edb60fd5)
+
+            ### Overview
+            This dashboard shows statistics about the different alerts collected from the CrowdStrike Alert API.
+          font_size: 12
+          links_in_new_tab: false
+      - title: Alert by Status [Logs CrowdStrike]
+        position:
+          x: 16
+          y: 0
+        size:
+          w: 17
+          h: 16
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: crowdstrike.alert.status
+              type: values
+              size: 5
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert by OS Platform [Logs CrowdStrike]
+        position:
+          x: 33
+          y: 0
+        size:
+          w: 15
+          h: 16
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: host.os.platform
+              type: values
+              size: 5
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: User with Highest Alert [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 16
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: user.name
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert over Device [Logs CrowdStrike]
+        position:
+          x: 24
+          y: 16
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: device.id
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert by Severity [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 31
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: crowdstrike.alert.severity
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert over Host IP [Logs CrowdStrike]
+        position:
+          x: 24
+          y: 31
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: host.ip
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert over Hostname [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 46
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: host.hostname
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert over Timestamp [Logs CrowdStrike]
+        position:
+          x: 24
+          y: 46
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Timestamp
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert over Confidence [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 61
+        size:
+          w: 48
+          h: 17
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Timestamp
+          breakdown:
+            field: crowdstrike.alert.confidence
+            type: values
+            size: 5
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert by IOC Source [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 78
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: crowdstrike.alert.ioc_source
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert by IOC Type [Logs CrowdStrike]
+        position:
+          x: 24
+          y: 78
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: crowdstrike.alert.ioc_type
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Alert by OS Full Name [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 93
+        size:
+          w: 24
+          h: 16
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: host.os.full
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Top 10 Source IP [Logs CrowdStrike]
+        position:
+          x: 24
+          y: 93
+        size:
+          w: 24
+          h: 16
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: source.ip
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Top 10 Source Domain [Logs CrowdStrike]
+        position:
+          x: 0
+          y: 109
+        size:
+          w: 24
+          h: 17
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: source.domain
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Top 10 Destination Domain [Logs CrowdStrike]
+        position:
+          x: 24
+          y: 109
+        size:
+          w: 24
+          h: 17
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: destination.domain
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count

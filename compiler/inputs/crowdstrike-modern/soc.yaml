@@ -1,0 +1,314 @@
+---
+dashboards:
+  - id: crowdstrike-modern-soc-7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
+    name: '[CrowdStrike Modern] Security Operations Center'
+    description: Workflow-centric SOC dashboard providing real-time security event monitoring, alert triage, and incident response coordination
+      across all CrowdStrike data streams.
+    filters:
+      - or:
+          - field: data_stream.dataset
+            equals: crowdstrike.alert
+          - field: data_stream.dataset
+            equals: crowdstrike.falcon
+          - field: data_stream.dataset
+            equals: crowdstrike.fdr
+    controls:
+      - type: options
+        label: Host
+        width: medium
+        data_view: logs-*
+        field: host.name
+        match_technique: contains
+      - type: options
+        label: User
+        width: medium
+        data_view: logs-*
+        field: user.name
+        match_technique: contains
+      - type: options
+        label: Severity
+        width: small
+        data_view: logs-*
+        field: crowdstrike.alert.severity
+        match_technique: exact
+    panels:
+      # Context Layer - Navigation
+      - title: Dashboard Navigation
+        position:
+          x: 0
+          y: 0
+        size:
+          w: 48
+          h: 4
+        links:
+          layout: horizontal
+          items:
+            - label: SOC Dashboard
+              dashboard: crowdstrike-modern-soc-7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
+            - label: Threat Investigation
+              dashboard: crowdstrike-modern-investigation-8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e
+            - label: Asset & Vulnerability
+              dashboard: crowdstrike-modern-assets-9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f
+            - label: Compliance & Audit
+              dashboard: crowdstrike-modern-compliance-0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a
+
+      # Summary Layer - Key Metrics
+      - title: Total Security Events
+        description: Total security events across all data streams in selected time range
+        position:
+          x: 0
+          y: 4
+        size:
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Total Events
+      - title: Critical Alerts
+        description: Number of critical severity alerts requiring immediate attention
+        position:
+          x: 12
+          y: 4
+        size:
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Critical Alerts
+          filters:
+            - field: crowdstrike.alert.severity
+              equals: critical
+      - title: Active Threats
+        description: Unique threat detections requiring investigation
+        position:
+          x: 24
+          y: 4
+        size:
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: threat.technique.name
+            label: Active Threats
+          filters:
+            - exists: threat.technique.name
+      - title: Affected Hosts
+        description: Number of unique hosts with security events
+        position:
+          x: 36
+          y: 4
+        size:
+          w: 12
+          h: 8
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: host.name
+            label: Affected Hosts
+
+      # Analysis Layer - Security Events Over Time
+      - title: Security Events Over Time
+        description: Time series view of security events showing volume trends and patterns
+        position:
+          x: 0
+          y: 12
+        size:
+          w: 48
+          h: 15
+        lens:
+          type: area
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: event.category
+            type: values
+            size: 8
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Event Count
+
+      # Analysis Layer - Alert Status Breakdown
+      - title: Alert Status
+        description: Distribution of alerts by current status for triage prioritization
+        position:
+          x: 0
+          y: 27
+        size:
+          w: 12
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.alert.status
+              type: values
+              size: 8
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.alert
+
+      # Analysis Layer - Severity Distribution
+      - title: Alert Severity Distribution
+        description: Breakdown of alerts by severity level for risk assessment
+        position:
+          x: 12
+          y: 27
+        size:
+          w: 12
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.alert.severity
+              type: values
+              size: 5
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: false
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.alert
+
+      # Analysis Layer - Event Categories
+      - title: Event Category Distribution
+        description: Security event types from Falcon detections
+        position:
+          x: 24
+          y: 27
+        size:
+          w: 12
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: event.category
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.falcon
+
+      # Analysis Layer - Platform Distribution
+      - title: Affected Platforms
+        description: Operating system platforms with security events
+        position:
+          x: 36
+          y: 27
+        size:
+          w: 12
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: host.os.platform
+              type: values
+              size: 8
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+
+      # Detail Layer - Top Affected Hosts
+      - title: Top 10 Affected Hosts
+        description: Hosts with highest security event volume requiring attention
+        position:
+          x: 0
+          y: 42
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: host.name
+            type: values
+            size: 10
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Event Count
+
+      # Detail Layer - Top Users
+      - title: Top 10 Users with Security Events
+        description: Users associated with highest security event volume
+        position:
+          x: 24
+          y: 42
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: user.name
+            type: values
+            size: 10
+            sort:
+              by: Event Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Event Count
