@@ -11,7 +11,7 @@
 # to YAML format for use as documentation examples.
 dashboards:
   - id: otel-host-details-overview
-    name: '[OTel] Host Details - Overview'
+    name: '[OTel System] Host Details - Overview'
     description: Detailed overview of host resource utilization and performance metrics
     filters:
       - exists: resource.attributes.host.name
@@ -23,10 +23,12 @@ dashboards:
         data_view: metrics-*
         field: resource.attributes.host.name
     panels:
-      - title: Navigation Links
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
         size: {w: 48, h: 3}
         position: {x: 0, y: 0}
-        description: Links to related dashboards
         links:
           layout: horizontal
           items:
@@ -40,9 +42,18 @@ dashboards:
               dashboard: otel-host-details-metadata
             - label: Host Logs
               dashboard: otel-host-details-logs
-      - title: CPU Utilization
-        size: {w: 12, h: 5}
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # KEY METRICS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Key Metrics
+        size: {w: 48, h: 2}
         position: {x: 0, y: 3}
+        markdown:
+          content: '## Key Metrics'
+      - title: CPU Utilization
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -54,8 +65,8 @@ dashboards:
             format:
               type: percent
       - title: Normalized Load
-        size: {w: 12, h: 5}
-        position: {x: 12, y: 3}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -65,8 +76,8 @@ dashboards:
             format:
               type: percent
       - title: Memory Utilization
-        size: {w: 12, h: 5}
-        position: {x: 24, y: 3}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,8 +87,8 @@ dashboards:
             format:
               type: percent
       - title: Disk Usage
-        size: {w: 12, h: 5}
-        position: {x: 36, y: 3}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -87,9 +98,18 @@ dashboards:
             label: Disk %
             format:
               type: percent
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # RESOURCE TRENDS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Resource Trends
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 13}
+        markdown:
+          content: '## Resource Trends'
       - title: CPU Utilization Over Time
-        size: {w: 24, h: 14}
-        position: {x: 0, y: 8}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -104,8 +124,8 @@ dashboards:
               format:
                 type: percent
       - title: Memory Utilization Over Time
-        size: {w: 24, h: 14}
-        position: {x: 24, y: 8}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 15}
         lens:
           type: area
           data_view: metrics-*
@@ -118,8 +138,8 @@ dashboards:
               format:
                 type: percent
       - title: Normalized Load Over Time
-        size: {w: 24, h: 14}
-        position: {x: 0, y: 22}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -132,8 +152,8 @@ dashboards:
               format:
                 type: percent
       - title: Disk Usage by Mount Point
-        size: {w: 24, h: 14}
-        position: {x: 24, y: 22}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -143,6 +163,7 @@ dashboards:
           breakdown:
             type: values
             field: attributes.mountpoint
+            size: 10
           metrics:
             - aggregation: average
               field: metrics.system.filesystem.utilization
