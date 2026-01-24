@@ -97,7 +97,7 @@ receivers:
 cd compiler
 
 # Compile the dashboard
-make compile INPUTS=../docs/examples/postgresql_otel/02-overview-esql.yaml
+make compile INPUTS=../docs/content/examples/postgresql_otel/02-overview-esql.yaml
 ```
 
 ## Usage
