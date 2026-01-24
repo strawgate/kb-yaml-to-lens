@@ -1,0 +1,530 @@
+---
+dashboards:
+  - name: '[Metrics Redis] Instance Details'
+    description: OpenTelemetry Redis Receiver - Detailed metrics for a specific Redis instance
+    filters:
+      - field: data_stream.dataset
+        equals: redisreceiver.otel
+    controls:
+      - type: options
+        label: Redis Instance
+        data_view: metrics-*
+        field: resource.attributes.service.instance.id
+        width: medium
+        match_technique: contains
+    panels:
+      - position: {x: 0, y: 0}
+        size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: redis-overview
+            - label: Instance Details
+              dashboard: redis-instance-details
+            - label: Database Metrics
+              dashboard: redis-database-metrics
+            - label: Redis Documentation
+              url: https://redis.io/docs/
+      - position: {x: 0, y: 2}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Redis Instance Health'
+          font_size: 14
+      - title: Uptime
+        position: {x: 0, y: 4}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: redis.uptime
+            label: Uptime (s)
+            format:
+              type: number
+      - title: Connected Clients
+        position: {x: 8, y: 4}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.clients.connected
+            label: Clients
+            format:
+              type: number
+      - title: Blocked Clients
+        position: {x: 16, y: 4}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.clients.blocked
+            label: Blocked
+            format:
+              type: number
+      - title: Commands/sec
+        position: {x: 24, y: 4}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.commands
+            label: Cmd/sec
+            format:
+              type: number
+      - title: Connected Replicas
+        position: {x: 32, y: 4}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.slaves.connected
+            label: Replicas
+            format:
+              type: number
+      - title: Cache Hit Rate
+        position: {x: 40, y: 4}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: average(redis.keyspace.hits) / (average(redis.keyspace.hits) + average(redis.keyspace.misses))
+            label: Hit Rate
+            format:
+              type: percent
+      - position: {x: 0, y: 8}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Memory Analysis'
+          font_size: 14
+      - title: Memory Used
+        position: {x: 0, y: 10}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.memory.used
+            label: Used
+            format:
+              type: bytes
+      - title: Memory Peak
+        position: {x: 8, y: 10}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.memory.peak
+            label: Peak
+            format:
+              type: bytes
+      - title: Memory RSS
+        position: {x: 16, y: 10}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.memory.rss
+            label: RSS
+            format:
+              type: bytes
+      - title: Fragmentation Ratio
+        position: {x: 24, y: 10}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.memory.fragmentation_ratio
+            label: Fragmentation
+            format:
+              type: number
+      - title: Lua Memory
+        position: {x: 32, y: 10}
+        size: {w: 8, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.memory.lua
+            label: Lua
+            format:
+              type: bytes
+      - title: Memory Usage Trend
+        position: {x: 0, y: 14}
+        size: {w: 48, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.memory.used
+              label: Used Memory
+              format:
+                type: bytes
+            - aggregation: average
+              field: redis.memory.rss
+              label: RSS
+              format:
+                type: bytes
+            - aggregation: average
+              field: redis.memory.peak
+              label: Peak
+              format:
+                type: bytes
+      - title: Memory Fragmentation Over Time
+        position: {x: 0, y: 26}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.memory.fragmentation_ratio
+              label: Fragmentation Ratio
+              format:
+                type: number
+      - title: Lua Script Memory Usage
+        position: {x: 24, y: 26}
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.memory.lua
+              label: Lua Memory
+              format:
+                type: bytes
+      - position: {x: 0, y: 38}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Client Connections & Performance'
+          font_size: 14
+      - title: Client Connections Over Time
+        position: {x: 0, y: 40}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.clients.connected
+              label: Connected
+              format:
+                type: number
+            - aggregation: average
+              field: redis.clients.blocked
+              label: Blocked
+              format:
+                type: number
+      - title: Connection Activity
+        position: {x: 24, y: 40}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - formula: counter_rate(max(redis.connections.received))
+              label: Received Rate
+              format:
+                type: number
+            - formula: counter_rate(max(redis.connections.rejected))
+              label: Rejected Rate
+              format:
+                type: number
+      - title: Client Buffer Sizes
+        position: {x: 0, y: 52}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: max
+              field: redis.clients.max_input_buffer
+              label: Max Input Buffer
+              format:
+                type: bytes
+            - aggregation: max
+              field: redis.clients.max_output_buffer
+              label: Max Output Buffer
+              format:
+                type: bytes
+      - title: Commands Processed Rate
+        position: {x: 24, y: 52}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - formula: counter_rate(max(redis.commands.processed))
+              label: Commands/sec
+              format:
+                type: number
+      - position: {x: 0, y: 64}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Keyspace Operations'
+          font_size: 14
+      - title: Keyspace Hit/Miss Ratio
+        position: {x: 0, y: 66}
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - formula: counter_rate(max(redis.keyspace.hits))
+              label: Hits/sec
+              format:
+                type: number
+            - formula: counter_rate(max(redis.keyspace.misses))
+              label: Misses/sec
+              format:
+                type: number
+      - title: Cache Hit Rate Over Time
+        position: {x: 24, y: 66}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - formula: average(redis.keyspace.hits) / (average(redis.keyspace.hits) + average(redis.keyspace.misses))
+              label: Hit Rate
+              format:
+                type: percent
+      - title: Key Eviction & Expiration
+        position: {x: 0, y: 78}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - formula: counter_rate(max(redis.keys.evicted))
+              label: Evicted/sec
+              format:
+                type: number
+            - formula: counter_rate(max(redis.keys.expired))
+              label: Expired/sec
+              format:
+                type: number
+      - title: RDB Changes Since Last Save
+        position: {x: 24, y: 78}
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.rdb.changes_since_last_save
+              label: Unsaved Changes
+              format:
+                type: number
+      - position: {x: 0, y: 90}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Network I/O'
+          font_size: 14
+      - title: Network Traffic
+        position: {x: 0, y: 92}
+        size: {w: 48, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - formula: counter_rate(max(redis.net.input))
+              label: Input (bytes/sec)
+              format:
+                type: bytes
+            - formula: counter_rate(max(redis.net.output))
+              label: Output (bytes/sec)
+              format:
+                type: bytes
+      - position: {x: 0, y: 104}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## CPU Usage'
+          font_size: 14
+      - title: CPU Time by Type
+        position: {x: 0, y: 106}
+        size: {w: 48, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: attributes.state
+            type: values
+            size: 10
+            sort:
+              by: CPU Time
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - formula: counter_rate(max(redis.cpu.time))
+              label: CPU Time
+              format:
+                type: number
+      - position: {x: 0, y: 118}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Replication'
+          font_size: 14
+      - title: Replication Offset
+        position: {x: 0, y: 120}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.replication.offset
+              label: Replication Offset
+              format:
+                type: bytes
+      - title: Replication Backlog
+        position: {x: 24, y: 120}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.replication.backlog_first_byte_offset
+              label: Backlog Offset
+              format:
+                type: bytes
+      - title: Connected Replicas Over Time
+        position: {x: 0, y: 132}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.slaves.connected
+              label: Replicas
+              format:
+                type: number
+      - title: Fork Duration
+        position: {x: 24, y: 132}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          metrics:
+            - aggregation: average
+              field: redis.latest_fork
+              label: Fork Duration (μs)
+              format:
+                type: number
