@@ -463,7 +463,7 @@ class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
           type: bar
           query: |
             FROM logs-*
-            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 1 hour)
+            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
           dimension:
             field: "@timestamp"
           metrics:
@@ -477,7 +477,7 @@ class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
           mode: stacked
           query: |
             FROM logs-*
-            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 1 hour), service.name
+            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 20, ?_tstart, ?_tend), service.name
           dimension:
             field: "@timestamp"
           breakdown:
@@ -505,7 +505,7 @@ class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
           type: line
           query: |
             FROM metrics-*
-            | STATS avg_cpu = AVG(system.cpu.total.pct) BY @timestamp = BUCKET(@timestamp, 5 minutes)
+            | STATS avg_cpu = AVG(system.cpu.total.pct) BY @timestamp = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
           dimension:
             field: "@timestamp"
           metrics:
@@ -518,7 +518,7 @@ class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
           type: line
           query: |
             FROM metrics-*
-            | STATS avg_cpu = AVG(system.cpu.total.pct) BY @timestamp = BUCKET(@timestamp, 5 minutes), host.name
+            | STATS avg_cpu = AVG(system.cpu.total.pct) BY @timestamp = BUCKET(@timestamp, 20, ?_tstart, ?_tend), host.name
           dimension:
             field: "@timestamp"
           breakdown:
@@ -546,7 +546,7 @@ class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
           type: area
           query: |
             FROM metrics-*
-            | STATS avg_mem = AVG(system.memory.used.pct) BY @timestamp = BUCKET(@timestamp, 5 minutes)
+            | STATS avg_mem = AVG(system.memory.used.pct) BY @timestamp = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
           dimension:
             field: "@timestamp"
           metrics:
@@ -560,7 +560,7 @@ class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
           mode: percentage
           query: |
             FROM logs-*
-            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 1 hour), service.name
+            | STATS count = COUNT(*) BY @timestamp = BUCKET(@timestamp, 20, ?_tstart, ?_tend), service.name
           dimension:
             field: "@timestamp"
           breakdown:

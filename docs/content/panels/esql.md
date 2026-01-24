@@ -386,7 +386,7 @@ dashboards:
                     event_count = COUNT(*),
                     avg_response_time = AVG(response.time),
                     success_rate = COUNT(status == 200) / COUNT(*) * 100,
-                    precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
+                    precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT timestamp_bucket ASC
           dimension:
             field: "timestamp_bucket"

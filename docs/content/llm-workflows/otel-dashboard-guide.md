@@ -104,32 +104,39 @@ filters:
 
 ### Time Series Queries
 
-Use the `TS` source command with `TBUCKET()` for time series data. Use reasonable intervals (5 minutes recommended) so dashboards remain readable across different time ranges:
+Use the `TS` source command with dynamic bucketing for time series data. Always use `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` so dashboards remain readable across different time ranges:
 
 ```esql
 TS metrics-*
 | WHERE data_stream.dataset == "apachereceiver.otel"
 | WHERE apache.requests IS NOT NULL
-| STATS rate = SUM(RATE(apache.requests)) BY time_bucket = TBUCKET(5 minutes)
+| STATS rate = SUM(RATE(apache.requests)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
 | SORT time_bucket ASC
 ```
 
 ### Time Bucket Sizing Best Practices
 
-Choose the right bucketing approach based on your query type:
+Always use dynamic bucketing with both FROM and TS queries:
 
-| Query Type | Recommended Approach | Example |
-| ---------- | -------------------- | ------- |
-| TS + RATE() | `TBUCKET(5 minutes)` | Counter metrics requiring rate calculations |
-| FROM + COUNT/SUM | `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` | Log counts, non-counter aggregations |
+```esql
+# Recommended pattern for all queries
+BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+```
 
-**Why this matters:**
+| Parameter | Description |
+| --------- | ----------- |
+| `@timestamp` | The timestamp field to bucket |
+| `20` | Target number of buckets (20-50 recommended) |
+| `?_tstart` | Kibana time range start (auto-populated) |
+| `?_tend` | Kibana time range end (auto-populated) |
 
-- `TBUCKET(1 minute)` creates 10,080 data points for 1 week - too granular
-- `TBUCKET(5 minutes)` creates 2,016 data points for 1 week - reasonable
-- `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` adapts automatically to time range
+**Why dynamic bucketing is essential:**
 
-**Note:** `TBUCKET` only supports fixed intervals. The 4-parameter `BUCKET()` syntax with dynamic bucket count only works with `FROM` queries, not `TS` queries.
+- Fixed intervals like `BUCKET(@timestamp, 1 minute)` create 10,080 data points for 1 week
+- Fixed intervals like `BUCKET(@timestamp, 5 minutes)` create 2,016 data points for 1 week
+- `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` creates exactly ~20 data points regardless of time range
+
+**Note:** Avoid `TBUCKET(interval)` as it uses fixed intervals that don't scale with the dashboard time range.
 
 ### Counter Metrics
 
@@ -269,7 +276,8 @@ Before finalizing a dashboard, verify:
 ### Query Correctness
 
 - [ ] Counter metrics use `RATE()`, not `MAX()`/`AVG()`
-- [ ] Time series queries use `TS` + `TBUCKET()`, not `FROM` + `BUCKET()`
+- [ ] All time bucketing uses `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for dynamic sizing
+- [ ] No fixed-interval bucketing like `TBUCKET(5 minutes)` or `BUCKET(@timestamp, 1 hour)`
 - [ ] Field names with special characters are backtick-escaped
 - [ ] All queries include NULL checks for optional metrics
 - [ ] Use `SORT` not `ORDER` in ES|QL

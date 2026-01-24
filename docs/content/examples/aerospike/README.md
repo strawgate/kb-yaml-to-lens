@@ -20,7 +20,7 @@ All dashboards include navigation links for easy switching between views.
 
 - **Aerospike**: Aerospike database cluster
 - **OpenTelemetry Collector**: Collector with Aerospike receiver configured
-- **Kibana**: Version 9.2.0 or later (required for TS/TBUCKET/RATE/AVG_OVER_TIME)
+- **Kibana**: Version 9.2.0 or later (required for TS/BUCKET/RATE/AVG_OVER_TIME)
 
 ## Data Requirements
 

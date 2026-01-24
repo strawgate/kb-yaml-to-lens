@@ -63,7 +63,7 @@ Optimized source command for time series data streams. Available in Elasticsearc
 ```esql
 TS my_metrics
 | WHERE @timestamp >= NOW() - 1 day
-| STATS SUM(RATE(requests)) BY TBUCKET(1 hour), host
+| STATS SUM(RATE(requests)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), host
 ```
 
 ---
@@ -105,9 +105,9 @@ FROM logs-*
     max_time = MAX(response_time)
   BY service.name
 
-# Time bucketing
+# Time bucketing (dynamic - recommended)
 FROM logs-*
-| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 1 hour)
+| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
 | SORT time_bucket ASC
 ```
 
@@ -264,21 +264,19 @@ For use with the TS source command (Elasticsearch 9.2+):
 | `FIRST_OVER_TIME(field)` | Earliest value by timestamp | `STATS MAX(FIRST_OVER_TIME(value))` |
 | `LAST_OVER_TIME(field)` | Latest value by timestamp | `STATS MAX(LAST_OVER_TIME(value))` |
 
-Time bucketing function (for use with TS source command):
+### Dynamic Time Bucketing (Required)
 
-| Function | Description | Example |
-| -------- | ----------- | ------- |
-| `TBUCKET(interval)` | Groups @timestamp into time buckets for time-series aggregations | `BY TBUCKET(5 minutes)`, `BY TBUCKET(1 hour)` |
-
-**Note:** `TBUCKET` is specialized for `@timestamp` in time-series queries (TS + STATS). For general-purpose bucketing of any date/numeric field, use `BUCKET()` instead (see Date/Time Functions below).
-
-### Dynamic Time Bucketing (Recommended for FROM Queries)
-
-For time series charts that scale with the user's selected time range, use the 4-parameter `BUCKET()` syntax with `FROM` queries:
+**Always use the 4-parameter `BUCKET()` syntax** for time series charts so they scale with the user's selected time range. This works with both `FROM` and `TS` queries:
 
 ```esql
+# With FROM queries
 FROM logs-*
 | STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+| SORT time_bucket ASC
+
+# With TS queries
+TS metrics-*
+| STATS rate = SUM(RATE(requests)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
 | SORT time_bucket ASC
 ```
 
@@ -291,14 +289,13 @@ FROM logs-*
 
 This ensures visualizations remain readable whether the user views 5 minutes or 1 year of data. The `?_tstart` and `?_tend` parameters are automatically populated by Kibana based on the dashboard time picker.
 
-**When to use each approach:**
+**Why dynamic bucketing is essential:**
 
-| Approach | When to Use |
-| -------- | ----------- |
-| `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` | FROM queries where you want adaptive bucket sizes |
-| `TBUCKET(5 minutes)` | TS queries requiring RATE() or other time-series functions |
+- Fixed intervals like `BUCKET(@timestamp, 1 minute)` create 10,080 data points for 1 week
+- Fixed intervals like `BUCKET(@timestamp, 5 minutes)` create 2,016 data points for 1 week
+- `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` creates exactly ~20 data points regardless of time range
 
-**Note:** `TBUCKET` only accepts fixed intervals. When using TS queries, choose an interval that works across typical time ranges (5 minutes or 15 minutes are good defaults).
+**Note:** `TBUCKET(interval)` is an alias for `BUCKET(@timestamp, interval)` but should be avoided because it uses fixed intervals that don't scale with the dashboard time range.
 
 ---
 
@@ -327,7 +324,7 @@ This ensures visualizations remain readable whether the user views 5 minutes or 
 | `DATE_DIFF(unit, d1, d2)` | Difference between dates | `EVAL age_days = DATE_DIFF("day", created, NOW())` |
 | `DATE_FORMAT(date, fmt)` | Format date as string | `EVAL formatted = DATE_FORMAT(@timestamp, "yyyy-MM-dd")` |
 | `DATE_PARSE(fmt, s)` | Parse string to date | `EVAL parsed = DATE_PARSE("yyyy-MM-dd", date_str)` |
-| `BUCKET(field, size)` | General-purpose bucketing for any date/numeric field | `STATS count = COUNT(*) BY BUCKET(@timestamp, 1 hour)` |
+| `BUCKET(field, count, start, end)` | Dynamic bucketing for date/numeric fields | `STATS count = COUNT(*) BY BUCKET(@timestamp, 20, ?_tstart, ?_tend)` |
 
 ### Numeric Functions
 
@@ -515,7 +512,7 @@ FROM logs-*
 
 11. **Using window functions**: ES|QL has no `ROW_NUMBER() OVER (PARTITION BY ...)`. Use `VALUES()` + `MV_SORT()` + `MV_FIRST()`/`MV_LAST()` for latest-per-group patterns.
 
-12. **Hardcoded time buckets**: Avoid `BUCKET(@timestamp, 1 minute)` - use dynamic sizing `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for FROM queries so visualizations scale with time range. For TS queries, use reasonable intervals like `TBUCKET(5 minutes)`.
+12. **Hardcoded time buckets**: Always use dynamic sizing `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like `BUCKET(@timestamp, 1 minute)` or `TBUCKET(5 minutes)` as they create too many data points for long time ranges.
 
 ---
 

@@ -119,11 +119,11 @@ All time series charts respect the dashboard time picker. Common time ranges:
 For ES|QL panels, modify the query:
 
 ```sql
--- Example: Change aggregation interval for TS (time series) queries
-STATS commits = SUM(RATE(postgresql.commits)) BY time_bucket = TBUCKET(5 minutes)
+-- Example: Use dynamic bucket sizing (recommended for all queries)
+STATS commits = SUM(RATE(postgresql.commits)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
 
--- Example: For FROM queries, use BUCKET instead
-STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 5 minutes)
+-- Adjust bucket count (20-50) based on desired granularity
+STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
 ```
 
 ### Adding Alerts
