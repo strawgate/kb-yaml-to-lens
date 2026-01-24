@@ -13,6 +13,7 @@ Commands are organized into separate modules:
 import logging
 import os
 import sys
+from importlib.metadata import PackageNotFoundError, version
 
 import rich_click as click
 
@@ -36,9 +37,16 @@ click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
 
+# Get package version dynamically from installed package metadata
+try:
+    __version__ = version('kb-dashboard-compiler')
+except PackageNotFoundError:
+    # Fallback if package is not installed (e.g., during development)
+    __version__ = '0.0.0-dev'
+
 
 @click.group()
-@click.version_option(version='0.1.0')
+@click.version_option(version=__version__)
 @click.option(
     '--loglevel',
     type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR'], case_sensitive=False),
