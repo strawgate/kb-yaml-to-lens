@@ -40,7 +40,8 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: Windows Security Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -63,7 +64,8 @@ dashboards:
 
       # Summary Layer - Key Security Metrics
       - title: Total Failed Events
-        grid: {x: 0, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -71,7 +73,8 @@ dashboards:
             aggregation: count
             label: Events
       - title: Failed Logons (4625)
-        grid: {x: 12, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -82,7 +85,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Account Lockouts (4740)
-        grid: {x: 24, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -93,7 +97,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4740'
       - title: Unique Affected Users
-        grid: {x: 36, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -104,7 +109,8 @@ dashboards:
 
       # Analysis Layer - Time Series
       - title: Failed Events Over Time
-        grid: {x: 0, y: 9, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -122,7 +128,8 @@ dashboards:
 
       # Analysis Layer - Failure Analysis
       - title: Failure Reasons
-        grid: {x: 0, y: 21, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -134,7 +141,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Events by Type
-        grid: {x: 24, y: 21, w: 12, h: 12}
+        size: {w: 12, h: 12}
+        position: {x: 24, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -146,7 +154,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Target Hosts
-        grid: {x: 36, y: 21, w: 12, h: 12}
+        size: {w: 12, h: 12}
+        position: {x: 36, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -160,7 +169,8 @@ dashboards:
 
       # Analysis Layer - User and Source Analysis
       - title: Top Failed Users
-        grid: {x: 0, y: 33, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -180,7 +190,8 @@ dashboards:
             field: winlog.event_id
             size: 5
       - title: Source IP Analysis
-        grid: {x: 24, y: 33, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -202,7 +213,8 @@ dashboards:
 
       # Detail Layer - Audit Log Table
       - title: Failed Event Audit Log
-        grid: {x: 0, y: 48, w: 48, h: 18}
+        size: {w: 48, h: 18}
+        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

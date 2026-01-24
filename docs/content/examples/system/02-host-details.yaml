@@ -24,13 +24,15 @@ dashboards:
     panels:
       - title: System Navigation
         hide_title: true
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         markdown:
           content: |
             ### [System overview](system-metrics-overview)
           font_size: 12
       - title: CPU Usage
-        grid: {x: 0, y: 3, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -41,7 +43,8 @@ dashboards:
             format:
               type: percent
       - title: Memory Usage
-        grid: {x: 8, y: 3, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 8, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -52,7 +55,8 @@ dashboards:
             format:
               type: percent
       - title: Disk I/O
-        grid: {x: 16, y: 3, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 16, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -63,7 +67,8 @@ dashboards:
             format:
               type: bytes
       - title: Inbound Traffic
-        grid: {x: 24, y: 3, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -74,7 +79,8 @@ dashboards:
             format:
               type: bytes
       - title: Outbound Traffic
-        grid: {x: 32, y: 3, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 32, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -85,7 +91,8 @@ dashboards:
             format:
               type: bytes
       - title: Load Average
-        grid: {x: 40, y: 3, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 40, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -94,7 +101,8 @@ dashboards:
             field: system.load.1
             label: Load 1m
       - title: Disk Write I/O
-        grid: {x: 0, y: 11, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 0, y: 11}
         lens:
           type: metric
           data_view: metrics-*
@@ -105,7 +113,8 @@ dashboards:
             format:
               type: bytes
       - title: Max Disk Usage
-        grid: {x: 8, y: 11, w: 8, h: 8}
+        size: {w: 8, h: 8}
+        position: {x: 8, y: 11}
         lens:
           type: metric
           data_view: metrics-*
@@ -117,13 +126,15 @@ dashboards:
               type: percent
       - title: CPU
         hide_title: true
-        grid: {x: 0, y: 19, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 19}
         markdown:
           content: |
             ## CPU
           font_size: 12
       - title: Top processes by CPU usage
-        grid: {x: 0, y: 21, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 21}
         lens:
           type: datatable
           data_view: metrics-*
@@ -143,7 +154,8 @@ dashboards:
             enabled: true
             page_size: 10
       - title: CPU usage over time
-        grid: {x: 24, y: 21, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 21}
         lens:
           type: line
           data_view: metrics-*
@@ -157,7 +169,8 @@ dashboards:
               format:
                 type: percent
       - title: System load
-        grid: {x: 0, y: 33, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 33}
         lens:
           type: line
           data_view: metrics-*
@@ -176,13 +189,15 @@ dashboards:
               label: 15 min
       - title: Memory
         hide_title: true
-        grid: {x: 0, y: 45, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 45}
         markdown:
           content: |
             ## Memory
           font_size: 12
       - title: Top processes by memory usage
-        grid: {x: 0, y: 47, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 47}
         lens:
           type: datatable
           data_view: metrics-*
@@ -202,7 +217,8 @@ dashboards:
             enabled: true
             page_size: 10
       - title: Memory usage over time
-        grid: {x: 24, y: 47, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 47}
         lens:
           type: area
           mode: stacked
@@ -223,13 +239,15 @@ dashboards:
                 type: bytes
       - title: Network
         hide_title: true
-        grid: {x: 0, y: 59, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 59}
         markdown:
           content: |
             ## Network
           font_size: 12
       - title: Inbound traffic
-        grid: {x: 0, y: 61, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 61}
         lens:
           type: line
           data_view: metrics-*
@@ -247,7 +265,8 @@ dashboards:
             field: system.network.name
             size: 5
       - title: Outbound traffic
-        grid: {x: 24, y: 61, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 61}
         lens:
           type: line
           data_view: metrics-*
@@ -266,13 +285,15 @@ dashboards:
             size: 5
       - title: Disk I/O
         hide_title: true
-        grid: {x: 0, y: 73, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 73}
         markdown:
           content: |
             ## Disk I/O
           font_size: 12
       - title: Disk read throughput
-        grid: {x: 0, y: 75, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 75}
         lens:
           type: line
           data_view: metrics-*
@@ -286,7 +307,8 @@ dashboards:
               format:
                 type: bytes
       - title: Disk write throughput
-        grid: {x: 24, y: 75, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 75}
         lens:
           type: line
           data_view: metrics-*
@@ -301,13 +323,15 @@ dashboards:
                 type: bytes
       - title: Filesystem
         hide_title: true
-        grid: {x: 0, y: 87, w: 48, h: 2}
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 87}
         markdown:
           content: |
             ## Filesystem
           font_size: 12
       - title: Filesystem usage by mount point
-        grid: {x: 0, y: 89, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 89}
         lens:
           type: bar
           mode: percentage
@@ -323,7 +347,8 @@ dashboards:
               format:
                 type: bytes
       - title: Filesystem usage over time
-        grid: {x: 24, y: 89, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 89}
         lens:
           type: line
           data_view: metrics-*

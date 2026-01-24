@@ -10,7 +10,8 @@ dashboards:
         equals: iam
     panels:
       - title: Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -21,7 +22,8 @@ dashboards:
             - label: SSH logins
               dashboard: system-ssh-logins
       - title: User and group events over time
-        grid: {x: 0, y: 3, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -37,7 +39,8 @@ dashboards:
             field: event.action
             size: 10
       - title: Event actions
-        grid: {x: 0, y: 18, w: 16, h: 15}
+        size: {w: 16, h: 15}
+        position: {x: 0, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -48,7 +51,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Hosts
-        grid: {x: 16, y: 18, w: 16, h: 15}
+        size: {w: 16, h: 15}
+        position: {x: 16, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -59,7 +63,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Users
-        grid: {x: 32, y: 18, w: 16, h: 15}
+        size: {w: 16, h: 15}
+        position: {x: 32, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -70,7 +75,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Recent User and Group Events
-        grid: {x: 0, y: 33, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 33}
         lens:
           type: datatable
           data_view: logs-*
