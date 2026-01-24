@@ -9,13 +9,13 @@ DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
-# YAML linting exclusions (operates on parent directory)
-YAMLFIX_EXCLUDE := \
-	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
-	--exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" \
-	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
-	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
-	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
+# YAML directories to lint (explicit list is faster than exclusions)
+# Using explicit paths avoids scanning .venv, node_modules, etc.
+YAMLFIX_DIRS := \
+	../compiler/inputs \
+	../docs/content/examples \
+	../docs/mkdocs.yml \
+	../.github
 
 help:
 	@echo "Dashboard Compiler Commands:"
@@ -102,14 +102,14 @@ lint-python-check:
 	@echo "Running ruff check..."
 	@uv run ruff check . --quiet
 
-# YAML linting (operates on parent directory)
+# YAML linting (explicit directories only - faster than exclusion-based scanning)
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix $(YAMLFIX_EXCLUDE) ..
+	uv run yamlfix $(YAMLFIX_DIRS)
 
 lint-yaml-check:
 	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) .. > /dev/null 2>&1 && echo "✓ YAML checks passed" || uv run yamlfix --check $(YAMLFIX_EXCLUDE) ..
+	@uv run yamlfix --check $(YAMLFIX_DIRS) > /dev/null 2>&1 && echo "✓ YAML checks passed" || uv run yamlfix --check $(YAMLFIX_DIRS)
 
 # Type checking
 typecheck:
