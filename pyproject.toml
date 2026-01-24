@@ -16,6 +16,7 @@ classifiers = [
 
 dependencies = [
     "kb-dashboard-compiler",
+    "kb-dashboard-lint",
     "click>=8.0",
 ]
 
@@ -28,6 +29,7 @@ dev = [
 
 [tool.uv.sources]
 kb-dashboard-compiler = { workspace = true }
+kb-dashboard-lint = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
@@ -82,7 +84,13 @@ ignore = [
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "packages/kb-dashboard-compiler/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-lint/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-compiler/tests/**/*.py" = [
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "INP001", # Tests are not meant to be imported as packages
+]
+"packages/kb-dashboard-lint/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
@@ -108,7 +116,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["dashboard_compiler"]
+known-first-party = ["dashboard_compiler", "dashboard_lint"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -161,3 +169,40 @@ root = "packages/kb-dashboard-compiler/src/dashboard_compiler/yaml_roundtrip.py"
 # ruamel.yaml lacks type stubs and returns dynamic types from load/dump operations.
 reportAny = false
 reportUnknownMemberType = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-lint/src"
+extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-compiler/src"]
+# Many lint rules use hasattr() checks and dynamic attribute access patterns
+# that are difficult to type correctly with union types
+reportIncompatibleVariableOverride = false
+reportUnusedCallResult = false
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnannotatedClassAttribute = false
+reportUnusedParameter = false
+reportUnreachable = false
+reportUnnecessaryIsInstance = false
+reportAttributeAccessIssue = false
+reportArgumentType = false
+reportUnnecessaryTypeIgnoreComment = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-lint/tests"
+extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-compiler/src"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
