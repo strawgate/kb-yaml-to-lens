@@ -50,7 +50,8 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: Windows Security Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -73,7 +74,8 @@ dashboards:
 
       # Summary Layer - Key Metrics
       - title: Total Events
-        grid: {x: 0, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -81,7 +83,8 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Groups
-        grid: {x: 12, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -90,7 +93,8 @@ dashboards:
             field: winlog.event_data.TargetUserName
             label: Groups
       - title: Members Added
-        grid: {x: 24, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -104,7 +108,8 @@ dashboards:
                 - '4732'
                 - '4756'
       - title: Members Removed
-        grid: {x: 36, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -120,7 +125,8 @@ dashboards:
 
       # Analysis Layer - Time Series
       - title: Group Management Events Over Time
-        grid: {x: 0, y: 9, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -138,7 +144,8 @@ dashboards:
 
       # Analysis Layer - Event Distribution
       - title: Event Types
-        grid: {x: 0, y: 21, w: 16, h: 12}
+        size: {w: 16, h: 12}
+        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -150,7 +157,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Events by Host
-        grid: {x: 16, y: 21, w: 16, h: 12}
+        size: {w: 16, h: 12}
+        position: {x: 16, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -162,7 +170,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Top Administrators
-        grid: {x: 32, y: 21, w: 16, h: 12}
+        size: {w: 16, h: 12}
+        position: {x: 32, y: 21}
         lens:
           type: bar
           mode: stacked
@@ -180,7 +189,8 @@ dashboards:
 
       # Analysis Layer - Group Analysis
       - title: Top Modified Groups
-        grid: {x: 0, y: 33, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -200,7 +210,8 @@ dashboards:
             field: winlog.event_id
             size: 5
       - title: Group and Administrator Distribution
-        grid: {x: 24, y: 33, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -217,7 +228,8 @@ dashboards:
 
       # Detail Layer - Audit Log Table
       - title: Group Management Audit Log
-        grid: {x: 0, y: 48, w: 48, h: 18}
+        size: {w: 48, h: 18}
+        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

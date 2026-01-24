@@ -36,7 +36,8 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: System Log Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -53,7 +54,8 @@ dashboards:
 
       # Summary Layer - Key IAM Metrics
       - title: Total Events
-        grid: {x: 0, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -61,7 +63,8 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Actions
-        grid: {x: 12, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -70,7 +73,8 @@ dashboards:
             field: event.action
             label: Actions
       - title: Unique Users
-        grid: {x: 24, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -79,7 +83,8 @@ dashboards:
             field: user.name
             label: Users
       - title: Unique Hosts
-        grid: {x: 36, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -90,7 +95,8 @@ dashboards:
 
       # Analysis Layer - Time Series
       - title: User and Group Events Over Time
-        grid: {x: 0, y: 9, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -108,7 +114,8 @@ dashboards:
 
       # Analysis Layer - Categorical Breakdowns
       - title: Event Actions
-        grid: {x: 0, y: 21, w: 16, h: 12}
+        size: {w: 16, h: 12}
+        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -120,7 +127,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Events by Host
-        grid: {x: 16, y: 21, w: 16, h: 12}
+        size: {w: 16, h: 12}
+        position: {x: 16, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -132,7 +140,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Events by User
-        grid: {x: 32, y: 21, w: 16, h: 12}
+        size: {w: 16, h: 12}
+        position: {x: 32, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -146,7 +155,8 @@ dashboards:
 
       # Analysis Layer - Hierarchical View
       - title: Action and User Distribution
-        grid: {x: 0, y: 33, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -161,7 +171,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Host and Action Distribution
-        grid: {x: 24, y: 33, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -178,7 +189,8 @@ dashboards:
 
       # Detail Layer - Audit Log Table
       - title: User and Group Event Audit Log
-        grid: {x: 0, y: 48, w: 48, h: 18}
+        size: {w: 48, h: 18}
+        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*
