@@ -16,30 +16,14 @@ This dashboard provides comprehensive monitoring for Memcached instances, displa
 
 - **Memcached**: Memcached server instances
 - **OpenTelemetry Collector**: Collector Contrib with Memcached receiver configured
-- **Kibana**: Version 8.x or later
+- **Kibana**: Version 9.2 or later (dashboards use ES|QL TS command)
 
 ## Data Requirements
-
-Dashboard expects metrics from the OpenTelemetry Memcached receiver:
 
 - **Data stream dataset**: `memcachedreceiver.otel`
 - **Data view**: `metrics-*`
 
-### Key Metrics
-
-| Metric | Description |
-|--------|-------------|
-| `memcached.current_items` | Current number of items in cache |
-| `memcached.bytes` | Storage bytes used |
-| `memcached.current_connections` | Active client connections |
-| `memcached.commands` | Command counts (get, set, etc.) |
-| `memcached.operation_hit_ratio` | Cache hit/miss ratio |
-
-### Key Attributes
-
-- `resource.attributes.host.name` - Memcached host name
-
-## Configuration Example
+## OpenTelemetry Collector Configuration
 
 ```yaml
 receivers:
@@ -58,24 +42,40 @@ service:
       exporters: [elasticsearch]
 ```
 
-## Usage
+## Metrics Reference
 
-1. Configure the Memcached receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile the dashboard:
+All metrics are enabled by default.
 
-   ```bash
-   kb-dashboard compile --input-file docs/content/examples/memcached_otel/01-memcached-overview.yaml
-   ```
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `memcached.bytes` | Gauge | `By` | Current bytes used to store items | — |
+| `memcached.commands` | Sum | `{commands}` | Orders processed | `command` |
+| `memcached.connections.current` | Sum | `{connections}` | Active open connections | — |
+| `memcached.connections.total` | Sum | `{connections}` | Total connections opened since server start | — |
+| `memcached.cpu.usage` | Sum | `s` | Accumulated processing time | `state` |
+| `memcached.current_items` | Sum | `{items}` | Items currently stored in the cache | — |
+| `memcached.evictions` | Sum | `{evictions}` | Cache item evictions | — |
+| `memcached.network` | Sum | `By` | Data transferred across network | `direction` |
+| `memcached.operation_hit_ratio` | Gauge | `%` | Hit ratio (0.0 to 100.0) for operations | `operation` |
+| `memcached.operations` | Sum | `{operations}` | Request outcomes | `type`, `operation` |
+| `memcached.threads` | Sum | `{threads}` | Threads used by the memcached instance | — |
 
-4. Upload to Kibana:
+### Metric Attributes
 
-   ```bash
-   kb-dashboard compile --input-file docs/content/examples/memcached_otel/01-memcached-overview.yaml --upload
-   ```
+| Attribute | Values | Description |
+| --------- | ------ | ----------- |
+| `command` | `get`, `set`, `flush`, `touch` | Command type |
+| `state` | `system`, `user` | CPU usage state |
+| `direction` | `sent`, `received` | Network direction |
+| `operation` | `increment`, `decrement`, `get` | Operation type |
+| `type` | `hit`, `miss` | Request outcome type |
 
-## Dashboard Controls
+### Resource Attributes
 
-The dashboard includes interactive controls for filtering:
+| Attribute | Description |
+| --------- | ----------- |
+| `host.name` | Memcached host name |
 
-- **Host Name**: Filter by Memcached host
+## Related Resources
+
+- [OpenTelemetry Memcached Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/memcachedreceiver)

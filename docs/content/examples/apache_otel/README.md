@@ -1,19 +1,29 @@
 # Apache HTTP Server OpenTelemetry Dashboards
 
-This directory contains dashboards for monitoring Apache HTTP Server using OpenTelemetry metrics collected by the Apache receiver.
+Dashboards for monitoring Apache HTTP Server using OpenTelemetry metrics collected by the Apache receiver.
 
 ## Overview
 
 These dashboards provide comprehensive monitoring for Apache HTTP Server 2.4.13+ installations, displaying metrics collected via the `server-status?auto` endpoint by the OpenTelemetry Collector's Apache receiver.
 
-## Upstream Documentation
+## Dashboards
 
-- [OpenTelemetry Apache Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/apachereceiver)
-- [Apache receiver metadata](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/apachereceiver/metadata.yaml)
+| Dashboard | File | Description |
+|-----------|------|-------------|
+| **Overview** | `01-apache-overview.yaml` | Apache HTTP Server performance and health metrics |
 
-## Configuration Example
+## Prerequisites
 
-To collect Apache metrics with OpenTelemetry, configure the Apache receiver in your OpenTelemetry Collector:
+- **Apache HTTP Server**: Version 2.4.13 or later with `mod_status` enabled
+- **OpenTelemetry Collector**: Collector with Apache receiver configured
+- **Kibana**: Version 9.2 or later (dashboards use ES|QL TS command)
+
+## Data Requirements
+
+- **Data stream dataset**: `apachereceiver.otel`
+- **Data view**: `metrics-*`
+
+## OpenTelemetry Collector Configuration
 
 ```yaml
 receivers:
@@ -44,83 +54,43 @@ service:
       exporters: [elasticsearch]
 ```
 
-## Dashboards
+## Metrics Reference
 
-### 01-apache-overview.yaml
+All metrics are enabled by default.
 
-Main overview dashboard displaying Apache HTTP Server performance and health metrics using ES|QL queries with the `TS` (time series) command for optimized time series analysis.
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `apache.requests` | Sum | `{requests}` | Number of requests serviced | — |
+| `apache.traffic` | Sum | `By` | Total HTTP server traffic | — |
+| `apache.current_connections` | Sum | `{connections}` | Number of active connections currently attached | — |
+| `apache.connections.async` | Gauge | `{connections}` | Number of connections in different asynchronous states | `connection_state` |
+| `apache.uptime` | Sum | `s` | Time the server has been running | — |
+| `apache.cpu.load` | Gauge | `%` | Current processor load | — |
+| `apache.cpu.time` | Sum | `{jiff}` | Jiffs used by processes of given category | `level`, `mode` |
+| `apache.request.time` | Sum | `ms` | Total time spent on handling requests | — |
+| `apache.load.1` | Gauge | `%` | Average server load over last 1 minute | — |
+| `apache.load.5` | Gauge | `%` | Average server load over last 5 minutes | — |
+| `apache.load.15` | Gauge | `%` | Average server load over last 15 minutes | — |
+| `apache.workers` | Sum | `{workers}` | Number of workers currently attached | `state` |
+| `apache.scoreboard` | Sum | `{workers}` | Count of workers decoded from Apache's scoreboard | `state` |
 
-**Sections:**
+### Metric Attributes
 
-- **Overview Metrics**: Request rate, traffic, connections, uptime, and current CPU load
-- **Time Series**: Request and traffic rates over time
-- **Performance**: CPU time and request processing time
-- **Health**: CPU load averages (1/5/15 min), connection metrics, uptime trends
-- **Capacity**: Async connections by state, worker distribution, scoreboard status
-- **Workers**: Worker states over time
-- **Summary**: Server performance data table
+| Attribute | Values | Description |
+| --------- | ------ | ----------- |
+| `connection_state` | `writing`, `keepalive`, `closing` | Async connection state |
+| `level` | `self`, `children` | CPU level |
+| `mode` | `system`, `user` | CPU mode |
+| `state` (workers) | `busy`, `idle` | Worker state |
+| `state` (scoreboard) | `open`, `waiting`, `starting`, `reading`, `sending`, `keepalive`, `dnslookup`, `closing`, `logging`, `finishing`, `idle_cleanup`, `unknown` | Scoreboard state |
 
-## Metrics Covered
+### Resource Attributes
 
-The dashboards visualize the following Apache HTTP Server metrics:
+| Attribute | Description |
+| --------- | ----------- |
+| `apache.server.name` | Apache HTTP server name |
+| `apache.server.port` | Apache HTTP server port |
 
-| Metric | Description | Type | Unit |
-|--------|-------------|------|------|
-| `apache.requests` | Total requests serviced | Sum | requests |
-| `apache.traffic` | Total HTTP server traffic | Sum | bytes |
-| `apache.current_connections` | Active connections | Sum | connections |
-| `apache.connections.async` | Async connections by state (writing, keepalive, closing) | Gauge | connections |
-| `apache.uptime` | Server uptime | Sum | seconds |
-| `apache.cpu.load` | Current CPU load percentage | Gauge | percent |
-| `apache.cpu.time` | CPU time by level and mode | Sum | {jiff} |
-| `apache.request.time` | Total request processing time | Sum | ms |
-| `apache.load.1` | Server load (1 minute average) | Gauge | percent |
-| `apache.load.5` | Server load (5 minute average) | Gauge | percent |
-| `apache.load.15` | Server load (15 minute average) | Gauge | percent |
-| `apache.workers` | Workers by state | Sum | workers |
-| `apache.scoreboard` | Scoreboard by state | Sum | workers |
+## Related Resources
 
-## Attributes
-
-Key attributes used for breakdowns and filtering:
-
-- `server.address` - Apache server hostname/address
-- `server.port` - Apache server port
-- `attributes.connection_state` - Async connection state (writing, keepalive, closing)
-- `attributes.workers_state` - Worker state
-- `attributes.scoreboard_state` - Scoreboard state
-- `attributes.cpu_level` - CPU level (system, user, children)
-- `attributes.cpu_mode` - CPU mode
-
-## Prerequisites
-
-- Apache HTTP Server 2.4.13 or later
-- Apache `mod_status` module enabled with `ExtendedStatus On`
-- OpenTelemetry Collector with Apache receiver configured
-- Metrics ingested into Elasticsearch with data view pattern `metrics-*`
-- Data stream dataset: `apachereceiver.otel`
-
-## Usage
-
-1. Configure the Apache receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile the dashboard:
-
-   ```bash
-   kb-dashboard compile --input-file docs/content/examples/apache_otel/01-apache-overview.yaml
-   ```
-
-4. Upload to Kibana:
-
-   ```bash
-   kb-dashboard compile --input-file docs/content/examples/apache_otel/01-apache-overview.yaml --upload
-   ```
-
-## Dashboard Controls
-
-The dashboard includes interactive controls for filtering:
-
-- **Server Address**: Filter by Apache server address
-- **Server Port**: Filter by Apache server port
-
-These controls allow you to focus on specific servers in multi-server environments.
+- [OpenTelemetry Apache Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/apachereceiver)

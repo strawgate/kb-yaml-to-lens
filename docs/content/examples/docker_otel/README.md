@@ -25,19 +25,10 @@ All dashboards include navigation links for easy switching between views.
 
 ## Data Requirements
 
-Dashboards expect metrics from the OpenTelemetry Docker Stats receiver:
-
 - **Data stream dataset**: `dockerstatsreceiver.otel`
 - **Data view**: `metrics-*`
 
-### Key Attributes
-
-- `container.image.name` - Container image name
-- `container.name` - Container name
-- `container.hostname` - Container hostname
-- `container.id` - Container ID
-
-## Configuration Example
+## OpenTelemetry Collector Configuration
 
 ```yaml
 receivers:
@@ -56,27 +47,54 @@ service:
       exporters: [elasticsearch]
 ```
 
-## Usage
+## Metrics Reference
 
-1. Configure the Docker Stats receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile the dashboards:
+### Default Metrics
 
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/docker_otel/
-   ```
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `container.blockio.io_service_bytes_recursive` | Sum | `By` | Bytes transferred to/from disk | `device_major`, `device_minor`, `operation` |
+| `container.cpu.usage.kernelmode` | Sum | `ns` | CPU time in kernel mode | — |
+| `container.cpu.usage.total` | Sum | `ns` | Total CPU time consumed | — |
+| `container.cpu.usage.usermode` | Sum | `ns` | CPU time in user mode | — |
+| `container.cpu.utilization` | Gauge | `1` | Percent of CPU used by container | — |
+| `container.memory.file` | Sum | `By` | Filesystem cache memory (cgroups v2) | — |
+| `container.memory.percent` | Gauge | `1` | Percentage of memory used | — |
+| `container.memory.total_cache` | Sum | `By` | Memory with block devices | — |
+| `container.memory.usage.limit` | Sum | `By` | Memory limit set for container | — |
+| `container.memory.usage.total` | Sum | `By` | Memory usage excluding cache | — |
+| `container.network.io.usage.rx_bytes` | Sum | `By` | Bytes received | `interface` |
+| `container.network.io.usage.rx_dropped` | Sum | `{packets}` | Incoming packets dropped | `interface` |
+| `container.network.io.usage.tx_bytes` | Sum | `By` | Bytes transmitted | `interface` |
+| `container.network.io.usage.tx_dropped` | Sum | `{packets}` | Outgoing packets dropped | `interface` |
 
-4. Upload to Kibana:
+### Optional Metrics (60+ additional available)
 
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/docker_otel/ --upload
-   ```
+| Category | Example Metrics |
+|----------|----------------|
+| **Block I/O** | `io_merged`, `io_queued`, `io_service_time`, `io_serviced`, `io_time`, `io_wait_time` |
+| **CPU** | `limit`, `logical.count`, `shares`, `throttling_data.*`, `usage.percpu`, `usage.system` |
+| **Memory** | `active_anon`, `active_file`, `cache`, `dirty`, `inactive_anon`, `inactive_file`, `pgfault`, `pgmajfault`, `rss`, `writeback` |
+| **Network** | `rx_errors`, `rx_packets`, `tx_errors`, `tx_packets` |
+| **Container** | `restarts`, `uptime`, `pids.count`, `pids.limit` |
 
-## Dashboard Controls
+### Metric Attributes
 
-The dashboards include interactive controls for filtering:
+| Attribute | Values | Description |
+| --------- | ------ | ----------- |
+| `device_major` | Device number | Major device number |
+| `device_minor` | Device number | Minor device number |
+| `operation` | `read`, `write`, `sync`, `async`, `discard`, `total` | Block I/O operation |
+| `interface` | Interface name | Network interface |
 
-- **Container Image**: Filter by container image name
-- **Container Name**: Filter by container name
-- **Container Hostname**: Filter by container hostname
-- **Container ID**: Filter by container ID
+### Resource Attributes
+
+| Attribute | Description | Default |
+| --------- | ----------- | ------- |
+| `container.id` | Container ID | Enabled |
+| `container.name` | Container name | Enabled |
+| `container.hostname` | Container hostname | Enabled |
+| `container.image.name` | Container image name | Enabled |
+| `container.image.id` | Container image ID | Enabled |
+| `container.runtime` | Container runtime | Enabled |
+| `container.command_line` | Container command line | Disabled |

@@ -1,6 +1,6 @@
 # System Integration Dashboards (Classic)
 
-Comprehensive monitoring dashboards for the Elastic System integration. These classic dashboards are direct conversions from the Elastic System integration.
+Comprehensive monitoring dashboards for the Elastic System integration.
 
 ## Overview
 
@@ -46,30 +46,9 @@ These dashboards provide monitoring for Linux/Unix systems, Windows systems, and
 
 ## Data Requirements
 
-Dashboards expect data from the Elastic System integration:
-
 - **Data view**: `metrics-*` (for metrics), `logs-*` (for logs)
-- **Data stream datasets**:
-  - `system.cpu`, `system.memory`, `system.network`, `system.filesystem`, `system.process`, `system.load`, `system.fsstat`
-  - `system.syslog`, `system.auth`
-  - Windows security event logs
-
-## Usage
-
-1. Configure the System integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system/
-   ```
-
-4. Upload to Kibana:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system/ --upload
-   ```
+- **Data stream datasets**: `system.cpu`, `system.memory`, `system.network`, `system.filesystem`, `system.process`, `system.load`, `system.fsstat`, `system.syslog`, `system.auth`
 
 ## Related
 
-See also: [System Modern Dashboards](../system_modern/README.md) for dashboards following the Dashboard Style Guide best practices.
+See also: [System Modern Dashboards](../system_modern/README.md) for dashboards with modern UX patterns.

@@ -24,10 +24,34 @@ All dashboards include navigation links for easy switching between views.
 
 ## Data Requirements
 
-Dashboards expect metrics from the OpenTelemetry Aerospike receiver:
-
 - **Data stream dataset**: `aerospikereceiver.otel`
 - **Data view**: `metrics-*`
+
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  aerospike:
+    endpoint: localhost:3000
+    collection_interval: 60s
+    metrics:
+      aerospike.node.memory.free:
+        enabled: true
+      aerospike.node.connection.open:
+        enabled: true
+      aerospike.namespace.memory.usage:
+        enabled: true
+      aerospike.namespace.memory.free:
+        enabled: true
+      aerospike.namespace.disk.available:
+        enabled: true
+      aerospike.namespace.query.count:
+        enabled: true
+      aerospike.namespace.transaction.count:
+        enabled: true
+```
+
+## Metrics Reference
 
 ### Core Metrics (enabled by default)
 
@@ -65,68 +89,7 @@ Dashboards expect metrics from the OpenTelemetry Aerospike receiver:
 | `attributes.type` | Connection or transaction type |
 | `attributes.index` | Index type (primary/secondary) |
 
-
-## Setup
-
-### Docker - Aerospike
-
-```bash
-docker run -d \
-  --name aerospike-test \
-  -p 3000:3000 \
-  aerospike/aerospike-server:latest
-```
-
-### OpenTelemetry Collector Configuration
-
-```yaml
-receivers:
-  aerospike:
-    endpoint: localhost:3000
-    collection_interval: 60s
-    metrics:
-      aerospike.node.memory.free:
-        enabled: true
-      aerospike.node.connection.open:
-        enabled: true
-      aerospike.namespace.memory.usage:
-        enabled: true
-      aerospike.namespace.memory.free:
-        enabled: true
-      aerospike.namespace.disk.available:
-        enabled: true
-      aerospike.namespace.query.count:
-        enabled: true
-      aerospike.namespace.transaction.count:
-        enabled: true
-```
-
-## Usage
-
-1. Configure the Aerospike receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/aerospike/
-   ```
-
-4. Upload to Kibana:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/aerospike/ --upload
-   ```
-
-## Filters
-
-All dashboards include controls for filtering by:
-
-- **Node**: Filter to specific Aerospike node(s)
-- **Namespace**: Filter to specific namespace(s) (where applicable)
-
 ## Related Resources
 
 - [OpenTelemetry Aerospike Receiver Documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/aerospikereceiver)
-- [Elastic Observability](https://www.elastic.co/observability)
-- [ES|QL Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/esql.html)
 - [Dashboard Compiler Documentation](../../index.md)

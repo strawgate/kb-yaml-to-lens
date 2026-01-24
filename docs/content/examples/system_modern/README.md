@@ -1,17 +1,10 @@
 # System Integration Dashboards (Modern)
 
-Modern monitoring dashboards for the Elastic System integration following the [Dashboard Style Guide](../../dashboard-style-guide.md) best practices.
+Modern monitoring dashboards for the Elastic System integration with progressive disclosure patterns.
 
 ## Overview
 
-These dashboards provide the same functionality as the [classic System dashboards](../system/README.md) but redesigned with modern UX patterns:
-
-- 4-layer hierarchy (Context → Summary → Analysis → Detail)
-- Navigation links at top
-- Limited metric cards (0-4)
-- Appropriate chart types
-- Tables at bottom with 10-row pagination
-- Controls for filtering
+These dashboards provide the same functionality as the [classic System dashboards](../system/README.md) but redesigned with modern UX patterns.
 
 **Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system) dashboards. Licensed under [Elastic License 2.0](../../licenses/ELASTIC-LICENSE-2.0.txt).
 
@@ -53,29 +46,8 @@ These dashboards provide the same functionality as the [classic System dashboard
 
 ## Data Requirements
 
-Dashboards expect data from the Elastic System integration:
-
 - **Data view**: `metrics-*` (for metrics), `logs-*` (for logs)
-- **Data stream datasets**:
-  - `system.cpu`, `system.memory`, `system.network`, `system.filesystem`, `system.process`
-  - `system.syslog`, `system.auth`
-  - Windows security event logs
-
-## Usage
-
-1. Configure the System integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system_modern/
-   ```
-
-4. Upload to Kibana:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system_modern/ --upload
-   ```
+- **Data stream datasets**: `system.cpu`, `system.memory`, `system.network`, `system.filesystem`, `system.process`, `system.syslog`, `system.auth`
 
 ## Related
 

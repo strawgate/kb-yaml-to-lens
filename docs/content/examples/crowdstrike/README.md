@@ -1,6 +1,6 @@
 # CrowdStrike Security Dashboards
 
-Security monitoring dashboards for CrowdStrike EDR data streams. These dataset-centric dashboards are organized by data source for comprehensive security visibility.
+Security monitoring dashboards for CrowdStrike EDR data streams.
 
 ## Overview
 
@@ -27,31 +27,8 @@ These dashboards provide visibility into CrowdStrike Falcon EDR alerts, incident
 
 ## Data Requirements
 
-Dashboards expect data from the CrowdStrike integration:
-
 - **Data view**: `logs-*`
-- **Data stream datasets**:
-  - `crowdstrike.fdr` - Falcon Data Replicator
-  - `crowdstrike.falcon` - Falcon incidents
-  - `crowdstrike.alert` - CrowdStrike alerts
-  - `crowdstrike.host` - Host information
-  - `crowdstrike.vulnerability` - Vulnerability data
-
-## Usage
-
-1. Configure the CrowdStrike integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/crowdstrike/
-   ```
-
-4. Upload to Kibana:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/crowdstrike/ --upload
-   ```
+- **Data stream datasets**: `crowdstrike.fdr`, `crowdstrike.falcon`, `crowdstrike.alert`, `crowdstrike.host`, `crowdstrike.vulnerability`
 
 ## Related
 
