@@ -18,26 +18,26 @@ npm run compile
 
 ## Commands
 
-Run from the `vscode-extension/` directory, or use pass-through from the repository root:
+Run from the repository root using the passthrough pattern:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make install` | Install dependencies |
-| `make ci` | Run all CI checks |
-| `make fix` | Auto-fix linting |
-| `make compile` | Build TypeScript |
-| `make watch` | Watch mode for development |
-| `make test` | Run all tests |
-| `make package` | Create .vsix package |
+| `make vscode install` | Install dependencies |
+| `make vscode ci` | Run all CI checks |
+| `make vscode fix` | Auto-fix linting |
+| `make vscode compile` | Build TypeScript |
+| `make vscode watch` | Watch mode for development |
+| `make vscode test` | Run all tests |
+| `make vscode package` | Create .vsix package |
 
-For all commands, see `make help`.
+For all commands, see `make vscode help`.
 
-**From repository root:** Use `make vscode <target>` (e.g., `make vscode test`).
+**From within component directory:** You can also run `make <target>` directly from `vscode-extension/`.
 
 ## Development Workflow
 
-1. Install dependencies: `make install`
-2. Start watch mode: `make watch`
+1. Install dependencies: `make vscode install`
+2. Start watch mode: `make vscode watch`
 3. Press **F5** in VS Code to launch Extension Development Host
 4. Make changes—TypeScript recompiles automatically
 5. Reload Extension Development Host to see changes
@@ -79,14 +79,17 @@ Focus on **high-value, maintainable tests** that validate business logic:
 ### Running Tests
 
 ```bash
-# All tests
-make test
+# All tests (from repository root)
+make vscode test
 
-# TypeScript unit tests only
-make test-unit
+# TypeScript unit tests only (from repository root)
+make vscode test-unit
 
-# E2E tests (requires xvfb on Linux)
-npm test
+# E2E tests (from repository root)
+make vscode test-e2e
+
+# Or run directly from within vscode-extension directory
+# cd vscode-extension && npm test
 ```
 
 ### Python Tests
@@ -119,15 +122,15 @@ Currently tested:
 ### Development Build (Current Platform)
 
 ```bash
-make prepare      # Download uv + bundle compiler
-make package      # Create .vsix
+make vscode prepare      # Download uv + bundle compiler
+make vscode package      # Create .vsix
 ```
 
 ### Release Build (All Platforms)
 
 ```bash
-make prepare-all  # Download uv for all platforms + bundle compiler
-make package      # Create .vsix
+make vscode prepare-all  # Download uv for all platforms + bundle compiler
+make vscode package      # Create .vsix
 ```
 
 ### What Gets Bundled
@@ -174,6 +177,6 @@ In production, if extension falls back to Python:
 
 Expected VSIX size: ~22MB. If much smaller:
 
-1. Run `make prepare` before packaging
+1. Run `make vscode prepare` before packaging
 2. Verify `bin/{platform}/uv` exists
 3. Verify `compiler/src/` exists

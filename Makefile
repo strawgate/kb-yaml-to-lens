@@ -105,18 +105,44 @@ bump-version-show:
 	@$(BUMP_VERSION_SCRIPT) show
 
 # Component pass-through targets
+# This hack prevents the parent Makefile from trying to execute the arguments
+# as its own targets after passing them to sub-makes.
+# For each pass-through target, we extract the remaining arguments and turn them
+# into do-nothing targets using $(eval).
+#
+# Note: If arguments match existing root targets (e.g., "help"), Make will print
+# "overriding commands for target" warnings. These warnings are expected and harmless.
+# To suppress them, pipe the make command: make compiler help 2>/dev/null
+_FIRST_GOAL := $(firstword $(MAKECMDGOALS))
+
+ifeq ($(_FIRST_GOAL),compiler)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),vscode)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),docs)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),gh)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 compiler:
-	@$(MAKE) -C packages/kb-dashboard-compiler $(filter-out $@,$(MAKECMDGOALS))
+	@$(MAKE) -C packages/kb-dashboard-compiler $(_ARGS)
 
 vscode:
-	@$(MAKE) -C vscode-extension $(filter-out $@,$(MAKECMDGOALS))
+	@$(MAKE) -C vscode-extension $(_ARGS)
 
 docs:
-	@$(MAKE) -C packages/kb-dashboard-docs $(filter-out $@,$(MAKECMDGOALS))
+	@$(MAKE) -C packages/kb-dashboard-docs $(_ARGS)
 
 gh:
-	@$(MAKE) -C .github/scripts $(filter-out $@,$(MAKECMDGOALS))
-
-# Prevent make from trying to build targets passed as arguments
-%:
-	@:
+	@$(MAKE) -C .github/scripts $(_ARGS)

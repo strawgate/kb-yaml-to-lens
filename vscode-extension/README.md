@@ -43,8 +43,8 @@ Open Command Palette (`Ctrl/Cmd+Shift+P`):
 
 For complete documentation including configuration, troubleshooting, and advanced usage:
 
-- [Full Extension Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/vscode-extension.md)
-- [Dashboard Syntax Reference](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/index.md)
+- [Full Extension Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-docs/content/vscode-extension.md)
+- [Dashboard Syntax Reference](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-docs/content/index.md)
 - [Main Repository](https://github.com/strawgate/kb-yaml-to-lens)
 
 ## License

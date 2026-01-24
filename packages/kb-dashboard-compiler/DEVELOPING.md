@@ -16,19 +16,19 @@ make compiler install
 
 ## Commands
 
-Run from the `compiler/` directory, or use pass-through from the repository root:
+Run from the repository root using the passthrough pattern:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make ci` | Run all CI checks (lint + typecheck + test) |
-| `make fix` | Auto-fix Python linting issues |
-| `make test` | Run Python unit tests |
-| `make typecheck` | Run type checking with basedpyright |
-| `make compile` | Compile YAML dashboards to NDJSON |
+| `make compiler ci` | Run all CI checks (lint + typecheck + test) |
+| `make compiler fix` | Auto-fix Python linting issues |
+| `make compiler test` | Run Python unit tests |
+| `make compiler typecheck` | Run type checking with basedpyright |
+| `make compiler compile` | Compile YAML dashboards to NDJSON |
 
-For all commands, see `make help`.
+For all commands, see `make compiler help`.
 
-**From repository root:** Use `make compiler <target>` (e.g., `make compiler test`).
+**From within component directory:** You can also run `make <target>` directly from `packages/kb-dashboard-compiler/`.
 
 ## Architecture
 
@@ -70,8 +70,8 @@ Each fixture has ES|QL and Data View versions:
 
 After making changes:
 
-1. Run `make typecheck` — catches type errors
-2. Run `make check` — runs all quality checks
+1. Run `make compiler typecheck` — catches type errors
+2. Run `make compiler check` — runs all quality checks
 3. Test compiled output validity
 
 **CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring, code coverage <80%

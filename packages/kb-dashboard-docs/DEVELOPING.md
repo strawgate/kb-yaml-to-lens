@@ -5,32 +5,33 @@ Documentation is built with **MkDocs** using the Material theme.
 ## Structure
 
 ```text
-docs/
-├── index.md                 # Home page
-├── api/                     # API reference (auto-generated from Python)
-├── panels/                  # Panel type docs
-├── examples/                # Example YAML files
-└── hooks/                   # MkDocs build hooks (Python)
+packages/kb-dashboard-docs/
+├── content/
+│   ├── index.md                 # Home page
+│   ├── api/                     # API reference (auto-generated from Python)
+│   ├── panels/                  # Panel type docs
+│   └── examples/                # Example YAML files
+└── hooks/                       # MkDocs build hooks (Python)
 ```
 
 Navigation is defined in `mkdocs.yml`.
 
 ## Commands
 
-Run from the `docs/` directory, or use pass-through from the repository root:
+Run from the repository root using the passthrough pattern:
 
 ```bash
 # Serve locally
-cd docs && mkdocs serve
+make docs serve
 
 # Build
-cd docs && mkdocs build
+make docs build
 
 # Full check (lint + link verification)
 make docs ci
 ```
 
-**From repository root:** Use `make docs <target>` (e.g., `make docs test-links`).
+**From within component directory:** You can also run `make <target>` directly from `packages/kb-dashboard-docs/`, or use `mkdocs` commands directly.
 
 ## Adding Pages
 
@@ -43,10 +44,10 @@ make docs ci
 All YAML examples should compile:
 
 ```bash
-kb-dashboard compile --input-file docs/content/examples/your-file.yaml
+kb-dashboard compile --input-file packages/kb-dashboard-docs/content/examples/your-file.yaml
 ```
 
-See existing files in `examples/` for patterns.
+See existing files in `content/examples/` for patterns.
 
 ## Link Verification
 
@@ -54,4 +55,4 @@ CI verifies all internal and external links. Run `make docs ci` before committin
 
 ## Build Hooks
 
-Python hooks in `hooks/` run during build (e.g., generating llms.txt). Test with `mkdocs build` from the `docs/` directory.
+Python hooks in `hooks/` run during build (e.g., generating llms.txt). Test with `make docs build` from the repository root, or `mkdocs build` from within `packages/kb-dashboard-docs/`.

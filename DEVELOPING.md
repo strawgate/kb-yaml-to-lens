@@ -10,14 +10,14 @@ kb-yaml-to-lens/
 │   └── src/dashboard_compiler/
 ├── vscode-extension/      # VS Code extension
 │   └── src/
-└── docs/                  # User documentation
+└── packages/kb-dashboard-docs/  # User documentation
 ```
 
 | Directory | Technology | Purpose |
 | --------- | ---------- | ------- |
 | `packages/kb-dashboard-compiler/` | Python 3.12+, Pydantic, uv | Dashboard compilation engine |
 | `vscode-extension/` | TypeScript, Node.js | VS Code extension with live preview |
-| `docs/` | MkDocs | User-facing documentation site |
+| `packages/kb-dashboard-docs/` | MkDocs | User-facing documentation site |
 
 ## Prerequisites
 
@@ -68,7 +68,7 @@ Run any component-specific target from the repository root:
 | `make all <target>` | Run target in all components (compiler + vscode) |
 | `make compiler <target>` | Run target in `packages/kb-dashboard-compiler/` |
 | `make vscode <target>` | Run target in `vscode-extension/` |
-| `make docs <target>` | Run target in `docs/` |
+| `make docs <target>` | Run target in `packages/kb-dashboard-docs/` |
 | `make gh <target>` | Run target in `.github/scripts/` |
 
 **Examples:**
@@ -94,13 +94,13 @@ See component-specific DEVELOPING.md files for detailed workflows:
 
 - **Compiler:** [packages/kb-dashboard-compiler/DEVELOPING.md](packages/kb-dashboard-compiler/DEVELOPING.md)
 - **VS Code Extension:** [vscode-extension/DEVELOPING.md](vscode-extension/DEVELOPING.md)
-- **Documentation:** [docs/DEVELOPING.md](docs/DEVELOPING.md)
+- **Documentation:** [packages/kb-dashboard-docs/DEVELOPING.md](packages/kb-dashboard-docs/DEVELOPING.md)
 
 ## Additional Resources
 
 | Resource | Location |
 | -------- | -------- |
-| Architecture | [docs/architecture.md](docs/architecture.md) |
-| Getting started | [docs/index.md](docs/index.md) |
-| CLI documentation | [docs/CLI.md](docs/CLI.md) |
+| Architecture | [packages/kb-dashboard-docs/content/architecture.md](packages/kb-dashboard-docs/content/architecture.md) |
+| Getting started | [packages/kb-dashboard-docs/content/index.md](packages/kb-dashboard-docs/content/index.md) |
+| CLI documentation | [packages/kb-dashboard-docs/content/CLI.md](packages/kb-dashboard-docs/content/CLI.md) |
 | Release process | [RELEASE.md](RELEASE.md) |

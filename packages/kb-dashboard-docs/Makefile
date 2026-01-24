@@ -2,9 +2,9 @@
 # Commands for documentation development and verification
 
 # Include shared helpers
-include ../Makefile.shared
+include ../../Makefile.shared
 
-.PHONY: help install ci check serve build build-strict test-links clean
+.PHONY: help install ci check serve build test-links clean
 
 help:
 	@echo "Documentation Commands:"
@@ -19,8 +19,7 @@ help:
 	@echo ""
 	@echo "Development:"
 	@echo "  serve         - Start local documentation server"
-	@echo "  build         - Build documentation static site"
-	@echo "  build-strict  - Build with strict mode (fails on warnings)"
+	@echo "  build         - Build documentation static site (strict mode, fails on warnings)"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean         - Clean build artifacts"
@@ -39,7 +38,7 @@ install:
 ci:
 	$(call print_start, "Checking documentation (lint + links)")
 	@echo ""
-	@$(MAKE) -C .. lint-markdown-check
+	@$(MAKE) -C ../.. lint-markdown-check
 	@echo ""
 	@$(MAKE) test-links
 	@echo ""
@@ -53,13 +52,10 @@ serve:
 	@NO_COLOR=1 uv run --group docs mkdocs serve
 
 build:
-	$(call run_cmd, "Building documentation", NO_COLOR=1 uv run --group docs mkdocs build, "Documentation built")
-
-build-strict:
-	$(call run_cmd, "Building documentation with strict mode", NO_COLOR=1 uv run --group docs mkdocs build --strict, "Documentation builds successfully (strict mode)")
+	$(call run_cmd, "Building documentation", NO_COLOR=1 uv run --group docs mkdocs build --strict, "Documentation built")
 
 test-links:
-	$(call run_cmd, "Checking documentation links", cd ../packages/kb-dashboard-compiler && uv run pytest --check-links ../docs/content/ README.md ../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$', "Documentation links checked")
+	$(call run_cmd, "Checking documentation links", cd ../kb-dashboard-compiler && uv run pytest --check-links ../kb-dashboard-docs/content/ ../../README.md ../../CONTRIBUTING.md -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$$', "Documentation links checked")
 
 clean:
 	$(call print_start, "Cleaning documentation build artifacts")

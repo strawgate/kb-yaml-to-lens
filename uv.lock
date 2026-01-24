@@ -5,8 +5,8 @@ requires-python = ">=3.12"
 [manifest]
 members = [
     "kb-dashboard-compiler",
-    "kb-dashboard-compiler-docs",
     "kb-dashboard-compiler-root",
+    "kb-dashboard-docs",
 ]
 
 [[package]]
@@ -953,9 +953,24 @@ dev = [
 ]
 
 [[package]]
-name = "kb-dashboard-compiler-docs"
+name = "kb-dashboard-compiler-root"
 version = "0.1.10"
-source = { virtual = "docs" }
+source = { virtual = "." }
+dependencies = [
+    { name = "click" },
+    { name = "kb-dashboard-compiler" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "click", specifier = ">=8.0" },
+    { name = "kb-dashboard-compiler", editable = "packages/kb-dashboard-compiler" },
+]
+
+[[package]]
+name = "kb-dashboard-docs"
+version = "0.1.10"
+source = { virtual = "packages/kb-dashboard-docs" }
 dependencies = [
     { name = "kb-dashboard-compiler" },
 ]
@@ -983,21 +998,6 @@ dev = [
     { name = "mkdocs-material", specifier = ">=9.5.32" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
     { name = "pymdown-extensions", specifier = ">=10.0" },
-]
-
-[[package]]
-name = "kb-dashboard-compiler-root"
-version = "0.1.10"
-source = { virtual = "." }
-dependencies = [
-    { name = "click" },
-    { name = "kb-dashboard-compiler" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "click", specifier = ">=8.0" },
-    { name = "kb-dashboard-compiler", editable = "packages/kb-dashboard-compiler" },
 ]
 
 [[package]]

@@ -4,7 +4,7 @@ site_description: Convert human-friendly YAML dashboard definitions into Kibana 
 site_url: https://strawgate.github.io/kb-yaml-to-lens/
 repo_url: https://github.com/strawgate/kb-yaml-to-lens
 repo_name: strawgate/kb-yaml-to-lens
-edit_uri: edit/main/docs/content/
+edit_uri: edit/main/packages/kb-dashboard-docs/content/
 docs_dir: content
 site_dir: site
 theme:

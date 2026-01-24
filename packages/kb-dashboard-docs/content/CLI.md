@@ -219,6 +219,13 @@ cd packages/kb-dashboard-compiler && uv run kb-dashboard compile
 cd packages/kb-dashboard-compiler && uv run kb-dashboard compile --upload
 ```
 
+Or using the passthrough pattern from repository root:
+
+```bash
+make compiler compile
+make compiler upload
+```
+
 ## Authentication
 
 The CLI supports two authentication methods:
