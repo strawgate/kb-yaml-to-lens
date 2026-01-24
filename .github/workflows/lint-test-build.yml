@@ -88,9 +88,9 @@ jobs:
         with:
           name: coverage-report
           path: |
-            packages/kb-dashboard-compiler-compiler/.coverage
-            packages/kb-dashboard-compiler-compiler/htmlcov/
-            packages/kb-dashboard-compiler-compiler/coverage.json
+            packages/kb-dashboard-compiler/.coverage
+            packages/kb-dashboard-compiler/htmlcov/
+            packages/kb-dashboard-compiler/coverage.json
           retention-days: 30
       - name: Comment coverage on PR
         id: coverage_comment
