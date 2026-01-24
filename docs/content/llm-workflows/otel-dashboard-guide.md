@@ -33,16 +33,17 @@ OTel receivers emit metrics with specific types that determine how you query the
 
 ### 3. Verify Attribute Names
 
-Attributes in `metadata.yaml` may differ from exported field names due to `name_override` configuration. Always check both:
+Attributes in `metadata.yaml` may differ from exported field names due to `name_override` configuration. Check `metadata.yaml` for renames:
 
 ```yaml
-# In metadata.yaml - internal name
+# In metadata.yaml - internal name with name_override
 attributes:
   workers_state:
     description: State of the worker
+    name_override: state  # <-- This is the actual exported field name
 
-# In exported data - may be renamed to just "state"
-# Always verify against actual Elasticsearch data
+# Use the name_override value in your queries
+# Field: attributes.state (NOT attributes.workers_state)
 ```
 
 ---
@@ -240,7 +241,6 @@ Before finalizing a dashboard, verify:
 
 - [ ] All metric names match `documentation.md` exactly (including singular/plural)
 - [ ] No invented metrics based on attribute values
-- [ ] JVM metrics use standard naming (no `elasticsearch.` prefix for `jvm.*` metrics)
 
 ### Attribute Names
 
@@ -356,23 +356,12 @@ Structure panels from high-level to detailed:
 ### 1. Compile and Validate
 
 ```bash
+# Compile all dashboards in a directory
 kb-dashboard compile --input-dir ./my-dashboards
+
+# Compile a single dashboard file
+kb-dashboard compile --input-file ./my-dashboard.yaml
 ```
-
-### 2. Verify Against Real Data
-
-Upload to Kibana and verify:
-
-- All panels show data (no "No results found")
-- Metric values are reasonable (rates are per-second, not cumulative)
-- Filters work correctly
-- Time series trends make sense
-
-### 3. Check Edge Cases
-
-- What happens when no data exists for a time range?
-- Do percentage calculations handle zero denominators?
-- Are optional metrics handled gracefully?
 
 ---
 
