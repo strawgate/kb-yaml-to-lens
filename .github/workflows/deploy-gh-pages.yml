@@ -28,8 +28,10 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
+        shell: bash
         run: make docs install
       - name: Build documentation
+        shell: bash
         run: make docs build
       - name: Setup Pages
         uses: actions/configure-pages@v4

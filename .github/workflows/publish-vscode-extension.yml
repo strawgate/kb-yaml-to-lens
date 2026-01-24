@@ -16,8 +16,10 @@ jobs:
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node-env
       - name: Prepare extension for all platforms
+        shell: bash
         run: make vscode prepare-all
       - name: Package extension
+        shell: bash
         run: make vscode package
       - name: Publish to OpenVSX
         id: publish-openvsx
@@ -43,4 +45,5 @@ jobs:
           retention-days: 7
       - name: Fail if publishing failed
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
+        shell: bash
         run: exit 1

@@ -17,9 +17,11 @@ jobs:
           fetch-depth: 0
       - name: Extract version from tag
         id: get_version
+        shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
       - name: Determine if prerelease
         id: prerelease
+        shell: bash
         run: |
           if [[ "${{ github.ref_name }}" =~ -(rc|alpha|beta|dev) ]]; then
             echo "IS_PRERELEASE=true" >> "$GITHUB_OUTPUT"

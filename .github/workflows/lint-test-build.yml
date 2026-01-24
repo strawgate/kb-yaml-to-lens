@@ -20,6 +20,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run Python linting checks
+        shell: bash
         run: make compiler lint-check
   lint-markdown:
     name: Lint Markdown
@@ -32,8 +33,10 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install markdownlint-cli
+        shell: bash
         run: make docs install
       - name: Run markdownlint
+        shell: bash
         run: make lint-markdown-check
   lint-yaml:
     name: Lint YAML
@@ -44,6 +47,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run yamlfix
+        shell: bash
         run: make lint-yaml-check
   typecheck-python:
     name: Type-check Python
@@ -54,6 +58,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run basedpyright
+        shell: bash
         run: make compiler typecheck
   test-python:
     name: Test Python (${{ matrix.os }})
@@ -71,6 +76,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run pytest
+        shell: bash
         run: make compiler test
   test-python-coverage:
     name: Test Python Code Coverage
@@ -85,6 +91,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run tests with coverage
+        shell: bash
         run: make compiler test-coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -103,15 +110,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERAGE_PATH: packages/kb-dashboard-compiler
       - name: Print coverage comment outputs
+        shell: bash
         run: |
           echo "Coverage Vars: ${{ tojson(steps.coverage_comment.outputs) }}"
       - name: Enforce minimum Overall coverage does not decrease
         if: ${{ steps.coverage_comment.outputs.new_percent_covered < steps.coverage_comment.outputs.reference_percent_covered }}
+        shell: bash
         run: |
           echo "Overall coverage decreased from ${{ steps.coverage_comment.outputs.reference_percent_covered }}% to ${{ steps.coverage_comment.outputs.new_percent_covered }}%."
           && exit 1
       - name: Enforce minimum PR coverage of 90%
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
+        shell: bash
         run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
   test-python-cli:
     name: Test Python CLI (${{ matrix.os }})
@@ -129,6 +139,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run smoke tests
+        shell: bash
         run: make compiler test-smoke
   test-markdown-links:
     name: Validate Documentation Links
@@ -139,6 +150,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Check documentation links
+        shell: bash
         run: make docs test-links
   build-docs:
     name: Build Documentation
@@ -149,8 +161,10 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
+        shell: bash
         run: make docs install
       - name: Build documentation
+        shell: bash
         run: make docs build
   test-vscode-extension-typescript:
     name: Test VSCode Extension (TypeScript)
@@ -161,8 +175,10 @@ jobs:
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node-env
       - name: Install dependencies
+        shell: bash
         run: make vscode install
       - name: Run TypeScript tests for extension
+        shell: bash
         run: make vscode test-unit
   test-vscode-extension-e2e:
     name: Test VSCode Extension E2E
@@ -177,8 +193,10 @@ jobs:
         with:
           setup-xvfb: 'true'
       - name: Install extension dependencies
+        shell: bash
         run: make vscode install
       - name: Run E2E tests for extension
+        shell: bash
         run: make vscode test
         env:
           DISPLAY: :99.0
@@ -200,6 +218,7 @@ jobs:
       - test-vscode-extension-e2e
     steps:
       - name: All Checks Passed
+        shell: bash
         run: |-
           if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
             echo "Some checks failed or were cancelled"

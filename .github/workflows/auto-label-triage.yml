@@ -13,6 +13,7 @@ jobs:
       - name: Add triage label
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |-
           gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels \
             -f labels[]='triage'

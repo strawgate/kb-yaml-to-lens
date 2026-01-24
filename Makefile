@@ -1,23 +1,27 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
-# Include shared helpers
-include Makefile.shared
-
-# Detect OS and set appropriate shell for recursive make calls
+# Set SHELL before including Makefile.shared to ensure bash is used
 # On Windows in GitHub Actions, bash is available via Git Bash when shell: bash is used
 # GitHub Actions sets RUNNER_OS environment variable (Windows, Linux, macOS)
-# If RUNNER_OS is Windows, use 'bash' directly (in PATH), otherwise use /bin/bash
 ifdef RUNNER_OS
   ifeq ($(RUNNER_OS),Windows)
+    SHELL := bash
     MAKE_SHELL := bash
   else
+    SHELL := /bin/bash
     MAKE_SHELL := /bin/bash
   endif
 else
   # Not in GitHub Actions - default to /bin/bash for Unix-like systems
+  SHELL := /bin/bash
   MAKE_SHELL := /bin/bash
 endif
+
+# Include shared helpers (after setting SHELL)
+include Makefile.shared
+
+# Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
 COMPONENTS := packages/kb-dashboard-compiler vscode-extension

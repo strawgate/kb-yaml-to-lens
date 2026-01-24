@@ -20,6 +20,8 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Build package
+        shell: bash
         run: make compiler build
       - name: Publish to PyPI
+        shell: bash
         run: make compiler publish

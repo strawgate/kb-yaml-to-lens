@@ -20,6 +20,7 @@ jobs:
       - name: Tidy PR comments
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |-
           OWNER=${{ github.repository_owner }}
           REPO=${{ github.event.repository.name }}
