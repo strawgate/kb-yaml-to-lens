@@ -194,7 +194,7 @@ kb-dashboard compile --upload
 The following commands are available in the `kb-dashboard` CLI. For detailed information about each command and its options, see the auto-generated reference below.
 
 ::: mkdocs-click
-    :module: kb_dashboard.core.cli
+    :module: kb_dashboard.cli
     :command: cli
     :prog_name: kb-dashboard
     :depth: 2
@@ -202,21 +202,15 @@ The following commands are available in the `kb-dashboard` CLI. For detailed inf
 
 ## Makefile Shortcuts
 
-The project includes convenient Makefile targets (run from `compiler/` directory):
+The project includes convenient Makefile targets:
 
 ```bash
-# Compile only
-cd compiler && make compile
+# Compile only (from repository root)
+make packages compile
 
-# Compile and upload (uses environment variables for Kibana config)
-cd compiler && make upload
-```
-
-Or use the CLI directly from anywhere with uv:
-
-```bash
-cd compiler && uv run kb-dashboard compile
-cd compiler && uv run kb-dashboard compile --upload
+# Or use the CLI directly from anywhere with uv:
+uv run kb-dashboard compile
+uv run kb-dashboard compile --upload
 ```
 
 ## Authentication

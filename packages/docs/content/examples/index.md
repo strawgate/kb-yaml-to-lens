@@ -152,11 +152,11 @@ Complete dashboard bundles for monitoring various technologies. Each bundle incl
 
 ## Viewing Example Source Code
 
-All example files are located in the `docs/content/examples/` directory of the repository. You can:
+All example files are located in the `packages/docs/content/examples/` directory of the repository. You can:
 
 1. **View README:** Click the bundle link to see complete setup instructions and dashboard descriptions
 2. **Clone locally:** Download the repository to experiment with examples
-3. **Compile examples:** Run `kb-dashboard compile --input-dir docs/content/examples --output-dir output` to generate NDJSON files
+3. **Compile examples:** Run `kb-dashboard compile --input-dir packages/docs/content/examples --output-dir output` to generate NDJSON files
 
 ## Using Examples as Templates
 

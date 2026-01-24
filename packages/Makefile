@@ -6,7 +6,12 @@
 # YAML linting exclusions (operates on parent directory)
 YAMLFIX_EXCLUDE := \
 	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
-	--exclude "**/node_modules/**/*.yaml" --exclude "**/node_modules/**/*.yml"
+	--exclude "**/node_modules/**/*.yaml" --exclude "**/node_modules/**/*.yml" \
+	--exclude "**/vscode-extension/**/*.yaml" --exclude "**/vscode-extension/**/*.yml" \
+	--exclude ".github/**/*.yaml" --exclude ".github/**/*.yml" \
+	--exclude "github/**/*.yaml" --exclude "github/**/*.yml" \
+	--exclude "compiler/**/*.yaml" --exclude "compiler/**/*.yml" \
+	--exclude "**/docs/mkdocs.yml"
 
 help:
 	@echo "Packages Commands (kb-dashboard-* namespace packages):"
@@ -73,14 +78,14 @@ lint-python-check:
 	@echo "Running ruff check..."
 	@cd .. && uv run ruff check packages/ --quiet
 
-# YAML linting
+# YAML linting (use --project to ensure using root workspace)
 lint-yaml:
 	@echo "Running yamlfix..."
-	cd .. && uv run yamlfix $(YAMLFIX_EXCLUDE) .
+	uv run --project .. yamlfix $(YAMLFIX_EXCLUDE) ..
 
 lint-yaml-check:
 	@echo "Running yamlfix --check..."
-	@cd .. && uv run yamlfix --check $(YAMLFIX_EXCLUDE) . > /dev/null 2>&1 && echo "✓ YAML checks passed" || (cd .. && uv run yamlfix --check $(YAMLFIX_EXCLUDE) .)
+	@uv run --project .. yamlfix --check $(YAMLFIX_EXCLUDE) .. > /dev/null 2>&1 && echo "✓ YAML checks passed" || uv run --project .. yamlfix --check $(YAMLFIX_EXCLUDE) ..
 
 # Type checking
 typecheck:
