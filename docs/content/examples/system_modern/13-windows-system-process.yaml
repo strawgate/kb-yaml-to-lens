@@ -1,0 +1,244 @@
+---
+# Modern Windows System and Process Events Dashboard
+# Following Dashboard Style Guide best practices:
+# - System event monitoring: services, processes, scheduled tasks
+# - Process creation and termination tracking
+# - Service state change monitoring
+# - Detailed audit table at bottom
+dashboards:
+  - id: system-modern-windows-system-process
+    name: '[Logs System] Windows System & Process'
+    description: >-
+      Windows system events including process creation, service changes, and scheduled tasks.
+      Monitor system activity and process execution.
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4688'
+          - '4689'
+          - '4697'
+          - '4698'
+          - '4699'
+          - '4700'
+          - '4701'
+          - '4702'
+          - '7034'
+          - '7035'
+          - '7036'
+          - '7040'
+          - '7045'
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Process Name
+        data_view: logs-*
+        field: winlog.event_data.NewProcessName
+        width: medium
+      - type: options
+        label: User
+        data_view: logs-*
+        field: winlog.event_data.SubjectUserName
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: Windows Security Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: system-modern-windows-overview
+            - label: Logons
+              dashboard: system-modern-windows-logons
+            - label: Failed & Blocked
+              dashboard: system-modern-windows-failed-blocked
+            - label: User Management
+              dashboard: system-modern-windows-user-management
+            - label: Group Management
+              dashboard: system-modern-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-modern-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-modern-windows-system-process
+            - label: Policy & Object
+              dashboard: system-modern-windows-policy-object
+
+      # Summary Layer - Key Metrics
+      - title: Total Events
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Process Created (4688)
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Created
+          filters:
+            - field: winlog.event_id
+              equals: '4688'
+      - title: Services Installed (7045)
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Installed
+          filters:
+            - field: winlog.event_id
+              equals: '7045'
+      - title: Scheduled Tasks
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Tasks
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4698'
+                - '4699'
+                - '4700'
+                - '4701'
+                - '4702'
+
+      # Analysis Layer - Time Series
+      - title: System Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 10
+
+      # Analysis Layer - Event Distribution
+      - title: Event Types
+        grid: {x: 0, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Host
+        grid: {x: 16, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Top Users
+        grid: {x: 32, y: 21, w: 16, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.SubjectUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - Process Analysis
+      - title: Top Processes
+        grid: {x: 0, y: 33, w: 24, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.NewProcessName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Process and User Distribution
+        grid: {x: 24, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_data.NewProcessName
+              size: 10
+            - type: values
+              field: winlog.event_data.SubjectUserName
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Audit Log Table
+      - title: System Event Audit Log
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: subject-user
+              type: values
+              field: winlog.event_data.SubjectUserName
+            - id: process-name
+              type: values
+              field: winlog.event_data.NewProcessName
+            - id: command-line
+              type: values
+              field: winlog.event_data.CommandLine
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10

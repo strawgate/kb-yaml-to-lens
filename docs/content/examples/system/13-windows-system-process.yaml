@@ -1,0 +1,181 @@
+---
+dashboards:
+  - id: system-windows-system-process
+    name: '[System Windows Security] System & Process Activity'
+    description: Windows system and process activity events
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '1102'
+          - '4608'
+          - '4609'
+          - '4610'
+          - '4611'
+          - '4614'
+          - '4616'
+          - '4618'
+          - '4688'
+          - '4689'
+          - '4697'
+          - '5024'
+          - '5025'
+          - '5033'
+          - '5059'
+    panels:
+      - title: Windows Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Windows Overview
+              dashboard: system-windows-overview
+            - label: User Logons
+              dashboard: system-windows-logons
+            - label: Failed Accounts
+              dashboard: system-windows-failed-blocked
+            - label: User Management
+              dashboard: system-windows-user-management
+            - label: Group Management
+              dashboard: system-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-windows-directory-monitoring
+            - label: Policy & Object
+              dashboard: system-windows-policy-object
+      - title: System & Process Events Over Time
+        grid: {x: 0, y: 3, w: 48, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 15
+      - title: Audit Log Cleared (1102)
+        grid: {x: 0, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Log Clears
+          filters:
+            - field: winlog.event_id
+              equals: '1102'
+      - title: Process Created (4688)
+        grid: {x: 12, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Created
+          filters:
+            - field: winlog.event_id
+              equals: '4688'
+      - title: Process Terminated (4689)
+        grid: {x: 24, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Terminated
+          filters:
+            - field: winlog.event_id
+              equals: '4689'
+      - title: Service Installed (4697)
+        grid: {x: 36, y: 18, w: 12, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Installed
+          filters:
+            - field: winlog.event_id
+              equals: '4697'
+      - title: Event Distribution
+        grid: {x: 0, y: 26, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 15
+          metrics:
+            - aggregation: count
+      - title: Top Processes
+        grid: {x: 24, y: 26, w: 24, h: 15}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            type: values
+            field: process.name
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4688'
+                - '4689'
+      - title: Process Activity by User
+        grid: {x: 0, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: username
+              type: values
+              field: user.name
+              size: 20
+              sort:
+                by: process-count
+                direction: desc
+          metrics:
+            - id: process-count
+              aggregation: count
+              label: Process Events
+          paging:
+            enabled: true
+            page_size: 10
+          filters:
+            - field: winlog.event_id
+              equals: '4688'
+      - title: Recent System & Process Events
+        grid: {x: 24, y: 41, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: user
+              type: values
+              field: user.name
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 20

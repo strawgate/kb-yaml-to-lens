@@ -1,0 +1,177 @@
+---
+# Modern System Syslog Dashboard
+# Following Dashboard Style Guide best practices:
+# - Security/log dashboard pattern: events over time → categories → top users → log table
+# - Area chart for event volume with breakdown
+# - Horizontal bar for top programs (long labels)
+# - Multi-level pie chart for hierarchical host/program distribution
+# - Full-width table at bottom for drill-down
+dashboards:
+  - id: system-modern-syslog
+    name: '[Logs System] Syslog'
+    description: >-
+      Syslog events analysis with host and program breakdowns.
+      Filter by host or program to focus analysis.
+    filters:
+      - field: data_stream.dataset
+        equals: system.syslog
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Program
+        data_view: logs-*
+        field: system.syslog.program
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: System Log Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Metrics Overview
+              dashboard: system-modern-metrics-overview
+            - label: Syslog
+              dashboard: system-modern-syslog
+            - label: Sudo Commands
+              dashboard: system-modern-sudo-commands
+            - label: SSH Logins
+              dashboard: system-modern-ssh-logins
+            - label: Users & Groups
+              dashboard: system-modern-users-groups
+
+      # Summary Layer - Key Metrics (2 metrics for logs)
+      - title: Total Events
+        grid: {x: 0, y: 3, w: 16, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Unique Hosts
+        grid: {x: 16, y: 3, w: 16, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: host.hostname
+            label: Hosts
+      - title: Unique Programs
+        grid: {x: 32, y: 3, w: 16, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: unique_count
+            field: system.syslog.program
+            label: Programs
+
+      # Analysis Layer - Time Series
+      - title: Syslog Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: host.hostname
+            size: 10
+
+      # Analysis Layer - Categorical Breakdowns
+      - title: Top Programs
+        grid: {x: 0, y: 21, w: 24, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: system.syslog.program
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Priority
+        grid: {x: 24, y: 21, w: 12, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: log.syslog.priority
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Facility
+        grid: {x: 36, y: 21, w: 12, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: log.syslog.facility.name
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - Hierarchical View
+      - title: Host and Program Distribution
+        grid: {x: 0, y: 33, w: 48, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+            - type: values
+              field: system.syslog.program
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Event Log Table
+      - title: Recent Syslog Events
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: program
+              type: values
+              field: system.syslog.program
+            - id: message
+              type: values
+              field: message
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10

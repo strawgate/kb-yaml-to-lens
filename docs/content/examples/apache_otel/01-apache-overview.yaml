@@ -1,0 +1,350 @@
+---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+# See ../../licenses/ELASTIC-LICENSE-2.0.txt for the full license text.
+#
+# Dashboard for Apache HTTP Server metrics collected via OpenTelemetry apachereceiver.
+# Source: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/apachereceiver
+dashboards:
+  - id: otel-apache-overview
+    name: '[OTel] Apache HTTP Server - Overview'
+    description: Overview of Apache HTTP Server metrics from OpenTelemetry apachereceiver
+    controls:
+      - type: options
+        label: Server Address
+        data_view: metrics-*
+        field: server.address
+      - type: options
+        label: Server Port
+        data_view: metrics-*
+        field: server.port
+    filters:
+      - field: data_stream.dataset
+        equals: apachereceiver.otel
+    panels:
+      - title: Navigation Links
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
+        description: Links to related Apache HTTP Server dashboards
+        links:
+          layout: horizontal
+          items:
+            - label: Apache Overview
+              dashboard: otel-apache-overview
+      - title: Total Requests
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: counter_rate(max(apache.requests))
+            label: Requests/sec
+            format:
+              type: number
+      - title: Total Traffic
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: counter_rate(max(apache.traffic))
+            label: Traffic/sec
+            format:
+              type: bytes
+      - title: Active Connections
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: average(apache.current_connections)
+            label: Connections
+            format:
+              type: number
+              pattern: 0,0
+      - title: Server Uptime
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: max(apache.uptime)
+            label: Uptime
+            format:
+              type: duration
+      - title: CPU Load (Current)
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 9}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: average(apache.cpu.load)
+            label: CPU Load
+            format:
+              type: percent
+      - title: Request Rate Over Time
+        size: {w: 24, h: 10}
+        position: {x: 12, y: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(apache.requests))
+              label: Requests/sec
+              format:
+                type: number
+      - title: Traffic Rate Over Time
+        size: {w: 12, h: 10}
+        position: {x: 36, y: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(apache.traffic))
+              label: Traffic/sec
+              format:
+                type: bytes
+      - title: CPU Time Rate
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 19}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(apache.cpu.time))
+              label: CPU Time/sec
+              format:
+                type: duration
+      - title: Request Processing Time Rate
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 19}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(apache.request.time))
+              label: Request Time/sec
+              format:
+                type: duration
+      - title: CPU Load
+        size: {w: 16, h: 10}
+        position: {x: 0, y: 29}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: average(apache.load.1)
+              label: 1-min Load
+              format:
+                type: percent
+            - formula: average(apache.load.5)
+              label: 5-min Load
+              format:
+                type: percent
+            - formula: average(apache.load.15)
+              label: 15-min Load
+              format:
+                type: percent
+      - title: Connection Metrics
+        size: {w: 16, h: 10}
+        position: {x: 16, y: 29}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: average(apache.current_connections)
+              label: Current Connections
+              format:
+                type: number
+                pattern: 0,0
+      - title: Async Connections by State
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 39}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.connection_state
+            type: values
+            size: 10
+          metrics:
+            - formula: average(apache.connections.async)
+              label: Async Connections
+              format:
+                type: number
+                pattern: 0,0
+      - title: Uptime by Server
+        size: {w: 16, h: 10}
+        position: {x: 32, y: 29}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: server.address
+            type: values
+            size: 10
+          metrics:
+            - formula: max(apache.uptime)
+              label: Uptime
+              format:
+                type: duration
+      - title: Worker Distribution
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 39}
+        lens:
+          type: pie
+          data_view: metrics-*
+          dimensions:
+            - field: attributes.workers_state
+              type: values
+              size: 10
+          metrics:
+            - formula: average(apache.workers)
+              label: Workers
+              format:
+                type: number
+                pattern: 0,0
+      - title: Scoreboard Status
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 51}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.scoreboard_state
+            type: values
+            size: 15
+          metrics:
+            - formula: average(apache.scoreboard)
+              label: Scoreboard
+              format:
+                type: number
+                pattern: 0,0
+      - title: Workers by State Over Time
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 63}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.workers_state
+            type: values
+            size: 10
+          metrics:
+            - formula: average(apache.workers)
+              label: Workers
+              format:
+                type: number
+                pattern: 0,0
+      - title: Server Performance Summary
+        size: {w: 48, h: 20}
+        position: {x: 0, y: 75}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: server
+              type: values
+              field: server.address
+              label: Server Address
+              size: 50
+            - id: port
+              type: values
+              field: server.port
+              label: Port
+              size: 50
+          metrics:
+            - id: req-rate
+              formula: counter_rate(max(apache.requests))
+              label: Requests/sec
+              format:
+                type: number
+            - id: traffic-rate
+              formula: counter_rate(max(apache.traffic))
+              label: Traffic/sec
+              format:
+                type: bytes
+            - id: connections
+              formula: average(apache.current_connections)
+              label: Connections
+              format:
+                type: number
+                pattern: 0,0
+            - id: cpu-load
+              formula: average(apache.load.1)
+              label: CPU Load (1m)
+              format:
+                type: percent
+            - id: uptime
+              formula: max(apache.uptime)
+              label: Uptime
+              format:
+                type: duration
+          paging:
+            enabled: true
+            page_size: 20
