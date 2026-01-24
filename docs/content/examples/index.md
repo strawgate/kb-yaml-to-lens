@@ -312,7 +312,7 @@ Comprehensive Kubernetes cluster monitoring dashboards using the OpenTelemetry k
 
 **Use this when:** Monitoring Kubernetes clusters with OpenTelemetry Collector's k8sclusterreceiver.
 
-**Note:** See the [README](https://github.com/strawgate/kb-yaml-to-lens/blob/main/docs/content/examples/k8s_cluster_otel/README.md) for RBAC configuration, OpenTelemetry Collector setup, and deployment instructions.
+**Note:** See the [README](k8s_cluster_otel/README.md) for RBAC configuration, OpenTelemetry Collector setup, and deployment instructions.
 
 #### Cluster Overview
 
