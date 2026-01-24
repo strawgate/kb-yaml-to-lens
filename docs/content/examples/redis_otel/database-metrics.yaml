@@ -14,12 +14,12 @@ dashboards:
     controls:
       - type: options
         id: instance-filter
-        label: Redis Instance
+        label: Instance
         data_view: metrics-*
         field: resource.attributes.service.instance.id
         width: medium
       - type: options
-        id: database-filter
+        id: db-filter
         label: Database
         data_view: metrics-*
         field: attributes.db
