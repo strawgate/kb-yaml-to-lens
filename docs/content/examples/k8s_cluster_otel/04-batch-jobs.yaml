@@ -1,0 +1,171 @@
+---
+# Kubernetes Batch Jobs Dashboard
+# SRE Question: "Are my jobs completing successfully? What's failing?"
+dashboards:
+  - id: k8s-cluster-batch
+    name: '[Metrics K8s Cluster] Batch Jobs'
+    description: Job and CronJob execution status and completion tracking
+    controls:
+      - type: options
+        label: Namespace
+        data_view: metrics-*
+        field: k8s.namespace.name
+      - type: options
+        label: Job
+        data_view: metrics-*
+        field: k8s.job.name
+    filters:
+      - field: data_stream.dataset
+        equals: kubernetesclusterreceiver.otel
+    panels:
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: 📊 Overview
+              dashboard: k8s-cluster-overview
+            - label: ⚙️ Workloads
+              dashboard: k8s-cluster-workloads
+            - label: 📦 Resources
+              dashboard: k8s-cluster-resources
+            - label: 🔄 Batch Jobs
+              dashboard: k8s-cluster-batch
+            - label: 📈 Autoscaling
+              dashboard: k8s-cluster-hpa
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # JOB STATUS SUMMARY (4 metric cards)
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Job Status Summary
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
+        markdown:
+          content: '## 📋 Job Status Summary'
+          font_size: 14
+      - title: Successful Jobs
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.job.successful_pods)
+            label: Successful
+          filters:
+            - exists: k8s.job.name
+      - title: Failed Jobs
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.job.failed_pods)
+            label: Failed
+          filters:
+            - exists: k8s.job.name
+      - title: Active Jobs
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.job.active_pods)
+            label: Active
+          filters:
+            - exists: k8s.job.name
+      - title: Active CronJobs
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.cronjob.active_jobs)
+            label: Active
+          filters:
+            - exists: k8s.cronjob.name
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # JOB EXECUTION TRENDS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Job Execution Trends
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 13}
+        markdown:
+          content: '## 📈 Job Execution Trends'
+          font_size: 14
+      - title: Job Success vs Failure Trend
+        size: {w: 48, h: 14}
+        position: {x: 0, y: 15}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.job.successful_pods)
+              label: Successful
+            - formula: sum(k8s.job.failed_pods)
+              label: Failed
+            - formula: sum(k8s.job.active_pods)
+              label: Active
+          filters:
+            - exists: k8s.job.name
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: Successful
+                color: '#54B399'
+              - value: Failed
+                color: '#D36086'
+              - value: Active
+                color: '#6092C0'
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # JOB DETAILS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Job Details
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 29}
+        markdown:
+          content: '## 🔍 Job Details'
+          font_size: 14
+      - title: Jobs by Status
+        size: {w: 48, h: 14}
+        position: {x: 0, y: 31}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.job.name
+              type: values
+              size: 25
+              label: Job
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - field: k8s.job.active_pods
+              aggregation: max
+              label: Active
+            - field: k8s.job.successful_pods
+              aggregation: max
+              label: Successful
+            - field: k8s.job.failed_pods
+              aggregation: max
+              label: Failed
+            - field: k8s.job.desired_successful_pods
+              aggregation: max
+              label: Desired
+          filters:
+            - exists: k8s.job.name
