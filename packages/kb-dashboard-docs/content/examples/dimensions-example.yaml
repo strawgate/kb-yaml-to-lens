@@ -15,7 +15,6 @@ dashboards:
           content: "# Multi-Dimensional Chart Examples\nThis dashboard demonstrates advanced dimension and breakdown configurations:\n- **Single\
             \ dimension** - Basic time series\n- **Multiple dimensions** - Cross-tabulation\n- **Breakdowns** - Additional grouping layer\n- **Top\
             \ N with sorting** - Size limits and sort orders\n- **Other bucket** - Handling remaining values\n"
-          font_size: 12
       - title: Simple Time Series
         description: Single time dimension, no breakdown
         size:
@@ -56,8 +55,6 @@ dashboards:
             sort:
               by: Event Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -81,8 +78,6 @@ dashboards:
             sort:
               by: Event Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -138,7 +133,6 @@ dashboards:
             sort:
               by: Events
               direction: desc
-            other_bucket: true
       - title: HTTP Methods by Status Code
         description: 'Cross-tabulation: method × status_code'
         size:

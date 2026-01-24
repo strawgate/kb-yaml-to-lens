@@ -27,17 +27,14 @@ dashboards:
         label: Hostname
         data_view: logs-*
         field: host.hostname
-        width: medium
       - type: options
         label: User
         data_view: logs-*
         field: user.name
-        width: medium
       - type: options
         label: Logon Type
         data_view: logs-*
         field: winlog.logon.type
-        width: medium
     panels:
       # Context Layer - Navigation
       - title: Windows Security Dashboards

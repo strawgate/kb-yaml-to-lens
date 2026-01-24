@@ -28,7 +28,6 @@ dashboards:
         markdown:
           content: |
             ### [System overview](system-metrics-overview)
-          font_size: 12
       - title: CPU Usage
         size: {w: 8, h: 8}
         lens:
@@ -121,7 +120,6 @@ dashboards:
         markdown:
           content: |
             ## CPU
-          font_size: 12
       - title: Top processes by CPU usage
         size: {w: 24, h: 12}
         lens:
@@ -180,7 +178,6 @@ dashboards:
         markdown:
           content: |
             ## Memory
-          font_size: 12
       - title: Top processes by memory usage
         size: {w: 24, h: 12}
         lens:
@@ -227,7 +224,6 @@ dashboards:
         markdown:
           content: |
             ## Network
-          font_size: 12
       - title: Inbound traffic
         size: {w: 24, h: 12}
         lens:
@@ -270,7 +266,6 @@ dashboards:
         markdown:
           content: |
             ## Disk I/O
-          font_size: 12
       - title: Disk read throughput
         size: {w: 24, h: 12}
         lens:
@@ -305,7 +300,6 @@ dashboards:
         markdown:
           content: |
             ## Filesystem
-          font_size: 12
       - title: Filesystem usage by mount point
         size: {w: 24, h: 12}
         lens:

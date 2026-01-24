@@ -17,7 +17,6 @@ dashboards:
             - **Markdown panels** - Rich text content with formatting\n- **Links panels** - Navigation to dashboards and external URLs\n- **Chart\
             \ panels** - Multiple visualization types (Metric, Pie, Line, Bar, Area, Tagcloud)\n_Note: Image panels are defined in the schema\
             \ but compilation is not yet implemented._\nUse this as a reference for building your own dashboards!\n"
-          font_size: 12
           links_in_new_tab: true
       - title: Quick Links
         description: Example links panel with horizontal layout

@@ -12,13 +12,11 @@ dashboards:
       - type: options
         id: node-filter
         label: Node
-        width: medium
         data_view: metrics-*
         field: aerospike.node.name
       - type: options
         id: namespace-filter
         label: Namespace
-        width: medium
         data_view: metrics-*
         field: aerospike.namespace
     panels:

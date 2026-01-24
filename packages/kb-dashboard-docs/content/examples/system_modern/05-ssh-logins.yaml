@@ -19,17 +19,14 @@ dashboards:
         label: Hostname
         data_view: logs-*
         field: host.hostname
-        width: medium
       - type: options
         label: SSH Event
         data_view: logs-*
         field: system.auth.ssh.event
-        width: medium
       - type: options
         label: User
         data_view: logs-*
         field: user.name
-        width: medium
     panels:
       # Context Layer - Navigation
       - title: System Log Dashboards
