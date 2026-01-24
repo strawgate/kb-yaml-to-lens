@@ -105,19 +105,19 @@ dashboards:
               size: 20
           metrics:
             - id: active_primary
-              formula: "max(elasticsearch.cluster.shards, kql='shard_state: active_primary')"
+              formula: "max(elasticsearch.cluster.shards, kql='state: active_primary')"
               label: Active Primary
             - id: active
-              formula: "max(elasticsearch.cluster.shards, kql='shard_state: active')"
+              formula: "max(elasticsearch.cluster.shards, kql='state: active')"
               label: Active Shards
             - id: initializing
-              formula: "max(elasticsearch.cluster.shards, kql='shard_state: initializing')"
+              formula: "max(elasticsearch.cluster.shards, kql='state: initializing')"
               label: Initializing
             - id: relocating
-              formula: "max(elasticsearch.cluster.shards, kql='shard_state: relocating')"
+              formula: "max(elasticsearch.cluster.shards, kql='state: relocating')"
               label: Relocating
             - id: unassigned
-              formula: "max(elasticsearch.cluster.shards, kql='shard_state: unassigned')"
+              formula: "max(elasticsearch.cluster.shards, kql='state: unassigned')"
               label: Unassigned
       - title: Pending Tasks
         size: {w: 16, h: 8}
@@ -185,13 +185,13 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
           metrics:
-            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: active_primary')"
+            - formula: "max(elasticsearch.cluster.shards, kql='state: active_primary')"
               label: Active Primary
-            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: active')"
+            - formula: "max(elasticsearch.cluster.shards, kql='state: active')"
               label: Active
-            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: initializing')"
+            - formula: "max(elasticsearch.cluster.shards, kql='state: initializing')"
               label: Initializing
-            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: relocating')"
+            - formula: "max(elasticsearch.cluster.shards, kql='state: relocating')"
               label: Relocating
-            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: unassigned')"
+            - formula: "max(elasticsearch.cluster.shards, kql='state: unassigned')"
               label: Unassigned

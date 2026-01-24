@@ -206,9 +206,8 @@ dashboards:
             field: attributes.device
             size: 10
           metrics:
-            - aggregation: average
-              field: metrics.system.disk.operations
-              label: Operations
+            - formula: counter_rate(metrics.system.disk.operations)
+              label: Operations/sec
       - title: Disk I/O by Device
         size: {w: 24, h: 12}
         position: {x: 0, y: 57}
@@ -224,9 +223,8 @@ dashboards:
             field: attributes.device
             size: 10
           metrics:
-            - aggregation: average
-              field: metrics.system.disk.io
-              label: Bytes
+            - formula: counter_rate(metrics.system.disk.io)
+              label: Bytes/sec
               format:
                 type: bytes
       - title: Disk I/O Time by Device
